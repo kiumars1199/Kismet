@@ -72,7 +72,7 @@ def run(cfg, b, half_lives=None, log=print):
     results = {}
     for hl in half_lives:
         allm, allc, allmk, allmc, test_idx = [], [], [], [], []
-        allt, alltc = [], []
+        allt, alltc, allq = [], [], []
         fold_rows = []
         for s in starts:
             train = b.ts < s
@@ -85,7 +85,7 @@ def run(cfg, b, half_lives=None, log=print):
             fm, cost = flag_mask(cfg, tb, q, lo)
             mm, mcost = flag_mask(cfg, tb, q, lo, maker=True)
             tm, tcost = flag_mask(cfg, tb, q, lo, tight=True)
-            allt.append(tm); alltc.append(tcost)
+            allt.append(tm); alltc.append(tcost); allq.append(q)
             fold_rows.append(dict(start=int(s), **score(tb, fm, cost)))
             allm.append(fm); allc.append(cost); allmk.append(mm); allmc.append(mcost)
             test_idx.append(np.where(test)[0])
@@ -96,6 +96,16 @@ def run(cfg, b, half_lives=None, log=print):
         fm, cost = np.concatenate(allm), np.concatenate(allc)
         mm, mcost = np.concatenate(allmk), np.concatenate(allmc)
         tm, tcost = np.concatenate(allt), np.concatenate(alltc)
+        qq = np.concatenate(allq)
+        # do predicted edges come true? (used to show a realistic edge in the app)
+        pe = qq - cost
+        edge_buckets = []
+        for lo_e, hi_e in ((0.02, 0.05), (0.05, 0.10), (0.10, 0.15), (0.15, 1.0)):
+            sel = fm & (pe >= lo_e) & (pe < hi_e)
+            if sel.any():
+                edge_buckets.append(dict(predicted_lo=lo_e, predicted_hi=hi_e, flags=int(sel.sum()),
+                                         predicted_edge=round(float(pe[sel].mean()), 4),
+                                         realized_edge=round(float((tb.y[sel] - cost[sel]).mean()), 4)))
         by_cat_tight = {c: score(tb, tm & (tb.cat == ci), tcost)
                         for ci, c in enumerate(b.vocab["cat"]) if (tm & (tb.cat == ci)).any()}
         by_cat = {}
@@ -108,6 +118,7 @@ def run(cfg, b, half_lives=None, log=print):
         results[str(hl)] = dict(
             half_life_days=hl, taker=score(tb, fm, cost), maker=score(tb, mm, mcost),
             taker_tight_spread=score(tb, tm, tcost), by_category_tight_spread=by_cat_tight,
+            edge_buckets=edge_buckets,
             baseline_all_bets_taker=score(tb, base, cost), by_category=by_cat,
             by_horizon=by_h, folds=fold_rows)
         t = results[str(hl)]["taker"]

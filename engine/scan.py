@@ -91,7 +91,7 @@ def run(cfg, log=print):
             fee = taker_fee(cat, price)
             cost = price + fee
             sides.append(dict(
-                outcome=outs[side], ask=round(price, 4), mid=round(smid, 4), fee=round(fee, 4),
+                side_index=side, outcome=outs[side], ask=round(price, 4), mid=round(smid, 4), fee=round(fee, 4),
                 win_prob=round(q, 4), win_prob_low=round(lo, 4),
                 edge=round(q - cost, 4), edge_low=round(lo - cost, 4),
                 roi_pct=round((q - cost) / cost * 100, 2),
@@ -101,6 +101,8 @@ def run(cfg, log=print):
         best = max(sides, key=lambda s: s["edge"])
         rows.append(dict(
             id=m["id"], question=m.get("question"), event=e.get("title"), event_id=e.get("id"),
+            tokens=json.loads(m.get("clobTokenIds") or "[]"), slug=e.get("slug"),
+            image=e.get("icon") or e.get("image"),
             url=f"https://polymarket.com/event/{e.get('slug')}", category=cat, niche=niche,
             market_type=mt, tags=tags, hours_to_close=round(hours, 2), horizon_h=h,
             closes_at=int(min(refs)), volume=round(float(m.get("volumeNum") or 0), 2),
@@ -119,9 +121,32 @@ def run(cfg, log=print):
                 and s["edge"] >= cfg.flag_min_edge and s["edge_low"] > 0
                 and (r["validated"] or not record))
 
-    flags = sorted([r for r in rows if is_flag(r)], key=lambda r: -r["best"]["edge"])
+    flags = [r for r in rows if is_flag(r)]
+    # check every flag against the live order book (ask vs mid, depth, capacity)
+    from pipeline.common import FEE_RATE
+    from .execution import enrich
+    enrich(cfg, flags, FEE_RATE, log)
+    # realistic edge: what flags with this predicted edge actually earned in the backtest
+    buckets = []
+    try:
+        bt = json.load(open(cfg.path("output", "backtest.json")))
+        buckets = bt["results"][str(bt.get("chosen_half_life_days"))].get("edge_buckets", [])
+    except (FileNotFoundError, KeyError, ValueError):
+        pass
+    for r in flags:
+        e = r["best"]["edge"]
+        bk = next((b for b in buckets if b["predicted_lo"] <= e < b["predicted_hi"]), None)
+        r["best"]["realistic_edge"] = (round(min(e, bk["realized_edge"]), 4) if bk else None)
+        if e >= 0.15:
+            r["execution"]["warning"] = ("Edge looks too good: in testing, flags above 15c "
+                                         "earned far less than predicted.")
+    rank = {"worth it": 0, "thin": 1}
+    flags.sort(key=lambda r: (rank.get(r["execution"]["verdict"], 2),
+                              -(r["execution"].get("net_edge") or -1)))
     meta = dict(instance=cfg.instance, platform=cfg.platform, scanned_at=int(now),
                 model_half_life_days=model.hl, markets_scanned=len(rows), flags=len(flags),
+                verdicts={v: sum(1 for r in flags if r["execution"]["verdict"] == v)
+                          for v in ("worth it", "thin", "not worth it", "no sellers", "no book")},
                 rule=dict(min_edge=cfg.flag_min_edge, confidence_z=cfg.flag_confidence_z,
                           price_range=[cfg.price_min, cfg.price_max]))
     json.dump(dict(meta=meta, markets=rows), open(cfg.path("output", "markets.json"), "w"))
