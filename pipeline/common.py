@@ -100,7 +100,13 @@ def jl_write(path, rows):
 
 def jl_read(path):
     try:
+        out = []
         with open(path) as f:
-            return [json.loads(l) for l in f if l.strip()]
+            for line in f:
+                try:
+                    out.append(json.loads(line))
+                except ValueError:
+                    pass  # half-written last line while a fetch is still appending
+        return out
     except FileNotFoundError:
         return []

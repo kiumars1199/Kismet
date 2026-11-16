@@ -29,6 +29,38 @@ def resolved_yes(m):
     return None  # 50-50 or unresolved
 
 
+def market_rows(e, seen):
+    """Resolved binary markets of one Gamma event, as compact rows (skips ids in `seen`)."""
+    tags = [t.get("slug") for t in (e.get("tags") or []) if t.get("slug")]
+    cat, niche = classify(tags)
+    out = []
+    for m in e.get("markets") or []:
+        if m.get("id") in seen:
+            continue
+        y = resolved_yes(m)
+        toks = json.loads(m.get("clobTokenIds") or "[]")
+        outs = json.loads(m.get("outcomes") or "[]")
+        if y is None or len(toks) != 2:
+            continue
+        refs = [parse_ts(m.get(k)) for k in ("closedTime", "endDate", "gameStartTime")]
+        refs = [r for r in refs if r]
+        start = parse_ts(m.get("startDate")) or parse_ts(m.get("createdAt"))
+        if not refs or not start:
+            continue
+        ref = min(refs)
+        if ref - start < 3600:
+            continue
+        seen.add(m["id"])
+        out.append(dict(
+            id=m["id"], question=m.get("question"), event=e.get("title"),
+            event_id=e.get("id"), slug=e.get("slug"), category=cat, niche=niche,
+            tags=tags, outcomes=outs, tokens=toks, yes_won=y, ref_ts=ref,
+            start_ts=start, volume=float(m.get("volumeNum") or m.get("volume") or 0),
+            neg_risk=bool(m.get("negRisk")), market_type=m.get("sportsMarketType"),
+        ))
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--days", type=int, default=365)
@@ -51,32 +83,7 @@ def main():
                 break
             for e in evs:
                 n_ev += 1
-                tags = [t.get("slug") for t in (e.get("tags") or []) if t.get("slug")]
-                cat, niche = classify(tags)
-                for m in e.get("markets") or []:
-                    if m.get("id") in seen:
-                        continue
-                    y = resolved_yes(m)
-                    toks = json.loads(m.get("clobTokenIds") or "[]")
-                    outs = json.loads(m.get("outcomes") or "[]")
-                    if y is None or len(toks) != 2:
-                        continue
-                    refs = [parse_ts(m.get(k)) for k in ("closedTime", "endDate", "gameStartTime")]
-                    refs = [r for r in refs if r]
-                    start = parse_ts(m.get("startDate")) or parse_ts(m.get("createdAt"))
-                    if not refs or not start:
-                        continue
-                    ref = min(refs)
-                    if ref - start < 3600:
-                        continue
-                    seen.add(m["id"])
-                    rows.append(dict(
-                        id=m["id"], question=m.get("question"), event=e.get("title"),
-                        event_id=e.get("id"), slug=e.get("slug"), category=cat, niche=niche,
-                        tags=tags, outcomes=outs, tokens=toks, yes_won=y, ref_ts=ref,
-                        start_ts=start, volume=float(m.get("volumeNum") or m.get("volume") or 0),
-                        neg_risk=bool(m.get("negRisk")), market_type=m.get("sportsMarketType"),
-                    ))
+                rows += market_rows(e, seen)
             if len(evs) < 100:
                 break
         print(f"{tag:12s} events={n_ev:5d} markets_total={len(rows)}", flush=True)

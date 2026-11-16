@@ -14,7 +14,7 @@ import os
 import sys
 import time
 
-sys.path.insert(0, os.path.dirname(__file__))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from common import GAMMA, SAMPLE_TAGS, classify, http, parse_ts, taker_fee  # noqa: E402
 from build_table import BAND, P_MAX, P_MIN, mtype  # noqa: E402
 

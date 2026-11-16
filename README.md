@@ -1,103 +1,132 @@
 # MarketEdge
 
-Flags prediction-market contracts whose **historical win rate beats their price after fees**.
-Two contracts can both pay ~2x; one sits in a group that has historically won 59% of the time
-at that price, the other 48%. MarketEdge finds the first kind.
+Flags prediction-market contracts whose **true win chance beats their price after fees**,
+learned from how hundreds of thousands of past markets actually resolved, weighted toward
+recent trading so the numbers stay current.
 
 Polymarket only for now: its data is public and needs no key.
 Kalshi comes later, once Kalshi gives written permission to use its data.
 
-## How it works
-
-```
-fetch_closed.py  ->  data/markets.jsonl     resolved binary markets, sampled by category tag
-fetch_prices.py  ->  data/snapshots.jsonl   price 1h / 6h / 24h / 72h / 7d before resolution
-build_table.py   ->  output/edges.json      win-rate table + output/backtest.md (go/no-go)
-scan_live.py     ->  output/live_flags.json open markets scored against the table
-```
+## Quick start
 
 ```bash
 pip install -r requirements.txt
-python pipeline/fetch_closed.py      # ~5 min
-python pipeline/fetch_prices.py      # ~10 min, resumable
-python pipeline/build_table.py       # seconds
-python pipeline/scan_live.py         # ~20 s, run every few minutes in production
+python pipeline/fetch_closed.py                          # one-time: resolved-market universe (~5 min)
+python pipeline/fetch_prices.py --per-niche 25000        # one-time: pre-resolution prices (~45 min, resumable)
+python -m engine backtest   # walk-forward test; also picks how fast old data fades
+python -m engine fit        # fit the model           -> output/model.json
+python -m engine scan       # score all open markets  -> output/markets.json, flags.json
+python -m engine all        # day-to-day: update + fit + scan
 ```
 
-`data/` is git-ignored (large, rebuildable). `output/` is committed so the UI can use it right away.
+One config file = one instance (`config/demo.json`). A new instance (another platform,
+different thresholds, a narrower niche set) is a new config file, not new code.
 
-### Method (the parts that matter)
+## How the engine works
 
-- **Bets:** each snapshot becomes two bets: side A at price `p`, side B at `1 - p`.
-- **Groups:** bets are grouped by scope (all / category / niche / niche + market type),
-  hours before resolution, and 5¢ price band (by mid price).
-- **Edge (taker)** = win rate − avg price − Polymarket taker fee − 0.5¢ slippage.
-  Fee = `rate × p × (1 − p)`, with the rate set per category ([docs](https://docs.polymarket.com/trading/fees.md)).
-  **Edge (maker)** = win rate − avg price (limit orders pay no fee, but may not fill).
-- **No look-ahead:** a snapshot only uses a price observed at or before (resolution − N hours),
-  and the market must have traded at least 3 distinct prices by then.
-- **No outcome-biased sampling:** events are sampled by end date, not volume. Final volume
-  leaks the outcome (upsets attract trading); the first run fell into this and is discarded.
-- **Held-out test:** groups are learned on the oldest 70% of markets and checked on the newest 30%.
-  Markets resolved in the last 7 days are excluded (they looked anomalous).
-- **Standard errors are clustered by event,** because markets from one game move together.
+```
+pipeline/fetch_closed.py   resolved binary markets, sampled by category tag and end date
+pipeline/fetch_prices.py   price 1h / 6h / 24h / 72h / 7d before each market resolved
+engine/update.py           incremental: markets resolved since the last run (no sampling cap)
+engine/dataset.py          -> bets: buy side A at p, or side B at 1 - p
+engine/model.py            hierarchical, recency-weighted calibration model
+engine/backtest.py         walk-forward test, using live spreads as trading cost
+engine/scan.py             scores every open market, writes the UI files
+.github/workflows/refresh.yml   runs update + fit + scan every 2 hours, publishes to the `live` branch
+```
 
-## Result of the first run (Nov 16, 2026)
+**Model.** For a contract priced p, the true win probability is modelled as
+`q = sigmoid(theta · [1, x, (x-k1)+, (x-k2)+, (x-k3)+])` with `x = logit(p)`, knots at 30¢/50¢/70¢.
+A perfectly priced market has `theta = [0, 1, 0, 0, 0]`. There is one `theta` per segment and
+per horizon (hours before resolution), in a tree:
 
-~50,000 sampled markets, ~60,000 bets after filters. See `output/backtest.md`.
+```
+all  ->  category  ->  niche  ->  niche + market type
+```
 
-- The classic **favorite–longshot bias** shows up: contracts under 25¢ win less often than
-  their price; slight favorites (50–80¢) win more often. It showed up in most time slices checked, not all.
-- Groups that looked profitable on the old 70% **mostly stayed profitable on the newest 30%**
-  (taker: 3 of 4 niche groups; avg +3.6¢ per $1 share on held-out data).
-- Strongest: **NFL, slight favorites (50–55¢), 1–3 days before kickoff**,
-  +7.1¢ on the older data and +6.7¢ on the held-out data (taker, after fees).
-- **Caveats:** the held-out samples are small (hundreds of bets, dozens of events). Historical
-  prices are mid/last-trade, so real asks in thin markets cost more than the 0.5¢ assumed.
-  Treat this as "worth building and forward-testing," not as proof.
+Each segment is pulled toward its parent, so small niches borrow strength from their category,
+and big niches speak for themselves. This covers every price (not just 5¢ buckets with enough
+data), which is what lets the scanner score all ~15,000 open markets.
 
-## Data contract for the UI
+**Staying current.** Every past bet is weighted `0.5 ** (age_days / half_life)`. The walk-forward
+test tries several half-lives (21, 45, 90, 180 days and no decay) and the engine uses the winner.
+`update` pulls every newly resolved market, so the newest results enter the model on each run.
 
-### `output/live_flags.json`
+**Honest uncertainty.** Markets from one game or one weather day move together, so the
+standard errors are inflated by the within-event design effect. A market is flagged only if
+the edge is at least 2¢, the pessimistic (80% one-sided) edge is still above zero, **and** the
+market's category and time-to-close both made money in the walk-forward test (`validated`).
+`markets.json` still carries every market's numbers, so the UI can show unvalidated ones too.
+
+**No look-ahead.** A snapshot uses only a price observed at or before (resolution − N hours),
+and the market must already have traded at 3+ distinct prices. Events are sampled by end date,
+never by volume (final volume leaks the outcome). The walk-forward test fits only on markets
+that resolved before each test week.
+
+**Real trading costs.** Live edges are charged at the current **ask** plus the Polymarket taker
+fee (`rate × p × (1 − p)`, rate by category). The backtest charges half of the live median
+spread for each niche and market type (`output/spreads.json`), never less than 0.5¢.
+
+## Output files (the UI reads these)
+
+All in `output/`, refreshed every 2 hours on the `live` branch.
+
+### `flags.json`: the shortlist
 ```jsonc
 {
-  "scanned_at": 1794868320,          // unix seconds
-  "markets_scanned": 11558,
-  "flags": [{                         // sorted by edge, highest first
-    "id": "6639700",                  // Polymarket market id
-    "question": "Colts vs. Texans: O/U 44.5",
-    "event": "Colts vs. Texans",      // group rows by this: one game spawns many flags
-    "slug": "nfl-ind-hou-2026-11-20",
-    "url": "https://polymarket.com/event/nfl-ind-hou-2026-11-20",
-    "category": "sports",             // sports | crypto | politics | finance | culture | weather | tech | geopolitics | other
-    "niche": "nfl",                   // nfl, nba, cfb, tennis, bitcoin, weather, ...
-    "market_type": "totals",          // moneyline | spreads | totals | props | yes/no | multi-outcome
-    "hours_to_close": 75.7,
-    "volume": 225.0, "liquidity": 40249.1,
-    "side": "Under",                  // the outcome to buy
-    "price": 0.52,                    // current ask for that side
-    "mid": 0.51,
-    "fee": 0.0125,                    // taker fee per share at that price
-    "edge": 0.0627,                   // expected profit per $1 share after fee (6.3 cents)
-    "group_win_rate": 0.5952,         // how often this group won historically
-    "group_scope": "niche", "group_key": "nfl",
-    "group_n": 462, "group_events": 192,   // sample size behind the number
-    "group_t": 4.16,                  // statistical confidence (>= 2 required to flag)
-    "group_held_out_edge": 0.0674,    // edge this group made on held-out data
-    "horizon_h": 72
-  }]
+  "meta": { "instance": "demo", "platform": "polymarket", "scanned_at": 1794869081,
+            "model_half_life_days": 60, "markets_scanned": 15432, "flags": 1883,
+            "rule": { "min_edge": 0.02, "confidence_z": 1.28, "price_range": [0.05, 0.95] } },
+  "flags": [ /* same shape as markets[] below, sorted by best.edge */ ]
 }
 ```
 
-### `output/edges.json`
-The full win-rate table (`groups[]`) for charts and the "why is this flagged" panel.
-Key fields: `scope, key, market_type, horizon_h, band_lo, band_hi, n, events, win_rate,
-avg_price, edge_taker, edge_maker, t_taker, held_out_edge_taker`.
+### `markets.json`: every scanned open market (search and filter over this)
+```jsonc
+{
+  "id": "6639700",                     // Polymarket market id
+  "question": "Colts vs. Texans: O/U 44.5",
+  "event": "Colts vs. Texans", "event_id": "123",   // group rows by event
+  "url": "https://polymarket.com/event/nfl-ind-hou-2026-11-20",
+  "category": "sports",                // sports | crypto | politics | finance | culture | weather | tech | geopolitics | other
+  "niche": "nfl",                      // nfl, nba, cfb, soccer, tennis, esports, bitcoin, weather, elections, ...
+  "market_type": "totals",             // moneyline | spreads | totals | props | yes/no | multi-outcome
+  "tags": ["sports", "nfl", "..."],
+  "hours_to_close": 75.7, "closes_at": 1795000000, "horizon_h": 72,
+  "volume": 225.0, "liquidity": 40249.1, "spread": 0.01,
+  "validated": true,                   // this category AND time-to-close made money in the walk-forward test
+  "backtest": { "flags": 663, "pnl_cents": 15.47, "t": 15.98 },   // category track record
+  "sides": [ {                         // one entry per outcome
+    "outcome": "Under",
+    "ask": 0.52, "mid": 0.515, "fee": 0.0125,
+    "win_prob": 0.59, "win_prob_low": 0.56,     // model estimate, and pessimistic estimate
+    "edge": 0.0525, "edge_low": 0.0225,         // per $1 share, after fee, at the ask
+    "roi_pct": 9.9,
+    "model_level": "niche",             // which tree level answered: all | cat | niche | nmt
+    "model_neff": 812.4, "model_events": 190    // how much data stands behind it
+  } ],
+  "best": { /* the side with the higher edge */ }
+}
+```
 
-### UI requirements (from the scoping doc)
-- Filters: platform, category, niche, market type, price range, min edge, hours to close,
-  liquidity, min sample size. Sort by edge, win rate, sample size, closing time.
-- Saved presets and saved dashboards; "Favorite topics" setting (topic-level only).
-- Group flags by `event`; show a small-sample warning when `group_events < 50`.
+### `model.json`
+Every segment's fitted curve: `win_prob_at_price` maps price → modelled win chance
+(for the "why is this flagged" chart), plus sample sizes and the chosen half-life.
+
+### `backtest.json`
+Walk-forward results per half-life: flags, win rate, cents per share, ROI, clustered t-stat,
+split by category, horizon and week. The UI can show this as the track record.
+
+## UI requirements (from the scoping doc)
+- Filters: category, niche, market type, price range, min edge, hours to close,
+  liquidity, max spread, model confidence (`edge_low > 0`). Sort by edge, ROI, closing time.
+- Saved presets and saved dashboards; "Favorite topics" setting (topic level only).
+- Group by `event`: one game can produce many correlated flags.
 - Show the same data to everyone. Never generate picks from a user's own positions.
 - Disclaimer on every page: not financial advice, based on past results, 18+.
+
+## Automation
+`.github/workflows/refresh.yml` runs every 2 hours: restore history from the Actions cache
+(the first run bootstraps it, about an hour), `update`, a daily `backtest`, `fit`, `scan`,
+then force-pushes `output/*.json` to the `live` branch. The UI can read them from there
+(private repo: use a GitHub token in the UI's server-side fetch).

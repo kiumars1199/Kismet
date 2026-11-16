@@ -95,7 +95,8 @@ def main():
     done = set()
     if os.path.exists(DONE):
         done = set(open(DONE).read().split())
-    todo = [m for m in sample if m["id"] not in done]
+    # newest first: recent markets matter most, and a partial run still has them
+    todo = sorted((m for m in sample if m["id"] not in done), key=lambda m: -m["ref_ts"])
     print(f"sample={len(sample)} remaining={len(todo)}", flush=True)
     batches = [todo[i:i + 20] for i in range(0, len(todo), 20)]
     n = 0

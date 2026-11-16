@@ -1,0 +1,25 @@
+{
+  "instance": "demo",
+  "platform": "polymarket",
+  "data_dir": "data",
+  "output_dir": "output",
+
+  "half_life_days": 60,
+  "half_life_grid": [21, 45, 90, 180, null],
+  "settle_days": 2,
+
+  "prior_strength": 40,
+  "min_node_neff": 40,
+  "min_node_events": 25,
+
+  "taker_slippage": 0.005,
+  "flag_min_edge": 0.02,
+  "flag_confidence_z": 1.28,
+  "price_min": 0.05,
+  "price_max": 0.95,
+
+  "scan_events_per_tag": 500,
+  "update_lookback_days": 3,
+
+  "walk_forward": { "test_days": 7, "folds": 12 }
+}

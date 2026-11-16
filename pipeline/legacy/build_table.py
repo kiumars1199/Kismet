@@ -16,7 +16,7 @@ import os
 import sys
 from collections import defaultdict
 
-sys.path.insert(0, os.path.dirname(__file__))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from common import jl_read, taker_fee  # noqa: E402
 
 ROOT = os.path.join(os.path.dirname(__file__), "..")

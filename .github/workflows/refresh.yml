@@ -1,0 +1,73 @@
+# Keeps MarketEdge current: pulls newly resolved markets, refits the model,
+# rescans open markets, and publishes output/*.json to the `live` branch.
+name: refresh
+
+on:
+  schedule:
+    - cron: "17 */2 * * *"   # every 2 hours (fits the free Actions minutes for a private repo)
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install -r requirements.txt
+
+      - name: Restore market history
+        uses: actions/cache/restore@v4
+        with:
+          path: data
+          key: marketedge-data-${{ github.run_id }}
+          restore-keys: marketedge-data-
+
+      - name: Bootstrap history (first run only, ~1 hour)
+        run: |
+          if [ ! -f data/sample.jsonl ]; then
+            python pipeline/fetch_closed.py
+            python pipeline/fetch_prices.py --per-niche 25000 --threads 8
+            rm -f data/markets.jsonl
+          fi
+
+      - name: Pull newly resolved markets
+        run: python -m engine update
+
+      - name: Daily walk-forward test (re-tunes how fast old data fades)
+        run: |
+          if [ "$(date -u +%H)" = "06" ] || [ ! -f output/backtest.json ]; then
+            python -m engine backtest
+          fi
+
+      - name: Refit model and scan open markets
+        run: |
+          python -m engine fit
+          python -m engine scan
+
+      - name: Save market history
+        uses: actions/cache/save@v4
+        with:
+          path: data
+          key: marketedge-data-${{ github.run_id }}
+
+      - name: Publish outputs to the live branch
+        run: |
+          mkdir -p /tmp/pub && cp output/*.json /tmp/pub/
+          cd /tmp/pub
+          git init -q -b live
+          git config user.name "marketedge-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add . && git commit -qm "live data $(date -u +%Y-%m-%dT%H:%MZ)"
+          git push -qf "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" live
