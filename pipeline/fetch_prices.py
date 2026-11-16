@@ -85,31 +85,37 @@ def work(batch):
     return len(snaps)
 
 
+def fetch_pending(sample, threads=4, log=print):
+    """Fetch snapshots for every market in `sample` not yet in done.txt (newest first)."""
+    done = set()
+    if os.path.exists(DONE):
+        done = set(open(DONE).read().split())
+    # newest first: recent markets matter most, and a partial run still has them
+    todo = sorted((m for m in sample if m["id"] not in done), key=lambda m: -m["ref_ts"])
+    log(f"sample={len(sample)} remaining={len(todo)}")
+    batches = [todo[i:i + 20] for i in range(0, len(todo), 20)]
+    n = 0
+    with ThreadPoolExecutor(threads) as ex:
+        futs = [ex.submit(work, b) for b in batches]
+        for i, f in enumerate(as_completed(futs)):
+            try:
+                n += f.result()
+            except Exception as e:  # keep going; failed batches retry on rerun
+                log(f"batch error: {e}")
+            if i % 100 == 0:
+                log(f"batches {i}/{len(batches)} snapshots+={n}")
+    log(f"done, snapshots added: {n}")
+    return n
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--min-volume", type=float, default=0)  # keep 0: final volume leaks the outcome
     ap.add_argument("--per-niche", type=int, default=3000)
     ap.add_argument("--threads", type=int, default=4)
     a = ap.parse_args()
-    sample = make_sample(a.min_volume, a.per_niche)
-    done = set()
-    if os.path.exists(DONE):
-        done = set(open(DONE).read().split())
-    # newest first: recent markets matter most, and a partial run still has them
-    todo = sorted((m for m in sample if m["id"] not in done), key=lambda m: -m["ref_ts"])
-    print(f"sample={len(sample)} remaining={len(todo)}", flush=True)
-    batches = [todo[i:i + 20] for i in range(0, len(todo), 20)]
-    n = 0
-    with ThreadPoolExecutor(a.threads) as ex:
-        futs = [ex.submit(work, b) for b in batches]
-        for i, f in enumerate(as_completed(futs)):
-            try:
-                n += f.result()
-            except Exception as e:  # keep going; failed batches retry on rerun
-                print("batch error:", e, flush=True)
-            if i % 100 == 0:
-                print(f"batches {i}/{len(batches)} snapshots+={n}", flush=True)
-    print("done, snapshots added:", n)
+    fetch_pending(make_sample(a.min_volume, a.per_niche), a.threads,
+                  log=lambda s: print(s, flush=True))
 
 
 if __name__ == "__main__":

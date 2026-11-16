@@ -50,13 +50,9 @@ def run(cfg, max_pages_per_tag=50, log=print):
     log(f"new resolved markets since {since}: {len(new)}")
     if new:
         jl_write(sample_p, new)
-        added = 0
-        for i in range(0, len(new), 20):
-            try:
-                added += fetch_prices.work(new[i:i + 20])
-            except Exception as ex:  # noqa: BLE001
-                log(f"price batch failed (will retry next run): {ex}")
-        log(f"new snapshots: {added}")
-    state.update(last_update_ts=time.time(), last_new_markets=len(new))
+    # prices for every stored market still missing them (new ones, plus any earlier failures)
+    from pipeline.common import jl_read
+    added = fetch_prices.fetch_pending(jl_read(sample_p), threads=8, log=log)
+    state.update(last_update_ts=time.time(), last_new_markets=len(new), last_new_snapshots=added)
     json.dump(state, open(state_p, "w"))
     return len(new)
