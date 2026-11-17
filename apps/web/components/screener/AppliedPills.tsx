@@ -23,7 +23,7 @@ function each<T extends string>(key: keyof FilterState, list: T[] | undefined, l
 export function pillsFor(s: FilterState, mode: Mode): Pill[] {
   const out: Pill[] = [];
   const one = (key: string, on: unknown, label: string, patch: Partial<FilterState>) => on !== undefined && on !== false && out.push({ key, label, patch });
-  one("q", s.q, `Search: “${s.q}”`, { q: undefined });
+  // the search itself shows as parsed chips (components/search/SearchChips.tsx)
   out.push(...each("categories", s.categories, catLabel));
   out.push(...each("exclude_categories", s.exclude_categories, (x) => `Hide ${catLabel(x)}`));
   out.push(...each("topics", s.topics, (x) => TAXONOMY[x]?.label ?? x));
@@ -32,6 +32,9 @@ export function pillsFor(s: FilterState, mode: Mode): Pill[] {
   if (s.side !== "best") one("side", true, `Side: ${s.side}`, { side: "best" });
   if (s.price_min !== undefined || s.price_max !== undefined)
     one("price", true, `Price ${c(s.price_min ?? 0)}–${c(s.price_max ?? 1)}`, { price_min: undefined, price_max: undefined });
+  if (s.pays_min !== undefined || s.pays_max !== undefined)
+    one("pays", true, s.pays_max === undefined ? `Pays ${s.pays_min}x+` : `Pays ${s.pays_min ?? 1}–${s.pays_max}x`, { pays_min: undefined, pays_max: undefined });
+  if (s.win_prob_max !== undefined) one("wp1", true, `Chance ≤ ${p(s.win_prob_max)}`, { win_prob_max: undefined });
   if (s.win_prob_min !== undefined) one("wp", true, s.win_prob_min === 0 ? "Long shots shown" : `Chance ≥ ${p(s.win_prob_min)}`, { win_prob_min: undefined });
   if (s.edge_min !== undefined) one("e", true, `Edge ≥ ${c(s.edge_min)}`, { edge_min: undefined });
   one("conf", s.edge_low_positive, "Confident only", { edge_low_positive: undefined });

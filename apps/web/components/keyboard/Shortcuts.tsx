@@ -2,7 +2,7 @@
 // Global keyboard shortcuts + help dialog (docs/05 F-27). Mounted once in app/layout.tsx.
 // Contract for pages: result cards/rows carry `data-row`; inside a row, the save star has `data-watch`
 // and the "Alert me" control has `data-alert`; the open target is the row's first link (or the row itself).
-// `f` dispatches a window CustomEvent "me:toggle-filters". "/" is handled by the header SearchBox.
+// `f` dispatches a window CustomEvent "me:toggle-filters". "/" is handled by the header SearchCombobox.
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 

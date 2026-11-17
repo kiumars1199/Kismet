@@ -12,6 +12,7 @@ import { QuickChips } from "@/components/presets/QuickChips";
 import { ExportCsv } from "@/components/presets/ExportCsv";
 import { MarketCard } from "@/components/market/MarketCard";
 import { Skeleton } from "@/components/market/bits";
+import { SearchChips } from "@/components/search/SearchChips";
 import { AppliedPills } from "./AppliedPills";
 import { FilterPanel } from "./FilterPanel";
 import { MarketTable, type Item } from "./MarketTable";
@@ -80,6 +81,7 @@ export function MarketsScreener() {
         </header>
         <PresetBar state={state} onChange={set} />
         <QuickChips state={state} onChange={set} />
+        <SearchChips q={state.q} search={data?.search} onChange={set} />
         <AppliedPills state={state} mode="markets" onChange={set} onReset={reset} />
         <StaleBanner scannedAt={scanned} />
 

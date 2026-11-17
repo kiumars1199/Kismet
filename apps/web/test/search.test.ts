@@ -75,3 +75,31 @@ describe("search on the fixture", async () => {
     expect((performance.now() - t) / 4).toBeLessThan(50);
   });
 });
+
+describe("/api/suggest", async () => {
+  const { GET } = await import("@/app/api/suggest/route");
+  const get = async (q: string, status = 200) => {
+    const res = await GET(new Request(`http://test/api/suggest?${new URLSearchParams({ q })}`));
+    expect(res.status).toBe(status);
+    return res.json();
+  };
+
+  it("'bar' → FC Barcelona among teams; ≤ 9 server rows; interpretation line", async () => {
+    const b = await get("bar");
+    expect(b.entities.map((e: { name: string }) => e.name)).toContain("FC Barcelona");
+    expect(b.entities.length + b.topics.length + b.markets.length).toBeLessThanOrEqual(9);
+    const fc = b.entities.find((e: { name: string }) => e.name === "FC Barcelona");
+    expect(fc.count).toBeGreaterThan(1);
+    expect((await get("barca 3x")).line).toBe("Barcelona · Pays ~3x");
+  });
+
+  it("topics by prefix, markets with pays; empty q is empty; q over 120 chars is 400", async () => {
+    const w = await get("weat");
+    expect(w.topics[0]).toMatchObject({ id: "weather" });
+    const n = await get("nyc weather");
+    expect(n.markets.length).toBeGreaterThan(0);
+    expect(n.markets[0].pays).toBeGreaterThan(1);
+    expect(await get("")).toEqual({ q: "", line: "", entities: [], topics: [], markets: [] });
+    await get("x".repeat(121), 400);
+  });
+});

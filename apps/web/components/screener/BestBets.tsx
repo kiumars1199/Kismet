@@ -12,6 +12,7 @@ import { BetCard } from "@/components/market/BetCard";
 import { MarketCard } from "@/components/market/MarketCard";
 import { SaveViewDialog } from "@/components/presets/SaveViewDialog";
 import { Skeleton } from "@/components/market/bits";
+import { SearchChips } from "@/components/search/SearchChips";
 import { AppliedPills } from "./AppliedPills";
 import { SORTS, SortSelect } from "./SortSelect";
 import { EmptyState, ErrorState, StaleBanner } from "./States";
@@ -138,6 +139,7 @@ export function BestBets() {
       </div>
 
       <SaveViewDialog open={saving} title="Save this view" error={saved && !saved.ok ? saved.msg : null} onSubmit={save} onClose={() => setSaving(false)} />
+      <SearchChips q={state.q} search={data?.search} onChange={set} />
       <AppliedPills state={state} mode="flags" onChange={set} onReset={reset} />
       <StaleBanner scannedAt={scanned} />
 
