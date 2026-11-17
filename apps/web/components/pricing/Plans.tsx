@@ -1,8 +1,10 @@
 "use client";
 // Tier cards with a monthly/annual toggle (docs/01 § Tiers: Pro $19, Premium $29, annual = 2 months free,
 // 7-day trial). In demo mode every button opens Best bets, since everything is already unlocked.
+// Paid mode: Start trial → /api/stripe/checkout (sign in first); "Coming soon" until Stripe is configured.
 import Link from "next/link";
 import { useState } from "react";
+import { useMe } from "@/lib/me";
 
 export const PLANS = [
   { id: "free", name: "Free", monthly: 0, line: "See how it works.",
@@ -17,6 +19,7 @@ const usd = (x: number) => `$${Number.isInteger(x) ? x : x.toFixed(2)}`;
 
 export function Plans({ demo }: { demo: boolean }) {
   const [annual, setAnnual] = useState(false);
+  const me = useMe();
   return (
     <div className="flex flex-col gap-5">
       <div role="radiogroup" aria-label="Billing period" className="flex w-fit gap-1 rounded-full border border-border bg-input p-1 text-sm">
@@ -53,16 +56,47 @@ export function Plans({ demo }: { demo: boolean }) {
                   </li>
                 ))}
               </ul>
-              {/* ponytail: paid mode will send these to Stripe checkout (T-43); until then they open Best bets */}
-              <Link href="/flags"
-                className={`flex min-h-11 items-center justify-center rounded-input px-4 font-semibold ${featured ? "bg-accent text-on-accent hover:bg-accent-hover" : "border border-border bg-muted-bg hover:border-accent-border"}`}>
-                {p.monthly === 0 ? "Start free" : "Start trial"}
-              </Link>
+              <PlanButton id={p.id} annual={annual} demo={demo} me={me} featured={featured} />
             </section>
           );
         })}
       </div>
       {demo && <p className="text-xs text-muted">Demo: every feature is unlocked. No account or card needed.</p>}
+    </div>
+  );
+}
+
+function PlanButton({ id, annual, demo, me, featured }: { id: string; annual: boolean; demo: boolean; me: ReturnType<typeof useMe>; featured: boolean }) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const cls = `flex min-h-11 items-center justify-center rounded-input px-4 font-semibold disabled:cursor-not-allowed disabled:opacity-60 ${featured ? "bg-accent text-on-accent hover:bg-accent-hover" : "border border-border bg-muted-bg hover:border-accent-border"}`;
+  if (id === "free") return <Link href={me?.auth && !me.user ? "/login?next=/flags" : "/flags"} className={cls}>Start free</Link>;
+  if (demo || me?.demo) return <Link href="/flags" className={cls}>Start trial</Link>;
+  if (!me?.billing) return <button type="button" disabled className={cls}>Coming soon</button>;
+  if (!me.user) return <Link href="/login?next=/pricing" className={cls}>Start trial</Link>;
+  if (me.tier === id) return <Link href="/account" className={cls}>Your plan</Link>;
+
+  async function start() {
+    setBusy(true);
+    setError("");
+    // Already paying: plan changes go through the Stripe portal, never a second subscription.
+    const res = await (me!.tier === "free"
+      ? fetch("/api/stripe/checkout", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ price: `${id}_${annual ? "yearly" : "monthly"}` }),
+      })
+      : fetch("/api/stripe/portal", { method: "POST" })).catch(() => null);
+    const body = await res?.json().catch(() => null);
+    if (res?.ok && body?.url) return window.location.assign(body.url);
+    setBusy(false);
+    setError(body?.error ?? "Couldn't start checkout. Try again.");
+  }
+  return (
+    <div className="flex flex-col gap-1.5">
+      <button type="button" className={cls} disabled={busy} onClick={start} data-testid={`checkout-${id}`}>
+        {busy ? "Opening checkout…" : me.tier === "free" ? "Start trial" : `Switch to ${id === "pro" ? "Pro" : "Premium"}`}
+      </button>
+      {error && <p role="alert" className="text-xs text-warning">{error}</p>}
     </div>
   );
 }
