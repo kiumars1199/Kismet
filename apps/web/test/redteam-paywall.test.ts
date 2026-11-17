@@ -66,6 +66,31 @@ describe("RT-03 Free can't enumerate the scan by splitting filters", () => {
   });
 });
 
+describe("RT-15 tier-shaped responses are private and vary on Cookie", () => {
+  it("markets, flags, market, event, combos, suggest, book, backtest, curve", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => Response.json({ asks: [], bids: [] })));
+    const store = await getStore();
+    const m = store.markets[0]!;
+    const calls: [string, Response | Promise<Response>][] = [
+      ["markets", markets(req("/api/markets"))],
+      ["flags", (await import("@/app/api/flags/route")).GET(req("/api/flags"))],
+      ["market", (await import("@/app/api/markets/[id]/route")).GET(req(`/api/markets/${m.id}`), { params: Promise.resolve({ id: m.id }) })],
+      ["event", (await import("@/app/api/events/[id]/route")).GET(req(`/api/events/${m.event_id}`), { params: Promise.resolve({ id: m.event_id }) })],
+      ["combos", (await import("@/app/api/combos/route")).GET(req("/api/combos"))],
+      ["suggest", (await import("@/app/api/suggest/route")).GET(req("/api/suggest?q=a"))],
+      ["book", (await import("@/app/api/book/route")).GET(req("/api/book?token=123&q=0.5"))],
+      ["backtest", (await import("@/app/api/backtest/route")).GET()],
+      ["curve", (await import("@/app/api/model/curve/route")).GET(req("/api/model/curve"))],
+    ];
+    for (const [name, p] of calls) {
+      const res = await p;
+      expect(res.headers.get("cache-control"), name).toMatch(/private/);
+      expect(res.headers.get("vary") ?? "", name).toMatch(/Cookie/);
+    }
+    vi.unstubAllGlobals();
+  });
+});
+
 describe("RT-04 Free filters and sorts see the banded numbers, not the exact ones", () => {
   it("a return threshold inside one band can't tell markets in that band apart", async () => {
     const store = await getStore();

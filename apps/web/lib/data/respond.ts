@@ -12,6 +12,13 @@ import { BEST_BETS_VERDICTS, type FilterState } from "@/lib/filters/state";
 import type { EventResponse, MarketResponse, MarketsResponse } from "@/lib/api";
 import type { StoreMarket } from "@/lib/types";
 
+/** RT-15: tier-shaped bodies must never sit in a shared cache. A route's own private Cache-Control is kept. */
+export function noStore(res: Response): Response {
+  if (!/\bprivate\b|no-store/.test(res.headers.get("cache-control") ?? "")) res.headers.set("Cache-Control", "private, no-store");
+  res.headers.append("Vary", "Cookie");
+  return res;
+}
+
 /** Runs `fn` with the store; a store load failure becomes 503 instead of a crash. */
 export async function withStore(fn: (store: Store) => Response | Promise<Response>, headers?: HeadersInit): Promise<Response> {
   let store: Store;
@@ -21,7 +28,7 @@ export async function withStore(fn: (store: Store) => Response | Promise<Respons
     console.error("[api] store load failed", e);
     return Response.json({ error: "Data is temporarily unavailable" }, { status: 503, headers });
   }
-  return fn(store);
+  return noStore(await fn(store));
 }
 
 /** Like withStore, for tier-shaped routes: resolves the caller's plan (server-side, docs/15), runs BotID and the
@@ -34,15 +41,15 @@ export async function withTier(
 ): Promise<Response> {
   const me = await getMe();
   const refused = (bot ? await botCheck() : null) ?? (await rateLimit(rule, clientKey(req, me.user?.id)));
-  if (refused) return refused;
+  if (refused) return noStore(refused);
   let store: Store;
   try {
     store = await getStoreFor(me.tier);
   } catch (e) {
     console.error("[api] store load failed", e);
-    return Response.json({ error: "Data is temporarily unavailable" }, { status: 503, headers });
+    return noStore(Response.json({ error: "Data is temporarily unavailable" }, { status: 503, headers }));
   }
-  return fn(can(me.tier, "exact_edge") ? store : freeView(store), me.tier, me);   // RT-04: Free filters on what it sees
+  return noStore(await fn(can(me.tier, "exact_edge") ? store : freeView(store), me.tier, me));   // RT-04: Free filters on what it sees
 }
 
 export const notFound = (what: string, headers?: HeadersInit) => Response.json({ error: `${what} not found` }, { status: 404, headers });

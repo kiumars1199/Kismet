@@ -10,6 +10,6 @@ export async function GET() {
   const me = await getMe();
   return Response.json(
     { ...me, demo: DEMO_MODE, auth: authEnabled(), billing: billingMode() !== null },
-    { headers: { "Cache-Control": "no-store" } },
+    { headers: { "Cache-Control": "private, no-store", Vary: "Cookie" } },
   );
 }

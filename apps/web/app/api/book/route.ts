@@ -7,6 +7,7 @@ import { getMe } from "@/lib/auth/server";
 import { getBook, MIN_EDGE } from "@/lib/book";
 import { check, edgeWarning, feeRate, STAKES } from "@/lib/execution";
 import { freeExecution } from "@/lib/data/gate";
+import { noStore } from "@/lib/data/respond";
 import { can } from "@/lib/entitlements";
 
 export const runtime = "nodejs";
@@ -46,7 +47,10 @@ async function batch(req: Request, params: Record<string, string>): Promise<Resp
   return Response.json({ asks, fetched_at: Date.now() });
 }
 
-export async function GET(req: Request): Promise<Response> {
+/** Tier-shaped (Free = first share only): never in a shared cache (RT-15). */
+export const GET = async (req: Request): Promise<Response> => noStore(await get(req));
+
+async function get(req: Request): Promise<Response> {
   const params = Object.fromEntries(new URL(req.url).searchParams);
   if ("tokens" in params) return batch(req, params);
   const parsed = Query.safeParse(params);
