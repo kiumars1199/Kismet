@@ -17,6 +17,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
   // No BotID: the Chrome extension calls this from its worker (no BotID script there); rate limit only.
   return withTier(req, "markets", (store, tier) => {
     const markets = store.bySlug.get(decodeURIComponent(slug).toLowerCase());
-    return markets ? Response.json(eventBody(store, markets, tier), { headers: CORS }) : notFound("Event", CORS);
+    const body = markets && eventBody(store, markets, tier);
+    return body ? Response.json(body, { headers: CORS }) : notFound("Event", CORS);
   }, { headers: CORS, bot: false });
 }

@@ -9,7 +9,7 @@ import { gateMarket } from "@/lib/data/gate";
 import { getStoreFor } from "@/lib/data/store";
 import { apply } from "@/lib/filters/apply";
 import { FilterState } from "@/lib/filters/state";
-import { DASH, REALISTIC_HELP, RETURN_HELP, cardReturn, chance, closesIn, formatCount, pays, pct, price, winsAbout } from "@/lib/format";
+import { DASH, REALISTIC_HELP, RETURN_HELP, cardReturn, chance, closesLine, formatCount, pays, pct, price, winsAbout } from "@/lib/format";
 import { topicLabel } from "@/components/market/labels";
 import { tiles } from "@/lib/trackRecord";
 import type { Side, StoreMarket } from "@/lib/types";
@@ -26,7 +26,7 @@ const STEPS: [string, string][] = [
 ];
 
 const FAQ: { q: string; a: React.ReactNode }[] = [
-  { q: "What is expected return?", a: <>{RETURN_HELP} A +10% expected return means about +$10 on a $100 bet, on average, over many bets like it.</> },
+  { q: "What is estimated return?", a: <>{RETURN_HELP} A +10% estimated return means bets like it made about +$10 per $100 staked, on average, in past results. It is not a promise: any single bet can lose.</> },
   { q: "Is this betting advice?", a: "No. It's market analytics. Everyone sees the same numbers, based on how past markets settled. MarketEdge never looks at your bets to tell you what to buy, and any single bet can lose." },
   { q: "How is it tested?", a: <>Week by week, on markets the model had never seen: each week it only knows what happened before, and we check how its best bets settled. Losing weeks and limits are shown on <Link href="/track-record" className="text-accent-hover underline-offset-4 hover:underline">Results</Link>.</> },
   { q: "Which markets do you cover?", a: "Polymarket today. Kalshi later, once we have their permission to use the data." },
@@ -81,7 +81,7 @@ export default async function Page() {
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <h2 id="now-h" className="text-[28px] font-semibold tracking-[-0.01em]">Best bets right now</h2>
-            <p className="mt-1 text-sm text-muted" title={RETURN_HELP}>Top 3 by expected return, among bets with at least a 40% chance. Live from the last scan.</p>
+            <p className="mt-1 text-sm text-muted" title={RETURN_HELP}>Top 3 by estimated return, among bets with at least a 40% chance. Live from the last scan.</p>
           </div>
           <Link href="/" className="flex min-h-11 items-center text-accent-hover hover:underline">All {n(bestCount)} best bets</Link>
         </div>
@@ -137,7 +137,7 @@ function PreviewCard({ m, s }: { m: StoreMarket; s: Side }) {
       className="flex flex-col gap-3 rounded-card border border-border bg-surface p-4 transition-colors duration-200 ease-out hover:border-accent-border">
       <div className="flex items-center justify-between gap-2 text-xs text-muted">
         <span className="truncate rounded-full bg-muted-bg px-2.5 py-[3px]">{topicLabel(m)}</span>
-        <span className="flex-none">Closes in {closesIn(m.closes_at)}</span>
+        <span className="flex-none">{closesLine(m.closes_at, undefined, true)}</span>
       </div>
       <p className="line-clamp-3 min-h-[42px] text-base font-semibold leading-[1.3]">{m.question}</p>
       <div>
@@ -147,7 +147,7 @@ function PreviewCard({ m, s }: { m: StoreMarket; s: Side }) {
         </p>
         <p className="mt-2 text-[13px] text-soft">Bet <strong className="font-semibold text-text">{s.outcome}</strong> at {price(s.ask)}</p>
         <p className="mt-0.5 text-[13px] text-muted" title={r.realistic ? REALISTIC_HELP : RETURN_HELP}>
-          {r.realistic ? "Similar past bets returned" : "Expected return"} <span className="font-semibold text-accent">{r.text}</span>
+          {r.realistic ? "Similar past bets returned" : "Estimated return"} <span className="font-semibold text-accent">{r.text}</span>
         </p>
       </div>
       <div className="flex flex-col gap-1.5 text-xs">

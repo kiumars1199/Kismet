@@ -1,5 +1,5 @@
 "use client";
-// /tools (T-27, docs/05 F-15): expected return, payout, fee, Kelly, multi-bet EV. All client-side.
+// /tools (T-27, docs/05 F-15): return calculator, payout, fee, Kelly, multi-bet EV. All client-side.
 import { useState, type ReactNode } from "react";
 import { Field, NumberInput, Segmented, Tabs, btn, btnGhost, card, input } from "@/components/kit";
 import { expectedReturn, feePerShare, multiBet, type Bet } from "@/lib/calc";
@@ -11,7 +11,7 @@ import { useProfile } from "@/lib/repo/hooks";
 
 type Tab = "return" | "payout" | "fee" | "kelly" | "multi";
 const TABS = [
-  { value: "return", label: "Expected return" }, { value: "payout", label: "Payout & odds" },
+  { value: "return", label: "Return calculator" }, { value: "payout", label: "Payout & odds" },
   { value: "fee", label: "Fee" }, { value: "kelly", label: "Kelly sizing" }, { value: "multi", label: "Multi-bet" },
 ] as const;
 
@@ -74,7 +74,7 @@ function ReturnTab() {
         <Field label="Fee (by topic)">{(id) => <FeeSelect id={id} value={fee} onChange={setFee} allowNone />}</Field>
       </>}
       result={<>
-        <Headline label="Expected return" value={r ? ret(r.roi_pct) : DASH} sub={r ? <>$100 bet → expect {money(r.profit_100, true)}</> : "Enter a price between 1¢ and 99¢."} />
+        <Headline label="Return at this win chance (calculation)" value={r ? ret(r.roi_pct) : DASH} sub={r ? <>By this math, $100 bets average {money(r.profit_100, true)} each. Any single bet can lose.</> : "Enter a price between 1¢ and 99¢."} />
         <Lines rows={[
           ["Break-even win chance", r ? `${(r.break_even * 100).toFixed(1)}%` : DASH],
           ["Fee per share", r ? price(r.fee) : DASH],
@@ -189,7 +189,7 @@ function MultiTab() {
   return (
     <Layout
       inputs={<>
-        <p className="text-sm text-muted">Separate bets, not a parlay: each one wins or loses on its own, and their expected profits add up.</p>
+        <p className="text-sm text-muted">Separate bets, not a parlay: each one wins or loses on its own, and the calculated profits add up.</p>
         <ol className="flex flex-col gap-3">
           {bets.map((b, i) => (
             <li key={b.key} className="grid grid-cols-[1fr_1fr_1fr_auto] items-end gap-2">
@@ -205,7 +205,7 @@ function MultiTab() {
         <button type="button" className={`${btn} self-start`} onClick={() => setBets((b) => [...b, newBet()])} disabled={bets.length >= 12}>Add a bet</button>
       </>}
       result={<>
-        <Headline label="Expected profit, all bets" value={m ? money(m.expected_profit, true) : DASH} sub={m ? <>{ret(m.roi_pct)} expected return on {money(m.stake)} staked</> : "Add a bet with a stake, a price and a win chance."} />
+        <Headline label="Calculated profit, all bets" value={m ? money(m.expected_profit, true) : DASH} sub={m ? <>{ret(m.roi_pct)} calculated return on {money(m.stake)} staked, at the win chances you entered</> : "Add a bet with a stake, a price and a win chance."} />
         <Lines rows={[
           ["Bets counted", m ? String(m.valid) : DASH],
           ["Chance at least one hits", m ? pct(m.any_win) : DASH],

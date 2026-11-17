@@ -158,8 +158,8 @@ describe.each([
   it("events with more than 25 markets are cut to 25", async () => {
     const s = await getStore();
     const many = Array.from({ length: 40 }, (_, i) => ({ ...s.markets[0]!, id: `x${i}` }));
-    expect(eventBody(s, many, "free").markets).toHaveLength(25);
-    expect(eventBody(s, many, "pro").markets).toHaveLength(40);
+    expect(eventBody(s, many, "free")!.markets).toHaveLength(25);
+    expect(eventBody(s, many, "pro")!.markets).toHaveLength(40);
     const m = { ...s.markets[0]!, event_id: "big" };
     const store = { ...s, byEvent: new Map([["big", many.map((x) => ({ ...x, event_id: "big" }))]]) };
     expect(marketBody(store, m, "free").event_markets).toHaveLength(25);

@@ -104,7 +104,7 @@ function MoreInGame({ slot }: { slot: Slot }) {
     <div className="flex flex-col">
       <button type="button" aria-expanded={open} onClick={() => setOpen((o) => !o)}
         className="flex min-h-11 items-center gap-1.5 self-start px-1 text-[13px] text-accent-hover hover:text-accent-soft">
-        {open ? "Hide" : `+${slot.size - 1} more in this game`}
+        {open ? "Hide" : `+${nf(slot.size - 1)} more in this game`}
         <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" className={`transition-transform duration-200 ease-out ${open ? "rotate-180" : ""}`}><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" strokeWidth="1.6" /></svg>
       </button>
       {open && (
@@ -119,7 +119,7 @@ function MoreInGame({ slot }: { slot: Slot }) {
             </li>
           ))}
           {slot.size > slot.rows.length && (
-            <li className="py-2"><a href={`/event/${ev.event_id}`} className="text-accent-hover hover:text-accent-soft">All {slot.size} in this game</a></li>
+            <li className="py-2"><a href={`/event/${ev.event_id}`} className="text-accent-hover hover:text-accent-soft">All {nf(slot.size)} in this game</a></li>
           )}
         </ul>
       )}
@@ -300,7 +300,7 @@ export function BestBets({ initialTotal }: { initialTotal?: number }) {
             </button>
           )}
           <MoreWithEdge state={state} desktop={desktop} pro={pro} />
-          {!desktop && <p className="text-xs text-muted" title={RETURN_HELP}>Expected return: {RETURN_HELP}</p>}
+          {!desktop && <p className="text-xs text-muted" title={RETURN_HELP}>Estimated return: {RETURN_HELP}</p>}
         </>
       )}
     </div>

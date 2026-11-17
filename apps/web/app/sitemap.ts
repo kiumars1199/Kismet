@@ -1,8 +1,8 @@
-// sitemap.xml (docs/14 §6, T-76): public pages only. Add "/about" when Lane S moves the landing there.
+// sitemap.xml (docs/14 §6, T-76): every public page. test/seo.test.ts fails when a new public page is missing.
 import type { MetadataRoute } from "next";
 import { siteUrl } from "@/lib/site";
 
-const PUBLIC_PAGES = ["/", "/pricing", "/track-record", "/terms", "/privacy", "/refunds", "/disclaimer", "/contact"];
+const PUBLIC_PAGES = ["/", "/about", "/markets", "/tools", "/pricing", "/track-record", "/status", "/terms", "/privacy", "/refunds", "/disclaimer", "/contact"];
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = siteUrl();

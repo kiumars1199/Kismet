@@ -7,8 +7,8 @@ export interface ReturnResult {
   fee: number;          // per share
   cost: number;         // price + fee
   edge: number;         // win chance − cost, per $1 share
-  roi_pct: number;      // expected return: edge / cost × 100
-  profit_100: number;   // expected profit on a $100 bet
+  roi_pct: number;      // estimated return: edge / cost × 100
+  profit_100: number;   // profit on a $100 bet at the given win chance
   break_even: number;   // win chance needed to break even (= cost)
 }
 
@@ -24,7 +24,7 @@ export function expectedReturn(price: number, winProb: number, rate: number): Re
 export interface Bet { stake: number; price: number; winProb: number; rate: number }
 export interface MultiResult { stake: number; expected_profit: number; roi_pct: number; any_win: number; all_lose: number; valid: number }
 
-/** Independent bets (not a parlay): expected profits add up. */
+/** Independent bets (not a parlay): calculated profits add up. */
 export function multiBet(bets: Bet[]): MultiResult | null {
   let stake = 0, expected_profit = 0, all_lose = 1, valid = 0;
   for (const b of bets) {

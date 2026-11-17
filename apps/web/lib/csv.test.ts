@@ -16,7 +16,7 @@ it("writes a header and plain-language cells", async () => {
   const m = (await getStore()).markets[0];
   const csv = toCsv([{ market: { ...m, question: 'Will "X", win?' }, side: m.best }]);
   const [head, row] = csv.split("\r\n");
-  expect(head.startsWith("Question,Event,Bet,Expected return")).toBe(true);
+  expect(head.startsWith("Question,Event,Bet,Estimated return")).toBe(true);
   expect(row.startsWith('"Will ""X"", win?"')).toBe(true);
   expect(row).not.toMatch(/NaN|undefined|null/);
 });

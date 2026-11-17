@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { drawerHref } from "@/components/market/DrawerHost";
 import { fetchMarket, type StoreMarket } from "@/lib/api";
-import { DASH, betLine, chance, closesIn, pct, price, ret } from "@/lib/format";
+import { DASH, betLine, chance, closesLine, pct, price, ret } from "@/lib/format";
 import { getRepo, type WatchlistItem } from "@/lib/repo";
 import { useCollection } from "@/lib/repo/hooks";
 import { WatchStar, type WatchSnapshot } from "./WatchStar";
@@ -21,11 +21,11 @@ function status(m: Live, snap: WatchSnapshot | null): { label: string; tone: str
   return { label: "Open", tone: "text-accent-soft bg-accent-bg" };
 }
 
-/** "price 68→71¢, expected return +33%→+24%" */
+/** "price 68→71¢, estimated return +33%→+24%" */
 function since(snap: WatchSnapshot, ask: number, roi: number): string {
   const p0 = price(snap.ask), p1 = price(ask), r0 = ret(snap.roi_pct), r1 = ret(roi);
   if (p0 === p1 && r0 === r1) return "No change since saved";
-  return `Since saved: price ${p0.replace("¢", "")}→${p1}, expected return ${r0}→${r1}`;
+  return `Since saved: price ${p0.replace("¢", "")}→${p1}, estimated return ${r0}→${r1}`;
 }
 
 async function setTarget(item: WatchlistItem, cents: number | null, question: string, sideIndex: 0 | 1) {
@@ -75,7 +75,7 @@ function Row({ item, live, selected, onSelect }: { item: WatchlistItem; live: Li
               <p className="mt-1 text-sm text-muted">
                 {s ? betLine(s) : snap?.outcome ? `Saved: ${snap.outcome}` : DASH}
                 {label && <> · {label}</>}
-                {m && <> · closes in {closesIn(m.closes_at)}</>}
+                {m && <> · {closesLine(m.closes_at)}</>}
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -86,7 +86,7 @@ function Row({ item, live, selected, onSelect }: { item: WatchlistItem; live: Li
 
           <div className="flex flex-wrap items-end gap-x-8 gap-y-2">
             <div>
-              <div className="text-xs text-muted">Expected return</div>
+              <div className="text-xs text-muted">Estimated return</div>
               <div className="font-heading text-2xl font-bold tabular-nums text-accent">{live === undefined ? "…" : ret(s?.roi_pct)}</div>
             </div>
             <dl className="flex gap-6 text-sm tabular-nums">
@@ -174,7 +174,7 @@ export function MyList() {
         <div className="flex flex-col items-start gap-4 rounded-card border border-dashed border-border p-8">
           <h2 className="text-xl font-semibold">Nothing saved yet</h2>
           <p className="max-w-prose text-muted">
-            Tap the star on any bet to save it here. We keep the price and expected return from the moment you saved it, so you can see how it moved, and you can set a price to be alerted at.
+            Tap the star on any bet to save it here. We keep the price and estimated return from the moment you saved it, so you can see how it moved, and you can set a price to be alerted at.
           </p>
           <Link href="/" className="rounded-input bg-accent px-4 py-2.5 text-sm font-semibold text-on-accent hover:bg-accent-hover">See best bets</Link>
         </div>

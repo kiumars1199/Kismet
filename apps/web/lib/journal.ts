@@ -19,7 +19,7 @@ export function pnl(b: Bet, result: Result): number {
 export const clv = (b: Pick<JournalEntry, "price" | "closing_price">): number | null =>
   b.closing_price == null ? null : b.closing_price - b.price;
 
-/** expected return at entry, roi % (model edge per share ÷ cost per share) */
+/** estimated return at entry, roi % (model edge per share ÷ cost per share) */
 export const entryReturn = (b: Pick<JournalEntry, "price" | "fee" | "model_edge">): number | null =>
   b.model_edge == null || b.price + b.fee <= 0 ? null : (b.model_edge / (b.price + b.fee)) * 100;
 

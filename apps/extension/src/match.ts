@@ -39,7 +39,7 @@ export function buildIndex(markets: Market[]): Index {
 
 export interface Hit { market: Market; heading: boolean }
 
-/** Market named by this exact text, best expected return first, skipping ones already badged. */
+/** Market named by this exact text, best estimated return first, skipping ones already badged. */
 export function match(text: string, idx: Index, used: Set<string> = new Set()): Hit | null {
   if (text.length > 160) return null;
   const k = norm(text);

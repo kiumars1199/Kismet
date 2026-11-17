@@ -43,7 +43,7 @@ Links) shows as `[[PLACEHOLDER]]` until filled. Every key in `SETUP.md` §2. Law
 - Vercel Hobby rejects the 5-minute alerts cron; needs Pro (in `LAUNCH_TODO.md`).
 - Kalshi fee formula in the order ticket is unverified against a live Kalshi fill.
 - Kalshi combo check never shows today: the engine emits no `kalshi_ticker`.
-- `pnpm audit`: 2 moderate advisories in Sentry build tools (no high/critical).
+- `pnpm audit --prod`: 1 high, picomatch <=4.0.7 ReDoS (GHSA-fc5q-39xc-vjpf), no patched release exists (4.0.7 is latest). Reached only through Sentry's build tooling (`@rollup/plugin-commonjs`, `@sentry/cloudflare > vite`) on globs we write; never on user input or at runtime. Dependabot will bump it when a fix ships. Glob/minimatch moderates are fixed by overrides.
 - Vercel OWASP managed ruleset needs Enterprise; other firewall rules apply.
 - Lighthouse SEO 91: Next 15 streams the meta description into `<body>` for normal browsers (`htmlLimitedBots: /.*/` fixes it but costs ~15 performance points).
 - Lighthouse best practices 96: one undetailed CSP entry in Chrome's Issues panel; no console violations.
@@ -65,6 +65,8 @@ Links) shows as `[[PLACEHOLDER]]` until filled. Every key in `SETUP.md` §2. Law
 - Onboarding finish waits for the account session and saves `onboarded_at` server-side; falls back to a full load if routing stalls.
 - Lane U: `/` renders per request with the headline count in first paint; Recharts loads only with a drawer; Best bets shows one card per game by default (`g=0` shows all) and 12 cards before "Show more"; "unusually high" note only in the drawer; Today card shows only the user's own saved bets/alerts/P&L (not picks).
 - Lane A's 2-year history (1.3 GB `data/`) is cloned into the main checkout; the older copy is kept as `data.pre-backfill/` (gitignored).
+
+- picomatch high accepted as build-time-only with no upstream fix; not ignored in the audit config, so `pnpm audit` keeps reporting it until a patch ships.
 
 ## Decisions (lead calls, incl. blockers > 20 min)
 - Design tokens: the approved artboard wins over the old docs/06 values; docs/06 now lists what the app implements.

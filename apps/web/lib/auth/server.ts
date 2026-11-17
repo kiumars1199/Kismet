@@ -15,6 +15,12 @@ const env = () => ({
 
 /** Accounts are on when not in demo mode and the Supabase project is configured. */
 export const authEnabled = () => !DEMO_MODE && !!env().url && !!env().anon;
+/** What /login and /account say while accounts are off. "Everything is unlocked" is true only in demo mode;
+ *  a production build without Supabase keys serves the Free plan (lib/entitlements.ts). */
+export const accountsOffNote = (demo = DEMO_MODE) =>
+  demo
+    ? "Accounts aren't switched on here. Everything is unlocked and saved in this browser."
+    : "Sign-in isn't available yet. You can browse on the Free plan: every open market, 15 minutes behind, top 25 rows, with returns shown as ranges.";
 /** The service-role client can be built (cron jobs). */
 export const adminEnabled = () => !!env().url && !!env().service;
 

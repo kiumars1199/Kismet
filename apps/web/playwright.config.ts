@@ -14,6 +14,6 @@ export default defineConfig({
     port: PORT,
     reuseExistingServer: false,
     // KALSHI_TRADING_ENV=demo: the paper Trade button shows (trading-paper flow); other flows don't open it.
-    env: { DATA_DIR: "test/fixtures", DATA_SOURCE: "local", DEMO_MODE: "true", KALSHI_TRADING_ENV: "demo" },
+    env: { DATA_DIR: "test/fixtures", DATA_SOURCE: "local", DATA_CLOCK: "scan", DEMO_MODE: "true", KALSHI_TRADING_ENV: "demo" },
   },
 });

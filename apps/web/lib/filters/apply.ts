@@ -55,6 +55,13 @@ export interface Page {
   parsed?: ParsedQuery;     // server only (marketsPage strips it)
 }
 
+/** Request-time clock (unix s) for the closed-market filter. DATA_CLOCK=scan (unit and e2e runs on the fixtures)
+ *  pins it to the scan time, so fixture markets don't close as the calendar moves on. */
+export const nowFor = (store: Pick<Store, "meta">): number =>
+  process.env.DATA_CLOCK === "scan" ? store.meta.scanned_at : Date.now() / 1000;
+/** Markets still open at `now`: one whose closes_at has passed is never listed or offered as a bet. */
+export const openOnly = <T extends { closes_at: number }>(list: T[], now: number): T[] => list.filter((m) => m.closes_at > now);
+
 export interface SearchPlan { f: FilterState; hits: Map<string, number> | null; parsed: ParsedQuery | null; relevance: boolean }
 
 /**
@@ -190,7 +197,9 @@ export function apply(store: Store, f0: FilterState, user?: UserCtx, parsed?: Pa
   const bump = (c: Counts, k: string) => (c[k] = (c[k] ?? 0) + 1);
 
   const rows: Row[] = [];
+  const now = nowFor(store);
   for (const m of source) {
+    if (m.closes_at <= now) continue;   // closed since the scan: not a bet any more, counts nowhere
     let mask = 0;
     if (!inSet(m.category, f.categories)) mask |= CAT;
     const topics = topicsOf(m);
@@ -245,7 +254,7 @@ export function apply(store: Store, f0: FilterState, user?: UserCtx, parsed?: Pa
 
   const cmp = comparator(f.sort);
   if (plan?.relevance && hits) {
-    // text score × (1 + 0.5 × expected return, 0–50% scaled to 0–1) + 10% if it closes within 24 h
+    // text score × (1 + 0.5 × estimated return, 0–50% scaled to 0–1) + 10% if it closes within 24 h
     const score = new Map(rows.map((r) => {
       const s = hits.get(r.market.id) ?? 0;
       return [r, s * (1 + 0.5 * Math.min(1, Math.max(0, r.side.roi_pct / 50))) + (r.market.hours_to_close <= 24 ? 0.1 * s : 0)];

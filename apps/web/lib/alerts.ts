@@ -12,7 +12,7 @@ import type { Execution, Market, Side } from "@/lib/types";
 export const KIND_LABEL: Record<AlertRule["kind"], string> = {
   preset_match: "New market in a view",
   market_price: "Price drops to a target",
-  edge_change: "Expected return crosses a level",
+  edge_change: "Estimated return crosses a level",
   closing_soon: "Market closing soon",
 };
 
@@ -35,11 +35,11 @@ export function closesAt(unixSec: number, timeZone: string): string {
   catch { return d.toLocaleString("en-US", { weekday: "short", hour: "numeric", minute: "2-digit" }); }
 }
 
-/** "Jaguars at 72¢ · won 79% before · expected return +7% · closes Sun 1:00 PM" */
+/** "Jaguars at 72¢ · won 79% before · estimated return +7% · closes Sun 1:00 PM" */
 export function message(m: Market, s: Side, timeZone: string, live?: { ask: number; roi: number } | null, odds: OddsFormat = "cents"): string {
   const ask = live?.ask ?? s.ask;
   const roi = live?.roi ?? s.roi_pct;
-  return [`${s.outcome} at ${formatOdds(ask, odds)}`, `won ${pct(s.win_prob)} before`, `expected return ${ret(roi)}`,
+  return [`${s.outcome} at ${formatOdds(ask, odds)}`, `won ${pct(s.win_prob)} before`, `estimated return ${ret(roi)}`,
     m.closes_at ? `closes ${closesAt(m.closes_at, timeZone)} (${closesIn(m.closes_at)})` : null].filter(Boolean).join(" · ");
 }
 export const title = (m: Market) => `${m.niche.toUpperCase()} · ${m.question}`;
@@ -87,7 +87,7 @@ async function candidates(rule: AlertRule, d: Deps): Promise<Hit[]> {
   // market_price / edge_change: live book for the one token
   if (!rule.market_id || rule.threshold == null) return [];
   const m = await d.fetchMarket(rule.market_id);
-  if (!m) return [];
+  if (!m || m.closes_at * 1000 <= (d.now ?? new Date()).getTime()) return [];   // closed: no bet left to alert on
   const s = m.sides[rule.side_index ?? m.best.side_index] ?? m.best;
   const token = m.tokens[s.side_index];
   const x = token ? await d.fetchBook(token, s.win_prob, m.category) : null;

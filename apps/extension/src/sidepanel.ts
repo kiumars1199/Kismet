@@ -1,5 +1,5 @@
 // Side panel: one market (drawer content) or the page's list. Data comes from the background cache.
-import { chance, edge, money, pct, price, ret, RETURN_HELP } from "./format";
+import { chance, edge, formatCount, money, pct, price, ret, RETURN_HELP } from "./format";
 import { renderTrade } from "./vault-ui";
 import { API, type EventResponse, type Execution, type Market, type Msg, type Selection, type Side } from "./types";
 
@@ -22,7 +22,7 @@ function sideCard(s: Side, isBest: boolean) {
     <div class="row"><strong>Bet ${esc(s.outcome)} at ${price(s.ask)}</strong><span class="small" style="color:var(--accent-softer)">${chance(s.win_prob)}</span></div>
     ${pos
       ? `<div><div class="num" style="font-size:42px;font-weight:700;color:var(--accent)" title="${esc(RETURN_HELP)}">${ret(s.roi_pct)}</div>
-         <div class="small muted" title="${esc(RETURN_HELP)}">expected return · $100 bet → expect ${money(profit, true)}</div></div>`
+         <div class="small muted" title="${esc(RETURN_HELP)}">estimated return · past results: ${money(profit, true)} per $100 bet</div></div>`
       : `<div class="muted">No edge at this price</div>`}
     ${bars(s)}
   </section>`;
@@ -46,12 +46,12 @@ function pros(m: Market, x?: Execution) {
   const b = m.best;
   const rows: [string, string][] = [
     ["Edge (per share)", edge(b.edge)], ["Ask", price(b.ask)], ["Mid", price(b.mid)], ["Fee", price(b.fee)],
-    ["Spread", price(m.spread)], ["Model level", b.model_level], ["Effective samples", Math.round(b.model_neff).toLocaleString("en-US")],
-    ["Past events", b.model_events.toLocaleString("en-US")],
+    ["Spread", price(m.spread)], ["Model level", b.model_level], ["Effective samples", formatCount(b.model_neff)],
+    ["Past events", formatCount(b.model_events)],
   ];
   if (x) rows.push(["Spread cost", price(x.spread_cost)], ["Edge kept after spread", `${Math.round(x.retention * 100)}%`], ["Capacity", money(x.capacity_usd)]);
   const stakes = x?.stakes?.length
-    ? `<table class="small" style="width:100%;margin-top:8px"><tr class="muted"><td>Stake</td><td>Avg price</td><td>Expect</td></tr>${x.stakes
+    ? `<table class="small" style="width:100%;margin-top:8px"><tr class="muted"><td>Stake</td><td>Avg price</td><td>Est. return (past results)</td></tr>${x.stakes
         .map((s) => `<tr><td>${money(s.stake_usd)}</td><td>${price(s.avg_price)}</td><td>${money(s.expected_profit_usd, true)}</td></tr>`).join("")}</table>`
     : "";
   return `<details class="inner"><summary style="cursor:pointer">Details for pros</summary>
@@ -76,7 +76,7 @@ function marketView(d: EventResponse, m: Market) {
 function listView(d: EventResponse) {
   const best = d.markets.filter((m) => m.best.roi_pct > 0);
   root.innerHTML = `
-    <div><div class="small muted">${esc(d.event)}</div><h2 style="font-size:20px;margin-top:4px">${d.flags.length} best bets on this page</h2></div>
+    <div><div class="small muted">${esc(d.event)}</div><h2 style="font-size:20px;margin-top:4px">${formatCount(d.flags.length)} best bets on this page</h2></div>
     ${best.length ? best.map((m) => `
       <a href="#" data-id="${esc(m.id)}" class="inner" style="display:block;color:var(--text)">
         <div class="row"><span>${esc(m.question)}</span><span class="num" style="color:var(--accent);font-size:18px;font-weight:700">${ret(m.best.roi_pct)}</span></div>

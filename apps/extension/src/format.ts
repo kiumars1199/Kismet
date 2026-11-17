@@ -2,6 +2,17 @@
 const ok = (x: number | null | undefined): x is number => typeof x === "number" && Number.isFinite(x);
 export const DASH = "—";
 
+/** docs/18 §4 counts: under 1,000 exact, above rounded DOWN to a short form (9,666 → "9.6K", 1,333,014 → "1.3M"). */
+export function formatCount(n: number | null | undefined): string {
+  if (!ok(n)) return DASH;
+  const a = Math.floor(Math.abs(n));
+  const sign = n < 0 ? "−" : "";
+  if (a < 1000) return `${sign}${a}`;
+  const [d, u] = a >= 1e9 ? [1e9, "B"] : a >= 1e6 ? [1e6, "M"] : [1e3, "K"];
+  const tenths = Math.floor(a / (d / 10));
+  return `${sign}${tenths < 100 ? tenths / 10 : Math.floor(tenths / 10)}${u}`;
+}
+
 /** 0.68 → "68¢" (one decimal when not whole: 0.055 → "5.5¢") */
 export function price(p: number | null | undefined): string {
   if (!ok(p)) return DASH;

@@ -72,3 +72,37 @@ test("account delete: type the email, everything goes, signed out", async ({ pag
   await page.goto("/account");
   await expect(page).toHaveURL(/\/login\?next=%2Faccount/);
 });
+
+// Audit fail 5: a Free user reaches the upgrade with the keyboard alone: search → drawer → save → "See plans".
+test("keyboard only: search → drawer → save → upgrade reaches /pricing", async ({ page }) => {
+  await signIn(page, `kbd-${Date.now()}@example.com`);
+  const q = (await rows(page)).rows[0]!.market.question;
+  await page.goto("/");
+  await page.waitForLoadState("networkidle");
+  const tabTo = async (target: ReturnType<Page["locator"]>, max = 80) => {
+    for (let i = 0; i < max && !(await target.evaluate((el) => el === document.activeElement).catch(() => false)); i++) await page.keyboard.press("Tab");
+    await expect(target).toBeFocused();
+  };
+
+  const box = page.getByRole("combobox", { name: "Search markets" });
+  await tabTo(box);
+  await page.keyboard.type(q);
+  await page.keyboard.press("Enter");   // search → results
+  await expect.poll(() => new URL(page.url()).searchParams.get("q")).toBe(q);
+  const card = page.locator('main a[href*="m="]').first();
+  await expect(card).toBeVisible();
+  await tabTo(card);
+  await page.keyboard.press("Enter");   // card → drawer
+
+  const dialog = page.getByRole("dialog", { name: "Market details" });
+  const save = dialog.getByRole("button", { name: "Save", exact: true });
+  await expect(save).toBeVisible({ timeout: 30_000 });
+  await tabTo(save);
+  await page.keyboard.press("Enter");
+  await expect(dialog.getByRole("button", { name: "Saved", exact: true })).toBeVisible();
+
+  const plans = dialog.getByRole("link", { name: "See plans" });
+  await tabTo(plans);
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/\/pricing$/);
+});

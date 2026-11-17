@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { safeNext, sameOrigin } from "./server";
+import { accountsOffNote, safeNext, sameOrigin } from "./server";
 
 describe("safeNext (open redirects, docs/15)", () => {
   it("keeps same-origin relative paths", () => {
@@ -19,5 +19,13 @@ describe("sameOrigin (CSRF)", () => {
     expect(sameOrigin(req("http://localhost:3130"))).toBe(true);
     expect(sameOrigin(req("https://evil.com"))).toBe(false);
     expect(sameOrigin(req())).toBe(false);
+  });
+});
+
+describe("accountsOffNote (audit fail 1)", () => {
+  it("says everything is unlocked only in demo mode", () => {
+    expect(accountsOffNote(true)).toMatch(/Everything is unlocked/);
+    expect(accountsOffNote(false)).not.toMatch(/unlocked/i);
+    expect(accountsOffNote(false)).toMatch(/Free plan/);
   });
 });

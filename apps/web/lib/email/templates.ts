@@ -57,3 +57,15 @@ export function signInEmail(to: string, link: string, unsubscribeUrl: string): E
   );
   return { to, subject: "Your MarketEdge sign-in link", html, text, unsubscribeUrl };
 }
+
+/** Stripe invoice.payment_failed (lib/billing/stripe.ts). Account mail, but still carries unsubscribe and the disclaimer. */
+export function paymentFailedEmail(to: string, unsubscribeUrl: string): Email {
+  const { html, text } = layout(
+    "Your MarketEdge payment didn't go through",
+    ["We couldn't charge your card. Update it from your account page (Manage billing) to keep your plan."],
+    { href: `${siteUrl()}/account`, label: "Open your account" },
+    unsubscribeUrl,
+    "You get this because you have a MarketEdge subscription.",
+  );
+  return { to, subject: "Your MarketEdge payment didn't go through", html, text, unsubscribeUrl };
+}

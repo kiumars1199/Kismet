@@ -8,8 +8,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   const { id } = await params;
   return withTier(req, "markets", async (store, tier, me) => {
     const markets = store.byEvent.get(id);
-    if (!markets) return notFound("Event");
-    const body = eventBody(store, markets, tier);
+    const body = markets && eventBody(store, markets, tier);
+    if (!body) return notFound("Event");
     await noteRows(req, me.user?.id, body.markets.length);
     return Response.json(body);
   });

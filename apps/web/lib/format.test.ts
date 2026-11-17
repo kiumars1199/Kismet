@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ago, chance, closesIn, edge, exactCount, expectedProfit, formatCount, money, pays, pct, price, realisticReturn, ret, sidePts, testedLine, winsAbout } from "./format";
+import { ago, basis, chance, closesIn, edge, exactCount, expectedProfit, formatCount, money, pays, pct, price, realisticReturn, ret, sidePts, testedLine, winsAbout } from "./format";
 
 describe("docs/18 numbers", () => {
   it("formatCount rounds down, never up", () => {
@@ -38,5 +38,15 @@ describe("format", () => {
     expect(ago(now / 1000 - 12 * 60, now)).toBe("12 min ago");
     expect(realisticReturn({ realistic_edge: 0.1078, ask: 0.85, fee: 0.0064 })).toBeCloseTo(12.59, 1);
     expect(realisticReturn({ realistic_edge: null, ask: 0.5, fee: 0 })).toBeNull();
+  });
+});
+
+describe("basis (audit fail 7: counts go through formatCount)", () => {
+  it("prints short, rounded-down counts, never the raw number", () => {
+    const line = basis({ niche: "nfl", market_type: "moneyline", horizon_h: 24 }, { model_neff: 1313.7, model_events: 9666, model_level: "niche" });
+    expect(line).toContain("1.3K eff. samples");
+    expect(line).toContain("9.6K events");
+    expect(line).not.toMatch(/1,313|1,314|9,666/);
+    expect(basis({ niche: "nfl", market_type: "moneyline", horizon_h: 24 }, { model_neff: 42.4, model_events: 57, model_level: "all" })).toContain("42 eff. samples · 57 events");
   });
 });

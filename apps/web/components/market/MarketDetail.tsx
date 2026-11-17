@@ -6,8 +6,9 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { fetchBook, fetchMarket, type BookResponse, type MarketResponse } from "@/lib/api";
-import { ago, basis, chance, closesIn, gameTime, edge, money, pays, PAYS_HELP, pct, price, realisticReturn, ret, RETURN_HELP, sideProfit, sideRet, sideEdge, sidePts, formatCount, LONG_SHOT_LINE, winsAbout } from "@/lib/format";
+import { ago, basis, chance, closesLine, gameTime, edge, money, pays, PAYS_HELP, pct, price, realisticReturn, ret, RETURN_HELP, sideProfit, sideRet, sideEdge, sidePts, formatCount, LONG_SHOT_LINE, winsAbout } from "@/lib/format";
 import { useProfile } from "@/lib/repo/hooks";
+import { useEntitlements } from "@/lib/entitlements";
 import type { Execution, Side, StoreMarket } from "@/lib/types";
 import { WatchStar } from "@/components/watch/WatchStar";
 import { DrawerExtras } from "./DrawerExtras";
@@ -111,6 +112,7 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
   const s = m.sides.find((x) => x.side_index === sideParam) ?? m.best;
   const other = m.sides.find((x) => x !== s);
   const pro = useProfile().numbers_mode === "pro";
+  const free = useEntitlements().tier === "free";   // the Free plan limits this drawer: say so, with a way up
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
@@ -133,7 +135,7 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
       onClose={onClose}
       title={
         <div>
-          <div className="text-xs text-muted">{topicLabel(m)} · <span title={new Date(m.closes_at * 1000).toLocaleString()}>{gameTime(m.closes_at)}</span> · closes in {closesIn(m.closes_at)}</div>
+          <div className="text-xs text-muted">{topicLabel(m)} · <span title={new Date(m.closes_at * 1000).toLocaleString()}>{gameTime(m.closes_at)}</span> · {closesLine(m.closes_at)}</div>
           <H className="mt-1.5 text-[22px] font-semibold leading-tight">{m.question}</H>
           {m.event !== m.question && <Link href={`/event/${m.event_id}`} className="mt-1 inline-block text-[13px] text-accent-hover hover:text-accent-soft">{m.event}</Link>}
         </div>
@@ -156,14 +158,22 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
             {pro ? sideEdge(s) : sideRet(s)}
           </div>
           <div className="flex items-center gap-1 text-[13px] text-accent-soft">
-            {pro ? "edge per share" : "expected return (model)"}<InfoTip text={RETURN_HELP} className="text-accent-softer" />
+            {pro ? "edge per share" : "estimated return, based on past results"}<InfoTip text={RETURN_HELP} className="text-accent-softer" />
           </div>
         </div>
         {realistic !== null && !s.ranges && (
           <p className="mt-1.5 text-[13px] text-accent-soft">Similar past bets returned <strong>{ret(realistic)}</strong> on average.</p>
         )}
-        <p className={`mt-1.5 text-[13px] ${chanceTone(c)}`}>{c ?? ""}{c && " · "}<span className="text-accent-soft">$100 bet → expect {sideProfit(s)}</span></p>
+        <p className={`mt-1.5 text-[13px] ${chanceTone(c)}`}>{c ?? ""}{c && " · "}<span className="text-accent-soft">Past results: {sideProfit(s)} per $100 bet</span></p>
         {m.tier === "edge" && <TierNote s={s} className="mt-1.5 !text-accent-soft" />}
+        {free && (
+          <p data-testid="upgrade-note" className="mt-3 border-t border-accent-border pt-3 text-[13px] text-accent-softer">
+            {s.ranges
+              ? "Free shows ranges. Exact numbers and the full price check are on Pro."
+              : "Free shows exact numbers on 3 bets a day. Pro shows them on every bet."}{" "}
+            <Link href="/pricing" className="font-semibold text-accent-soft underline underline-offset-4 hover:text-accent">See plans</Link>
+          </p>
+        )}
       </section>
 
       {other && (
@@ -241,7 +251,7 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
               </li>
             ))}
           </ul>
-          {data.event_markets.length > 8 && <Link href={`/event/${m.event_id}`} className="mt-2 inline-block text-[13px] text-accent-hover">All {data.event_markets.length + 1} markets in this event</Link>}
+          {data.event_markets.length > 8 && <Link href={`/event/${m.event_id}`} className="mt-2 inline-block text-[13px] text-accent-hover">All {formatCount(data.event_markets.length + 1)} markets in this event</Link>}
         </section>
       )}
     </Frame>
@@ -329,7 +339,7 @@ function StakeSection({ x, live, fetchedAt, error, bookState, scanAt, stake, onS
             <tr className="text-left text-xs text-muted">
               <th scope="col" className="py-1 font-medium">You bet</th>
               <th scope="col" className="font-medium">You get back if it wins</th>
-              <th scope="col" className="text-right font-medium">Expected profit</th>
+              <th scope="col" className="text-right font-medium">Est. profit (past results)</th>
             </tr>
           </thead>
           <tbody>
@@ -401,7 +411,7 @@ function Warnings({ m, s, x }: { m: StoreMarket; s: Side; x?: Execution }) {
   if (x && x.spread >= 0.05) w.push(`Wide spread: buyers and sellers are ${price(x.spread)} apart, so the price can move against you.`);
   if (x && x.verdict !== "not worth it" && x.capacity_usd != null && x.capacity_usd < 100) w.push(`Thin order book: only about ${money(Math.round(x.capacity_usd))} can be bought at a good price.`);
   if (s.edge >= 0.15) w.push("Unusually high: in testing, bets that looked this good earned far less than predicted.");
-  if (s.model_events < 50) w.push(`Small evidence: only ${s.model_events} past events like this.`);
+  if (s.model_events < 50) w.push(`Small evidence: only ${formatCount(s.model_events)} past events like this.`);
   if (s.model_level === "all" || s.model_level === "cat")
     w.push(`Few markets like this one, so the estimate leans on ${s.model_level === "all" ? "all markets" : `all ${m.category} markets`}.`);
   if (!w.length) return null;

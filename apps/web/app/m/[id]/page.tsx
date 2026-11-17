@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const data = await load((await params).id).catch(() => null);
   if (!data) return { title: "Market" };
   const m = data.market;
-  return { title: m.question, description: `${betLine(m.best)} · ${sideRet(m.best)} expected return. Market analytics, not financial advice.` };
+  return { title: m.question, description: `${betLine(m.best)} · ${sideRet(m.best)} estimated return, based on past results. Market analytics, not financial advice.` };
 }
 
 export default async function Page({ params, searchParams }: Props) {

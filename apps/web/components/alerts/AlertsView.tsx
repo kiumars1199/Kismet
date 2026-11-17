@@ -32,7 +32,7 @@ function describe(r: AlertRule): string {
   switch (r.kind) {
     case "preset_match": return `When a market newly matches “${q?._view_name ?? "a view"}”${(r.threshold ?? 1) > 1 ? ` · up to ${r.threshold} per check` : ""}`;
     case "market_price": return `When the price is ${price(r.threshold)} or lower`;
-    case "edge_change": return `When expected return crosses ${ret(r.threshold)}`;
+    case "edge_change": return `When estimated return crosses ${ret(r.threshold)}`;
     case "closing_soon": return `When ${r.market_id ? "this market" : "anything in My list"} closes within ${r.threshold ?? 6} h`;
   }
 }
@@ -83,7 +83,7 @@ export function AlertsView() {
         !rules.length ? (
           <div className={`${card} flex flex-col items-start gap-3 p-6`}>
             <h2 className="text-lg font-semibold">No alert rules yet</h2>
-            <p className="max-w-xl text-sm text-muted">Get told when a market enters one of your views, when a price drops to your target, when expected return moves past a level, or when a saved market is about to close.</p>
+            <p className="max-w-xl text-sm text-muted">Get told when a market enters one of your views, when a price drops to your target, when estimated return moves past a level, or when a saved market is about to close.</p>
             <button type="button" className={btnPrimary} onClick={() => setDraft(blank())}>Create an alert</button>
           </div>
         ) : (
@@ -235,8 +235,8 @@ function RuleEditor({ draft, filters, onClose }: { draft: Draft | null; filters:
         )}
         {d.kind === "edge_change" && (
           <label className="flex flex-col gap-1.5 text-xs font-medium text-muted">
-            Expected return crosses (up or down)
-            <NumberInput ariaLabel="Expected return level in percent" value={d.threshold} onChange={(v) => set({ threshold: v })} suffix="%" />
+            Estimated return crosses (up or down)
+            <NumberInput ariaLabel="Estimated return level in percent" value={d.threshold} onChange={(v) => set({ threshold: v })} suffix="%" />
           </label>
         )}
         {d.kind === "closing_soon" && (

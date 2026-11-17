@@ -39,7 +39,7 @@ export interface Market {
 
 export interface EventResponse {
   event_id: string; event: string; slug: string;
-  markets: Market[];   // sorted by best expected return
+  markets: Market[];   // sorted by best estimated return
   flags: Market[];     // flagged markets (with execution)
 }
 

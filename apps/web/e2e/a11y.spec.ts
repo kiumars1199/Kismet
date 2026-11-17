@@ -35,3 +35,36 @@ test("axe /event, /m and the open drawer", async ({ page, request }) => {
   await check(page, `/?m=${m.id}&side=${rows[0].side.side_index}`);
   await expect(page.getByRole("dialog")).toBeVisible();
 });
+
+// Audit fails 3–4: the open drawer keeps Tab and Shift+Tab inside it (the page behind is inert), and Escape
+// gives focus back to the card that opened it.
+test("keyboard: the drawer traps focus and Escape returns it to the opener", async ({ page }) => {
+  await page.goto("/");
+  const opener = page.locator('main a[href*="m="]').first();
+  await opener.waitFor();
+  await page.waitForLoadState("networkidle");
+  const href = await opener.getAttribute("href");
+  await opener.focus();
+  await page.keyboard.press("Enter");
+  const dialog = page.getByRole("dialog", { name: "Market details" });
+  await expect(dialog.getByRole("button", { name: /^Save/ })).toBeVisible();
+  const inDialog = () => page.evaluate(() => !!document.activeElement?.closest('[role="dialog"]'));
+  for (const key of ["Tab", "Shift+Tab"]) {
+    for (let i = 0; i < 60; i++) {
+      await page.keyboard.press(key);
+      expect(await inDialog(), `${key} #${i + 1} left the drawer`).toBe(true);
+    }
+  }
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeHidden();
+  await expect.poll(() => page.evaluate(() => document.activeElement?.getAttribute("href"))).toBe(href);
+});
+
+test("keyboard: Pricing is a visible footer link, not inside a hidden dialog", async ({ page }) => {
+  await page.goto("/");
+  const link = page.getByRole("contentinfo").getByRole("link", { name: "Pricing" });
+  await expect(link).toBeVisible();
+  await link.focus();
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/\/pricing$/);
+});

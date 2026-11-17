@@ -9,7 +9,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { ApiGroup, ApiRow } from "@/lib/api";
 import type { SortKey } from "@/lib/filters/state";
 import type { FilterState } from "@/lib/filters/state";
-import { basis, chance, closesIn, DASH, edge, money, pays, PAYS_HELP, pct, price, RETURN_HELP, sideRet, sideEdge, formatCount } from "@/lib/format";
+import { basis, chance, closesIn, closesLine, DASH, edge, money, pays, PAYS_HELP, pct, price, RETURN_HELP, sideRet, sideEdge, formatCount } from "@/lib/format";
 import { WatchStar } from "@/components/watch/WatchStar";
 import { drawerHref, useOpenDrawer } from "@/components/market/DrawerHost";
 import { AlertLink, Notes, Val } from "@/components/market/bits";
@@ -37,8 +37,8 @@ function columns(pro: boolean): Col[] {
     }),
     h.display({ id: "bet", header: "Bet", meta: { label: "Bet" }, cell: ({ row: { original: r } }) => <span className="whitespace-nowrap font-medium">{r.side.outcome} · {price(r.side.ask)} <span className="text-xs font-normal tabular-nums text-muted" title={PAYS_HELP}>· pays {pays(r.side.ask)}</span></span> }),
     h.display({
-      id: "return", meta: { label: pro ? "Edge" : "Expected return", sort: pro ? "edge" : "roi", right: true, help: RETURN_HELP },
-      header: pro ? "Edge" : "Expected return",
+      id: "return", meta: { label: pro ? "Edge" : "Estimated return", sort: pro ? "edge" : "roi", right: true, help: RETURN_HELP },
+      header: pro ? "Edge" : "Estimated return",
       cell: ({ row: { original: r } }) => pro
         ? <Val v={sideEdge(r.side)} className={`font-heading text-base ${returnTone(r.side.roi_pct)}`} title={basis(r.market, r.side)} />
         : <Val v={sideRet(r.side)} className={`font-heading text-base ${returnTone(r.side.roi_pct)}`} title={basis(r.market, r.side)} />,
@@ -189,7 +189,7 @@ export function MarketTable({ items, sort, onSort, onToggleGroup, pro = false, l
                   <td colSpan={visible.length} className="px-3 pb-1.5 pt-4">
                     <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                       <Link href={`/event/${it.g.event_id}`} className="font-heading text-[15px] font-semibold hover:text-accent-hover">{it.g.event}</Link>
-                      <span className="text-xs text-muted">Closes in {closesIn(it.g.closes_at)}</span>
+                      <span className="text-xs text-muted">{closesLine(it.g.closes_at, undefined, true)}</span>
                       {it.g.flagged > 0 && <span className="text-xs text-accent-softer">{it.g.flagged} best {it.g.flagged === 1 ? "bet" : "bets"}</span>}
                     </div>
                   </td>
@@ -200,7 +200,7 @@ export function MarketTable({ items, sort, onSort, onToggleGroup, pro = false, l
                 <tr key={vi.key} data-index={vi.index} ref={v.measureElement}>
                   <td colSpan={visible.length} className="px-3 py-1">
                     <button type="button" onClick={() => onToggleGroup?.(it.g)} aria-expanded={it.expanded} className="min-h-9 text-xs text-accent-hover hover:text-accent-soft">
-                      {it.loading ? "Loading…" : it.expanded ? "Show fewer" : `+${it.hidden} more in this event`}
+                      {it.loading ? "Loading…" : it.expanded ? "Show fewer" : `+${formatCount(it.hidden)} more in this event`}
                     </button>
                   </td>
                 </tr>

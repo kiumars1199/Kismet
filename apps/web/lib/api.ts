@@ -65,7 +65,7 @@ export interface MarketResponse {
 
 export interface EventResponse {
   event_id: string; event: string; slug: string;
-  markets: StoreMarket[];                  // sorted by best expected return
+  markets: StoreMarket[];                  // sorted by best estimated return
   flags: StoreMarket[];                    // flagged markets in the event (with execution)
 }
 
