@@ -3,7 +3,7 @@ import type { Tile } from "@/lib/trackRecord";
 
 export function Tiles({ tiles }: { tiles: Tile[] }) {
   return (
-    <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-card border border-border bg-border lg:grid-cols-5">
+    <dl className={`grid gap-px overflow-hidden rounded-card border border-border bg-border ${tiles.length === 3 ? "grid-cols-1 sm:grid-cols-3" : "grid-cols-2 lg:grid-cols-5"}`}>
       {tiles.map((t) => (
         <div key={t.key} data-testid={`tile-${t.key}`} title={t.help} className="flex flex-col gap-1 bg-surface p-4 md:p-5 last:max-lg:col-span-2">
           <dt className="text-xs text-muted">{t.label}</dt>

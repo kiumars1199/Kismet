@@ -5,7 +5,7 @@ import { parse, toQuery } from "@/lib/filters/url";
 import type { Preset } from "@/lib/repo/types";
 
 export const BUILTIN_VIEWS = [
-  { id: "builtin:best", name: "Best bets right now", qs: "view=flags&vd=worth it&wp=0.4&s=roi.desc" },
+  { id: "builtin:best", name: "Best bets right now", qs: "view=flags&vd=worth it,thin&wp=0.4&s=roi.desc" },
   { id: "builtin:likely", name: "Most likely to win", qs: "view=flags&wp=0.8&s=win_prob.desc" },
   { id: "builtin:weather", name: "Weather tomorrow", qs: "t=weather&cw=36&conf=1" },
   { id: "builtin:nfl-fav", name: "NFL favorites, 1–3 days out", qs: "t=sports.nfl&side=favorite&ca=24&cw=96&e=0.02" },

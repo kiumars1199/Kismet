@@ -95,7 +95,7 @@ export default async function Page() {
           </div>
           <Link href="/track-record" className="flex min-h-11 items-center text-accent-hover hover:underline">Full results and limits</Link>
         </div>
-        <Tiles tiles={tiles(store.backtest)} />
+        <Tiles tiles={tiles(store.backtest).filter((t) => t.key !== "cents" && t.key !== "t")} /* cents + t-stat stay on Results */ />
       </section>
 
       <section aria-labelledby="plans-h" className="flex flex-col gap-6">
