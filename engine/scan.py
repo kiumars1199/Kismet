@@ -156,6 +156,8 @@ def run(cfg, log=print):
                           price_range=[cfg.price_min, cfg.price_max]))
     json.dump(dict(meta=meta, markets=rows), open(cfg.path("output", "markets.json"), "w"))
     json.dump(dict(meta=meta, flags=flags), open(cfg.path("output", "flags.json"), "w"), indent=1)
+    from . import ledger
+    log(f"ledger: {ledger.append(cfg, flags, now)} new rows")
     # slug -> event index, so the extension can look up a Polymarket page by its URL slug
     events = {}
     for r in rows:

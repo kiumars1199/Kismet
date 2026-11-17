@@ -89,6 +89,28 @@ export interface Flag extends Market { execution: Execution }
 export type EventsFile = Record<string, { event_id: string; event: string; market_ids: string[]; flag_ids: string[] }>;
 ```
 
+```ts
+// output/ledger.jsonl  (F-29; one JSON object per line; scan appends, `python -m engine grade` fills results)
+// A row is added the first time a market/side is flagged, and again when re-flagged at a lower ask.
+export interface LedgerEntry {
+  id: string; side_index: 0 | 1; outcome: string; question: string;
+  category: Category; niche: string;
+  ask: number; fee: number; win_prob: number; edge: number;   // best side at flag time
+  verdict: Verdict; flagged_at: number;                       // unix seconds
+  closes_at: number; token: string | null;                    // side's CLOB token (for closing price)
+  // set by the grader once the market resolved; absent = still open
+  result?: "won" | "lost"; pnl?: number;                      // (won ? 1 : 0) - ask - fee, per $1 share
+  closing_price?: number | null;  // last CLOB price of this side at or before close - 1 h,
+                                  // close = min(closedTime, endDate, gameStartTime); null if no history
+  clv?: number | null;            // closing_price - ask
+  graded_at?: number;
+}
+// output/ledger_summary.json  (written by the grader)
+export interface LedgerStats { entries: number; graded: number; wins: number; losses: number;
+  avg_pnl: number | null; avg_clv: number | null }
+export interface LedgerSummary extends LedgerStats { by_category: Record<string, LedgerStats>; updated_at: number }
+```
+
 `model.json` (curves for charts): `nodes[]` with `level, horizon_h, key, market_type, n, neff, events,
 win_prob_at_price: {"0.05": 0.03, ..., "0.95": 0.97}`.
 `backtest.json`: `results[half_life]` with `taker, maker, taker_tight_spread, baseline_all_bets_taker,
