@@ -4,6 +4,9 @@ Flags prediction-market contracts whose **true win chance beats their price afte
 learned from how hundreds of thousands of past markets actually resolved, weighted toward
 recent trading so the numbers stay current.
 
+**Building the app?** Start with `CLAUDE.md` and `docs/README.md` (full spec, task backlog,
+agent prompts in `docs/AGENT_PROMPTS.md`). Live data for the app is on the `live` branch.
+
 Polymarket only for now: its data is public and needs no key.
 Kalshi comes later, once Kalshi gives written permission to use its data.
 
