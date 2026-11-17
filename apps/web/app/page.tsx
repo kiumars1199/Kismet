@@ -33,6 +33,7 @@ export default async function Page() {
   const store = await getStore();
   const page = apply(store, FilterState.parse({ view: "flags", verdicts: ["worth it"], page_size: 3 }));
   const top = (page.groups ?? []).map((g) => g.best);
+  const bestCount = apply(store, FilterState.parse({ view: "flags" })).total; // same count as the Best bets page
   const tested = chosenResult(store.backtest)?.taker;
 
   return (
@@ -51,7 +52,7 @@ export default async function Page() {
         </div>
         <dl className="grid grid-cols-3 gap-4 border-t border-border pt-6 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
           <Counter label="markets checked" value={n(store.meta.markets_scanned)} />
-          <Counter label="best bets right now" value={n(store.meta.flags)} accent />
+          <Counter label="best bets right now" value={n(bestCount)} accent />
           <Counter label="past bets tested" value={n(tested?.flags)} />
         </dl>
       </section>
@@ -75,7 +76,7 @@ export default async function Page() {
             <h2 id="now-h" className="text-[28px] font-semibold tracking-[-0.01em]">Best bets right now</h2>
             <p className="mt-1 text-sm text-muted" title={RETURN_HELP}>Top 3 by expected return, among bets with at least a 40% chance. Live from the last scan.</p>
           </div>
-          <Link href="/flags" className="flex min-h-11 items-center text-accent-hover hover:underline">All {n(store.meta.flags)} best bets</Link>
+          <Link href="/flags" className="flex min-h-11 items-center text-accent-hover hover:underline">All {n(bestCount)} best bets</Link>
         </div>
         {top.length ? (
           <div className="grid gap-3.5 md:grid-cols-3">
