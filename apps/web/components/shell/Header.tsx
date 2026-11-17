@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { MAIN_TABS, isActive } from "./nav";
-import { SearchBox } from "./SearchBox";
+import { SearchCombobox } from "@/components/search/SearchCombobox";
 import { FreshnessPill } from "@/components/header/FreshnessPill";
 import { Bell } from "@/components/header/Bell";
 
@@ -41,7 +41,8 @@ export function Header() {
         })}
       </nav>
       <div className="flex flex-[1_1_260px] items-center justify-end gap-3">
-        <SearchBox />
+        <SearchCombobox />
+        <Link href="/about" aria-current={pathname === "/about" ? "page" : undefined} className="hidden whitespace-nowrap text-sm text-muted hover:text-text lg:block">How it works</Link>
         <FreshnessPill />
         <Bell />
       </div>

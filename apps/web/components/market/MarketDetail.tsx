@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { fetchBook, fetchMarket, type BookResponse, type MarketResponse } from "@/lib/api";
-import { RETURN_HELP, ago, basis, betLine, chance, closesIn, edge, expectedProfit, money, pct, price, realisticReturn, ret } from "@/lib/format";
+import { ago, basis, betLine, chance, closesIn, edge, expectedProfit, money, pays, PAYS_HELP, pct, price, realisticReturn, ret, RETURN_HELP } from "@/lib/format";
 import { useProfile } from "@/lib/repo/hooks";
 import type { Execution, Side, StoreMarket } from "@/lib/types";
 import { WatchStar } from "@/components/watch/WatchStar";
@@ -137,7 +137,7 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
       <Actions m={m} s={s} />
 
       <section aria-label="Headline" className="rounded-inner border border-accent-border bg-accent-bg p-[18px]">
-        <div className="text-[13px] text-accent-softer">{betLine(s)} · pays $1 if it hits</div>
+        <div className="text-[13px] text-accent-softer">{betLine(s)} · <span title={PAYS_HELP}>Pays {pays(s.ask)} if it hits</span></div>
         <div className="mt-2 flex items-baseline gap-2.5">
           <div className={`font-heading text-[42px] font-bold leading-none tracking-tight ${s.roi_pct >= 0 ? "text-accent-soft" : "text-negative"}`} title={basis(m, s)}>
             {pro ? edge(s.edge) : ret(s.roi_pct)}
@@ -161,7 +161,7 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
                 className={`min-h-11 rounded-input border p-3 text-left ${on ? "border-accent-border bg-accent-bg/60" : "border-border bg-raised hover:border-accent-border"}`}>
                 <div className="flex items-baseline justify-between gap-2">
                   <span className="truncate font-semibold">{x.outcome}</span>
-                  <span className="tabular-nums">{price(x.ask)}</span>
+                  <span className="tabular-nums">{price(x.ask)} <span className="text-xs text-muted">· {pays(x.ask)}</span></span>
                 </div>
                 <div className="mt-1 flex justify-between text-xs text-muted">
                   <span title={basis(m, x)}>won {pct(x.win_prob)} before</span>

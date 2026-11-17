@@ -19,10 +19,12 @@
 //   /api/model/curve?segment=&h=   → Curve           segment = "all" | "cat:<category>" | "<niche>" | "<niche>:<market_type>"
 //                                                    (MarketResponse.segment gives a market's own), h = horizon hours
 //   /api/backtest                  → BacktestResponse backtest.json as is + `chosen` (result for the chosen half-life)
+//   /api/suggest?q=&tz=&view=      → SuggestResponse teams/topics/markets for the search dropdown (q ≤ 120 chars, else 400)
 //   /api/book?token=&q=&cat=&stake= → BookResponse   live execution check of one side (fetchBook)
 import type { Curve } from "@/lib/data/model";
 import type { Counts, Facets, Group } from "@/lib/filters/apply";
 import type { FilterInput } from "@/lib/filters/state";
+import type { Chip } from "@/lib/search/parse";
 import { FilterState } from "@/lib/filters/state";
 import { serialize } from "@/lib/filters/url";
 import type { BacktestFile, BacktestRecord, BacktestResult, Execution, ScanMeta, Side, StoreMarket } from "@/lib/types";
@@ -45,6 +47,7 @@ export interface MarketsResponse {
   rows: ApiRow[];
   groups?: ApiGroup[];
   facets: Facets;                          // counts for the current filter minus that facet
+  search?: { chips: Chip[]; relaxed?: string };   // how q was understood; relaxed = "No bets match … Showing …"
 }
 
 export interface MarketResponse {
@@ -63,14 +66,35 @@ export interface EventResponse {
 
 export type BacktestResponse = BacktestFile & { chosen: BacktestResult | null };
 
+export interface SuggestResponse {
+  q: string;
+  line: string;                            // how q is understood: "Barcelona · Pays ~3x"
+  entities: { name: string; count: number; best_roi: number }[];   // teams, players, cities (≤ 3)
+  topics: { id: string; label: string; count: number }[];          // ≤ 2
+  markets: { id: string; question: string; side_index: 0 | 1; outcome: string; pays: number | null; roi_pct: number }[];   // ≤ 4
+}
+/** /api/suggest?q=&tz=&view= — suggestions as you type (docs/13). */
+export const fetchSuggest = (q: string, view: "markets" | "flags", init?: RequestInit) =>
+  get<SuggestResponse>(`/api/suggest?${new URLSearchParams({ q, view, ...(userTz() ? { tz: userTz()! } : {}) })}`, init);
+
 async function get<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(path, init);
   if (!res.ok) throw new Error(`${path}: HTTP ${res.status}`);
   return res.json() as Promise<T>;
 }
 
+/** The browser's IANA zone, so "today" / "tomorrow" in a search mean the user's day. */
+export const userTz = () => {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || undefined;
+  } catch {
+    return undefined;
+  }
+};
+
 const qs = (state: FilterInput) => {
-  const s = serialize(FilterState.parse(state)).toString();
+  const f = FilterState.parse(state);
+  const s = serialize(f.q && !f.tz ? { ...f, tz: userTz() } : f).toString();
   return s ? `?${s}` : "";
 };
 

@@ -176,7 +176,7 @@ export function MyList() {
           <p className="max-w-prose text-muted">
             Tap the star on any bet to save it here. We keep the price and expected return from the moment you saved it, so you can see how it moved, and you can set a price to be alerted at.
           </p>
-          <Link href="/flags" className="rounded-input bg-accent px-4 py-2.5 text-sm font-semibold text-on-accent hover:bg-accent-hover">See best bets</Link>
+          <Link href="/" className="rounded-input bg-accent px-4 py-2.5 text-sm font-semibold text-on-accent hover:bg-accent-hover">See best bets</Link>
         </div>
       ) : (
         <ul className="flex flex-col gap-3">

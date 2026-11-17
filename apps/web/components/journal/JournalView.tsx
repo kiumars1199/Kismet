@@ -80,7 +80,7 @@ export function JournalView() {
         <div className={`${card} flex flex-col items-start gap-3 p-6`}>
           <h2 className="text-lg font-semibold">No bets logged yet</h2>
           <p className="max-w-xl text-sm text-muted">Open any market and use <span className="text-text">Log this bet</span> after you place it on Polymarket. Results settle automatically when the market resolves, and your profit, return and closing-price record show up here.</p>
-          <Link href="/flags" className={btnPrimary}>Browse Best bets</Link>
+          <Link href="/" className={btnPrimary}>Browse Best bets</Link>
         </div>
       ) : (
         <>

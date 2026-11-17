@@ -6,7 +6,7 @@ import { DATA_SOURCE, dataDirSetting, github, supabaseStorage, type DataSource }
 import { Flag as FlagSchema, Market as MarketSchema, ScanMeta as MetaSchema } from "@/lib/schemas";
 import type { BacktestFile, EventsFile, FlagsFile, LedgerSummary, MarketsFile, ModelFile, ScanMeta, StoreMarket } from "@/lib/types";
 import { derive } from "./derive";
-import { buildSearch, type SearchIndex } from "./search";
+import { buildSearch, type SearchIndex } from "@/lib/search/index";
 
 export interface RawData {
   markets: MarketsFile;

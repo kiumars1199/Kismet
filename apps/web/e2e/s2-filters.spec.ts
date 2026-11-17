@@ -3,8 +3,10 @@ import { expect, test } from "@playwright/test";
 
 test("S2 filters live in the URL", async ({ page }) => {
   await page.goto("/markets");
-  const panel = page.locator("aside[aria-label=Filters]");
+  const panel = page.getByRole("dialog", { name: "Filters" });
+  const open = () => page.getByRole("button", { name: /^More filters/ }).click();   // docs/13 §2: full panel is a sheet
   await page.locator("[data-row]").first().waitFor();
+  await open();
 
   await panel.getByRole("searchbox", { name: "Find a topic" }).fill("NFL");
   await panel.getByRole("checkbox", { name: /^NFL\b/ }).click(); // URL-controlled: state flips after navigation
@@ -24,6 +26,7 @@ test("S2 filters live in the URL", async ({ page }) => {
   await page.reload();
   await expect(page).toHaveURL(/t=sports\.nfl/);
   await expect(page).toHaveURL(/e=0\.02/);
+  await open();
   await expect(panel.getByRole("checkbox", { name: /^NFL\b/ })).toBeChecked();
   await expect(panel.getByLabel("Min price gap", { exact: true })).toHaveValue("2");
   await expect.poll(() => rows.evaluateAll((els) => els.map((e) => (e as HTMLElement).dataset.marketId))).toEqual(ids);

@@ -1,9 +1,8 @@
 "use client";
 
-// /flags "Best bets" (Hybrid artboard): title + stat tiles, topic chips, sort, card grid, price-check strip.
+// / "Best bets" (Hybrid artboard): title + stat tiles, filter pills + sort (docs/13 §2), card grid, price-check strip.
 import { useEffect, useState } from "react";
 import { fetchBacktest, type BacktestResponse, type MarketsResponse } from "@/lib/api";
-import type { FilterState } from "@/lib/filters/state";
 import { RETURN_HELP, ago, ret } from "@/lib/format";
 import { savePresetFromState } from "@/lib/presets";
 import { useProfile } from "@/lib/repo/hooks";
@@ -12,28 +11,15 @@ import { BetCard } from "@/components/market/BetCard";
 import { MarketCard } from "@/components/market/MarketCard";
 import { SaveViewDialog } from "@/components/presets/SaveViewDialog";
 import { Skeleton } from "@/components/market/bits";
+import { FilterPills } from "@/components/search/FilterPills";
+import { SearchChips } from "@/components/search/SearchChips";
 import { AppliedPills } from "./AppliedPills";
-import { SORTS, SortSelect } from "./SortSelect";
 import { EmptyState, ErrorState, StaleBanner } from "./States";
 import { useDesktop } from "./useDesktop";
 import { useMeta, useScreener } from "./useScreener";
 
 const nf = (n: number) => n.toLocaleString("en-US");
 const short = (label: string) => label.split(" & ")[0]!;
-
-type Chip = { label: string; n: number; on: boolean; patch: Partial<FilterState> };
-
-/** Leagues for sports, categories for the rest, biggest first (artboard: "Weather 286", "Soccer 197"). */
-function topicChips(f: MarketsResponse["facets"], s: FilterState): Chip[] {
-  const sports = Object.entries(f.topics).filter(([id, n]) => n > 0 && id.startsWith("sports.") && id.split(".").length === 2 && id !== "sports.other");
-  const cats = Object.entries(f.categories).filter(([id, n]) => n > 0 && id !== "sports");
-  return [
-    ...sports.map(([id, n]) => ({ label: TAXONOMY[id]?.label ?? id, n, on: !!s.topics?.includes(id), patch: { topics: [id], categories: undefined } })),
-    ...cats.map(([id, n]) => ({ label: short(TAXONOMY[id]?.label ?? id), n, on: !!s.categories?.includes(id as never), patch: { categories: [id as never], topics: undefined } })),
-  ]
-    .sort((a, b) => b.n - a.n)
-    .slice(0, 5);
-}
 
 /** "Price check: 575 fair fill · 28 where the spread eats most of it · 1 hidden (price too high right now)". */
 function PriceStrip({ f, total }: { f: MarketsResponse["facets"]; total: number }) {
@@ -72,9 +58,6 @@ function StatTiles() {
   );
 }
 
-const chip = (on: boolean) =>
-  `min-h-10 rounded-full border px-3.5 text-[13px] ${on ? "border-accent-border bg-accent-bg text-accent-softer" : "border-border bg-surface text-soft hover:border-accent-border"}`;
-
 export function BestBets() {
   const sc = useScreener("flags");
   const { state, set, reset, data, more, loading, error } = sc;
@@ -85,9 +68,6 @@ export function BestBets() {
   const [saved, setSaved] = useState<{ ok: boolean; msg: string } | null>(null);
 
   const rows = data ? [...data.rows, ...more] : [];
-  const chips = data ? topicChips(data.facets, state) : [];
-  const anyTopic = !!(state.topics?.length || state.categories?.length);
-  const today = state.closes_within_h === 24;
   const scanned = meta?.meta.scanned_at;
 
   const save = async (name: string, emoji: string | null) => {
@@ -115,29 +95,13 @@ export function BestBets() {
         <StatTiles />
       </section>
 
-      <div className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 md:mx-0 md:flex-wrap md:overflow-visible md:px-0 [&>*]:shrink-0">
-        <button type="button" aria-pressed={!anyTopic} onClick={() => set({ topics: undefined, categories: undefined })} className={chip(!anyTopic)}>
-          All topics
-        </button>
-        {chips.map((c) => (
-          <button key={c.label} type="button" aria-pressed={c.on} onClick={() => set(c.on ? { topics: undefined, categories: undefined } : c.patch)} className={chip(c.on)}>
-            {c.label} <span className="tabular-nums text-muted">{nf(c.n)}</span>
-          </button>
-        ))}
-        <button type="button" aria-pressed={today} onClick={() => set({ closes_within_h: today ? undefined : 24 })} className={chip(today)}>
-          Closes today
-        </button>
-        <button type="button" onClick={() => (setSaved(null), setSaving(true))} className={chip(false)}>+ Save this view</button>
-        <span role="status" className="text-[13px] text-accent-softer">{saved?.ok ? saved.msg : ""}</span>
-        <div className="ml-auto hidden md:block">
-          <SortSelect sort={state.sort} onChange={(sort) => set({ sort })} options={SORTS.slice(0, 3)} />
-        </div>
-      </div>
-      <div className="md:hidden">
-        <SortSelect sort={state.sort} onChange={(sort) => set({ sort })} options={SORTS.slice(0, 3)} />
-      </div>
+      <FilterPills state={state} mode="flags" facets={data?.facets} meta={meta} onChange={set} onReset={reset}>
+        <button type="button" onClick={() => (setSaved(null), setSaving(true))} className="min-h-10 whitespace-nowrap px-2 text-[13px] text-muted hover:text-text">+ Save this view</button>
+        <span role="status" className="text-[13px] text-accent-softer empty:hidden">{saved?.ok ? saved.msg : ""}</span>
+      </FilterPills>
 
       <SaveViewDialog open={saving} title="Save this view" error={saved && !saved.ok ? saved.msg : null} onSubmit={save} onClose={() => setSaving(false)} />
+      <SearchChips q={state.q} search={data?.search} onChange={set} />
       <AppliedPills state={state} mode="flags" onChange={set} onReset={reset} />
       <StaleBanner scannedAt={scanned} />
 

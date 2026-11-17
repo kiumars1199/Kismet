@@ -9,7 +9,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { ApiGroup, ApiRow } from "@/lib/api";
 import type { SortKey } from "@/lib/filters/state";
 import type { FilterState } from "@/lib/filters/state";
-import { DASH, RETURN_HELP, basis, chance, closesIn, edge, money, pct, price, ret } from "@/lib/format";
+import { basis, chance, closesIn, DASH, edge, money, pays, PAYS_HELP, pct, price, ret, RETURN_HELP } from "@/lib/format";
 import { WatchStar } from "@/components/watch/WatchStar";
 import { drawerHref, useOpenDrawer } from "@/components/market/DrawerHost";
 import { AlertLink, Notes, Val } from "@/components/market/bits";
@@ -35,7 +35,7 @@ function columns(pro: boolean): Col[] {
       header: "Market",
       cell: ({ row: { original: r } }) => <MarketCell r={r} />,
     }),
-    h.display({ id: "bet", header: "Bet", meta: { label: "Bet" }, cell: ({ row: { original: r } }) => <span className="whitespace-nowrap font-medium">{r.side.outcome} · {price(r.side.ask)}</span> }),
+    h.display({ id: "bet", header: "Bet", meta: { label: "Bet" }, cell: ({ row: { original: r } }) => <span className="whitespace-nowrap font-medium">{r.side.outcome} · {price(r.side.ask)} <span className="text-xs font-normal tabular-nums text-muted" title={PAYS_HELP}>· pays {pays(r.side.ask)}</span></span> }),
     h.display({
       id: "return", meta: { label: pro ? "Edge" : "Expected return", sort: pro ? "edge" : "roi", right: true, help: RETURN_HELP },
       header: pro ? "Edge" : "Expected return",

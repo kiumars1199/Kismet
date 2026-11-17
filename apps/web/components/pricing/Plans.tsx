@@ -54,7 +54,7 @@ export function Plans({ demo }: { demo: boolean }) {
                 ))}
               </ul>
               {/* ponytail: paid mode will send these to Stripe checkout (T-43); until then they open Best bets */}
-              <Link href="/flags"
+              <Link href="/"
                 className={`flex min-h-11 items-center justify-center rounded-input px-4 font-semibold ${featured ? "bg-accent text-on-accent hover:bg-accent-hover" : "border border-border bg-muted-bg hover:border-accent-border"}`}>
                 {p.monthly === 0 ? "Start free" : "Start trial"}
               </Link>

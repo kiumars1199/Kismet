@@ -33,9 +33,9 @@ export const allViews = (presets: Preset[]) => [
   ...presets.map((p) => ({ id: p.id, name: p.name })),
 ];
 
-/** Link that opens a view in the screener ("/flags?…" or "/markets?…"). */
+/** Link that opens a view in the screener ("/?…" or "/markets?…"). */
 export function viewHref(state: FilterInput): string {
   const s = FilterState.parse(state);
   const { view, ...rest } = s;
-  return `${view === "flags" ? "/flags" : "/markets"}${toQuery({ ...rest, view: "markets" } as FilterState)}`;
+  return `${view === "flags" ? "/" : "/markets"}${toQuery({ ...rest, view: "markets" } as FilterState)}`;
 }
