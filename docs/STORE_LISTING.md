@@ -17,8 +17,8 @@ On Polymarket event pages, a small badge sits next to each outcome MarketEdge co
 both sides, the price check and the details behind each number: sample size, model level and backtest record.
 
 Paper trading (optional): connect a trade-only key from Kalshi's demo exchange and place practice orders from
-MarketEdge with fake money. Every order needs your confirmation. The key stays in your browser, locked so it
-can't be copied back out, and MarketEdge's servers never see it.
+MarketEdge with fake money. Every order needs your confirmation. The key stays in your browser, can't be
+exported, and MarketEdge's servers never see it.
 
 - Badges on Polymarket event pages (MarketEdge Premium)
 - Side panel with the full market view

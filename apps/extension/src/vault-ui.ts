@@ -42,7 +42,7 @@ function connected(s: Status) {
     <div class="row small"><span class="muted">Type</span><span>${s.keyType === "ed25519" ? "Ed25519" : "RSA"}</span></div>
     <div class="row small"><span class="muted">Permissions</span><span>${s.scopes.map(esc).join(" · ")}</span></div>
     ${s.balanceCents != null ? `<div class="row small"><span class="muted">Demo balance</span><span>${money(s.balanceCents / 100)}</span></div>` : ""}
-    <p class="small muted" style="margin-bottom:0">Stored in this browser only, locked so it can't be copied back out.</p>
+    <p class="small muted" style="margin-bottom:0">Stored in this browser only, and it can't be exported.</p>
     <button class="btn" id="disconnect">Remove key</button>
   </section>`;
 }

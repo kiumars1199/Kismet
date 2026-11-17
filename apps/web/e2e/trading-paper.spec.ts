@@ -221,6 +221,6 @@ async function storeShots(p: Page) {
   };
   await copy("ticket", "1-paper-ticket.png");
   await copy("journal", "2-my-bets.png");
-  await frame("3-key-vault.png", "Your Kalshi key stays in your browser", "Connect a trade-only demo key. It is stored locked inside the extension and signs only the orders you confirm.", ["panel"]);
+  await frame("3-key-vault.png", "Your Kalshi key stays in your browser", "Connect a trade-only demo key. It stays inside the extension, can't be exported, and signs only the orders you confirm.", ["panel"]);
   await frame("4-popup.png", "Sign-in, plan and status at a glance", "Open MarketEdge or the side panel from any tab.", ["popup"]);
 }
