@@ -72,6 +72,8 @@ async function eventBySlug(slug: string): Promise<EventResponse | null> {
 const getCaps = async () => ({ ...DEFAULT_CAPS, ...((await chrome.storage.local.get("caps")).caps as Caps | undefined) });
 const getSpend = async () => (await chrome.storage.local.get("spend")).spend as Spend | undefined;
 const spentToday = (s?: Spend) => (s?.day === today() ? s.cents : 0);
+/** Tail of the `place` queue (RT-06): orders run one after another, never interleaved. */
+let placing: Promise<unknown> = Promise.resolve();
 
 async function signer(): Promise<K.Signer> {
   const k = await loadKey();
@@ -134,18 +136,32 @@ const external: Record<string, Handler> = {
     const [{ market }, book] = await Promise.all([K.getMarket(t), K.getOrderbook(t).catch(() => null)]);
     return { quote: toQuote(market, book) };
   },
-  place: async (m) => {
+  // RT-06: one order at a time, and its full possible cost is reserved before any await that could fail.
+  // Cancelled or not, a placed order stays counted (caps stay conservative). The reservation is released only
+  // when the order surely never reached Kalshi: a failure before sending, or a 4xx from Kalshi. A timeout or
+  // 5xx may still have created it, so it stays counted.
+  place: async (m) => (placing = placing.catch(() => {}).then(async () => {
     const o = parseIntent(m.order);
     if (typeof o === "string") throw new Error(o);
     const err = capError(o, await getCaps(), await getSpend());
     if (err) throw new Error(err);
-    const s = await signer();
-    await checkNonce(m.nonce, "place", o);
-    const res = await K.placeOrder(s, o);
-    // Count the order's full possible cost against today (cancelled or not: caps stay conservative).
-    await chrome.storage.local.set({ spend: { day: today(), cents: spentToday(await getSpend()) + maxCostCents(o) } satisfies Spend });
-    return { order_id: res.order_id, client_order_id: o.client_order_id };
-  },
+    const cost = maxCostCents(o);
+    const day = today();
+    await chrome.storage.local.set({ spend: { day, cents: spentToday(await getSpend()) + cost } satisfies Spend });
+    let sent = false;
+    try {
+      const s = await signer();
+      await checkNonce(m.nonce, "place", o);
+      sent = true;
+      const res = await K.placeOrder(s, o);
+      return { order_id: res.order_id, client_order_id: o.client_order_id };
+    } catch (e) {
+      const neverPlaced = !sent || (e instanceof K.KalshiError && e.status >= 400 && e.status < 500);
+      const now = await getSpend();
+      if (neverPlaced && now?.day === day) await chrome.storage.local.set({ spend: { day, cents: Math.max(0, now.cents - cost) } satisfies Spend });
+      throw e;
+    }
+  })),
   order: async (m) => {
     const id = String(m.order_id ?? "");
     if (!id) throw new Error("Missing order id.");
