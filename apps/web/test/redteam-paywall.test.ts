@@ -113,4 +113,24 @@ describe("RT-04 Free filters and sorts see the banded numbers, not the exact one
     const lo = Math.floor(m.best.win_prob * 20) / 20;
     expect(await total(`/api/markets?g=0&wp=${m.best.win_prob + 0.002}`)).toBe(await total(`/api/markets?g=0&wp=${lo + 0.002}`));
   });
+
+  it("with fix-audit1's closed-market filter: Free rows are open markets only, and banded", async () => {
+    const store = await getStore();
+    const closes = store.markets.map((x) => x.closes_at).sort((a, b) => a - b);
+    const now = closes[Math.floor(closes.length / 2)]!;
+    vi.stubEnv("DATA_CLOCK", "");
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(now * 1000);
+    try {
+      const body = (await (await markets(req("/api/markets?g=0&wp=0"))).json()) as { rows: { market: { closes_at: number; best: { roi_pct: number } } }[] };
+      expect(body.rows.length).toBeGreaterThan(0);
+      for (const r of body.rows) {
+        expect(r.market.closes_at).toBeGreaterThan(now);
+        expect([-1, 0, 5, 10, 20, 50]).toContain(r.market.best.roi_pct);   // Free sees the band floor, never the exact return
+      }
+    } finally {
+      vi.useRealTimers();
+      vi.unstubAllEnvs();
+    }
+  });
 });
