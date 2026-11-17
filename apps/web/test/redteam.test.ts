@@ -23,3 +23,31 @@ describe("RT-07 rate-limit key comes from the platform, not X-Forwarded-For", ()
     expect(clientKey(new Request("http://x", { headers: { "x-vercel-forwarded-for": "5.6.7.8, 10.0.0.1" } }))).toBe("ip:5.6.7.8");
   });
 });
+
+describe("RT-02 rate limits never fail open in production", () => {
+  it("production without Upstash: per-instance limits (auth 5/min per IP)", async () => {
+    vi.resetModules();
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("DEMO_MODE", "false");
+    vi.stubEnv("UPSTASH_REDIS_REST_URL", "");
+    vi.stubEnv("UPSTASH_REDIS_REST_TOKEN", "");
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const abuse = await import("@/lib/abuse");
+    abuse.setLimiter(undefined);
+    const codes = [];
+    for (let i = 0; i < 6; i++) codes.push((await abuse.rateLimit("auth_ip", "ip:prod-test"))?.status ?? 200);
+    expect(codes).toEqual([200, 200, 200, 200, 200, 429]);
+    warn.mockRestore();
+  });
+
+  it("Upstash error: answered by the per-instance limiter, not served unlimited", async () => {
+    const abuse = await import("@/lib/abuse");
+    const err = vi.spyOn(console, "error").mockImplementation(() => {});
+    abuse.setLimiter({ limit: async () => { throw new Error("upstash down"); }, rows: async () => 0 } as never);
+    const codes = [];
+    for (let i = 0; i < 6; i++) codes.push((await abuse.rateLimit("auth_ip", "ip:outage-test"))?.status ?? 200);
+    expect(codes.at(-1)).toBe(429);
+    abuse.setLimiter(undefined);
+    err.mockRestore();
+  });
+});

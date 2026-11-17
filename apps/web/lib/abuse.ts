@@ -5,6 +5,7 @@ import "server-only";
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
 import { checkBotId } from "botid/server";
+import { DEMO_MODE } from "@/lib/config";
 
 type Window = `${number} ${"s" | "m" | "h"}`;
 export const RULES = {
@@ -80,12 +81,20 @@ export function redis(): Redis | null {
   return url && token ? new Redis({ url, token }) : null;
 }
 
-const g = globalThis as { __meLimiter?: Limiter };
+const g = globalThis as { __meLimiter?: Limiter; __meFallback?: Limiter };
+/** Per-instance limiter with the same rules: production without Upstash, and any Upstash error (RT-02). */
+const fallback = () => (g.__meFallback ??= memoryLimiter());
 function limiter(): Limiter {
   if (g.__meLimiter) return g.__meLimiter;
   const r = redis();
-  if (!r) console.warn("[abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (fine for dev; set them in production)");
-  return (g.__meLimiter = r ? upstashLimiter(r) : noop);
+  if (r) return (g.__meLimiter = upstashLimiter(r));
+  // Demo mode is exempt like /api/health: no accounts, and e2e runs a production build of it on one IP.
+  if (process.env.NODE_ENV === "production" && !DEMO_MODE) {
+    console.warn("[abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are per instance (in memory). Set them in production.");
+    return (g.__meLimiter = fallback());
+  }
+  console.warn("[abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)");
+  return (g.__meLimiter = noop);
 }
 /** Tests swap in memoryLimiter(); undefined = back to the env choice. */
 export const setLimiter = (l: Limiter | undefined) => void (g.__meLimiter = l);
@@ -116,8 +125,9 @@ export async function rateLimit(rule: Rule, key: string): Promise<Response | nul
     const r = await limiter().limit(rule, key);
     return r.ok ? null : tooMany(r.reset);
   } catch (e) {
-    console.error("[abuse] rate limiter unavailable", e instanceof Error ? e.message : e);
-    return null;   // Upstash outage: serve (BotID and the paywall still apply) rather than take the site down
+    console.error("[abuse] rate limiter unavailable, using the per-instance limiter", e instanceof Error ? e.message : e);
+    const r = await fallback().limit(rule, key);   // Upstash outage: same limits per instance, never unlimited
+    return r.ok ? null : tooMany(r.reset);
   }
 }
 
