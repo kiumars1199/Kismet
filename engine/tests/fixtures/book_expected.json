@@ -1,0 +1,918 @@
+[
+ {
+  "q": 0.916,
+  "fee_rate": 0.05,
+  "min_edge": 0.02,
+  "book": {
+   "bids": [
+    {
+     "price": "0.01",
+     "size": "175.61"
+    },
+    {
+     "price": "0.02",
+     "size": "2000"
+    },
+    {
+     "price": "0.03",
+     "size": "595.73"
+    },
+    {
+     "price": "0.09",
+     "size": "55.56"
+    },
+    {
+     "price": "0.1",
+     "size": "5.91"
+    },
+    {
+     "price": "0.35",
+     "size": "14.29"
+    },
+    {
+     "price": "0.37",
+     "size": "100"
+    },
+    {
+     "price": "0.38",
+     "size": "2010"
+    },
+    {
+     "price": "0.47",
+     "size": "50"
+    },
+    {
+     "price": "0.54",
+     "size": "20"
+    },
+    {
+     "price": "0.56",
+     "size": "15"
+    },
+    {
+     "price": "0.57",
+     "size": "147.5"
+    },
+    {
+     "price": "0.58",
+     "size": "10"
+    },
+    {
+     "price": "0.6",
+     "size": "7.5"
+    },
+    {
+     "price": "0.61",
+     "size": "200"
+    },
+    {
+     "price": "0.62",
+     "size": "100"
+    },
+    {
+     "price": "0.63",
+     "size": "57.5"
+    },
+    {
+     "price": "0.64",
+     "size": "3026.55"
+    },
+    {
+     "price": "0.65",
+     "size": "14329.02"
+    },
+    {
+     "price": "0.66",
+     "size": "4198.54"
+    },
+    {
+     "price": "0.67",
+     "size": "1006.8"
+    }
+   ],
+   "asks": [
+    {
+     "price": "0.99",
+     "size": "169.35"
+    },
+    {
+     "price": "0.98",
+     "size": "1505.61"
+    },
+    {
+     "price": "0.97",
+     "size": "309"
+    },
+    {
+     "price": "0.96",
+     "size": "5.29"
+    },
+    {
+     "price": "0.92",
+     "size": "62.5"
+    },
+    {
+     "price": "0.91",
+     "size": "6.24"
+    },
+    {
+     "price": "0.9",
+     "size": "75"
+    },
+    {
+     "price": "0.89",
+     "size": "2389"
+    },
+    {
+     "price": "0.86",
+     "size": "166.47"
+    },
+    {
+     "price": "0.85",
+     "size": "210.35"
+    },
+    {
+     "price": "0.84",
+     "size": "168.76"
+    },
+    {
+     "price": "0.83",
+     "size": "164.51"
+    },
+    {
+     "price": "0.82",
+     "size": "210.35"
+    },
+    {
+     "price": "0.8",
+     "size": "132.01"
+    },
+    {
+     "price": "0.78",
+     "size": "138.63"
+    },
+    {
+     "price": "0.77",
+     "size": "20"
+    },
+    {
+     "price": "0.76",
+     "size": "15"
+    },
+    {
+     "price": "0.75",
+     "size": "15"
+    },
+    {
+     "price": "0.74",
+     "size": "710"
+    },
+    {
+     "price": "0.73",
+     "size": "1999.61"
+    },
+    {
+     "price": "0.72",
+     "size": "900"
+    },
+    {
+     "price": "0.71",
+     "size": "2647.1"
+    },
+    {
+     "price": "0.7",
+     "size": "8833.28"
+    },
+    {
+     "price": "0.69",
+     "size": "1859.2"
+    },
+    {
+     "price": "0.68",
+     "size": "2996.49"
+    }
+   ]
+  },
+  "expected": {
+   "book_ok": true,
+   "best_bid": 0.67,
+   "best_ask": 0.68,
+   "book_mid": 0.675,
+   "spread": 0.01,
+   "spread_cost": 0.005,
+   "fee_at_ask": 0.0109,
+   "gross_edge": 0.241,
+   "net_edge": 0.2251,
+   "retention": 0.934,
+   "capacity_usd": 17395.74,
+   "stakes": [
+    {
+     "stake_usd": 25,
+     "filled_usd": 25.0,
+     "shares": 36.19,
+     "avg_price": 0.68,
+     "edge": 0.2251,
+     "expected_profit_usd": 8.15,
+     "roi_pct": 32.58
+    },
+    {
+     "stake_usd": 100,
+     "filled_usd": 100.0,
+     "shares": 144.74,
+     "avg_price": 0.68,
+     "edge": 0.2251,
+     "expected_profit_usd": 32.58,
+     "roi_pct": 32.58
+    },
+    {
+     "stake_usd": 500,
+     "filled_usd": 500.0,
+     "shares": 723.71,
+     "avg_price": 0.68,
+     "edge": 0.2251,
+     "expected_profit_usd": 162.92,
+     "roi_pct": 32.58
+    },
+    {
+     "stake_usd": 1000,
+     "filled_usd": 1000.0,
+     "shares": 1447.43,
+     "avg_price": 0.68,
+     "edge": 0.2251,
+     "expected_profit_usd": 325.85,
+     "roi_pct": 32.58
+    }
+   ],
+   "limit_price": 0.67,
+   "limit_edge": 0.246,
+   "verdict": "worth it"
+  }
+ },
+ {
+  "q": 0.9618,
+  "fee_rate": 0.05,
+  "min_edge": 0.02,
+  "book": {
+   "bids": [
+    {
+     "price": "0.04",
+     "size": "111"
+    },
+    {
+     "price": "0.05",
+     "size": "85"
+    },
+    {
+     "price": "0.67",
+     "size": "19"
+    }
+   ],
+   "asks": [
+    {
+     "price": "0.96",
+     "size": "250"
+    },
+    {
+     "price": "0.95",
+     "size": "1871"
+    },
+    {
+     "price": "0.76",
+     "size": "3069.42"
+    },
+    {
+     "price": "0.75",
+     "size": "24"
+    },
+    {
+     "price": "0.74",
+     "size": "10"
+    }
+   ]
+  },
+  "expected": {
+   "book_ok": true,
+   "best_bid": 0.67,
+   "best_ask": 0.74,
+   "book_mid": 0.705,
+   "spread": 0.07,
+   "spread_cost": 0.035,
+   "fee_at_ask": 0.0096,
+   "gross_edge": 0.2568,
+   "net_edge": 0.2122,
+   "retention": 0.826,
+   "capacity_usd": 2386.47,
+   "stakes": [
+    {
+     "stake_usd": 25,
+     "filled_usd": 25.0,
+     "shares": 33.05,
+     "avg_price": 0.747,
+     "edge": 0.2054,
+     "expected_profit_usd": 6.79,
+     "roi_pct": 27.15
+    },
+    {
+     "stake_usd": 100,
+     "filled_usd": 100.0,
+     "shares": 130.58,
+     "avg_price": 0.7566,
+     "edge": 0.196,
+     "expected_profit_usd": 25.59,
+     "roi_pct": 25.59
+    },
+    {
+     "stake_usd": 500,
+     "filled_usd": 500.0,
+     "shares": 650.65,
+     "avg_price": 0.7593,
+     "edge": 0.1933,
+     "expected_profit_usd": 125.8,
+     "roi_pct": 25.16
+    },
+    {
+     "stake_usd": 1000,
+     "filled_usd": 1000.0,
+     "shares": 1300.74,
+     "avg_price": 0.7597,
+     "edge": 0.193,
+     "expected_profit_usd": 251.06,
+     "roi_pct": 25.11
+    }
+   ],
+   "limit_price": 0.68,
+   "limit_edge": 0.2818,
+   "verdict": "worth it"
+  }
+ },
+ {
+  "q": 0.9393,
+  "fee_rate": 0.05,
+  "min_edge": 0.02,
+  "book": {
+   "bids": [
+    {
+     "price": "0.14",
+     "size": "250"
+    },
+    {
+     "price": "0.15",
+     "size": "33"
+    },
+    {
+     "price": "0.64",
+     "size": "9"
+    }
+   ],
+   "asks": [
+    {
+     "price": "0.98",
+     "size": "250"
+    },
+    {
+     "price": "0.97",
+     "size": "2926"
+    },
+    {
+     "price": "0.72",
+     "size": "2685.09"
+    },
+    {
+     "price": "0.71",
+     "size": "9"
+    }
+   ]
+  },
+  "expected": {
+   "book_ok": true,
+   "best_bid": 0.64,
+   "best_ask": 0.71,
+   "book_mid": 0.675,
+   "spread": 0.07,
+   "spread_cost": 0.035,
+   "fee_at_ask": 0.0103,
+   "gross_edge": 0.2643,
+   "net_edge": 0.219,
+   "retention": 0.829,
+   "capacity_usd": 1966.81,
+   "stakes": [
+    {
+     "stake_usd": 25,
+     "filled_usd": 25.0,
+     "shares": 34.36,
+     "avg_price": 0.7174,
+     "edge": 0.2118,
+     "expected_profit_usd": 7.28,
+     "roi_pct": 29.11
+    },
+    {
+     "stake_usd": 100,
+     "filled_usd": 100.0,
+     "shares": 137.09,
+     "avg_price": 0.7193,
+     "edge": 0.2099,
+     "expected_profit_usd": 28.77,
+     "roi_pct": 28.77
+    },
+    {
+     "stake_usd": 500,
+     "filled_usd": 500.0,
+     "shares": 684.98,
+     "avg_price": 0.7199,
+     "edge": 0.2093,
+     "expected_profit_usd": 143.4,
+     "roi_pct": 28.68
+    },
+    {
+     "stake_usd": 1000,
+     "filled_usd": 1000.0,
+     "shares": 1369.83,
+     "avg_price": 0.7199,
+     "edge": 0.2093,
+     "expected_profit_usd": 286.68,
+     "roi_pct": 28.67
+    }
+   ],
+   "limit_price": 0.65,
+   "limit_edge": 0.2893,
+   "verdict": "worth it"
+  }
+ },
+ {
+  "q": 0.8975,
+  "fee_rate": 0.05,
+  "min_edge": 0.02,
+  "book": {
+   "bids": [
+    {
+     "price": "0.14",
+     "size": "250"
+    },
+    {
+     "price": "0.15",
+     "size": "2659"
+    },
+    {
+     "price": "0.16",
+     "size": "5"
+    },
+    {
+     "price": "0.62",
+     "size": "9"
+    }
+   ],
+   "asks": [
+    {
+     "price": "0.96",
+     "size": "250"
+    },
+    {
+     "price": "0.95",
+     "size": "4285"
+    },
+    {
+     "price": "0.69",
+     "size": "9"
+    },
+    {
+     "price": "0.68",
+     "size": "2475.35"
+    }
+   ]
+  },
+  "expected": {
+   "book_ok": true,
+   "best_bid": 0.62,
+   "best_ask": 0.68,
+   "book_mid": 0.65,
+   "spread": 0.06,
+   "spread_cost": 0.03,
+   "fee_at_ask": 0.0109,
+   "gross_edge": 0.2475,
+   "net_edge": 0.2066,
+   "retention": 0.835,
+   "capacity_usd": 1716.48,
+   "stakes": [
+    {
+     "stake_usd": 25,
+     "filled_usd": 25.0,
+     "shares": 36.19,
+     "avg_price": 0.68,
+     "edge": 0.2066,
+     "expected_profit_usd": 7.48,
+     "roi_pct": 29.91
+    },
+    {
+     "stake_usd": 100,
+     "filled_usd": 100.0,
+     "shares": 144.74,
+     "avg_price": 0.68,
+     "edge": 0.2066,
+     "expected_profit_usd": 29.91,
+     "roi_pct": 29.91
+    },
+    {
+     "stake_usd": 500,
+     "filled_usd": 500.0,
+     "shares": 723.71,
+     "avg_price": 0.68,
+     "edge": 0.2066,
+     "expected_profit_usd": 149.53,
+     "roi_pct": 29.91
+    },
+    {
+     "stake_usd": 1000,
+     "filled_usd": 1000.0,
+     "shares": 1447.43,
+     "avg_price": 0.68,
+     "edge": 0.2066,
+     "expected_profit_usd": 299.07,
+     "roi_pct": 29.91
+    }
+   ],
+   "limit_price": 0.63,
+   "limit_edge": 0.2675,
+   "verdict": "worth it"
+  }
+ },
+ {
+  "q": 0.9245,
+  "fee_rate": 0.05,
+  "min_edge": 0.02,
+  "book": {
+   "bids": [
+    {
+     "price": "0.01",
+     "size": "59628.78"
+    },
+    {
+     "price": "0.02",
+     "size": "500"
+    },
+    {
+     "price": "0.03",
+     "size": "256.81"
+    },
+    {
+     "price": "0.08",
+     "size": "62.5"
+    },
+    {
+     "price": "0.09",
+     "size": "6.86"
+    },
+    {
+     "price": "0.1",
+     "size": "5"
+    },
+    {
+     "price": "0.32",
+     "size": "5015.62"
+    },
+    {
+     "price": "0.33",
+     "size": "2799"
+    },
+    {
+     "price": "0.34",
+     "size": "20"
+    },
+    {
+     "price": "0.5",
+     "size": "10"
+    },
+    {
+     "price": "0.62",
+     "size": "20"
+    },
+    {
+     "price": "0.64",
+     "size": "15"
+    },
+    {
+     "price": "0.65",
+     "size": "15"
+    },
+    {
+     "price": "0.66",
+     "size": "241"
+    },
+    {
+     "price": "0.67",
+     "size": "24"
+    },
+    {
+     "price": "0.68",
+     "size": "310"
+    },
+    {
+     "price": "0.69",
+     "size": "497.84"
+    },
+    {
+     "price": "0.7",
+     "size": "33.2"
+    }
+   ],
+   "asks": [
+    {
+     "price": "0.99",
+     "size": "59620.32"
+    },
+    {
+     "price": "0.98",
+     "size": "14.6"
+    },
+    {
+     "price": "0.95",
+     "size": "250"
+    },
+    {
+     "price": "0.94",
+     "size": "2034"
+    },
+    {
+     "price": "0.93",
+     "size": "8.78"
+    },
+    {
+     "price": "0.91",
+     "size": "55.56"
+    },
+    {
+     "price": "0.84",
+     "size": "20"
+    },
+    {
+     "price": "0.83",
+     "size": "15"
+    },
+    {
+     "price": "0.82",
+     "size": "15"
+    },
+    {
+     "price": "0.81",
+     "size": "10"
+    },
+    {
+     "price": "0.8",
+     "size": "200"
+    },
+    {
+     "price": "0.75",
+     "size": "5000"
+    },
+    {
+     "price": "0.74",
+     "size": "9807"
+    },
+    {
+     "price": "0.73",
+     "size": "5079.77"
+    },
+    {
+     "price": "0.72",
+     "size": "638.26"
+    },
+    {
+     "price": "0.71",
+     "size": "2116.79"
+    }
+   ]
+  },
+  "expected": {
+   "book_ok": true,
+   "best_bid": 0.7,
+   "best_ask": 0.71,
+   "book_mid": 0.705,
+   "spread": 0.01,
+   "spread_cost": 0.005,
+   "fee_at_ask": 0.0103,
+   "gross_edge": 0.2195,
+   "net_edge": 0.2042,
+   "retention": 0.93,
+   "capacity_usd": 17109.06,
+   "stakes": [
+    {
+     "stake_usd": 25,
+     "filled_usd": 25.0,
+     "shares": 34.71,
+     "avg_price": 0.71,
+     "edge": 0.2042,
+     "expected_profit_usd": 7.09,
+     "roi_pct": 28.35
+    },
+    {
+     "stake_usd": 100,
+     "filled_usd": 100.0,
+     "shares": 138.83,
+     "avg_price": 0.71,
+     "edge": 0.2042,
+     "expected_profit_usd": 28.35,
+     "roi_pct": 28.35
+    },
+    {
+     "stake_usd": 500,
+     "filled_usd": 500.0,
+     "shares": 694.16,
+     "avg_price": 0.71,
+     "edge": 0.2042,
+     "expected_profit_usd": 141.75,
+     "roi_pct": 28.35
+    },
+    {
+     "stake_usd": 1000,
+     "filled_usd": 1000.0,
+     "shares": 1388.32,
+     "avg_price": 0.71,
+     "edge": 0.2042,
+     "expected_profit_usd": 283.5,
+     "roi_pct": 28.35
+    }
+   ],
+   "limit_price": 0.7,
+   "limit_edge": 0.2245,
+   "verdict": "worth it"
+  }
+ },
+ {
+  "q": 0.9692,
+  "fee_rate": 0.05,
+  "min_edge": 0.02,
+  "book": {
+   "bids": [
+    {
+     "price": "0.15",
+     "size": "2670"
+    },
+    {
+     "price": "0.16",
+     "size": "255"
+    },
+    {
+     "price": "0.69",
+     "size": "1000"
+    }
+   ],
+   "asks": [
+    {
+     "price": "0.96",
+     "size": "250"
+    },
+    {
+     "price": "0.95",
+     "size": "1722"
+    },
+    {
+     "price": "0.76",
+     "size": "2622.15"
+    }
+   ]
+  },
+  "expected": {
+   "book_ok": true,
+   "best_bid": 0.69,
+   "best_ask": 0.76,
+   "book_mid": 0.725,
+   "spread": 0.07,
+   "spread_cost": 0.035,
+   "fee_at_ask": 0.0091,
+   "gross_edge": 0.2442,
+   "net_edge": 0.2001,
+   "retention": 0.819,
+   "capacity_usd": 2016.75,
+   "stakes": [
+    {
+     "stake_usd": 25,
+     "filled_usd": 25.0,
+     "shares": 32.5,
+     "avg_price": 0.76,
+     "edge": 0.2001,
+     "expected_profit_usd": 6.5,
+     "roi_pct": 26.01
+    },
+    {
+     "stake_usd": 100,
+     "filled_usd": 100.0,
+     "shares": 130.02,
+     "avg_price": 0.76,
+     "edge": 0.2001,
+     "expected_profit_usd": 26.01,
+     "roi_pct": 26.01
+    },
+    {
+     "stake_usd": 500,
+     "filled_usd": 500.0,
+     "shares": 650.09,
+     "avg_price": 0.76,
+     "edge": 0.2001,
+     "expected_profit_usd": 130.07,
+     "roi_pct": 26.01
+    },
+    {
+     "stake_usd": 1000,
+     "filled_usd": 1000.0,
+     "shares": 1300.19,
+     "avg_price": 0.76,
+     "edge": 0.2001,
+     "expected_profit_usd": 260.14,
+     "roi_pct": 26.01
+    }
+   ],
+   "limit_price": 0.7,
+   "limit_edge": 0.2692,
+   "verdict": "worth it"
+  }
+ },
+ {
+  "q": 0.6,
+  "fee_rate": 0.05,
+  "min_edge": 0.02,
+  "book": {
+   "bids": [],
+   "asks": []
+  },
+  "expected": {
+   "verdict": "no sellers",
+   "book_ok": false
+  }
+ },
+ {
+  "q": 0.6,
+  "fee_rate": 0.05,
+  "min_edge": 0.02,
+  "book": {
+   "bids": [
+    {
+     "price": "0.50",
+     "size": "100"
+    }
+   ],
+   "asks": [
+    {
+     "price": "0.58",
+     "size": "50"
+    },
+    {
+     "price": "0.60",
+     "size": "500"
+    }
+   ]
+  },
+  "expected": {
+   "book_ok": true,
+   "best_bid": 0.5,
+   "best_ask": 0.58,
+   "book_mid": 0.54,
+   "spread": 0.08,
+   "spread_cost": 0.04,
+   "fee_at_ask": 0.0122,
+   "gross_edge": 0.06,
+   "net_edge": 0.0078,
+   "retention": 0.13,
+   "capacity_usd": 0.0,
+   "stakes": [
+    {
+     "stake_usd": 25,
+     "filled_usd": 25.0,
+     "shares": 42.22,
+     "avg_price": 0.58,
+     "edge": 0.0078,
+     "expected_profit_usd": 0.33,
+     "roi_pct": 1.32
+    },
+    {
+     "stake_usd": 100,
+     "filled_usd": 100.0,
+     "shares": 165.02,
+     "avg_price": 0.5939,
+     "edge": -0.006,
+     "expected_profit_usd": -0.99,
+     "roi_pct": -0.99
+    },
+    {
+     "stake_usd": 500,
+     "filled_usd": 335.61,
+     "shares": 550.0,
+     "avg_price": 0.5982,
+     "edge": -0.0102,
+     "expected_profit_usd": -5.61,
+     "roi_pct": -1.67
+    },
+    {
+     "stake_usd": 1000,
+     "filled_usd": 335.61,
+     "shares": 550.0,
+     "avg_price": 0.5982,
+     "edge": -0.0102,
+     "expected_profit_usd": -5.61,
+     "roi_pct": -1.67
+    }
+   ],
+   "limit_price": 0.51,
+   "limit_edge": 0.09,
+   "verdict": "thin"
+  }
+ }
+]
