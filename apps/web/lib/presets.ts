@@ -4,6 +4,7 @@ import { FilterState, defaultState, type FilterInput } from "@/lib/filters/state
 import { serialize } from "@/lib/filters/url";
 import { DEMO_MODE, getRepo, type Preset } from "@/lib/repo";
 import { TAXONOMY } from "@/lib/taxonomy";
+import { track } from "@/lib/telemetry";
 
 export interface BuiltinPreset { id: string; name: string; patch: FilterInput }
 
@@ -62,11 +63,13 @@ export async function savePresetFromState(state: FilterState, name?: string, emo
   const all = await repo.presets.list();
   const limit = quota(tier(), "presets");
   if (all.length >= limit) throw new PresetQuotaError(limit);
-  return repo.presets.insert({
+  const saved = await repo.presets.insert({
     name: name?.trim() || `My view ${all.length + 1}`, emoji,
     query: toQuery(state), columns: null, sort: state.sort,
     is_default: false, position: Math.max(-1, ...all.map((p) => p.position)) + 1,
   });
+  track("preset_saved", { count: all.length + 1 }); // never the name or the filter values
+  return saved;
 }
 
 /** Query key that carries a shared preset's name; not a FilterState key, so parse() ignores it. */

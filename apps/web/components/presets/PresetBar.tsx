@@ -69,7 +69,7 @@ export function PresetBar({ state, onChange }: { state: FilterState; onChange: (
   useEffect(() => {
     if (!menu) return;
     const close = (e: Event) => {
-      if (e instanceof KeyboardEvent ? e.key === "Escape" : !menuRef.current?.contains(e.target as Node)) { setMenu(false); setConfirmDelete(false); }
+      if (e instanceof KeyboardEvent ? e.key === "Escape" : !menuRef.current?.contains(e.target as Node)) { setMenuPos(null); setConfirmDelete(false); }
     };
     const hide = () => setMenuPos(null);
     document.addEventListener("pointerdown", close);

@@ -7,7 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 import { drawerHref } from "@/components/market/DrawerHost";
 import { fetchMarket, type StoreMarket } from "@/lib/api";
 import { DASH, betLine, chance, closesIn, pct, price, ret } from "@/lib/format";
-import { getRepo, type AlertChannel, type WatchlistItem } from "@/lib/repo";
+import { getRepo, type WatchlistItem } from "@/lib/repo";
 import { useCollection } from "@/lib/repo/hooks";
 import { WatchStar, type WatchSnapshot } from "./WatchStar";
 

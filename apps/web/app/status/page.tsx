@@ -78,7 +78,7 @@ export default async function Page() {
         <h2 id="source-h" className="text-xl font-semibold text-text">Data source</h2>
         <p>
           Venue: {meta.platform === "polymarket" ? "Polymarket" : "Kalshi"} public market data · engine instance {meta.instance} ·
-          read from {DATA_SOURCE === "github" ? "the published data branch" : "local files"}.
+          read from {DATA_SOURCE === "local" ? "local files" : "the published scan data"}.
         </p>
       </section>
     </article>

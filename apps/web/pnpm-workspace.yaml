@@ -1,0 +1,6 @@
+allowBuilds:
+  core-js: false   # posthog-js dependency; its postinstall only prints a banner
+
+overrides:
+  # next 15.5 pins postcss 8.4.31 (GHSA high: sourceMappingURL file read); patched in >= 8.5.18
+  next>postcss: 8.5.29
