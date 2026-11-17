@@ -19,7 +19,7 @@ export function pct(p: number | null | undefined): string {
 export function ret(roiPct: number | null | undefined): string {
   if (!ok(roiPct)) return DASH;
   const a = Math.abs(roiPct);
-  const n = a >= 10 ? Math.round(a).toString() : a.toFixed(1);
+  const n = a >= 10 ? Math.round(a).toString() : a.toFixed(1).replace(/\.0$/, "");
   return `${roiPct < 0 ? "−" : "+"}${n}%`;
 }
 /** cents edge for Pro mode: 0.051 → "+5.1¢" */
