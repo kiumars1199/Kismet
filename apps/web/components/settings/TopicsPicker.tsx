@@ -7,6 +7,7 @@ import { fetchMeta } from "@/lib/api";
 import { getRepo } from "@/lib/repo";
 import { useProfile } from "@/lib/repo/hooks";
 import { TAXONOMY_TREE, type TaxNode } from "@/lib/taxonomy";
+import { formatCount } from "@/lib/format";
 
 // level 2 = topics under each category; categories with no topics (World, Mentions) are a tile themselves
 const GROUPS: { label: string; topics: TaxNode[] }[] = [
@@ -52,7 +53,7 @@ export function TopicsPicker() {
                     {t.label}
                   </span>
                   <span className={`whitespace-nowrap text-xs tabular-nums ${on ? "text-accent-softer" : "text-muted"}`}>
-                    {counts === null ? "" : `${(n ?? 0).toLocaleString("en-US")} open`}
+                    {counts === null ? "" : `${formatCount(n ?? 0)} open`}
                   </span>
                 </button>
               );

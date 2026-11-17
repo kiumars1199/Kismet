@@ -6,12 +6,13 @@ import { useEffect, useState, type ReactNode } from "react";
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { drawerHref } from "@/components/market/DrawerHost";
 import { fetchCurve, fetchMarkets, type ApiRow, type Curve } from "@/lib/api";
-import { closesIn, DASH, edge, money, pct, price, ret, sideRet, sideEdge } from "@/lib/format";
+import { closesIn, DASH, edge, money, pct, price, ret, sideRet, sideEdge, formatCount } from "@/lib/format";
 import type { FilterState } from "@/lib/filters/state";
 import { summarize } from "@/lib/journal";
 import { useCollection, useProfile } from "@/lib/repo/hooks";
 import type { DashboardPanel } from "@/lib/repo/types";
 import { viewById, viewHref } from "@/lib/views";
+import { Count } from "@/components/kit";
 
 export const PANEL_KINDS = {
   preset_table: "Top markets in a view",
@@ -94,7 +95,7 @@ function PresetTable({ state }: { state: FilterState }) {
   if (r.error) return <Failed />;
   if (!r.data) return <Loading />;
   if (!r.data.rows.length) return <Muted>Nothing matches this view right now.</Muted>;
-  return <><p className="text-xs text-muted">{r.data.total.toLocaleString("en-US")} matching</p><MarketRows rows={r.data.rows} pro={pro} /></>;
+  return <><p className="text-xs text-muted"><Count n={r.data.total} /> matching</p><MarketRows rows={r.data.rows} pro={pro} /></>;
 }
 
 function Kpi({ state }: { state: FilterState }) {
@@ -114,9 +115,9 @@ function Kpi({ state }: { state: FilterState }) {
   );
   return (
     <div className="grid grid-cols-3 gap-4 py-2">
-      {cell(state.view === "flags" ? "Best bets" : "Markets", a.total.toLocaleString("en-US"))}
+      {cell(state.view === "flags" ? "Best bets" : "Markets", formatCount(a.total))}
       {cell("Best expected return", ret(top), true)}
-      {cell("Closing in 6 h", b.total.toLocaleString("en-US"))}
+      {cell("Closing in 6 h", formatCount(b.total))}
     </div>
   );
 }
@@ -150,7 +151,7 @@ function Calibration({ segment, h }: { segment: string; h: number }) {
   const data = c.points.map((p) => ({ price: Math.round(p.price * 100), won: Math.round(p.win_prob * 1000) / 10, fair: Math.round(p.price * 100) }));
   return (
     <div className="flex h-full min-h-48 flex-col gap-2">
-      <p className="text-xs text-muted">{Math.round(c.neff).toLocaleString("en-US")} eff. samples · {c.events.toLocaleString("en-US")} events · ~{c.horizon_h} h out. Above the dashed line = won more often than the price said.</p>
+      <p className="text-xs text-muted"><Count n={c.neff} /> eff. samples · <Count n={c.events} /> events · ~{c.horizon_h} h out. Above the dashed line = won more often than the price said.</p>
       <div className="min-h-40 flex-1">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 4, right: 8, bottom: 0, left: -12 }}>

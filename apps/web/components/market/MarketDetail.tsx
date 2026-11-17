@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { fetchBook, fetchMarket, type BookResponse, type MarketResponse } from "@/lib/api";
-import { ago, basis, betLine, chance, closesIn, edge, expectedProfit, money, pays, PAYS_HELP, pct, price, realisticReturn, ret, RETURN_HELP, sideRet, sideEdge } from "@/lib/format";
+import { ago, basis, betLine, chance, closesIn, edge, expectedProfit, money, pays, PAYS_HELP, pct, price, realisticReturn, ret, RETURN_HELP, sideRet, sideEdge, formatCount } from "@/lib/format";
 import { useProfile } from "@/lib/repo/hooks";
 import type { Execution, Side, StoreMarket } from "@/lib/types";
 import { WatchStar } from "@/components/watch/WatchStar";
@@ -15,6 +15,7 @@ import { OddsBars, Skeleton, Val } from "./bits";
 import { VERDICT_LABEL, chanceTone, returnTone, topicLabel } from "./labels";
 import { drawerHref } from "./DrawerHost";
 import { TradeButton, VenueLink } from "@/components/trade/TradeButton";
+import { Count } from "@/components/kit";
 
 const card = "rounded-inner border border-border bg-raised p-4";
 const LEVEL = { all: "all markets", cat: "category", niche: "niche", nmt: "niche + type" } as const;
@@ -177,7 +178,7 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
         <h3 id="why" className="mb-3 font-sans text-sm font-semibold">{s.edge > 0 ? "Why it's a good price" : "How the price compares"}</h3>
         <OddsBars big market={s.ask} won={s.win_prob} labels={["Market's odds", "How often similar bets won"]} basis={basis(m, s)} />
         <p className="mt-3 text-[13px] leading-relaxed text-soft">
-          Based on {s.model_events.toLocaleString("en-US")} past {topicLabel(m)} events ({m.market_type}, about {m.horizon_h} h before close
+          Based on <Count n={s.model_events} /> past {topicLabel(m)} events ({m.market_type}, about {m.horizon_h} h before close
           {s.model_level === "all" || s.model_level === "cat" ? `, using all ${LEVEL[s.model_level]}` : ""}). Bets like this at {price(s.ask)} won {pct(s.win_prob)} of the time
           {s.win_prob_low > 0 ? `; a cautious estimate is ${pct(s.win_prob_low)}` : ""}.
         </p>
@@ -197,7 +198,7 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
             ["Spread", price(x?.spread ?? m.spread)], ["Fee", price(x?.fee_at_ask ?? s.fee)],
             ["Edge", edge(x?.net_edge ?? s.edge)], ["Cautious edge", edge(s.edge_low)],
             ["Edge kept after spread", pct(x?.retention)], ["Win chance range", `${pct(s.win_prob_low)}–${pct(s.win_prob)}`],
-            ["Model level", LEVEL[s.model_level] ?? s.model_level], ["Samples", `${Math.round(s.model_neff).toLocaleString("en-US")} eff. · ${s.model_events.toLocaleString("en-US")} events`],
+            ["Model level", LEVEL[s.model_level] ?? s.model_level], ["Samples", `${formatCount(s.model_neff)} eff. · ${formatCount(s.model_events)} events`],
           ] as const).map(([k, v]) => (
             <div key={k} className="contents"><dt className="text-muted">{k}</dt><dd className="m-0 text-right"><Val v={v} /></dd></div>
           ))}
@@ -336,10 +337,10 @@ function TrackRecord({ data, pro }: { data: MarketResponse; pro: boolean }) {
       </div>
       {b ? (
         <p className="text-[13px] leading-relaxed text-soft">
-          In our walk-forward test, {b.flags.toLocaleString("en-US")} past {cat} bets like these
+          In our walk-forward test, <Count n={b.flags} /> past {cat} bets like these
           {b.win_rate !== undefined ? ` won ${pct(b.win_rate)} of the time` : ""}
           {b.roi_pct !== undefined ? ` and returned ${ret(b.roi_pct)} on average` : ""}
-          {b.events !== undefined ? `, across ${b.events.toLocaleString("en-US")} events` : ""}.
+          {b.events !== undefined && <>, across <Count n={b.events} /> events</>}.
           {pro && b.t_stat !== undefined && <span className="text-muted" title="t-statistic: how far the result is from luck"> (t = {b.t_stat.toFixed(1)})</span>}
         </p>
       ) : (

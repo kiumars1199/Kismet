@@ -1,13 +1,13 @@
 // Status (T-29, F-24): when each part of the data was last refreshed, and what it holds.
 import { DATA_SOURCE } from "@/lib/config";
 import { getStore } from "@/lib/data/store";
-import { DASH, ago } from "@/lib/format";
+import { DASH, ago, formatCount } from "@/lib/format";
 import { freshness } from "@/lib/freshness";
 
 export const metadata = { title: "Status", description: "When MarketEdge data last refreshed." };
 export const dynamic = "force-dynamic";
 
-const n = (x: number | null | undefined) => (typeof x === "number" ? x.toLocaleString("en-US") : DASH);
+const n = (x: number | null | undefined) => formatCount(x);   // docs/18 §4
 const when = (unix: unknown) =>
   typeof unix === "number"
     ? `${new Date(unix * 1000).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" })} UTC`

@@ -6,7 +6,7 @@ import { useId, useState } from "react";
 import {
   Bar, BarChart, CartesianGrid, Cell, LabelList, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from "recharts";
-import { ret } from "@/lib/format";
+import { ret, exactCount, formatCount } from "@/lib/format";
 import type { bucketRows, foldRows } from "@/lib/trackRecord";
 
 const AXIS = { stroke: "var(--muted)", fontSize: 12, tickLine: false, axisLine: false } as const;
@@ -40,7 +40,7 @@ export function FoldCharts({ rows }: { rows: ReturnType<typeof foldRows> }) {
         <BarChart data={rows} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
           {GRID}
           <XAxis dataKey="week" {...AXIS} interval="preserveStartEnd" minTickGap={8} />
-          <YAxis {...AXIS} width={48} tickFormatter={(v: number) => v.toLocaleString("en-US")} />
+          <YAxis {...AXIS} width={48} tickFormatter={(v: number) => formatCount(v)} />
           <Tooltip {...TIP} formatter={(v) => [Number(v).toLocaleString("en-US"), "Bets"]} />
           <Bar dataKey="bets" fill="var(--market-bar)" radius={[4, 4, 0, 0]} maxBarSize={28} />
         </BarChart>
@@ -112,7 +112,7 @@ export function CalibrationChart({ sets }: { sets: Record<string, CalibrationSet
               <Line dataKey="won" stroke="var(--accent)" strokeWidth={2} dot={{ r: 3, fill: "var(--accent)" }} isAnimationActive={false} />
             </LineChart>
           </ResponsiveContainer>
-          <p className="text-xs text-muted">Based on {c!.events.toLocaleString("en-US")} past events. Above the dashed line, bets at that price won more often than the price implied.</p>
+          <p className="text-xs text-muted">Based on <span title={exactCount(c!.events)}>{formatCount(c!.events)}</span> past events. Above the dashed line, bets at that price won more often than the price implied.</p>
         </>
       ) : (
         <p className="rounded-inner border border-border bg-raised p-6 text-sm text-muted">Not enough past markets in this category at this time before close to draw a curve.</p>

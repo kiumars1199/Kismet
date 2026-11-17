@@ -3,7 +3,7 @@
 // / "Best bets" (Hybrid artboard): title + stat tiles, filter pills + sort (docs/13 §2), card grid, price-check strip.
 import { useEffect, useState } from "react";
 import { fetchBacktest, type BacktestResponse, type MarketsResponse } from "@/lib/api";
-import { RETURN_HELP, ago, ret } from "@/lib/format";
+import { RETURN_HELP, ago, ret, formatCount } from "@/lib/format";
 import { savePresetFromState } from "@/lib/presets";
 import { useProfile } from "@/lib/repo/hooks";
 import { TAXONOMY } from "@/lib/taxonomy";
@@ -18,7 +18,7 @@ import { EmptyState, ErrorState, StaleBanner } from "./States";
 import { useDesktop } from "./useDesktop";
 import { useMeta, useScreener } from "./useScreener";
 
-const nf = (n: number) => n.toLocaleString("en-US");
+const nf = formatCount;   // docs/18 §4: counts short, rounded down
 const short = (label: string) => label.split(" & ")[0]!;
 
 /** "Price check: 575 fair fill · 28 where the spread eats most of it · 1 hidden (price too high right now)". */
