@@ -6,6 +6,7 @@ import { MAIN_TABS, isActive } from "./nav";
 import { SearchBox } from "./SearchBox";
 import { FreshnessPill } from "@/components/header/FreshnessPill";
 import { Bell } from "@/components/header/Bell";
+import { AccountLink } from "@/components/auth/AccountLink";
 
 export function Logo() {
   return (
@@ -44,6 +45,7 @@ export function Header() {
         <SearchBox />
         <FreshnessPill />
         <Bell />
+        <AccountLink />
       </div>
     </header>
   );

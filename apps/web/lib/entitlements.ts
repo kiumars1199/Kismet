@@ -1,6 +1,7 @@
 // Tier table (docs/01-product.md § Tiers, docs/08-auth-billing.md § Entitlements) as data.
 // Server routes enforce; the UI mirrors with <UpgradeGate>. Infinity = unlimited.
 import { DEMO_MODE } from "@/lib/repo";
+import { currentMe, useMe } from "@/lib/me";
 
 export type Tier = "free" | "pro" | "premium";
 
@@ -30,10 +31,12 @@ export const DELAY_MIN: Record<Tier, number> = { free: 15, pro: 0, premium: 0 };
 export const can = (tier: Tier, feature: Feature): boolean => FEATURES[tier].includes(feature);
 export const quota = (tier: Tier, key: QuotaKey): number => QUOTAS[tier][key];
 
-/** Client tier. Demo mode has no auth or billing, so everyone is premium. */
+/** Client tier for display (server routes enforce). Demo mode has no auth or billing, so everyone is premium. */
+export const clientTier = (): Tier => (DEMO_MODE ? "premium" : currentMe()?.tier ?? "free");
+
 export function useEntitlements() {
-  // ponytail: real tier comes from /api/me once auth exists (docs/08)
-  const tier: Tier = DEMO_MODE ? "premium" : "free";
+  const me = useMe();
+  const tier: Tier = DEMO_MODE ? "premium" : me?.tier ?? "free";
   return {
     tier,
     can: (f: Feature) => can(tier, f),

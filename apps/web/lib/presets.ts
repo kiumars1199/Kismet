@@ -1,8 +1,8 @@
 // Presets (docs/04 § Presets, docs/05 F-07): built-ins as FilterState patches + saving the current view.
-import { quota, type Tier } from "@/lib/entitlements";
+import { clientTier, quota, type Tier } from "@/lib/entitlements";
 import { FilterState, defaultState, type FilterInput } from "@/lib/filters/state";
 import { serialize } from "@/lib/filters/url";
-import { DEMO_MODE, getRepo, type Preset } from "@/lib/repo";
+import { getRepo, type Preset } from "@/lib/repo";
 import { TAXONOMY } from "@/lib/taxonomy";
 
 export interface BuiltinPreset { id: string; name: string; patch: FilterInput }
@@ -53,8 +53,7 @@ export class PresetQuotaError extends Error {
   constructor(readonly limit: number) { super(`Preset limit reached (${limit})`); }
 }
 
-// ponytail: tier mirrors useEntitlements (demo = premium); swap for the session tier once auth exists (docs/08)
-const tier = (): Tier => (DEMO_MODE ? "premium" : "free");
+const tier = (): Tier => clientTier();   // the server enforces the same quota on save
 
 /** Save the current view as a user preset (C1 "Save as preset", PresetBar, "+ Save this view"). */
 export async function savePresetFromState(state: FilterState, name?: string, emoji: string | null = null): Promise<Preset> {
