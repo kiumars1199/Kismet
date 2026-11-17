@@ -48,6 +48,24 @@ describe("RT-01 signed-out reveals are counted on the server, not in the cookie"
   });
 });
 
+describe("RT-03 Free can't enumerate the scan by splitting filters", () => {
+  it("signed-out list requests: 30 a minute, then 429 with Retry-After", async () => {
+    const codes: number[] = [];
+    for (let i = 0; i < 31; i++) codes.push((await markets(req(`/api/markets?g=0&wp=0&p0=${(i / 100).toFixed(2)}&p1=${((i + 1) / 100).toFixed(2)}`))).status);
+    expect(codes.slice(0, 30).every((c) => c === 200)).toBe(true);
+    expect(codes[30]).toBe(429);
+  });
+
+  it("distinct rows per hour are budgeted: past 1,500 new markets the list answers 429", async () => {
+    const r = new Request("http://test/api/markets");
+    const ids = (n: number, from = 0) => Array.from({ length: n }, (_, i) => `m${from + i}`);
+    for (let i = 0; i < 60; i++) expect(await abuse.rowBudget(r, null, ids(25, i * 25))).toBeNull();   // 1,500 rows
+    expect(await abuse.rowBudget(r, null, ids(25, 0))).toBeNull();      // re-listing what you already saw is free
+    expect((await abuse.rowBudget(r, null, ids(25, 1_500)))?.status).toBe(429);
+    expect(await abuse.rowBudget(r, "someone-else", ids(25, 1_500))).toBeNull();   // per account / IP
+  });
+});
+
 describe("RT-04 Free filters and sorts see the banded numbers, not the exact ones", () => {
   it("a return threshold inside one band can't tell markets in that band apart", async () => {
     const store = await getStore();

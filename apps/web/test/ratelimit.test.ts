@@ -48,7 +48,7 @@ describe("rate limits", () => {
   it("signed out: keyed by the platform client IP (x-real-ip on Vercel, RT-07)", async () => {
     vi.stubEnv("VERCEL", "1");
     h.user = null; h.tier = "free";
-    await until429(() => markets(req("/api/markets", "9.9.9.9")), 60);
+    await until429(() => markets(req("/api/markets", "9.9.9.9")), 30);   // Free list cap (RT-03) is the tighter one
     expect((await markets(req("/api/markets", "8.8.8.8"))).status).toBe(200);
     vi.unstubAllEnvs();
   });

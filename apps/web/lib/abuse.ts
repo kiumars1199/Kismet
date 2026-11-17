@@ -11,6 +11,7 @@ type Window = `${number} ${"s" | "m" | "h"}`;
 export const RULES = {
   markets: { limit: 60, window: "1 m" },     // /api/markets, /api/flags, /api/markets/[id], /api/events/*
   pages: { limit: 50, window: "1 m" },       // list pages past the first, per user (docs/15 pagination cap)
+  list_free: { limit: 30, window: "1 m" },   // Free / signed-out list requests (RT-03), on top of markets
   suggest: { limit: 120, window: "1 m" },
   book: { limit: 30, window: "1 m" },
   auth_ip: { limit: 5, window: "1 m" },      // /api/auth/*, per IP
@@ -20,6 +21,9 @@ export const RULES = {
 export type Rule = keyof typeof RULES;
 
 export const ROWS_PER_HOUR_ALERT = 5_000;
+/** Distinct markets a Free / signed-out caller may list per hour (RT-03): 60 full pages of new rows. Browsing never
+ *  gets near it; enumerating the ~14k-market scan takes 9+ hours per IP or account. */
+export const FREE_ROWS_PER_HOUR = 1_500;
 
 const ms = (w: Window) => {
   const [n, u] = w.split(" ") as [string, "s" | "m" | "h"];
@@ -166,6 +170,13 @@ export async function distinct(key: string, ids: string[], limit: number, ttlMs:
     console.error("[abuse] budget store unavailable, using the per-instance one", e instanceof Error ? e.message : e);
     return fallback().distinct(key, ids, limit, ttlMs);
   }
+}
+
+/** RT-03: 429 when these rows would take the caller past FREE_ROWS_PER_HOUR distinct markets this hour, else null. */
+export async function rowBudget(req: Request, userId: string | null | undefined, ids: string[]): Promise<Response | null> {
+  const hour = Math.floor(Date.now() / 3_600_000);
+  const r = await distinct(`rows:${userId ? `u:${userId}` : `ip:${clientIp(req)}`}:${hour}`, ids, FREE_ROWS_PER_HOUR, 3_600_000);
+  return r.ok ? null : tooMany((hour + 1) * 3_600_000);
 }
 
 /** Vercel BotID (docs/15). Pass-through off Vercel (local, CI, e2e). 403 for a detected bot, else null.
