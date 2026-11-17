@@ -1,6 +1,6 @@
 // Plain-language labels and token classes shared by rows, cards, BetCard and the drawer (docs/06 § Display language).
 import { TAXONOMY, topicsOf } from "@/lib/taxonomy";
-import { money, type Chance } from "@/lib/format";
+import { money, realisticReturn, ret, type Chance } from "@/lib/format";
 import type { Execution, Market, Side, Verdict } from "@/lib/types";
 
 /** Return color: ≥10% strong green, 3–10% green, 0–3% grey, <0 red. */
@@ -39,7 +39,11 @@ export function rowNotes(x: Execution | undefined, best: Side): Note[] {
   else if (x?.verdict === "thin") out.push({ text: VERDICT_LABEL.thin, tone: "warning" });
   if (x && x.book_ok !== false && x.verdict !== "not worth it" && x.capacity_usd < 100)
     out.push({ text: `Only ~${money(Math.round(x.capacity_usd))} available at this price`, tone: "warning" });
-  if (best.edge >= 0.15) out.push({ text: "Unusually high — check details", tone: "muted" });
+  if (best.edge >= 0.15) {
+    // the model overshoots at this size; show what similar past bets really returned when we know it
+    const real = realisticReturn(best);
+    out.push({ text: real === null ? "Unusually high — check details" : `Unusually high — similar past bets returned ${ret(real)}`, tone: "muted" });
+  }
   return out;
 }
 

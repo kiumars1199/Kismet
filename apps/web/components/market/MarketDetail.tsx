@@ -282,7 +282,7 @@ function StakeSection({ x, live, fetchedAt, error, bookState, scanAt, stake, onS
           <thead>
             <tr className="text-left text-xs text-muted">
               <th scope="col" className="py-1 font-medium">You bet</th>
-              <th scope="col" className="font-medium">You win if it hits</th>
+              <th scope="col" className="font-medium">You get back if it wins</th>
               <th scope="col" className="text-right font-medium">Expected profit</th>
             </tr>
           </thead>

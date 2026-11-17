@@ -5,7 +5,7 @@ export const SORTS: { label: string; sort: FilterState["sort"] }[] = [
   { label: "Best expected return", sort: { key: "roi", dir: "desc" } },
   { label: "Most likely to win", sort: { key: "win_prob", dir: "desc" } },
   { label: "Closing soonest", sort: { key: "closes", dir: "asc" } },
-  { label: "Biggest edge (¢)", sort: { key: "edge", dir: "desc" } },
+  { label: "Biggest price gap (¢)", sort: { key: "edge", dir: "desc" } },
   { label: "Most traded", sort: { key: "volume", dir: "desc" } },
   { label: "Closest to 50/50", sort: { key: "competitive", dir: "asc" } },
   { label: "Newest", sort: { key: "newest", dir: "desc" } },

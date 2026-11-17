@@ -52,7 +52,7 @@ export function WatchStar({ marketId, side, market }: { marketId: string; side?:
       aria-label={item ? "Saved" : "Save"}
       title={full ? "My list is full on your plan" : item ? "Saved to My list. Click to remove." : "Save to My list"}
       disabled={full}
-      className={`flex size-9 flex-none items-center justify-center rounded-input hover:bg-raised disabled:opacity-40 ${item ? "text-accent" : "text-muted hover:text-text"}`}
+      className={`flex size-11 flex-none items-center justify-center rounded-input hover:bg-raised disabled:opacity-40 ${item ? "text-accent" : "text-muted hover:text-text"}`}
     >
       <svg width="18" height="18" viewBox="0 0 24 24" fill={item ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" aria-hidden="true">
         <path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z" />

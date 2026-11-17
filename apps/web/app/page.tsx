@@ -33,7 +33,7 @@ export default async function Page() {
   const store = await getStore();
   const page = apply(store, FilterState.parse({ view: "flags", verdicts: ["worth it"], page_size: 3 }));
   const top = (page.groups ?? []).map((g) => g.best);
-  const bestCount = apply(store, FilterState.parse({ view: "flags" })).total; // same count as the Best bets page
+  const bestCount = apply(store, FilterState.parse({ view: "flags", verdicts: ["worth it", "thin"] })).total; // same filter as the Best bets page (BEST_BETS_VERDICTS)
   const tested = chosenResult(store.backtest)?.taker;
 
   return (
