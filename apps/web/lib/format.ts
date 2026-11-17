@@ -11,6 +11,13 @@ export function price(p: number | null | undefined): string {
   const c = p * 100;
   return `${Math.abs(c - Math.round(c)) < 0.05 ? Math.round(c) : c.toFixed(1)}¢`;
 }
+/** payout per $1 from the ask (docs/13 §3): 0.33 → "3.0x", 0.08 → "13x"; no ask → "—" */
+export function pays(ask: number | null | undefined): string {
+  if (!ok(ask) || ask <= 0) return DASH;
+  const x = 1 / ask;
+  return `${x >= 10 ? Math.round(x) : x.toFixed(1)}x`;
+}
+export const PAYS_HELP = "What $1 returns if this side wins: $1 ÷ price, before the fee.";
 /** 0.79 → "79%" */
 export function pct(p: number | null | undefined): string {
   return ok(p) ? `${Math.round(p * 100)}%` : DASH;

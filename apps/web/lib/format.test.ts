@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ago, chance, closesIn, edge, expectedProfit, money, pct, price, realisticReturn, ret } from "./format";
+import { ago, chance, closesIn, edge, expectedProfit, money, pays, pct, price, realisticReturn, ret } from "./format";
 
 describe("format", () => {
   it("formats numbers per docs/06", () => {
@@ -8,6 +8,7 @@ describe("format", () => {
     expect([edge(0.051), edge(-0.02)]).toEqual(["+5.1¢", "−2.0¢"]);
     expect([money(2400), money(32.58, true), money(-8, true), money(25)]).toEqual(["$2,400", "+$32.58", "−$8", "$25"]);
     expect(expectedProfit(33, 100)).toBe(33);
+    expect([pays(1 / 3), pays(0.5), pays(0.08), pays(0.99), pays(0), pays(null)]).toEqual(["3.0x", "2.0x", "13x", "1.0x", "—", "—"]);
   });
   it("chance labels use the docs/06 bands", () => {
     expect([chance(0.8), chance(0.79), chance(0.55), chance(0.5), chance(0.39), chance(undefined)])

@@ -167,8 +167,8 @@ function TopicPill({ s, facets, onChange }: { s: FilterState; facets?: Facets; o
   );
 }
 
-export function FilterPills({ state: s, mode, facets, meta, onChange, onReset }: {
-  state: FilterState; mode: Mode; facets?: Facets; meta?: MetaResponse | null; onChange: Change; onReset: () => void;
+export function FilterPills({ state: s, mode, facets, meta, onChange, onReset, children }: {
+  children?: ReactNode; state: FilterState; mode: Mode; facets?: Facets; meta?: MetaResponse | null; onChange: Change; onReset: () => void;
 }) {
   // Pays (docs/18 §3)
   const paysOn = (lo: number, hi: number) => s.pays_min === lo && (s.pays_max ?? Infinity) === hi;
@@ -233,6 +233,7 @@ export function FilterPills({ state: s, mode, facets, meta, onChange, onReset }:
           Hiding long shots · <span className="text-accent-hover">Show</span>
         </button>
       )}
+      {children}
       <div className="md:ml-auto">
         <Pill name="Sort" value={sortLabel} right>{(close) => <Options opts={sorts} onChange={onChange} close={close} />}</Pill>
       </div>

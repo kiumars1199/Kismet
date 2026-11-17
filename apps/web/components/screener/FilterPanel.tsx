@@ -64,7 +64,7 @@ export function FilterPanel(props: Props) {
 }
 
 function countActive(s: FilterState, mode: Mode) {
-  const skip = new Set(["v", "view", "sort", "page", "page_size", "win_prob_floor_default", "group_by_event", "side", ...(mode === "flags" ? ["verdicts"] : [])]);
+  const skip = new Set(["q", "tz", "v", "view", "sort", "page", "page_size", "win_prob_floor_default", "group_by_event", "side", ...(mode === "flags" ? ["verdicts"] : [])]);
   return Object.entries(s).filter(([k, v]) => !skip.has(k) && v !== undefined && v !== false).length + (s.side !== "best" ? 1 : 0);
 }
 

@@ -8,7 +8,7 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { fetchEventBySlug, fetchSuggest, type SuggestResponse } from "@/lib/api";
-import { ret } from "@/lib/format";
+import { pays, ret } from "@/lib/format";
 import { useCollection } from "@/lib/repo/hooks";
 import { SLUG_URL } from "@/lib/search/parse";
 import { viewById, viewHref } from "@/lib/views";
@@ -133,7 +133,7 @@ function Combobox() {
       ...(r?.topics ?? []).map((t) => ({ kind: "topic" as const, label: t.label, id: t.id, meta: `${t.count.toLocaleString("en-US")} open` })),
       ...(r?.markets ?? []).map((m) => ({
         kind: "market" as const, label: m.question, id: m.id, side: m.side_index,
-        meta: `${m.outcome} · ${m.pays ? `Pays ${m.pays >= 10 ? Math.round(m.pays) : m.pays.toFixed(1)}x` : ""} · ${ret(m.roi_pct)}`,
+        meta: `${m.outcome} · Pays ${pays(m.pays ? 1 / m.pays : null)} · ${ret(m.roi_pct)}`,
       })),
       ...views,
       { kind: "all" as const, label: typed },

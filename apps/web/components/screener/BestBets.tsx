@@ -95,11 +95,10 @@ export function BestBets() {
         <StatTiles />
       </section>
 
-      <FilterPills state={state} mode="flags" facets={data?.facets} meta={meta} onChange={set} onReset={reset} />
-      <div className="flex items-center gap-3">
-        <button type="button" onClick={() => (setSaved(null), setSaving(true))} className="min-h-10 rounded-full border border-border bg-surface px-3.5 text-[13px] text-soft hover:border-accent-border hover:text-text">+ Save this view</button>
-        <span role="status" className="text-[13px] text-accent-softer">{saved?.ok ? saved.msg : ""}</span>
-      </div>
+      <FilterPills state={state} mode="flags" facets={data?.facets} meta={meta} onChange={set} onReset={reset}>
+        <button type="button" onClick={() => (setSaved(null), setSaving(true))} className="min-h-10 whitespace-nowrap px-2 text-[13px] text-muted hover:text-text">+ Save this view</button>
+        <span role="status" className="text-[13px] text-accent-softer empty:hidden">{saved?.ok ? saved.msg : ""}</span>
+      </FilterPills>
 
       <SaveViewDialog open={saving} title="Save this view" error={saved && !saved.ok ? saved.msg : null} onSubmit={save} onClose={() => setSaving(false)} />
       <SearchChips q={state.q} search={data?.search} onChange={set} />
