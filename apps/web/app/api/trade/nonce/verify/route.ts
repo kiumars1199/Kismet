@@ -11,6 +11,6 @@ export async function POST(req: Request): Promise<Response> {
   const { nonce, ...rest } = ((await req.json().catch(() => null)) ?? {}) as { nonce?: unknown };
   const body = NonceRequest.safeParse(rest);
   if (!body.success || typeof nonce !== "string" || nonce.length > 1024) return Response.json({ ok: false }, { status: 400 });
-  const ok = consumeNonce(nonce, body.data.action, body.data.payload);
+  const ok = await consumeNonce(nonce, body.data.action, body.data.payload);
   return Response.json({ ok }, { status: ok ? 200 : 403, headers: { "cache-control": "no-store" } });
 }
