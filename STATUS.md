@@ -1,74 +1,57 @@
-# MarketEdge demo — status
+# MarketEdge — status
 
-Branch `demo`. Built in one night by an agent team (one lane per worktree), merged by the lead.
+Branch `final` (from `demo`), built overnight by one agent per lane, merged by the lead. `SETUP.md` covers accounts and
+deploy; `LAUNCH_TODO.md` covers owner-only steps; `AUDIT.md` holds the final audit.
 
 ## How to run
-Python 3.12+ and Node 20+ with pnpm. From the repo root:
+See `SETUP.md` §0. Short version: `python3 -m engine scan`, then `cd apps/web && pnpm i --frozen-lockfile && pnpm dev`.
+Checks: `python3 -m pytest -q engine/tests ops/tests`, then in `apps/web`: `pnpm lint && pnpm typecheck && pnpm test && pnpm e2e`.
+Extension: `pnpm ext:zip` (see `docs/setup-notes/trading-extension.md`).
 
-```bash
-pip install -r requirements.txt
-```
-```bash
-python3 -m engine scan
-```
-(refreshes `output/*.json` from live Polymarket prices; `python3 -m engine all` also re-fits, but needs the `data/` history bootstrap)
-```bash
-cd apps/web && pnpm i
-```
-```bash
-pnpm dev
-```
-Open http://localhost:3000. Demo mode is on by default (`DEMO_MODE=true`, `DATA_SOURCE=local` reading `../../output`): no login, no Stripe, every feature unlocked, your lists and bets saved in this browser.
+## What works
+- **Engine (Lane A):** 2-year history (1,484,104 resolved markets, 1,738,882 bets), 52 weekly walk-forward folds,
+  90-day half-life. Best bets +13.9% ROI, t = 34.7. Two tiers on every flag (`best`, `edge`), `by_pays` breakdown,
+  combo backtest (2-leg +16.9%, 3-leg +25.7%). `engine update` paginates by date window (T-85), no Gamma offset error.
+- **App (Lanes S, C, U):** Best bets home at `/`, landing at `/about`, smart search with suggestions, five pills,
+  Pays pill on both tiers, "Biggest payout" sort, 2x+/5x+/10x+ chips, "More bets with an edge", `formatCount`,
+  combo tray and suggested combos (hidden when the combo backtest loses), docs/17 polish, live price pulse,
+  New badge, closing-soon strip, results ticker, Today card. Lighthouse mobile 99/100/96/91 on `/`, `/about`, `/pricing`;
+  axe 0 serious/critical. Screenshots of every page at 390 and 1440 px in `docs/screenshots/final/`.
+- **Accounts and billing (Lane L):** Supabase Auth (Google + magic link), 18+/Terms checkbox, onboarding saved to the
+  account and honoring a safe `next`, `/account` export/delete/sign-out-everywhere, local→account import, 3-session
+  limit, Stripe Checkout and Payment Links, verified idempotent webhook, portal, 7-day trial, server entitlements,
+  "Coming soon" when keys are empty, legal pages from `config/site.json`, SEO, 404/500.
+- **Trading (Lane K, paper only):** keys only in the extension (non-extractable WebCrypto, transfer/full-write keys rejected),
+  one-time server nonces, order ticket with confirm every time, caps, `client_order_id`, demo exchange only.
+- **Extension (Lane E):** popup, side panel, sign-in handoff, Premium gate, key vault, disclaimer, `docs/STORE_LISTING.md`.
+- **Ops (Lane O):** engine Dockerfile + Railway/Fly config, private Supabase bucket, data fallback chain, refresh.yml,
+  web CI, `/api/health`, Sentry with PII scrubbing, PostHog cookieless, Resend with one-click unsubscribe, Vercel crons.
+- **Security (Lane X):** server paywall and row trimming, Upstash rate limits, BotID/Firewall rules, AI-crawler blocks,
+  RLS with cross-user tests, CSP nonce + headers, CSRF, zod on every input, webhook signatures, pinned dependencies.
 
-Checks:
-```bash
-pnpm typecheck && pnpm test
-```
-```bash
-pnpm build
-```
-```bash
-pnpm e2e
-```
-(Playwright starts its own server on :3100 against `test/fixtures`.)
+## Behind a flag
+- `DEMO_MODE=true`: no login, everything unlocked (default outside production; production needs exactly `true`).
+- `KALSHI_TRADING_ENV=demo` (+ `TRADING_ALLOWLIST`): paper trading on Kalshi's demo exchange. Empty = off. No prod path.
+- `KALSHI_DATA_PERMISSION=true`: Kalshi combo price check. Off until Kalshi grants permission in writing.
+- `E2E_MOCK=1`: in-app Supabase/Stripe mock for paid e2e; refused in production.
 
-Extension:
-```bash
-cd apps/extension && pnpm i && pnpm build
-```
-Then load `apps/extension/dist` in chrome://extensions with Developer mode on (Load unpacked), with the web app running on :3000. Open any Polymarket event page.
-
-## Demo scope (docs/01) — verified in the browser
-- [x] Screener, search, all filters, grouping (F-01..F-03): /markets, 13k markets, grouped by event, filters in the URL (S2)
-- [x] Drawer + live execution check + stake table (F-04, F-05): live order book every 5 s, "You get back if it wins" table, own stake (S3)
-- [x] Flags, event pages, share links, OG images (F-06, F-16, F-26): /flags, /event/[id], /m/[id] with a 1200×630 OG image
-- [x] Presets, favorite topics, watchlist (F-07..F-09): save/switch/share presets (S4), My list with since-saved (S5)
-- [x] Dashboards (F-10): a new dashboard starts with 3 panels (screenshot dashboard-d.png)
-- [x] Alerts: rule editor, in-app inbox, browser notifications, 2-min evaluator (F-11, F-23): a loose "All markets" rule fired 3 inbox items on load; dedupe covered by e2e. Browser notifications ask permission only when switched on (not exercised headless)
-- [x] Bet journal + CLV + P&L, `/api/settle` on load (F-12): a $50 bet logged from the drawer shows in My bets; settle returns unresolved for open markets
-- [x] Kelly sizing, calculators (F-13, F-15): drawer Kelly card, /tools (S6: q=0.6, p=0.5 → 20%)
-- [x] Track record + methodology (F-14), flag ledger (F-29): /track-record tiles equal backtest.json (S6)
-- [x] Display settings, keyboard, CSV export, onboarding (F-17..F-19, F-27): /settings, `?` help, `j`/`w`, CSV of the current view, /onboarding
-- [x] Landing + pricing (F-20)
-- [x] Chrome extension (F-25): badges on 3 live Polymarket event pages (weather, NFL, UFC), pill fallback on a 4th; popup + side panel. See docs/screenshots/extension-*.png
-- [x] `<UpgradeGate>` present, always passes in demo (F-22)
-
-## What's stubbed
-- Auth and billing: `DEMO_MODE=true` runs as `premium` with no login; `/pricing` buttons don't charge. Supabase and Stripe wiring (Lane E) is not built; `<UpgradeGate>` and the entitlements table are, so it slots in.
-- User data lives in `localStorage` (LocalRepo). A SupabaseRepo with the same interface is next.
-- Alerts run only while a MarketEdge tab is open (every 2 min); email, Telegram and Discord channels are shown but not sent. "Run now" is dev-only.
-- No order placement anywhere: "Open on Polymarket" links out.
+## Needs an owner value
+`config/site.json` (domain, support email, operator names, state, address, refund policy, response time, Payment
+Links) shows as `[[PLACEHOLDER]]` until filled. Every key in `SETUP.md` §2. Lawyer review of legal pages (`LAUNCH_TODO.md`).
 
 ## Known issues
-- Extension: sports badges sit under the Moneyline/Spreads/Totals headings; matching is exact text only (unmatched markets get the corner pill); side-panel screenshot taken by opening the panel page directly.
-- All 581 XRP markets score off the top-level "all" model node (too little XRP history to pass node thresholds). The drawer's "model fell back to a broad level" warning covers it.
-- `volume_24h` is null for ~10k of 13.7k markets (Gamma omits `volume24hr`); the 24h-volume filter only matches markets that report it.
-- Ledger has 878 open rows from three scans; none graded yet (markets haven't resolved), so Results shows the backtest plus an empty live record. `python3 -m engine grade` grades them once they close.
-- "Unusually high" shows on most top bets (edge ≥ 15¢, per docs/07). The note now gives what similar past bets really returned (e.g. +24% next to +32%) so the headline isn't taken at face value.
-- Filter-panel counts come from /api/meta, so they ignore the other filters you've set.
-- "Similar past bets returned" only exists for best bets (the engine computes `realistic_edge` for flags only).
+- Vercel Hobby rejects the 5-minute alerts cron; needs Pro (in `LAUNCH_TODO.md`).
+- Kalshi fee formula in the order ticket is unverified against a live Kalshi fill.
+- Kalshi combo check never shows today: the engine emits no `kalshi_ticker`.
+- `pnpm audit`: 2 moderate advisories in Sentry build tools (no high/critical).
+- Vercel OWASP managed ruleset needs Enterprise; other firewall rules apply.
+- Lighthouse SEO 91: Next 15 streams the meta description into `<body>` for normal browsers (`htmlLimitedBots: /.*/` fixes it but costs ~15 performance points).
+- Lighthouse best practices 96: one undetailed CSP entry in Chrome's Issues panel; no console violations.
+- No 500 screenshot (no route can be forced to fail); `app/error.tsx` checked in code.
+- Edge tier 2–3x, 5–10x and 10x+ lost money in the backtest; those bands are shown with their record, not promoted.
+- Closing-soon strip and results ticker are empty on current data (nothing closes within 3 h; nothing settled yet).
+- `volume_24h` is null for most markets (Gamma omits it); the 24h-volume filter matches only markets that report it.
 - With "My list only" on, rows are filtered per fetched page, so a page can come back short.
-- The fixtures have no "thin" or "not worth it" flags; those notes are only exercised on real data.
 
 ## Decisions (overnight final build, Nov 17)
 - Branch `final` from `demo`; lanes run in worktrees and the lead merges each with `--no-ff` after typecheck/lint/test.
@@ -78,7 +61,9 @@ Then load `apps/extension/dist` in chrome://extensions with Developer mode on (L
 - "Run now" on /alerts shows in demo mode as well as dev (local test aid; demo is never deployed).
 - ESLint `argsIgnorePattern: "^_"`.
 - `/flags` permanently redirects to `/` (Best bets is home); every internal link updated.
-- Lane A skipped `engine update` (Gamma "offset too large"); being fixed test-first before the hourly job relies on it.
+- `engine update` hit Gamma "offset too large"; fixed test-first by splitting date windows (T-85, touches `pipeline/fetch_closed.py`).
+- Onboarding finish waits for the account session and saves `onboarded_at` server-side; falls back to a full load if routing stalls.
+- Lane U: `/` renders per request with the headline count in first paint; Recharts loads only with a drawer; Best bets shows one card per game by default (`g=0` shows all) and 12 cards before "Show more"; "unusually high" note only in the drawer; Today card shows only the user's own saved bets/alerts/P&L (not picks).
 - Lane A's 2-year history (1.3 GB `data/`) is cloned into the main checkout; the older copy is kept as `data.pre-backfill/` (gitignored).
 
 ## Decisions (lead calls, incl. blockers > 20 min)
