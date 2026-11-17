@@ -21,7 +21,7 @@ export function MarketCard({ r, pro = false, notes = true }: { r: ApiRow; pro?: 
     <div data-row data-market-id={m.id} data-tier={m.tier ?? undefined} className="relative flex gap-3 rounded-inner border border-border bg-surface p-3.5 hover:border-accent-border focus-within:border-accent-border">
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted">
-          <span title={`Closes in ${closesIn(m.closes_at)}`}>{topicLabel(m)} · {gameTime(m.closes_at)}</span>
+          <span title={`Closes in ${closesIn(m.closes_at)}`}>{topicLabel(m)} · <span className="whitespace-nowrap">{gameTime(m.closes_at)}</span></span>
           {edgeTier && <LowerConfidence className="py-0" />}
         </div>
         <a
@@ -31,17 +31,18 @@ export function MarketCard({ r, pro = false, notes = true }: { r: ApiRow; pro?: 
             e.preventDefault();
             open(m.id, s.side_index);
           }}
-          className="mt-0.5 block text-[15px] font-semibold leading-snug after:absolute after:inset-0 after:rounded-inner focus-visible:outline-none focus-visible:after:outline focus-visible:after:outline-2 focus-visible:after:outline-accent"
+          className="mt-0.5 block text-[15px] font-semibold leading-snug after:absolute after:inset-0 after:rounded-inner focus-visible:outline-none focus-visible:after:outline focus-visible:after:outline-2 focus-visible:after:outline-accent focus-visible:after:outline-offset-2"
         >
           {m.question}
         </a>
-        <p data-testid="one-bet" className="mt-1.5 text-sm" title={basis(m, s)}>
+        {/* no "·" separators: on a 390 px card they wrapped to the start or end of a line */}
+        <p data-testid="one-bet" className="mt-1.5 flex flex-wrap items-baseline gap-x-1.5 text-sm" title={basis(m, s)}>
           <span className="font-heading font-bold" title={PAYS_HELP}>Pays {pays(s.ask)}</span>
-          <span className="text-soft"> · wins about {winsAbout(s.win_prob)}</span>
+          <span className="whitespace-nowrap text-soft">wins about {winsAbout(s.win_prob)}</span>
         </p>
         <div className="mt-0.5 text-xs text-muted">
-          Bet {s.outcome} at {price(s.ask)} ·{" "}
-          <span className={s.ranges || s.edge > 0 ? "text-accent-softer" : "text-negative"}>{priceVerdict(s).toLowerCase()} ({sidePts(s)})</span>
+          Bet {s.outcome} at {price(s.ask)}
+          <span className={`block ${s.ranges || s.edge > 0 ? "text-accent-softer" : "text-negative"}`}>{priceVerdict(s).toLowerCase()} ({sidePts(s)})</span>
         </div>
         {notes && <Notes notes={rowNotes(m.execution)} className="mt-1" />}
         {edgeTier && <TierNote s={s} className="mt-1" />}

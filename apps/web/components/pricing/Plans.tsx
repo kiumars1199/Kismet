@@ -39,7 +39,7 @@ export function Plans({ demo }: { demo: boolean }) {
             <section key={p.id} aria-labelledby={`plan-${p.id}`}
               className={`flex flex-col gap-4 rounded-card border p-5 md:p-6 ${featured ? "border-accent-border bg-accent-bg" : "border-border bg-surface"}`}>
               <div>
-                <h3 id={`plan-${p.id}`} className="text-lg font-semibold">{p.name}</h3>
+                <h2 id={`plan-${p.id}`} className="text-lg font-semibold">{p.name}</h2>
                 <p className={`text-sm ${featured ? "text-accent-softer" : "text-muted"}`}>{p.line}</p>
               </div>
               <p className="flex items-baseline gap-1.5">

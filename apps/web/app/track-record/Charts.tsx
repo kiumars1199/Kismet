@@ -28,10 +28,10 @@ export function FoldCharts({ rows }: { rows: ReturnType<typeof foldRows> }) {
           <XAxis dataKey="week" hide />
           <YAxis {...AXIS} width={48} tickFormatter={(v: number) => ret(v)} />
           <ReferenceLine y={0} stroke="var(--muted)" />
+          {/* no per-bar labels: 52 weeks of labels overlapped at every width; the value is one hover away */}
           <Tooltip {...TIP} formatter={(_v, _n, p) => [(p.payload as (typeof rows)[number]).retText, "Return"]} />
           <Bar dataKey="ret" radius={[4, 4, 0, 0]} maxBarSize={28}>
             {rows.map((r) => <Cell key={r.week} fill={r.ret !== null && r.ret < 0 ? "var(--negative)" : "var(--accent)"} />)}
-            <LabelList dataKey="retText" position="top" className="max-sm:hidden" fill="var(--soft)" fontSize={11} formatter={(v) => (v === "no bets" ? "" : String(v))} />
           </Bar>
         </BarChart>
       </ResponsiveContainer>

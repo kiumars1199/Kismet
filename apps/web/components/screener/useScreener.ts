@@ -8,12 +8,11 @@ import { resolveUserFilters } from "@/lib/filters/user";
 import type { FilterState } from "@/lib/filters/state";
 import { parse, serialize } from "@/lib/filters/url";
 import { useCollection, useProfile } from "@/lib/repo/hooks";
-import type { Verdict } from "@/lib/types";
 
 export type Mode = "markets" | "flags";
 
-/** Best bets = flags whose price check isn't "not worth it", as flat cards. */
-export const BEST_BETS_VERDICTS: Verdict[] = ["worth it", "thin"];
+import { BEST_BETS_VERDICTS } from "@/lib/filters/state";
+export { BEST_BETS_VERDICTS };
 
 export function stateFrom(params: URLSearchParams, mode: Mode): FilterState {
   const s = parse(params);

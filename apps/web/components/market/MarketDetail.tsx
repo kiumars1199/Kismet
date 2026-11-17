@@ -1,6 +1,7 @@
 "use client";
 
 // Market detail (F-04): drawer body and the shareable /m/[id] page. Live price check from /api/book every 5 s.
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -10,7 +11,8 @@ import { useProfile } from "@/lib/repo/hooks";
 import type { Execution, Side, StoreMarket } from "@/lib/types";
 import { WatchStar } from "@/components/watch/WatchStar";
 import { DrawerExtras } from "./DrawerExtras";
-import { CurveChart } from "./CurveChart";
+// Recharts (~390 KB) loads only when a drawer opens, not with Best bets; the placeholder keeps the chart's height.
+const CurveChart = dynamic(() => import("./CurveChart").then((m) => m.CurveChart), { ssr: false, loading: () => <div className="h-[236px]" /> });
 import { InfoTip, OddsBars, Skeleton, Val } from "./bits";
 import { VERDICT_LABEL, chanceTone, priceVerdict, returnTone, topicLabel } from "./labels";
 import { LowerConfidence, TierNote } from "./TierNote";

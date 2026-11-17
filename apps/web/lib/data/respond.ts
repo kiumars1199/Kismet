@@ -8,7 +8,7 @@ import { can, quota, type Tier } from "@/lib/entitlements";
 import { apply } from "@/lib/filters/apply";
 import { parse } from "@/lib/filters/url";
 import { RELAX_STEPS, relax, relaxedNote, type ParsedQuery } from "@/lib/search/parse";
-import type { FilterState } from "@/lib/filters/state";
+import { BEST_BETS_VERDICTS, type FilterState } from "@/lib/filters/state";
 import type { EventResponse, MarketResponse, MarketsResponse } from "@/lib/api";
 import type { StoreMarket } from "@/lib/types";
 
@@ -117,3 +117,19 @@ export const listRoute = (req: Request, view?: "flags") =>
     await noteRows(req, me.user?.id, body.rows.length);
     return Response.json(body);
   });
+
+/** Best bets headline count for the first server paint: the same query, store and gate as /api/flags page 1, so
+ *  the headline doesn't change when the cards load (LCP stays at first paint). undefined when it can't match the
+ *  browser's query (fav/wl resolve on the device) or on any failure. */
+export async function flagsTotal(params: URLSearchParams): Promise<number | undefined> {
+  if (params.has("fav") || params.has("wl")) return undefined;
+  try {
+    const me = await getMe();
+    const store = await getStoreFor(me.tier);
+    const f = parse(params);
+    const state = { ...f, view: "flags" as const, verdicts: params.has("vd") ? f.verdicts : BEST_BETS_VERDICTS, page: 1 };
+    return gateMarkets(marketsPage(store, state), me.tier).total;
+  } catch {
+    return undefined;
+  }
+}

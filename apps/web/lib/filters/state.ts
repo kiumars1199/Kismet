@@ -57,3 +57,6 @@ export const tierOf = (f: Pick<FilterState, "tier" | "pays_min" | "pays_max" | "
   f.tier === "best" && (f.pays_min !== undefined || f.pays_max !== undefined || f.sort.key === "pays") ? "all" : f.tier;
 
 export const defaultState = (): FilterState => FilterState.parse({});
+
+/** Best bets = flags whose price check isn't "not worth it". */
+export const BEST_BETS_VERDICTS: z.infer<typeof Verdict>[] = ["worth it", "thin"];

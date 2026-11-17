@@ -133,7 +133,9 @@ function Cards({ slots, desktop, pro, dim }: { slots: Slot[]; desktop: boolean; 
       {slots.map((s) => {
         const r = s.rows[0]!;
         return (
-          <li key={`${r.market.id}:${r.side.side_index}`} className="flex flex-col gap-1">
+          // desktop: card and "+N more" sit in two subgrid rows, so a row of cards stays one height
+          // whether or not a game has more bets, and opening one list doesn't stretch its neighbours
+          <li key={`${r.market.id}:${r.side.side_index}`} className={desktop ? "row-span-2 grid grid-rows-subgrid gap-y-1" : "flex flex-col gap-1"}>
             {desktop ? <BetCard r={r} pro={pro} /> : <MarketCard r={r} pro={pro} />}
             <MoreInGame slot={s} />
           </li>
@@ -203,10 +205,12 @@ function MoreWithEdge({ state, desktop, pro }: { state: FilterState; desktop: bo
   );
 }
 
-export function BestBets() {
+/** initialTotal: the server's count for this URL, so the headline is final on first paint (no LCP change). */
+export function BestBets({ initialTotal }: { initialTotal?: number }) {
   const sc = useScreener("flags");
   const { state, set, reset, data, more, moreGroups, loading, error } = sc;
   const meta = useMeta();
+  const total = data?.total ?? initialTotal;
   const desktop = useDesktop();
   const pro = useProfile().numbers_mode === "pro";
   const [saving, setSaving] = useState(false);
@@ -234,7 +238,7 @@ export function BestBets() {
     <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-4">
       <section className="flex flex-col gap-2">
         <h1 className="text-[28px] font-bold leading-[1.1] tracking-[-0.02em] md:text-[34px]">
-          {data ? <><Count n={data.total} /> {data.total === 1 ? "bet" : "bets"} where the odds lean your way</> : "Bets where the odds lean your way"}
+          {total !== undefined ? <><Count n={total} /> {total === 1 ? "bet" : "bets"} where the odds lean your way</> : "Bets where the odds lean your way"}
         </h1>
         <div className="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2">
           <p className="max-w-[760px] text-sm leading-normal text-muted">

@@ -8,7 +8,9 @@ const KEY = "me:v1:nudge_dismissed";
 
 export function OnboardingNudge() {
   const { onboarded_at } = useProfile();
-  const [hidden, setHidden] = useState(true); // until storage is read, so it never flashes
+  // shown on the server render: first-time visitors (most of them) see no layout shift; a returning visitor who
+  // dismissed it sees it leave at hydration, before any cards arrive
+  const [hidden, setHidden] = useState(false);
   useEffect(() => {
     try { setHidden(localStorage.getItem(KEY) === "1"); } catch { setHidden(false); }
   }, []);

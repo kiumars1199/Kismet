@@ -74,8 +74,8 @@ export function BetCard({ r, pro = false }: { r: ApiRow; pro?: boolean }) {
               </svg>
             )}
           </span>
-          {" · "}
-          <span className={`whitespace-nowrap ${s.ranges || s.edge > 0 ? "text-accent-softer" : "text-negative"}`}>{priceVerdict(s).toLowerCase()} <span className="tabular-nums">({sidePts(s)})</span></span>
+          {/* own line on every card: a wrapping "·" left some cards with a dangling separator */}
+          <span className={`block ${s.ranges || s.edge > 0 ? "text-accent-softer" : "text-negative"}`}>{priceVerdict(s).toLowerCase()} <span className="tabular-nums">({sidePts(s)})</span></span>
         </p>
         <p className="mt-0.5 flex items-center gap-1 text-[13px] text-muted">
           {pro ? "Edge per share" : ret.realistic ? "Similar past bets returned" : "Expected return"}
