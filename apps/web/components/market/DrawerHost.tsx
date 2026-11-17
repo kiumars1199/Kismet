@@ -1,8 +1,9 @@
 "use client";
 
-// Owner: Lane C (T-23 MarketDrawer). Mounted once in the app shell; replace the placeholder body only.
+// Owner: Lane C (T-23 MarketDrawer). Mounted once in the app shell. URL contract: ?m=<market id>&side=<0|1>.
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
+import { MarketDetail } from "./MarketDetail";
 
 /** Query string that opens the drawer, keeping the other params of `current` (e.g. the screener filters). */
 export function drawerHref(marketId: string, side?: 0 | 1, current?: string | URLSearchParams): string {
@@ -39,6 +40,16 @@ export function DrawerHost() {
   const sideParam = params.get("side");
   const side = sideParam === "0" ? 0 : sideParam === "1" ? 1 : undefined;
 
+  const panel = useRef<HTMLDivElement>(null);
+  // focus the drawer when it opens or switches market; return focus on close
+  useEffect(() => {
+    if (!marketId) return;
+    const prev = document.activeElement as HTMLElement | null;
+    panel.current?.scrollTo(0, 0);
+    panel.current?.focus();
+    return () => prev?.focus?.();
+  }, [marketId]);
+
   useEffect(() => {
     if (!marketId) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
@@ -48,14 +59,18 @@ export function DrawerHost() {
 
   if (!marketId) return null;
   return (
-    <div role="dialog" aria-label="Market details" className="fixed inset-0 z-50 flex flex-col gap-4 overflow-y-auto border-l border-border bg-surface p-6 md:inset-y-0 md:left-auto md:w-[440px]">
-      <div className="flex items-start justify-between gap-3">
-        <h2 className="text-xl font-semibold">Market {marketId}{side !== undefined ? ` · side ${side}` : ""}</h2>
-        <button type="button" onClick={close} aria-label="Close" className="flex size-11 flex-none items-center justify-center rounded-card bg-raised text-muted">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
-        </button>
+    <>
+      <div aria-hidden="true" onClick={close} className="fixed inset-0 z-40 hidden bg-black/50 md:block" />
+      <div
+        ref={panel}
+        tabIndex={-1}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Market details"
+        className="fixed inset-0 z-50 overflow-y-auto focus:outline-none overscroll-contain border-l border-border bg-surface p-5 pb-10 md:inset-y-0 md:left-auto md:w-[460px] md:p-[26px]"
+      >
+        <MarketDetail id={marketId} side={side} onClose={close} />
       </div>
-      <p className="text-muted">Market details are coming soon.</p>
-    </div>
+    </>
   );
 }
