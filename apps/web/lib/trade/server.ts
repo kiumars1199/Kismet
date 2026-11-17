@@ -2,7 +2,7 @@
 // We never see Kalshi keys. We only issue (1) short-lived extension sign-in tokens and (2) one-time order nonces
 // bound to the exact order the user confirmed, which the extension checks with us before it signs anything.
 import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
-import { getMe } from "@/lib/auth/server";
+import { getMe, sameOrigin } from "@/lib/auth/server";
 import { DEMO_MODE } from "@/lib/config";
 import type { Tier } from "@/lib/entitlements";
 
@@ -99,9 +99,6 @@ export function verifyExtToken(token: string | null | undefined, now = Date.now(
   return t && t.k === "ext" && t.exp > now ? t : null;
 }
 
-/** Same-origin check for browser POSTs that mint nonces/tokens (CSRF): Origin must match the host we serve. */
-export function sameOrigin(req: Request): boolean {
-  const origin = req.headers.get("origin");
-  if (!origin) return false;
-  try { return new URL(origin).host === new URL(req.url).host || new URL(origin).host === req.headers.get("host"); } catch { return false; }
-}
+/** CSRF for /api/ext/token: our site (/ext/connect) or our own extension's worker, nothing else. */
+export const siteOrExtension = (req: Request) =>
+  sameOrigin(req) || req.headers.get("origin") === `chrome-extension://${extensionId()}`;

@@ -4,7 +4,7 @@ import { z } from "zod";
 
 export const dynamic = "force-dynamic";
 
-const Body = z.object({ kind: z.literal("no_rows"), slug: z.string().regex(/^[\w-]{1,200}$/), markets: z.number().int().min(0).max(10_000) });
+const Body = z.object({ kind: z.literal("no_rows"), slug: z.string().regex(/^[\w-]{1,200}$/), markets: z.number().int().min(0).max(10_000) }).strict();
 
 export async function POST(req: Request): Promise<Response> {
   const b = Body.safeParse(await req.json().catch(() => null));

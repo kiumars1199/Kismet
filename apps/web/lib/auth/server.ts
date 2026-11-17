@@ -93,12 +93,13 @@ export function safeNext(next: string | null | undefined, fallback = "/"): strin
   return next;
 }
 
-/** CSRF: mutations must come from our own origin (docs/15 § Web hardening). */
+/** CSRF: mutations must come from our own origin (docs/15 § Web hardening). The one check every mutating route uses. */
 export function sameOrigin(req: Request): boolean {
   const origin = req.headers.get("origin");
   if (!origin) return false;
   try {
-    return new URL(origin).host === new URL(req.url).host || origin === process.env.NEXT_PUBLIC_SITE_URL;
+    const host = new URL(origin).host;
+    return host === new URL(req.url).host || host === req.headers.get("host") || origin === process.env.NEXT_PUBLIC_SITE_URL;
   } catch {
     return false;
   }

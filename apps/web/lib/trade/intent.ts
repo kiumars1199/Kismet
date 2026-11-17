@@ -12,13 +12,13 @@ export const OrderIntent = z.object({
   price_cents: z.number().int().min(1).max(99),
   count: z.number().int().min(1).max(100_000),
   client_order_id: z.uuid(),
-});
+}).strict();
 export type OrderIntent = z.infer<typeof OrderIntent>;
-export const CancelIntent = z.object({ order_id: z.string().min(1).max(100), ticker: Ticker });
+export const CancelIntent = z.object({ order_id: z.string().min(1).max(100), ticker: Ticker }).strict();
 
 export const NonceRequest = z.discriminatedUnion("action", [
-  z.object({ action: z.literal("place"), payload: OrderIntent }),
-  z.object({ action: z.literal("cancel"), payload: CancelIntent }),
+  z.object({ action: z.literal("place"), payload: OrderIntent }).strict(),
+  z.object({ action: z.literal("cancel"), payload: CancelIntent }).strict(),
 ]);
 
 /** Kalshi fee estimate (cents): ceil(0.07 × C × P × (1 − P)). Taker schedule; labelled an estimate in the UI. */

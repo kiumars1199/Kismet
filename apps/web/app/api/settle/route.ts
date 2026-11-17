@@ -2,6 +2,9 @@
 // → { [id]: { resolved, winner_side_index: 0|1|null, closing_prices: [p0|null, p1|null] } }
 // Demo-mode settlement (docs/05 F-12, docs/10 demo deltas). winner null + resolved = void (50/50).
 // closing price = each side's last trade price before the market's end (CLOB prices-history), for CLV.
+import { z } from "zod";
+import { clientKey, rateLimit } from "@/lib/abuse";
+import { sameOrigin } from "@/lib/auth/server";
 import type { Settlement } from "@/lib/journal";
 
 export const runtime = "nodejs";
@@ -67,12 +70,16 @@ async function settleOne(id: string): Promise<Settlement> {
   }
 }
 
+// docs/15: unknown keys rejected; ids are path-safe before they reach the Gamma URL.
+const Body = z.object({ ids: z.array(z.string().regex(/^[\w-]{1,80}$/)).max(1_000) }).strict();
+
 export async function POST(req: Request): Promise<Response> {
-  let ids: unknown;
-  try { ids = ((await req.json()) as { ids?: unknown }).ids; } catch { /* fall through */ }
-  if (!Array.isArray(ids) || !ids.every((x) => typeof x === "string" && /^[\w-]{1,80}$/.test(x)))
-    return Response.json({ error: "body must be { ids: string[] }" }, { status: 400 });
-  const unique = [...new Set(ids as string[])].slice(0, MAX_IDS);
+  if (!sameOrigin(req)) return Response.json({ error: "Bad origin" }, { status: 403 });
+  const limited = await rateLimit("book", clientKey(req));
+  if (limited) return limited;
+  const body = Body.safeParse(await req.json().catch(() => null));
+  if (!body.success) return Response.json({ error: "body must be { ids: string[] }" }, { status: 400 });
+  const unique = [...new Set(body.data.ids)].slice(0, MAX_IDS);
   const out: Record<string, Settlement> = {};
   // ponytail: 8 concurrent Gamma calls; fine for a personal journal
   for (let i = 0; i < unique.length; i += 8) {

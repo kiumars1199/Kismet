@@ -20,7 +20,7 @@ const Query = z.object({
   q: z.string().trim().max(120),
   tz: z.string().max(64).regex(/^[A-Za-z0-9_+\-/]+$/).optional(),
   view: z.enum(["markets", "flags"]).default("markets"),
-});
+}).strict();
 
 // Open markets per topic, once per loaded store.
 const topicCounts = new WeakMap<Store, Record<string, number>>();
