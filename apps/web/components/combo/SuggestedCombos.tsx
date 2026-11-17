@@ -58,7 +58,7 @@ function ComboCard({ c }: { c: SuggestedCombo }) {
       <p className="mt-auto text-[13px] text-muted">
         Expected return <span className="font-semibold text-accent">{retText(c)}</span> · cautious chance {pct(c.q_low)}
       </p>
-      <button type="button" onClick={load} aria-label={`Build ${comboLabel(c, winsAbout(c.q))}`}
+      <button type="button" onClick={load} aria-label={`Build this combo: ${comboLabel(c, winsAbout(c.q))}`}
         className="min-h-11 rounded-input border border-border bg-muted-bg px-3 text-sm font-medium hover:border-accent-border">
         Build this combo
       </button>

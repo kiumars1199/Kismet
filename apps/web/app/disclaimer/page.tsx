@@ -39,8 +39,8 @@ export default function Page() {
       body: <>
         <p>Set limits before you start, don&apos;t chase losses, and take breaks. Free, confidential help is available any time:</p>
         <ul>
-          <li><strong>Call or text 1-800-GAMBLER</strong> (<a href="tel:+18004262537">1-800-426-2537</a>), the U.S. National Problem Gambling Helpline.</li>
-          <li><a href="https://www.ncpgambling.org" rel="noopener noreferrer" target="_blank">ncpgambling.org</a>: the National Council on Problem Gambling, with chat and local resources.</li>
+          <li><strong>Call or text 1-800-GAMBLER</strong> (<a href="tel:+18004262537" className="underline underline-offset-[3px]">1-800-426-2537</a>), the U.S. National Problem Gambling Helpline.</li>
+          <li><a href="https://www.ncpgambling.org" className="underline underline-offset-[3px]" rel="noopener noreferrer" target="_blank">ncpgambling.org</a>: the National Council on Problem Gambling, with chat and local resources.</li>
         </ul>
       </>,
     },
