@@ -11,6 +11,7 @@ import { QuickChips } from "@/components/presets/QuickChips";
 import { MarketCard } from "@/components/market/MarketCard";
 import { Skeleton } from "@/components/market/bits";
 import { AppliedPills } from "./AppliedPills";
+import { FilterPanel } from "./FilterPanel";
 import { MarketTable, type Item } from "./MarketTable";
 import { SortSelect } from "./SortSelect";
 import { EmptyState, ErrorState, StaleBanner } from "./States";
@@ -59,7 +60,8 @@ export function MarketsScreener() {
 
   const scanned = meta?.meta.scanned_at;
   return (
-    <div className="mx-auto flex w-full max-w-[1600px] gap-8">
+    <div className="mx-auto flex w-full max-w-[1600px] gap-6">
+      <FilterPanel state={state} mode="markets" facets={data?.facets} meta={meta} onChange={set} onReset={reset} />
       <div className="flex min-w-0 flex-1 flex-col gap-4">
         <header className="flex flex-wrap items-end justify-between gap-3">
           <div>
