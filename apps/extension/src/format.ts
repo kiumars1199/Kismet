@@ -8,6 +8,12 @@ export function price(p: number | null | undefined): string {
   const c = p * 100;
   return `${Math.abs(c - Math.round(c)) < 0.05 ? Math.round(c) : c.toFixed(1)}¢`;
 }
+/** Gross payout per $1 at this price (docs/13): 0.61 → "1.6x", 0.08 → "12x". */
+export function pays(ask: number | null | undefined): string {
+  if (!ok(ask) || ask <= 0) return DASH;
+  const x = 1 / ask;
+  return `${x >= 10 ? Math.round(x) : x.toFixed(1)}x`;
+}
 /** 0.79 → "79%" */
 export const pct = (p: number | null | undefined) => (ok(p) ? `${Math.round(p * 100)}%` : DASH);
 /** roi_pct 33.2 → "+33%", 4.6 → "+4.6%", -2 → "−2%" */

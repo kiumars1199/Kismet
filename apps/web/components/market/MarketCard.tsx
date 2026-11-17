@@ -5,6 +5,7 @@
 import type { ApiRow } from "@/lib/api";
 import { basis, closesIn, edge, pct, price, ret } from "@/lib/format";
 import { WatchStar } from "@/components/watch/WatchStar";
+import { VenueIconLink } from "@/components/trade/TradeButton";
 import { drawerHref, useOpenDrawer } from "./DrawerHost";
 import { AlertLink, Notes } from "./bits";
 import { returnTone, rowNotes, topicLabel } from "./labels";
@@ -37,6 +38,7 @@ export function MarketCard({ r, pro = false, notes = true }: { r: ApiRow; pro?: 
         </div>
         <div className="relative z-10 -mb-2 -mr-2 flex">
           <WatchStar marketId={m.id} side={s.side_index} market={m} />
+          <VenueIconLink m={m} />
           <AlertLink marketId={m.id} side={s.side_index} />
         </div>
       </div>

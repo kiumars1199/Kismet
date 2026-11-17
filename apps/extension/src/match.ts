@@ -1,6 +1,6 @@
 // Pure text matching: which market does a piece of page text name? No DOM here (unit-tested).
 // Exact match on normalized text only; substrings would hit FAQ blocks, chart legends and comments.
-import { pct, ret } from "./format";
+import { pays, pct, ret } from "./format";
 import type { Market } from "./types";
 
 export const norm = (s: string) =>
@@ -56,7 +56,7 @@ export function badgeText(m: Market, heading = false): { text: string; positive:
   const b = m.best;
   const name = heading && m.market_type !== "moneyline" && m.question.length <= 28 ? `${m.question} · ` : "";
   if (b.roi_pct > 0)
-    return { text: `${name}${b.outcome}: won ${pct(b.win_prob)} before · market says ${pct(b.ask)} · ${ret(b.roi_pct)} expected`, positive: true };
+    return { text: `${name}${b.outcome}: Pays ${pays(b.ask)} · won ${pct(b.win_prob)} before · market says ${pct(b.ask)} · ${ret(b.roi_pct)} expected`, positive: true };
   const s = m.sides[0];
   const who = s.outcome === "Yes" ? "Market" : `${s.outcome}: market`;
   return { text: `${name}${who} says ${pct(s.ask)} · no edge`, positive: false };

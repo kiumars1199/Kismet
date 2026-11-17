@@ -10,6 +10,7 @@ export default defineConfig({
     command: `pnpm exec next dev -p ${PORT}`,
     port: PORT,
     reuseExistingServer: false,
-    env: { DATA_DIR: "test/fixtures", DATA_SOURCE: "local", DEMO_MODE: "true" },
+    // KALSHI_TRADING_ENV=demo: the paper Trade button shows (trading-paper flow); other flows don't open it.
+    env: { DATA_DIR: "test/fixtures", DATA_SOURCE: "local", DEMO_MODE: "true", KALSHI_TRADING_ENV: "demo" },
   },
 });
