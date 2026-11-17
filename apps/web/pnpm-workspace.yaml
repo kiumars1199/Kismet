@@ -4,3 +4,6 @@ allowBuilds:
 overrides:
   # next 15.5 pins postcss 8.4.31 (GHSA high: sourceMappingURL file read); patched in >= 8.5.18
   next>postcss: 8.5.29
+  # @sentry/bundler-plugins 11.9 takes glob 13 (GHSA-3g3m-2fjr-6pw4, moderate; patched >= 14.0.2). glob 14 brings
+  # minimatch ^11.0.5, which also clears GHSA-g3hv-75wg-m249 (moderate; patched >= 11.0.1). Sentry 11.14 itself moved to glob ^14.
+  "@sentry/bundler-plugins>glob": ^14.0.2
