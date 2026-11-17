@@ -2,7 +2,7 @@
 import { describe, expect, it } from "vitest";
 import { marketsPage } from "@/lib/data/respond";
 import { getStore } from "@/lib/data/store";
-import { apply, paysOf } from "@/lib/filters/apply";
+import { CHANCE_BANDS, PAYS_BANDS, apply, paysOf } from "@/lib/filters/apply";
 import { FilterState, type FilterInput } from "@/lib/filters/state";
 
 const st = (p: FilterInput) => FilterState.parse({ group_by_event: false, page_size: 200, ...p });
@@ -67,6 +67,17 @@ describe("search on the fixture", async () => {
     const s = apply(store, st({ sort: { key: "pays", dir: "desc" } }));
     expect(s.rows.every((r) => r.side.edge >= 0.02)).toBe(true);
     for (let i = 1; i < s.rows.length; i++) expect(paysOf(s.rows[i - 1]!.side)!).toBeGreaterThanOrEqual(paysOf(s.rows[i]!.side)!);
+  });
+
+  it("pill counts match what picking the choice shows (pays bands lift the floor; chance/return/closes)", () => {
+    const f = apply(store, st({})).facets;
+    for (const [k, , lo, hi] of PAYS_BANDS)
+      expect([k, f.pays[k]]).toEqual([k, apply(store, st({ pays_min: lo, pays_max: hi === Infinity ? undefined : hi })).total]);
+    for (const [k, , lo, hi] of CHANCE_BANDS)
+      expect([k, f.chance[k]]).toEqual([k, apply(store, st({ win_prob_min: lo, win_prob_max: hi === 1 ? undefined : hi })).total]);
+    expect(f.chance.any).toBe(apply(store, st({})).total);
+    expect(f.roi["10"]).toBe(apply(store, st({ roi_min: 10 })).total);
+    expect(f.closes_h.reduce((a, b) => a + b, 0)).toBe(apply(store, st({})).total);
   });
 
   it("search + filter stays fast on the fixture (< 50 ms)", () => {

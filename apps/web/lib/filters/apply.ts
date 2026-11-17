@@ -19,7 +19,26 @@ export interface Group {
   rows: Row[];
 }
 export type Counts = Record<string, number>;
-export interface Facets { categories: Counts; topics: Counts; market_types: Counts; periods: Counts; verdicts: Counts }
+export interface Facets {
+  categories: Counts; topics: Counts; market_types: Counts; periods: Counts; verdicts: Counts;
+  // Simple-filter pills (docs/13 §2), each counted with every filter but its own:
+  pays: Counts;             // PAYS_BANDS keys + "any"
+  chance: Counts;           // CHANCE_BANDS keys + "any" (the 40% floor is part of the chance filter)
+  roi: Counts;              // rows with return >= 5 / 10 / 20 % + "any"
+  closes_h: number[];       // rows by whole hours to close: [i] = ceil(hours) == i (0..168), [169] = later
+}
+
+/** docs/18 §3 payout bands: [key, label, min, max]. */
+export const PAYS_BANDS: [string, string, number, number][] = [
+  ["<1.5x", "Under 1.5x", 1, 1.5], ["1.5-2x", "1.5–2x", 1.5, 2], ["2-3x", "2–3x", 2, 3],
+  ["3-5x", "3–5x", 3, 5], ["5-10x", "5–10x", 5, 10], ["10x+", "10x+", 10, Infinity],
+];
+/** docs/13 §2 chance choices: [key, label, min, max]. */
+export const CHANCE_BANDS: [string, string, number, number][] = [
+  ["likely", "Likely (80%+)", 0.8, 1], ["leans", "Leans your way (55–80%)", 0.55, 0.8],
+  ["coin", "Coin flip (40–55%)", 0.4, 0.55], ["long", "Long shot (under 40%)", 0, 0.4],
+];
+const band = (bands: [string, string, number, number][], x: number) => bands.find(([, , lo, hi]) => x >= lo && x < hi)?.[0] ?? (x >= 1 ? bands[0]![0] : undefined);
 export interface Page {
   total: number;            // matching rows
   total_groups?: number;    // matching event groups (when grouped)
@@ -54,6 +73,7 @@ export function planSearch(store: Store, f: FilterState, parsed?: ParsedQuery): 
 const num = (x: unknown): x is number => typeof x === "number" && Number.isFinite(x);
 const gte = (x: number | null | undefined, min?: number) => min === undefined || (num(x) && x >= min);
 const lte = (x: number | null | undefined, max?: number) => max === undefined || (num(x) && x <= max);
+const below = (x: number | null | undefined, max?: number) => max === undefined || (num(x) && x < max);   // pays bands are [min, max)
 const inSet = <T>(x: T, set?: readonly T[]) => !set || set.includes(x);
 
 export function pickSide(m: StoreMarket, side: FilterState["side"]): Side | undefined {
@@ -78,7 +98,7 @@ export const liftsFloor = (f: FilterState) =>
 export function sideOk(s: Side, f: FilterState): boolean {
   const pays = paysOf(s);
   return gte(s.ask, f.price_min) && lte(s.ask, f.price_max) &&
-    gte(pays, f.pays_min) && lte(pays, f.pays_max) &&
+    gte(pays, f.pays_min) && below(pays, f.pays_max) &&
     gte(s.win_prob, f.win_prob_min ?? (liftsFloor(f) ? 0 : f.win_prob_floor_default)) && lte(s.win_prob, f.win_prob_max) &&
     gte(s.edge, f.sort.key === "pays" ? Math.max(f.edge_min ?? 0.02, 0.02) : f.edge_min) && (!f.edge_low_positive || s.edge_low > 0) &&
     gte(s.roi_pct, f.roi_min) && gte(s.model_events, f.min_events);
@@ -137,7 +157,7 @@ export function groupByEvent(rows: Row[], flagIds?: Map<string, unknown>): Group
 }
 
 // Facet bits: a row counts toward facet X when every filter except X passes.
-const CAT = 1, TOPIC = 2, MT = 4, PER = 8, VD = 16;
+const CAT = 1, TOPIC = 2, MT = 4, PER = 8, VD = 16, PAYS = 32, CHANCE = 64, ROI = 128, CLOSES = 256;
 
 export function apply(store: Store, f0: FilterState, user?: UserCtx, parsed?: ParsedQuery): Page {
   const plan = f0.q ? planSearch(store, f0, parsed) : null;
@@ -153,7 +173,15 @@ export function apply(store: Store, f0: FilterState, user?: UserCtx, parsed?: Pa
     market_types: Object.fromEntries(["moneyline", "spreads", "totals", "props", "yes/no", "multi-outcome"].map((k) => [k, 0])),
     periods: Object.fromEntries(["full", "1H", "2H", "1Q", "2Q", "3Q", "4Q"].map((k) => [k, 0])),
     verdicts: Object.fromEntries(["worth it", "thin", "not worth it", "no sellers", "no book"].map((k) => [k, 0])),
+    pays: { any: 0, ...Object.fromEntries(PAYS_BANDS.map(([k]) => [k, 0])) },
+    chance: { any: 0, ...Object.fromEntries(CHANCE_BANDS.map(([k]) => [k, 0])) },
+    roi: { any: 0, "5": 0, "10": 0, "20": 0 },
+    closes_h: new Array(170).fill(0),
   };
+  // pays / chance / return / closes are facets: checked as mask bits, not inside sideOk
+  const fSide: FilterState = { ...f, pays_min: undefined, pays_max: undefined, win_prob_min: 0, win_prob_max: undefined, roi_min: undefined };
+  const floor = f.win_prob_min ?? (liftsFloor(f) ? 0 : f.win_prob_floor_default);
+  const anyFloor = liftsFloor({ ...f, win_prob_min: undefined, win_prob_max: undefined }) ? 0 : f.win_prob_floor_default;   // chance "Any"
   const bump = (c: Counts, k: string) => (c[k] = (c[k] ?? 0) + 1);
 
   const rows: Row[] = [];
@@ -167,12 +195,17 @@ export function apply(store: Store, f0: FilterState, user?: UserCtx, parsed?: Pa
     if (f.verdicts && !(m.execution && f.verdicts.includes(m.execution.verdict))) mask |= VD;
 
     const s = pickSide(m, f.side);
+    if (!s) continue;
+    const pays = paysOf(s);
+    if (!gte(pays, f.pays_min) || !below(pays, f.pays_max)) mask |= PAYS;
+    if (!gte(s.win_prob, floor) || !lte(s.win_prob, f.win_prob_max)) mask |= CHANCE;
+    if (!gte(s.roi_pct, f.roi_min)) mask |= ROI;
+    if (!gte(m.hours_to_close, f.closes_after_h) || !lte(m.hours_to_close, f.closes_within_h)) mask |= CLOSES;
     const other =
-      !s || !sideOk(s, f) ||
+      !sideOk(s, fSide) ||
       (f.exclude_categories?.includes(m.category) ?? false) ||
       (f.frequency ? !f.frequency.some((fr) => m.derived.frequency.includes(fr)) : false) ||
       (f.live_only && !m.derived.is_live) ||
-      !gte(m.hours_to_close, f.closes_after_h) || !lte(m.hours_to_close, f.closes_within_h) ||
       !gte(m.volume, f.volume_min) || !gte(m.volume_24h, f.volume_24h_min) ||
       !gte(m.liquidity, f.liquidity_min) || !lte(m.spread, f.spread_max) ||
       (f.validated_only && !m.validated) ||
@@ -187,7 +220,21 @@ export function apply(store: Store, f0: FilterState, user?: UserCtx, parsed?: Pa
     if (!(mask & ~MT)) bump(facets.market_types, m.market_type);
     if (!(mask & ~PER)) bump(facets.periods, m.derived.period);
     if (!(mask & ~VD) && m.execution) bump(facets.verdicts, m.execution.verdict);
-    if (mask === 0) rows.push({ market: m, side: s! });
+    // Picking a 3x+ band lifts the long-shot floor, so those bands are counted the way they would show.
+    if (!(mask & ~(PAYS | CHANCE)) && pays !== null) {
+      const b = band(PAYS_BANDS, pays);
+      const lifted = gte(s.win_prob, f.win_prob_min ?? 0) && lte(s.win_prob, f.win_prob_max);
+      if (!(mask & CHANCE)) facets.pays.any!++;
+      if (b && (PAYS_BANDS.find(([k]) => k === b)![2] >= 2.5 ? lifted : !(mask & CHANCE))) facets.pays[b]!++;
+    }
+    if (!(mask & ~CHANCE)) {
+      if (gte(s.win_prob, anyFloor)) facets.chance.any!++;
+      // chance filters are inclusive at both ends (win_prob_max uses <=), so a boundary row counts in both bands
+      for (const [k, , lo, hi] of CHANCE_BANDS) if (s.win_prob >= lo && s.win_prob <= hi) facets.chance[k]!++;
+    }
+    if (!(mask & ~ROI)) for (const k of ["any", "5", "10", "20"]) if (k === "any" || s.roi_pct >= +k) facets.roi[k]!++;
+    if (!(mask & ~CLOSES)) facets.closes_h[Math.min(169, Math.max(0, Math.ceil(m.hours_to_close)))]!++;
+    if (mask === 0) rows.push({ market: m, side: s });
   }
 
   const cmp = comparator(f.sort);

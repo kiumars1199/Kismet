@@ -1,7 +1,7 @@
 "use client";
 
-// FilterPanel (F-03): every FilterState field, sections in the F-03 order. Left sidebar on desktop,
-// bottom sheet (native <dialog>) on mobile. Counts come from the API facets (current filter minus that facet).
+// FilterPanel (F-03): every FilterState field, sections in the F-03 order, in a "More filters" sheet
+// (native <dialog>: right side on desktop, bottom on mobile; docs/13 §2: no permanent sidebar). Counts come from the API facets (current filter minus that facet).
 import Link from "next/link";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import type { Facets, MetaResponse } from "@/lib/api";
@@ -27,11 +27,9 @@ const fmt = (n: number | undefined) => (n === undefined ? "" : String(n));
 export function FilterPanel(props: Props) {
   const dialog = useRef<HTMLDialogElement>(null);
   const active = countActive(props.state, props.mode);
-  // `f` shortcut (components/keyboard/Shortcuts.tsx): hide/show the sidebar on desktop, open/close the sheet on mobile.
-  const [shown, setShown] = useState(true);
+  // `f` shortcut (components/keyboard/Shortcuts.tsx) opens/closes the sheet.
   useEffect(() => {
     const toggle = () => {
-      if (matchMedia("(min-width: 768px)").matches) return setShown((v) => !v);
       const d = dialog.current;
       if (d?.open) d.close();
       else d?.showModal();
@@ -41,25 +39,22 @@ export function FilterPanel(props: Props) {
   }, []);
   return (
     <>
-      <aside aria-label="Filters" className={`sticky top-4 hidden max-h-[calc(100dvh-2rem)] w-[272px] flex-none self-start overflow-y-auto rounded-card border border-border bg-surface ${shown ? "md:block" : ""}`}>
-        <PanelBody {...props} />
-      </aside>
       <button
         type="button"
         onClick={() => dialog.current?.showModal()}
-        className="fixed bottom-[76px] left-1/2 z-30 flex min-h-11 -translate-x-1/2 items-center gap-2 rounded-full border border-accent-border bg-accent-bg px-5 font-semibold text-accent-soft md:hidden"
+        className={`flex min-h-10 items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 text-[13px] ${active ? "border-accent-border bg-accent-bg text-accent-softer" : "border-border bg-surface text-soft hover:border-accent-border hover:text-text"}`}
       >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4" /></svg>
-        Filters{active ? ` · ${active}` : ""}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4" /></svg>
+        More filters{active ? ` · ${active}` : ""}
       </button>
       <dialog
         ref={dialog}
         aria-label="Filters"
         onClick={(e) => e.target === e.currentTarget && e.currentTarget.close()}
-        className="m-0 mt-auto max-h-[88dvh] w-full max-w-none rounded-t-2xl border border-border bg-surface p-0 text-text backdrop:bg-black/60 md:hidden"
+        className="m-0 mt-auto max-h-[88dvh] w-full max-w-none rounded-t-2xl border border-border bg-surface p-0 text-text backdrop:bg-black/60 md:ml-auto md:mt-0 md:h-dvh md:max-h-dvh md:w-[380px] md:rounded-none md:rounded-l-2xl"
       >
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-surface px-5 py-3">
-          <h2 className="text-lg font-semibold">Filters</h2>
+          <h2 className="text-lg font-semibold">More filters</h2>
           <button type="button" onClick={() => dialog.current?.close()} className="min-h-11 rounded-input bg-accent px-4 font-semibold text-on-accent">Done</button>
         </div>
         <PanelBody {...props} />
@@ -87,8 +82,8 @@ function PanelBody({ state: s, mode, facets, meta, onChange, onReset }: Props) {
 
   return (
     <div className="flex flex-col text-sm">
-      <div className="flex items-center justify-between px-4 pb-1 pt-4">
-        <h2 className="font-heading text-base font-semibold">Filters</h2>
+      <div className="flex items-center justify-between px-4 pb-1 pt-3">
+        <p className="text-xs text-muted">Every filter, with how many bets each leaves</p>
         <button type="button" onClick={onReset} className="min-h-9 px-2 text-[13px] text-muted hover:text-text">Reset</button>
       </div>
 

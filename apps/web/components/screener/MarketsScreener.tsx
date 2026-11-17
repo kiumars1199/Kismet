@@ -12,11 +12,10 @@ import { QuickChips } from "@/components/presets/QuickChips";
 import { ExportCsv } from "@/components/presets/ExportCsv";
 import { MarketCard } from "@/components/market/MarketCard";
 import { Skeleton } from "@/components/market/bits";
+import { FilterPills } from "@/components/search/FilterPills";
 import { SearchChips } from "@/components/search/SearchChips";
 import { AppliedPills } from "./AppliedPills";
-import { FilterPanel } from "./FilterPanel";
 import { MarketTable, type Item } from "./MarketTable";
-import { SortSelect } from "./SortSelect";
 import { EmptyState, ErrorState, StaleBanner } from "./States";
 import { useDesktop } from "./useDesktop";
 import { useMeta, useScreener } from "./useScreener";
@@ -64,7 +63,6 @@ export function MarketsScreener() {
   const scanned = meta?.meta.scanned_at;
   return (
     <div className="mx-auto flex w-full max-w-[1600px] gap-6">
-      <FilterPanel state={state} mode="markets" facets={data?.facets} meta={meta} onChange={set} onReset={reset} />
       <div className="flex min-w-0 flex-1 flex-col gap-4">
         <header className="flex flex-wrap items-end justify-between gap-3">
           <div>
@@ -76,9 +74,9 @@ export function MarketsScreener() {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <ExportCsv state={state} />
-            <SortSelect sort={state.sort} onChange={(sort) => set({ sort })} />
           </div>
         </header>
+        <FilterPills state={state} mode="markets" facets={data?.facets} meta={meta} onChange={set} onReset={reset} />
         <PresetBar state={state} onChange={set} />
         <QuickChips state={state} onChange={set} />
         <SearchChips q={state.q} search={data?.search} onChange={set} />

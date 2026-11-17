@@ -25,7 +25,7 @@ export const FilterState = z.object({
   periods: z.array(PeriodEnum).optional(),
   side: SideChoice.default("best"),
   price_min: z.number().min(0).max(1).optional(), price_max: z.number().min(0).max(1).optional(),
-  pays_min: z.number().optional(), pays_max: z.number().optional(),   // payout multiplier 1/ask (docs/13 §2)
+  pays_min: z.number().optional(), pays_max: z.number().optional(),   // payout multiplier 1/ask, [min, max) (docs/13 §2)
   win_prob_min: z.number().optional(), win_prob_max: z.number().optional(),
   edge_min: z.number().optional(),                   // e.g. 0.02
   edge_low_positive: z.boolean().optional(),         // confident only
