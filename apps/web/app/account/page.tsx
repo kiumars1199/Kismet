@@ -3,7 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AccountActions, CheckoutStatus, DeleteAccount } from "@/components/auth/AccountActions";
 import { PageTitle, card } from "@/components/kit";
-import { authEnabled, getMe } from "@/lib/auth/server";
+import { accountsOffNote, authEnabled, getMe } from "@/lib/auth/server";
 import { billingMode } from "@/lib/billing/stripe";
 
 export const metadata = { title: "Account", robots: { index: false } };
@@ -21,7 +21,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ c
   if (!authEnabled()) {
     return (
       <div className="mx-auto flex max-w-3xl flex-col gap-6">
-        <PageTitle title="Account" sub="Accounts aren't switched on here. Everything is unlocked and saved in this browser." />
+        <PageTitle title="Account" sub={accountsOffNote()} />
         <Link href="/settings" className="w-fit text-accent-hover underline-offset-4 hover:underline">Open settings</Link>
       </div>
     );

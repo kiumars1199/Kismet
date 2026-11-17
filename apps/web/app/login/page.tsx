@@ -1,7 +1,7 @@
 // Sign in / sign up (docs/14 §1, T-41): Google or email link, no passwords. 18+ and Terms box required.
 import Link from "next/link";
 import { LoginForm } from "@/components/auth/LoginForm";
-import { authEnabled, getUser, safeNext } from "@/lib/auth/server";
+import { accountsOffNote, authEnabled, getUser, safeNext } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
 
 export const metadata = { title: "Sign in", robots: { index: false } };
@@ -32,7 +32,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Rec
         <LoginForm next={next} error={sp.error ? ERRORS[sp.error] ?? ERRORS.unavailable : undefined} />
       ) : (
         <p className="rounded-card border border-border bg-surface p-5 text-sm leading-relaxed text-soft">
-          Accounts aren&apos;t switched on here. Everything is unlocked and saved in this browser.{" "}
+          {accountsOffNote()}{" "}
           <Link href="/" className="text-accent-hover underline-offset-4 hover:underline">Go to Best bets</Link>
         </p>
       )}
