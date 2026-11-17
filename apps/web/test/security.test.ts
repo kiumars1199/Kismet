@@ -13,3 +13,20 @@ describe("DEMO_MODE fails safe", () => {
     expect(demoFlag(undefined, "test")).toBe(true);
   });
 });
+
+describe("AI crawlers (docs/14 §6, docs/15 § Bots)", () => {
+  it("middleware refuses AI user agents with 403, people pass", async () => {
+    const { NextRequest } = await import("next/server");
+    const { middleware } = await import("@/middleware");
+    const hit = (ua: string) => middleware(new NextRequest("http://t/api/markets", { headers: { "user-agent": ua } }));
+    for (const ua of ["Mozilla/5.0 (compatible; GPTBot/1.2; +https://openai.com/gptbot)", "ClaudeBot/1.0", "CCBot/2.0", "PerplexityBot/1.0"])
+      expect((await hit(ua)).status, ua).toBe(403);
+    expect((await hit("Mozilla/5.0 (Macintosh) Chrome/131.0")).status).toBe(200);
+  });
+
+  it("robots.txt disallows every blocked crawler", async () => {
+    const { AI_BOTS } = await import("@/lib/bots");
+    const rules = [(await import("@/app/robots")).default().rules].flat();
+    expect(rules.find((r) => r.disallow === "/")?.userAgent).toEqual(AI_BOTS);
+  });
+});
