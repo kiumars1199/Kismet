@@ -7,7 +7,7 @@ const COOKIE_OPTIONS = { httpOnly: true, secure: process.env.NODE_ENV === "produ
 const SIGNED_IN_ONLY = ["/account", "/watchlist", "/journal", "/alerts", "/dashboards"];
 
 export async function middleware(req: NextRequest) {
-  const url = process.env.SUPABASE_URL, anon = process.env.SUPABASE_ANON_KEY;
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL, anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (process.env.DEMO_MODE !== "false" || !url || !anon) return NextResponse.next();
 
   let res = NextResponse.next({ request: req });

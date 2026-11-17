@@ -14,6 +14,7 @@ import { CurveChart } from "./CurveChart";
 import { OddsBars, Skeleton, Val } from "./bits";
 import { VERDICT_LABEL, chanceTone, returnTone, topicLabel } from "./labels";
 import { drawerHref } from "./DrawerHost";
+import { TradeButton, VenueLink } from "@/components/trade/TradeButton";
 
 const card = "rounded-inner border border-border bg-raised p-4";
 const LEVEL = { all: "all markets", cat: "category", niche: "niche", nmt: "niche + type" } as const;
@@ -242,9 +243,8 @@ function Actions({ m, s }: { m: StoreMarket; s: Side }) {
   const btn = "flex min-h-11 items-center justify-center gap-1.5 rounded-input border border-border bg-muted-bg px-3.5 text-text hover:border-accent-border";
   return (
     <div className="flex flex-wrap gap-2">
-      <a href={m.url} target="_blank" rel="noopener noreferrer" className="flex min-h-11 basis-full items-center sm:basis-0 sm:flex-1 justify-center rounded-input bg-accent px-4 font-semibold text-on-accent hover:bg-accent-hover">
-        Open on Polymarket ↗
-      </a>
+      <VenueLink m={m} className="flex min-h-11 basis-full items-center sm:basis-0 sm:flex-1 justify-center rounded-input bg-accent px-4 font-semibold text-on-accent hover:bg-accent-hover" />
+      <TradeButton m={m} s={s} className={btn} />
       <div className={`${btn} px-1`}><WatchStar marketId={m.id} side={s.side_index} market={m} /></div>
       <Link href={`/alerts?market=${m.id}&side=${s.side_index}`} className={btn}>Alert me</Link>
       <button type="button" onClick={share} className={btn} aria-live="polite">{copied ? "Link copied" : "Share"}</button>

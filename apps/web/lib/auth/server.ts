@@ -7,8 +7,8 @@ import { DEMO_MODE } from "@/lib/config";
 import type { Tier } from "@/lib/entitlements";
 
 const env = () => ({
-  url: process.env.SUPABASE_URL ?? "",
-  anon: process.env.SUPABASE_ANON_KEY ?? "",
+  url: process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
+  anon: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "",
   service: process.env.SUPABASE_SERVICE_ROLE_KEY ?? "",
 });
 

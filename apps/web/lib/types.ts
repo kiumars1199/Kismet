@@ -61,6 +61,9 @@ export interface Market {
   volume_24h?: number | null;   // Gamma volume24hr
   created_at?: number | null;   // Gamma createdAt, unix seconds
   competitive?: number;         // abs(mid - 0.5) of the market mid
+  // docs/16 §3 market matching (engine job kalshi_match, not built yet). Set only when confidence >= 0.9.
+  kalshi_ticker?: string | null;
+  kalshi_match_conf?: number;
 }
 
 export type Verdict = "worth it" | "thin" | "not worth it" | "no sellers" | "no book";

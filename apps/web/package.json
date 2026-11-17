@@ -6,6 +6,7 @@
     "dev": "next dev -p ${PORT:-3000}",
     "build": "next build",
     "start": "next start",
+    "lint": "eslint . --max-warnings 0",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "e2e": "playwright test"
@@ -13,9 +14,11 @@
   "dependencies": {
     "@supabase/ssr": "0.12.7",
     "@supabase/supabase-js": "2.118.0",
+    "@sentry/nextjs": "11.9.0",
     "@tanstack/react-table": "^8.21.3",
     "@tanstack/react-virtual": "^3.14.26",
     "next": "^15.5.29",
+    "posthog-js": "1.440.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "recharts": "^3.10.1",
@@ -25,16 +28,20 @@
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.5.14",
+    "@eslint/eslintrc": "3.3.7",
     "@playwright/test": "^1.65.1",
     "@tailwindcss/postcss": "^4.3.5",
     "@testing-library/react": "^16.3.3",
     "@types/node": "^26.6.6",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "eslint": "9.39.5",
+    "eslint-config-next": "15.5.29",
     "fast-check": "^4.10.2",
     "jsdom": "^31.0.1",
     "tailwindcss": "^4.3.5",
     "typescript": "^5.9.3",
     "vitest": "^5.1.0"
-  }
+  },
+  "packageManager": "pnpm@12.21.0"
 }

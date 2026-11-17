@@ -66,6 +66,9 @@ export interface Market {
   best: Side;               // the side with the higher edge
   // T-02 (engine) adds these; absent today. Filters treat missing as "no value", never invent one.
   volume_24h?: number; created_at?: number; competitive?: number; ask_size?: number; bid_size?: number;
+  // docs/16 §3 market matching (engine job kalshi_match, not built yet). Set only when confidence >= 0.9.
+  kalshi_ticker?: string | null;  // e.g. "KXHIGHCHI-26NOV17-B56.5"; drives "Open on Kalshi" + paper Trade ticket
+  kalshi_match_conf?: number;     // 0..1
 }
 
 export type Verdict = "worth it" | "thin" | "not worth it" | "no sellers" | "no book";

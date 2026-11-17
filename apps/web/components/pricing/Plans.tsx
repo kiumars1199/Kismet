@@ -5,6 +5,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useMe } from "@/lib/me";
+import { track } from "@/lib/telemetry";
 
 export const PLANS = [
   { id: "free", name: "Free", monthly: 0, line: "See how it works.",
@@ -79,6 +80,7 @@ function PlanButton({ id, annual, demo, me, featured }: { id: string; annual: bo
   async function start() {
     setBusy(true);
     setError("");
+    if (me!.tier === "free") track("checkout_started");
     // Already paying: plan changes go through the Stripe portal, never a second subscription.
     const res = await (me!.tier === "free"
       ? fetch("/api/stripe/checkout", {

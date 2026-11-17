@@ -10,5 +10,5 @@
     "skipLibCheck": true,
     "isolatedModules": true
   },
-  "include": ["src", "test", "vite.config.ts", "vite.content.config.ts"]
+  "include": ["src", "test", "vite.config.ts", "vite.content.config.ts", "manifest.config.ts"]
 }

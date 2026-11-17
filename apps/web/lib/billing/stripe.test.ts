@@ -3,7 +3,7 @@ import Stripe from "stripe";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { handleWebhook, tierFromPrice, type BillingDb, type SubscriptionRow } from "./stripe";
 
-vi.mock("@/lib/email", () => ({ sendEmail: vi.fn(async () => {}) }));
+vi.mock("@/lib/email", () => ({ sendEmail: vi.fn(async () => ({ sent: true })), siteUrl: () => "http://test", unsubscribeUrl: () => "http://test/u" }));
 
 const SECRET = "whsec_test_secret";
 const U = "user-1";

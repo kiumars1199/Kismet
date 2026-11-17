@@ -6,7 +6,8 @@
   "scripts": {
     "build": "vite build && vite build -c vite.content.config.ts",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "ext:zip": "node scripts/zip.mjs"
   },
   "devDependencies": {
     "@types/chrome": "^0.1.0",

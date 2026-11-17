@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Dialog, Field, btn, btnDanger, btnPrimary, input } from "@/components/kit";
 import { loadMe, useMe } from "@/lib/me";
+import { track } from "@/lib/telemetry";
 import type { Tier } from "@/lib/entitlements";
 
 async function goTo(path: string, setError: (s: string) => void) {
@@ -49,6 +50,7 @@ export function CheckoutStatus() {
   const me = useMe();
   const [gaveUp, setGaveUp] = useState(false);
   const paid = !!me && me.tier !== "free";
+  useEffect(() => { if (paid) track("checkout_completed"); }, [paid]);
   useEffect(() => {
     if (paid) return;
     let n = 0;

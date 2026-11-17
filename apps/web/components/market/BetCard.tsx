@@ -4,6 +4,7 @@
 import type { ApiRow } from "@/lib/api";
 import { RETURN_HELP, basis, chance, closesIn, expectedProfit, money, price, sideRet, sideEdge } from "@/lib/format";
 import { WatchStar } from "@/components/watch/WatchStar";
+import { VenueIconLink } from "@/components/trade/TradeButton";
 import { drawerHref, useOpenDrawer } from "./DrawerHost";
 import { AlertLink, Notes, OddsBars } from "./bits";
 import { chanceTone, rowNotes, topicLabel } from "./labels";
@@ -55,6 +56,7 @@ export function BetCard({ r, highlight = false, help = false, pro = false }: { r
         <span className="text-muted">$100 bet → <span className="text-text">expect {money(profit === null ? null : Math.round(profit), true)}</span></span>
         <span className="flex items-center gap-1">
           {c && <span className={chanceTone(c)}>{c}</span>}
+          <VenueIconLink m={m} className="-my-2" />
           <AlertLink marketId={m.id} side={s.side_index} className="-my-2 -mr-2" />
         </span>
       </div>

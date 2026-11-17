@@ -2,7 +2,7 @@
 // concurrent loads de-duplicated. Server only — never ship markets.json to the browser.
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { DATA_SOURCE, dataDirSetting, github } from "@/lib/config";
+import { DATA_SOURCE, dataDirSetting, github, supabaseStorage, type DataSource } from "@/lib/config";
 import { DELAY_MIN, type Tier } from "@/lib/entitlements";
 import { Flag as FlagSchema, Market as MarketSchema, ScanMeta as MetaSchema } from "@/lib/schemas";
 import type { BacktestFile, EventsFile, FlagsFile, LedgerSummary, MarketsFile, ModelFile, ScanMeta, StoreMarket } from "@/lib/types";
@@ -16,6 +16,7 @@ export interface RawData {
   backtest: BacktestFile;
   events?: EventsFile;              // output/events.json (T-05), optional
   ledgerSummary?: LedgerSummary;    // output/ledger_summary.json (T-04), optional
+  source?: DataSource;              // which source served this copy
 }
 
 export type Counts = Record<string, number>;
@@ -35,6 +36,7 @@ export interface Store {
   backtest: BacktestFile;
   events?: EventsFile;
   ledgerSummary?: LedgerSummary;
+  source?: DataSource;
 }
 
 const TTL_MS = 120_000;
@@ -99,19 +101,32 @@ export function buildStore(raw: RawData, loadedAt = Date.now()): Store {
     backtest: raw.backtest,
     events: raw.events,
     ledgerSummary: raw.ledgerSummary,
+    source: raw.source,
   };
 }
 
-export async function readSource(file: string): Promise<string | undefined> {
-  if (DATA_SOURCE === "github") {
+/** Sources tried in order (docs/14 §4): supabase → GitHub `live` branch; getStore adds the last good copy. */
+export const sourceChain = (s: DataSource = DATA_SOURCE): DataSource[] => (s === "supabase" ? ["supabase", "github"] : [s]);
+
+async function fetchText(url: string, headers: Record<string, string>, missing: number[]) {
+  const res = await fetch(url, { headers, cache: "no-store", signal: AbortSignal.timeout(30_000) });
+  if (missing.includes(res.status)) return undefined;
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.text();
+}
+
+/** One file from one source; undefined = the source has no such file. */
+async function readFrom(source: DataSource, file: string): Promise<string | undefined> {
+  if (source === "supabase") {
+    const { url, key, bucket } = supabaseStorage();
+    if (!url || !key) throw new Error("NEXT_PUBLIC_SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY not set");
+    // Storage answers 400 (not 404) for a missing object.
+    return fetchText(`${url}/storage/v1/object/authenticated/${bucket}/${file}`, { Authorization: `Bearer ${key}`, apikey: key }, [400, 404]);
+  }
+  if (source === "github") {
     const { token, repo, ref } = github();
-    const res = await fetch(`https://api.github.com/repos/${repo}/contents/${file}?ref=${ref}`, {
-      headers: { Accept: "application/vnd.github.raw", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-      cache: "no-store",
-    });
-    if (res.status === 404) return undefined;
-    if (!res.ok) throw new Error(`[store] GitHub ${file}: HTTP ${res.status}`);
-    return res.text();
+    return fetchText(`https://api.github.com/repos/${repo}/contents/${file}?ref=${ref}`,
+      { Accept: "application/vnd.github.raw", ...(token ? { Authorization: `Bearer ${token}` } : {}) }, [404]);
   }
   try {
     return await readFile(path.join(dataDir(), file), "utf8");
@@ -121,42 +136,72 @@ export async function readSource(file: string): Promise<string | undefined> {
   }
 }
 
-async function readJson<T>(file: string, required: true): Promise<T>;
-async function readJson<T>(file: string, required: false): Promise<T | undefined>;
-async function readJson<T>(file: string, required: boolean) {
-  const text = await readSource(file);
-  if (text === undefined) {
-    if (required) throw new Error(`[store] missing ${file} (DATA_SOURCE=${DATA_SOURCE}, dir=${dataDir()})`);
-    return undefined;
+/** One file from the first source that has it. */
+export async function readSource(file: string, chain = sourceChain()): Promise<string | undefined> {
+  let err: unknown;
+  for (const source of chain) {
+    try {
+      const text = await readFrom(source, file);
+      if (text !== undefined) return text;
+    } catch (e) {
+      err = e;
+      console.warn(`[store] ${source} ${file} failed: ${(e as Error).message}`);
+    }
   }
-  return JSON.parse(text) as T;
+  if (err) throw err;
+  return undefined;
 }
 
-export async function loadRaw(): Promise<RawData> {
+async function loadFrom(source: DataSource): Promise<RawData> {
+  const read = async <T>(file: string, required: boolean): Promise<T | undefined> => {
+    const text = await readFrom(source, file);
+    if (text === undefined && required) throw new Error(`missing ${file} (DATA_SOURCE=${source}, dir=${dataDir()})`);
+    return text === undefined ? undefined : (JSON.parse(text) as T);
+  };
   const [markets, flags, model, backtest, events, ledgerSummary] = await Promise.all([
-    readJson<MarketsFile>("markets.json", true),
-    readJson<FlagsFile>("flags.json", true),
-    readJson<ModelFile>("model.json", true),
-    readJson<BacktestFile>("backtest.json", true),
-    readJson<EventsFile>("events.json", false),
-    readJson<LedgerSummary>("ledger_summary.json", false),
+    read<MarketsFile>("markets.json", true),
+    read<FlagsFile>("flags.json", true),
+    read<ModelFile>("model.json", true),
+    read<BacktestFile>("backtest.json", true),
+    read<EventsFile>("events.json", false),
+    read<LedgerSummary>("ledger_summary.json", false),
   ]);
-  return { markets, flags, model, backtest, events, ledgerSummary };
+  return { markets: markets!, flags: flags!, model: model!, backtest: backtest!, events, ledgerSummary, source };
 }
+
+/** Every file from one source (never mix two scans); on any failure the next source. */
+export async function loadRaw(chain = sourceChain()): Promise<RawData> {
+  let err: unknown;
+  for (const source of chain) {
+    try {
+      return await loadFrom(source);
+    } catch (e) {
+      err = e;
+      console.warn(`[store] ${source} load failed: ${(e as Error).message}`);
+    }
+  }
+  throw new Error(`[store] no data source answered: ${(err as Error)?.message}`);
+}
+
+const RETRY_MS = 30_000;
 
 // Kept on globalThis so dev hot reloads don't re-parse 20 MB each time.
-const g = globalThis as unknown as { __meStore?: { cache?: Store; inflight?: Promise<Store> } };
-const state = (g.__meStore ??= {}) as { cache?: Store; inflight?: Promise<Store>; prev?: Store };
+const g = globalThis as unknown as { __meStore?: { cache?: Store; inflight?: Promise<Store>; failedAt?: number; prev?: Store } };
+const state = (g.__meStore ??= {});
 
 export function getStore(): Promise<Store> {
   if (state.cache && Date.now() - state.cache.loadedAt < TTL_MS) return Promise.resolve(state.cache);
   if (state.inflight) return state.inflight;
+  // While every source is down, serve the last good copy and retry at most every 30 s.
+  if (state.cache && state.failedAt && Date.now() - state.failedAt < RETRY_MS) return Promise.resolve(state.cache);
   state.inflight = loadRaw()
     .then((raw) => {
+      state.failedAt = undefined;
       const next = buildStore(raw);
       if (state.cache && state.cache.meta.scanned_at !== next.meta.scanned_at) state.prev = state.cache;
       return (state.cache = next);
     })
+    .catch((e) => { state.failedAt = Date.now(); throw e; })
     .finally(() => (state.inflight = undefined));
   // A failed refresh keeps serving the previous copy if there is one.
   return state.cache ? state.inflight.catch(() => state.cache!) : state.inflight;
