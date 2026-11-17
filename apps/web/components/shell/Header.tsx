@@ -41,7 +41,7 @@ export function Header() {
           );
         })}
       </nav>
-      <div className="flex flex-[1_1_260px] items-center justify-end gap-3">
+      <div className="flex flex-[1_1_260px] items-center justify-end gap-2 sm:gap-3">
         <SearchCombobox />
         <Link href="/about" aria-current={pathname === "/about" ? "page" : undefined} className="hidden whitespace-nowrap text-sm text-muted hover:text-text lg:block">How it works</Link>
         <FreshnessPill />

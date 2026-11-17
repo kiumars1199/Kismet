@@ -34,7 +34,7 @@ export function FreshnessPill({ scannedAt: initial }: { scannedAt?: number }) {
     <Link href="/status" title={title} data-testid="freshness" data-level={level}
       className={`flex min-h-11 items-center gap-1.5 whitespace-nowrap rounded-input px-2 text-xs hover:text-text ${TEXT[level]}`}>
       <span className={`size-[7px] shrink-0 rounded-full ${DOT[level]}`} aria-hidden="true" />
-      Updated {when}{level === "red" && <span className="max-sm:sr-only"> · data may be stale</span>}
+      <span className="max-sm:sr-only">Updated </span>{when}{level === "red" && <span className="max-sm:sr-only"> · data may be stale</span>}
     </Link>
   );
 }
