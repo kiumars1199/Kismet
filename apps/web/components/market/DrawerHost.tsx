@@ -48,7 +48,7 @@ export function DrawerHost() {
 
   if (!marketId) return null;
   return (
-    <aside role="dialog" aria-label="Market details" className="fixed inset-0 z-50 flex flex-col gap-4 overflow-y-auto border-l border-border bg-surface p-6 md:inset-y-0 md:left-auto md:w-[440px]">
+    <div role="dialog" aria-label="Market details" className="fixed inset-0 z-50 flex flex-col gap-4 overflow-y-auto border-l border-border bg-surface p-6 md:inset-y-0 md:left-auto md:w-[440px]">
       <div className="flex items-start justify-between gap-3">
         <h2 className="text-xl font-semibold">Market {marketId}{side !== undefined ? ` · side ${side}` : ""}</h2>
         <button type="button" onClick={close} aria-label="Close" className="flex size-11 flex-none items-center justify-center rounded-card bg-raised text-muted">
@@ -56,6 +56,6 @@ export function DrawerHost() {
         </button>
       </div>
       <p className="text-muted">Market details are coming soon.</p>
-    </aside>
+    </div>
   );
 }

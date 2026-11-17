@@ -106,18 +106,31 @@ describe("apply() on the fixture", async () => {
     expect(pickSide(m, "underdog")!.outcome).toBe("Colts");
   });
 
-  it("groups by event, best row first, paginates groups", () => {
-    const p = apply(store, st({}));
+  it("groups by event, best row first, packs whole groups into pages of <= page_size rows", () => {
+    const p = apply(store, st({ page_size: 20 }));
     expect(p.total).toBe(476);
     expect(p.total_groups).toBe(297);
-    expect(p.groups).toHaveLength(50);
     const cmp = comparator(defaultState().sort);
-    for (const g of p.groups!) {
-      expect(g.best).toBe(g.rows[0]);
-      for (const r of g.rows) expect(cmp(g.best, r)).toBeLessThanOrEqual(0);
+    const seen: string[] = [];
+    let rows = 0;
+    for (let page = 1; page <= p.pages; page++) {
+      const q = apply(store, st({ page_size: 20, page }));
+      expect(q.rows.length).toBeLessThanOrEqual(20);
+      expect(q.rows).toEqual(q.groups!.flatMap((g) => g.rows));
+      for (const g of q.groups!) {
+        seen.push(g.event_id);
+        rows += g.size;
+        expect(g.best).toBe(g.rows[0]);
+        expect(g.rows.length === g.size || g.rows.length === 20).toBe(true);
+        for (const r of g.rows) expect(cmp(g.best, r)).toBeLessThanOrEqual(0);
+      }
     }
-    expect(apply(store, st({ page: 6 })).groups).toHaveLength(47);
-    expect(apply(store, st({ page: 7 })).groups).toHaveLength(0);
+    expect(new Set(seen).size).toBe(297); // every group exactly once
+    expect(seen).toHaveLength(297);
+    expect(rows).toBe(476);
+    expect(apply(store, st({ page_size: 20, page: p.pages + 1 })).groups).toHaveLength(0);
+    // groups ordered by their best row
+    expect(apply(store, st({})).groups![0].best.market.id).toBe("6674492");
   });
 
   it("facets are counts for the current filter minus that facet", () => {

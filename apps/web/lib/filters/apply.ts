@@ -12,6 +12,7 @@ export interface Group {
   event_id: string; event: string; slug: string;
   closes_at: number;        // earliest close among member rows
   flagged: number;          // member rows that are flags
+  size: number;             // matching rows in the group (rows below may be cut to page_size)
   best: Row;                // first row = best by the current sort
   rows: Row[];
 }
@@ -19,8 +20,11 @@ export type Counts = Record<string, number>;
 export interface Facets { categories: Counts; topics: Counts; market_types: Counts; periods: Counts; verdicts: Counts }
 export interface Page {
   total: number;            // matching rows
-  total_groups?: number;    // matching event groups (when grouped; pagination is over groups)
+  total_groups?: number;    // matching event groups (when grouped)
   page: number; page_size: number;
+  pages: number;            // page count for this filter
+  // Flat: rows[(page-1)*page_size ...]. Grouped: whole groups packed so a page holds <= page_size rows;
+  // a group larger than page_size gets a page to itself, cut to page_size rows (see Group.size).
   rows: Row[];              // rows on this page (grouped: the page's groups flattened, best first)
   groups?: Group[];
   facets: Facets;           // counts for the current filter minus that facet
@@ -92,8 +96,9 @@ export function groupByEvent(rows: Row[], flagIds?: Map<string, unknown>): Group
   for (const r of rows) {
     const m = r.market;
     let g = groups.get(m.event_id);
-    if (!g) groups.set(m.event_id, (g = { event_id: m.event_id, event: m.event, slug: m.slug, closes_at: m.closes_at, flagged: 0, best: r, rows: [] }));
+    if (!g) groups.set(m.event_id, (g = { event_id: m.event_id, event: m.event, slug: m.slug, closes_at: m.closes_at, flagged: 0, size: 0, best: r, rows: [] }));
     g.rows.push(r);
+    g.size++;
     g.closes_at = Math.min(g.closes_at, m.closes_at);
     if (m.execution && (!flagIds || flagIds.has(m.id))) g.flagged++;
   }
@@ -153,11 +158,21 @@ export function apply(store: Store, f: FilterState, user?: UserCtx): Page {
   }
 
   rows.sort(comparator(f.sort));
-  const start = (f.page - 1) * f.page_size;
   const base = { total: rows.length, page: f.page, page_size: f.page_size, facets };
-  if (!f.group_by_event) return { ...base, rows: rows.slice(start, start + f.page_size) };
+  if (!f.group_by_event) {
+    const start = (f.page - 1) * f.page_size;
+    return { ...base, pages: Math.ceil(rows.length / f.page_size), rows: rows.slice(start, start + f.page_size) };
+  }
 
+  // Pack whole groups into pages of <= page_size rows (a page always gets at least one group).
   const all = groupByEvent(rows, store.flagsById);
-  const groups = all.slice(start, start + f.page_size);
-  return { ...base, total_groups: all.length, groups, rows: groups.flatMap((g) => g.rows) };
+  const groups: Group[] = [];
+  let pageNo = 1, used = 0;
+  for (const g of all) {
+    const n = Math.min(g.size, f.page_size);
+    if (used > 0 && used + n > f.page_size) { pageNo++; used = 0; }
+    used += n;
+    if (pageNo === f.page) groups.push(n < g.size ? { ...g, rows: g.rows.slice(0, n) } : g);
+  }
+  return { ...base, pages: all.length ? pageNo : 0, total_groups: all.length, groups, rows: groups.flatMap((g) => g.rows) };
 }
