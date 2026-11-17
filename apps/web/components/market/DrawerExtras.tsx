@@ -1,5 +1,5 @@
 // Owner: Lane D (T-37 "Log this bet", T-38 Kelly sizing). The drawer renders <DrawerExtras market side />.
-type Market = { id: string }; // replaced by lib/types in T-11
+import type { Market } from "@/lib/types";
 
 export function DrawerExtras(_props: { market: Market; side: 0 | 1 }) {
   return null;

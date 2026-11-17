@@ -1,7 +1,7 @@
 "use client";
 
 // Owner: Lane D (T-32 watchlist). Placeholder star; does nothing yet.
-type Market = { id: string }; // replaced by lib/types in T-11
+import type { Market } from "@/lib/types";
 
 export function WatchStar({ marketId }: { marketId: string; side?: 0 | 1; market?: Market }) {
   return (
