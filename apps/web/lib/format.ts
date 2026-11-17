@@ -152,3 +152,30 @@ export function testedLine(r: { flags?: number; combos?: number; win_rate?: numb
 }
 /** Under 25% chance the drawer says plainly what usually happens (docs/18 §6). */
 export const LONG_SHOT_LINE = "Most of the time this loses. The edge means you're getting a better price than usual, not that it will hit.";
+
+/** docs/17 fix 1: the return a card shows. What similar past bets returned when we know it (the model's own
+ *  estimate overshoots at large edges and lives in the drawer), else the model's expected return. Free-tier
+ *  bands pass through unchanged. */
+export function cardReturn(s: Pick<Side, "roi_pct" | "ranges" | "realistic_edge" | "ask" | "fee">): { roi: number | null; text: string; profit: string; realistic: boolean } {
+  const real = s.ranges ? null : realisticReturn(s);
+  if (real === null) return { roi: ok(s.roi_pct) ? s.roi_pct : null, text: sideRet(s), profit: sideProfit(s), realistic: false };
+  return { roi: real, text: ret(real), profit: money(Math.round(real), true), realistic: true };
+}
+export const REALISTIC_HELP =
+  "What similar past bets actually returned on average, after the fee and the price you'd really pay. The model's own estimate is in the details. Any single bet can lose.";
+
+/** Game or close time, docs/17 fix 14: "Tue 2:45 PM" within the next 6 days, else "Nov 28". Local time zone. */
+export function gameTime(closesAt: number | null | undefined, now = Date.now()): string {
+  if (!ok(closesAt)) return DASH;
+  const d = new Date(closesAt * 1000);
+  return closesAt * 1000 - now < 6 * 86400_000
+    ? d.toLocaleString("en-US", { weekday: "short", hour: "numeric", minute: "2-digit" }).replace(",", "")
+    : d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+/** Live countdown for the closing-soon strip: "2h 05m", "14m", "closing". */
+export function countdown(closesAt: number, now = Date.now()): string {
+  const m = Math.floor((closesAt * 1000 - now) / 60000);
+  if (m <= 0) return "closing";
+  return m < 60 ? `${m}m` : `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, "0")}m`;
+}

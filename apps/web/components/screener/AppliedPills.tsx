@@ -55,8 +55,7 @@ export function pillsFor(s: FilterState, mode: Mode): Pill[] {
   if (s.spread_max !== undefined) one("sp", true, `Spread ≤ ${c(s.spread_max)}`, { spread_max: undefined });
   one("wl", s.watchlisted_only, "My list only", { watchlisted_only: undefined });
   one("fav", s.favorites_only, "My topics only", { favorites_only: undefined });
-  if (mode === "markets" && !s.group_by_event) one("g", true, "Not grouped by event", { group_by_event: true });
-  if (mode === "flags" && s.group_by_event) one("g", true, "Grouped by event", { group_by_event: false });
+  if (!s.group_by_event) one("g", true, mode === "markets" ? "Not grouped by event" : "Every bet, not one per game", { group_by_event: true });
   return out;
 }
 

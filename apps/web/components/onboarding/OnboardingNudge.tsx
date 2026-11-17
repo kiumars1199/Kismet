@@ -20,14 +20,15 @@ export function OnboardingNudge() {
   };
 
   return (
-    <aside aria-label="Get started" className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-card border border-accent-border bg-accent-bg px-4 py-3 text-sm text-accent-soft">
-      <p className="min-w-0 flex-1 basis-60">Choose your topics and we’ll show those bets first.</p>
-      <div className="flex items-center gap-1">
-        <Link href="/onboarding" className="rounded-input bg-accent px-3.5 py-2 font-semibold text-on-accent hover:bg-accent-hover">Choose your topics</Link>
-        <button type="button" onClick={dismiss} aria-label="Dismiss" className="flex size-9 items-center justify-center rounded-input text-accent-softer hover:text-text">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
-        </button>
-      </div>
+    // docs/17 fix 7: one slim line, lighter than the content; dismissal is remembered
+    <aside aria-label="Get started" className="flex min-h-11 items-center gap-3 rounded-input border border-border bg-surface pl-4 text-[13px] text-soft">
+      <p className="min-w-0 flex-1 truncate">
+        <Link href="/onboarding" className="font-semibold text-accent-hover hover:text-accent-soft">Choose your topics</Link>
+        <span className="text-muted"> and we’ll show those bets first.</span>
+      </p>
+      <button type="button" onClick={dismiss} aria-label="Dismiss" className="flex size-11 flex-none items-center justify-center rounded-input text-muted hover:text-text">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+      </button>
     </aside>
   );
 }

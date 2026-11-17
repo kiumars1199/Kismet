@@ -25,7 +25,7 @@ export function VenueIconLink({ m, className = "" }: { m: Pick<Market, "url" | "
     <a
       data-venue={v.name.toLowerCase()} href={v.href} target="_blank" rel="noopener noreferrer"
       aria-label={`Open on ${v.name}`} title={`Open on ${v.name}`} onClick={(e) => e.stopPropagation()}
-      className={`relative z-10 flex size-11 flex-none items-center justify-center rounded-input text-muted hover:bg-raised hover:text-text md:size-9 ${className}`}
+      className={`relative z-10 flex size-11 flex-none items-center justify-center rounded-input text-muted hover:bg-raised hover:text-text ${className}`}
     >
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <path d="M14 4h6v6" /><path d="M20 4l-9 9" /><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" />

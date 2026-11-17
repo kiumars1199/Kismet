@@ -22,7 +22,6 @@ export function stateFrom(params: URLSearchParams, mode: Mode): FilterState {
     ...s,
     view: "flags",
     verdicts: params.has("vd") ? s.verdicts : BEST_BETS_VERDICTS,
-    group_by_event: params.has("g") ? s.group_by_event : false,
   };
 }
 
@@ -32,8 +31,6 @@ export function queryFor(s: FilterState, mode: Mode): string {
   if (mode === "flags") {
     p.delete("view");
     if (p.get("vd") === BEST_BETS_VERDICTS.join(",")) p.delete("vd");
-    if (s.group_by_event) p.set("g", "1");
-    else p.delete("g");
   }
   const q = p.toString();
   return q ? `?${q}` : "";
@@ -53,7 +50,7 @@ export function useMeta() {
   return meta;
 }
 
-type Result = { key: string; data?: MarketsResponse; more?: MarketsResponse["rows"]; error?: string };
+type Result = { key: string; data?: MarketsResponse; more?: MarketsResponse["rows"]; moreGroups?: NonNullable<MarketsResponse["groups"]>; error?: string };
 
 export function useScreener(mode: Mode) {
   const params = useSearchParams();
@@ -110,11 +107,18 @@ export function useScreener(mode: Mode) {
   const [loadingMore, setLoadingMore] = useState(false);
   const loadMore = useCallback(async () => {
     if (!res.data || loadingMore) return;
-    const shown = res.data.page + Math.ceil((res.more?.length ?? 0) / res.data.page_size);
+    // pages loaded so far: grouped pages count groups, flat pages count rows
+    const loaded = res.data.groups ? res.data.groups.length + (res.moreGroups?.length ?? 0) : res.data.rows.length + (res.more?.length ?? 0);
+    const shown = res.data.page - 1 + Math.ceil(loaded / res.data.page_size);
     setLoadingMore(true);
     try {
       const next = await load({ ...query, page: shown + 1 });
-      setRes((r) => (r.key === fetchKey ? { ...r, more: [...(r.more ?? []), ...next.rows] } : r));
+      setRes((r) => {
+        if (r.key !== fetchKey) return r;
+        const offset = (r.data?.rows.length ?? 0) + (r.more?.length ?? 0);   // next page's group starts shift past the rows already held
+        const groups = next.groups?.map((g) => ({ ...g, start: g.start + offset }));
+        return { ...r, more: [...(r.more ?? []), ...next.rows], moreGroups: groups ? [...(r.moreGroups ?? []), ...groups] : r.moreGroups };
+      });
     } finally {
       setLoadingMore(false);
     }
@@ -125,6 +129,7 @@ export function useScreener(mode: Mode) {
     state, set, reset, mode,
     data: res.data,
     more: fresh ? (res.more ?? []) : [],
+    moreGroups: fresh ? (res.moreGroups ?? []) : [],
     loading: !fresh,
     error: fresh ? res.error : undefined,
     retry: () => setRetry((n) => n + 1),

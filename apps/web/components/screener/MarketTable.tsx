@@ -85,7 +85,7 @@ function MarketCell({ r }: { r: ApiRow }) {
       >
         {r.market.question}
       </a>
-      <Notes notes={rowNotes(r.market.execution, r.side)} className="mt-1" />
+      <Notes notes={rowNotes(r.market.execution)} className="mt-1" />
     </div>
   );
 }

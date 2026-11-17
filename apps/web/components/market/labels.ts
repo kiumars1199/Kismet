@@ -1,6 +1,6 @@
 // Plain-language labels and token classes shared by rows, cards, BetCard and the drawer (docs/06 § Display language).
 import { TAXONOMY, topicsOf } from "@/lib/taxonomy";
-import { money, realisticReturn, ret, type Chance } from "@/lib/format";
+import { money, type Chance } from "@/lib/format";
 import type { Execution, Market, Side, Verdict } from "@/lib/types";
 
 /** Return color: ≥10% strong green, 3–10% green, 0–3% grey, <0 red. */
@@ -16,7 +16,9 @@ export const chanceTone = (c: Chance | null) =>
 export function topicLabel(m: Pick<Market, "category" | "niche" | "tags" | "market_type">): string {
   const ids = topicsOf(m as Market);
   if (m.category === "sports") {
-    const t = [...ids].find((id) => id.split(".").length === 2 && !id.endsWith(".other"));
+    // docs/17 fix 14: the league or competition when known ("La Liga"), else the sport ("Soccer")
+    const named = [...ids].filter((id) => !id.endsWith(".other"));
+    const t = named.find((id) => id.split(".").length === 3) ?? named.find((id) => id.split(".").length === 2);
     if (t) return TAXONOMY[t]!.label;
   }
   return (TAXONOMY[m.category]?.label ?? m.category).split(" & ")[0]!;
@@ -32,18 +34,14 @@ export const VERDICT_LABEL: Record<Verdict, string> = {
 
 export type Note = { text: string; tone: "warning" | "negative" | "muted" };
 
-/** Quiet price-check notes for a row/card: only speaks up when something's wrong. */
-export function rowNotes(x: Execution | undefined, best: Side): Note[] {
+/** Quiet price-check notes for a row/card: only speaks up when something's wrong. The "unusually high" edge warning
+ *  lives in the drawer only (docs/17 fix 1): repeated on every card it was noise; cards show what similar bets returned. */
+export function rowNotes(x: Execution | undefined): Note[] {
   const out: Note[] = [];
   if (x?.verdict === "not worth it") out.push({ text: VERDICT_LABEL["not worth it"], tone: "negative" });
   else if (x?.verdict === "thin") out.push({ text: VERDICT_LABEL.thin, tone: "warning" });
   if (x && x.book_ok !== false && x.verdict !== "not worth it" && x.capacity_usd != null && x.capacity_usd < 100)
     out.push({ text: `Only ~${money(Math.round(x.capacity_usd))} available at this price`, tone: "warning" });
-  if (best.edge >= 0.15) {
-    // the model overshoots at this size; show what similar past bets really returned when we know it
-    const real = realisticReturn(best);
-    out.push({ text: real === null ? "Unusually high — check details" : `Unusually high — similar past bets returned ${ret(real)}`, tone: "muted" });
-  }
   return out;
 }
 

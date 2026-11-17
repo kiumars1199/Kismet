@@ -34,7 +34,7 @@ export function Header() {
               key={t.href}
               href={t.href}
               aria-current={active ? "page" : undefined}
-              className={`rounded-[10px] px-3.5 py-2 ${active ? "bg-accent/15 text-text" : "text-muted hover:text-text"}`}
+              className={`rounded-[10px] px-3.5 py-2 transition-colors duration-200 ease-out ${active ? "bg-nav-active text-text" : "text-muted hover:bg-muted-bg hover:text-text"}`}
             >
               {t.label}
             </Link>

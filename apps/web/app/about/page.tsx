@@ -9,8 +9,8 @@ import { gateMarket } from "@/lib/data/gate";
 import { getStoreFor } from "@/lib/data/store";
 import { apply } from "@/lib/filters/apply";
 import { FilterState } from "@/lib/filters/state";
-import { DASH, RETURN_HELP, chance, closesIn, formatCount, pct, price, sideProfit, sideRet } from "@/lib/format";
-import { TAXONOMY } from "@/lib/taxonomy";
+import { DASH, REALISTIC_HELP, RETURN_HELP, cardReturn, chance, closesIn, formatCount, pays, pct, price, winsAbout } from "@/lib/format";
+import { topicLabel } from "@/components/market/labels";
 import { tiles } from "@/lib/trackRecord";
 import type { Side, StoreMarket } from "@/lib/types";
 
@@ -87,7 +87,7 @@ export default async function Page() {
         </div>
         {top.length ? (
           <div className="grid gap-3.5 md:grid-cols-3">
-            {top.map((r, i) => <PreviewCard key={r.market.id} m={r.market} s={r.side} first={i === 0} />)}
+            {top.map((r) => <PreviewCard key={r.market.id} m={r.market} s={r.side} />)}
           </div>
         ) : (
           <p className="rounded-card border border-border bg-surface p-6 text-soft">No best bets in the last scan. The next scan may find some.</p>
@@ -128,35 +128,35 @@ function Counter({ label, value, accent }: { label: string; value: string; accen
   );
 }
 
-// Simple Best bet card in the BetCard style (Lane C1 owns components/market/BetCard.tsx).
-function PreviewCard({ m, s, first }: { m: StoreMarket; s: Side; first: boolean }) {
-  const tag = TAXONOMY[`${m.category}.${m.niche}`]?.label ?? TAXONOMY[m.category]?.label ?? m.category;
+// Server-rendered Best bet card in the BetCard style (docs/18 §6 headline, docs/17 return line). No client JS here.
+function PreviewCard({ m, s }: { m: StoreMarket; s: Side }) {
   const bar = (p: number) => `${Math.max(0, Math.min(100, p * 100))}%`;
+  const r = cardReturn(s);
   return (
     <Link href={`/m/${m.id}`} data-testid="preview-card"
-      className={`flex flex-col gap-3.5 rounded-card border p-[18px] hover:border-accent-border ${first ? "border-accent-border bg-surface" : "border-border bg-surface"}`}>
-      <div className="flex items-center justify-between text-xs text-muted">
-        <span className="rounded-full bg-muted-bg px-2.5 py-0.5">{tag}</span>
-        <span>Closes in {closesIn(m.closes_at)}</span>
+      className="flex flex-col gap-3 rounded-card border border-border bg-surface p-4 transition-colors duration-200 ease-out hover:border-accent-border">
+      <div className="flex items-center justify-between gap-2 text-xs text-muted">
+        <span className="truncate rounded-full bg-muted-bg px-2.5 py-[3px]">{topicLabel(m)}</span>
+        <span className="flex-none">Closes in {closesIn(m.closes_at)}</span>
       </div>
-      <p className="min-h-[42px] text-base font-semibold leading-snug">{m.question}</p>
-      <div className="flex items-end justify-between">
-        <div>
-          <div className="text-xs text-muted">Expected return</div>
-          <div className="font-heading text-[36px] font-bold leading-[1.1] tracking-[-0.02em] text-accent">{sideRet(s)}</div>
-        </div>
-        <div className="text-right">
-          <div className="text-xs text-muted">Bet</div>
-          <div className="font-semibold">{s.outcome} · {price(s.ask)}</div>
-        </div>
+      <p className="line-clamp-3 min-h-[42px] text-base font-semibold leading-[1.3]">{m.question}</p>
+      <div>
+        <p className="flex flex-wrap items-baseline gap-x-2">
+          <span className="font-heading text-[32px] font-bold leading-none tracking-[-0.02em]">Pays {pays(s.ask)}</span>
+          <span className="text-[15px] font-medium text-soft">wins about {winsAbout(s.win_prob)}</span>
+        </p>
+        <p className="mt-2 text-[13px] text-soft">Bet <strong className="font-semibold text-text">{s.outcome}</strong> at {price(s.ask)}</p>
+        <p className="mt-0.5 text-[13px] text-muted" title={r.realistic ? REALISTIC_HELP : RETURN_HELP}>
+          {r.realistic ? "Similar past bets returned" : "Expected return"} <span className="font-semibold text-accent">{r.text}</span>
+        </p>
       </div>
       <div className="flex flex-col gap-1.5 text-xs">
         <BarRow label="Market says" value={pct(s.ask)} width={bar(s.ask)} fill="bg-market-bar" />
         <BarRow label="Won before" value={pct(s.win_prob)} width={bar(s.win_prob)} fill="bg-accent" strong />
       </div>
-      <div className="flex items-center justify-between border-t border-border pt-3 text-[13px]">
-        <span className="text-muted">$100 bet → <span className="text-text">expect {sideProfit(s)}</span></span>
-        <span className="text-accent-softer">{chance(s.win_prob) ?? DASH}</span>
+      <div className="mt-auto flex items-center justify-between border-t border-border pt-3 text-[13px]">
+        <span className="text-muted">$100 → <span className="font-semibold text-text">{r.profit}</span></span>
+        <span className="rounded-full bg-muted-bg px-2.5 py-[3px] text-xs text-accent-softer">{chance(s.win_prob) ?? DASH}</span>
       </div>
     </Link>
   );

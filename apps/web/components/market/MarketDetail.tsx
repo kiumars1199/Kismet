@@ -5,13 +5,13 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { fetchBook, fetchMarket, type BookResponse, type MarketResponse } from "@/lib/api";
-import { ago, basis, betLine, chance, closesIn, edge, money, pays, PAYS_HELP, pct, price, realisticReturn, ret, RETURN_HELP, sideProfit, sideRet, sideEdge, sidePts, formatCount, LONG_SHOT_LINE, winsAbout } from "@/lib/format";
+import { ago, basis, chance, closesIn, gameTime, edge, money, pays, PAYS_HELP, pct, price, realisticReturn, ret, RETURN_HELP, sideProfit, sideRet, sideEdge, sidePts, formatCount, LONG_SHOT_LINE, winsAbout } from "@/lib/format";
 import { useProfile } from "@/lib/repo/hooks";
 import type { Execution, Side, StoreMarket } from "@/lib/types";
 import { WatchStar } from "@/components/watch/WatchStar";
 import { DrawerExtras } from "./DrawerExtras";
 import { CurveChart } from "./CurveChart";
-import { OddsBars, Skeleton, Val } from "./bits";
+import { InfoTip, OddsBars, Skeleton, Val } from "./bits";
 import { VERDICT_LABEL, chanceTone, priceVerdict, returnTone, topicLabel } from "./labels";
 import { LowerConfidence, TierNote } from "./TierNote";
 import { AddToCombo } from "@/components/combo/AddToCombo";
@@ -131,7 +131,7 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
       onClose={onClose}
       title={
         <div>
-          <div className="text-xs text-muted">{topicLabel(m)} · closes in {closesIn(m.closes_at)} <span title={new Date(m.closes_at * 1000).toLocaleString()}>({new Date(m.closes_at * 1000).toLocaleString(undefined, { weekday: "short", hour: "numeric", minute: "2-digit" })})</span></div>
+          <div className="text-xs text-muted">{topicLabel(m)} · <span title={new Date(m.closes_at * 1000).toLocaleString()}>{gameTime(m.closes_at)}</span> · closes in {closesIn(m.closes_at)}</div>
           <H className="mt-1.5 text-[22px] font-semibold leading-tight">{m.question}</H>
           {m.event !== m.question && <Link href={`/event/${m.event_id}`} className="mt-1 inline-block text-[13px] text-accent-hover hover:text-accent-soft">{m.event}</Link>}
         </div>
@@ -141,7 +141,7 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
 
       <section aria-label="Headline" className="rounded-inner border border-accent-border bg-accent-bg p-[18px]">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="text-[13px] text-accent-softer">{betLine(s)}</div>
+          <LiveBet s={s} ask={liveX?.best_ask} />
           {m.tier === "edge" && <LowerConfidence />}
         </div>
         <p data-testid="one-bet" className="mt-2 font-heading text-[26px] font-bold leading-tight text-text" title={basis(m, s)}>
@@ -153,8 +153,8 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
           <div className={`font-heading text-[30px] font-bold leading-none tracking-tight ${s.roi_pct >= 0 ? "text-accent-soft" : "text-negative"}`} title={basis(m, s)}>
             {pro ? sideEdge(s) : sideRet(s)}
           </div>
-          <div className="text-[13px] text-accent-soft" title={RETURN_HELP}>
-            <span className="underline decoration-dotted underline-offset-4">{pro ? "edge per share" : "expected return"}</span>
+          <div className="flex items-center gap-1 text-[13px] text-accent-soft">
+            {pro ? "edge per share" : "expected return (model)"}<InfoTip text={RETURN_HELP} className="text-accent-softer" />
           </div>
         </div>
         {realistic !== null && !s.ranges && (
@@ -175,9 +175,12 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
                   <span className="truncate font-semibold">{x.outcome}</span>
                   <span className="tabular-nums">{price(x.ask)} <span className="text-xs text-muted">· {pays(x.ask)}</span></span>
                 </div>
-                <div className="mt-1 flex justify-between text-xs text-muted">
+                <div className="mt-1 flex flex-wrap justify-between gap-x-2 whitespace-nowrap text-xs text-muted">
                   <span title={basis(m, x)}>won {pct(x.win_prob)} before</span>
-                  <span className={returnTone(x.roi_pct)}>{pro ? sideEdge(x) : sideRet(x)}</span>
+                  {/* docs/17 fix 11: no scary negative return on the other side; just say so */}
+                  {x.ranges || x.roi_pct >= 0
+                    ? <span className={returnTone(x.roi_pct)}>{pro ? sideEdge(x) : sideRet(x)}</span>
+                    : <span>Not recommended</span>}
                 </div>
               </button>
             );
@@ -243,6 +246,23 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
   );
 }
 
+/** "Bet Yes at 70¢" with the live price; the number briefly highlights when the live book moves it (docs/17). */
+function LiveBet({ s, ask }: { s: Side; ask?: number }) {
+  const prev = useRef(ask);
+  const [pulse, setPulse] = useState(0);
+  useEffect(() => {
+    if (ask !== undefined && prev.current !== undefined && ask !== prev.current) setPulse((n) => n + 1);
+    prev.current = ask;
+  }, [ask]);
+  return (
+    <div className="text-[13px] text-accent-softer">
+      Bet <strong className="font-semibold text-accent-soft">{s.outcome}</strong> at{" "}
+      <span key={pulse} data-testid="live-price" className={`rounded px-0.5 tabular-nums text-accent-soft ${pulse ? "price-pulse" : ""}`}>{price(ask ?? s.ask)}</span>
+      {ask !== undefined && <span className="text-accent-softer"> live</span>}
+    </div>
+  );
+}
+
 function Actions({ m, s }: { m: StoreMarket; s: Side }) {
   const [copied, setCopied] = useState(false);
   const share = async () => {
@@ -252,15 +272,26 @@ function Actions({ m, s }: { m: StoreMarket; s: Side }) {
       setTimeout(() => setCopied(false), 2000);
     } catch {}
   };
-  const btn = "flex min-h-11 items-center justify-center gap-1.5 rounded-input border border-border bg-muted-bg px-3.5 text-text hover:border-accent-border";
+  // docs/17 fix 10: the venue button gets its own full-width row; the rest sit under it as one even row
+  const btn = "flex min-h-11 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-input border border-border bg-muted-bg px-3 text-[13px] text-text hover:border-accent-border";
   return (
-    <div className="flex flex-wrap gap-2">
-      <VenueLink m={m} className="flex min-h-11 basis-full items-center sm:basis-0 sm:flex-1 justify-center rounded-input bg-accent px-4 font-semibold text-on-accent hover:bg-accent-hover" />
-      <TradeButton m={m} s={s} className={btn} />
-      <AddToCombo m={m} s={s} className={btn} />
-      <div className={`${btn} px-1`}><WatchStar marketId={m.id} side={s.side_index} market={m} /></div>
-      <Link href={`/alerts?market=${m.id}&side=${s.side_index}`} className={btn}>Alert me</Link>
-      <button type="button" onClick={share} className={btn} aria-live="polite">{copied ? "Link copied" : "Share"}</button>
+    <div className="flex flex-col gap-2">
+      <VenueLink m={m} className="flex min-h-11 w-full items-center justify-center whitespace-nowrap rounded-input bg-accent px-4 font-semibold text-on-accent hover:bg-accent-hover" />
+      <div className="flex flex-wrap gap-2">
+        <TradeButton m={m} s={s} className={btn} />
+        <AddToCombo m={m} s={s} className={btn} />
+        <div className={`${btn} flex-none px-0`}><WatchStar marketId={m.id} side={s.side_index} market={m} /></div>
+        <Link href={`/alerts?market=${m.id}&side=${s.side_index}`} className={btn}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg>
+          Alert me
+        </Link>
+        <button type="button" onClick={share} className={`${btn} flex-none px-0 size-11`} aria-label={copied ? "Link copied" : "Copy a link to share"} title={copied ? "Link copied" : "Copy a link to share"}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            {copied ? <path d="M5 12.5l4.5 4.5L19 7.5" /> : <><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1" /><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" /></>}
+          </svg>
+          <span role="status" className="sr-only">{copied ? "Link copied" : ""}</span>
+        </button>
+      </div>
     </div>
   );
 }
