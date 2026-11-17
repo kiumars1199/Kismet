@@ -92,6 +92,10 @@
   table {
     font-variant-numeric: tabular-nums;
   }
+  /* Lane D2 display setting "Compact": everything sized in rem shrinks ~6%. */
+  html[data-density="compact"] {
+    font-size: 15px;
+  }
   *, ::before, ::after {
     transition-duration: 150ms;
     transition-timing-function: ease;
