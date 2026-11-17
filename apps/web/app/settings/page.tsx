@@ -1,8 +1,14 @@
-// Placeholder. Owner: Lane D (T-34).
-import { Placeholder } from "@/components/shell/Placeholder";
+// Owner: Lane D2 (T-34).
+import { PageTitle } from "@/components/kit";
+import { SettingsForm } from "@/components/settings/SettingsForm";
 
 export const metadata = { title: "Settings" };
 
 export default function Page() {
-  return <Placeholder title="Settings" line="Display, sizing and topics." />;
+  return (
+    <div className="mx-auto flex max-w-4xl flex-col gap-6">
+      <PageTitle title="Settings" sub="Saved in this browser. Changes apply right away." />
+      <SettingsForm />
+    </div>
+  );
 }

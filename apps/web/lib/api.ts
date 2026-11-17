@@ -12,8 +12,6 @@
 //                                    flattened in order; `groups[i]` covers rows[start .. start+count) and
 //                                    rows[start] is its best row.
 //   /api/flags?<FilterState>       → MarketsResponse same as /api/markets with view=flags forced
-//                                    Both also take uw=<market ids> / uf=<topic ids> (the user's watchlist /
-//                                    favorite topics) so watchlisted_only / favorites_only can filter.
 //   /api/markets/[id]              → MarketResponse  market + its model curve + category backtest record +
 //                                    the other markets in its event
 //   /api/events/[id]               → EventResponse   all markets of one event (by event_id)
@@ -71,19 +69,14 @@ async function get<T>(path: string, init?: RequestInit): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-/** Watchlist ids / favorite topics for `watchlisted_only` / `favorites_only` (sent as `uw` / `uf`). */
-export interface UserParams { watchlist?: string[]; favorites?: string[] }
-const qs = (state: FilterInput, user?: UserParams) => {
-  const p = serialize(FilterState.parse(state));
-  if (user?.watchlist) p.set("uw", user.watchlist.join(","));
-  if (user?.favorites) p.set("uf", user.favorites.join(","));
-  const s = p.toString();
+const qs = (state: FilterInput) => {
+  const s = serialize(FilterState.parse(state)).toString();
   return s ? `?${s}` : "";
 };
 
 export const fetchMeta = (init?: RequestInit) => get<MetaResponse>("/api/meta", init);
-export const fetchMarkets = (state: FilterInput = {}, init?: RequestInit, user?: UserParams) => get<MarketsResponse>(`/api/markets${qs(state, user)}`, init);
-export const fetchFlags = (state: FilterInput = {}, init?: RequestInit, user?: UserParams) => get<MarketsResponse>(`/api/flags${qs(state, user)}`, init);
+export const fetchMarkets = (state: FilterInput = {}, init?: RequestInit) => get<MarketsResponse>(`/api/markets${qs(state)}`, init);
+export const fetchFlags = (state: FilterInput = {}, init?: RequestInit) => get<MarketsResponse>(`/api/flags${qs(state)}`, init);
 export const fetchMarket = (id: string, init?: RequestInit) => get<MarketResponse>(`/api/markets/${encodeURIComponent(id)}`, init);
 export const fetchEvent = (id: string, init?: RequestInit) => get<EventResponse>(`/api/events/${encodeURIComponent(id)}`, init);
 export const fetchEventBySlug = (slug: string, init?: RequestInit) => get<EventResponse>(`/api/events/by-slug/${encodeURIComponent(slug)}`, init);

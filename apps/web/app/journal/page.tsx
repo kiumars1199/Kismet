@@ -1,8 +1,14 @@
-// Placeholder. Owner: Lane D (T-37).
-import { Placeholder } from "@/components/shell/Placeholder";
+// Owner: Lane D2 (T-37).
+import { PageTitle } from "@/components/kit";
+import { JournalView } from "@/components/journal/JournalView";
 
 export const metadata = { title: "My bets" };
 
 export default function Page() {
-  return <Placeholder title="My bets" line="Bets you logged, with profit and loss." />;
+  return (
+    <div className="mx-auto flex max-w-7xl flex-col gap-6">
+      <PageTitle title="My bets" sub="Bets you logged, settled automatically when Polymarket resolves them. Stored on this device only." />
+      <JournalView />
+    </div>
+  );
 }

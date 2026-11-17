@@ -44,7 +44,7 @@ export interface WatchlistItem {
 }
 
 export type AlertKind = "preset_match" | "market_price" | "edge_change" | "closing_soon";
-export type AlertChannel = "email" | "push" | "telegram" | "discord";
+export type AlertChannel = "inapp" | "email" | "push" | "telegram" | "discord";
 export interface AlertRule {
   id: string; name: string; enabled: boolean; kind: AlertKind;
   query: Json | null; market_id: string | null; side_index: 0 | 1 | null; threshold: number | null;

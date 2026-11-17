@@ -9,6 +9,7 @@ import { ago } from "@/lib/format";
 import { useProfile } from "@/lib/repo/hooks";
 import { PresetBar } from "@/components/presets/PresetBar";
 import { QuickChips } from "@/components/presets/QuickChips";
+import { ExportCsv } from "@/components/presets/ExportCsv";
 import { MarketCard } from "@/components/market/MarketCard";
 import { Skeleton } from "@/components/market/bits";
 import { AppliedPills } from "./AppliedPills";
@@ -72,7 +73,10 @@ export function MarketsScreener() {
               {meta && ` · ${meta.counts.markets.toLocaleString("en-US")} open · scanned ${ago(scanned)}`}
             </p>
           </div>
-          <SortSelect sort={state.sort} onChange={(sort) => set({ sort })} />
+          <div className="flex flex-wrap items-center gap-2">
+            <ExportCsv state={state} />
+            <SortSelect sort={state.sort} onChange={(sort) => set({ sort })} />
+          </div>
         </header>
         <PresetBar state={state} onChange={set} />
         <QuickChips state={state} onChange={set} />

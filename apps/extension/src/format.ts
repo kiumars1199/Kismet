@@ -1,0 +1,44 @@
+// The few rules from apps/web/lib/format.ts the extension needs (docs/06 § Display language). Keep in sync.
+const ok = (x: number | null | undefined): x is number => typeof x === "number" && Number.isFinite(x);
+export const DASH = "—";
+
+/** 0.68 → "68¢" (one decimal when not whole: 0.055 → "5.5¢") */
+export function price(p: number | null | undefined): string {
+  if (!ok(p)) return DASH;
+  const c = p * 100;
+  return `${Math.abs(c - Math.round(c)) < 0.05 ? Math.round(c) : c.toFixed(1)}¢`;
+}
+/** 0.79 → "79%" */
+export const pct = (p: number | null | undefined) => (ok(p) ? `${Math.round(p * 100)}%` : DASH);
+/** roi_pct 33.2 → "+33%", 4.6 → "+4.6%", -2 → "−2%" */
+export function ret(roiPct: number | null | undefined): string {
+  if (!ok(roiPct)) return DASH;
+  const a = Math.abs(roiPct);
+  const n = a >= 10 ? Math.round(a).toString() : a.toFixed(1).replace(/\.0$/, "");
+  return `${roiPct < 0 ? "−" : "+"}${n}%`;
+}
+/** cents edge: 0.051 → "+5.1¢" */
+export const edge = (e: number | null | undefined) => (ok(e) ? `${e < 0 ? "−" : "+"}${Math.abs(e * 100).toFixed(1)}¢` : DASH);
+/** $1,234 (whole dollars ≥ $100, cents below); signed adds +/− */
+export function money(usd: number | null | undefined, signed = false): string {
+  if (!ok(usd)) return DASH;
+  const a = Math.abs(usd);
+  const s = a >= 100 ? Math.round(a).toLocaleString("en-US") : a.toFixed(2).replace(/\.00$/, "");
+  return `${signed ? (usd < 0 ? "−" : "+") : usd < 0 ? "−" : ""}$${s}`;
+}
+export function chance(p: number | null | undefined): string {
+  if (!ok(p)) return DASH;
+  return p >= 0.8 ? "Likely to hit" : p >= 0.55 ? "Leans your way" : p >= 0.4 ? "Coin flip" : "Long shot";
+}
+/** "12 min ago" from unix seconds */
+export function ago(unixSec: number | null | undefined, now = Date.now()): string {
+  if (!ok(unixSec)) return DASH;
+  const m = Math.max(0, (now - unixSec * 1000) / 60000);
+  if (m < 1) return "just now";
+  if (m < 60) return `${Math.round(m)} min ago`;
+  const h = m / 60;
+  return h < 48 ? `${Math.round(h)} h ago` : `${Math.round(h / 24)} days ago`;
+}
+export const DISCLAIMER = "Market analytics, not financial advice. Based on past results. 18+.";
+export const RETURN_HELP =
+  "If you made this kind of bet many times, this is the average profit per dollar, based on how similar past bets resolved. Any single bet can lose.";

@@ -10,6 +10,7 @@ import { useProfile } from "@/lib/repo/hooks";
 import { TAXONOMY } from "@/lib/taxonomy";
 import { BetCard } from "@/components/market/BetCard";
 import { MarketCard } from "@/components/market/MarketCard";
+import { SaveViewDialog } from "@/components/presets/SaveViewDialog";
 import { Skeleton } from "@/components/market/bits";
 import { AppliedPills } from "./AppliedPills";
 import { SORTS, SortSelect } from "./SortSelect";
@@ -80,7 +81,8 @@ export function BestBets() {
   const meta = useMeta();
   const desktop = useDesktop();
   const pro = useProfile().numbers_mode === "pro";
-  const [saved, setSaved] = useState<"" | "saving" | "saved" | "failed">("");
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState<{ ok: boolean; msg: string } | null>(null);
 
   const rows = data ? [...data.rows, ...more] : [];
   const chips = data ? topicChips(data.facets, state) : [];
@@ -88,13 +90,13 @@ export function BestBets() {
   const today = state.closes_within_h === 24;
   const scanned = meta?.meta.scanned_at;
 
-  const save = async () => {
-    setSaved("saving");
+  const save = async (name: string, emoji: string | null) => {
     try {
-      await savePresetFromState(state);
-      setSaved("saved");
-    } catch {
-      setSaved("failed");
+      await savePresetFromState(state, name, emoji);
+      setSaving(false);
+      setSaved({ ok: true, msg: `Saved “${name}”` });
+    } catch (e) {
+      setSaved({ ok: false, msg: e instanceof Error ? e.message : "Couldn't save this view." });
     }
   };
 
@@ -125,9 +127,8 @@ export function BestBets() {
         <button type="button" aria-pressed={today} onClick={() => set({ closes_within_h: today ? undefined : 24 })} className={chip(today)}>
           Closes today
         </button>
-        <button type="button" onClick={save} disabled={saved === "saving"} className={chip(false)}>
-          {saved === "saved" ? "Saved ✓" : saved === "failed" ? "Couldn't save, try again" : "+ Save this view"}
-        </button>
+        <button type="button" onClick={() => (setSaved(null), setSaving(true))} className={chip(false)}>+ Save this view</button>
+        <span role="status" className="text-[13px] text-accent-softer">{saved?.ok ? saved.msg : ""}</span>
         <div className="ml-auto hidden md:block">
           <SortSelect sort={state.sort} onChange={(sort) => set({ sort })} options={SORTS.slice(0, 3)} />
         </div>
@@ -136,6 +137,7 @@ export function BestBets() {
         <SortSelect sort={state.sort} onChange={(sort) => set({ sort })} options={SORTS.slice(0, 3)} />
       </div>
 
+      <SaveViewDialog open={saving} title="Save this view" error={saved && !saved.ok ? saved.msg : null} onSubmit={save} onClose={() => setSaving(false)} />
       <AppliedPills state={state} mode="flags" onChange={set} onReset={reset} />
       <StaleBanner scannedAt={scanned} />
 

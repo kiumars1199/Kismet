@@ -1,4 +1,5 @@
 // Small presentational pieces shared by cards, rows and the drawer.
+import Link from "next/link";
 import { DASH } from "@/lib/format";
 import { NOTE_TONE, type Note } from "./labels";
 
@@ -51,4 +52,22 @@ export function Notes({ notes, className = "" }: { notes: Note[]; className?: st
 
 export function Skeleton({ className = "" }: { className?: string }) {
   return <div aria-hidden="true" className={`animate-pulse rounded-input bg-muted-bg ${className}`} />;
+}
+
+/** Row/card "Alert me" control (`data-alert`, the `a` shortcut): opens the alert form for this side. */
+export function AlertLink({ marketId, side, className = "" }: { marketId: string; side: 0 | 1; className?: string }) {
+  return (
+    <Link
+      data-alert
+      href={`/alerts?market=${marketId}&side=${side}`}
+      aria-label="Alert me"
+      title="Alert me when this price changes"
+      onClick={(e) => e.stopPropagation()}
+      className={`relative z-10 flex size-11 flex-none items-center justify-center rounded-input text-muted hover:bg-raised hover:text-text md:size-9 ${className}`}
+    >
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+      </svg>
+    </Link>
+  );
 }

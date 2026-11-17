@@ -5,7 +5,7 @@ import type { ApiRow } from "@/lib/api";
 import { RETURN_HELP, basis, chance, closesIn, edge, expectedProfit, money, price, ret } from "@/lib/format";
 import { WatchStar } from "@/components/watch/WatchStar";
 import { drawerHref, useOpenDrawer } from "./DrawerHost";
-import { Notes, OddsBars } from "./bits";
+import { AlertLink, Notes, OddsBars } from "./bits";
 import { chanceTone, rowNotes, topicLabel } from "./labels";
 
 export function BetCard({ r, highlight = false, help = false, pro = false }: { r: ApiRow; highlight?: boolean; help?: boolean; pro?: boolean }) {
@@ -14,7 +14,7 @@ export function BetCard({ r, highlight = false, help = false, pro = false }: { r
   const c = chance(s.win_prob);
   const profit = expectedProfit(s.roi_pct);
   return (
-    <article className={`relative flex w-full flex-col gap-3.5 rounded-card border p-[18px] hover:border-accent ${highlight ? "border-accent-border bg-accent-bg/40" : "border-border bg-surface"}`}>
+    <article data-row data-market-id={m.id} className={`relative flex w-full flex-col gap-3.5 rounded-card border p-[18px] hover:border-accent ${highlight ? "border-accent-border bg-accent-bg/40" : "border-border bg-surface"}`}>
       <div className="flex items-center justify-between gap-2 text-xs text-muted">
         <span className="rounded-full bg-muted-bg px-2.5 py-[3px]">{topicLabel(m)}</span>
         <span className="flex items-center gap-1">
@@ -53,7 +53,10 @@ export function BetCard({ r, highlight = false, help = false, pro = false }: { r
       <Notes notes={rowNotes(m.execution, s)} />
       <div className="mt-auto flex items-center justify-between gap-2 border-t border-border pt-3 text-[13px]">
         <span className="text-muted">$100 bet → <span className="text-text">expect {money(profit === null ? null : Math.round(profit), true)}</span></span>
-        {c && <span className={chanceTone(c)}>{c}</span>}
+        <span className="flex items-center gap-1">
+          {c && <span className={chanceTone(c)}>{c}</span>}
+          <AlertLink marketId={m.id} side={s.side_index} className="-my-2 -mr-2" />
+        </span>
       </div>
     </article>
   );

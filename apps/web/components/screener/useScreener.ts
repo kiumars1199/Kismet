@@ -3,7 +3,8 @@
 // Screener state: the URL is the only source of truth (lib/filters/url.ts); data comes from lib/api.ts.
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { fetchFlags, fetchMarkets, fetchMeta, type MarketsResponse, type MetaResponse, type UserParams } from "@/lib/api";
+import { fetchFlags, fetchMarkets, fetchMeta, type MarketsResponse, type MetaResponse } from "@/lib/api";
+import { resolveUserFilters } from "@/lib/filters/user";
 import type { FilterState } from "@/lib/filters/state";
 import { parse, serialize } from "@/lib/filters/url";
 import { useCollection, useProfile } from "@/lib/repo/hooks";
@@ -70,17 +71,25 @@ export function useScreener(mode: Mode) {
 
   const watchlist = useCollection("watchlist");
   const profile = useProfile();
-  const user = useMemo<UserParams | undefined>(() => {
-    if (!state.watchlisted_only && !state.favorites_only) return undefined;
-    return { watchlist: watchlist.map((w) => w.market_id), favorites: profile.favorite_topics };
-  }, [state.watchlisted_only, state.favorites_only, watchlist, profile.favorite_topics]);
-  const fetchKey = `${mode}?${key}#${user ? JSON.stringify(user) : ""}`;
+  // "Mine" filters resolve in the browser (lib/filters/user.ts): favorites → topics, watchlist → keep().
+  const watchKey = state.watchlisted_only ? watchlist.map((w) => w.market_id).join(",") : "";
+  const favKey = state.favorites_only ? profile.favorite_topics.join(",") : "";
+  const { state: query, keep } = useMemo(
+    () => resolveUserFilters(state, { favorites: favKey ? favKey.split(",") : [], watchlistIds: new Set(watchKey.split(",")) }),
+    [state, favKey, watchKey],
+  );
+  const fetchKey = `${mode}?${key}#${watchKey}#${favKey}`;
+  const load = useCallback(
+    (s: typeof query, init?: RequestInit) =>
+      (mode === "flags" ? fetchFlags : fetchMarkets)(s, init).then((d) => (state.watchlisted_only ? { ...d, groups: undefined, rows: d.rows.filter((r) => keep(r.market.id)) } : d)), // groups dropped: they would point past filtered rows
+    [mode, keep, state.watchlisted_only],
+  );
 
   const [res, setRes] = useState<Result>({ key: "" });
   const [retry, setRetry] = useState(0);
   useEffect(() => {
     const ac = new AbortController();
-    (mode === "flags" ? fetchFlags : fetchMarkets)(state, { signal: ac.signal }, user)
+    load(query, { signal: ac.signal })
       .then((data) => setRes({ key: fetchKey, data }))
       .catch((e) => !ac.signal.aborted && setRes((r) => ({ key: fetchKey, data: r.data, error: String(e?.message ?? e) })));
     return () => ac.abort();
@@ -104,12 +113,12 @@ export function useScreener(mode: Mode) {
     const shown = res.data.page + Math.ceil((res.more?.length ?? 0) / res.data.page_size);
     setLoadingMore(true);
     try {
-      const next = await (mode === "flags" ? fetchFlags : fetchMarkets)({ ...state, page: shown + 1 }, undefined, user);
+      const next = await load({ ...query, page: shown + 1 });
       setRes((r) => (r.key === fetchKey ? { ...r, more: [...(r.more ?? []), ...next.rows] } : r));
     } finally {
       setLoadingMore(false);
     }
-  }, [res, loadingMore, mode, state, user, fetchKey]);
+  }, [res, loadingMore, load, query, fetchKey]);
 
   const fresh = res.key === fetchKey;
   return {

@@ -27,9 +27,21 @@ const fmt = (n: number | undefined) => (n === undefined ? "" : String(n));
 export function FilterPanel(props: Props) {
   const dialog = useRef<HTMLDialogElement>(null);
   const active = countActive(props.state, props.mode);
+  // `f` shortcut (components/keyboard/Shortcuts.tsx): hide/show the sidebar on desktop, open/close the sheet on mobile.
+  const [shown, setShown] = useState(true);
+  useEffect(() => {
+    const toggle = () => {
+      if (matchMedia("(min-width: 768px)").matches) return setShown((v) => !v);
+      const d = dialog.current;
+      if (d?.open) d.close();
+      else d?.showModal();
+    };
+    window.addEventListener("me:toggle-filters", toggle);
+    return () => window.removeEventListener("me:toggle-filters", toggle);
+  }, []);
   return (
     <>
-      <aside aria-label="Filters" className="sticky top-4 hidden max-h-[calc(100dvh-2rem)] w-[272px] flex-none self-start overflow-y-auto rounded-card border border-border bg-surface md:block">
+      <aside aria-label="Filters" className={`sticky top-4 hidden max-h-[calc(100dvh-2rem)] w-[272px] flex-none self-start overflow-y-auto rounded-card border border-border bg-surface ${shown ? "md:block" : ""}`}>
         <PanelBody {...props} />
       </aside>
       <button
