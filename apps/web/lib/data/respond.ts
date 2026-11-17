@@ -1,12 +1,14 @@
 // Server helpers shared by the API routes.
 import { getStore, getStoreFor, type Store } from "./store";
 import { getMe, type Me } from "@/lib/auth/server";
-import { gateMarket } from "./gate";
-import type { Tier } from "@/lib/entitlements";
+import { gateMarket, gateMarkets } from "./gate";
+import { categoryRecord, curve, segmentOf } from "./model";
+import { can, quota, type Tier } from "@/lib/entitlements";
 import { apply } from "@/lib/filters/apply";
+import { parse } from "@/lib/filters/url";
 import { RELAX_STEPS, relax, relaxedNote, type ParsedQuery } from "@/lib/search/parse";
 import type { FilterState } from "@/lib/filters/state";
-import type { EventResponse, MarketsResponse } from "@/lib/api";
+import type { EventResponse, MarketResponse, MarketsResponse } from "@/lib/api";
 import type { StoreMarket } from "@/lib/types";
 
 /** Runs `fn` with the store; a store load failure becomes 503 instead of a crash. */
@@ -66,12 +68,38 @@ export function marketsPage(store: Store, f: FilterState): MarketsResponse {
 
 const byRoi = (a: StoreMarket, b: StoreMarket) => b.best.roi_pct - a.best.roi_pct || a.closes_at - b.closes_at;
 
+/** First `quota(tier, "rows")` items (Free: 25 rows per request, docs/08). */
+const capRows = <T,>(list: T[], tier: Tier) => list.slice(0, quota(tier, "rows"));
+
 export function eventBody(store: Store, markets: StoreMarket[], tier: Tier = "premium"): EventResponse {
   const sorted = [...markets].sort(byRoi);
   const m = sorted[0];
   return {
     event_id: m.event_id, event: m.event, slug: m.slug,
-    markets: sorted.map((x) => gateMarket(x, tier)),
-    flags: sorted.flatMap((x) => store.flagsById.get(x.id) ?? []).map((x) => gateMarket(x, tier)),
+    markets: capRows(sorted, tier).map((x) => gateMarket(x, tier)),
+    flags: capRows(sorted.flatMap((x) => store.flagsById.get(x.id) ?? []), tier).map((x) => gateMarket(x, tier)),
   };
 }
+
+/** /api/markets/[id] and the /m/[id] page. `shown` = the tier the market itself is shaped for (a Free reveal = "pro"). */
+export function marketBody(store: Store, m: StoreMarket, tier: Tier, shown: Tier = tier): MarketResponse {
+  const segment = segmentOf(m);
+  return {
+    market: gateMarket(store.flagsById.get(m.id) ?? m, shown),   // the flag row carries best.realistic_edge
+    segment,
+    curve: curve(store.model, segment, m.horizon_h),
+    backtest: categoryRecord(store.backtest, m.category),
+    event_markets: capRows((store.byEvent.get(m.event_id) ?? []).filter((x) => x.id !== m.id), tier).map((x) => gateMarket(x, tier)),
+  };
+}
+
+/** GET /api/markets and /api/flags. Free: first page only (top 25 rows), exact numbers as ranges (docs/08 LIMITS).
+ *  Paid: a page past the last one is refused (docs/15 § pagination cap) instead of answered empty. */
+export const listRoute = (req: Request, view?: "flags") =>
+  withTier((store, tier) => {
+    const f = { ...parse(new URL(req.url).searchParams), ...(view ? { view } : {}) };
+    const live = can(tier, "live_data");
+    const page = marketsPage(store, live ? f : { ...f, page: 1 });
+    if (live && f.page > Math.max(1, page.pages)) return Response.json({ error: "page is past the last page" }, { status: 400 });
+    return Response.json(gateMarkets(page, tier));
+  });

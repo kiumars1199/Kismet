@@ -2,7 +2,7 @@
 
 // Best-bets card (Hybrid artboard). Exported for other lanes: <BetCard r={{ market, side }} />.
 import type { ApiRow } from "@/lib/api";
-import { RETURN_HELP, basis, chance, closesIn, expectedProfit, money, pays, PAYS_HELP, price, sideRet, sideEdge } from "@/lib/format";
+import { RETURN_HELP, basis, chance, closesIn, pays, PAYS_HELP, price, sideProfit, sideRet, sideEdge } from "@/lib/format";
 import { WatchStar } from "@/components/watch/WatchStar";
 import { VenueIconLink } from "@/components/trade/TradeButton";
 import { drawerHref, useOpenDrawer } from "./DrawerHost";
@@ -13,7 +13,6 @@ export function BetCard({ r, highlight = false, help = false, pro = false }: { r
   const { open } = useOpenDrawer();
   const { market: m, side: s } = r;
   const c = chance(s.win_prob);
-  const profit = expectedProfit(s.roi_pct);
   return (
     <article data-row data-market-id={m.id} className={`relative flex w-full flex-col gap-3.5 rounded-card border p-[18px] hover:border-accent ${highlight ? "border-accent-border bg-accent-bg/40" : "border-border bg-surface"}`}>
       <div className="flex items-center justify-between gap-2 text-xs text-muted">
@@ -54,7 +53,7 @@ export function BetCard({ r, highlight = false, help = false, pro = false }: { r
       <OddsBars market={s.ask} won={s.win_prob} basis={basis(m, s)} />
       <Notes notes={rowNotes(m.execution, s)} />
       <div className="mt-auto flex items-center justify-between gap-2 border-t border-border pt-3 text-[13px]">
-        <span className="text-muted">$100 bet → <span className="text-text">expect {money(profit === null ? null : Math.round(profit), true)}</span></span>
+        <span className="text-muted">$100 bet → <span className="text-text">expect {sideProfit(s)}</span></span>
         <span className="flex items-center gap-1">
           {c && <span className={chanceTone(c)}>{c}</span>}
           <VenueIconLink m={m} className="-my-2" />

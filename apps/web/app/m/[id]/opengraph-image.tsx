@@ -1,6 +1,6 @@
 // Share card for /m/[id]: question, the bet, expected return, won-before, disclaimer. Colors = dark theme tokens (globals.css).
 import { ImageResponse } from "next/og";
-import { getStore } from "@/lib/data/store";
+import { getStoreFor } from "@/lib/data/store";
 import { gateMarket } from "@/lib/data/gate";
 import { betLine, pct, sideRet } from "@/lib/format";
 import { DISCLAIMER } from "@/components/shell/Footer";
@@ -14,7 +14,7 @@ const C = { bg: "#070a09", surface: "#0c120f", border: "#1a2520", text: "#e6efe9
 
 export default async function Image({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const store = await getStore().catch(() => null);
+  const store = await getStoreFor("free").catch(() => null);   // public image: Free shape and Free delay
   const raw = store?.flagsById.get(id) ?? store?.byId.get(id);
   const m = raw && gateMarket(raw, "free");   // public image: Free-tier shape (T-44)
   const s = m?.best;

@@ -4,10 +4,12 @@ import { Faq, Plans } from "@/components/pricing/Plans";
 import { Tiles } from "@/components/results/Tiles";
 import { DEMO_MODE } from "@/lib/config";
 import { chosenResult } from "@/lib/data/model";
-import { getStore } from "@/lib/data/store";
+import { getTier } from "@/lib/auth/server";
+import { gateMarket } from "@/lib/data/gate";
+import { getStoreFor } from "@/lib/data/store";
 import { apply } from "@/lib/filters/apply";
 import { FilterState } from "@/lib/filters/state";
-import { DASH, RETURN_HELP, chance, closesIn, expectedProfit, money, pct, price, ret } from "@/lib/format";
+import { DASH, RETURN_HELP, chance, closesIn, pct, price, sideProfit, sideRet } from "@/lib/format";
 import { TAXONOMY } from "@/lib/taxonomy";
 import { tiles } from "@/lib/trackRecord";
 import type { Side, StoreMarket } from "@/lib/types";
@@ -31,9 +33,13 @@ const FAQ: { q: string; a: React.ReactNode }[] = [
 ];
 
 export default async function Page() {
-  const store = await getStore();
+  const tier = await getTier();   // landing preview: same tier shaping and Free delay as the API (docs/15)
+  const store = await getStoreFor(tier);
   const page = apply(store, FilterState.parse({ view: "flags", verdicts: ["worth it"], page_size: 3 }));
-  const top = (page.groups ?? []).map((g) => g.best);
+  const top = (page.groups ?? []).map((g) => g.best).map(({ market, side }) => {
+    const m = gateMarket(market, tier);
+    return { market: m, side: m.sides.find((x) => x.side_index === side.side_index) ?? m.best };
+  });
   const bestCount = apply(store, FilterState.parse({ view: "flags", verdicts: ["worth it", "thin"] })).total; // same filter as the Best bets page (BEST_BETS_VERDICTS)
   const tested = chosenResult(store.backtest)?.taker;
 
@@ -125,7 +131,6 @@ function Counter({ label, value, accent }: { label: string; value: string; accen
 // Simple Best bet card in the BetCard style (Lane C1 owns components/market/BetCard.tsx).
 function PreviewCard({ m, s, first }: { m: StoreMarket; s: Side; first: boolean }) {
   const tag = TAXONOMY[`${m.category}.${m.niche}`]?.label ?? TAXONOMY[m.category]?.label ?? m.category;
-  const profit = expectedProfit(s.roi_pct);
   const bar = (p: number) => `${Math.max(0, Math.min(100, p * 100))}%`;
   return (
     <Link href={`/m/${m.id}`} data-testid="preview-card"
@@ -138,7 +143,7 @@ function PreviewCard({ m, s, first }: { m: StoreMarket; s: Side; first: boolean 
       <div className="flex items-end justify-between">
         <div>
           <div className="text-xs text-muted">Expected return</div>
-          <div className="font-heading text-[36px] font-bold leading-[1.1] tracking-[-0.02em] text-accent">{ret(s.roi_pct)}</div>
+          <div className="font-heading text-[36px] font-bold leading-[1.1] tracking-[-0.02em] text-accent">{sideRet(s)}</div>
         </div>
         <div className="text-right">
           <div className="text-xs text-muted">Bet</div>
@@ -150,7 +155,7 @@ function PreviewCard({ m, s, first }: { m: StoreMarket; s: Side; first: boolean 
         <BarRow label="Won before" value={pct(s.win_prob)} width={bar(s.win_prob)} fill="bg-accent" strong />
       </div>
       <div className="flex items-center justify-between border-t border-border pt-3 text-[13px]">
-        <span className="text-muted">$100 bet → <span className="text-text">expect {money(profit, true)}</span></span>
+        <span className="text-muted">$100 bet → <span className="text-text">expect {sideProfit(s)}</span></span>
         <span className="text-accent-softer">{chance(s.win_prob) ?? DASH}</span>
       </div>
     </Link>

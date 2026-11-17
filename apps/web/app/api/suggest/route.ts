@@ -4,7 +4,9 @@
 import { z } from "zod";
 import type { SuggestResponse } from "@/lib/api";
 import type { Store } from "@/lib/data/store";
-import { withStore } from "@/lib/data/respond";
+import { rangeSide } from "@/lib/data/gate";
+import { withTier } from "@/lib/data/respond";
+import { can } from "@/lib/entitlements";
 import { apply, paysOf } from "@/lib/filters/apply";
 import { FilterState } from "@/lib/filters/state";
 import { TOPIC_ALIASES } from "@/lib/search/aliases";
@@ -39,15 +41,20 @@ export async function GET(req: Request): Promise<Response> {
   if (!parsed.success) return Response.json({ error: "q must be at most 120 characters" }, { status: 400 });
   const { q, tz, view } = parsed.data;
 
-  return withStore((store) => {
+  // Tier-shaped like /api/markets (docs/15): Free gets the delayed scan and returns as bands.
+  return withTier((store, tier) => {
+    const exact = can(tier, "exact_edge");
     const empty: SuggestResponse = { q, line: "", entities: [], topics: [], markets: [] };
     if (!q) return Response.json(empty);
     const p = parse(q, { cities: store.search.cities, tz, now: Date.now() });
     const text = p.text.join(" ");
 
-    const entities = (text ? store.search.entities(text, 3) : []).map((e) => {
+    const entities = (text ? store.search.entities(text, 3) : []).flatMap((e) => {
       const rows = e.ids.flatMap((id) => store.byId.get(id) ?? []);
-      return { name: e.name, count: rows.length, best_roi: Math.max(...rows.map((m) => m.best.roi_pct)) };
+      if (!rows.length) return [];
+      const best = rows.reduce((a, m) => (m.best.roi_pct > a.roi_pct ? m.best : a), rows[0]!.best);
+      const s = exact ? best : rangeSide(best);
+      return [{ name: e.name, count: rows.length, best_roi: s.roi_pct, ...(s.ranges ? { ranges: s.ranges } : {}) }];
     });
 
     // Topics: the last typed word as a prefix of a topic name or alias ("we" → Weather), minus topics already parsed.
@@ -61,10 +68,13 @@ export async function GET(req: Request): Promise<Response> {
       .slice(0, 2);
 
     const page = apply(store, FilterState.parse({ q, tz, view, group_by_event: false, page_size: 4, ...(view === "flags" ? { verdicts: ["worth it", "thin"] } : {}) }));
-    const markets = page.rows.map((r) => ({
-      id: r.market.id, question: r.market.question, side_index: r.side.side_index,
-      outcome: r.side.outcome, pays: paysOf(r.side), roi_pct: r.side.roi_pct,
-    }));
+    const markets = page.rows.map((r) => {
+      const s = exact ? r.side : rangeSide(r.side);
+      return {
+        id: r.market.id, question: r.market.question, side_index: r.side.side_index,
+        outcome: r.side.outcome, pays: paysOf(r.side), roi_pct: s.roi_pct, ...(s.ranges ? { ranges: s.ranges } : {}),
+      };
+    });
 
     const body: SuggestResponse = { q, line: describe(p), entities, topics, markets };
     return Response.json(body, { headers: { "Cache-Control": "private, max-age=30" } });
