@@ -13,6 +13,7 @@ const ERRORS: Record<string, string> = {
   google: "Google sign-in didn't start. Try again, or use your email.",
   rate: "Too many sign-in tries. Wait a minute and try again.",
   unavailable: "Sign-in isn't available right now. Try again in a minute.",
+  closed: "New sign-ups are paused right now. Existing accounts can still sign in.",
 };
 
 export default async function Page({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {

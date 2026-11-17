@@ -5,7 +5,7 @@ import { createServerClient } from "@supabase/ssr";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import { DEMO_MODE } from "@/lib/config";
-import type { Tier } from "@/lib/entitlements";
+import { effectiveTier, type Tier } from "@/lib/entitlements";
 
 const env = () => ({
   url: process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
@@ -55,14 +55,14 @@ export function supabaseAdmin(): SupabaseClient {
   return createClient(url, service, { auth: { persistSession: false, autoRefreshToken: false } });
 }
 
-export interface SessionUser { id: string; email: string }
+export interface SessionUser { id: string; email: string; verified: boolean }
 
-/** The verified user (getUser() checks the JWT with Supabase), or null. */
+/** The verified user (getUser() checks the JWT with Supabase), or null. `verified` = email confirmed. */
 export async function getUser(): Promise<SessionUser | null> {
   if (!authEnabled()) return null;
   try {
     const { data } = await (await supabaseServer()).auth.getUser();
-    return data.user ? { id: data.user.id, email: data.user.email ?? "" } : null;
+    return data.user ? { id: data.user.id, email: data.user.email ?? "", verified: !!data.user.email_confirmed_at } : null;
   } catch {
     return null;
   }
@@ -82,10 +82,11 @@ export async function getMe(): Promise<Me> {
   if (DEMO_MODE) return { user: null, tier: "premium", ...none };
   const user = await getUser();
   if (!user) return { user: null, tier: "free", ...none };
+  // "*" so a deploy that runs before the T-140 migration (comp columns) still reads the paid tier.
   const { data } = await (await supabaseServer())
-    .from("subscriptions").select("tier, status, current_period_end, cancel_at_period_end")
+    .from("subscriptions").select("*")
     .eq("user_id", user.id).maybeSingle();
-  const tier: Tier = data?.tier === "pro" || data?.tier === "premium" ? data.tier : "free";
+  const tier: Tier = effectiveTier(data);
   return {
     user, tier,
     status: data?.status ?? null,

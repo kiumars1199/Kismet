@@ -45,3 +45,15 @@ export function alertEmail(i: AlertEmailInput): Email {
   );
   return { to: i.to, subject: `Alert: ${heading}`.slice(0, 140), html, text, unsubscribeUrl: i.unsubscribeUrl };
 }
+
+/** One-time sign-in link sent from the admin panel (support: "my link never came"). Expires like any magic link. */
+export function signInEmail(to: string, link: string, unsubscribeUrl: string): Email {
+  const { html, text } = layout(
+    "Your MarketEdge sign-in link",
+    ["Use the button below to sign in. The link works once and expires soon.", "If you didn't ask for this, ignore this email."],
+    { href: link, label: "Sign in to MarketEdge" },
+    unsubscribeUrl,
+    "You get this because our support team sent you a sign-in link.",
+  );
+  return { to, subject: "Your MarketEdge sign-in link", html, text, unsubscribeUrl };
+}

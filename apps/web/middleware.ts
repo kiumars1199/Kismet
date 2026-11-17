@@ -2,11 +2,17 @@
 // Refuses AI crawlers always (docs/15); the session part does nothing in demo mode or before Supabase is configured.
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { isAdminEmail } from "@/lib/admin/core";
+import { maintenanceOn } from "@/lib/maintenance";
 import { isAiBot } from "@/lib/bots";
 import { DEMO_MODE } from "@/lib/config";
 
 const COOKIE_OPTIONS = { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax" as const, path: "/" };
 const SIGNED_IN_ONLY = ["/account", "/watchlist", "/journal", "/alerts", "/dashboards"];
+// Reachable during maintenance (T-142): sign-in (so an admin can always get back in), session, uptime check.
+const MAINTENANCE_OPEN = ["/login", "/auth", "/api/auth", "/api/me", "/api/health", "/maintenance"];
+const under = (path: string, list: string[]) => list.some((p) => path === p || path.startsWith(p + "/"));
+
 
 /** docs/15 § Headers. Per-request nonce: Next stamps it on its own scripts (every page renders dynamically,
  *  see app/layout.tsx). 'strict-dynamic' lets those scripts load chunks, Sentry, PostHog and BotID. */
@@ -57,6 +63,23 @@ export async function middleware(req: NextRequest) {
   const { data } = await supabase.auth.getUser();   // refreshes an expired access token; revoked session → null
 
   const path = req.nextUrl.pathname;
+  if (!under(path, MAINTENANCE_OPEN) && (await maintenanceOn(url))) {
+    const u = data.user;
+    if (!isAdminEmail(u && { email: u.email, verified: !!u.email_confirmed_at }, process.env.ADMIN_EMAILS, DEMO_MODE)) {
+      if (path.startsWith("/api/")) {
+        return Response.json({ error: "MarketEdge is down for maintenance. Try again shortly." }, { status: 503, headers: { "Retry-After": "300" } });
+      }
+      const headers = new Headers(req.headers);
+      headers.set("content-security-policy", policy);
+      const to = req.nextUrl.clone();
+      to.pathname = "/maintenance";
+      to.search = "";
+      const r = NextResponse.rewrite(to, { request: { headers }, status: 503 });
+      r.headers.set("content-security-policy", policy);
+      r.headers.set("Retry-After", "300");
+      return r;
+    }
+  }
   if (!data.user && SIGNED_IN_ONLY.some((p) => path === p || path.startsWith(p + "/"))) {
     const to = req.nextUrl.clone();
     to.pathname = "/login";

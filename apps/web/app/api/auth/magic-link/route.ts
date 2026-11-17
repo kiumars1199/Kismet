@@ -3,6 +3,9 @@ import { z } from "zod";
 import { guard, rateLimit } from "@/lib/abuse";
 import { authEnabled, safeNext, sameOrigin, supabaseServer } from "@/lib/auth/server";
 import { rememberTerms } from "@/lib/auth/terms";
+import { isAdminEmail } from "@/lib/admin/core";
+import { DEMO_MODE } from "@/lib/config";
+import { getSettings } from "@/lib/settings";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -20,10 +23,15 @@ export async function POST(req: Request) {
   const perEmail = await rateLimit("auth_email", `email:${email.trim().toLowerCase()}`);   // 5/hour per address
   if (perEmail) return perEmail;
   const origin = new URL(req.url).origin;
+  // Sign-ups closed (admin setting, T-142): existing accounts still get a link; GoTrue refuses new emails.
+  const open = (await getSettings()).signups_open || isAdminEmail({ email, verified: true }, process.env.ADMIN_EMAILS, DEMO_MODE);
   const { error } = await (await supabaseServer()).auth.signInWithOtp({
     email,
-    options: { emailRedirectTo: `${origin}/auth/callback?next=${encodeURIComponent(safeNext(next))}` },
+    options: { emailRedirectTo: `${origin}/auth/callback?next=${encodeURIComponent(safeNext(next))}`, shouldCreateUser: open },
   });
+  if (error && !open && error.status !== 429) {
+    return Response.json({ error: "New sign-ups are paused right now. If you have an account, check the address." }, { status: 403 });
+  }
   if (error) {
     const limited = error.status === 429;
     return Response.json({ error: limited ? "Too many tries. Wait a minute and try again." : "Couldn't send the link. Try again." }, { status: limited ? 429 : 400 });

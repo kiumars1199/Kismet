@@ -3,7 +3,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AccountActions, CheckoutStatus, DeleteAccount } from "@/components/auth/AccountActions";
 import { PageTitle, card } from "@/components/kit";
+import { isAdminEmail } from "@/lib/admin/core";
 import { accountsOffNote, authEnabled, getMe } from "@/lib/auth/server";
+import { DEMO_MODE } from "@/lib/config";
 import { billingMode } from "@/lib/billing/stripe";
 
 export const metadata = { title: "Account", robots: { index: false } };
@@ -33,7 +35,11 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ c
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-8">
-      <PageTitle title="Account" />
+      <PageTitle title="Account">
+        {isAdminEmail(me.user, process.env.ADMIN_EMAILS, DEMO_MODE) && (
+          <Link href="/admin" className="inline-flex min-h-11 items-center rounded-input border border-border bg-muted-bg px-4 text-sm font-medium hover:border-accent-border">Admin panel</Link>
+        )}
+      </PageTitle>
       {checkout === "success" && <CheckoutStatus />}
 
       <section aria-labelledby="plan-h" className={`${card} flex flex-col gap-4 p-5 md:p-6`}>
