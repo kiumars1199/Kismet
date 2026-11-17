@@ -7,15 +7,16 @@ Tier tags: **[F]** free, **[P]** Pro, **[PR]** Premium, **[D]** in tonight's dem
 ## F-01 Screener table [F][D]
 All open markets with MarketEdge numbers, one row per market (or per event group).
 
-Default columns: ☆ watch · Market (question + event, image) · Side (best outcome) · Price (ask, ¢) ·
-Win chance (model, %) · Edge (¢, colored) · Confidence (bar from `edge_low`) · ROI % · Closes (relative) ·
-Category/topic chip · Validated ✓. Optional columns: Mid, Spread, Fee, Volume, 24h volume, Liquidity,
+Default view = cards (Best bets) or rows (All markets), using the plain-language numbers in
+`06-ui.md` § Display language: Expected return % · Bet {outcome} at {price} · Market says vs Won
+before · $100 → expect +$X · chance label · closes in · topic · save. Row columns: ☆ · Market ·
+Bet · Expected return · Won before · Market says · Chance · Closes · Topic. Optional columns: Mid, Spread, Fee, Volume, 24h volume, Liquidity,
 Evidence (events), Model level, Market type, Retention, Capacity, Verdict, Realistic edge.
 
 Behavior
 - Virtualized rows (TanStack Virtual), server pagination 50/page, infinite scroll.
 - Row click → drawer (F-04). ☆ → watchlist (F-09). Cmd/Ctrl-click → open on Polymarket.
-- Edge color: ≥ 5¢ strong green, 2–5¢ green, 0–2¢ grey, < 0 red. Confidence bar = clamp(edge_low/edge).
+- Return color: ≥ 10% strong green, 3–10% green, 0–3% grey, < 0 red. Pro mode swaps in ¢ edge.
 - Header shows: "15,483 markets · scanned 12 min ago · next scan ~1 h 48 m" (F-24).
 - Sticky filter bar; column resize and reorder saved with the preset.
 
@@ -46,7 +47,8 @@ Gate: Free sees sections 1–4 (5–9 locked with a Pro badge and a one-line ups
 Opens from the right (full screen on mobile). Sections:
 1. **Header**: question, event, venue link "Open on Polymarket ↗", closes at (local time + countdown), watch ☆, alert 🔔, share.
 2. **Both sides** side by side: outcome, ask, mid, win chance (range: low–estimate), edge, ROI. Best side highlighted.
-3. **Verdict card** (F-05): "Worth it / Thin / Not worth it" in plain English with the numbers.
+3. **Headline card**: "Bet YES at 68¢ · +33% expected return · similar past bets returned +24%".
+   Price check line (F-05) only calls attention when the spread or capacity is a problem (`06` labels).
 4. **Stake table** (F-05): $25 / $100 / $500 / $1000 → avg price, edge, expected profit; capacity line.
 5. **Why**: chart of the segment's win-chance curve (`/api/model/curve`) vs the 45° "fair" line,
    with this market's price marked; text: "Past markets like this (NFL · totals · ~24 h out, 812

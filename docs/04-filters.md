@@ -66,7 +66,8 @@ export const FilterState = z.object({
   watchlisted_only: z.boolean().optional(), favorites_only: z.boolean().optional(),
   group_by_event: z.boolean().default(true),
   sort: z.object({ key: SortKey, dir: z.enum(["asc","desc"]) })
-        .default({ key: "edge", dir: "desc" }),
+        .default({ key: "roi", dir: "desc" }),       // shown as "Best expected return"
+  win_prob_floor_default: z.number().default(0.4),     // default view hides < 40% chance (long shots)
   page: z.number().int().default(1), page_size: z.number().int().max(200).default(50),
 });
 type SortKey = "edge" | "edge_low" | "realistic_edge" | "roi" | "win_prob" | "price" | "closes"
@@ -137,7 +138,8 @@ A preset is a named FilterState + sort + visible columns (`03` §3 `presets`). B
 read-only (can be duplicated):
 | Preset | Patch |
 |---|---|
-| Best edges right now | `view=flags, vd=worth it, s=realistic_edge.desc` |
+| Best bets right now (default) | `view=flags, vd=worth it, wp=0.4, s=roi.desc` |
+| Most likely to win | `view=flags, wp=0.8, s=win_prob.desc` |
 | Weather tomorrow | `t=weather, cw=36, conf=1` |
 | NFL favorites, 1–3 days out | `t=sports.nfl, side=favorite, ca=24, cw=96, e=0.02` |
 | Soccer pre-game | `t=sports.soccer, cw=48, conf=1` |

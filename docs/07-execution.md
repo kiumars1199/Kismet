@@ -55,7 +55,7 @@ function check(q: number, book: Book, feeRate: number, minEdge: number, stakes =
 }
 ```
 
-## How it shows up
+## How it shows up (labels per `06-ui.md` § Labels — "worth it" is an internal value, not UI copy)
 - **Table** (flags view): Verdict column first; tooltip "Ask 72¢ vs mid 70.5¢: crossing the spread costs
   1.5¢ of your 25¢ edge (94% kept). Worth it up to about $2,400."
 - **Drawer**: verdict card with a horizontal bar: `mid ── spread cost ── fee ── net edge ── win chance`,
