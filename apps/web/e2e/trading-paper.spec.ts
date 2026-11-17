@@ -126,7 +126,7 @@ test("trading-paper: connect key, resting order, cancel, marketable order, fill 
 
   // 2. Open a market, Trade → resting limit order (5¢ never fills).
   const page = await ctx.newPage();
-  await page.goto("/flags");
+  await page.goto("/");
   await page.locator("[data-row] h3 a").first().click();
   const drawer = page.getByRole("dialog", { name: "Market details" });
   const question = (await drawer.getByRole("heading").first().textContent())!.trim();
@@ -158,6 +158,7 @@ test("trading-paper: connect key, resting order, cancel, marketable order, fill 
   await expect(status.locator("[data-state]")).toHaveText("Cancelled", { timeout: 15_000 });
   await page.keyboard.press("Escape");
   await expect(ticket).toBeHidden();
+  await expect(drawer).toBeVisible(); // Escape closes only the ticket, not the drawer under it
 
   // 4. Marketable order: limit prefilled at Kalshi's ask → fills now.
   await open();
