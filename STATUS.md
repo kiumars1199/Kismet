@@ -34,5 +34,9 @@ Branch `demo`. Built in one night by an agent team (one lane per worktree), merg
 - Engine warning text says "15c" (scan.py) where docs/07 says "15¢"; UI shows its own plain-language label ("Unusually high — check details"), so the raw string is not user-facing.
 - LocalRepo adds sync `snapshot()`/`profileSnapshot()` for useSyncExternalStore; SupabaseRepo must serve them from a cache.
 - Lane A widened SAMPLE_TAGS and added tag aliases (cbb→ncaab, mma→ufc, formula1→f1) so new niches get history; kept.
+- Grouped screener pages over event groups (≤50 per page, best row + up to 3 more each, `size` = full count); docs/04's "paginate groups" sent 2.8 MB pages on real data.
+- Worktrees spawned by the agent tool start from `main`, not `demo`; every lane brief begins with `git reset --hard demo`.
+- Lanes C and D split in two each (C1 screener+drawer, C2 results/landing/status, D1 presets/list/onboarding/keys/CSV, D2 settings/dashboards/bets/Kelly/tools/alerts) so five teammates work on disjoint files.
+- Playwright e2e runs on port 3100 against fixtures (never reuses a real-data server on 3000).
 - T-60: fixtures in `apps/web/test/fixtures/` already existed (500 markets, 150 flags); reused as-is.
 - `engine fit` needs `data/` (gitignored, ~1 h Polymarket bootstrap). Bootstrap started locally at the start of the night.
