@@ -40,6 +40,14 @@ test("S7 sign up → upgrade with Stripe → Pro unlocks live data and exact num
   expect(pro.rows.every((r) => r.side.ranges === undefined)).toBe(true);
   await page.goto("/pricing");
   await expect(page.getByTestId("checkout-pro")).toHaveCount(0);   // "Your plan" instead of a second checkout
+
+  // Deleting a paying account cancels the Stripe subscription first (a failed cancel blocks the delete).
+  await page.goto("/account");
+  await page.getByRole("button", { name: "Delete account…" }).click();
+  await page.getByLabel(`Type ${email} to confirm`).fill(email);
+  await page.getByRole("button", { name: "Delete permanently" }).click();
+  await expect(page).toHaveURL(/\/\?deleted=1/, { timeout: 30_000 });
+  expect((await (await page.request.get("/api/me")).json()).user).toBeNull();
 });
 
 test("account delete: type the email, everything goes, signed out", async ({ page }) => {
