@@ -1,5 +1,7 @@
 # Keeps MarketEdge current: pulls newly resolved markets, refits the model,
 # rescans open markets, and publishes output/*.json to the `live` branch.
+# Fallback data path: the engine container (engine/Dockerfile, docs/setup-notes/ops.md) is primary
+# and uploads to Supabase Storage every 10 min; the web app falls back to this branch.
 name: refresh
 
 on:
@@ -9,6 +11,7 @@ on:
 
 permissions:
   contents: write
+  issues: write   # a failed refresh or data check opens an issue (docs/12)
 
 concurrency:
   group: refresh
@@ -27,6 +30,7 @@ jobs:
 
       - run: pip install -r requirements.txt
 
+      # The key is unique per run, so the exact key never hits; restore-keys picks the newest history.
       - name: Restore market history
         uses: actions/cache/restore@v4
         with:
@@ -43,7 +47,16 @@ jobs:
           fi
 
       - name: Pull newly resolved markets
+        id: update
         run: python -m engine update
+
+      # Saved even when a later step fails, so the next run doesn't re-download history.
+      - name: Save market history
+        if: always() && steps.update.outcome == 'success'
+        uses: actions/cache/save@v4
+        with:
+          path: data
+          key: marketedge-data-${{ github.run_id }}
 
       - name: Daily walk-forward test (re-tunes how fast old data fades)
         run: |
@@ -56,28 +69,16 @@ jobs:
           python -m engine fit
           python -m engine scan
 
-      - name: Engine tests
-        run: python -m pytest -q engine/tests
+      - name: Engine and ops tests
+        run: python -m pytest -q engine/tests ops/tests
 
       - name: Data checks (keep previous live data if these fail)
         run: |
-          python - <<'PY'
-          import json, math
-          m = json.load(open("output/markets.json")); f = json.load(open("output/flags.json"))
-          assert m["meta"]["markets_scanned"] >= 1000, "too few markets scanned"
-          assert len(f["flags"]) <= 0.05 * max(1, m["meta"]["markets_scanned"]), "too many flags"
-          for r in f["flags"]:
-              b = r["best"]
-              assert b["edge"] >= 0.02 and b["edge_low"] > 0 and r["validated"] and "execution" in r
-              assert all(not (isinstance(v, float) and math.isnan(v)) for v in b.values())
-          print("data checks ok")
-          PY
-
-      - name: Save market history
-        uses: actions/cache/save@v4
-        with:
-          path: data
-          key: marketedge-data-${{ github.run_id }}
+          prev=""
+          if git fetch -q --depth 1 origin live; then
+            prev=$(git show FETCH_HEAD:flags.json | python -c 'import json,sys; print(json.load(sys.stdin)["meta"]["scanned_at"])' || true)
+          fi
+          python ops/checks.py output ${prev:+--prev-scanned-at "$prev"}
 
       - name: Publish outputs to the live branch
         run: |
@@ -88,3 +89,12 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
           git add . && git commit -qm "live data $(date -u +%Y-%m-%dT%H:%MZ)"
           git push -qf "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" live
+
+      - name: Open an issue when the refresh fails
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue create --repo "${{ github.repository }}" \
+            --title "Data refresh failed $(date -u +%Y-%m-%dT%H:%MZ)" \
+            --body "The live branch was not updated; the previous scan stays published. Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
