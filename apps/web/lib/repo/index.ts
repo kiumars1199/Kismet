@@ -39,9 +39,14 @@ export function getRepo(): Repo {
 /** The browser's local data (demo mode and signed-out visitors); used for the first sign-in import. */
 export const getLocalRepo = (): LocalRepo => (local ??= new LocalRepo());
 
+let markReady = () => {};
+/** Resolves once AuthBoot has picked the store (account or guest). Never resolves in demo mode: race it with a timeout. */
+export const repoReady = new Promise<void>((r) => { markReady = r; });
+
 /** Switch the backing store (AuthBoot does this after /api/me). */
 export function setRepo(next: Repo) {
   impl = next;
   current();
   emit();
+  markReady();
 }

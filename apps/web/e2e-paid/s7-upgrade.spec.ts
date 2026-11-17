@@ -13,13 +13,15 @@ async function signIn(page: Page, email: string) {
   const { url } = await (await page.request.get(`/e2e-mock/supabase/_inbox?email=${encodeURIComponent(email)}`)).json();
   expect(url).toContain("/auth/callback");
   await page.goto(url);
-  await expect(page).toHaveURL(/\/onboarding/);   // first sign-in: onboarding, then Best bets
-  // On a cold dev server the click can land before hydration; retry until the navigation happens.
-  await page.waitForLoadState("networkidle");
+  await expect(page).toHaveURL(/\/onboarding\?next=%2Fpricing/);   // first sign-in: onboarding, then the page sign-in started from
+  // On a cold dev server the click can land before hydration; retry until the navigation starts.
   await expect(async () => {
     await page.getByRole("button", { name: "Skip setup" }).click();
-    await expect(page).toHaveURL(/:\d+\/(\?|$)/, { timeout: 10_000 });
+    await expect(page).toHaveURL(/\/pricing$/, { timeout: 5_000 });
   }).toPass({ timeout: 60_000 });
+  // Skipping is saved to the account, not just this browser (the next sign-in goes straight to `next`).
+  const { profile } = await (await page.request.get("/api/data")).json();
+  expect(profile.onboarded_at).toBeTruthy();
 }
 
 const rows = async (page: Page) => (await (await page.request.get("/api/markets?ps=200")).json()) as MarketsResponse;

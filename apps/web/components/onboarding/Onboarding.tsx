@@ -1,13 +1,14 @@
 "use client";
 // Onboarding (docs/05 F-19): 3 skippable steps. Topics → favorites; how you bet → default stake; a short tour.
-// Ends on Best bets filtered to the chosen topics. Finishing or skipping sets profile.onboarded_at.
+// Ends on the safe `next` page when sign-in brought one, else Best bets filtered to the chosen topics.
+// Finishing or skipping sets profile.onboarded_at; a failed or slow save shows an error and still navigates.
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { TopicsPicker } from "@/components/settings/TopicsPicker";
 import { toQuery } from "@/lib/filters/url";
 import { FilterState } from "@/lib/filters/state";
 import { money } from "@/lib/format";
-import { getRepo } from "@/lib/repo";
+import { DEMO_MODE, getRepo, repoReady } from "@/lib/repo";
 import { useProfile } from "@/lib/repo/hooks";
 
 const STAKES = [10, 25, 50, 100, 250];
@@ -25,7 +26,11 @@ const TOUR = [
   { title: "Save views and markets", body: "Save a set of filters as a view to reopen it in one tap, and star markets to follow them on My list." },
 ];
 
-export function Onboarding() {
+const within = <T,>(p: Promise<T>, ms: number) =>
+  Promise.race([p, new Promise<never>((_, reject) => setTimeout(() => reject(new Error("timed out")), ms))]);
+
+/** `next`: a same-origin path already checked by the page (safeNext); "/" counts as none. */
+export function Onboarding({ next }: { next?: string }) {
   const router = useRouter();
   const profile = useProfile();
   const [step, setStep] = useState(0);
@@ -34,12 +39,25 @@ export function Onboarding() {
     try { if (localStorage.getItem(ORDER_STYLE_KEY) === "limit") setStyle("limit"); } catch { /* storage off */ }
   }, []);
   const [custom, setCustom] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   async function finish() {
     try { localStorage.setItem(ORDER_STYLE_KEY, style); } catch { /* storage off */ }
-    const p = await getRepo().profile.patch({ onboarded_at: new Date().toISOString() });
-    const topics = p.favorite_topics.length ? p.favorite_topics : undefined;
-    router.push(`/${toQuery(FilterState.parse({ view: "flags", topics }))}`);
+    setError(null);
+    let topics: string[] | undefined;
+    try {
+      // Signed in: wait until AuthBoot has switched to the account store, or the flag would land only in this browser.
+      if (!DEMO_MODE) await within(repoReady, 8_000).catch(() => {});
+      const p = await within(getRepo().profile.patch({ onboarded_at: new Date().toISOString() }), 8_000);
+      if (p.favorite_topics.length) topics = p.favorite_topics;
+    } catch (e) {
+      console.error("[onboarding] could not save:", e);
+      setError("Couldn't save your setup. You can change it any time in Settings.");
+    }
+    const to = next && next !== "/" ? next : `/${toQuery(FilterState.parse({ view: "flags", topics }))}`;
+    router.push(to);
+    // A client navigation can stall (e.g. a route still compiling); fall back to a full page load.
+    setTimeout(() => { if (location.pathname === "/onboarding") location.assign(to); }, 10_000);
   }
 
   const setStake = (usd: number) => usd > 0 && getRepo().profile.patch({ default_stake_usd: usd });
@@ -54,6 +72,8 @@ export function Onboarding() {
         </div>
         <button type="button" onClick={finish} className="rounded-input px-3 py-2 text-sm text-muted hover:text-text">Skip setup</button>
       </div>
+
+      {error && <p role="alert" className="rounded-input border border-border bg-muted-bg px-4 py-3 text-sm text-soft">{error}</p>}
 
       <header>
         <p className="text-sm text-muted">Step {step + 1} of 3</p>
