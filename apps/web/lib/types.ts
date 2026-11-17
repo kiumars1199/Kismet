@@ -76,7 +76,9 @@ export interface Execution {
   ask_size?: number | null;   // T-02: shares at best ask of the best side's book
   bid_size?: number | null;   // shares at best bid
 }
-export interface Flag extends Market { execution: Execution }
+// docs/18 §2: "best" = Best bets rule; "edge" = More bets with an edge (lower confidence). Missing = "best".
+export type FlagTier = "best" | "edge";
+export interface Flag extends Market { execution: Execution; tier?: FlagTier }
 
 // output/model.json (curves for charts). Node `level` uses the engine's long names.
 export type ModelNodeLevel = "all" | "category" | "niche" | "niche+type";
@@ -96,10 +98,22 @@ export interface BacktestResult {
   taker: BacktestRecord; maker: BacktestRecord; taker_tight_spread: BacktestRecord;
   baseline_all_bets_taker: BacktestRecord;
   by_category: Record<string, BacktestRecord>; by_horizon: Record<string, BacktestRecord>;
-  edge_buckets: unknown; folds: unknown[]; [k: string]: unknown;
+  edge_buckets: unknown; folds: unknown[];
+  // docs/18 §1: payout bands "<1.5x" | "1.5-2x" | "2-3x" | "3-5x" | "5-10x" | "10x+", per tier.
+  by_pays?: Partial<Record<FlagTier, Record<PaysBand, PaysBandRecord>>>;
+  [k: string]: unknown;
+}
+export type PaysBand = "<1.5x" | "1.5-2x" | "2-3x" | "3-5x" | "5-10x" | "10x+";
+export interface PaysBandRecord extends BacktestRecord { predicted_win_rate?: number }
+// docs/18 §5.4: combo backtest, keyed by leg count ("2", "3").
+export interface ComboBacktestRecord {
+  combos: number; win_rate?: number; predicted_win_rate?: number; avg_pays?: number;
+  roi_pct?: number; t_stat?: number;
 }
 export interface BacktestFile {
-  chosen_half_life_days: number | null; results: Record<string, BacktestResult>; [k: string]: unknown;
+  chosen_half_life_days: number | null; results: Record<string, BacktestResult>;
+  combos?: Record<string, ComboBacktestRecord>;
+  [k: string]: unknown;
 }
 
 // Derived at load (lib/data/derive.ts, docs/03 §2).

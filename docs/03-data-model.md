@@ -82,7 +82,7 @@ export interface Execution {
   ask_size?: number | null; // shares at the best ask of the best side's book (scan only, not part of check())
   bid_size?: number | null; // shares at the best bid; null when that side of the book is empty or no book
 }
-export interface Flag extends Market { execution: Execution }
+export interface Flag extends Market { execution: Execution; tier?: "best" | "edge" }  // docs/18 §2; missing = "best"
 ```
 
 ```ts
@@ -117,6 +117,10 @@ export interface LedgerSummary extends LedgerStats { by_category: Record<string,
 win_prob_at_price: {"0.05": 0.03, ..., "0.95": 0.97}`.
 `backtest.json`: `results[half_life]` with `taker, maker, taker_tight_spread, baseline_all_bets_taker,
 by_category, by_horizon, edge_buckets, folds[]` and `chosen_half_life_days`.
+Added by docs/18: `results[hl].by_pays[tier][band]` (tier `best|edge`; band `<1.5x, 1.5-2x, 2-3x, 3-5x, 5-10x, 10x+`;
+fields `flags, win_rate, predicted_win_rate, roi_pct, t_stat`), and top-level `combos["2"|"3"]` =
+`{combos, win_rate, predicted_win_rate, avg_pays, roi_pct, t_stat}` (random cross-event combos of tier-"best" bets
+that closed the same day).
 
 A zod schema mirrors these types; the data layer validates `meta` and a 1% sample of rows on load
 and logs (does not crash) on mismatch.

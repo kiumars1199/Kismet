@@ -54,4 +54,4 @@ export const Execution = z.object({
   verdict: Verdict, warning: z.string().optional(),
   ask_size: z.number().nullable().optional(), bid_size: z.number().nullable().optional(),
 });
-export const Flag = Market.extend({ execution: Execution });
+export const Flag = Market.extend({ execution: Execution, tier: z.enum(["best", "edge"]).optional() });
