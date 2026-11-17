@@ -1,7 +1,7 @@
 // OAuth / magic-link landing (docs/08, docs/14 §1): exchange the code for a session (HttpOnly cookies),
 // record the 18+/Terms acceptance, then onboarding for new users or the `next` page (default Best bets).
 import { NextResponse } from "next/server";
-import { authEnabled, safeNext, supabaseServer } from "@/lib/auth/server";
+import { adminEnabled, authEnabled, safeNext, supabaseAdmin, supabaseServer } from "@/lib/auth/server";
 import { takeTerms } from "@/lib/auth/terms";
 
 export const runtime = "nodejs";
@@ -26,7 +26,16 @@ export async function GET(req: Request) {
       await supabase.auth.signOut({ scope: "local" });
       return go(`/login?error=terms&next=${encodeURIComponent(next)}`);
     }
-    await supabase.from("profiles").update({ accepted_terms_at: at }).eq("user_id", data.user.id);
+    // Server-owned column (RT-11): the database refuses it from the user's own JWT, so the service role writes it.
+    if (!adminEnabled()) {
+      await supabase.auth.signOut({ scope: "local" });
+      return go(`/login?error=unavailable&next=${encodeURIComponent(next)}`);
+    }
+    const { error: saveErr } = await supabaseAdmin().from("profiles").update({ accepted_terms_at: at }).eq("user_id", data.user.id);
+    if (saveErr) {
+      await supabase.auth.signOut({ scope: "local" });
+      return go(`/login?error=unavailable&next=${encodeURIComponent(next)}`);
+    }
   }
   return go(profile?.onboarded_at ? next : `/onboarding?next=${encodeURIComponent(next)}`);
 }

@@ -50,7 +50,8 @@ beforeAll(async () => {
   await db.exec(`insert into auth.users (id, email) values ('${A}', 'a@x.test'), ('${B}', 'b@x.test');`);
   await as("authenticated", A, `insert into presets (name, query) values ('A view', '{"v":1}')`);
   await as("authenticated", A, `insert into watchlist (market_id, side_index) values ('m1', null)`);
-  await as("authenticated", A, `insert into journal (market_id, side_index, price, shares) values ('m1', 0, 0.5, 10)`);
+  // journal is Pro-only at the policy level (RT-11); A is Free, so A's row is seeded as the service role
+  await db.exec(`insert into journal (user_id, market_id, side_index, price, shares) values ('${A}', 'm1', 0, 0.5, 10)`);
 }, 60_000);
 
 describe("RLS (supabase/migrations)", () => {
@@ -160,6 +161,20 @@ describe("RLS (supabase/migrations)", () => {
     await db.exec(`insert into dashboards (user_id, name, layout) values ('${B}', 'by service', '[]')`);
     await db.exec(`update subscriptions set tier = 'free' where user_id = '${B}'`);
     await db.exec(`delete from dashboards where user_id = '${B}'`);
+  });
+
+  it("RT-11: users can't forge server-owned profile columns or write Pro-only rows with their own JWT", async () => {
+    await expect(as("authenticated", A, "update profiles set accepted_terms_at = '2000-01-01'")).rejects.toThrow(/set by the server/);
+    await expect(as("authenticated", A, "update profiles set created_at = '2000-01-01'")).rejects.toThrow(/set by the server/);
+    await as("authenticated", A, "update profiles set onboarded_at = now(), theme = 'light'");   // user-owned columns still work
+    expect((await db.query<{ t: string | null; o: string | null; th: string }>(
+      `select accepted_terms_at as t, onboarded_at as o, theme as th from profiles where user_id = '${A}'`)).rows[0])
+      .toMatchObject({ t: null, o: expect.anything(), th: "light" });
+    await db.exec(`update profiles set accepted_terms_at = now() where user_id = '${A}'`);   // the callback (service role)
+    await expect(as("authenticated", A, `insert into journal (market_id, side_index, price, shares) values ('m2', 0, 0.5, 1)`)).rejects.toThrow(/row-level security/);
+    await db.exec(`update subscriptions set tier = 'pro' where user_id = '${B}'`);
+    expect(await as("authenticated", B, `insert into journal (market_id, side_index, price, shares) values ('m2', 0, 0.5, 1) returning market_id`)).toEqual([{ market_id: "m2" }]);
+    await db.exec(`update subscriptions set tier = 'free' where user_id = '${B}'; delete from journal where user_id = '${B}'`);
   });
 
   it("keeps at most 3 sessions per user, newest win", async () => {
