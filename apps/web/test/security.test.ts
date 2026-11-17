@@ -79,6 +79,22 @@ describe("web hardening greps", () => {
   });
 });
 
+describe("cookie flags (docs/15 § Auth)", () => {
+  it("HttpOnly, SameSite=Lax, Secure in production, path /", async () => {
+    const { COOKIE_OPTIONS } = await import("@/lib/auth/server");
+    expect(COOKIE_OPTIONS).toMatchObject({ httpOnly: true, sameSite: "lax", path: "/" });
+    for (const f of ["lib/auth/server.ts", "middleware.ts"]) expect(read(f), f).toMatch(/secure: process\.env\.NODE_ENV === "production"/);
+    expect(read("middleware.ts")).toMatch(/COOKIE_OPTIONS = \{ httpOnly: true, secure: [^}]+, sameSite: "lax" as const, path: "\/" \}/);
+  });
+
+  it("every cookie the server sets spreads COOKIE_OPTIONS last-or-only, and the browser sets none", () => {
+    const sets = files().flatMap((f) => [...read(f).matchAll(/(\bjar|\bres\.cookies|\(await cookies\(\)\))\.set\(([^;]*)/g)].map((m) => [f, m[2]!] as const));
+    expect(sets.length).toBeGreaterThanOrEqual(4);
+    expect(sets.filter(([, args]) => !/COOKIE_OPTIONS/.test(args) || /COOKIE_OPTIONS\s*,\s*(httpOnly|secure|sameSite)/.test(args))).toEqual([]);
+    expect(files().filter((f) => read(f).includes("document.cookie"))).toEqual([]);
+  });
+});
+
 describe("Origin checks", () => {
   const post = (origin?: string, body = "{}") =>
     new Request("http://t/api/x", { method: "POST", body, headers: origin ? { origin } : {} });
