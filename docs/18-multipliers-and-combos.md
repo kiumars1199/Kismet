@@ -78,3 +78,12 @@ What we build:
 Copy rules: never call a combo "safe"; always show "wins about 1 in N"; no "lock" or "guaranteed".
 Tests: combo math (independent legs, fee, `Q_low`), same-event warning, formatCount, tier assignment,
 `by_pays` and combo backtest never using rows at or after the fold start.
+
+## 6. Framing for people placing one or two bets (owner note, 11:42 PM)
+Users aren't high-volume traders; most place a bet or two. Long-run averages mean little to them. So:
+- Every card leads with **what happens on this one bet**: "Pays 10x · wins about 1 in 7", then the edge as
+  "better price than usual" (+4 pts). Return % moves under it, smaller.
+- Long shots and combos get their own visible rows on Best bets ("Big payouts", "Combos"), not only the bottom
+  of the list, because that's what casual bettors come for. They keep the "lower confidence" label.
+- One plain line in the drawer for anything under 25% chance: "Most of the time this loses. The edge means
+  you're getting a better price than usual, not that it will hit."
