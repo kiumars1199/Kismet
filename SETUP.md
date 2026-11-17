@@ -71,6 +71,7 @@ which takes about an hour.
 | `NEXT_PUBLIC_EXTENSION_ID` / `NEXT_PUBLIC_EXTENSION_STORE_URL` | Chrome Web Store id / listing URL | 13 |
 | `KALSHI_TRADING_ENV` | **leave empty in production.** `demo` turns on paper trading | 14 |
 | `TRADING_ALLOWLIST` | emails allowed to paper-trade when trading is on | 14 |
+| `ADMIN_EMAILS` | `marcyamin10@gmail.com,kiumarsmomtaz@gmail.com`. Who can open `/admin`. Empty means no admins. Also apply `supabase/migrations/20261118000000_admin.sql` | `docs/setup-notes/admin.md` |
 | `KALSHI_DATA_PERMISSION` | leave empty until Kalshi grants data permission in writing | — |
 
 Leave these empty everywhere except tests: `E2E_MOCK`, `STRIPE_API_BASE`, `DATA_DIR`, `KALSHI_DEMO_*`.

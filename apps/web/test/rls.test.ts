@@ -15,9 +15,11 @@ const B = "00000000-0000-0000-0000-00000000000b";
 const AUTH_STUB = `
 create role anon nologin; create role authenticated nologin; create role service_role nologin bypassrls;
 create schema auth;
-create table auth.users (id uuid primary key, email text);
+create table auth.users (id uuid primary key, email text, email_confirmed_at timestamptz,
+  created_at timestamptz default now(), last_sign_in_at timestamptz);
 create table auth.sessions (id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references auth.users on delete cascade, created_at timestamptz default now());
+  user_id uuid not null references auth.users on delete cascade, created_at timestamptz default now(),
+  updated_at timestamptz, refreshed_at timestamp);
 create function auth.uid() returns uuid language sql stable as
   $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
 grant usage on schema auth to anon, authenticated, service_role;
@@ -102,11 +104,13 @@ describe("RLS (supabase/migrations)", () => {
       push_subscriptions: `insert into push_subscriptions (user_id, endpoint, keys) values ('${A}', 'https://push.example/a', '{}')`,
       drawer_reveals: `insert into drawer_reveals (user_id, market_id) values ('${A}', 'm1')`,
       stripe_events: `insert into stripe_events (id, type) values ('evt_a', 'checkout.session.completed')`,
+      admin_audit_log: `insert into admin_audit_log (actor_id, actor_email, action, target) values ('${A}', 'a@x.test', 'settings.update', 'banner_on')`,
+      app_settings: `insert into app_settings (key, value) values ('banner_on', 'true')`,
     };
     for (const sql of Object.values(seed)) await db.exec(sql);
     const tables = (await db.query<{ tablename: string }>("select tablename from pg_tables where schemaname = 'public'")).rows.map((r) => r.tablename);
-    expect(tables.sort()).toEqual(["alert_events", "alert_rules", "dashboards", "drawer_reveals", "journal", "presets", "profiles",
-      "push_subscriptions", "stripe_events", "subscriptions", "watchlist"]);   // a new table must be added here, and to seed
+    expect(tables.sort()).toEqual(["admin_audit_log", "alert_events", "alert_rules", "app_settings", "dashboards", "drawer_reveals",
+      "journal", "presets", "profiles", "push_subscriptions", "stripe_events", "subscriptions", "watchlist"]);   // a new table must be added here, and to seed
 
     for (const t of tables) {
       const total = Number((await db.query<{ n: number }>(`select count(*)::int as n from ${t}`)).rows[0].n);
@@ -114,12 +118,12 @@ describe("RLS (supabase/migrations)", () => {
       expect(await as("anon", null, `select * from ${t}`), `anon ${t}`).toEqual([]);
       const seen = await as<Record<string, unknown>>("authenticated", B, `select * from ${t}`);
       expect(seen.filter((r) => r.user_id !== B), `B reads ${t}`).toEqual([]);
-      if (t === "stripe_events") expect(seen, "stripe_events: service role only").toEqual([]);
+      if (["stripe_events", "admin_audit_log", "app_settings"].includes(t)) expect(seen, `${t}: service role only`).toEqual([]);
       await as("authenticated", B, `delete from ${t}`).catch(() => {});
       const after = Number((await db.query<{ n: number }>(`select count(*)::int as n from ${t}`)).rows[0].n);
       expect(after, `B deletes from ${t}`).toBe(total);
     }
-    for (const [t, sql] of Object.entries(seed).filter(([t]) => t !== "stripe_events")) {
+    for (const [t, sql] of Object.entries(seed).filter(([t]) => !["stripe_events", "admin_audit_log", "app_settings"].includes(t))) {
       await expect(as("authenticated", B, sql.replace(/'k-a'/, "'k-b'").replace("/a'", "/b'")), `B inserts into ${t} as A`).rejects.toThrow(/row-level security/);
     }
     await as("authenticated", B, `update alert_rules set webhook_url = 'https://evil.example'`);
@@ -131,11 +135,59 @@ describe("RLS (supabase/migrations)", () => {
       select p.proname as name, p.proconfig as config,
         has_function_privilege('anon', p.oid, 'execute') as anon, has_function_privilege('authenticated', p.oid, 'execute') as auth
       from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public' and p.prosecdef`)).rows;
-    expect(fns.map((f) => f.name).sort()).toEqual(["enforce_session_limit", "handle_new_user"]);
+    expect(fns.map((f) => f.name).sort()).toEqual(["admin_overview", "admin_revoke_sessions", "admin_user_detail", "admin_users",
+      "enforce_session_limit", "handle_new_user"]);
     for (const f of fns) {
       expect(f.config, f.name).toContain("search_path=\"\"");
       expect([f.anon, f.auth], f.name).toEqual([false, false]);
     }
+  });
+
+  it("admin tables: users and anon can't read or write them; only the service role can (T-140)", async () => {
+    for (const role of [["authenticated", A], ["authenticated", B], ["anon", null]] as const) {
+      for (const t of ["admin_audit_log", "app_settings"]) expect(await as(role[0], role[1], `select * from ${t}`), `${role[0]} reads ${t}`).toEqual([]);
+      await expect(as(role[0], role[1], "insert into app_settings (key, value) values ('maintenance', 'true')"), `${role[0]} writes app_settings`).rejects.toThrow(/row-level security/);
+      await expect(as(role[0], role[1], `insert into admin_audit_log (actor_id, actor_email, action) values ('${B}', 'b@x.test', 'forged')`), `${role[0]} forges audit`).rejects.toThrow(/row-level security/);
+      await as(role[0], role[1], "update app_settings set value = 'false'");
+      await as(role[0], role[1], "delete from app_settings");
+    }
+    expect((await db.query<{ value: unknown }>("select value from app_settings where key = 'banner_on'")).rows).toEqual([{ value: true }]);
+    // users can't comp themselves
+    await as("authenticated", B, "update subscriptions set comp_tier = 'premium'");
+    expect((await db.query<{ c: string | null }>(`select comp_tier as c from subscriptions where user_id = '${B}'`)).rows).toEqual([{ c: null }]);
+  });
+
+  it("admin_audit_log is append-only, even for the service role", async () => {
+    await expect(db.exec("update admin_audit_log set action = 'x'")).rejects.toThrow(/append-only/);
+    await expect(db.exec("delete from admin_audit_log")).rejects.toThrow(/append-only/);
+    await expect(db.exec("truncate admin_audit_log")).rejects.toThrow(/append-only/);
+    expect((await db.query("select 1 from admin_audit_log")).rows).toHaveLength(1);
+  });
+
+  it("admin functions: service role only; overview, search, detail and revoke work", async () => {
+    for (const [role, sub] of [["authenticated", A], ["anon", null]] as const) {
+      await expect(as(role, sub, "select public.admin_overview()")).rejects.toThrow(/permission denied/);
+      await expect(as(role, sub, `select public.admin_revoke_sessions('${B}')`)).rejects.toThrow(/permission denied/);
+      await expect(as(role, sub, "select * from public.admin_users('', 10, 0)")).rejects.toThrow(/permission denied/);
+      await expect(as(role, sub, `select public.admin_user_detail('${B}')`)).rejects.toThrow(/permission denied/);
+    }
+    const o = (await db.query<{ r: { users_total: number; tiers: Record<string, number>; signups: unknown[] } }>("select public.admin_overview() as r")).rows[0].r;
+    expect(o.users_total).toBe(2);
+    expect(o.tiers.free).toBe(2);
+    expect(o.signups).toHaveLength(30);
+    await db.exec(`update subscriptions set comp_tier = 'pro' where user_id = '${B}'`);
+    const o2 = (await db.query<{ r: { tiers: Record<string, number> } }>("select public.admin_overview() as r")).rows[0].r;
+    expect([o2.tiers.free, o2.tiers.pro, o2.tiers.comped]).toEqual([1, 1, 1]);
+    const found = (await db.query<{ email: string; total: number }>("select email, total::int as total from public.admin_users('B@X', 10, 0)")).rows;
+    expect(found).toEqual([{ email: "b@x.test", total: 1 }]);
+    expect((await db.query("select * from public.admin_users('%', 10, 0)")).rows).toEqual([]);   // % is literal, not a wildcard
+    const d = (await db.query<{ r: { email: string; counts: Record<string, number> } }>(`select public.admin_user_detail('${A}') as r`)).rows[0].r;
+    expect(d.email).toBe("a@x.test");
+    expect(d.counts).toMatchObject({ presets: 1, watchlist: 1, journal: 1 });
+    await db.exec(`insert into auth.sessions (user_id) values ('${B}'), ('${B}')`);
+    expect((await db.query<{ n: number }>(`select public.admin_revoke_sessions('${B}') as n`)).rows[0].n).toBe(2);
+    expect((await db.query(`select 1 from auth.sessions where user_id = '${B}'`)).rows).toEqual([]);
+    await db.exec(`update subscriptions set comp_tier = null where user_id = '${B}'`);
   });
 
   it("auth.sessions is not reachable from the public API", async () => {
@@ -175,6 +227,16 @@ describe("RLS (supabase/migrations)", () => {
     await db.exec(`update subscriptions set tier = 'pro' where user_id = '${B}'`);
     expect(await as("authenticated", B, `insert into journal (market_id, side_index, price, shares) values ('m2', 0, 0.5, 1) returning market_id`)).toEqual([{ market_id: "m2" }]);
     await db.exec(`update subscriptions set tier = 'free' where user_id = '${B}'; delete from journal where user_id = '${B}'`);
+  });
+
+  it("RT-08/RT-11 + admin comps: the database uses the same plan as the app (Stripe tier or an unexpired comp)", async () => {
+    await db.exec(`update subscriptions set comp_tier = 'pro', comp_expires_at = now() + interval '1 day' where user_id = '${B}'`);
+    expect(await as("authenticated", B, `insert into journal (market_id, side_index, price, shares) values ('m3', 0, 0.5, 1) returning market_id`)).toEqual([{ market_id: "m3" }]);
+    await as("authenticated", B, `insert into dashboards (name, layout) values ('comped', '[]')`);   // Free allows 0, Pro 3
+    await db.exec(`update subscriptions set comp_expires_at = now() - interval '1 minute' where user_id = '${B}'`);   // expired = Free
+    await expect(as("authenticated", B, `insert into dashboards (name, layout) values ('late', '[]')`)).rejects.toThrow(/plan_quota/);
+    await expect(as("authenticated", B, `insert into journal (market_id, side_index, price, shares) values ('m4', 0, 0.5, 1)`)).rejects.toThrow(/row-level security/);
+    await db.exec(`update subscriptions set comp_tier = null, comp_expires_at = null where user_id = '${B}'; delete from journal where user_id = '${B}'; delete from dashboards where user_id = '${B}'`);
   });
 
   it("keeps at most 3 sessions per user, newest win", async () => {

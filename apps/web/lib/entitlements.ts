@@ -28,6 +28,22 @@ const QUOTAS: Record<Tier, Record<QuotaKey, number>> = {
 /** Free data is 15 minutes behind (docs/01). */
 export const DELAY_MIN: Record<Tier, number> = { free: 15, pro: 0, premium: 0 };
 
+const RANK: Record<Tier, number> = { free: 0, pro: 1, premium: 2 };
+const asTier = (t: unknown): Tier => (t === "pro" || t === "premium" ? t : "free");
+
+/** Plan from a subscriptions row: the higher of the webhook-written tier and an unexpired admin comp (T-140).
+ *  A comp never lowers a paid plan; an expired or unknown comp is ignored. */
+export function effectiveTier(
+  row: { tier?: unknown; comp_tier?: unknown; comp_expires_at?: string | null } | null | undefined,
+  now = Date.now(),
+): Tier {
+  const paid = asTier(row?.tier);
+  const comp = asTier(row?.comp_tier);
+  const exp = row?.comp_expires_at ? Date.parse(row.comp_expires_at) : Infinity;
+  const live = comp !== "free" && !(exp <= now);
+  return live && RANK[comp] > RANK[paid] ? comp : paid;
+}
+
 export const can = (tier: Tier, feature: Feature): boolean => FEATURES[tier].includes(feature);
 export const quota = (tier: Tier, key: QuotaKey): number => QUOTAS[tier][key];
 

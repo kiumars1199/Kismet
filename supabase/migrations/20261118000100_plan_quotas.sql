@@ -4,6 +4,24 @@
 -- Limits mirror apps/web/lib/entitlements.ts QUOTAS (null = unlimited); change both together.
 -- Only the `authenticated` role (a user's JWT) is bound; the service role and migrations are not.
 
+-- The user's plan as the app sees it: the higher of the Stripe tier and an unexpired admin comp
+-- (apps/web/lib/entitlements.ts effectiveTier; comp columns from 20261118000000_admin.sql). Invoker rights:
+-- a user reads only their own subscriptions row (RLS), which is the only row these callers ask for.
+create or replace function public.plan_of(uid uuid)
+returns text
+language sql
+stable
+set search_path = ''
+as $$
+  select case
+    when s.comp_tier = 'premium' and (s.comp_expires_at is null or s.comp_expires_at > now()) then 'premium'
+    when s.tier = 'premium' then 'premium'
+    when s.comp_tier = 'pro' and (s.comp_expires_at is null or s.comp_expires_at > now()) then 'pro'
+    when s.tier = 'pro' then 'pro'
+    else 'free' end
+  from (select 1) one left join public.subscriptions s on s.user_id = uid;
+$$;
+
 create or replace function public.enforce_plan_quota()
 returns trigger
 language plpgsql
@@ -18,8 +36,7 @@ begin
   if current_user <> 'authenticated' or new.user_id is distinct from auth.uid() then
     return new;
   end if;
-  select s.tier into plan from public.subscriptions s where s.user_id = new.user_id;
-  plan := coalesce(plan, 'free');
+  plan := public.plan_of(new.user_id);
   lim := case tg_table_name
     when 'presets' then case plan when 'free' then 1 when 'pro' then 25 end
     when 'dashboards' then case plan when 'free' then 0 when 'pro' then 3 end

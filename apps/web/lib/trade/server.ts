@@ -7,22 +7,25 @@ import { redis } from "@/lib/abuse";
 import { getMe, sameOrigin } from "@/lib/auth/server";
 import { DEMO_MODE } from "@/lib/config";
 import type { Tier } from "@/lib/entitlements";
+import { getSettings } from "@/lib/settings";
+import { settingsNow } from "@/lib/settings-core";
 
 /** Only "demo" turns trading on. Anything else (unset, "prod") = off: real money waits for docs/16 §5 sign-offs. */
 export const tradingEnv = (): "demo" | null => (process.env.KALSHI_TRADING_ENV === "demo" ? "demo" : null);
 
-/** Allow-listed: anyone in demo mode, else emails in TRADING_ALLOWLIST (comma-separated). */
+/** Allow-listed: anyone in demo mode, else emails in TRADING_ALLOWLIST (comma-separated) or the admin
+ *  settings allowlist (last-loaded snapshot; currentUser() refreshes it). Trading itself still needs KALSHI_TRADING_ENV. */
 export function tradingAllowed(email: string | null): boolean {
   if (DEMO_MODE) return true;
   if (!email) return false;
   const list = (process.env.TRADING_ALLOWLIST ?? "").split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
-  return list.includes(email.toLowerCase());
+  return [...list, ...settingsNow().trading_allowlist].includes(email.toLowerCase());
 }
 
 /** Signed-in user's email and plan from the Supabase session cookie (tier from the webhook-written subscriptions row). */
 export async function currentUser(_req: Request): Promise<{ email: string; tier: Tier } | null> {
   if (DEMO_MODE) return { email: "demo@localhost", tier: "premium" };
-  const me = await getMe();
+  const [me] = await Promise.all([getMe(), getSettings()]);   // getSettings refreshes the allowlist snapshot
   return me.user?.email ? { email: me.user.email, tier: me.tier } : null;
 }
 

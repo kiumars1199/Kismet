@@ -1,5 +1,5 @@
 -- Own-row RLS was wider than the API (REDTEAM RT-11). With their own JWT straight against PostgREST a user could
--- forge profiles.accepted_terms_at (the 18+/Terms record) and write Pro-only rows. Quotas: 20261118000000.
+-- forge profiles.accepted_terms_at (the 18+/Terms record) and write Pro-only rows. Quotas: 20261118000100.
 -- A trigger rather than column grants: Supabase's default grants (and table-level UPDATE) would undo a column revoke.
 
 -- 1. Server-owned profile columns. accepted_terms_at is written by /auth/callback with the service role.
@@ -33,5 +33,5 @@ create policy "own rows delete" on public.journal for delete to authenticated
 create policy "own rows insert on a paid plan" on public.journal for insert to authenticated
   with check (
     user_id = (select auth.uid())
-    and exists (select 1 from public.subscriptions s where s.user_id = (select auth.uid()) and s.tier in ('pro', 'premium'))
+    and public.plan_of((select auth.uid())) in ('pro', 'premium')   -- Stripe tier or an unexpired comp
   );

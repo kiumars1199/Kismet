@@ -6,7 +6,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { liveRoi, runRules, type Deps } from "@/lib/alerts";
 import { sendEmail, siteUrl, unsubscribeUrl } from "@/lib/email";
 import { alertEmail, DISCLAIMER } from "@/lib/email/templates";
-import { can, type Tier } from "@/lib/entitlements";
+import { can, effectiveTier, type Tier } from "@/lib/entitlements";
 import { UniqueViolation, type AlertEvent, type AlertRule, type OddsFormat, type Repo } from "@/lib/repo/types";
 
 type Row = AlertRule & { user_id: string };
@@ -47,8 +47,9 @@ export async function runServerAlerts(db: SupabaseClient, src: Source, now = new
   const users = [...new Set(rules.map((r) => r.user_id))];
   const profiles = must<{ user_id: string; timezone: string | null; odds_format: OddsFormat | null }[]>(
     await db.from("profiles").select("user_id, timezone, odds_format").in("user_id", users), "profiles read") ?? [];
-  const subs = must<{ user_id: string; tier: string }[]>(
-    await db.from("subscriptions").select("user_id, tier").in("user_id", users), "subscriptions read") ?? [];
+  // "*": tier plus the admin comp columns (T-140) when the migration has run
+  const subs = must<{ user_id: string; tier: string; comp_tier?: string | null; comp_expires_at?: string | null }[]>(
+    await db.from("subscriptions").select("*").in("user_id", users), "subscriptions read") ?? [];
   // preset_match "new market" memory survives serverless runs as the rule's past events.
   // ponytail: last 5000 events across preset rules; a seen-keys column if rules match more than that.
   const presetIds = rules.filter((r) => r.kind === "preset_match").map((r) => r.id);
@@ -57,8 +58,7 @@ export async function runServerAlerts(db: SupabaseClient, src: Source, now = new
       .order("fired_at", { ascending: false }).limit(5000), "alert_events read") ?? [] : [];
 
   for (const uid of users) {
-    const sub = subs.find((s) => s.user_id === uid)?.tier;
-    const tier: Tier = sub === "pro" || sub === "premium" ? sub : "free";
+    const tier: Tier = effectiveTier(subs.find((s) => s.user_id === uid), now.getTime());
     if (!can(tier, "alerts")) continue;   // lapsed plan: rules stay stored but never fire
     const mine = rules.filter((r) => r.user_id === uid);
     const prof = profiles.find((p) => p.user_id === uid);
