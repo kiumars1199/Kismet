@@ -6,7 +6,7 @@ import { Bar, CartesianGrid, ComposedChart, Line, Tooltip, XAxis, YAxis } from "
 import type { EventResponse } from "@/lib/api";
 import { comparator } from "@/lib/filters/apply";
 import type { FilterState } from "@/lib/filters/state";
-import { closesLine, pct } from "@/lib/format";
+import { closesLine, formatCount, pct } from "@/lib/format";
 import { useProfile } from "@/lib/repo/hooks";
 import { MarketCard } from "@/components/market/MarketCard";
 import { MarketTable } from "./MarketTable";
@@ -63,8 +63,8 @@ export function EventView({ ev }: { ev: EventResponse }) {
         <h1 className="mt-1 text-[28px] font-bold leading-tight tracking-tight md:text-[34px]">{ev.event}</h1>
         <p className="mt-1.5 text-sm text-muted">
           {flagged.size > 0
-            ? `${flagged.size} of ${ev.markets.length} ${ev.markets.length === 1 ? "market is a" : "markets are"} best ${flagged.size === 1 ? "bet" : "bets"}.`
-            : `${ev.markets.length} open ${ev.markets.length === 1 ? "market" : "markets"}; none is priced below how often similar bets won.`}
+            ? `${formatCount(flagged.size)} of ${formatCount(ev.markets.length)} ${ev.markets.length === 1 ? "market is a" : "markets are"} best ${flagged.size === 1 ? "bet" : "bets"}.`
+            : `${formatCount(ev.markets.length)} open ${ev.markets.length === 1 ? "market" : "markets"}; none is priced below how often similar bets won.`}
           {ev.slug && (
             <> <a href={`https://polymarket.com/event/${ev.slug}`} target="_blank" rel="noopener noreferrer" className="text-accent-hover hover:text-accent-soft">Open on Polymarket ↗</a></>
           )}

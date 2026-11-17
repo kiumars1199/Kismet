@@ -200,7 +200,7 @@ export function MarketTable({ items, sort, onSort, onToggleGroup, pro = false, l
                 <tr key={vi.key} data-index={vi.index} ref={v.measureElement}>
                   <td colSpan={visible.length} className="px-3 py-1">
                     <button type="button" onClick={() => onToggleGroup?.(it.g)} aria-expanded={it.expanded} className="min-h-9 text-xs text-accent-hover hover:text-accent-soft">
-                      {it.loading ? "Loading…" : it.expanded ? "Show fewer" : `+${it.hidden} more in this event`}
+                      {it.loading ? "Loading…" : it.expanded ? "Show fewer" : `+${formatCount(it.hidden)} more in this event`}
                     </button>
                   </td>
                 </tr>

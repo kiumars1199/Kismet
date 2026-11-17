@@ -112,7 +112,7 @@ export const RETURN_HELP =
 /** model basis tooltip: "Model: NFL · totals · ~24 h · 812 eff. samples · 190 events" */
 export function basis(m: { niche: string; market_type: string; horizon_h: number }, s: Pick<Side, "model_neff" | "model_events" | "model_level">): string {
   const lvl = { all: "all markets", cat: "category", niche: "niche", nmt: "niche + type" }[s.model_level] ?? s.model_level;
-  return `Model: ${m.niche.toUpperCase()} · ${m.market_type} · ~${m.horizon_h} h · ${Math.round(s.model_neff).toLocaleString("en-US")} eff. samples · ${s.model_events.toLocaleString("en-US")} events (${lvl} level)`;
+  return `Model: ${m.niche.toUpperCase()} · ${m.market_type} · ~${m.horizon_h} h · ${formatCount(s.model_neff)} eff. samples · ${formatCount(s.model_events)} events (${lvl} level)`;
 }
 
 /** docs/18 §4: counts of bets, markets, events. Under 1,000 exact; above, ROUNDED DOWN to a short form so a count

@@ -111,7 +111,7 @@ export function MarketsScreener() {
                   ) : (
                     <li key={`m${it.g.event_id}`}>
                       <button type="button" onClick={() => toggle(it.g)} aria-expanded={it.expanded} className="min-h-11 px-1 text-[13px] text-accent-hover">
-                        {it.loading ? "Loading…" : it.expanded ? "Show fewer" : `+${it.hidden} more in this event`}
+                        {it.loading ? "Loading…" : it.expanded ? "Show fewer" : `+${formatCount(it.hidden)} more in this event`}
                       </button>
                     </li>
                   ),

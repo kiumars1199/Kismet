@@ -251,7 +251,7 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
               </li>
             ))}
           </ul>
-          {data.event_markets.length > 8 && <Link href={`/event/${m.event_id}`} className="mt-2 inline-block text-[13px] text-accent-hover">All {data.event_markets.length + 1} markets in this event</Link>}
+          {data.event_markets.length > 8 && <Link href={`/event/${m.event_id}`} className="mt-2 inline-block text-[13px] text-accent-hover">All {formatCount(data.event_markets.length + 1)} markets in this event</Link>}
         </section>
       )}
     </Frame>
@@ -411,7 +411,7 @@ function Warnings({ m, s, x }: { m: StoreMarket; s: Side; x?: Execution }) {
   if (x && x.spread >= 0.05) w.push(`Wide spread: buyers and sellers are ${price(x.spread)} apart, so the price can move against you.`);
   if (x && x.verdict !== "not worth it" && x.capacity_usd != null && x.capacity_usd < 100) w.push(`Thin order book: only about ${money(Math.round(x.capacity_usd))} can be bought at a good price.`);
   if (s.edge >= 0.15) w.push("Unusually high: in testing, bets that looked this good earned far less than predicted.");
-  if (s.model_events < 50) w.push(`Small evidence: only ${s.model_events} past events like this.`);
+  if (s.model_events < 50) w.push(`Small evidence: only ${formatCount(s.model_events)} past events like this.`);
   if (s.model_level === "all" || s.model_level === "cat")
     w.push(`Few markets like this one, so the estimate leans on ${s.model_level === "all" ? "all markets" : `all ${m.category} markets`}.`);
   if (!w.length) return null;
