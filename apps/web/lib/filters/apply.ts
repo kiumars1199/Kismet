@@ -4,8 +4,8 @@
 import type { Store } from "@/lib/data/store";
 import { parse, toFilterState, type Chip, type ParsedQuery } from "@/lib/search/parse";
 import { TAXONOMY, topicsOf } from "@/lib/taxonomy";
-import type { Execution, Side, StoreMarket } from "@/lib/types";
-import type { FilterState, SortKey } from "./state";
+import type { Execution, PaysBand, Side, StoreMarket } from "@/lib/types";
+import { tierOf, type FilterState, type SortKey } from "./state";
 
 export const GROUP_ROWS = 4;
 export interface UserCtx { watchlist: Set<string>; favoriteTopics: string[] }
@@ -39,6 +39,8 @@ export const CHANCE_BANDS: [string, string, number, number][] = [
   ["coin", "Coin flip (40–55%)", 0.4, 0.55], ["long", "Long shot (under 40%)", 0, 0.4],
 ];
 const band = (bands: [string, string, number, number][], x: number) => bands.find(([, , lo, hi]) => x >= lo && x < hi)?.[0] ?? (x >= 1 ? bands[0]![0] : undefined);
+/** backtest.json by_pays key for a side: ask 0.10 → "10x+". */
+export const paysBand = (s: Pick<Side, "ask">) => (s.ask > 0 ? (band(PAYS_BANDS, 1 / s.ask) as PaysBand | undefined) : undefined);
 export interface Page {
   total: number;            // matching rows
   total_groups?: number;    // matching event groups (when grouped)
@@ -157,13 +159,16 @@ export function groupByEvent(rows: Row[], flagIds?: Map<string, unknown>): Group
 }
 
 // Facet bits: a row counts toward facet X when every filter except X passes.
-const CAT = 1, TOPIC = 2, MT = 4, PER = 8, VD = 16, PAYS = 32, CHANCE = 64, ROI = 128, CLOSES = 256;
+const CAT = 1, TOPIC = 2, MT = 4, PER = 8, VD = 16, PAYS = 32, CHANCE = 64, ROI = 128, CLOSES = 256, TIER = 512;
 
 export function apply(store: Store, f0: FilterState, user?: UserCtx, parsed?: ParsedQuery): Page {
   const plan = f0.q ? planSearch(store, f0, parsed) : null;
   const f = plan?.f ?? f0;
   const hits = plan?.hits ?? null;
   const source = f.view === "flags" ? store.flags : store.markets;
+  // Tier is a facet bit, not a source filter: Pays band counts include both tiers, because picking a band
+  // searches both (tierOf). Markets view ignores tier.
+  const tier = f.view === "flags" ? tierOf(f) : "all";
   const fav = f.favorites_only ? (user?.favoriteTopics ?? []) : null;
   const fNoVerdicts = { ...f, verdicts: undefined }; // verdicts are a facet (VD bit)
 
@@ -193,6 +198,7 @@ export function apply(store: Store, f0: FilterState, user?: UserCtx, parsed?: Pa
     if (!inSet(m.market_type, f.market_types)) mask |= MT;
     if (!inSet(m.derived.period, f.periods)) mask |= PER;
     if (f.verdicts && !(m.execution && f.verdicts.includes(m.execution.verdict))) mask |= VD;
+    if (tier !== "all" && (m.tier ?? "best") !== tier) mask |= TIER;
 
     const s = pickSide(m, f.side);
     if (!s) continue;
@@ -221,10 +227,10 @@ export function apply(store: Store, f0: FilterState, user?: UserCtx, parsed?: Pa
     if (!(mask & ~PER)) bump(facets.periods, m.derived.period);
     if (!(mask & ~VD) && m.execution) bump(facets.verdicts, m.execution.verdict);
     // Picking a 3x+ band lifts the long-shot floor, so those bands are counted the way they would show.
-    if (!(mask & ~(PAYS | CHANCE)) && pays !== null) {
+    if (!(mask & ~(PAYS | CHANCE | (f.tier === "best" ? TIER : 0))) && pays !== null) {
       const b = band(PAYS_BANDS, pays);
       const lifted = gte(s.win_prob, f.win_prob_min ?? 0) && lte(s.win_prob, f.win_prob_max);
-      if (!(mask & CHANCE)) facets.pays.any!++;
+      if (!(mask & (CHANCE | TIER))) facets.pays.any!++;
       if (b && (PAYS_BANDS.find(([k]) => k === b)![2] >= 2.5 ? lifted : !(mask & CHANCE))) facets.pays[b]!++;
     }
     if (!(mask & ~CHANCE)) {

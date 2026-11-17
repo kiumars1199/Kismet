@@ -11,7 +11,10 @@
 //                                    with /api/events/[id]). `rows` are the page's groups
 //                                    flattened in order; `groups[i]` covers rows[start .. start+count) and
 //                                    rows[start] is its best row.
-//   /api/flags?<FilterState>       → MarketsResponse same as /api/markets with view=flags forced
+//   /api/flags?<FilterState>       → MarketsResponse same as /api/markets with view=flags forced; tier=best|edge|all
+//                                    (default best; a pays filter or pays sort widens best to all, see tierOf)
+//   /api/combos                    → CombosResponse  suggested 2- and 3-leg combos (docs/18 §5.2), free tier banded
+//   /api/combos/kalshi             → GET { enabled }; POST { legs } → Kalshi combo quote (KALSHI_DATA_PERMISSION)
 //   /api/markets/[id][?detail=1]   → MarketResponse  market + its model curve + category backtest record +
 //                                    the other markets in its event
 //   /api/events/[id]               → EventResponse   all markets of one event (by event_id)
@@ -111,6 +114,11 @@ export const fetchEventBySlug = (slug: string, init?: RequestInit) => get<EventR
 export const fetchCurve = (segment: string, h: number, init?: RequestInit) =>
   get<Curve>(`/api/model/curve?${new URLSearchParams({ segment, h: String(h) })}`, init);
 export const fetchBacktest = (init?: RequestInit) => get<BacktestResponse>("/api/backtest", init);
+/** /api/combos — suggested combos, the same for everyone (docs/18 §5.2). */
+export const fetchCombos = (init?: RequestInit) => get<import("@/lib/data/combos").CombosResponse>("/api/combos", init);
+let backtestP: Promise<BacktestResponse> | null = null;
+/** backtest.json changes once a day at most: one request per page load, shared by every card. */
+export const backtestOnce = () => (backtestP ??= fetchBacktest().catch((e) => ((backtestP = null), Promise.reject(e))));
 
 export type BookResponse = { fetched_at?: number } & (
   | (Execution & { warning?: string })

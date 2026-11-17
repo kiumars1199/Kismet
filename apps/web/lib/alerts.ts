@@ -1,4 +1,5 @@
-// Demo alerts evaluator (docs/05 F-11, F-23; docs/10 demo deltas). Runs in the open tab.
+// Alerts evaluator (docs/05 F-11, F-23; docs/10 demo deltas). Runs in the open tab in demo mode and
+// on the server for signed-in users (lib/alerts-server.ts, /api/alerts/run).
 // Pure over injected fetchers so it is unit-testable. Messages never say "bet this".
 import type { MarketsResponse } from "@/lib/api";
 import { closesIn, pct, ret } from "@/lib/format";
@@ -57,7 +58,7 @@ export interface Deps {
 }
 
 interface Hit { market: Market; side: Side; live?: { ask: number; roi: number } | null }
-const liveRoi = (x: Execution) => (x.net_edge / (x.best_ask + x.fee_at_ask)) * 100;
+export const liveRoi = (x: Execution) => (x.net_edge / (x.best_ask + x.fee_at_ask)) * 100;
 
 async function candidates(rule: AlertRule, d: Deps): Promise<Hit[]> {
   if (rule.kind === "preset_match") {

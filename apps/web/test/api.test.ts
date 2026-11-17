@@ -25,8 +25,8 @@ describe("API contract (fixture store)", () => {
   it("/api/meta", async () => {
     const b = await json<MetaResponse>(meta());
     expect(b.meta.markets_scanned).toBe(14629);
-    expect(b.counts).toMatchObject({ markets: 500, flags: 150 });
-    expect(b.facets.categories.sports).toBe(323);
+    expect(b.counts).toMatchObject({ markets: 501, flags: 151 });   // incl. the tier-"edge" long shot (docs/18)
+    expect(b.facets.categories.sports).toBe(324);   // +1 long shot fixture
     expect(b.facets.topics["sports.nfl"]).toBe(40);
   });
 
@@ -99,7 +99,7 @@ describe("apply() timing", () => {
     const copy = (m: Market, k: number) => ({ ...m, id: `${m.id}-${k}`, event_id: `${m.event_id}-${k}`, slug: `${m.slug}-${k}` });
     const rows = Array.from({ length: 30 }, (_, k) => raw.markets.markets.map((m) => copy(m, k))).flat();
     const store = buildStore({ ...raw, markets: { ...raw.markets, markets: rows } });
-    expect(store.markets).toHaveLength(15000);
+    expect(store.markets).toHaveLength(15030);   // 501 fixture markets × 30
 
     const states = [FilterState.parse({}), FilterState.parse({ categories: ["sports"], q: "texans" }), FilterState.parse({ sort: { key: "win_prob", dir: "desc" }, group_by_event: false })];
     for (const s of states) apply(store, s); // warm up (taxonomy membership memo)

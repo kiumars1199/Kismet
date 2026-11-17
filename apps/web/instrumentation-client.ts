@@ -16,6 +16,7 @@ if (process.env.NEXT_PUBLIC_BOTID === "1") {
       { path: "/api/flags", method: "GET" },
       { path: "/api/events/*", method: "GET" },
       { path: "/api/suggest", method: "GET" },
+      { path: "/api/combos", method: "GET" },
       { path: "/api/book", method: "GET" },
       { path: "/api/auth/magic-link", method: "POST" },
       { path: "/api/stripe/checkout", method: "POST" },

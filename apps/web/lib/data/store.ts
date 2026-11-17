@@ -81,8 +81,9 @@ export function buildStore(raw: RawData, loadedAt = Date.now()): Store {
   const flags: StoreMarket[] = raw.flags.flags.map((f) => ({ ...f, derived: derive(f) }));
   const flagsById = new Map(flags.map((f) => [f.id, f]));
   const markets: StoreMarket[] = raw.markets.markets.map((m) => {
-    const execution = (m as StoreMarket).execution ?? flagsById.get(m.id)?.execution;
-    return { ...m, ...(execution ? { execution } : {}), derived: derive(m) };
+    const flag = flagsById.get(m.id);
+    const execution = (m as StoreMarket).execution ?? flag?.execution;
+    return { ...m, ...(execution ? { execution } : {}), ...(flag ? { tier: flag.tier ?? "best" } : {}), derived: derive(m) };
   });
 
   const byId = new Map<string, StoreMarket>();

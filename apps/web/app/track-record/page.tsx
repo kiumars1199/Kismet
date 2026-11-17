@@ -1,9 +1,10 @@
 // Results (T-26, F-14, F-29): walk-forward backtest from backtest.json (chosen half-life), model calibration
 // from model.json, live forward record from ledger_summary.json. Every figure is read, never invented.
 import { Tiles } from "@/components/results/Tiles";
+import { Count } from "@/components/kit";
 import { chosenResult, curve } from "@/lib/data/model";
 import { getStore, readSource } from "@/lib/data/store";
-import { DASH, RETURN_HELP, edge, pct } from "@/lib/format";
+import { DASH, RETURN_HELP, edge, formatCount, pct } from "@/lib/format";
 import { TAXONOMY } from "@/lib/taxonomy";
 import { bucketRows, foldRows, recordRows, tiles } from "@/lib/trackRecord";
 import type { BacktestRecord, LedgerSummary } from "@/lib/types";
@@ -71,7 +72,7 @@ export default async function Page() {
       <Section id="weeks" title="Week by week" note="Each bar is one test week. Weeks with no bars had no best bets. Red weeks lost money.">
         <FoldCharts rows={folds} />
         <TableDetails summary="Show weeks as a table">
-          <Table head={["Week of", "Bets", "Return"]} rows={folds.map((f) => [f.week, f.bets.toLocaleString("en-US"), f.retText])} />
+          <Table head={["Week of", "Bets", "Return"]} rows={folds.map((f) => [f.week, <Count key="n" n={f.bets} />, f.retText])} />
         </TableDetails>
       </Section>
 
@@ -80,7 +81,7 @@ export default async function Page() {
         <EdgeChart rows={buckets} />
         <TableDetails summary="Show as a table">
           <Table head={["Predicted edge", "Bets", "Predicted", "Actually earned"]}
-            rows={buckets.map((x) => [x.bucket, x.bets.toLocaleString("en-US"), edge(x.predicted / 100), edge(x.realized / 100)])} />
+            rows={buckets.map((x) => [x.bucket, <Count key="n" n={x.bets} />, edge(x.predicted / 100), edge(x.realized / 100)])} />
         </TableDetails>
       </Section>
 
@@ -177,7 +178,7 @@ type RecRow = { key: string; name: string; r: BacktestRecord; f: ReturnType<type
 function RecordTable({ first, rows }: { first: string; rows: RecRow[] }) {
   return (
     <Table head={[first, "Bets", "Events", "Won", "Return"]} rows={rows.map(({ name, r, f }) => [
-      name, f.bets, f.events, f.won,
+      name, r.flags ? <Count key="b" n={r.flags} /> : f.bets, r.events !== undefined ? <Count key="e" n={r.events} /> : f.events, f.won,
       <span key="r" className={!r.flags ? "text-muted" : (r.roi_pct ?? 0) < 0 ? "text-negative" : "text-positive"} title={r.flags ? undefined : "not available"}>
         {r.flags ? f.ret : DASH}
       </span>,
@@ -189,7 +190,7 @@ function LiveRecord({ ledger, since }: { ledger?: LedgerSummary; since: number |
   if (!ledger) {
     return <p className="rounded-card border border-border bg-surface p-5 text-sm text-soft">No live record on this data yet. It starts with the first logged best bet.</p>;
   }
-  const n = ledger.entries.toLocaleString("en-US");
+  const n = formatCount(ledger.entries);
   const cats = Object.entries(ledger.by_category).sort((a, b) => b[1].entries - a[1].entries);
   return (
     <div className="flex flex-col gap-4 rounded-card border border-border bg-surface p-5 md:p-6">
@@ -201,7 +202,7 @@ function LiveRecord({ ledger, since }: { ledger?: LedgerSummary; since: number |
       ) : (
         <dl className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <Stat label="Logged best bets" value={n} />
-          <Stat label="Settled" value={`${ledger.wins.toLocaleString("en-US")} won · ${ledger.losses.toLocaleString("en-US")} lost`} />
+          <Stat label="Settled" value={`${formatCount(ledger.wins)} won · ${formatCount(ledger.losses)} lost`} />
           <Stat label="Won" value={pct(ledger.wins / ledger.graded)} />
           <Stat label="Average profit per $1 share" value={edge(ledger.avg_pnl)} />
         </dl>
@@ -209,7 +210,7 @@ function LiveRecord({ ledger, since }: { ledger?: LedgerSummary; since: number |
       {cats.length > 0 && (
         <ul className="flex flex-wrap gap-2 text-xs text-soft">
           {cats.map(([c, s]) => (
-            <li key={c} className="rounded-full bg-muted-bg px-3 py-1">{label(c)} {s.entries.toLocaleString("en-US")} logged · {s.graded.toLocaleString("en-US")} settled</li>
+            <li key={c} className="rounded-full bg-muted-bg px-3 py-1">{label(c)} <Count n={s.entries} /> logged · <Count n={s.graded} /> settled</li>
           ))}
         </ul>
       )}

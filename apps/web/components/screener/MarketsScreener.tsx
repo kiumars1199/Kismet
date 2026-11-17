@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { fetchEvent, groupRows, type ApiGroup, type ApiRow } from "@/lib/api";
 import { pickSide, sideOk } from "@/lib/filters/apply";
 import { defaultState } from "@/lib/filters/state";
-import { ago } from "@/lib/format";
+import { ago, formatCount } from "@/lib/format";
 import { useProfile } from "@/lib/repo/hooks";
 import { PresetBar } from "@/components/presets/PresetBar";
 import { QuickChips } from "@/components/presets/QuickChips";
@@ -68,8 +68,8 @@ export function MarketsScreener() {
           <div>
             <h1 className="text-[28px] font-bold leading-tight tracking-tight md:text-[34px]">All markets</h1>
             <p className="mt-1 text-sm text-muted">
-              {data ? `${data.total.toLocaleString("en-US")} ${data.total === 1 ? "market matches" : "markets match"}` : "Loading markets…"}
-              {meta && ` · ${meta.counts.markets.toLocaleString("en-US")} open · scanned ${ago(scanned)}`}
+              {data ? `${formatCount(data.total)} ${data.total === 1 ? "market matches" : "markets match"}` : "Loading markets…"}
+              {meta && ` · ${formatCount(meta.counts.markets)} open · scanned ${ago(scanned)}`}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">

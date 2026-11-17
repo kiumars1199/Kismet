@@ -104,7 +104,8 @@ Run everything: `cd apps/web && pnpm typecheck && pnpm lint && pnpm test && pnpm
 
 ## Known gaps
 
-- Rate limits and the anomaly log are off without Upstash. They are required in production, and each instance logs a warning when they are off.
+- Rate limits and the anomaly log are off without Upstash. In live production `/api/health` then reports `ratelimit: "off"` and answers 503, so the uptime monitor alerts (`test/health.test.ts`).
+- `/api/combos` (BotID, 60 a minute, Free gets a return band and win chances floored to 5%), `/api/flags?tier=edge|all` (same Free shaping and 25-row cap) and `POST /api/combos/kalshi` (Origin, 30 a minute, `.strict()`) are covered by `test/paywall.test.ts` and `test/security.test.ts`. `/api/alerts/run` and `/api/settle/run` take no input and need `CRON_SECRET`; webhook posts re-check the URL prefix and refuse redirects.
 - Server pages (`/m/[id]`, `/event/[id]`) are not rate limited. They render the Free shape for anonymous visitors, so they leak nothing beyond what Free already sees.
 - The reveal count for signed-out visitors is a cookie, so clearing cookies resets it. Revealed details are Free-tier data.
 - `alert_events.dedupe_key` is unique across all users, not per user. A collision only blocks an insert; RLS still hides the rows.

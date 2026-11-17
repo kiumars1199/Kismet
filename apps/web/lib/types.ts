@@ -137,7 +137,7 @@ export interface Derived {
   is_live: boolean;                         // hours_to_close <= 0
   recurring: boolean;
 }
-export type StoreMarket = Market & { derived: Derived; execution?: Execution };
+export type StoreMarket = Market & { derived: Derived; execution?: Execution; tier?: FlagTier };   // tier: flags only
 
 // output/events.json (T-05): event slug -> markets, used by the extension lookup
 export type EventsFile = Record<string, { event_id: string; event: string; market_ids: string[]; flag_ids: string[] }>;

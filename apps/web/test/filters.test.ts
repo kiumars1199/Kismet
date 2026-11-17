@@ -17,6 +17,7 @@ describe("url round-trip", () => {
   const state = fc.record({
     q: o(fc.string({ minLength: 1, maxLength: 120 }).filter((s) => s.trim() !== "")),
     view: fc.constantFrom("markets", "flags"),
+    tier: fc.constantFrom("best", "edge", "all"),
     categories: list(["sports", "crypto", "weather", "other"] as const),
     exclude_categories: list(["sports", "crypto"] as const),
     topics: list(["sports.nfl", "weather", "sports.soccer.ucl"]),
@@ -62,7 +63,8 @@ describe("apply() on the fixture", async () => {
 
   it.each([
     ["default view hides long shots (< 40%)", {}, 476],
-    ["wp=0 turns the floor off", { win_prob_min: 0 }, 500],
+    // +1 vs. the original fixture: Lane C's tier-"edge" long shot (id 9900010, Yes at 10¢, 14%), docs/18 §2
+    ["wp=0 turns the floor off", { win_prob_min: 0 }, 501],
     ["sports", { categories: ["sports"] }, 305],
     ["hide sports", { exclude_categories: ["sports"] }, 171],
     ["flags view", { view: "flags" }, 150],
@@ -70,7 +72,7 @@ describe("apply() on the fixture", async () => {
     ["topic sports.nfl", { topics: ["sports.nfl"] }, 34],
     ["spreads+totals, edge >= 3¢", { market_types: ["spreads", "totals"], edge_min: 0.03 }, 53],
     ["confident only", { edge_low_positive: true }, 180],
-    ["yes side, price <= 25¢, no floor", { side: "yes", price_max: 0.25, win_prob_min: 0 }, 143],
+    ["yes side, price <= 25¢, no floor", { side: "yes", price_max: 0.25, win_prob_min: 0 }, 144],   // +1: the long shot
     ["closes within 24 h", { closes_within_h: 24 }, 199],
     ["first-half markets (1H + \"1st Half\")", { periods: ["1H"] }, 18],
     ["weekly", { frequency: ["weekly"] }, 23],

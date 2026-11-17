@@ -6,15 +6,15 @@ describe("store (fixture)", async () => {
   const store = await getStore();
 
   it("loads markets, flags, model, backtest and builds indexes", async () => {
-    expect(store.markets).toHaveLength(500);
-    expect(store.flags).toHaveLength(150);
+    expect(store.markets).toHaveLength(501);
+    expect(store.flags).toHaveLength(151);   // 150 best + 1 edge (docs/18)
     expect(store.meta.markets_scanned).toBe(14629);
     expect(store.byId.get("6417673")?.question).toBe("Colts vs. Texans");
     expect(store.byEvent.get("1282887")?.length).toBeGreaterThan(0);
     expect(store.bySlug.get("nfl-ind-hou-2026-11-20")?.some((m) => m.id === "6417673")).toBe(true);
     expect(store.model.nodes.length).toBeGreaterThan(0);
     expect(store.backtest.results).toBeTruthy();
-    expect(store.facets.categories.sports).toBe(323);
+    expect(store.facets.categories.sports).toBe(324);   // +1 long shot fixture
     expect(await getStore()).toBe(store); // cached
   });
 

@@ -9,7 +9,7 @@ import { gateMarket } from "@/lib/data/gate";
 import { getStoreFor } from "@/lib/data/store";
 import { apply } from "@/lib/filters/apply";
 import { FilterState } from "@/lib/filters/state";
-import { DASH, RETURN_HELP, chance, closesIn, pct, price, sideProfit, sideRet } from "@/lib/format";
+import { DASH, RETURN_HELP, chance, closesIn, formatCount, pct, price, sideProfit, sideRet } from "@/lib/format";
 import { TAXONOMY } from "@/lib/taxonomy";
 import { tiles } from "@/lib/trackRecord";
 import type { Side, StoreMarket } from "@/lib/types";
@@ -17,7 +17,7 @@ import type { Side, StoreMarket } from "@/lib/types";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "How it works" };
 
-const n = (x: number | undefined) => (typeof x === "number" ? x.toLocaleString("en-US") : DASH);
+const n = (x: number | undefined) => formatCount(x);   // docs/18 §4
 
 const STEPS: [string, string][] = [
   ["Read the price", "A Yes at 68¢ means the market says 68%. We check every open Polymarket market, every 2 hours."],

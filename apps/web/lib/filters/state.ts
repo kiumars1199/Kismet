@@ -18,6 +18,7 @@ export const FilterState = z.object({
   v: z.literal(1).default(1),
   q: z.string().max(120).optional(),
   view: z.enum(["markets", "flags"]).default("markets"),
+  tier: z.enum(["best", "edge", "all"]).default("best"),   // flags view only (docs/18 §2); widened by tierOf()
   categories: z.array(Category).optional(),          // include
   exclude_categories: z.array(Category).optional(),  // "hide sports"
   topics: z.array(z.string()).optional(),            // taxonomy ids, OR within, AND with categories
@@ -49,5 +50,10 @@ export const FilterState = z.object({
 });
 export type FilterState = z.infer<typeof FilterState>;
 export type FilterInput = z.input<typeof FilterState>;
+
+/** docs/18 §3: on the flags view, a Pays filter or the "Biggest payout" sort searches both tiers, so asking for
+ *  10x finds the lower-confidence bets too. An explicit tier=edge stays as asked. */
+export const tierOf = (f: Pick<FilterState, "tier" | "pays_min" | "pays_max" | "sort">): FilterState["tier"] =>
+  f.tier === "best" && (f.pays_min !== undefined || f.pays_max !== undefined || f.sort.key === "pays") ? "all" : f.tier;
 
 export const defaultState = (): FilterState => FilterState.parse({});

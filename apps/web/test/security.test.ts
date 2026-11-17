@@ -48,7 +48,9 @@ describe("web hardening greps", () => {
   });
 
   it("server fetches only allow-listed hosts (plus Supabase from env)", () => {
-    const ALLOWED = ["api.github.com", "api.resend.com", "clob.polymarket.com", "gamma-api.polymarket.com"];
+    const ALLOWED = ["api.github.com", "api.resend.com", "clob.polymarket.com", "gamma-api.polymarket.com",
+      "api.elections.kalshi.com", "demo-api.kalshi.co",   // Kalshi: combo quotes, only with KALSHI_DATA_PERMISSION
+      "discord.com", "api.telegram.org"];                 // alert webhooks: prefix re-checked by webhookUrl(), redirect: "error"
     const hosts = files().filter((f) => /\bfetch\(/.test(read(f)))
       .flatMap((f) => [...read(f).matchAll(/https?:\/\/([a-z0-9.-]+)/gi)].map((m) => `${m[1]} (${f})`));
     expect(hosts.filter((h) => !ALLOWED.includes(h.split(" ")[0]!))).toEqual([]);
@@ -72,7 +74,7 @@ describe("web hardening greps", () => {
   });
 
   it("every zod object that parses a request is .strict()", () => {
-    const inputs = files().filter((f) => f.startsWith("app/api/") || f === "lib/trade/intent.ts" || f === "lib/repo/schemas.ts");
+    const inputs = files().filter((f) => f.startsWith("app/api/") || f === "lib/kalshiCombo.ts" || f === "lib/trade/intent.ts" || f === "lib/repo/schemas.ts");
     const loose = inputs.filter((f) => count(read(f), /z\.object\(/g) !== count(read(f), /\.strict\(\)/g));
     expect(loose).toEqual([]);
     expect(inputs.reduce((n, f) => n + count(read(f), /\.strict\(\)/g), 0)).toBeGreaterThan(15);

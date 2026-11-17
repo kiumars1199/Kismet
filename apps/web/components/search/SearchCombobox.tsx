@@ -8,7 +8,7 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { fetchEventBySlug, fetchSuggest, type SuggestResponse } from "@/lib/api";
-import { pays, sideRet } from "@/lib/format";
+import { formatCount, pays, sideRet } from "@/lib/format";
 import { useCollection } from "@/lib/repo/hooks";
 import { SLUG_URL } from "@/lib/search/parse";
 import { viewById, viewHref } from "@/lib/views";
@@ -130,7 +130,7 @@ function Combobox() {
     });
     return [
       ...(r?.entities ?? []).map((e) => ({ kind: "entity" as const, label: e.name, meta: `${e.count} open · best ${sideRet({ roi_pct: e.best_roi, ranges: e.ranges })}` })),
-      ...(r?.topics ?? []).map((t) => ({ kind: "topic" as const, label: t.label, id: t.id, meta: `${t.count.toLocaleString("en-US")} open` })),
+      ...(r?.topics ?? []).map((t) => ({ kind: "topic" as const, label: t.label, id: t.id, meta: `${formatCount(t.count)} open` })),
       ...(r?.markets ?? []).map((m) => ({
         kind: "market" as const, label: m.question, id: m.id, side: m.side_index,
         meta: `${m.outcome} · Pays ${pays(m.pays ? 1 / m.pays : null)} · ${sideRet(m)}`,

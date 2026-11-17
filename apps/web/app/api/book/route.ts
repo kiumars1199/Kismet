@@ -1,39 +1,15 @@
 // GET /api/book?token=<clob token id>&q=<win prob>&cat=<category>&stake=<optional usd>
 // Live execution check (docs/07-execution.md). Book cached 5 s per token.
-import { check, edgeWarning, feeRate, STAKES, type Book } from "@/lib/execution";
 import { z } from "zod";
 import { guard } from "@/lib/abuse";
 import { getMe } from "@/lib/auth/server";
+import { getBook, MIN_EDGE } from "@/lib/book";
+import { check, edgeWarning, feeRate, STAKES } from "@/lib/execution";
 import { freeExecution } from "@/lib/data/gate";
 import { can } from "@/lib/entitlements";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-
-const CLOB = "https://clob.polymarket.com";
-const TTL_MS = 5_000;
-const MIN_EDGE = 0.02; // config flag_min_edge
-
-// ponytail: per-instance in-memory cache, unbounded by token count; LRU/shared cache if traffic grows
-const cache = new Map<string, { at: number; book: Book | null }>();
-
-async function getBook(token: string): Promise<{ at: number; book: Book | null }> {
-  const hit = cache.get(token);
-  if (hit && Date.now() - hit.at < TTL_MS) return hit;
-  const res = await fetch(`${CLOB}/books`, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify([{ token_id: token }]),
-    cache: "no-store",
-    signal: AbortSignal.timeout(10_000),
-  });
-  if (!res.ok) throw new Error(`order book request failed: HTTP ${res.status}`);
-  const data = (await res.json()) as (Book & { asset_id?: string })[] | null;
-  const book = (Array.isArray(data) ? data : []).find((b) => b?.asset_id === token) ?? null;
-  const entry = { at: Date.now(), book };
-  cache.set(token, entry);
-  return entry;
-}
 
 const bad = (error: string, status = 400) => Response.json({ error }, { status });
 

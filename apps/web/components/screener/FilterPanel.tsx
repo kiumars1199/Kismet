@@ -13,6 +13,7 @@ import { savePresetFromState } from "@/lib/presets";
 import { UpgradeGate } from "@/components/UpgradeGate";
 import { VERDICT_LABEL } from "@/components/market/labels";
 import { queryFor, type Mode } from "./useScreener";
+import { exactCount, formatCount } from "@/lib/format";
 
 type Change = (p: Partial<FilterState>) => void;
 type Props = { state: FilterState; mode: Mode; facets?: Facets; meta?: MetaResponse | null; onChange: Change; onReset: () => void };
@@ -204,7 +205,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 }
 
 function Count({ n, title }: { n?: number; title?: string }) {
-  return n === undefined ? null : <span className="ml-auto pl-2 text-xs tabular-nums text-muted" title={title}>{n.toLocaleString("en-US")}</span>;
+  return n === undefined ? null : <span className="ml-auto pl-2 text-xs tabular-nums text-muted" title={title ?? exactCount(n)}>{formatCount(n)}</span>;
 }
 
 function Check({ label, on, onChange, count, countTitle }: { label: string; on: boolean; onChange: (on: boolean) => void; count?: number; countTitle?: string }) {

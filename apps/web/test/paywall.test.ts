@@ -31,6 +31,7 @@ const routes = {
   meta: (await import("@/app/api/meta/route")).GET,
   backtest: (await import("@/app/api/backtest/route")).GET,
   curve: (await import("@/app/api/model/curve/route")).GET,
+  combos: (await import("@/app/api/combos/route")).GET,
 };
 const { getStore } = await import("@/lib/data/store");
 const { eventBody, marketBody } = await import("@/lib/data/respond");
@@ -98,6 +99,9 @@ async function everyRoute() {
   return {
     markets: await json(routes.markets(req("/api/markets?ps=200&pg=1"))),
     flags: await json(routes.flags(req("/api/flags?ps=200"))),
+    flagsEdge: await json(routes.flags(req("/api/flags?ps=200&tier=edge"))),   // docs/18 lower-confidence tier
+    flagsAll: await json(routes.flags(req("/api/flags?ps=200&tier=all"))),
+    combos: await json(routes.combos(req("/api/combos"))),
     market: await json(routes.market(req(`/api/markets/${sample.id}`), ctx("id", sample.id))),
     event: await json(routes.event(req(`/api/events/${sample.event_id}`), ctx("id", sample.event_id))),
     slug: await json(routes.slug(req(`/api/events/by-slug/${sample.slug}`), ctx("slug", sample.slug))),
@@ -125,6 +129,25 @@ describe.each([
     const s = all.suggest.body as { markets: { ranges?: unknown }[]; entities: { ranges?: unknown }[] };
     expect(s.markets.length).toBeGreaterThan(0);
     for (const r of [...s.markets, ...s.entities]) expect(r.ranges).toBeDefined();   // suggest rows carry bands, not exact returns
+  });
+
+  it("tier=edge rows are banded and capped like the rest", async () => {
+    const { body } = await json(routes.flags(req("/api/flags?ps=200&tier=edge")));
+    const rows = (body as { rows: { tier?: string }[] }).rows;
+    expect(rows.length).toBeLessThanOrEqual(25);
+    expect(rows.every((r) => r.tier === "edge")).toBe(true);
+  });
+
+  it("combos: return as a band, win chances floored to 5% (legs too)", async () => {
+    const { gateCombos } = await import("@/lib/data/combos");
+    const leg = { market_id: "m", side_index: 0 as const, question: "q", outcome: "o", event_id: "e", event: "E", url: "", ask: 0.4, fee: 0.01, q: 0.537, q_low: 0.512 };
+    const c = { legs: 2, q: 0.2884, q_low: 0.262, price: 0.168, pays: 5.95, ret: 0.7167, has_edge: true, same_event: [], items: [leg, { ...leg, event_id: "f" }] };
+    const g = { size: 2 as const, record: { combos: 10, roi_pct: 4 } as never, combos: [c] };
+    const out = gateCombos([g], "free").groups[0]!.combos[0]!;
+    expect(out.ret_range).toEqual([50, null]);
+    expect(out.ret).toBe(0.5);
+    for (const p of [out.q, out.q_low, ...out.items.flatMap((l) => [l.q, l.q_low])]) expect(Math.round(p * 20) / 20).toBeCloseTo(p, 10);
+    expect(gateCombos([g], "pro").groups[0]!.combos[0]!.ret).toBe(0.7167);
   });
 
   it("a page past page 1 still answers page 1 (no paging for Free)", async () => {
