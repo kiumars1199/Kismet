@@ -1,5 +1,6 @@
 // Server-only auth helpers (docs/08, docs/15 § Auth). There is no browser Supabase client: sign-in, the
 // callback and every data read go through the server, so the session cookies can be HttpOnly.
+import "server-only";
 import { createServerClient } from "@supabase/ssr";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";

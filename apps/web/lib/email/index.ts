@@ -2,6 +2,7 @@
 // Magic links do NOT go through here: Supabase Auth sends them over Resend SMTP (docs/setup-notes/ops.md).
 // Every email carries a one-click unsubscribe (RFC 8058): List-Unsubscribe + List-Unsubscribe-Post headers
 // pointing at /api/unsubscribe?t=<signed token>, plus the same link in the body.
+import "server-only";
 import { createHmac, timingSafeEqual } from "node:crypto";
 
 export const siteUrl = () => (process.env.NEXT_PUBLIC_SITE_URL || "https://[[DOMAIN]]").replace(/\/+$/, "");

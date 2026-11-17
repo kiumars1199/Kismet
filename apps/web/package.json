@@ -9,6 +9,7 @@
     "lint": "eslint . --max-warnings 0",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "check:bundle": "node scripts/check-bundle.mjs",
     "e2e": "playwright test && playwright test -c playwright.paid.config.ts"
   },
   "dependencies": {

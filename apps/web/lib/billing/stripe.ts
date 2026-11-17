@@ -1,6 +1,7 @@
 // Stripe billing (docs/08 § Billing, docs/14 §2, docs/15 § Billing). Server only.
 // Two modes, picked by config: Checkout (keys + price ids in env) or Payment Links (config/site.json).
 // Either way the tier is written only here, from verified webhook events.
+import "server-only";
 import Stripe from "stripe";
 import { site } from "@/lib/site";
 import type { Tier } from "@/lib/entitlements";

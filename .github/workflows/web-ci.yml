@@ -37,6 +37,7 @@ jobs:
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test
+      - run: pnpm build && pnpm check:bundle   # docs/15: no secrets in .next/static
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm e2e
 

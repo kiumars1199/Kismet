@@ -1,6 +1,7 @@
 // Server side of paper trading and the extension sign-in (docs/16 §3–4, docs/15 § Trading keys, docs/09 § Auth).
 // We never see Kalshi keys. We only issue (1) short-lived extension sign-in tokens and (2) one-time order nonces
 // bound to the exact order the user confirmed, which the extension checks with us before it signs anything.
+import "server-only";
 import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { redis } from "@/lib/abuse";
 import { getMe, sameOrigin } from "@/lib/auth/server";
