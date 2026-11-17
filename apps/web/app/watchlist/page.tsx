@@ -1,8 +1,12 @@
-// Placeholder. Owner: Lane D (T-32).
-import { Placeholder } from "@/components/shell/Placeholder";
+import { Suspense } from "react";
+import { MyList } from "@/components/watch/MyList";
 
 export const metadata = { title: "My list" };
 
 export default function Page() {
-  return <Placeholder title="My list" line="Markets you saved, and how they moved since." />;
+  return (
+    <Suspense>
+      <MyList />
+    </Suspense>
+  );
 }
