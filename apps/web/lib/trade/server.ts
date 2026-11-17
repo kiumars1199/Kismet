@@ -28,11 +28,12 @@ export async function currentUser(_req: Request): Promise<{ email: string; tier:
 /** The extension's ID (Chrome Web Store ID in production; the pinned dev ID otherwise). */
 export const extensionId = () => process.env.NEXT_PUBLIC_EXTENSION_ID || "cgoaaiaghbckpalppklocajbdpoelmbd";
 
-let devSecret: Buffer | null = null;
+// On globalThis so every route bundle (and dev hot reloads) in one server process share them.
+const g = globalThis as { __meDevSecret?: Buffer; __meUsedNonces?: Map<string, number> };
 function secret(): Buffer | null {
   const s = process.env.EXT_SIGNING_SECRET;
   if (s && s.length >= 32) return Buffer.from(s);
-  if (DEMO_MODE) return (devSecret ??= randomBytes(32)); // per process: fine for one dev server
+  if (DEMO_MODE) return (g.__meDevSecret ??= randomBytes(32)); // per process: fine for one dev server
   return null;
 }
 
@@ -73,7 +74,7 @@ export const issueNonce = (action: "place" | "cancel", payload: unknown, now = D
 
 // ponytail: consumed set is per server instance; a replay on another instance still can't double-place because
 // Kalshi dedupes client_order_id (part of the hashed payload). Move to Upstash SET NX if that guarantee is not enough.
-const used = new Map<string, number>();
+const used = (g.__meUsedNonces ??= new Map<string, number>());
 
 /** True once per nonce, and only for the same action + payload it was issued for. */
 export function consumeNonce(nonce: string, action: string, payload: unknown, now = Date.now()): boolean {

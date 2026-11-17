@@ -237,8 +237,10 @@ chrome.runtime.onMessage.addListener((msg: Msg | Record<string, unknown>, sender
     return true;
   }
   // Vault and limits: extension pages only, never content scripts running inside polymarket.com.
+  // A content script's sender.url is the web page's URL, so only our own chrome-extension:// pages pass
+  // (the side panel, or sidepanel.html opened in a tab, which is how the e2e drives it).
   const t = (msg as Record<string, unknown>).type;
-  const fromPage = !sender.tab && sender.url?.startsWith(chrome.runtime.getURL(""));
+  const fromPage = sender.url?.startsWith(chrome.runtime.getURL(""));
   if (typeof t === "string" && Object.hasOwn(internal, t) && fromPage) return run(internal[t]!, msg as Record<string, unknown>, reply);
   return false;
 });

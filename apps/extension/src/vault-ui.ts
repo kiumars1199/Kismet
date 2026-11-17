@@ -27,7 +27,7 @@ function draw(el: HTMLElement, s: Status, enabled: boolean, note?: { error?: str
   const msg = note?.error ? `<p class="error" role="alert">${esc(note.error)}</p>` : note?.ok ? `<p class="ok" role="status">${esc(note.ok)}</p>` : "";
   el.innerHTML = `
     <div class="row"><h2 style="font-size:20px">Kalshi paper trading</h2><span class="chip warn">Paper mode</span></div>
-    <p class="small muted" style="margin:0">Orders go to Kalshi's <strong>demo exchange</strong> with fake money. You confirm every order on MarketEdge; nothing is ever placed on its own.</p>
+    <p class="small muted" style="margin-bottom:0">Orders go to Kalshi's <strong>demo exchange</strong> with fake money. You confirm every order on MarketEdge; nothing is ever placed on its own.</p>
     ${off}
     ${s.connected ? connected(s) : connectForm()}
     ${msg}
@@ -42,7 +42,7 @@ function connected(s: Status) {
     <div class="row small"><span class="muted">Type</span><span>${s.keyType === "ed25519" ? "Ed25519" : "RSA"}</span></div>
     <div class="row small"><span class="muted">Permissions</span><span>${s.scopes.map(esc).join(" · ")}</span></div>
     ${s.balanceCents != null ? `<div class="row small"><span class="muted">Demo balance</span><span>${money(s.balanceCents / 100)}</span></div>` : ""}
-    <p class="small muted" style="margin:0">Stored in this browser only, locked so it can't be copied back out.</p>
+    <p class="small muted" style="margin-bottom:0">Stored in this browser only, locked so it can't be copied back out.</p>
     <button class="btn" id="disconnect">Remove key</button>
   </section>`;
 }
@@ -58,7 +58,7 @@ function connectForm() {
     <label class="field">Key ID<input name="keyId" autocomplete="off" spellcheck="false" required class="mono" placeholder="a952bcbe-ec3b-4b5b-…" /></label>
     <label class="field">Private key<textarea name="pem" rows="5" autocomplete="off" spellcheck="false" required class="mono" placeholder="-----BEGIN PRIVATE KEY-----"></textarea></label>
     <button class="btn primary" type="submit">Check and connect</button>
-    <p class="small muted" style="margin:0">Your key never leaves this browser. MarketEdge's servers never see it.</p>
+    <p class="small muted" style="margin-bottom:0">Your key never leaves this browser. MarketEdge's servers never see it.</p>
   </form>`;
 }
 
@@ -69,7 +69,7 @@ function limits(s: Status) {
       <label class="field">Max per order<span class="money"><i>$</i><input name="maxOrderUsd" type="number" min="1" max="10000" step="1" value="${s.caps.maxOrderUsd}" required /></span></label>
       <label class="field">Max per day<span class="money"><i>$</i><input name="maxDayUsd" type="number" min="1" max="10000" step="1" value="${s.caps.maxDayUsd}" required /></span></label>
     </div>
-    <p class="small muted" style="margin:0">Used today: ${money(s.spentTodayCents / 100)} of ${money(s.caps.maxDayUsd)} (each order counts at its max cost). Confirmation is always on.</p>
+    <p class="small muted" style="margin-bottom:0">Used today: ${money(s.spentTodayCents / 100)} of ${money(s.caps.maxDayUsd)} (each order counts at its max cost). Confirmation is always on.</p>
     <button class="btn" type="submit">Save limits</button>
   </form>`;
 }

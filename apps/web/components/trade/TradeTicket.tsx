@@ -294,7 +294,7 @@ function Status({ cfg, t }: { cfg: TradeConfig; t: TrackedOrder }) {
             {v.filled} of {v.filled + v.remaining} filled{v.avg_price_cents != null ? ` at ${v.avg_price_cents}¢ avg` : ""}{v.fees_cents ? ` · fees ${usd(v.fees_cents)}` : ""}
           </p>
         )}
-        {logged && <p className="text-sm text-accent-soft" role="status">Fills added to <Link href="/journal" className="underline underline-offset-2">My bets</Link>.</p>}
+        {logged && <p className="text-sm text-accent-soft" role="status">Fills added to <Link href="/journal" onClick={useTicket.getState().close} className="underline underline-offset-2">My bets</Link>.</p>}
         {err && <p role="alert" className="text-sm text-negative">{err}</p>}
       </div>
       {(state === "resting" || state === "partial") && (
