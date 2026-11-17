@@ -52,7 +52,9 @@ export function DrawerHost() {
 
   useEffect(() => {
     if (!marketId) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
+    // Escape inside a modal <dialog> opened over the drawer (e.g. the trade ticket) closes only that dialog.
+    const onKey = (e: KeyboardEvent) =>
+      e.key === "Escape" && !e.defaultPrevented && !document.querySelector("dialog[open]") && close();
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [marketId, close]);
