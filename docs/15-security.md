@@ -59,13 +59,19 @@
 - [ ] Alert webhooks (Discord/Telegram): only `https://discord.com/api/webhooks/…` and `https://api.telegram.org/…` URLs accepted.
 - [ ] CSRF: mutations only via POST/PUT/DELETE with SameSite cookies + Origin header check.
 - [ ] Open redirects: `next=` params must be same-origin relative paths.
-- [ ] Calendar feed tokens (docs/16): 32-byte random, hashed at rest, revocable, feed is read-only and contains no email.
 
 ### Secrets and supply chain
 - [ ] `.env*` git-ignored; `gitleaks` scan of the whole history passes (rotate anything found).
 - [ ] `pnpm audit --prod` has no high/critical; Dependabot on; lockfile committed.
 - [ ] GitHub token for data is fine-grained, read-only, one repo.
 - [ ] Engine container runs as non-root; only outbound network to Polymarket + Supabase.
+
+### Trading keys (docs/16)
+- [ ] Kalshi private keys never reach our servers, logs, analytics or error reports; they live only in the extension (non-extractable WebCrypto key / encrypted `chrome.storage.local`).
+- [ ] Reject keys that carry `write::transfer` or other non-trade write scopes; require `read` + `write::trade` only.
+- [ ] Every order needs an explicit user confirmation; per-order and per-day spend caps set by the user; no auto-trading code paths exist.
+- [ ] `client_order_id` on every order (idempotent retries); order intents from the web app are signed with a short-lived nonce so another site can't trigger orders through the extension (`externally_connectable` limited to our origin).
+- [ ] Trading is disabled unless `KALSHI_TRADING_ENV` is set; production stays off until docs/16 §5 sign-offs are done.
 
 ### Extension
 - [ ] Manifest permissions minimal (`storage`, `sidePanel`, host `https://polymarket.com/*` + our API).
