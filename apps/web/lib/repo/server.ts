@@ -2,6 +2,7 @@
 // Quotas per tier are enforced here, not only in the UI (docs/08 LIMITS).
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { authEnabled, getTier, sameOrigin, supabaseServer } from "@/lib/auth/server";
+import { readJson } from "@/lib/body";
 import { can, quota, type QuotaKey } from "@/lib/entitlements";
 import { PROFILE_PATCH, ROW, isCollection } from "./schemas";
 import { DEFAULT_PROFILE, type CollectionName, type Profile } from "./types";
@@ -24,11 +25,8 @@ export async function withUser(req: Request, fn: (ctx: Ctx) => Promise<Response>
   return fn({ db, userId: data.user.id });
 }
 
-export async function readBody(req: Request): Promise<unknown> {
-  const text = await req.text();
-  if (text.length > MAX_BODY) throw new Error("too large");
-  return JSON.parse(text);
-}
+/** JSON body, read in chunks up to MAX_BODY (RT-12): undefined when malformed, TOO_LARGE past the cap. */
+export const readBody = (req: Request): Promise<unknown> => readJson(req, MAX_BODY);
 
 /** DB row → client row (drop user_id; bigserial ids as strings like LocalRepo's). */
 export const out = (r: Record<string, unknown>) => {

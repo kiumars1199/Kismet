@@ -7,6 +7,7 @@ import { clientKey, rateLimit } from "@/lib/abuse";
 import { sameOrigin } from "@/lib/auth/server";
 import type { Settlement } from "@/lib/journal";
 import { settleOne } from "@/lib/settle";
+import { readJson, TOO_LARGE, tooLarge } from "@/lib/body";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -20,7 +21,9 @@ export async function POST(req: Request): Promise<Response> {
   if (!sameOrigin(req)) return Response.json({ error: "Bad origin" }, { status: 403 });
   const limited = await rateLimit("book", clientKey(req));
   if (limited) return limited;
-  const body = Body.safeParse(await req.json().catch(() => null));
+  const raw = await readJson(req, 65_536);   // RT-12: bounded
+  if (raw === TOO_LARGE) return tooLarge();
+  const body = Body.safeParse(raw);
   if (!body.success) return Response.json({ error: "body must be { ids: string[] }" }, { status: 400 });
   const unique = [...new Set(body.data.ids)].slice(0, MAX_IDS);
   const out: Record<string, Settlement> = {};

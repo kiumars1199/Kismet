@@ -51,3 +51,34 @@ describe("RT-02 rate limits never fail open in production", () => {
     err.mockRestore();
   });
 });
+
+describe("RT-12 request bodies are capped while reading", () => {
+  /** A 10 MB body without Content-Length; counts how much the server pulled. */
+  const big = () => {
+    const chunk = new Uint8Array(64 * 1024).fill(32);
+    const s = { pulled: 0 };
+    const body = new ReadableStream<Uint8Array>({
+      pull(c) { if (s.pulled >= 10 * 1024 * 1024) c.close(); else { s.pulled += chunk.byteLength; c.enqueue(chunk); } },
+    });
+    return { s, init: { method: "POST", body, duplex: "half", headers: { "content-type": "application/json", origin: "http://t" } } as RequestInit };
+  };
+
+  it("/api/ext/telemetry: 413 after a few KB, the rest of the stream is never read", async () => {
+    const abuse = await import("@/lib/abuse");
+    abuse.setLimiter(abuse.memoryLimiter());
+    const { POST } = await import("@/app/api/ext/telemetry/route");
+    const { s, init } = big();
+    const res = await POST(new Request("http://t/api/ext/telemetry", init));
+    expect(res.status).toBe(413);
+    expect(s.pulled).toBeLessThan(1024 * 1024);
+    abuse.setLimiter(undefined);
+  });
+
+  it("a declared Content-Length over the cap is refused before reading", async () => {
+    const { readJson, TOO_LARGE } = await import("@/lib/body");
+    const { s, init } = big();
+    const req = new Request("http://t", { ...init, headers: { "content-length": String(10 * 1024 * 1024) } });
+    expect(await readJson(req, 4096)).toBe(TOO_LARGE);
+    expect(s.pulled).toBeLessThanOrEqual(64 * 1024 * 2);
+  });
+});

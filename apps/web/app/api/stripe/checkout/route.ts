@@ -4,6 +4,7 @@ import { z } from "zod";
 import { guard } from "@/lib/abuse";
 import { getUser, sameOrigin, supabaseServer } from "@/lib/auth/server";
 import { PRICE_KEYS, billingMode, paymentLinkUrl, priceId, stripeClient } from "@/lib/billing/stripe";
+import { readJson, TOO_LARGE, tooLarge } from "@/lib/body";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -12,7 +13,9 @@ const Body = z.object({ price: z.enum(PRICE_KEYS) }).strict();
 
 export async function POST(req: Request) {
   if (!sameOrigin(req)) return Response.json({ error: "Bad origin" }, { status: 403 });
-  const parsed = Body.safeParse(await req.json().catch(() => null));
+  const raw = await readJson(req, 4_096);   // RT-12: bounded
+  if (raw === TOO_LARGE) return tooLarge();
+  const parsed = Body.safeParse(raw);
   if (!parsed.success) return Response.json({ error: "Unknown plan" }, { status: 400 });
   const mode = billingMode();
   if (!mode) return Response.json({ error: "Billing is not set up yet" }, { status: 503 });

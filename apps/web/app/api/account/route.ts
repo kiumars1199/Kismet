@@ -4,6 +4,7 @@ import { z } from "zod";
 import { supabaseAdmin } from "@/lib/auth/server";
 import { stripeClient } from "@/lib/billing/stripe";
 import { readBody, withUser } from "@/lib/repo/server";
+import { TOO_LARGE, tooLarge } from "@/lib/body";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -12,7 +13,9 @@ const Body = z.object({ email: z.string().max(254) }).strict();
 
 export const DELETE = (req: Request) =>
   withUser(req, async ({ db, userId }) => {
-    const parsed = Body.safeParse(await readBody(req).catch(() => null));
+    const raw = await readBody(req);
+    if (raw === TOO_LARGE) return tooLarge();
+    const parsed = Body.safeParse(raw);
     const { data: u } = await db.auth.getUser();
     const email = u.user?.email ?? "";
     if (!parsed.success || parsed.data.email.trim().toLowerCase() !== email.toLowerCase()) {
