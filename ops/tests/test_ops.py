@@ -62,8 +62,12 @@ class FakeHttp:
         return Resp(404) if self.prev is None else Resp(200, self.prev)
 
     def post(self, url, data, headers, timeout):
-        self.calls.append(("POST", url, headers))
+        self.calls.append(("POST", url, headers, data))
         return Resp(200)
+
+    def delete(self, url, headers, timeout):
+        self.calls.append(("DELETE", url, headers))
+        return Resp(404)
 
 
 def write(tmp_path, m, f):
@@ -79,10 +83,25 @@ def test_upload_all_files_flags_last(tmp_path):
     http = FakeHttp(prev=None)
     assert upload.publish(out, upload.Storage("https://x.supabase.co/", "svc", http), log=lambda *_: None)
     posts = [c for c in http.calls if c[0] == "POST"]
-    assert [u.rsplit("/", 1)[1] for _, u, _ in posts] == ["ledger.jsonl", "markets.json", "model.json", "flags.json"]
-    assert all("/storage/v1/object/scan/" in u for _, u, _ in posts)
+    assert [c[1].rsplit("/", 1)[1] for c in posts] == ["ledger.jsonl", "markets.json", "model.json", "flags.json"]
+    assert all("/storage/v1/object/scan/" in c[1] for c in posts)
     assert posts[0][2]["Authorization"] == "Bearer svc" and posts[0][2]["x-upsert"] == "true"
     assert http.calls[0][1] == "https://x.supabase.co/storage/v1/object/authenticated/scan/flags.json"
+    assert not [c for c in http.calls if c[1].endswith("/copy")]  # first upload: nothing to keep
+
+
+def test_upload_keeps_previous_scan_for_the_free_delay(tmp_path):
+    out = write(tmp_path, *good(scanned_at=200))
+    (tmp_path / "markets-prev.json").write_text("{}")  # a stray local copy is never uploaded
+    http = FakeHttp(prev={"meta": {"scanned_at": 100}})
+    assert upload.publish(out, upload.Storage("https://x.supabase.co", "svc", http), log=lambda *_: None)
+    copies = [json.loads(c[3]) for c in http.calls if c[0] == "POST" and c[1].endswith("/object/copy")]
+    assert copies == [{"bucketId": "scan", "sourceKey": "markets.json", "destinationKey": "markets-prev.json"},
+                      {"bucketId": "scan", "sourceKey": "flags.json", "destinationKey": "flags-prev.json"}]
+    first_put = next(i for i, c in enumerate(http.calls) if c[0] == "POST" and "/object/scan/" in c[1])
+    last_copy = max(i for i, c in enumerate(http.calls) if c[1].endswith("/copy"))
+    assert last_copy < first_put  # the old scan is kept before the new one overwrites it
+    assert not [c for c in http.calls if c[0] == "POST" and c[1].endswith("-prev.json")]
 
 
 def test_upload_skips_when_checks_fail(tmp_path):

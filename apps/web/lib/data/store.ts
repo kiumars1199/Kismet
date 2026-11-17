@@ -200,7 +200,9 @@ export async function loadRaw(chain = sourceChain()): Promise<RawData> {
 const RETRY_MS = 30_000;
 
 // Kept on globalThis so dev hot reloads don't re-parse 20 MB each time.
-const g = globalThis as unknown as { __meStore?: { cache?: Store; inflight?: Promise<Store>; failedAt?: number; prev?: Store } };
+const g = globalThis as unknown as {
+  __meStore?: { cache?: Store; inflight?: Promise<Store>; failedAt?: number; prev?: Store; delayed?: { for: number; load: Promise<Store> } };
+};
 const state = (g.__meStore ??= {});
 
 export function getStore(): Promise<Store> {
@@ -221,11 +223,33 @@ export function getStore(): Promise<Store> {
   return state.cache ? state.inflight.catch(() => state.cache!) : state.inflight;
 }
 
-/** Free data is DELAY_MIN behind (docs/08): while the newest scan is younger than that, serve the one before.
- *  ponytail: previous scan kept in memory per instance; a fresh instance has none and serves the newest.
- *  Upgrade: have the engine publish a delayed copy (e.g. scan/delayed/) and read that for free users. */
+/** The scan before `s`, from the `*-prev.json` copies the publisher keeps (ops/upload.py, refresh.yml), on the
+ *  same source as `s`. Model, backtest and events are the newest (they carry no live prices). Throws when missing. */
+async function loadDelayed(s: Store): Promise<Store> {
+  const chain = sourceChain(s.source ?? DATA_SOURCE);
+  const read = async <T>(file: string) => {
+    const text = await readSource(file, chain);
+    if (text === undefined) throw new Error(`[store] no ${file}: Free tier can't be served the delayed scan`);
+    return JSON.parse(text) as T;
+  };
+  const [markets, flags] = await Promise.all([read<MarketsFile>("markets-prev.json"), read<FlagsFile>("flags-prev.json")]);
+  if (!(markets.meta.scanned_at < s.meta.scanned_at)) throw new Error("[store] *-prev.json is not older than the newest scan");
+  return buildStore({ markets, flags, model: s.model, backtest: s.backtest, events: s.events, ledgerSummary: s.ledgerSummary, source: s.source });
+}
+
+/** Free data is DELAY_MIN behind (docs/08, docs/15): while the newest scan is younger than that, serve the one
+ *  before: this instance's previous copy, else the published `*-prev.json` (so a cold instance holds the delay too).
+ *  Neither available = throw (routes answer 503): Free never falls through to the live scan.
+ *  ponytail: "the scan before" can be < 15 min old when scans run more often than every 15 min; keep N copies if so. */
 export async function getStoreFor(tier: Tier): Promise<Store> {
   const s = await getStore();
   const cutoff = Date.now() / 1000 - DELAY_MIN[tier] * 60;
-  return DELAY_MIN[tier] === 0 || s.meta.scanned_at <= cutoff || !state.prev ? s : state.prev;
+  if (DELAY_MIN[tier] === 0 || s.meta.scanned_at <= cutoff) return s;
+  if (state.prev && state.prev.meta.scanned_at < s.meta.scanned_at) return state.prev;
+  const at = s.meta.scanned_at;
+  if (state.delayed?.for === at) return state.delayed.load;
+  const load = loadDelayed(s);
+  state.delayed = { for: at, load };
+  load.catch(() => { if (state.delayed?.load === load) state.delayed = undefined; });   // retry on the next request
+  return load;
 }
