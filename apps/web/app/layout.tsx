@@ -10,6 +10,7 @@ import { DisplayEffects } from "@/components/settings/DisplayEffects";
 import { Shortcuts } from "@/components/keyboard/Shortcuts";
 import { AuthBoot } from "@/components/auth/AuthBoot";
 import { siteUrl } from "@/lib/site";
+import { getSettings } from "@/lib/settings";
 import { TicketHost } from "@/components/trade/TradeTicket";
 import { ComboTray } from "@/components/combo/ComboTray";
 import "./globals.css";
@@ -28,13 +29,20 @@ export const viewport: Viewport = { themeColor: "#070a09" };
 // The CSP nonce is per request (middleware.ts), so no page may be prerendered with a stale one.
 export const dynamic = "force-dynamic";
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const settings = await getSettings();   // site-wide banner (admin settings, T-142); read on the server, cached 60 s
+  const banner = settings.banner_on && settings.banner_text ? settings.banner_text : null;
   return (
     <html lang="en" className={`${inter.variable} ${grotesk.variable}`}>
       <body className="flex min-h-dvh flex-col bg-background text-text">
         <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:rounded-input focus:bg-accent focus:px-3 focus:py-2 focus:text-on-accent">
           Skip to content
         </a>
+        {banner && (
+          <div role="status" data-testid="site-banner" className="border-b border-accent-border bg-accent-bg px-4 py-2.5 text-center text-sm text-accent-soft md:px-8">
+            {banner}
+          </div>
+        )}
         <Header />
         <main id="main" className="flex-1 px-4 py-6 md:px-8">
           {children}

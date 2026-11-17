@@ -12,6 +12,7 @@ export interface MeResponse {
   demo: boolean;
   auth: boolean;       // accounts configured
   billing: boolean;    // Stripe configured
+  admin?: boolean;     // server-decided; shows the Admin link only
 }
 
 let me: MeResponse | null = null;

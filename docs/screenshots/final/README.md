@@ -80,3 +80,9 @@ What still keeps scores below 100:
 `e2e/a11y.spec.ts` runs `@axe-core/playwright` 4.14.0 with the WCAG 2.0 and 2.1 A and AA rules. It covers every page above, plus `/event/[id]`, `/m/[id]` and the open drawer, and it also checks that the footer disclaimer is present.
 
 Result: **0 serious or critical violations on all 23 checks**. It runs as part of `PW_PORT=3180 pnpm e2e`.
+
+## Admin (Lane AD)
+
+`admin-*.png` (overview, users, user, settings, health, audit) come from the paid-mode dev server with the in-app
+Supabase/Stripe mock (`playwright.paid.config.ts`, `ADMIN_EMAILS=admin-e2e@example.com`), signed in as that admin, with
+three mock users and one comp. Not a production build; the fixture data is 22 h old, so the header shows it as stale.

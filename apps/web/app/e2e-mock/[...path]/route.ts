@@ -72,7 +72,7 @@ async function supabase(req: Request, path: string[]) {
   if (area === "_inbox") return json({ url: db().inbox.get(url.searchParams.get("email") ?? "") ?? null });
   if (area === "_reset") { g.__e2eMock = fresh(); return json({}); }
   if (area === "auth") return gotrue(req, url, p.slice(1));   // auth/v1/...
-  if (area === "rest") return rest(req, url, p[1]);             // rest/v1/<table>
+  if (area === "rest") return p[1] === "rpc" ? rpc(req, p[2] ?? "") : rest(req, url, p[1]);   // rest/v1/<table> | rest/v1/rpc/<fn>
   return json({ error: "unknown" }, 404);
 }
 
@@ -107,6 +107,20 @@ async function gotrue(req: Request, url: URL, p: string[]) {
     return u ? json(gotrueUser(u)) : json({ code: 401, error_code: "bad_jwt", msg: "invalid JWT" }, 401);
   }
   if (route === "logout") return new Response(null, { status: 204 });
+  if (route === "admin/generate_link") {   // admin "email a sign-in link": hashed token, then /auth/callback?token_hash=
+    if (caller(req) !== "admin") return json({ msg: "forbidden" }, 403);
+    const u = [...db().users.values()].find((x) => x.email === body.email);
+    if (!u) return json({ code: 404, msg: "User not found" }, 404);
+    const hashed_token = randomUUID();
+    db().codes.set(`hash:${hashed_token}`, u.email);
+    return json({ ...gotrueUser(u), action_link: `${url.origin}/verify`, email_otp: "000000", hashed_token, redirect_to: "", verification_type: "magiclink" });
+  }
+  if (route === "verify" && body.token_hash) {
+    const email = db().codes.get(`hash:${body.token_hash}`);
+    if (!email) return json({ code: 403, error_code: "otp_expired", msg: "Token has expired or is invalid" }, 403);
+    db().codes.delete(`hash:${body.token_hash}`);
+    return json(session(signUp(email)));
+  }
   if (p[0] === "admin" && p[1] === "users" && p[2]) {
     if (caller(req) !== "admin") return json({ msg: "forbidden" }, 403);
     const u = db().users.get(p[2]);
@@ -178,6 +192,62 @@ async function rest(req: Request, url: URL, name: string) {
     out.push(r);
   }
   return reply(out, 201);
+}
+
+/** The admin SQL functions (supabase/migrations/20261118000000_admin.sql), service role only, over the mock tables. */
+async function rpc(req: Request, fn: string) {
+  if (caller(req) !== "admin") return json({ code: "42501", message: "permission denied" }, 403);
+  const a = (await req.json().catch(() => ({}))) as Record<string, unknown>;
+  const subs = table("subscriptions");
+  const sub = (id: string): Row => subs.find((s) => s.user_id === id) ?? {};
+  const users = [...db().users.values()].sort((x, y) => y.created_at.localeCompare(x.created_at));
+  const tierOf = (s: Row) => (s.comp_tier && (!s.comp_expires_at || Date.parse(String(s.comp_expires_at)) > Date.now()) ? String(s.comp_tier) : String(s.tier ?? "free"));
+  if (fn === "admin_overview") {
+    const day = (d: Date) => d.toISOString().slice(0, 10);
+    const today = Date.now();
+    const signups = Array.from({ length: 30 }, (_, i) => {
+      const d = day(new Date(today - (29 - i) * 86_400_000));
+      return { day: d, n: users.filter((u) => u.created_at.slice(0, 10) === d).length };
+    });
+    const count = (f: (s: Row) => boolean) => subs.filter(f).length;
+    const paying = (t: string) => count((s) => s.tier === t && ["active", "past_due"].includes(String(s.status)) && !!s.stripe_subscription_id);
+    const active = new Set(db().refresh.values()).size;
+    return json({
+      users_total: users.length,
+      tiers: { free: count((s) => tierOf(s) === "free"), pro: count((s) => tierOf(s) === "pro"), premium: count((s) => tierOf(s) === "premium"),
+        trialing: count((s) => s.status === "trialing"), comped: count((s) => !!s.comp_tier) },
+      paying: { pro: paying("pro"), premium: paying("premium") },
+      canceled_this_month: count((s) => s.status === "canceled"), trials_started: count((s) => !!s.trialed_at),
+      trials_converted: count((s) => !!s.trialed_at && s.status === "active"),
+      active_24h: active, active_7d: active, alerts_24h: table("alert_events").length, paper_orders: 0, signups,
+    });
+  }
+  if (fn === "admin_users") {
+    const q = String(a.q ?? "").toLowerCase();
+    const hit = users.filter((u) => u.email.toLowerCase().includes(q));
+    const off = Number(a.off ?? 0), lim = Number(a.lim ?? 50);
+    return json(hit.slice(off, off + lim).map((u) => {
+      const s = sub(u.id);
+      return { id: u.id, email: u.email, created_at: u.created_at, last_sign_in_at: u.created_at, tier: s.tier ?? "free", status: s.status ?? null,
+        comp_tier: s.comp_tier ?? null, comp_expires_at: s.comp_expires_at ?? null, total: hit.length };
+    }));
+  }
+  if (fn === "admin_user_detail") {
+    const u = db().users.get(String(a.uid));
+    if (!u) return json(null);
+    const p = table("profiles").find((r) => r.user_id === u.id) ?? {};
+    const n = (t: string) => table(t).filter((r) => r.user_id === u.id).length;
+    return json({ ...sub(u.id), id: u.id, email: u.email, email_confirmed_at: u.created_at, created_at: u.created_at, last_sign_in_at: u.created_at,
+      last_seen_at: u.created_at, sessions: [...db().refresh.values()].filter((x) => x === u.id).length,
+      onboarded_at: p.onboarded_at ?? null, accepted_terms_at: p.accepted_terms_at ?? null,
+      counts: Object.fromEntries(["presets", "dashboards", "watchlist", "alert_rules", "alert_events", "journal"].map((t) => [t, n(t)])) });
+  }
+  if (fn === "admin_revoke_sessions") {
+    let n = 0;
+    for (const [t, id] of db().refresh) if (id === a.uid) { db().refresh.delete(t); n++; }
+    return json(n);
+  }
+  return json({ message: `mock: rpc ${fn} not implemented` }, 404);
 }
 
 // ------------------------------------------------------------------ Stripe

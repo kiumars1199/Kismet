@@ -4,7 +4,7 @@ import { AI_BOTS } from "@/lib/bots";
 import { siteUrl } from "@/lib/site";
 
 /** Signed-in app pages and plumbing: nothing for a search engine there. */
-const PRIVATE = ["/api/", "/auth/", "/login", "/onboarding", "/account", "/settings", "/watchlist", "/journal", "/alerts", "/dashboards"];
+const PRIVATE = ["/api/", "/auth/", "/login", "/onboarding", "/account", "/settings", "/watchlist", "/journal", "/alerts", "/dashboards", "/admin"];
 
 export default function robots(): MetadataRoute.Robots {
   return {
