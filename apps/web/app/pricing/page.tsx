@@ -23,7 +23,7 @@ const ROWS: [string, string, string, string][] = [
 
 const PRICING_FAQ: { q: string; a: React.ReactNode }[] = [
   { q: "What happens after the free trial?", a: "Pro and Premium start with 7 days free. Cancel before day 7 and you pay nothing. After that the plan renews monthly or yearly until you cancel." },
-  { q: "Can I cancel any time?", a: "Yes. Cancel from Settings and you keep your plan until the end of the period you paid for." },
+  { q: "Can I cancel any time?", a: "Yes. Cancel from your account page and you keep your plan until the end of the period you paid for." },
   { q: "Is this betting advice?", a: "No. MarketEdge is market analytics: everyone sees the same numbers, based on how past markets settled. It never looks at your bets to tell you what to buy, and any single bet can lose." },
   { q: "Do you place bets for me?", a: "No. MarketEdge never places orders. Each market links to Polymarket, where you decide and bet yourself." },
   { q: "Who can use it?", a: "Adults 18 and over, where prediction markets are legal for them." },

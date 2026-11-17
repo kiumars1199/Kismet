@@ -14,9 +14,11 @@ export const SITE = {
   state: ph(site.legal.governing_state, "GOVERNING_STATE"),
   address: site.legal.mailing_address.trim() || null,
   refundPolicy: site.legal.refund_policy.trim(),
+  responseTime: ph(site.legal.response_time, "RESPONSE_TIME"),
   minAge: site.legal.min_age,
   countries: site.legal.countries,
   lastUpdated: ph(site.legal.last_updated, "LAST_UPDATED"),
+  domain: ph(site.domain, "DOMAIN"),
   prices: site.prices_usd,
 };
 
