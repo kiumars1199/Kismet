@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+/* Design tokens: docs/06-ui.md § Design system. Dark first; light mirrors with the same accent. */
+:root {
+  --background: #0a0f0d;
+  --surface: #111815;
+  --raised: #16201c;
+  --border: #1f2a25;
+  --text: #e6efe9;
+  --muted: #8fa39a;
+  --accent: #10b981;
+  --accent-hover: #34d399;
+  --positive: #22c55e;
+  --negative: #ef4444;
+  --warning: #f59e0b;
+  --on-accent: #04140d;
+  color-scheme: dark;
+}
+
+/* Lane D (display settings) toggles this attribute on <html>. */
+[data-theme="light"] {
+  --background: #f7faf8;
+  --surface: #ffffff;
+  --raised: #eef3f0;
+  --border: #d5e0da;
+  --text: #0a0f0d;
+  --muted: #4d6158;
+  color-scheme: light;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-raised: var(--raised);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-positive: var(--positive);
+  --color-negative: var(--negative);
+  --color-warning: var(--warning);
+  --color-on-accent: var(--on-accent);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --radius-card: 12px;
+  --radius-input: 8px;
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4);
+}
+
+@layer base {
+  html {
+    background: var(--background);
+    color: var(--text);
+  }
+  body {
+    @apply font-sans antialiased;
+  }
+  h1, h2, h3 {
+    @apply font-heading;
+  }
+  table {
+    font-variant-numeric: tabular-nums;
+  }
+  *, ::before, ::after {
+    transition-duration: 150ms;
+    transition-timing-function: ease;
+  }
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
