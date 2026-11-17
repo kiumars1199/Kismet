@@ -1,7 +1,7 @@
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 import { getStore } from "@/lib/data/store";
-import { apply, comparator, pickSide, type Row } from "@/lib/filters/apply";
+import { apply, comparator, GROUP_ROWS, pickSide, type Row } from "@/lib/filters/apply";
 import { FilterState, defaultState, type FilterInput } from "@/lib/filters/state";
 import { parse, serialize } from "@/lib/filters/url";
 import { TAXONOMY, topicsOf } from "@/lib/taxonomy";
@@ -106,7 +106,7 @@ describe("apply() on the fixture", async () => {
     expect(pickSide(m, "underdog")!.outcome).toBe("Colts");
   });
 
-  it("groups by event, best row first, packs whole groups into pages of <= page_size rows", () => {
+  it("groups by event, best row first, pages over groups, each cut to GROUP_ROWS", () => {
     const p = apply(store, st({ page_size: 20 }));
     expect(p.total).toBe(476);
     expect(p.total_groups).toBe(297);
@@ -115,13 +115,13 @@ describe("apply() on the fixture", async () => {
     let rows = 0;
     for (let page = 1; page <= p.pages; page++) {
       const q = apply(store, st({ page_size: 20, page }));
-      expect(q.rows.length).toBeLessThanOrEqual(20);
+      expect(q.groups!.length).toBeLessThanOrEqual(20);
       expect(q.rows).toEqual(q.groups!.flatMap((g) => g.rows));
       for (const g of q.groups!) {
         seen.push(g.event_id);
         rows += g.size;
         expect(g.best).toBe(g.rows[0]);
-        expect(g.rows.length === g.size || g.rows.length === 20).toBe(true);
+        expect(g.rows.length).toBe(Math.min(g.size, GROUP_ROWS));
         for (const r of g.rows) expect(cmp(g.best, r)).toBeLessThanOrEqual(0);
       }
     }

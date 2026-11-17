@@ -6,13 +6,14 @@ import { TAXONOMY, topicsOf } from "@/lib/taxonomy";
 import type { Execution, Side, StoreMarket } from "@/lib/types";
 import type { FilterState, SortKey } from "./state";
 
+export const GROUP_ROWS = 4;
 export interface UserCtx { watchlist: Set<string>; favoriteTopics: string[] }
 export interface Row { market: StoreMarket; side: Side }
 export interface Group {
   event_id: string; event: string; slug: string;
   closes_at: number;        // earliest close among member rows
   flagged: number;          // member rows that are flags
-  size: number;             // matching rows in the group (rows below may be cut to page_size)
+  size: number;             // matching rows in the group (rows below are cut to GROUP_ROWS)
   best: Row;                // first row = best by the current sort
   rows: Row[];
 }
@@ -23,8 +24,8 @@ export interface Page {
   total_groups?: number;    // matching event groups (when grouped)
   page: number; page_size: number;
   pages: number;            // page count for this filter
-  // Flat: rows[(page-1)*page_size ...]. Grouped: whole groups packed so a page holds <= page_size rows;
-  // a group larger than page_size gets a page to itself, cut to page_size rows (see Group.size).
+  // Flat: rows[(page-1)*page_size ...]. Grouped: page_size = event groups per page (max 50), each cut to
+  // GROUP_ROWS rows (Group.size is the full count), so a page holds <= 200 rows.
   rows: Row[];              // rows on this page (grouped: the page's groups flattened, best first)
   groups?: Group[];
   facets: Facets;           // counts for the current filter minus that facet
@@ -164,15 +165,10 @@ export function apply(store: Store, f: FilterState, user?: UserCtx): Page {
     return { ...base, pages: Math.ceil(rows.length / f.page_size), rows: rows.slice(start, start + f.page_size) };
   }
 
-  // Pack whole groups into pages of <= page_size rows (a page always gets at least one group).
+  // Page over event groups. Each group carries its best row plus up to GROUP_ROWS-1 more (size = full count;
+  // expand via /api/events/[id]). Groups per page = page_size, capped so a page never exceeds 200 rows.
   const all = groupByEvent(rows, store.flagsById);
-  const groups: Group[] = [];
-  let pageNo = 1, used = 0;
-  for (const g of all) {
-    const n = Math.min(g.size, f.page_size);
-    if (used > 0 && used + n > f.page_size) { pageNo++; used = 0; }
-    used += n;
-    if (pageNo === f.page) groups.push(n < g.size ? { ...g, rows: g.rows.slice(0, n) } : g);
-  }
-  return { ...base, pages: all.length ? pageNo : 0, total_groups: all.length, groups, rows: groups.flatMap((g) => g.rows) };
+  const per = Math.min(f.page_size, Math.floor(200 / GROUP_ROWS));
+  const groups = all.slice((f.page - 1) * per, f.page * per).map((g) => (g.size > GROUP_ROWS ? { ...g, rows: g.rows.slice(0, GROUP_ROWS) } : g));
+  return { ...base, page_size: per, pages: Math.ceil(all.length / per), total_groups: all.length, groups, rows: groups.flatMap((g) => g.rows) };
 }

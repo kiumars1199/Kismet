@@ -5,6 +5,9 @@ import { Header } from "@/components/shell/Header";
 import { Footer } from "@/components/shell/Footer";
 import { MobileNav } from "@/components/shell/MobileNav";
 import { DrawerHost } from "@/components/market/DrawerHost";
+import { AlertRunner } from "@/components/alerts/AlertRunner";
+import { DisplayEffects } from "@/components/settings/DisplayEffects";
+import { Shortcuts } from "@/components/keyboard/Shortcuts";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
@@ -15,7 +18,7 @@ export const metadata: Metadata = {
   description: "Prediction-market analytics: which contracts are priced below how often bets like them have won.",
 };
 
-export const viewport: Viewport = { themeColor: "#0a0f0d" };
+export const viewport: Viewport = { themeColor: "#070a09" };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -32,7 +35,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <MobileNav />
         <Suspense>
           <DrawerHost />
+          <Shortcuts />
         </Suspense>
+        <AlertRunner />
+        <DisplayEffects />
       </body>
     </html>
   );

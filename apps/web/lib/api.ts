@@ -6,9 +6,9 @@
 //   /api/markets?<FilterState>     → MarketsResponse filtered + sorted page (≤ 200 rows). Query keys are the
 //                                    short keys of lib/filters/url.ts; unknown keys are ignored and invalid
 //                                    values fall back to the default (never a 400).
-//                                    Grouped (default): whole event groups are packed so a page holds
-//                                    <= page_size rows (a group bigger than that gets its own page, cut to
-//                                    page_size rows; `size` is its full count). `rows` are the page's groups
+//                                    Grouped (default): page_size = event groups per page (max 50); each
+//                                    group is cut to GROUP_ROWS (4) rows, `size` is its full count (expand
+//                                    with /api/events/[id]). `rows` are the page's groups
 //                                    flattened in order; `groups[i]` covers rows[start .. start+count) and
 //                                    rows[start] is its best row.
 //   /api/flags?<FilterState>       → MarketsResponse same as /api/markets with view=flags forced

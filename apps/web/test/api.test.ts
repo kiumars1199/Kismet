@@ -38,7 +38,8 @@ describe("API contract (fixture store)", () => {
     const g = b.groups![0];
     expect(b.rows[g.start].market.event_id).toBe(g.event_id);
     expect(b.groups!.reduce((n, x) => n + x.count, 0)).toBe(b.rows.length);
-    expect(b.rows.length).toBeLessThanOrEqual(50);
+    expect(b.groups!.length).toBeLessThanOrEqual(50);
+    expect(b.rows.length).toBeLessThanOrEqual(200);
     const big = await json<MarketsResponse>(markets(req("/api/markets?ps=200&wp=0")));
     expect(big.rows.length).toBeLessThanOrEqual(200);
 
