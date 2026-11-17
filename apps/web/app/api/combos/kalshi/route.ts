@@ -12,6 +12,6 @@ export async function POST(req: Request): Promise<Response> {
   if (!kalshiDataEnabled()) return Response.json({ error: "Not available" }, { status: 404 });
   if (!sameOrigin(req)) return Response.json({ error: "Bad origin" }, { status: 403 });
   const body = ComboCheckBody.safeParse(await req.json().catch(() => null));
-  if (!body.success) return Response.json({ error: "Pick 2 to 6 Kalshi legs" }, { status: 400 });
+  if (!body.success) return Response.json({ error: "Send 2 to 6 Kalshi legs" }, { status: 400 });
   return Response.json(await lookupCombo(body.data), { headers: { "cache-control": "no-store" } });
 }

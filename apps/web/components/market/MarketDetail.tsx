@@ -5,14 +5,16 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { fetchBook, fetchMarket, type BookResponse, type MarketResponse } from "@/lib/api";
-import { ago, basis, betLine, chance, closesIn, edge, expectedProfit, money, pays, PAYS_HELP, pct, price, realisticReturn, ret, RETURN_HELP, sideRet, sideEdge, formatCount } from "@/lib/format";
+import { ago, basis, betLine, chance, closesIn, edge, expectedProfit, money, pays, PAYS_HELP, pct, price, realisticReturn, ret, RETURN_HELP, sideRet, sideEdge, sidePts, formatCount, LONG_SHOT_LINE, winsAbout } from "@/lib/format";
 import { useProfile } from "@/lib/repo/hooks";
 import type { Execution, Side, StoreMarket } from "@/lib/types";
 import { WatchStar } from "@/components/watch/WatchStar";
 import { DrawerExtras } from "./DrawerExtras";
 import { CurveChart } from "./CurveChart";
 import { OddsBars, Skeleton, Val } from "./bits";
-import { VERDICT_LABEL, chanceTone, returnTone, topicLabel } from "./labels";
+import { VERDICT_LABEL, chanceTone, priceVerdict, returnTone, topicLabel } from "./labels";
+import { LowerConfidence, TierNote } from "./TierNote";
+import { AddToCombo } from "@/components/combo/AddToCombo";
 import { drawerHref } from "./DrawerHost";
 import { TradeButton, VenueLink } from "@/components/trade/TradeButton";
 import { Count } from "@/components/kit";
@@ -138,9 +140,17 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
       <Actions m={m} s={s} />
 
       <section aria-label="Headline" className="rounded-inner border border-accent-border bg-accent-bg p-[18px]">
-        <div className="text-[13px] text-accent-softer">{betLine(s)} · <span title={PAYS_HELP}>Pays {pays(s.ask)} if it hits</span></div>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="text-[13px] text-accent-softer">{betLine(s)}</div>
+          {m.tier === "edge" && <LowerConfidence />}
+        </div>
+        <p data-testid="one-bet" className="mt-2 font-heading text-[26px] font-bold leading-tight text-text" title={basis(m, s)}>
+          <span title={PAYS_HELP}>Pays {pays(s.ask)}</span> <span className="font-sans text-base font-medium text-accent-soft">· wins about {winsAbout(s.win_prob)}</span>
+        </p>
+        <p className={`text-[13px] ${s.ranges || s.edge > 0 ? "text-accent-softer" : "text-negative"}`}>{priceVerdict(s)} <span className="font-semibold">({sidePts(s)})</span></p>
+        {s.win_prob < 0.25 && <p data-testid="long-shot-line" className="mt-2 text-[13px] leading-relaxed text-text">{LONG_SHOT_LINE}</p>}
         <div className="mt-2 flex items-baseline gap-2.5">
-          <div className={`font-heading text-[42px] font-bold leading-none tracking-tight ${s.roi_pct >= 0 ? "text-accent-soft" : "text-negative"}`} title={basis(m, s)}>
+          <div className={`font-heading text-[30px] font-bold leading-none tracking-tight ${s.roi_pct >= 0 ? "text-accent-soft" : "text-negative"}`} title={basis(m, s)}>
             {pro ? sideEdge(s) : sideRet(s)}
           </div>
           <div className="text-[13px] text-accent-soft" title={RETURN_HELP}>
@@ -151,6 +161,7 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
           <p className="mt-1.5 text-[13px] text-accent-soft">Similar past bets returned <strong>{ret(realistic)}</strong> on average.</p>
         )}
         <p className={`mt-1.5 text-[13px] ${chanceTone(c)}`}>{c ?? ""}{c && " · "}<span className="text-accent-soft">$100 bet → expect {money(Math.round(expectedProfit(s.roi_pct) ?? NaN), true)}</span></p>
+        {m.tier === "edge" && <TierNote s={s} className="mt-1.5 !text-accent-soft" />}
       </section>
 
       {other && (
@@ -246,6 +257,7 @@ function Actions({ m, s }: { m: StoreMarket; s: Side }) {
     <div className="flex flex-wrap gap-2">
       <VenueLink m={m} className="flex min-h-11 basis-full items-center sm:basis-0 sm:flex-1 justify-center rounded-input bg-accent px-4 font-semibold text-on-accent hover:bg-accent-hover" />
       <TradeButton m={m} s={s} className={btn} />
+      <AddToCombo m={m} s={s} className={btn} />
       <div className={`${btn} px-1`}><WatchStar marketId={m.id} side={s.side_index} market={m} /></div>
       <Link href={`/alerts?market=${m.id}&side=${s.side_index}`} className={btn}>Alert me</Link>
       <button type="button" onClick={share} className={btn} aria-live="polite">{copied ? "Link copied" : "Share"}</button>
