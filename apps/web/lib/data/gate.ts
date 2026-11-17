@@ -2,7 +2,8 @@
 // doesn't allow. Free = top 25 rows, page 1 only, expected return / edge / win chance as ranges, price check
 // limited to the first share. Pro and Premium get the data untouched.
 import type { MarketsResponse } from "@/lib/api";
-import { can, quota, type Tier } from "@/lib/entitlements";
+import { can, type Tier } from "@/lib/entitlements";
+import { rowCap } from "@/lib/settings-core";
 import type { CheckResult } from "@/lib/execution";
 import type { Execution, Side, SideRanges, StoreMarket } from "@/lib/types";
 
@@ -59,7 +60,7 @@ export function gateMarket<M extends StoreMarket>(m: M, tier: Tier): M {
 
 export function gateMarkets(r: MarketsResponse, tier: Tier): MarketsResponse {
   if (can(tier, "exact_edge")) return r;
-  const max = quota(tier, "rows");
+  const max = rowCap(tier);   // Free cap from site settings (default 25)
   const rows = r.rows.slice(0, max).map(({ market, side }) => {
     const g = gateMarket(market, tier);
     return { market: g, side: g.sides.find((s) => s.side_index === side.side_index) ?? rangeSide(side) };

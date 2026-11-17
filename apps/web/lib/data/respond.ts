@@ -4,7 +4,8 @@ import { botCheck, clientKey, noteRows, rateLimit, type Rule } from "@/lib/abuse
 import { getMe, type Me } from "@/lib/auth/server";
 import { gateMarket, gateMarkets } from "./gate";
 import { categoryRecord, curve, segmentOf } from "./model";
-import { can, quota, type Tier } from "@/lib/entitlements";
+import { can, type Tier } from "@/lib/entitlements";
+import { rowCap } from "@/lib/settings-core";
 import { apply } from "@/lib/filters/apply";
 import { parse } from "@/lib/filters/url";
 import { RELAX_STEPS, relax, relaxedNote, type ParsedQuery } from "@/lib/search/parse";
@@ -76,8 +77,8 @@ export function marketsPage(store: Store, f: FilterState): MarketsResponse {
 
 const byRoi = (a: StoreMarket, b: StoreMarket) => b.best.roi_pct - a.best.roi_pct || a.closes_at - b.closes_at;
 
-/** First `quota(tier, "rows")` items (Free: 25 rows per request, docs/08). */
-const capRows = <T,>(list: T[], tier: Tier) => list.slice(0, quota(tier, "rows"));
+/** First `rowCap(tier)` items (Free: 25 rows per request by default, docs/08; site settings can change it). */
+const capRows = <T,>(list: T[], tier: Tier) => list.slice(0, rowCap(tier));
 
 export function eventBody(store: Store, markets: StoreMarket[], tier: Tier = "premium"): EventResponse {
   const sorted = [...markets].sort(byRoi);
