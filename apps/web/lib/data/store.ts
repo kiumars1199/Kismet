@@ -101,7 +101,7 @@ export function buildStore(raw: RawData, loadedAt = Date.now()): Store {
   };
 }
 
-async function readSource(file: string): Promise<string | undefined> {
+export async function readSource(file: string): Promise<string | undefined> {
   if (DATA_SOURCE === "github") {
     const { token, repo, ref } = github();
     const res = await fetch(`https://api.github.com/repos/${repo}/contents/${file}?ref=${ref}`, {
