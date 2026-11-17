@@ -1,5 +1,6 @@
 // Server helpers shared by the API routes.
 import { getStore, getStoreFor, type Store } from "./store";
+import { botCheck, clientKey, noteRows, rateLimit, type Rule } from "@/lib/abuse";
 import { getMe, type Me } from "@/lib/auth/server";
 import { gateMarket, gateMarkets } from "./gate";
 import { categoryRecord, curve, segmentOf } from "./model";
@@ -23,10 +24,17 @@ export async function withStore(fn: (store: Store) => Response | Promise<Respons
   return fn(store);
 }
 
-/** Like withStore, for tier-shaped routes: resolves the caller's plan (server-side, docs/15) and serves free users
- *  the delayed scan. `fn` must shape its body with lib/data/gate.ts. */
-export async function withTier(fn: (store: Store, tier: Tier, me: Me) => Response | Promise<Response>, headers?: HeadersInit): Promise<Response> {
+/** Like withStore, for tier-shaped routes: resolves the caller's plan (server-side, docs/15), runs BotID and the
+ *  route's rate limit (before the store load, so a refused request costs nothing), and serves free users the
+ *  delayed scan. `fn` must shape its body with lib/data/gate.ts. `bot: false` = no BotID (extension-facing routes). */
+export async function withTier(
+  req: Request, rule: Rule,
+  fn: (store: Store, tier: Tier, me: Me) => Response | Promise<Response>,
+  { headers, bot = true }: { headers?: HeadersInit; bot?: boolean } = {},
+): Promise<Response> {
   const me = await getMe();
+  const refused = (bot ? await botCheck() : null) ?? (await rateLimit(rule, clientKey(req, me.user?.id)));
+  if (refused) return refused;
   let store: Store;
   try {
     store = await getStoreFor(me.tier);
@@ -96,10 +104,16 @@ export function marketBody(store: Store, m: StoreMarket, tier: Tier, shown: Tier
 /** GET /api/markets and /api/flags. Free: first page only (top 25 rows), exact numbers as ranges (docs/08 LIMITS).
  *  Paid: a page past the last one is refused (docs/15 § pagination cap) instead of answered empty. */
 export const listRoute = (req: Request, view?: "flags") =>
-  withTier((store, tier) => {
+  withTier(req, "markets", async (store, tier, me) => {
     const f = { ...parse(new URL(req.url).searchParams), ...(view ? { view } : {}) };
     const live = can(tier, "live_data");
+    if (live && f.page > 1) {
+      const refused = await rateLimit("pages", clientKey(req, me.user?.id));   // max 50 pages a minute
+      if (refused) return refused;
+    }
     const page = marketsPage(store, live ? f : { ...f, page: 1 });
     if (live && f.page > Math.max(1, page.pages)) return Response.json({ error: "page is past the last page" }, { status: 400 });
-    return Response.json(gateMarkets(page, tier));
+    const body = gateMarkets(page, tier);
+    await noteRows(req, me.user?.id, body.rows.length);
+    return Response.json(body);
   });

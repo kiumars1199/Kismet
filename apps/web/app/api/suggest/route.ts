@@ -42,7 +42,7 @@ export async function GET(req: Request): Promise<Response> {
   const { q, tz, view } = parsed.data;
 
   // Tier-shaped like /api/markets (docs/15): Free gets the delayed scan and returns as bands.
-  return withTier((store, tier) => {
+  return withTier(req, "suggest", (store, tier) => {
     const exact = can(tier, "exact_edge");
     const empty: SuggestResponse = { q, line: "", entities: [], topics: [], markets: [] };
     if (!q) return Response.json(empty);

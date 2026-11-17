@@ -1,6 +1,7 @@
 // Start an upgrade (docs/08): Stripe Checkout session, or a Payment Link with the user attached.
 // Never grants access itself; the tier changes only when the webhook arrives.
 import { z } from "zod";
+import { guard } from "@/lib/abuse";
 import { getUser, sameOrigin, supabaseServer } from "@/lib/auth/server";
 import { PRICE_KEYS, billingMode, paymentLinkUrl, priceId, stripeClient } from "@/lib/billing/stripe";
 
@@ -17,6 +18,8 @@ export async function POST(req: Request) {
   if (!mode) return Response.json({ error: "Billing is not set up yet" }, { status: 503 });
   const user = await getUser();
   if (!user) return Response.json({ error: "Sign in first", login: "/login?next=/pricing" }, { status: 401 });
+  const refused = await guard(req, "checkout", user.id);   // BotID + 10/hour per account
+  if (refused) return refused;
 
   const { price } = parsed.data;
   if (mode === "links") return Response.json({ url: paymentLinkUrl(price, user) });

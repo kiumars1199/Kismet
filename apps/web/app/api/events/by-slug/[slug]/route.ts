@@ -12,10 +12,11 @@ const CORS = {
 
 export const OPTIONS = () => new Response(null, { status: 204, headers: CORS });
 
-export async function GET(_req: Request, { params }: { params: Promise<{ slug: string }> }) {
+export async function GET(req: Request, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  return withTier((store, tier) => {
+  // No BotID: the Chrome extension calls this from its worker (no BotID script there); rate limit only.
+  return withTier(req, "markets", (store, tier) => {
     const markets = store.bySlug.get(decodeURIComponent(slug).toLowerCase());
     return markets ? Response.json(eventBody(store, markets, tier), { headers: CORS }) : notFound("Event", CORS);
-  }, CORS);
+  }, { headers: CORS, bot: false });
 }

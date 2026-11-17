@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const detail = new URL(req.url).searchParams.get("detail") === "1";
-  return withTier(async (store, tier, me) => {
+  return withTier(req, "markets", async (store, tier, me) => {
     const m = store.byId.get(id) ?? store.flagsById.get(id);
     if (!m) return notFound("Market");
     let shown: Tier = tier;
