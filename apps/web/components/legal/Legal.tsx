@@ -19,7 +19,7 @@ export type Section = { id: string; title: string; body: ReactNode };
 
 export function LegalPage({ title, intro, sections }: { title: string; intro: ReactNode; sections: Section[] }) {
   return (
-    <article className="mx-auto flex w-full max-w-[680px] flex-col gap-8 pb-10">
+    <article className="mx-auto flex w-full max-w-[600px] flex-col gap-8 pb-10 text-pretty">
       {process.env.NODE_ENV !== "production" && (
         <p role="note" className="rounded-xl border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-warning">
           Draft — have a lawyer review before relying on this.

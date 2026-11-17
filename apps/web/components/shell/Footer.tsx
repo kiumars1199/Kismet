@@ -12,12 +12,9 @@ export function Footer() {
         <p>{DISCLAIMER}</p>
         <p>© {new Date().getFullYear()} {SITE.operator}</p>
       </div>
-      <nav aria-label="Legal" className="flex flex-wrap gap-1">
-        {[...LEGAL_PAGES, { href: "/status", label: "Status" }].map((p, i) => (
-          <span key={p.href} className="flex gap-1">
-            {i > 0 && <span aria-hidden="true">·</span>}
-            <Link href={p.href} className="px-1 hover:text-text">{p.label}</Link>
-          </span>
+      <nav aria-label="Legal" className="-mx-1 flex flex-wrap gap-x-2 gap-y-1">
+        {[...LEGAL_PAGES, { href: "/status", label: "Status" }].map((p) => (
+          <Link key={p.href} href={p.href} className="px-1 py-0.5 hover:text-text">{p.label}</Link>
         ))}
       </nav>
     </footer>
