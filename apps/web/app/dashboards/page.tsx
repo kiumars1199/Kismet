@@ -1,8 +1,8 @@
-// Placeholder. Owner: Lane D (T-36).
-import { Placeholder } from "@/components/shell/Placeholder";
+// Owner: Lane D2 (T-36).
+import { DashboardList } from "@/components/dashboards/Dashboards";
 
 export const metadata = { title: "Dashboards" };
 
 export default function Page() {
-  return <Placeholder title="Dashboards" line="Your saved views side by side." />;
+  return <DashboardList />;
 }
