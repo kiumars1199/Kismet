@@ -8,6 +8,7 @@ import { DrawerHost } from "@/components/market/DrawerHost";
 import { AlertRunner } from "@/components/alerts/AlertRunner";
 import { DisplayEffects } from "@/components/settings/DisplayEffects";
 import { Shortcuts } from "@/components/keyboard/Shortcuts";
+import { TicketHost } from "@/components/trade/TradeTicket";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
@@ -37,6 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <DrawerHost />
           <Shortcuts />
         </Suspense>
+        <TicketHost />
         <AlertRunner />
         <DisplayEffects />
       </body>

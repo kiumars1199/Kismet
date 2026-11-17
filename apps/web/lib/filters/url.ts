@@ -3,7 +3,7 @@
 import { FilterState, defaultState } from "./state";
 
 type Kind = "str" | "num" | "bool" | "list";
-const KEYS = {
+export const KEYS = {
   q: ["q", "str"], view: ["view", "str"], c: ["categories", "list"], xc: ["exclude_categories", "list"],
   t: ["topics", "list"], mt: ["market_types", "list"], per: ["periods", "list"], side: ["side", "str"],
   p0: ["price_min", "num"], p1: ["price_max", "num"], x0: ["pays_min", "num"], x1: ["pays_max", "num"],

@@ -70,7 +70,7 @@ The scan is regenerated every 2 h and is read-only. An in-memory store is simple
 
 ## Environment variables
 ```
-DATA_SOURCE=github|local
+DATA_SOURCE=supabase|github|local   # supabase: private bucket `scan` → `live` branch → last good copy (docs/14 §4)
 GITHUB_DATA_TOKEN=            # fine-grained, read-only contents on kiumars1199/marketedge
 GITHUB_DATA_REPO=kiumars1199/marketedge
 GITHUB_DATA_REF=live

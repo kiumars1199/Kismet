@@ -1,6 +1,8 @@
 // Subset of apps/web/lib/types.ts + EventResponse (apps/web/lib/api.ts) the extension reads.
 // Copied, not imported: the extension is a standalone project.
-export const API = "http://localhost:3000";
+declare const __ME_ORIGIN__: string;
+/** Web app origin, set at build time from ME_ORIGIN (default http://localhost:3000). */
+export const API: string = __ME_ORIGIN__;
 
 export interface Side {
   side_index: 0 | 1;
@@ -44,7 +46,13 @@ export interface EventResponse {
 // Messages content/popup/sidepanel → background
 export type Msg =
   | { type: "event"; slug: string }
-  | { type: "open"; slug: string; marketId: string | null };
+  | { type: "open"; slug: string; marketId: string | null }
+  | { type: "session" }
+  | { type: "telemetry"; slug: string; markets: number };
+
+/** Sign-in from /ext/connect: short-lived token (chrome.storage.session), exp in ms. */
+export interface Auth { token: string; exp: number; tier: "free" | "pro" | "premium" }
+export interface SessionInfo { signedIn: boolean; tier: Auth["tier"] | null }
 
 // chrome.storage.local key for what the side panel shows
 export interface Selection { slug: string; marketId: string | null; at: number }

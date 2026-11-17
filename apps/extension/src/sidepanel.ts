@@ -1,5 +1,6 @@
 // Side panel: one market (drawer content) or the page's list. Data comes from the background cache.
 import { chance, edge, money, pct, price, ret, RETURN_HELP } from "./format";
+import { renderTrade } from "./vault-ui";
 import { API, type EventResponse, type Execution, type Market, type Msg, type Selection, type Side } from "./types";
 
 const root = document.getElementById("root")!;
@@ -93,7 +94,7 @@ function select(slug: string, marketId: string | null) {
 async function render(sel?: Selection) {
   if (!sel) return;
   const d = await (chrome.runtime.sendMessage({ type: "event", slug: sel.slug } satisfies Msg) as Promise<EventResponse | null>);
-  if (!d) { root.innerHTML = `<p class="muted">MarketEdge has no data for this page, or localhost:3000 is not running.</p>`; return; }
+  if (!d) { root.innerHTML = `<p class="muted">MarketEdge has no data for this page, or ${esc(API.replace(/^https?:\/\//, ""))} is not reachable.</p>`; return; }
   const m = sel.marketId ? d.markets.find((x) => x.id === sel.marketId) : undefined;
   if (m) marketView(d, m); else listView(d);
   window.scrollTo(0, 0);
@@ -101,3 +102,17 @@ async function render(sel?: Selection) {
 
 chrome.storage.local.get("selection").then((v) => render(v.selection as Selection | undefined));
 chrome.storage.onChanged.addListener((c, area) => { if (area === "local" && c.selection) render(c.selection.newValue as Selection); });
+
+// Tabs: "This page" (market view) and "Paper trading" (key vault + limits). sidepanel.html#trade opens on trading.
+const tabs = { page: document.getElementById("tab-page")!, trade: document.getElementById("tab-trade")! };
+const trade = document.getElementById("trade")!;
+function show(which: "page" | "trade") {
+  tabs.page.setAttribute("aria-selected", String(which === "page"));
+  tabs.trade.setAttribute("aria-selected", String(which === "trade"));
+  root.hidden = which !== "page";
+  trade.hidden = which !== "trade";
+  if (which === "trade") renderTrade(trade);
+}
+tabs.page.addEventListener("click", () => show("page"));
+tabs.trade.addEventListener("click", () => show("trade"));
+if (location.hash === "#trade") show("trade");

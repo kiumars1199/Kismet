@@ -13,6 +13,7 @@ import { basis, chance, closesIn, DASH, edge, money, pays, PAYS_HELP, pct, price
 import { WatchStar } from "@/components/watch/WatchStar";
 import { drawerHref, useOpenDrawer } from "@/components/market/DrawerHost";
 import { AlertLink, Notes, Val } from "@/components/market/bits";
+import { VenueIconLink } from "@/components/trade/TradeButton";
 import { VERDICT_LABEL, chanceTone, returnTone, rowNotes, topicLabel } from "@/components/market/labels";
 
 export type Item =
@@ -64,7 +65,7 @@ function columns(pro: boolean): Col[] {
     h.display({ id: "capacity", header: "Capacity", meta: { label: "Capacity", pro: true, sort: "capacity", right: true }, cell: ({ row: { original: r } }) => <Val v={usd(r.market.execution?.capacity_usd)} /> }),
     h.display({ id: "verdict", header: "Price check", meta: { label: "Price check", pro: true }, cell: ({ row: { original: r } }) => { const v = r.market.execution?.verdict; return <Val v={v ? VERDICT_LABEL[v] : DASH} className="whitespace-nowrap" />; } }),
     h.display({ id: "realistic", header: "Realistic edge", meta: { label: "Realistic edge", pro: true, sort: "realistic_edge", right: true }, cell: ({ row: { original: r } }) => <Val v={edge(r.side.realistic_edge)} /> }),
-    h.display({ id: "alert", header: () => <span className="sr-only">Alert me</span>, meta: { label: "Alert me" }, cell: ({ row: { original: r } }) => <AlertLink marketId={r.market.id} side={r.side.side_index} /> }),
+    h.display({ id: "alert", header: () => <span className="sr-only">Alert me</span>, meta: { label: "Alert me" }, cell: ({ row: { original: r } }) => <span className="flex"><VenueIconLink m={r.market} /><AlertLink marketId={r.market.id} side={r.side.side_index} /></span> }),
   ] as Col[];
 }
 

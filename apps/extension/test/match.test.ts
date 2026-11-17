@@ -59,9 +59,9 @@ describe("match", () => {
 
 describe("badgeText", () => {
   it("positive expected return", () => {
-    expect(badgeText(weather[0])).toEqual({ text: "Yes: won 70% before · market says 61% · +14% expected", positive: true });
-    expect(badgeText(nfl[0], true).text).toBe("Texans: won 98% before · market says 85% · +15% expected");
-    expect(badgeText(nfl[2], true).text).toBe("Spread: Colts (-2.5) · Colts: won 20% before · market says 20% · +0.3% expected");
+    expect(badgeText(weather[0])).toEqual({ text: "Yes: Pays 1.6x · won 70% before · market says 61% · +14% expected", positive: true });
+    expect(badgeText(nfl[0], true).text).toBe("Texans: Pays 1.2x · won 98% before · market says 85% · +15% expected");
+    expect(badgeText(nfl[2], true).text).toBe("Spread: Colts (-2.5) · Colts: Pays 5.0x · won 20% before · market says 20% · +0.3% expected");
   });
   it("no edge is muted and uses the first side", () => {
     expect(badgeText(weather[2])).toEqual({ text: "Market says 0% · no edge", positive: false });
