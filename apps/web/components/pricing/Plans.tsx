@@ -9,11 +9,11 @@ import { track } from "@/lib/telemetry";
 
 export const PLANS = [
   { id: "free", name: "Free", monthly: 0, line: "See how it works.",
-    points: ["All open markets, 15 minutes behind, top 25 rows", "Expected return shown as a range", "3 best bets a day", "Topic, sport and price filters", "1 saved view · 10 bets in My list", "Results and win-chance charts"] },
+    points: ["All open markets, 15 minutes behind, top 25 rows", "Estimated return shown as a range", "3 best bets a day", "Topic, sport and price filters", "1 saved view · 10 bets in My list", "Results and win-chance charts"] },
   { id: "pro", name: "Pro", monthly: 19, line: "For people who bet every week.",
-    points: ["Live prices, every market, no row limit", "Exact expected return on every bet", "Every best bet, every filter", "Full price check: order book, stake table, how much you can bet", "Alerts by email and browser, 20 rules", "My bets with profit and closing-price tracking", "25 saved views · 3 dashboards · CSV export"] },
+    points: ["Live prices, every market, no row limit", "Exact estimated return on every bet", "Every best bet, every filter", "Full price check: order book, stake table, how much you can bet", "Alerts by email and browser, 20 rules", "My bets with profit and closing-price tracking", "25 saved views · 3 dashboards · CSV export"] },
   { id: "premium", name: "Premium", monthly: 29, line: "Everything, plus the browser extension.",
-    points: ["Everything in Pro", "Chrome extension: expected return right on Polymarket", "Telegram and Discord alerts, 100 rules", "Unlimited saved views and dashboards"] },
+    points: ["Everything in Pro", "Chrome extension: estimated return right on Polymarket", "Telegram and Discord alerts, 100 rules", "Unlimited saved views and dashboards"] },
 ] as const;
 
 const usd = (x: number) => `$${Number.isInteger(x) ? x : x.toFixed(2)}`;

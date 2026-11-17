@@ -92,7 +92,7 @@ export function JournalView() {
             <Stat label="Win rate" value={pct(s.win_rate)} title="Won ÷ (won + lost); voids excluded" />
             <Stat label="Vs closing price" value={pro ? edge(s.avg_clv) : ret(clvRel)} tone={tone(s.avg_clv)}
               title="Average of (closing price − your price). Beating the closing price over many bets is the best early sign your bets are well priced." />
-            <Stat label="Expected return at entry" value={ret(s.avg_entry_return)} tone="accent" title={RETURN_HELP} />
+            <Stat label="Estimated return at entry" value={ret(s.avg_entry_return)} tone="accent" title={RETURN_HELP} />
           </div>
           <Charts rows={rows} />
           <BetTable rows={sorted} tz={profile.timezone} pro={pro} onEdit={setEditing} />
@@ -181,7 +181,7 @@ function BetTable({ rows, tz, pro, onEdit }: { rows: JournalEntry[]; tz: string;
           <tr>
             <th className="px-4 py-3 font-medium">Placed</th><th className="px-4 py-3 font-medium">Bet</th>
             <th className="px-4 py-3 text-right font-medium">Price</th><th className="px-4 py-3 text-right font-medium">Staked</th>
-            <th className="px-4 py-3 text-right font-medium" title={RETURN_HELP}>Expected return</th>
+            <th className="px-4 py-3 text-right font-medium" title={RETURN_HELP}>Estimated return</th>
             <th className="px-4 py-3 text-right font-medium">Closing price</th><th className="px-4 py-3 font-medium">Result</th>
             <th className="px-4 py-3 text-right font-medium">P&amp;L</th><th className="px-2 py-3"><span className="sr-only">Actions</span></th>
           </tr>

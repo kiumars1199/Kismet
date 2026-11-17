@@ -43,7 +43,7 @@ export const FilterState = z.object({
   watchlisted_only: z.boolean().optional(), favorites_only: z.boolean().optional(),
   group_by_event: z.boolean().default(true),
   sort: z.object({ key: SortKey, dir: z.enum(["asc", "desc"]) })
-        .default({ key: "roi", dir: "desc" }),       // shown as "Best expected return"
+        .default({ key: "roi", dir: "desc" }),       // shown as "Best estimated return"
   win_prob_floor_default: z.number().default(0.4),     // default view hides < 40% chance (long shots)
   tz: z.string().max(64).regex(/^[A-Za-z0-9_+\-/]+$/).optional(),   // IANA zone for "today"/"tomorrow" in q
   page: z.number().int().min(1).default(1), page_size: z.number().int().min(1).max(200).default(50),

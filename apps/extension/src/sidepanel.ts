@@ -22,7 +22,7 @@ function sideCard(s: Side, isBest: boolean) {
     <div class="row"><strong>Bet ${esc(s.outcome)} at ${price(s.ask)}</strong><span class="small" style="color:var(--accent-softer)">${chance(s.win_prob)}</span></div>
     ${pos
       ? `<div><div class="num" style="font-size:42px;font-weight:700;color:var(--accent)" title="${esc(RETURN_HELP)}">${ret(s.roi_pct)}</div>
-         <div class="small muted" title="${esc(RETURN_HELP)}">expected return · $100 bet → expect ${money(profit, true)}</div></div>`
+         <div class="small muted" title="${esc(RETURN_HELP)}">estimated return · past results: ${money(profit, true)} per $100 bet</div></div>`
       : `<div class="muted">No edge at this price</div>`}
     ${bars(s)}
   </section>`;
@@ -51,7 +51,7 @@ function pros(m: Market, x?: Execution) {
   ];
   if (x) rows.push(["Spread cost", price(x.spread_cost)], ["Edge kept after spread", `${Math.round(x.retention * 100)}%`], ["Capacity", money(x.capacity_usd)]);
   const stakes = x?.stakes?.length
-    ? `<table class="small" style="width:100%;margin-top:8px"><tr class="muted"><td>Stake</td><td>Avg price</td><td>Expect</td></tr>${x.stakes
+    ? `<table class="small" style="width:100%;margin-top:8px"><tr class="muted"><td>Stake</td><td>Avg price</td><td>Est. return (past results)</td></tr>${x.stakes
         .map((s) => `<tr><td>${money(s.stake_usd)}</td><td>${price(s.avg_price)}</td><td>${money(s.expected_profit_usd, true)}</td></tr>`).join("")}</table>`
     : "";
   return `<details class="inner"><summary style="cursor:pointer">Details for pros</summary>

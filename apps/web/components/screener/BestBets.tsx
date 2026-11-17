@@ -300,7 +300,7 @@ export function BestBets({ initialTotal }: { initialTotal?: number }) {
             </button>
           )}
           <MoreWithEdge state={state} desktop={desktop} pro={pro} />
-          {!desktop && <p className="text-xs text-muted" title={RETURN_HELP}>Expected return: {RETURN_HELP}</p>}
+          {!desktop && <p className="text-xs text-muted" title={RETURN_HELP}>Estimated return: {RETURN_HELP}</p>}
         </>
       )}
     </div>

@@ -18,14 +18,14 @@ export default function Page() {
     {
       id: "estimates", title: "Estimates from past data",
       body: <p>
-        Win chances and expected returns are estimates built from how similar past markets settled. They can be wrong,
+        Win chances and return figures are estimates built from how similar past markets settled. They can be wrong,
         and past results don&apos;t promise future ones. Each estimate shows its sample size and track record one hover away;
         see <Link href="/track-record">Results</Link> for how the method has done.
       </p>,
     },
     {
       id: "loss", title: "You can lose money",
-      body: <p>Any single bet can lose, including ones with a high win chance or a good expected return. Only bet money you can afford to lose.</p>,
+      body: <p>Any single bet can lose, including ones with a high win chance or a good estimated return. Only bet money you can afford to lose.</p>,
     },
     {
       id: "venues", title: "Where you live matters",

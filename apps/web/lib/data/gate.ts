@@ -1,5 +1,5 @@
 // Server-side tier shaping (docs/08 LIMITS, docs/15 § Paywall): the client never receives what the tier
-// doesn't allow. Free = top 25 rows, page 1 only, expected return / edge / win chance as ranges, price check
+// doesn't allow. Free = top 25 rows, page 1 only, estimated return / edge / win chance as ranges, price check
 // limited to the first share. Pro and Premium get the data untouched.
 import type { MarketsResponse } from "@/lib/api";
 import { can, type Tier } from "@/lib/entitlements";

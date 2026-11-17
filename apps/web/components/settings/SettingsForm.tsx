@@ -52,7 +52,7 @@ export function SettingsForm() {
             options={(Object.keys(ODDS_LABEL) as OddsFormat[]).map((v) => ({ value: v, label: ODDS_LABEL[v] }))}
           />
         </Row>
-        <Row title="Show numbers as" sub="Simple shows expected return. Pro adds edge in cents per share.">
+        <Row title="Show numbers as" sub="Simple shows estimated return. Pro adds edge in cents per share.">
           <Segmented label="Show numbers as" value={profile.numbers_mode} onChange={(v) => patch({ numbers_mode: v })}
             options={[{ value: "simple", label: "Simple" }, { value: "pro", label: "Pro (¢ edge)" }]} />
         </Row>

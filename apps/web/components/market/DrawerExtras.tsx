@@ -87,7 +87,7 @@ function Sizing({ market, side }: { market: Market; side: 0 | 1 }) {
       ) : (
         <p className="text-sm leading-relaxed text-soft" aria-live="polite">
           <span className="font-semibold text-text">{name} suggests {money(stakeUsd)} ({k.shares.toFixed(1)} shares).</span>{" "}
-          {fill ? <>At {money(stakeUsd)} the average fill is {price(fill.avg_price)}{profile.numbers_mode === "pro" ? <> and edge {edge(fill.edge)}</> : <>, expected return {ret(fill.roi_pct)}</>}.</> : ex ? "Checking the fill…" : "Live order book unavailable, so this uses the last scan price."}
+          {fill ? <>At {money(stakeUsd)} the average fill is {price(fill.avg_price)}{profile.numbers_mode === "pro" ? <> and edge {edge(fill.edge)}</> : <>, estimated return {ret(fill.roi_pct)}</>}.</> : ex ? "Checking the fill…" : "Live order book unavailable, so this uses the last scan price."}
           {k.capped && <> Capped at about {money(ex?.capacity_usd)}, what the book offers at a good price.</>}
         </p>
       )}

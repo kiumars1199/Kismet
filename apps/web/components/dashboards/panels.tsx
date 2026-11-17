@@ -116,7 +116,7 @@ function Kpi({ state }: { state: FilterState }) {
   return (
     <div className="grid grid-cols-3 gap-4 py-2">
       {cell(state.view === "flags" ? "Best bets" : "Markets", formatCount(a.total))}
-      {cell("Best expected return", ret(top), true)}
+      {cell("Best estimated return", ret(top), true)}
       {cell("Closing in 6 h", formatCount(b.total))}
     </div>
   );

@@ -21,7 +21,7 @@ const STEPS = [
 ];
 
 const TOUR = [
-  { title: "Best bets", body: "Each card is a bet priced lower than how often bets like it have won. The big number is the expected return: the average profit per dollar if you made bets like it many times. Any single bet can lose." },
+  { title: "Best bets", body: "Each card is a bet priced lower than how often bets like it have won. The big number is the estimated return: the average profit per dollar if you made bets like it many times. Any single bet can lose." },
   { title: "Tap a card for details", body: "The details panel shows Market says vs Won before, what a stake would fill at, and the past record behind the number." },
   { title: "Save views and markets", body: "Save a set of filters as a view to reopen it in one tap, and star markets to follow them on My list." },
 ];
@@ -110,7 +110,7 @@ export function Onboarding({ next }: { next?: string }) {
                   aria-label="Other stake in dollars" className="w-20 bg-transparent py-3 text-text tabular-nums placeholder:text-muted focus:outline-none" />
               </label>
             </div>
-            <p className="text-sm text-muted">Used for “{money(profile.default_stake_usd)} bet → expect …” and the fill check.</p>
+            <p className="text-sm text-muted">Used for the “per {money(profile.default_stake_usd)} bet” figures and the fill check.</p>
           </fieldset>
         </div>
       )}

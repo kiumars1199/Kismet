@@ -1,4 +1,4 @@
-// Share card for /m/[id]: question, the bet, expected return, won-before, disclaimer. Colors = dark theme tokens (globals.css).
+// Share card for /m/[id]: question, the bet, estimated return (past results), won-before, disclaimer. Colors = dark theme tokens (globals.css).
 import { ImageResponse } from "next/og";
 import { getStoreFor } from "@/lib/data/store";
 import { gateMarket } from "@/lib/data/gate";
@@ -28,7 +28,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
             <div style={{ display: "flex", gap: 56, alignItems: "flex-end" }}>
               <div style={{ display: "flex", flexDirection: "column" }}>
                 <div style={{ fontSize: 96, fontWeight: 700, color: s.roi_pct >= 0 ? C.accent : C.muted, lineHeight: 1 }}>{sideRet(s)}</div>
-                <div style={{ color: C.muted }}>expected return</div>
+                <div style={{ color: C.muted }}>estimated return, based on past results</div>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8, fontSize: 32 }}>
                 <div style={{ color: C.soft }}>{betLine(s)}</div>

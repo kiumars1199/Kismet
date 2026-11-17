@@ -22,7 +22,7 @@ export const PAYS_HELP = "What $1 returns if this side wins: $1 ÷ price, before
 export function pct(p: number | null | undefined): string {
   return ok(p) ? `${Math.round(p * 100)}%` : DASH;
 }
-/** expected return from roi_pct: 33.2 → "+33%", 4.6 → "+4.6%", -2 → "−2%" */
+/** estimated return from roi_pct: 33.2 → "+33%", 4.6 → "+4.6%", -2 → "−2%" */
 export function ret(roiPct: number | null | undefined): string {
   if (!ok(roiPct)) return DASH;
   const a = Math.abs(roiPct);
@@ -38,7 +38,7 @@ export function edge(e: number | null | undefined): string {
 type Band = [number | null, number | null];
 const span = ([lo, hi]: Band, f: (x: number) => string, unit: string) =>
   lo === null ? `under ${f(hi ?? 0).replace(/^\+/, "")}` : hi === null ? `over ${f(lo)}` : `${f(lo).slice(0, -unit.length)}–${f(hi).replace(/^\+/, "")}`;
-/** Expected return for a side: exact, or its band on the Free tier. */
+/** Estimated return for a side: exact, or its band on the Free tier. */
 export function sideRet(s: Pick<Side, "roi_pct" | "ranges">): string {
   return s.ranges ? span(s.ranges.roi_pct, ret, "%") : ret(s.roi_pct);
 }
@@ -46,7 +46,7 @@ export function sideRet(s: Pick<Side, "roi_pct" | "ranges">): string {
 export function sideEdge(s: Pick<Side, "edge" | "ranges">): string {
   return s.ranges ? span(s.ranges.edge, (e) => edge(e).replace(".0¢", "¢"), "¢") : edge(s.edge);
 }
-/** "$100 bet → expect +$33": exact, or its band on the Free tier ("+$5–$10"), so a band's low end never reads as exact. */
+/** "Past results: +$33 per $100 bet": exact, or its band on the Free tier ("+$5–$10"), so a band's low end never reads as exact. */
 export function sideProfit(s: Pick<Side, "roi_pct" | "ranges">): string {
   if (!s.ranges) {
     const p = expectedProfit(s.roi_pct);
@@ -63,7 +63,7 @@ export function money(usd: number | null | undefined, signed = false): string {
   const s = a >= 100 ? Math.round(a).toLocaleString("en-US") : a.toFixed(2).replace(/\.00$/, "");
   return `${signed ? (usd < 0 ? "−" : "+") : usd < 0 ? "−" : ""}$${s}`;
 }
-/** "$100 bet → expect +$33": expected profit on a stake from roi_pct */
+/** average profit on a stake from roi_pct (past results, not a promise) */
 export function expectedProfit(roiPct: number | null | undefined, stake = 100): number | null {
   return ok(roiPct) ? (roiPct / 100) * stake : null;
 }
@@ -106,7 +106,7 @@ export function ago(unixSec: number | null | undefined, now = Date.now()): strin
   const h = m / 60;
   return h < 48 ? `${Math.round(h)} h ago` : `${Math.round(h / 24)} days ago`;
 }
-/** tooltip text explaining expected return (show once per page) */
+/** tooltip text explaining estimated return (show once per page) */
 export const RETURN_HELP =
   "If you made this kind of bet many times, this is the average profit per dollar, based on how similar past bets resolved. Any single bet can lose.";
 /** model basis tooltip: "Model: NFL · totals · ~24 h · 812 eff. samples · 190 events" */
@@ -159,7 +159,7 @@ export function testedLine(r: { flags?: number; combos?: number; win_rate?: numb
 export const LONG_SHOT_LINE = "Most of the time this loses. The edge means you're getting a better price than usual, not that it will hit.";
 
 /** docs/17 fix 1: the return a card shows. What similar past bets returned when we know it (the model's own
- *  estimate overshoots at large edges and lives in the drawer), else the model's expected return. Free-tier
+ *  estimate overshoots at large edges and lives in the drawer), else the model's estimated return. Free-tier
  *  bands pass through unchanged. */
 export function cardReturn(s: Pick<Side, "roi_pct" | "ranges" | "realistic_edge" | "ask" | "fee">): { roi: number | null; text: string; profit: string; realistic: boolean } {
   const real = s.ranges ? null : realisticReturn(s);

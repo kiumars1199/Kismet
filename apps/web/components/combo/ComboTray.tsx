@@ -56,7 +56,7 @@ export function ComboTray() {
           </button>
           {ready && (
             <span className="hidden flex-none text-right sm:block">
-              <span className="block text-xs text-muted">Expected return</span>
+              <span className="block text-xs text-muted">Estimated return</span>
               <span className={`font-heading text-[17px] font-bold ${c.ret >= 0 ? "text-accent" : "text-negative"}`}>{ret(c.ret * 100)}</span>
             </span>
           )}
@@ -144,7 +144,7 @@ function Body({ id, legs, onRemove, onClear }: { id: string; legs: Leg[]; onRemo
           <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm sm:grid-cols-4">
             <div><dt className="text-xs text-muted">Wins about</dt><dd className="font-semibold">{winsAbout(c.q)} <span className="font-normal text-muted">({pct(c.q)})</span></dd></div>
             <div><dt className="text-xs text-muted">Pays</dt><dd className="font-semibold">{paysX(c.pays)} <span className="font-normal text-muted">at {price(c.price)}</span></dd></div>
-            <div><dt className="text-xs text-muted">Expected return</dt><dd className={`font-semibold ${c.ret >= 0 ? "text-accent" : "text-negative"}`}>{ret(c.ret * 100)}</dd></div>
+            <div><dt className="text-xs text-muted">Estimated return</dt><dd className={`font-semibold ${c.ret >= 0 ? "text-accent" : "text-negative"}`}>{ret(c.ret * 100)}</dd></div>
             <div title="Our cautious chance for every leg, multiplied. The combo only counts as a better price than usual if this still beats the price.">
               <dt className="text-xs text-muted">Cautious chance</dt>
               <dd className={`font-semibold ${c.has_edge ? "text-accent-softer" : "text-warning"}`}>{pct(c.q_low)} {c.has_edge ? "· still beats the price" : "· doesn't beat the price"}</dd>

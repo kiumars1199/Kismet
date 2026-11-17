@@ -136,7 +136,7 @@ function PanelBody({ state: s, mode, facets, meta, onChange, onReset }: Props) {
       <UpgradeGate feature="all_filters">
         <Section title="Value">
           <Num label="Min price gap" unit="¢" step={0.5} value={s.edge_min === undefined ? undefined : Math.round(s.edge_min * 1000) / 10} onCommit={(v) => onChange({ edge_min: v === undefined ? undefined : v / 100 })} />
-          <Num label="Min expected return" unit="%" value={s.roi_min} onCommit={(v) => onChange({ roi_min: v })} />
+          <Num label="Min estimated return" unit="%" value={s.roi_min} onCommit={(v) => onChange({ roi_min: v })} />
           <Num label="Min past events behind it" value={s.min_events} min={0} step={10} onCommit={(v) => onChange({ min_events: v === undefined ? undefined : Math.round(v) })} />
           <Check label="Confident only (still good on the cautious estimate)" on={!!s.edge_low_positive} onChange={(on) => onChange({ edge_low_positive: on || undefined })} />
           <Check label="Tested on past data" on={!!s.validated_only} onChange={(on) => onChange({ validated_only: on || undefined })} />

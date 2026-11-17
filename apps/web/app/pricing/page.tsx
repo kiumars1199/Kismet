@@ -8,7 +8,7 @@ export const metadata = { title: "Pricing", description: "Free, Pro and Premium 
 
 const ROWS: [string, string, string, string][] = [
   ["All open markets", "15 minutes behind, top 25 rows", "Live, unlimited", "Live, unlimited"],
-  ["Expected return on each bet", "As a range", "Exact", "Exact"],
+  ["Estimated return on each bet", "As a range", "Exact", "Exact"],
   ["Best bets", "3 a day", "All", "All"],
   ["Filters", "Topic, sport, price", "All", "All"],
   ["Saved views", "1", "25", "Unlimited"],

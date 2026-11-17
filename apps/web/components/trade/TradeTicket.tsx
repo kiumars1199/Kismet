@@ -171,7 +171,7 @@ function OrderForm({ p, cfg, vault, onReview }: { p: TicketPrefill; cfg: TradeCo
           <dt className="text-muted">Kalshi fee (estimate)</dt><dd className="m-0 text-right">{usd(m.feeCents)}</dd>
           <dt className="text-muted">Max cost</dt><dd className="m-0 text-right font-semibold">{usd(m.maxCostCents)}</dd>
           <dt className="text-muted">Pays if it wins</dt><dd className="m-0 text-right">{usd(m.payoutCents)}</dd>
-          <dt className="text-muted"><span title={RETURN_HELP} className="underline decoration-dotted underline-offset-4">MarketEdge expected return</span></dt>
+          <dt className="text-muted"><span title={RETURN_HELP} className="underline decoration-dotted underline-offset-4">MarketEdge estimated return</span></dt>
           <dd className={`m-0 text-right font-semibold ${m.roiPct != null && m.roiPct >= 0 ? "text-accent" : "text-negative"}`} title={s.winProb != null ? `Won ${pct(s.winProb)} before` : undefined}>{ret(m.roiPct)}</dd>
           <dt className="text-muted">Price check</dt>
           <dd className="m-0 text-right text-soft">

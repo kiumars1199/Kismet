@@ -158,13 +158,13 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
             {pro ? sideEdge(s) : sideRet(s)}
           </div>
           <div className="flex items-center gap-1 text-[13px] text-accent-soft">
-            {pro ? "edge per share" : "expected return (model)"}<InfoTip text={RETURN_HELP} className="text-accent-softer" />
+            {pro ? "edge per share" : "estimated return, based on past results"}<InfoTip text={RETURN_HELP} className="text-accent-softer" />
           </div>
         </div>
         {realistic !== null && !s.ranges && (
           <p className="mt-1.5 text-[13px] text-accent-soft">Similar past bets returned <strong>{ret(realistic)}</strong> on average.</p>
         )}
-        <p className={`mt-1.5 text-[13px] ${chanceTone(c)}`}>{c ?? ""}{c && " · "}<span className="text-accent-soft">$100 bet → expect {sideProfit(s)}</span></p>
+        <p className={`mt-1.5 text-[13px] ${chanceTone(c)}`}>{c ?? ""}{c && " · "}<span className="text-accent-soft">Past results: {sideProfit(s)} per $100 bet</span></p>
         {m.tier === "edge" && <TierNote s={s} className="mt-1.5 !text-accent-soft" />}
         {free && (
           <p data-testid="upgrade-note" className="mt-3 border-t border-accent-border pt-3 text-[13px] text-accent-softer">
@@ -339,7 +339,7 @@ function StakeSection({ x, live, fetchedAt, error, bookState, scanAt, stake, onS
             <tr className="text-left text-xs text-muted">
               <th scope="col" className="py-1 font-medium">You bet</th>
               <th scope="col" className="font-medium">You get back if it wins</th>
-              <th scope="col" className="text-right font-medium">Expected profit</th>
+              <th scope="col" className="text-right font-medium">Est. profit (past results)</th>
             </tr>
           </thead>
           <tbody>

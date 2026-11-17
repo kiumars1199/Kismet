@@ -254,7 +254,7 @@ export function apply(store: Store, f0: FilterState, user?: UserCtx, parsed?: Pa
 
   const cmp = comparator(f.sort);
   if (plan?.relevance && hits) {
-    // text score × (1 + 0.5 × expected return, 0–50% scaled to 0–1) + 10% if it closes within 24 h
+    // text score × (1 + 0.5 × estimated return, 0–50% scaled to 0–1) + 10% if it closes within 24 h
     const score = new Map(rows.map((r) => {
       const s = hits.get(r.market.id) ?? 0;
       return [r, s * (1 + 0.5 * Math.min(1, Math.max(0, r.side.roi_pct / 50))) + (r.market.hours_to_close <= 24 ? 0.1 * s : 0)];

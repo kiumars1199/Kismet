@@ -12,7 +12,7 @@ import type { Execution, Market, Side } from "@/lib/types";
 export const KIND_LABEL: Record<AlertRule["kind"], string> = {
   preset_match: "New market in a view",
   market_price: "Price drops to a target",
-  edge_change: "Expected return crosses a level",
+  edge_change: "Estimated return crosses a level",
   closing_soon: "Market closing soon",
 };
 
@@ -35,11 +35,11 @@ export function closesAt(unixSec: number, timeZone: string): string {
   catch { return d.toLocaleString("en-US", { weekday: "short", hour: "numeric", minute: "2-digit" }); }
 }
 
-/** "Jaguars at 72¢ · won 79% before · expected return +7% · closes Sun 1:00 PM" */
+/** "Jaguars at 72¢ · won 79% before · estimated return +7% · closes Sun 1:00 PM" */
 export function message(m: Market, s: Side, timeZone: string, live?: { ask: number; roi: number } | null, odds: OddsFormat = "cents"): string {
   const ask = live?.ask ?? s.ask;
   const roi = live?.roi ?? s.roi_pct;
-  return [`${s.outcome} at ${formatOdds(ask, odds)}`, `won ${pct(s.win_prob)} before`, `expected return ${ret(roi)}`,
+  return [`${s.outcome} at ${formatOdds(ask, odds)}`, `won ${pct(s.win_prob)} before`, `estimated return ${ret(roi)}`,
     m.closes_at ? `closes ${closesAt(m.closes_at, timeZone)} (${closesIn(m.closes_at)})` : null].filter(Boolean).join(" · ");
 }
 export const title = (m: Market) => `${m.niche.toUpperCase()} · ${m.question}`;
