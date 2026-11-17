@@ -1,8 +1,13 @@
-// Placeholder. Owner: Lane D.
-import { Placeholder } from "@/components/shell/Placeholder";
+// Owner: Lane D2 (alerts, demo F-11/F-23).
+import { Suspense } from "react";
+import { AlertsView } from "@/components/alerts/AlertsView";
 
 export const metadata = { title: "Alerts" };
 
 export default function Page() {
-  return <Placeholder title="Alerts" line="Rules that tell you when a market matches." />;
+  return (
+    <Suspense>
+      <AlertsView />
+    </Suspense>
+  );
 }
