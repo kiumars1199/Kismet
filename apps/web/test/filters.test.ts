@@ -23,7 +23,8 @@ describe("url round-trip", () => {
     market_types: list(["moneyline", "spreads", "yes/no"] as const),
     periods: list(["full", "1H", "4Q"] as const),
     side: fc.constantFrom("best", "yes", "no", "favorite", "underdog"),
-    price_min: o(unit), price_max: o(unit), win_prob_min: o(finite), edge_min: o(finite),
+    price_min: o(unit), price_max: o(unit), pays_min: o(finite), pays_max: o(finite),
+    win_prob_min: o(finite), win_prob_max: o(finite), tz: o(fc.constantFrom("UTC", "America/New_York", "Etc/GMT+5")), edge_min: o(finite),
     edge_low_positive: o(fc.boolean()), roi_min: o(finite), validated_only: o(fc.boolean()),
     verdicts: list(["worth it", "thin", "no book"] as const),
     retention_min: o(finite), capacity_min_usd: o(finite), min_events: o(fc.integer({ min: -5, max: 5000 })),
@@ -31,7 +32,7 @@ describe("url round-trip", () => {
     frequency: list(["recurring", "15M", "weekly"] as const),
     volume_min: o(finite), volume_24h_min: o(finite), liquidity_min: o(finite), spread_max: o(finite),
     watchlisted_only: o(fc.boolean()), favorites_only: o(fc.boolean()), group_by_event: fc.boolean(),
-    sort: fc.record({ key: fc.constantFrom("edge", "roi", "newest", "competitive"), dir: fc.constantFrom("asc", "desc") }),
+    sort: fc.record({ key: fc.constantFrom("edge", "roi", "newest", "competitive", "pays"), dir: fc.constantFrom("asc", "desc") }),
     page: fc.integer({ min: 1, max: 99 }), page_size: fc.integer({ min: 1, max: 200 }),
   }, { requiredKeys: [] });
 

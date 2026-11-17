@@ -47,11 +47,20 @@ export function pickSide(m: StoreMarket, side: FilterState["side"]): Side | unde
   }
 }
 
-/** Side-level filters; the 40% win-chance floor applies unless win_prob_min is set (wp=0 turns it off). */
+/** Payout multiplier per $1 staked, before fee (docs/13): 1 / ask. */
+export const paysOf = (s: Pick<Side, "ask">) => (s.ask > 0 ? 1 / s.ask : null);
+
+/** Asking for long shots (pays >= 2.5x, price <= 40¢, chance <= 40%) lifts the default 40% floor (docs/13 § Matching). */
+export const liftsFloor = (f: FilterState) =>
+  (f.pays_min ?? 0) >= 2.5 || (f.price_max ?? 1) <= 0.4 || (f.win_prob_max ?? 1) <= 0.4;
+
+/** Side-level filters; the 40% win-chance floor applies unless win_prob_min is set (wp=0 turns it off) or lifted. */
 export function sideOk(s: Side, f: FilterState): boolean {
+  const pays = paysOf(s);
   return gte(s.ask, f.price_min) && lte(s.ask, f.price_max) &&
-    gte(s.win_prob, f.win_prob_min ?? f.win_prob_floor_default) &&
-    gte(s.edge, f.edge_min) && (!f.edge_low_positive || s.edge_low > 0) &&
+    gte(pays, f.pays_min) && lte(pays, f.pays_max) &&
+    gte(s.win_prob, f.win_prob_min ?? (liftsFloor(f) ? 0 : f.win_prob_floor_default)) && lte(s.win_prob, f.win_prob_max) &&
+    gte(s.edge, f.sort.key === "pays" ? Math.max(f.edge_min ?? 0.02, 0.02) : f.edge_min) && (!f.edge_low_positive || s.edge_low > 0) &&
     gte(s.roi_pct, f.roi_min) && gte(s.model_events, f.min_events);
 }
 
@@ -77,6 +86,7 @@ const SORT_VALUE: Record<SortKey, (r: Row) => number | null | undefined> = {
   evidence: (r) => r.side.model_events,
   competitive: (r) => r.market.competitive,
   newest: (r) => r.market.created_at,
+  pays: (r) => paysOf(r.side),
 };
 
 /** Missing values last in either direction; ties by closes_at asc, then id. */

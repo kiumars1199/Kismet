@@ -6,6 +6,7 @@ export const SortKey = z.enum([
   "edge", "edge_low", "realistic_edge", "roi", "win_prob", "price", "closes",
   "volume", "volume_24h", "liquidity", "spread", "capacity", "retention",
   "evidence", "competitive", "newest",
+  "pays",                                            // 1 / ask; "Biggest payout" (docs/18 §3), edge >= 2¢ only
 ]);
 export type SortKey = z.infer<typeof SortKey>;
 
@@ -24,7 +25,8 @@ export const FilterState = z.object({
   periods: z.array(PeriodEnum).optional(),
   side: SideChoice.default("best"),
   price_min: z.number().min(0).max(1).optional(), price_max: z.number().min(0).max(1).optional(),
-  win_prob_min: z.number().optional(),
+  pays_min: z.number().optional(), pays_max: z.number().optional(),   // payout multiplier 1/ask (docs/13 §2)
+  win_prob_min: z.number().optional(), win_prob_max: z.number().optional(),
   edge_min: z.number().optional(),                   // e.g. 0.02
   edge_low_positive: z.boolean().optional(),         // confident only
   roi_min: z.number().optional(),
@@ -42,6 +44,7 @@ export const FilterState = z.object({
   sort: z.object({ key: SortKey, dir: z.enum(["asc", "desc"]) })
         .default({ key: "roi", dir: "desc" }),       // shown as "Best expected return"
   win_prob_floor_default: z.number().default(0.4),     // default view hides < 40% chance (long shots)
+  tz: z.string().max(64).regex(/^[A-Za-z0-9_+\-/]+$/).optional(),   // IANA zone for "today"/"tomorrow" in q
   page: z.number().int().min(1).default(1), page_size: z.number().int().min(1).max(200).default(50),
 });
 export type FilterState = z.infer<typeof FilterState>;
