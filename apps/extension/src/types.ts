@@ -46,7 +46,12 @@ export interface EventResponse {
 // Messages content/popup/sidepanel → background
 export type Msg =
   | { type: "event"; slug: string }
-  | { type: "open"; slug: string; marketId: string | null };
+  | { type: "open"; slug: string; marketId: string | null }
+  | { type: "session" };
+
+/** Sign-in from /ext/connect: short-lived token (chrome.storage.session), exp in ms. */
+export interface Auth { token: string; exp: number; tier: "free" | "pro" | "premium" }
+export interface SessionInfo { signedIn: boolean; tier: Auth["tier"] | null }
 
 // chrome.storage.local key for what the side panel shows
 export interface Selection { slug: string; marketId: string | null; at: number }
