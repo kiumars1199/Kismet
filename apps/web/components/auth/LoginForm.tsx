@@ -83,7 +83,7 @@ export function LoginForm({ next, error: initialError }: { next: string; error?:
         <span className="h-px flex-1 bg-border" />or<span className="h-px flex-1 bg-border" />
       </div>
 
-      <form onSubmit={sendLink} className="flex flex-col gap-3">
+      <form method="post" onSubmit={sendLink} className="flex flex-col gap-3">{/* post: never put the email in the URL */}
         <label htmlFor={ids.email} className="text-xs font-medium text-muted">Email</label>
         <input
           id={ids.email} type="email" required autoComplete="email" inputMode="email" placeholder="you@example.com"
