@@ -18,8 +18,10 @@ async function renderAll(): Promise<Email[]> {
   vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://marketedge.test");
   const store = await getStore();
   const unsub = unsubscribeUrl("user-1", "rule-1");
+  // Neutral question/outcome text so the wording check tests our template, not Polymarket's titles.
   return store.flags.slice(0, 20).map((m) =>
-    alertEmail({ to: "a@b.test", ruleName: "NFL <favorites>", market: m, side: m.best!, timeZone: "America/New_York", unsubscribeUrl: unsub }));
+    alertEmail({ to: "a@b.test", ruleName: "NFL <favorites>", market: { ...m, question: "Test market" },
+      side: { ...m.best!, outcome: "Yes" }, timeZone: "America/New_York", unsubscribeUrl: unsub }));
 }
 
 describe("email templates", () => {
