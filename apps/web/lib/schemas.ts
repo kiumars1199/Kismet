@@ -14,6 +14,7 @@ export const ScanMeta = z.object({
   markets_scanned: z.number(),
   flags: z.number(),
   verdicts: z.record(z.string(), z.number()).optional(),
+  tiers: z.object({ best: z.number(), edge: z.number() }).optional(),
   rule: z.object({ min_edge: z.number(), confidence_z: z.number(), price_range: z.tuple([z.number(), z.number()]) }),
 });
 

@@ -65,10 +65,15 @@ jobs:
           import json, math
           m = json.load(open("output/markets.json")); f = json.load(open("output/flags.json"))
           assert m["meta"]["markets_scanned"] >= 1000, "too few markets scanned"
-          assert len(f["flags"]) <= 0.05 * max(1, m["meta"]["markets_scanned"]), "too many flags"
+          best = [r for r in f["flags"] if r.get("tier", "best") == "best"]
+          assert len(best) <= 0.05 * max(1, m["meta"]["markets_scanned"]), "too many flags"
           for r in f["flags"]:
               b = r["best"]
-              assert b["edge"] >= 0.02 and b["edge_low"] > 0 and r["validated"] and "execution" in r
+              assert b["edge"] >= 0.02 and "execution" in r
+              if r.get("tier", "best") == "best":  # tier "edge" (docs/18 §2) has no edge_low/validated rule
+                  assert b["edge_low"] > 0 and r["validated"]
+              else:
+                  assert r["execution"].get("book_ok") and b["model_neff"] >= 40
               assert all(not (isinstance(v, float) and math.isnan(v)) for v in b.values())
           print("data checks ok")
           PY

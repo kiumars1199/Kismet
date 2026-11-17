@@ -28,6 +28,7 @@ def run_backtest(cfg, log=print):
     bt = backtest.run(cfg, b, log=log)
     found, hl = backtest.pick_half_life(bt)
     bt["chosen_half_life_days"] = hl if found else cfg.half_life_days
+    bt["combos"] = bt.pop("combos_by_half_life").get(str(bt["chosen_half_life_days"]), {})
     bt["data"] = dataset.summary(b)
     bt["ran_at"] = int(time.time())
     json.dump(bt, open(cfg.path("output", "backtest.json"), "w"), indent=1)

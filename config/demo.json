@@ -17,9 +17,10 @@
   "flag_confidence_z": 1.28,
   "price_min": 0.05,
   "price_max": 0.95,
+  "edge_tier": { "price_min": 0.03, "min_neff": 40 },
 
   "scan_events_per_tag": 500,
   "update_lookback_days": 3,
 
-  "walk_forward": { "test_days": 7, "folds": 12 }
+  "walk_forward": { "test_days": 7, "folds": 52 }
 }
