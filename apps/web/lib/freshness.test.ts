@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { freshness } from "./freshness";
+import { freshness, nextScanIn, nextScanMin } from "./freshness";
 
 const now = 1_800_000_000_000;
 const ago = (h: number) => now / 1000 - h * 3600;
@@ -15,5 +15,16 @@ describe("freshness", () => {
   it("treats a missing scan time as stale", () => {
     expect(freshness(undefined, now)).toBe("red");
     expect(freshness(Number.NaN, now)).toBe("red");
+  });
+});
+
+describe("next scan", () => {
+  const at = (iso: string) => Date.parse(iso);
+  it("counts to the next even-hour :17 slot in UTC", () => {
+    expect(nextScanMin(at("2026-11-17T02:11:00Z"))).toBe(6);
+    expect(nextScanMin(at("2026-11-17T02:17:00Z"))).toBe(120);
+    expect(nextScanMin(at("2026-11-17T03:00:00Z"))).toBe(77);
+    expect(nextScanIn(at("2026-11-17T02:11:00Z"))).toBe("6 min");
+    expect(nextScanIn(at("2026-11-17T03:00:00Z"))).toBe("1 h 17 min");
   });
 });

@@ -30,3 +30,17 @@ it("400 on bad params, 502 on upstream failure", async () => {
   expect(res.status).toBe(502);
   expect((await res.json()).error).toMatch(/503/);
 });
+
+it("batch: best ask per token for the card price refresh, bounded to 24 ids", async () => {
+  const fetch = vi.fn(async (_u: string, init: RequestInit) => {
+    const [{ token_id }] = JSON.parse(String(init.body)) as { token_id: string }[];
+    return Response.json(token_id === "333" ? [{ asset_id: "333", bids: [], asks: [] }] : [{ ...book(token_id), asks: [{ price: "0.71", size: "5" }, { price: "0.69", size: "9" }] }]);
+  });
+  vi.stubGlobal("fetch", fetch);
+  const res = await get("tokens=444,333");
+  expect(res.status).toBe(200);
+  expect((await res.json()).asks).toEqual({ "444": 0.69, "333": null });
+  expect((await get(`tokens=${Array.from({ length: 25 }, (_, i) => 500 + i).join(",")}`)).status).toBe(400);
+  expect((await get("tokens=abc")).status).toBe(400);
+  expect((await get("tokens=444&q=0.5")).status).toBe(400);   // strict: no extra keys
+});

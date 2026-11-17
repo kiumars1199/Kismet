@@ -1,62 +1,68 @@
 "use client";
 
-// / "Best bets" (Hybrid artboard): title + stat tiles, filter pills + sort (docs/13 §2), card grid, price-check strip.
+// / "Best bets" (Hybrid artboard): title + inline stats, Today / closing-soon / results (docs/17), filter pills + sort
+// (docs/13 §2), price-check chips, one card per game (docs/17 fix 2), Big payouts and Combos rows (docs/18 §6).
 import { useEffect, useState } from "react";
-import { backtestOnce, fetchFlags, type ApiRow, type BacktestResponse, type MarketsResponse } from "@/lib/api";
+import { backtestOnce, fetchFlags, type ApiGroup, type ApiRow, type BacktestResponse, type MarketsResponse } from "@/lib/api";
 import { tierOf, type FilterState } from "@/lib/filters/state";
-import { RETURN_HELP, ago, ret, formatCount } from "@/lib/format";
+import { nextScanIn } from "@/lib/freshness";
+import { RETURN_HELP, ago, ret, formatCount, pays, price } from "@/lib/format";
 import { savePresetFromState } from "@/lib/presets";
 import { useProfile } from "@/lib/repo/hooks";
 import { TAXONOMY } from "@/lib/taxonomy";
 import { BetCard } from "@/components/market/BetCard";
 import { MarketCard } from "@/components/market/MarketCard";
+import { drawerHref, useOpenDrawer } from "@/components/market/DrawerHost";
 import { SaveViewDialog, chipClass } from "@/components/presets/SaveViewDialog";
 import { SuggestedCombos } from "@/components/combo/SuggestedCombos";
 import { Count } from "@/components/kit";
-import { Skeleton } from "@/components/market/bits";
+import { CardSkeleton } from "@/components/market/bits";
 import { FilterPills } from "@/components/search/FilterPills";
 import { SearchChips } from "@/components/search/SearchChips";
 import { AppliedPills } from "./AppliedPills";
+import { ClosingSoon, ResultsTicker, TodayCard } from "./DayStrip";
 import { EmptyState, ErrorState, StaleBanner } from "./States";
 import { useDesktop } from "./useDesktop";
 import { useMeta, useScreener } from "./useScreener";
 
 const nf = formatCount;   // docs/18 §4: counts short, rounded down
-const short = (label: string) => label.split(" & ")[0]!;
+const GRID = "grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
 
-/** "Price check: 575 fair fill · 28 where the spread eats most of it · 1 hidden (price too high right now)". */
-function PriceStrip({ f, total }: { f: MarketsResponse["facets"]; total: number }) {
+/** docs/17 fix 6: the price check as three quiet chips instead of a sentence (the full text is in the hover). */
+function PriceChips({ f }: { f: MarketsResponse["facets"] }) {
   const v = f.verdicts;
-  const cats = Object.entries(f.categories).filter(([, n]) => n > 0).sort((a, b) => b[1] - a[1]);
-  const parts = [
-    v["worth it"] ? `${nf(v["worth it"])} fill at a fair price` : null,
-    v.thin ? `${nf(v.thin)} where the price you’d really pay eats most of the gain` : null,
-  ].filter(Boolean);
-  const hidden = v["not worth it"] ?? 0;
+  const chips = [
+    v["worth it"] ? { n: v["worth it"], text: "fair fill", dot: "bg-accent", help: "The price you'd really pay keeps most of the gain." } : null,
+    v.thin ? { n: v.thin, text: "spread eats most of it", dot: "bg-warning", help: "The gap between buyers and sellers eats most of the gain." } : null,
+    v["not worth it"] ? { n: v["not worth it"], text: "hidden, price too high", dot: "bg-negative", help: "Hidden from Best bets: the price is too high right now." } : null,
+  ].filter((c) => c !== null);
+  if (!chips.length) return null;
   return (
-    <p className="text-[13px] leading-relaxed text-muted">
-      Of these {nf(total)}: {parts.join(", ") || "none checked yet"}.
-      {hidden > 0 && ` ${nf(hidden)} more ${hidden === 1 ? "is" : "are"} hidden because the price is too high right now.`}
-      {cats.length > 0 && ` By topic: ${cats.map(([id, n]) => `${nf(n)} ${short(TAXONOMY[id]?.label ?? id).toLowerCase()}`).join(", ")}.`}
-    </p>
+    <ul aria-label="Price check" className="flex flex-wrap gap-2 text-xs text-muted md:ml-2">
+      {chips.map((c) => (
+        <li key={c.text} title={c.help} className="flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1">
+          <span aria-hidden="true" className={`size-1.5 rounded-full ${c.dot}`} />
+          <span className="tabular-nums text-soft">{nf(c.n)}</span> {c.text}
+        </li>
+      ))}
+    </ul>
   );
 }
 
+/** Backtest stats, inline next to the title (docs/17 fix 8). Fixed height so nothing shifts when they load. */
 function StatTiles() {
   const [bt, setBt] = useState<BacktestResponse | null>(null);
   useEffect(() => void backtestOnce().then(setBt, () => {}), []);
   const t = bt?.chosen?.taker;
-  if (!t || typeof t.roi_pct !== "number" || typeof t.flags !== "number") return null;
+  const ok = !!t && typeof t.roi_pct === "number" && typeof t.flags === "number";
   return (
-    <dl className="flex gap-7">
-      <div className="flex flex-col-reverse">
-        <dt className="text-xs text-muted">avg return in testing</dt>
-        <dd className="font-heading text-[30px] font-bold text-accent">{ret(t.roi_pct)}</dd>
-      </div>
-      <div className="flex flex-col-reverse">
-        <dt className="text-xs text-muted">past bets tested</dt>
-        <dd className="font-heading text-[30px] font-bold"><Count n={t.flags} /></dd>
-      </div>
+    <dl className="flex min-h-[28px] flex-wrap items-baseline gap-x-5 gap-y-1 text-[13px] text-muted">
+      {ok && (
+        <>
+          <div className="flex items-baseline gap-1.5"><dd className="font-heading text-xl font-bold text-accent">{ret(t.roi_pct)}</dd><dt>avg return in testing</dt></div>
+          <div className="flex items-baseline gap-1.5"><dd className="font-heading text-xl font-bold text-text"><Count n={t.flags} /></dd><dt>past bets tested</dt></div>
+        </>
+      )}
     </dl>
   );
 }
@@ -80,18 +86,59 @@ function PaysChips({ state, onChange }: { state: FilterState; onChange: (p: Part
   );
 }
 
-function Cards({ rows, desktop, pro, dim, first }: { rows: ApiRow[]; desktop: boolean; pro: boolean; dim?: boolean; first?: boolean }) {
-  return desktop ? (
-    <ul className={`grid gap-3.5 [grid-template-columns:repeat(auto-fill,minmax(290px,1fr))] ${dim ? "opacity-60" : ""}`}>
-      {rows.map((r, i) => (
-        <li key={`${r.market.id}:${r.side.side_index}`} className="flex">
-          <BetCard r={r} highlight={!!first && i === 0} help={!!first && i === 0} pro={pro} />
-        </li>
-      ))}
-    </ul>
-  ) : (
-    <ul className={`flex flex-col gap-2.5 ${dim ? "opacity-60" : ""}`}>
-      {rows.map((r) => <li key={`${r.market.id}:${r.side.side_index}`}><MarketCard r={r} pro={pro} /></li>)}
+/** One slot per game: the best bet in it plus the others (when grouped), or one slot per bet (flat). */
+type Slot = { rows: ApiRow[]; size: number };
+function slotsOf(rows: ApiRow[], groups: ApiGroup[] | undefined): Slot[] {
+  if (!groups) return rows.map((r) => ({ rows: [r], size: 1 }));
+  return groups.map((g) => ({ rows: rows.slice(g.start, g.start + g.count), size: g.size })).filter((s) => s.rows.length);
+}
+
+/** "+3 more in this game": the other bets in the same game, inline under the card (docs/17 fix 2). */
+function MoreInGame({ slot }: { slot: Slot }) {
+  const [open, setOpen] = useState(false);
+  const { open: openDrawer } = useOpenDrawer();
+  const others = slot.rows.slice(1);
+  if (slot.size < 2) return null;
+  const ev = slot.rows[0]!.market;
+  return (
+    <div className="flex flex-col">
+      <button type="button" aria-expanded={open} onClick={() => setOpen((o) => !o)}
+        className="flex min-h-11 items-center gap-1.5 self-start px-1 text-[13px] text-accent-hover hover:text-accent-soft">
+        {open ? "Hide" : `+${slot.size - 1} more in this game`}
+        <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" className={`transition-transform duration-200 ease-out ${open ? "rotate-180" : ""}`}><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" strokeWidth="1.6" /></svg>
+      </button>
+      {open && (
+        <ul className="flex flex-col rounded-inner border border-border bg-surface px-3 py-1 text-[13px]">
+          {others.map(({ market: m, side: s }) => (
+            <li key={`${m.id}:${s.side_index}`} className="border-b border-border last:border-0">
+              <a href={drawerHref(m.id, s.side_index)} onClick={(e) => { if (e.metaKey || e.ctrlKey) return; e.preventDefault(); openDrawer(m.id, s.side_index); }}
+                className="flex min-h-11 items-center justify-between gap-3 py-2 hover:text-accent-hover">
+                <span className="min-w-0"><span className="line-clamp-2">{m.question}</span><span className="text-xs text-muted">Bet {s.outcome} at {price(s.ask)}</span></span>
+                <span className="flex-none font-heading font-semibold tabular-nums">Pays {pays(s.ask)}</span>
+              </a>
+            </li>
+          ))}
+          {slot.size > slot.rows.length && (
+            <li className="py-2"><a href={`/event/${ev.event_id}`} className="text-accent-hover hover:text-accent-soft">All {slot.size} in this game</a></li>
+          )}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function Cards({ slots, desktop, pro, dim }: { slots: Slot[]; desktop: boolean; pro: boolean; dim?: boolean }) {
+  return (
+    <ul className={`${desktop ? GRID : "flex flex-col gap-2.5"} transition-opacity duration-200 ease-out ${dim ? "opacity-60" : ""}`}>
+      {slots.map((s) => {
+        const r = s.rows[0]!;
+        return (
+          <li key={`${r.market.id}:${r.side.side_index}`} className="flex flex-col gap-1">
+            {desktop ? <BetCard r={r} pro={pro} /> : <MarketCard r={r} pro={pro} />}
+            <MoreInGame slot={s} />
+          </li>
+        );
+      })}
     </ul>
   );
 }
@@ -120,7 +167,7 @@ function BigPayouts({ state, pro }: { state: FilterState; pro: boolean }) {
         <h2 id="big-h" className="text-xl font-semibold">Big payouts</h2>
         <p className="mt-1 text-[13px] text-muted">Pays 3x or more. These lose more often than they win; the price is what&apos;s better than usual.</p>
       </div>
-      <ul className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1 md:mx-0 md:px-0">
+      <ul className="-mx-4 flex snap-x gap-3.5 overflow-x-auto px-4 pb-1 md:mx-0 md:px-0">
         {data.rows.map((r) => (
           <li key={`${r.market.id}:${r.side.side_index}`} className="flex w-[300px] flex-none snap-start"><BetCard r={r} pro={pro} /></li>
         ))}
@@ -136,6 +183,8 @@ function MoreWithEdge({ state, desktop, pro }: { state: FilterState; desktop: bo
   const data = useSide(state, on ? { tier: "edge", win_prob_min: state.win_prob_min ?? 0, page: 1, page_size: 12 * pages } : null);
   useEffect(() => setPages(1), [on]);
   if (!data?.rows.length) return null;
+  const slots = slotsOf(data.rows, data.groups);
+  const left = (data.total_groups ?? data.total) - slots.length;
   return (
     <section aria-labelledby="edge-h" data-testid="more-edge" className="mt-6 flex flex-col gap-3">
       <div>
@@ -144,10 +193,10 @@ function MoreWithEdge({ state, desktop, pro }: { state: FilterState; desktop: bo
           Also priced below how often bets like them won, but with lower confidence: fewer past events, or a payout band that did worse in testing. Each card shows its record.
         </p>
       </div>
-      <Cards rows={data.rows} desktop={desktop} pro={pro} />
-      {data.rows.length < data.total && (
+      <Cards slots={slots} desktop={desktop} pro={pro} />
+      {left > 0 && (
         <button type="button" onClick={() => setPages((p) => p + 1)} className="mx-auto min-h-11 rounded-input border border-border bg-surface px-5 text-sm hover:border-accent-border">
-          Show more ({nf(data.total - data.rows.length)} left)
+          Show more ({nf(left)} left)
         </button>
       )}
     </section>
@@ -156,16 +205,20 @@ function MoreWithEdge({ state, desktop, pro }: { state: FilterState; desktop: bo
 
 export function BestBets() {
   const sc = useScreener("flags");
-  const { state, set, reset, data, more, loading, error } = sc;
+  const { state, set, reset, data, more, moreGroups, loading, error } = sc;
   const meta = useMeta();
   const desktop = useDesktop();
   const pro = useProfile().numbers_mode === "pro";
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState<{ ok: boolean; msg: string } | null>(null);
+  const soon = useSide(state, { closes_within_h: 3, sort: { key: "closes", dir: "asc" }, page: 1, page_size: 5, group_by_event: false });
 
   const rows = data ? [...data.rows, ...more] : [];
-  const split = desktop ? 6 : 4;   // Big payouts + Combos rows sit after the first cards (docs/18 §6)
+  const slots = data ? slotsOf(rows, data.groups ? [...data.groups, ...moreGroups] : undefined) : [];
+  const left = data ? (data.total_groups ?? data.total) - slots.length : 0;
+  const split = desktop ? 12 : 4;   // Big payouts + Combos rows sit after the first cards (docs/18 §6); 12 fills 2, 3 or 4 columns
   const scanned = meta?.meta.scanned_at;
+  const topic = state.topics?.length === 1 ? TAXONOMY[state.topics[0]!]?.label : state.categories?.length === 1 ? TAXONOMY[state.categories[0]!]?.label : undefined;
 
   const save = async (name: string, emoji: string | null) => {
     try {
@@ -178,26 +231,36 @@ export function BestBets() {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-5">
-      <section className="flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
-        <div className="max-w-[880px]">
-          <h1 className="text-[30px] font-bold leading-[1.05] tracking-[-0.02em] md:text-[40px]">
-            {data ? <><Count n={data.total} /> {data.total === 1 ? "bet" : "bets"} where the odds lean your way</> : "Bets where the odds lean your way"}
-          </h1>
-          <p className="mt-2.5 text-[15px] leading-normal text-muted">
+    <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-4">
+      <section className="flex flex-col gap-2">
+        <h1 className="text-[28px] font-bold leading-[1.1] tracking-[-0.02em] md:text-[34px]">
+          {data ? <><Count n={data.total} /> {data.total === 1 ? "bet" : "bets"} where the odds lean your way</> : "Bets where the odds lean your way"}
+        </h1>
+        <div className="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2">
+          <p className="max-w-[760px] text-sm leading-normal text-muted">
             Each one is priced lower than how often bets like it have actually won, after Polymarket&apos;s fee and the price you&apos;d really pay.
             {scanned && <span className="whitespace-nowrap"> Scanned {ago(scanned)}.</span>}
           </p>
+          <StatTiles />
         </div>
-        <StatTiles />
       </section>
+
+      <TodayCard />
+      <ClosingSoon rows={soon?.rows} />
+      <ResultsTicker results={meta?.results} />
 
       <FilterPills state={state} mode="flags" facets={data?.facets} meta={meta} onChange={set} onReset={reset}>
         <button type="button" onClick={() => (setSaved(null), setSaving(true))} className="min-h-10 whitespace-nowrap px-2 text-[13px] text-muted hover:text-text">+ Save this view</button>
         <span role="status" className="text-[13px] text-accent-softer empty:hidden">{saved?.ok ? saved.msg : ""}</span>
       </FilterPills>
 
-      <PaysChips state={state} onChange={set} />
+      <div className="flex flex-wrap items-center gap-2">
+        <PaysChips state={state} onChange={set} />
+        {data && data.total > 0 && <PriceChips f={data.facets} />}
+        <button type="button" aria-pressed={!state.group_by_event} onClick={() => set({ group_by_event: !state.group_by_event })} className={`${chipClass(!state.group_by_event)} md:ml-auto`}>
+          Show every bet
+        </button>
+      </div>
       <SaveViewDialog open={saving} title="Save this view" error={saved && !saved.ok ? saved.msg : null} onSubmit={save} onClose={() => setSaving(false)} />
       <SearchChips q={state.q} search={data?.search} onChange={set} />
       <AppliedPills state={state} mode="flags" onChange={set} onReset={reset} />
@@ -206,31 +269,30 @@ export function BestBets() {
       {error && !data ? (
         <ErrorState onRetry={sc.retry} what="best bets" />
       ) : !data ? (
-        <div className="grid gap-3.5 [grid-template-columns:repeat(auto-fill,minmax(290px,1fr))]" aria-busy="true" aria-label="Loading best bets">
-          {Array.from({ length: 6 }, (_, i) => <Skeleton key={i} className="h-[300px]" />)}
-        </div>
+        <ul className={desktop ? GRID : "flex flex-col gap-2.5"} aria-busy="true" aria-label="Loading best bets">
+          {Array.from({ length: desktop ? 8 : 4 }, (_, i) => <li key={i} className="flex"><CardSkeleton /></li>)}
+        </ul>
       ) : data.total === 0 ? (
         <EmptyState
-          title="No best bets match these filters"
-          line="Right now nothing with these filters is priced below how often similar bets have won. Clear the filters, or check back after the next scan."
+          title={topic ? `Nothing in ${topic} right now` : "No best bets match these filters"}
+          line={`Nothing with these filters is priced below how often similar bets have won. Next scan in ${nextScanIn()}.`}
           onReset={reset}
         />
       ) : (
         <>
           {error && <ErrorState onRetry={sc.retry} what="best bets" />}
-          <PriceStrip f={data.facets} total={data.total} />
-          <Cards rows={rows.slice(0, split)} desktop={desktop} pro={pro} dim={loading} first={state.sort.key === "roi"} />
+          <Cards slots={slots.slice(0, split)} desktop={desktop} pro={pro} dim={loading} />
           <BigPayouts state={state} pro={pro} />
           {tierOf(state) === "best" && <SuggestedCombos />}
-          {rows.length > split && <Cards rows={rows.slice(split)} desktop={desktop} pro={pro} dim={loading} />}
-          {rows.length < data.total && (
+          {slots.length > split && <Cards slots={slots.slice(split)} desktop={desktop} pro={pro} dim={loading} />}
+          {left > 0 && (
             <button
               type="button"
               onClick={sc.loadMore}
               disabled={sc.loadingMore}
               className="mx-auto min-h-11 rounded-input border border-border bg-surface px-5 text-sm hover:border-accent-border"
             >
-              {sc.loadingMore ? "Loading…" : `Show more (${nf(data.total - rows.length)} left)`}
+              {sc.loadingMore ? "Loading…" : `Show more (${nf(left)} left)`}
             </button>
           )}
           <MoreWithEdge state={state} desktop={desktop} pro={pro} />

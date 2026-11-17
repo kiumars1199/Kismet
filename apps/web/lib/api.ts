@@ -39,6 +39,7 @@ export interface MetaResponse {
   loaded_at: number;                       // ms, when this server instance loaded the data
   counts: { markets: number; flags: number; events: number };
   facets: { categories: Counts; niches: Counts; market_types: Counts; periods: Counts; frequency: Counts; topics: Counts };
+  results?: { graded: number; wins: number; losses: number; avg_pnl: number | null } | null;   // live ledger totals (ledger_summary.json)
 }
 
 export interface ApiRow { market: StoreMarket; side: Side }   // side = the side chosen by FilterState.side

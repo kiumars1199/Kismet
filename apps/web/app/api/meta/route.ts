@@ -14,6 +14,7 @@ export const GET = () =>
       loaded_at: store.loadedAt,
       counts: { markets: store.markets.length, flags: store.flags.length, events: store.byEvent.size },
       facets: { ...store.facets, topics },
+      results: store.ledgerSummary ? { graded: store.ledgerSummary.graded, wins: store.ledgerSummary.wins, losses: store.ledgerSummary.losses, avg_pnl: store.ledgerSummary.avg_pnl } : null,
     };
     return Response.json(body);
   });
