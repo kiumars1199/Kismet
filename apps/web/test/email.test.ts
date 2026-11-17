@@ -1,7 +1,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { getStore } from "@/lib/data/store";
 import { sendEmail, unsubscribeToken, unsubscribeUrl, verifyUnsubscribe, type Email } from "@/lib/email";
-import { alertEmail, DISCLAIMER } from "@/lib/email/templates";
+import { alertEmail, DISCLAIMER, paymentFailedEmail, signInEmail } from "@/lib/email/templates";
+import { handleEvent, type BillingDb } from "@/lib/billing/stripe";
+import type Stripe from "stripe";
+import { PROFIT_CLAIM } from "./profit-claim";
 import { GET as unsubGet, POST as unsubPost } from "@/app/api/unsubscribe/route";
 
 const SECRET = "test-unsub-secret";
@@ -19,23 +22,50 @@ async function renderAll(): Promise<Email[]> {
   const store = await getStore();
   const unsub = unsubscribeUrl("user-1", "rule-1");
   // Neutral question/outcome text so the wording check tests our template, not Polymarket's titles.
-  return store.flags.slice(0, 20).map((m) =>
-    alertEmail({ to: "a@b.test", ruleName: "NFL <favorites>", market: { ...m, question: "Test market" },
-      side: { ...m.best!, outcome: "Yes" }, timeZone: "America/New_York", unsubscribeUrl: unsub }));
+  return [
+    ...store.flags.slice(0, 20).map((m) =>
+      alertEmail({ to: "a@b.test", ruleName: "NFL <favorites>", market: { ...m, question: "Test market" },
+        side: { ...m.best!, outcome: "Yes" }, timeZone: "America/New_York", unsubscribeUrl: unsub })),
+    signInEmail("a@b.test", "https://marketedge.test/auth/confirm?x=1", unsub),
+    paymentFailedEmail("a@b.test", unsub),
+  ];
 }
 
 describe("email templates", () => {
-  it("render with an unsubscribe link, the disclaimer and no banned wording", async () => {
-    for (const e of await renderAll()) {
+  it("render with an unsubscribe link, the disclaimer and no banned or expected-profit wording", async () => {
+    const all = await renderAll();
+    expect(all.length).toBe(22);
+    for (const e of all) {
       expect(e.subject.length).toBeGreaterThan(0);
       for (const body of [e.html, e.text]) {
         expect(body).toContain("https://marketedge.test/api/unsubscribe?t=");
         expect(body).toContain(DISCLAIMER);
         expect(body).not.toMatch(BANNED);
+        expect(body).not.toMatch(PROFIT_CLAIM);
       }
       expect(e.subject).not.toMatch(BANNED);
+      expect(e.subject).not.toMatch(PROFIT_CLAIM);
+    }
+    for (const e of all.slice(0, 20)) {
       expect(e.html).toContain("&lt;favorites&gt;"); // user text is escaped
       expect(e.html).not.toContain("<favorites>");
+    }
+  });
+
+  it("the Stripe payment-failed webhook mails an unsubscribe link and the disclaimer in the body (audit fail 9)", async () => {
+    vi.stubEnv("UNSUBSCRIBE_SECRET", SECRET);
+    vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://marketedge.test");
+    vi.stubEnv("RESEND_API_KEY", "re_test");
+    vi.stubEnv("EMAIL_FROM", "MarketEdge <alerts@marketedge.test>");
+    const fetchMock = vi.fn(async () => Response.json({ id: "em_1" }));
+    vi.stubGlobal("fetch", fetchMock);
+    const db = { userForCustomer: async () => "user-1", emailFor: async () => "a@b.test" } as unknown as BillingDb;
+    await handleEvent({ type: "invoice.payment_failed", data: { object: { customer: "cus_1" } } } as unknown as Stripe.Event, db, null);
+    const body = JSON.parse(String((fetchMock.mock.calls[0] as unknown as [string, RequestInit])[1].body));
+    for (const part of [body.html, body.text]) {
+      expect(part).toContain("https://marketedge.test/api/unsubscribe?t=");
+      expect(part).toContain(DISCLAIMER);
+      expect(part).not.toMatch(PROFIT_CLAIM);
     }
   });
 

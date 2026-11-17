@@ -5,7 +5,8 @@ import "server-only";
 import Stripe from "stripe";
 import { site } from "@/lib/site";
 import type { Tier } from "@/lib/entitlements";
-import { sendEmail, siteUrl, unsubscribeUrl } from "@/lib/email";
+import { sendEmail, unsubscribeUrl } from "@/lib/email";
+import { paymentFailedEmail } from "@/lib/email/templates";
 
 export const PRICE_KEYS = ["pro_monthly", "pro_yearly", "premium_monthly", "premium_yearly"] as const;
 export type PriceKey = (typeof PRICE_KEYS)[number];
@@ -119,14 +120,7 @@ export async function handleEvent(event: Stripe.Event, db: BillingDb, stripe: St
       const customer = idOf(event.data.object.customer);
       const userId = customer && (await db.userForCustomer(customer));
       const email = userId && (await db.emailFor(userId));
-      if (email) {
-        const text = "We couldn't charge your card. Update it from your account page (Manage billing) to keep your plan.";
-        await sendEmail({
-          to: email, subject: "Your MarketEdge payment didn't go through", text: `${text}\n\n${siteUrl()}/account`,
-          html: `<p>${text}</p><p><a href="${siteUrl()}/account">Open your account</a></p>`,
-          unsubscribeUrl: unsubscribeUrl(userId),
-        });
-      }
+      if (email) await sendEmail(paymentFailedEmail(email, unsubscribeUrl(userId)));
       return;
     }
     default:

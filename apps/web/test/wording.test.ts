@@ -5,9 +5,8 @@ import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import { getStore } from "@/lib/data/store";
 import { unsubscribeUrl } from "@/lib/email";
-import { alertEmail, signInEmail } from "@/lib/email/templates";
-
-export const PROFIT_CLAIM = /expected (return|profit)|→\s*expect|\bexpect\b[^.\n]{0,20}\$|guaranteed/i;
+import { alertEmail, paymentFailedEmail, signInEmail } from "@/lib/email/templates";
+import { PROFIT_CLAIM } from "./profit-claim";
 
 const root = path.resolve(import.meta.dirname, "..");
 const walk = (dir: string): string[] =>
@@ -38,13 +37,14 @@ describe("no expected-profit or guarantee wording (audit fail 8)", () => {
     }
   });
 
-  it("in the alert and sign-in emails", async () => {
+  it("in the alert, sign-in and payment-failed emails", async () => {
     vi.stubEnv("UNSUBSCRIBE_SECRET", "s");
     const store = await getStore();
     const unsub = unsubscribeUrl("u1");
     const emails = [
       ...store.flags.slice(0, 20).map((m) => alertEmail({ to: "a@b.test", ruleName: "r", market: m, side: m.best, timeZone: "UTC", unsubscribeUrl: unsub })),
       signInEmail("a@b.test", "https://x.test/link", unsub),
+      paymentFailedEmail("a@b.test", unsub),
     ];
     for (const e of emails) for (const part of [e.subject, e.html, e.text]) expect(part).not.toMatch(PROFIT_CLAIM);
     vi.unstubAllEnvs();
