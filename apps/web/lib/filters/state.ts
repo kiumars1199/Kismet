@@ -1,0 +1,50 @@
+// FilterState: one object drives URL, presets, alerts and the API (docs/04 § FilterState).
+import { z } from "zod";
+import { Category, MarketType, Verdict } from "@/lib/schemas";
+
+export const SortKey = z.enum([
+  "edge", "edge_low", "realistic_edge", "roi", "win_prob", "price", "closes",
+  "volume", "volume_24h", "liquidity", "spread", "capacity", "retention",
+  "evidence", "competitive", "newest",
+]);
+export type SortKey = z.infer<typeof SortKey>;
+
+export const PeriodEnum = z.enum(["full", "1H", "2H", "1Q", "2Q", "3Q", "4Q"]);
+export const FrequencyEnum = z.enum(["recurring", "15M", "hourly", "daily", "weekly"]);
+export const SideChoice = z.enum(["best", "yes", "no", "favorite", "underdog"]);
+
+export const FilterState = z.object({
+  v: z.literal(1).default(1),
+  q: z.string().max(120).optional(),
+  view: z.enum(["markets", "flags"]).default("markets"),
+  categories: z.array(Category).optional(),          // include
+  exclude_categories: z.array(Category).optional(),  // "hide sports"
+  topics: z.array(z.string()).optional(),            // taxonomy ids, OR within, AND with categories
+  market_types: z.array(MarketType).optional(),
+  periods: z.array(PeriodEnum).optional(),
+  side: SideChoice.default("best"),
+  price_min: z.number().min(0).max(1).optional(), price_max: z.number().min(0).max(1).optional(),
+  win_prob_min: z.number().optional(),
+  edge_min: z.number().optional(),                   // e.g. 0.02
+  edge_low_positive: z.boolean().optional(),         // confident only
+  roi_min: z.number().optional(),
+  validated_only: z.boolean().optional(),
+  verdicts: z.array(Verdict).optional(),             // flags view
+  retention_min: z.number().optional(), capacity_min_usd: z.number().optional(),
+  min_events: z.number().int().optional(),           // evidence size
+  closes_within_h: z.number().optional(), closes_after_h: z.number().optional(),
+  live_only: z.boolean().optional(),
+  frequency: z.array(FrequencyEnum).optional(),
+  volume_min: z.number().optional(), volume_24h_min: z.number().optional(),
+  liquidity_min: z.number().optional(), spread_max: z.number().optional(),
+  watchlisted_only: z.boolean().optional(), favorites_only: z.boolean().optional(),
+  group_by_event: z.boolean().default(true),
+  sort: z.object({ key: SortKey, dir: z.enum(["asc", "desc"]) })
+        .default({ key: "roi", dir: "desc" }),       // shown as "Best expected return"
+  win_prob_floor_default: z.number().default(0.4),     // default view hides < 40% chance (long shots)
+  page: z.number().int().min(1).default(1), page_size: z.number().int().min(1).max(200).default(50),
+});
+export type FilterState = z.infer<typeof FilterState>;
+export type FilterInput = z.input<typeof FilterState>;
+
+export const defaultState = (): FilterState => FilterState.parse({});
