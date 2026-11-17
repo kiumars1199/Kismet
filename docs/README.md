@@ -14,6 +14,7 @@
 | 10 | [Tasks](10-tasks.md) | Ordered build backlog for agents, in parallel lanes |
 | 11 | [Research](11-research.md) | Competitors, feature parity, sources |
 | 12 | [Test plan](12-test-plan.md) | Unit, e2e smoke flows, data checks, launch checklist |
+| 13 | [Search & filters v2](13-search-and-filters-v2.md) | Smart search, live suggestions, simple filters, Best bets home |
 | — | [Agent prompts](AGENT_PROMPTS.md) | Copy-paste prompts for Claude Code, one per lane |
 
 Engine docs: the repo `README.md` (model, backtest, outputs).
