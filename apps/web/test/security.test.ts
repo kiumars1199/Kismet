@@ -79,6 +79,19 @@ describe("web hardening greps", () => {
   });
 });
 
+describe("alert webhooks (docs/15): Discord and Telegram URLs only", () => {
+  it("accepts the two real prefixes, nothing else", async () => {
+    const { ROW } = await import("@/lib/repo/schemas");
+    const rule = { name: "r", enabled: true, kind: "closing_soon", query: null, market_id: null, side_index: null, threshold: null,
+      channels: ["discord"], cooldown_minutes: 60, quiet_hours: null, last_fired_at: null };
+    const ok = (webhook_url: string) => ROW.alert_rules.safeParse({ ...rule, webhook_url }).success;
+    expect(ok("https://discord.com/api/webhooks/1/abc")).toBe(true);
+    expect(ok("https://api.telegram.org/bot1:x/sendMessage")).toBe(true);
+    for (const bad of ["https://evil.example/", "https://discord.com.evil.example/api/webhooks/x", "http://discord.com/api/webhooks/1",
+      "https://discord.com/api/oauth2/x", "https://169.254.169.254/latest"]) expect(ok(bad), bad).toBe(false);
+  });
+});
+
 describe("cookie flags (docs/15 § Auth)", () => {
   it("HttpOnly, SameSite=Lax, Secure in production, path /", async () => {
     const { COOKIE_OPTIONS } = await import("@/lib/auth/server");

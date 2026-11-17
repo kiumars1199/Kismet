@@ -71,7 +71,7 @@ Run everything: `cd apps/web && pnpm typecheck && pnpm lint && pnpm test && pnpm
 | Every API input parsed with zod; unknown keys rejected; numbers bounded | Every `app/api/**` schema, `lib/trade/intent.ts`, `lib/repo/schemas.ts` | `test/security.test.ts`: every `z.object` in those files is `.strict()`. List routes go through the URL filter parser (`lib/filters`), which keeps only known keys. Path ids are only Map lookup keys. |
 | Pasted Polymarket URLs are parsed locally, never fetched | `lib/search/parse.ts` | `lib/search/parse.test.ts` |
 | Outbound fetches only to the allow-list | Literal hosts in server code | `test/security.test.ts`: every `https://` host in a file that calls `fetch` must be one of `api.github.com`, `api.resend.com`, `clob.polymarket.com` or `gamma-api.polymarket.com`. Supabase comes from env. Stripe goes through its SDK. |
-| Alert webhooks: Discord and Telegram URLs only | `lib/repo/schemas.ts` (`webhook_url` regex) | `test/rls.test.ts` (B can't set A's webhook); the schema is `.strict()` |
+| Alert webhooks: Discord and Telegram URLs only | `lib/repo/schemas.ts` (`webhook_url` regex) | `test/security.test.ts` ("alert webhooks": look-alike hosts, http and other paths rejected), `test/rls.test.ts` (B can't set A's webhook) |
 | CSRF: Origin check on every mutation | `sameOrigin()` (one copy, `lib/auth/server.ts`); `siteOrExtension()` for `/api/ext/token`; `withUser` for `/api/data/*` | `test/security.test.ts`: every mutating route checks Origin, or is listed with the credential it uses instead (Stripe signature, signed token, Bearer, nonce, CRON_SECRET). Includes unit tests for `/api/settle` and `/api/ext/token`. |
 | Open redirects: `next=` is a same-origin relative path | `safeNext()` | `lib/auth/server.test.ts` |
 
@@ -108,4 +108,6 @@ Run everything: `cd apps/web && pnpm typecheck && pnpm lint && pnpm test && pnpm
 - Server pages (`/m/[id]`, `/event/[id]`) are not rate limited. They render the Free shape for anonymous visitors, so they leak nothing beyond what Free already sees.
 - The reveal count for signed-out visitors is a cookie, so clearing cookies resets it. Revealed details are Free-tier data.
 - `alert_events.dedupe_key` is unique across all users, not per user. A collision only blocks an insert; RLS still hides the rows.
+- A signing key is made up per process only in demo mode and never when `VERCEL_ENV=production`. A self-hosted production build with `DEMO_MODE=true` would still make one up; this is kept so the e2e production build can run paper trading.
+- `/api/ext/telemetry` takes no sign-in. It is rate limited to 30 a minute per IP.
 - The CSP keeps `style-src 'unsafe-inline'`, because React `style` attributes need it. There is no `form-action`, because the OAuth and Stripe redirect chains would need every hop listed.
