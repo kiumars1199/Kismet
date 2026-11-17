@@ -78,8 +78,8 @@ describe("nonce store and signing key (docs/15 § Trading keys)", () => {
 
 describe("extension token", () => {
   it("round-trips and expires", () => {
-    const t = issueExtToken("u@x", "premium", 1_000)!;
-    expect(verifyExtToken(t.token, 2_000)).toMatchObject({ sub: "u@x", tier: "premium" });
+    const t = issueExtToken({ id: "u1", email: "u@x" }, "premium", 1_000)!;
+    expect(verifyExtToken(t.token, 2_000)).toMatchObject({ sub: "u@x", uid: "u1", tier: "premium" });
     expect(verifyExtToken(t.token, t.exp + 1)).toBeNull();
     expect(verifyExtToken(issueNonce("place", order))).toBeNull(); // a nonce is not a token
   });

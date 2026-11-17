@@ -23,10 +23,10 @@ export function tradingAllowed(email: string | null): boolean {
 }
 
 /** Signed-in user's email and plan from the Supabase session cookie (tier from the webhook-written subscriptions row). */
-export async function currentUser(_req: Request): Promise<{ email: string; tier: Tier } | null> {
-  if (DEMO_MODE) return { email: "demo@localhost", tier: "premium" };
+export async function currentUser(_req: Request): Promise<{ id: string; email: string; tier: Tier } | null> {
+  if (DEMO_MODE) return { id: "demo", email: "demo@localhost", tier: "premium" };
   const [me] = await Promise.all([getMe(), getSettings()]);   // getSettings refreshes the allowlist snapshot
-  return me.user?.email ? { email: me.user.email, tier: me.tier } : null;
+  return me.user?.email ? { id: me.user.id, email: me.user.email, tier: me.tier } : null;
 }
 
 /** The extension's ID: NEXT_PUBLIC_EXTENSION_ID (Chrome Web Store ID), else the pinned dev ID in dev and demo mode.
@@ -101,18 +101,23 @@ export async function consumeNonce(nonce: string, action: string, payload: unkno
 }
 
 export const EXT_TOKEN_TTL_MS = 30 * 60_000;
-type ExtToken = { k: "ext"; sub: string; tier: Tier; exp: number };
+/** RT-10: refreshes never stretch one sign-in past this; then the extension signs in again from the site session. */
+export const EXT_TOKEN_MAX_AGE_MS = 7 * 24 * 3_600_000;
+/** sub = email, uid = Supabase user id, iat0 = when this chain of refreshes first signed in. */
+type ExtToken = { k: "ext"; sub: string; uid: string; tier: Tier; exp: number; iat0: number };
 
 /** Short-lived extension sign-in (docs/09 § Auth). The extension refreshes it before it expires. */
-export function issueExtToken(sub: string, tier: Tier, now = Date.now()) {
+export function issueExtToken(user: { id: string; email: string }, tier: Tier, now = Date.now(), iat0 = now) {
   const exp = now + EXT_TOKEN_TTL_MS;
-  const token = seal({ k: "ext", sub, tier, exp } satisfies ExtToken);
+  const token = seal({ k: "ext", sub: user.email, uid: user.id, tier, exp, iat0 } satisfies ExtToken);
   return token ? { token, exp, tier } : null;
 }
 
+/** Valid, unexpired and within the absolute lifetime. Tokens from before RT-10 (no uid / iat0) are refused. */
 export function verifyExtToken(token: string | null | undefined, now = Date.now()): ExtToken | null {
   const t = token ? open<ExtToken>(token) : null;
-  return t && t.k === "ext" && t.exp > now ? t : null;
+  return t && t.k === "ext" && t.exp > now && typeof t.uid === "string" && typeof t.iat0 === "number" &&
+    now - t.iat0 <= EXT_TOKEN_MAX_AGE_MS ? t : null;
 }
 
 /** CSRF for /api/ext/token: our site (/ext/connect) or our own extension's worker, nothing else. */
