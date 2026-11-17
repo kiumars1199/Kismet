@@ -28,5 +28,8 @@ Branch `demo`. Built in one night by an agent team (one lane per worktree), merg
 
 ## Decisions (lead calls, incl. blockers > 20 min)
 - Design tokens: the approved artboard wins over the old docs/06 values; docs/06 now lists what the app implements.
+- docs/08 said demo runs as `pro`; docs/01 and the brief say `premium`. Went with premium, fixed docs/08.
+- Engine warning text says "15c" (scan.py) where docs/07 says "15¢"; UI shows its own plain-language label ("Unusually high — check details"), so the raw string is not user-facing.
+- LocalRepo adds sync `snapshot()`/`profileSnapshot()` for useSyncExternalStore; SupabaseRepo must serve them from a cache.
 - T-60: fixtures in `apps/web/test/fixtures/` already existed (500 markets, 150 flags); reused as-is.
 - `engine fit` needs `data/` (gitignored, ~1 h Polymarket bootstrap). Bootstrap started locally at the start of the night.
