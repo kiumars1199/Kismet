@@ -4,7 +4,7 @@ import Form from "next/form";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { fetchEventBySlug } from "@/lib/api";
-import { SLUG_URL } from "@/lib/data/search";
+import { SLUG_URL } from "@/lib/search/parse";
 
 // Header search (docs/05 F-02): "/" focuses it. On /markets it filters live (200 ms debounce, merged into the
 // URL with the other filters); elsewhere it submits to /markets?q=…. A pasted Polymarket URL jumps to the market.

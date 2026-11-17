@@ -23,6 +23,7 @@
 import type { Curve } from "@/lib/data/model";
 import type { Counts, Facets, Group } from "@/lib/filters/apply";
 import type { FilterInput } from "@/lib/filters/state";
+import type { Chip } from "@/lib/search/parse";
 import { FilterState } from "@/lib/filters/state";
 import { serialize } from "@/lib/filters/url";
 import type { BacktestFile, BacktestRecord, BacktestResult, Execution, ScanMeta, Side, StoreMarket } from "@/lib/types";
@@ -45,6 +46,7 @@ export interface MarketsResponse {
   rows: ApiRow[];
   groups?: ApiGroup[];
   facets: Facets;                          // counts for the current filter minus that facet
+  search?: { chips: Chip[]; relaxed?: string };   // how q was understood; relaxed = "No bets match … Showing …"
 }
 
 export interface MarketResponse {

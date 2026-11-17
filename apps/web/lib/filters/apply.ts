@@ -2,6 +2,7 @@
 // Missing fields (volume_24h, created_at, competitive, ...) count as "no value": a min/max filter on them
 // excludes the row and sorting puts them last in either direction. Values are never invented.
 import type { Store } from "@/lib/data/store";
+import { parse, toFilterState, type Chip, type ParsedQuery } from "@/lib/search/parse";
 import { TAXONOMY, topicsOf } from "@/lib/taxonomy";
 import type { Execution, Side, StoreMarket } from "@/lib/types";
 import type { FilterState, SortKey } from "./state";
@@ -29,6 +30,25 @@ export interface Page {
   rows: Row[];              // rows on this page (grouped: the page's groups flattened, best first)
   groups?: Group[];
   facets: Facets;           // counts for the current filter minus that facet
+  search?: { chips: Chip[]; relaxed?: string };   // how q was understood; relaxed = honest fallback note (docs/13)
+  parsed?: ParsedQuery;     // server only (marketsPage strips it)
+}
+
+export interface SearchPlan { f: FilterState; hits: Map<string, number> | null; parsed: ParsedQuery | null; relevance: boolean }
+
+/**
+ * q → filters + text hits (docs/13). A pasted URL/slug matches its event. Otherwise q is parsed; filter words merge
+ * into FilterState (explicit filters win) and the leftover text goes to the index. With text and the default sort,
+ * rows rank by relevance; a typed sort word ("soonest") or a chosen sort wins.
+ */
+export function planSearch(store: Store, f: FilterState, parsed?: ParsedQuery): SearchPlan {
+  const q = f.q ?? "";
+  const direct = parsed ? null : store.search.slug(q);
+  if (direct) return { f, hits: direct, parsed: null, relevance: false };
+  const p = parsed ?? parse(q, { cities: store.search.cities, tz: f.tz, now: Date.now() });
+  const hits = p.text.length ? store.search.find(p.text.join(" ")) : null;
+  const defaultSort = f.sort.key === "roi" && f.sort.dir === "desc";
+  return { f: toFilterState(p, f, store.meta.scanned_at * 1000), hits, parsed: p, relevance: !!hits && !p.sort && defaultSort };
 }
 
 const num = (x: unknown): x is number => typeof x === "number" && Number.isFinite(x);
@@ -119,9 +139,11 @@ export function groupByEvent(rows: Row[], flagIds?: Map<string, unknown>): Group
 // Facet bits: a row counts toward facet X when every filter except X passes.
 const CAT = 1, TOPIC = 2, MT = 4, PER = 8, VD = 16;
 
-export function apply(store: Store, f: FilterState, user?: UserCtx): Page {
+export function apply(store: Store, f0: FilterState, user?: UserCtx, parsed?: ParsedQuery): Page {
+  const plan = f0.q ? planSearch(store, f0, parsed) : null;
+  const f = plan?.f ?? f0;
+  const hits = plan?.hits ?? null;
   const source = f.view === "flags" ? store.flags : store.markets;
-  const hits = f.q ? store.search.find(f.q) : null;
   const fav = f.favorites_only ? (user?.favoriteTopics ?? []) : null;
   const fNoVerdicts = { ...f, verdicts: undefined }; // verdicts are a facet (VD bit)
 
@@ -168,8 +190,19 @@ export function apply(store: Store, f: FilterState, user?: UserCtx): Page {
     if (mask === 0) rows.push({ market: m, side: s! });
   }
 
-  rows.sort(comparator(f.sort));
-  const base = { total: rows.length, page: f.page, page_size: f.page_size, facets };
+  const cmp = comparator(f.sort);
+  if (plan?.relevance && hits) {
+    // text score × (1 + 0.5 × expected return, 0–50% scaled to 0–1) + 10% if it closes within 24 h
+    const score = new Map(rows.map((r) => {
+      const s = hits.get(r.market.id) ?? 0;
+      return [r, s * (1 + 0.5 * Math.min(1, Math.max(0, r.side.roi_pct / 50))) + (r.market.hours_to_close <= 24 ? 0.1 * s : 0)];
+    }));
+    rows.sort((a, b) => score.get(b)! - score.get(a)! || cmp(a, b));
+  } else rows.sort(cmp);
+  const base = {
+    total: rows.length, page: f.page, page_size: f.page_size, facets,
+    ...(plan?.parsed ? { parsed: plan.parsed, search: { chips: plan.parsed.chips } } : {}),
+  };
   if (!f.group_by_event) {
     const start = (f.page - 1) * f.page_size;
     return { ...base, pages: Math.ceil(rows.length / f.page_size), rows: rows.slice(start, start + f.page_size) };
