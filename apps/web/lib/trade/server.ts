@@ -26,8 +26,10 @@ export async function currentUser(_req: Request): Promise<{ email: string; tier:
   return me.user?.email ? { email: me.user.email, tier: me.tier } : null;
 }
 
-/** The extension's ID (Chrome Web Store ID in production; the pinned dev ID otherwise). */
-export const extensionId = () => process.env.NEXT_PUBLIC_EXTENSION_ID || "cgoaaiaghbckpalppklocajbdpoelmbd";
+/** The extension's ID: NEXT_PUBLIC_EXTENSION_ID (Chrome Web Store ID), else the pinned dev ID in dev and demo mode.
+ *  A live production deploy without it = null: no extension origin is trusted (RT-14; the dev key pair is public). */
+export const extensionId = (): string | null =>
+  process.env.NEXT_PUBLIC_EXTENSION_ID || (process.env.NODE_ENV === "production" && !DEMO_MODE ? null : "cgoaaiaghbckpalppklocajbdpoelmbd");
 
 // On globalThis so every route bundle (and dev hot reloads) in one server process share them.
 const g = globalThis as { __meDevSecret?: Buffer; __meUsedNonces?: Map<string, number> };
@@ -111,5 +113,7 @@ export function verifyExtToken(token: string | null | undefined, now = Date.now(
 }
 
 /** CSRF for /api/ext/token: our site (/ext/connect) or our own extension's worker, nothing else. */
-export const siteOrExtension = (req: Request) =>
-  sameOrigin(req) || req.headers.get("origin") === `chrome-extension://${extensionId()}`;
+export const siteOrExtension = (req: Request) => {
+  const id = extensionId();
+  return sameOrigin(req) || (!!id && req.headers.get("origin") === `chrome-extension://${id}`);
+};

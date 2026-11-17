@@ -83,6 +83,38 @@ describe("RT-12 request bodies are capped while reading", () => {
   });
 });
 
+describe("RT-14 health and extension ID give nothing away", () => {
+  it("public /api/health: ok + status only; details only with the cron secret", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("DEMO_MODE", "false");
+    vi.stubEnv("UPSTASH_REDIS_REST_URL", "");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "");
+    vi.stubEnv("CRON_SECRET", "s3cret");
+    vi.resetModules();
+    const { GET } = await import("@/app/api/health/route");
+    const pub = await GET(new Request("http://t/api/health"));
+    expect(pub.status).toBe(503);
+    expect(await pub.json()).toEqual({ ok: false });
+    const wrong = await GET(new Request("http://t/api/health", { headers: { authorization: "Bearer nope" } }));
+    expect(await wrong.json()).toEqual({ ok: false });
+    const full = await GET(new Request("http://t/api/health", { headers: { authorization: "Bearer s3cret" } }));
+    expect(await full.json()).toMatchObject({ ok: false, ratelimit: "off", db: "not configured" });
+  });
+
+  it("production without NEXT_PUBLIC_EXTENSION_ID trusts no extension origin and never shows the dev ID", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("NEXT_PUBLIC_EXTENSION_ID", "");
+    vi.stubEnv("DEMO_MODE", "false");
+    vi.stubEnv("KALSHI_TRADING_ENV", "demo");
+    vi.resetModules();
+    const { siteOrExtension } = await import("@/lib/trade/server");
+    const dev = new Request("http://t/api/ext/token", { method: "POST", headers: { origin: "chrome-extension://cgoaaiaghbckpalppklocajbdpoelmbd" } });
+    expect(siteOrExtension(dev)).toBe(false);
+    const { GET } = await import("@/app/api/trade/config/route");
+    expect(JSON.stringify(await (await GET(new Request("http://t/api/trade/config"))).json())).not.toContain("cgoaaiag");
+  });
+});
+
 describe("RT-13 next= with non-ASCII falls back to / instead of a 500", () => {
   it("every accepted next is a valid Location header value", async () => {
     const { safeNext } = await import("@/lib/auth/server");

@@ -1,7 +1,12 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const load = async () => (await import("@/app/api/health/route")).GET;
+// The details need the cron secret (RT-14); the public answer is {ok} + status (test/redteam.test.ts).
+const load = async () => {
+  const { GET } = await import("@/app/api/health/route");
+  return () => GET(new Request("http://t/api/health", { headers: { authorization: "Bearer health-test" } }));
+};
 
+beforeEach(() => vi.stubEnv("CRON_SECRET", "health-test"));
 afterEach(() => {
   vi.unstubAllEnvs();
   vi.unstubAllGlobals();
