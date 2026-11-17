@@ -17,6 +17,7 @@
 | 13 | [Search & filters v2](13-search-and-filters-v2.md) | Smart search, live suggestions, simple filters, Best bets home |
 | 14 | [Launch](14-launch.md) | Accounts, Stripe placeholders, legal pages, hosting, ops, pre-launch audit |
 | 15 | [Security](15-security.md) | Threat model and the security checklist |
+| 18 | [Multipliers and combos](18-multipliers-and-combos.md) | Two tiers, Pays filter, clean counts, combos, longer backtest |
 | — | [Overnight run](OVERNIGHT.md) | The full final-product build + final audit prompt |
 | 16 | [Kalshi trading](16-trading.md) | Placing Kalshi trades: rules, design, paper-trading build behind a flag |
 | 17 | [UI polish](17-ui-polish.md) | Fixes from screenshots + all-day usefulness |

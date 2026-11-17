@@ -24,6 +24,14 @@ Re-read this file after every auto-compact.
 
 ## 1. Build lanes (all of them, in this order of priority)
 
+**Lane A: engine: more history, two tiers, multipliers, combo backtest** (`docs/18-multipliers-and-combos.md` §1–2, §5.4).
+Start this first; it runs for hours. Backfill to 730 days (resumable), 52 weekly folds, `by_pays` breakdown,
+`tier` on every flag, combo backtest. Update docs/03 and `lib/types.ts` together. pytest green.
+
+**Lane C: multipliers, clean numbers, combos in the app** (`docs/18` §3–5). Pays pill on both tiers, "Biggest payout"
+sort, 2x+/5x+/10x+ chips, "More bets with an edge" section, `formatCount` everywhere, combo builder tray,
+suggested combos, Kalshi combo check behind the data-permission flag, combo orders in paper mode.
+
 **Lane S: search and Best bets home** (`docs/13-search-and-filters-v2.md`, T-70..T-75), skipping anything already on `demo`.
 Smart search ("barcelona 3x good edge"), suggestions while typing, five simple pills, `/` = Best bets, landing at `/about`.
 
@@ -101,16 +109,17 @@ how it was checked, evidence (command output, screenshot path, test name).
    `curl -I` (CSP, HSTS, X-Frame-Options/frame-ancestors, Referrer-Policy, Permissions-Policy); `pnpm audit` and
    `pip-audit` with no high/critical; gitleaks (or equivalent) on the full git history; grep client bundles for
    secret names and service keys; cookies HttpOnly/Secure/SameSite.
-7. **Trading safety**: trading fully off without `KALSHI_TRADING_ENV`; with `demo`, every order needs a confirm;
+7. **Multipliers and combos**: a 10x bet with a 14% chance and a 4-point edge appears in tier 2; every count uses `formatCount` and never rounds up (grep for raw counts); combo math matches hand-computed cases; same-event legs warned; suggested combos hidden if the combo backtest lost money.
+8. **Trading safety**: trading fully off without `KALSHI_TRADING_ENV`; with `demo`, every order needs a confirm;
    caps enforced; keys never leave the extension (inspect network and storage); keys with transfer scope rejected;
    no code path places an order without a user click (grep + review).
-8. **Billing**: Stripe test mode end to end: checkout → webhook → tier up → portal cancel → tier down at period end;
+9. **Billing**: Stripe test mode end to end: checkout → webhook → tier up → portal cancel → tier down at period end;
    Payment Link path with `client_reference_id`; idempotency on duplicate events; delete account cancels the subscription.
-9. **Legal and wording**: all legal pages present, linked in the footer, filled from config (placeholders listed,
+10. **Legal and wording**: all legal pages present, linked in the footer, filled from config (placeholders listed,
    not failed); disclaimer on every page and in the extension popup; 18+ gate at signup; grep for banned words;
    no claim of guaranteed or expected profit anywhere, including meta tags, OG images and emails; responsible-gambling
    resources on `/disclaimer`; unsubscribe in every email.
-10. **Publication readiness**: robots and sitemap correct; no test users, seed data or debug routes reachable in
+11. **Publication readiness**: robots and sitemap correct; no test users, seed data or debug routes reachable in
     prod; error pages styled; favicon and OG images; email templates render; extension zip installs on a clean
     Chrome profile and passes the MV3 checks; `SETUP.md` followed from scratch by the auditor in a fresh clone
     reaches a running app.
