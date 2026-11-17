@@ -67,6 +67,8 @@ Links) shows as `[[PLACEHOLDER]]` until filled. Every key in `SETUP.md` §2. Law
 - Lane A's 2-year history (1.3 GB `data/`) is cloned into the main checkout; the older copy is kept as `data.pre-backfill/` (gitignored).
 
 - picomatch high accepted as build-time-only with no upstream fix; not ignored in the audit config, so `pnpm audit` keeps reporting it until a patch ships.
+- Stripe webhook keeps answering 500 for a subscription whose customer has no linked user yet (Payment Link events can beat checkout.session.completed; Stripe's retry links it). Triggering it costs the sender a real payment, so the retry load is self-limiting.
+- Red-team fixes: production without Upstash uses a per-instance in-memory limiter (never unlimited); Free/anon get 30 list calls/min and 1,500 distinct rows/hour; filters run on banded values; Payment Link refs are HMAC-signed (key derived from STRIPE_WEBHOOK_SECRET, 24 h); quotas and server-owned profile columns enforced by Postgres triggers.
 
 ## Decisions (lead calls, incl. blockers > 20 min)
 - Design tokens: the approved artboard wins over the old docs/06 values; docs/06 now lists what the app implements.
