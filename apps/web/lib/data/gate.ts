@@ -5,6 +5,7 @@ import type { MarketsResponse } from "@/lib/api";
 import { can, quota, type Tier } from "@/lib/entitlements";
 import type { CheckResult } from "@/lib/execution";
 import type { Execution, Side, SideRanges, StoreMarket } from "@/lib/types";
+import type { Store } from "./store";
 
 const ROI = [0, 5, 10, 20, 50];           // % bands: <0, 0–5, 5–10, 10–20, 20–50, 50+
 const EDGE = [0, 0.02, 0.05, 0.1, 0.2];   // $ per share: <0¢, 0–2¢, 2–5¢, 5–10¢, 10–20¢, 20¢+
@@ -55,6 +56,22 @@ export function gateMarket<M extends StoreMarket>(m: M, tier: Tier): M {
     best,
     ...(m.execution ? { execution: freeExecution(m.execution) } : {}),
   };
+}
+
+const freeViews = new WeakMap<Store, Store>();
+/** The store as Free sees it (RT-04): list rows and event lists already banded, so filters, sorts and facet counts
+ *  run on the ranges Free is shown and can't be used as an oracle for the exact numbers. byId / flagsById stay
+ *  exact for a counted reveal (marketBody with shown = "pro"). Built once per loaded store. */
+export function freeView(store: Store): Store {
+  let v = freeViews.get(store);
+  if (!v) {
+    const free = (m: StoreMarket) => gateMarket(m, "free");
+    const lists = (map: Map<string, StoreMarket[]>) => new Map([...map].map(([k, list]) => [k, list.map(free)]));
+    freeViews.set(store, (v = {
+      ...store, markets: store.markets.map(free), flags: store.flags.map(free), byEvent: lists(store.byEvent), bySlug: lists(store.bySlug),
+    }));
+  }
+  return v;
 }
 
 export function gateMarkets(r: MarketsResponse, tier: Tier): MarketsResponse {

@@ -2,7 +2,7 @@
 import { getStore, getStoreFor, type Store } from "./store";
 import { botCheck, clientKey, noteRows, rateLimit, type Rule } from "@/lib/abuse";
 import { getMe, type Me } from "@/lib/auth/server";
-import { gateMarket, gateMarkets } from "./gate";
+import { freeView, gateMarket, gateMarkets } from "./gate";
 import { categoryRecord, curve, segmentOf } from "./model";
 import { can, quota, type Tier } from "@/lib/entitlements";
 import { apply } from "@/lib/filters/apply";
@@ -42,7 +42,7 @@ export async function withTier(
     console.error("[api] store load failed", e);
     return Response.json({ error: "Data is temporarily unavailable" }, { status: 503, headers });
   }
-  return fn(store, me.tier, me);
+  return fn(can(me.tier, "exact_edge") ? store : freeView(store), me.tier, me);   // RT-04: Free filters on what it sees
 }
 
 export const notFound = (what: string, headers?: HeadersInit) => Response.json({ error: `${what} not found` }, { status: 404, headers });
@@ -125,7 +125,8 @@ export async function flagsTotal(params: URLSearchParams): Promise<number | unde
   if (params.has("fav") || params.has("wl")) return undefined;
   try {
     const me = await getMe();
-    const store = await getStoreFor(me.tier);
+    const live = await getStoreFor(me.tier);
+    const store = can(me.tier, "exact_edge") ? live : freeView(live);
     const f = parse(params);
     const state = { ...f, view: "flags" as const, verdicts: params.has("vd") ? f.verdicts : BEST_BETS_VERDICTS, page: 1 };
     return gateMarkets(marketsPage(store, state), me.tier).total;
