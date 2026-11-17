@@ -1,4 +1,4 @@
-import { readdirSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import robots from "@/app/robots";
@@ -30,5 +30,14 @@ describe("robots.txt and sitemap.xml (T-76)", () => {
     expect(pages).toContain("/about");
     const urls = sitemap().map((e) => new URL(e.url).pathname);
     expect(urls.sort()).toEqual(pages.sort());
+  });
+  it("every page gets a 1200×630 share image: site default plus a large Twitter card (audit fail 11)", async () => {
+    const og = await import("@/app/opengraph-image");
+    const tw = await import("@/app/twitter-image");
+    expect(og.size).toEqual({ width: 1200, height: 630 });
+    expect(tw.default).toBe(og.default);
+    const src = readFileSync(path.resolve(import.meta.dirname, "../app/layout.tsx"), "utf8");
+    expect(src).toMatch(/twitter: \{ card: "summary_large_image"/);
+    expect(src).toMatch(/openGraph: \{[^}]*images:/);
   });
 });
