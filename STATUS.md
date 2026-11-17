@@ -17,13 +17,14 @@ Branch `demo`. Built in one night by an agent team (one lane per worktree), merg
 - [ ] Track record + methodology (F-14), flag ledger (F-29)
 - [ ] Display settings, keyboard, CSV export, onboarding (F-17..F-19, F-27)
 - [ ] Landing + pricing (F-20)
-- [ ] Chrome extension (F-25)
+- [x] Chrome extension (F-25): badges on 3 live Polymarket event pages (weather, NFL, UFC), pill fallback on a 4th; popup + side panel. See docs/screenshots/extension-*.png
 - [ ] `<UpgradeGate>` present, always passes in demo (F-22)
 
 ## What's stubbed
 (filled at the end)
 
 ## Known issues
+- Extension: sports badges sit under the Moneyline/Spreads/Totals headings; matching is exact text only (unmatched markets get the corner pill); side-panel screenshot taken by opening the panel page directly.
 - All 581 XRP markets score off the top-level "all" model node (too little XRP history to pass node thresholds). The drawer's "model fell back to a broad level" warning covers it.
 - `volume_24h` is null for ~10k of 13.7k markets (Gamma omits `volume24hr`); the 24h-volume filter only matches markets that report it.
 - Ledger has 704 open rows from two scans tonight; none graded yet (markets haven't resolved), so Results shows the backtest plus an empty live record.
