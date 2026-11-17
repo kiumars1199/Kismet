@@ -14,6 +14,8 @@ const env = () => ({
 
 /** Accounts are on when not in demo mode and the Supabase project is configured. */
 export const authEnabled = () => !DEMO_MODE && !!env().url && !!env().anon;
+/** The service-role client can be built (cron jobs). */
+export const adminEnabled = () => !!env().url && !!env().service;
 
 export const COOKIE_OPTIONS = {
   httpOnly: true,
