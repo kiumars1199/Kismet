@@ -2,6 +2,7 @@
 // Account and plan fields only: no saved items, no bets.
 import { rateLimit } from "@/lib/abuse";
 import { audit, requireAdmin } from "@/lib/admin/server";
+import { sameSiteRequest } from "@/lib/auth/server";
 import { cell } from "@/lib/csv";
 
 export const runtime = "nodejs";
@@ -13,8 +14,9 @@ type Row = Record<(typeof COLS)[number], unknown>;
 /** Spreadsheet formula injection: a cell that starts with = + - @ is shown as text. */
 const safe = (v: unknown) => cell(typeof v === "string" && /^[=+\-@\t\r]/.test(v) ? `'${v}` : v);
 
-export async function GET(): Promise<Response> {
+export async function GET(req: Request): Promise<Response> {
   const ctx = await requireAdmin();
+  if (!sameSiteRequest(req)) return Response.json({ error: "Open the export from the admin page" }, { status: 403 });   // RT2-01: no cross-site link
   const limited = await rateLimit("admin", `u:${ctx.admin.id}`);
   if (limited) return limited;
   const rows: Row[] = [];

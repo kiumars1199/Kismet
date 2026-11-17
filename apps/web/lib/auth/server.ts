@@ -105,6 +105,11 @@ export function safeNext(next: string | null | undefined, fallback = "/"): strin
 }
 
 /** CSRF: mutations must come from our own origin (docs/15 § Web hardening). The one check every mutating route uses. */
+/** GET downloads opened by a link: the browser's Sec-Fetch-Site says whether a cross-site page started it (RT2-01). */
+export function sameSiteRequest(req: Request): boolean {
+  return req.headers.get("sec-fetch-site") === "same-origin" || sameOrigin(req);
+}
+
 export function sameOrigin(req: Request): boolean {
   const origin = req.headers.get("origin");
   if (!origin) return false;

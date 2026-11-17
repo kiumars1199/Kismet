@@ -112,3 +112,18 @@ describe("comp tier (effectiveTier)", () => {
     expect(effectiveTier({ tier: "admin" }, now)).toBe("free");
   });
 });
+
+describe("RT2-01: user export only from our own pages", async () => {
+  const { sameSiteRequest } = await import("@/lib/auth/server");
+  const req = (h: Record<string, string>) => new Request("https://me.test/api/admin/export", { headers: h });
+  it("accepts a same-origin link click or a same-origin Origin", () => {
+    expect(sameSiteRequest(req({ "sec-fetch-site": "same-origin" }))).toBe(true);
+    expect(sameSiteRequest(req({ origin: "https://me.test" }))).toBe(true);
+  });
+  it("refuses cross-site navigations and foreign origins", () => {
+    expect(sameSiteRequest(req({ "sec-fetch-site": "cross-site" }))).toBe(false);
+    expect(sameSiteRequest(req({ "sec-fetch-site": "same-site" }))).toBe(false);
+    expect(sameSiteRequest(req({ origin: "https://evil.test" }))).toBe(false);
+    expect(sameSiteRequest(req({}))).toBe(false);
+  });
+});
