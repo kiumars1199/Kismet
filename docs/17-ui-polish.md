@@ -23,7 +23,7 @@ The look is right (B colors + C cards). These fixes make it cleaner, more honest
 9. **Card actions are split** (star top-right, bell bottom-right, "Likely to hit" text bottom). Footer row:
    "$100 → +$24" left, chance label pill right; star + bell together top-right as 44px icon buttons.
 10. **Drawer: "Open on Polymarket ↗" wraps to two lines** and the action row is cramped. Primary button full
-    width on its own row; Save / Alert / Add to calendar / Share as an icon row under it.
+    width on its own row; Save / Alert / Share (plus "Trade" when trading is on, docs/16) as an icon row under it.
 11. **Drawer: the other side shows "-70%" in red** (scary and confusing). Show the other side as
     "No · 70¢ · won 91% before" without a return number, or "Not recommended" in muted text.
 12. **Chart legend cut off at the bottom of the drawer**; give the chart its own height and put the legend above it.
