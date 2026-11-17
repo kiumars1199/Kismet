@@ -73,7 +73,7 @@ Then load `apps/extension/dist` in chrome://extensions with Developer mode on (L
 ## Decisions (lead calls, incl. blockers > 20 min)
 - Design tokens: the approved artboard wins over the old docs/06 values; docs/06 now lists what the app implements.
 - docs/08 said demo runs as `pro`; docs/01 and the brief say `premium`. Went with premium, fixed docs/08.
-- Engine warning text says "15c" (scan.py) where docs/07 says "15¢"; UI shows its own plain-language label ("Unusually high — check details"), so the raw string is not user-facing.
+- Engine warning text says "15c" (scan.py) where docs/07 says "15¢"; UI shows its own plain-language label ("Unusually high — similar past bets returned +X%", or "check details" when unknown), so the raw string is not user-facing.
 - LocalRepo adds sync `snapshot()`/`profileSnapshot()` for useSyncExternalStore; SupabaseRepo must serve them from a cache.
 - Lane A widened SAMPLE_TAGS and added tag aliases (cbb→ncaab, mma→ufc, formula1→f1) so new niches get history; kept.
 - Grouped screener pages over event groups (≤50 per page, best row + up to 3 more each, `size` = full count); docs/04's "paginate groups" sent 2.8 MB pages on real data.
