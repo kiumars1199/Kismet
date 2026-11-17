@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { fetchBook, fetchMarket, type BookResponse, type MarketResponse } from "@/lib/api";
 import { ago, basis, chance, closesLine, gameTime, edge, money, pays, PAYS_HELP, pct, price, realisticReturn, ret, RETURN_HELP, sideProfit, sideRet, sideEdge, sidePts, formatCount, LONG_SHOT_LINE, winsAbout } from "@/lib/format";
 import { useProfile } from "@/lib/repo/hooks";
+import { useEntitlements } from "@/lib/entitlements";
 import type { Execution, Side, StoreMarket } from "@/lib/types";
 import { WatchStar } from "@/components/watch/WatchStar";
 import { DrawerExtras } from "./DrawerExtras";
@@ -111,6 +112,7 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
   const s = m.sides.find((x) => x.side_index === sideParam) ?? m.best;
   const other = m.sides.find((x) => x !== s);
   const pro = useProfile().numbers_mode === "pro";
+  const free = useEntitlements().tier === "free";   // the Free plan limits this drawer: say so, with a way up
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
@@ -164,6 +166,14 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
         )}
         <p className={`mt-1.5 text-[13px] ${chanceTone(c)}`}>{c ?? ""}{c && " · "}<span className="text-accent-soft">$100 bet → expect {sideProfit(s)}</span></p>
         {m.tier === "edge" && <TierNote s={s} className="mt-1.5 !text-accent-soft" />}
+        {free && (
+          <p data-testid="upgrade-note" className="mt-3 border-t border-accent-border pt-3 text-[13px] text-accent-softer">
+            {s.ranges
+              ? "Free shows ranges. Exact numbers and the full price check are on Pro."
+              : "Free shows exact numbers on 3 bets a day. Pro shows them on every bet."}{" "}
+            <Link href="/pricing" className="font-semibold text-accent-soft underline underline-offset-4 hover:text-accent">See plans</Link>
+          </p>
+        )}
       </section>
 
       {other && (

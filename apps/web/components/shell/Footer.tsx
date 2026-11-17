@@ -12,8 +12,8 @@ export function Footer() {
         <p>{DISCLAIMER}</p>
         <p>© {new Date().getFullYear()} {SITE.operator}</p>
       </div>
-      <nav aria-label="Legal" className="-mx-1 flex flex-wrap gap-x-2 gap-y-1">
-        {[{ href: "/about", label: "How it works" }, ...LEGAL_PAGES, { href: "/status", label: "Status" }].map((p) => (
+      <nav aria-label="Site" className="-mx-1 flex flex-wrap gap-x-2 gap-y-1">
+        {[{ href: "/about", label: "How it works" }, { href: "/pricing", label: "Pricing" }, ...LEGAL_PAGES, { href: "/status", label: "Status" }].map((p) => (
           <Link key={p.href} href={p.href} className="px-1 py-0.5 hover:text-text">{p.label}</Link>
         ))}
       </nav>
