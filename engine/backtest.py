@@ -215,7 +215,8 @@ def run(cfg, b, half_lives=None, log=print):
         log(f"half-life {hl}: taker flags={t.get('flags')} pnl={t.get('pnl_cents_per_share')}c "
             f"roi={t.get('roi_pct')}% t={t.get('t_stat')}")
     # tested_bets: every bet scored out of sample (all folds, any price); the same for each half-life
-    return dict(test_days=wf["test_days"], folds=len(starts), results=results,
+    ran = max((len(r["folds"]) for r in results.values()), default=0)
+    return dict(test_days=wf["test_days"], folds=len(starts), folds_run=ran, results=results,
                 tested_bets=tested, combos_by_half_life=combos)
 
 

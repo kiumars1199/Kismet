@@ -185,7 +185,7 @@ def run(cfg, log=print):
         ev = events.setdefault(r["slug"], dict(event_id=r["event_id"], event=r["event"],
                                                market_ids=[], flag_ids=[]))
         ev["market_ids"].append(r["id"])
-    for r in flags:
+    for r in best_flags:  # flag_ids = Best bets only (the extension badges these)
         events[r["slug"]]["flag_ids"].append(r["id"])
     json.dump(events, open(cfg.path("output", "events.json"), "w"))
     sp = {f"{k[0]}|{k[1]}": dict(n=len(v), median=round(float(np.median(v)), 4),
