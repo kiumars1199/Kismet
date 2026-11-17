@@ -156,8 +156,11 @@ Derived attributes parsed once at load (`lib/data/derive.ts`):
 - `is_live`: hours_to_close <= 0 (sports in progress, if they appear)
 - `recurring`: tag `recurring`
 
-The engine's `classify()` (`pipeline/common.py`) only knows ~20 niches today. Task T-03 extends
-`NICHE_TAGS` with `mlb, ufc, golf, f1, cricket, xrp, ncaab` so new niches get their own model nodes.
+The engine's `classify()` (`pipeline/common.py`) maps tags to `category`/`niche`. T-03 added the niches
+`ncaab, ufc, boxing, golf, f1, cricket, xrp, economy` (`mlb`, `fed` already existed). Live tag slugs are
+normalized first via `TAG_ALIASES`: `cbb`/`ncaa-basketball`/`college-basketball` → `ncaab`,
+`mma` → `ufc`, `formula1` → `f1`. `dataset.load` re-classifies history from stored tags, so a refit
+picks up new niches; until then the scanner scores a new niche with its category node (`model_level: "cat"`).
 
 ## 3. User data (Supabase Postgres, RLS: `user_id = auth.uid()` on every table)
 

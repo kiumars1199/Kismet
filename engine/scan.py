@@ -80,9 +80,11 @@ def run(cfg, log=print):
         h = nearest_h(hours)
         mid = (bid + ask) / 2
         spreads[(niche, mt)].append(ask - bid)
-        if h is None or cat not in V["cat"] or niche not in V["niche"] or mt not in V["mt"]:
+        if h is None or cat not in V["cat"] or mt not in V["mt"]:
             continue
-        c, n, t = V["cat"].index(cat), V["niche"].index(niche), V["mt"].index(mt)
+        # a niche the model has not seen yet (new in NICHE_TAGS, before a refit) uses its category node
+        n = V["niche"].index(niche) if niche in V["niche"] else -1
+        c, t = V["cat"].index(cat), V["mt"].index(mt)
         sides = []
         for side, price, smid in ((0, ask, mid), (1, 1 - bid, 1 - mid)):
             r = model.predict(smid, h, c, n, t)
