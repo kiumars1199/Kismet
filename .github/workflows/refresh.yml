@@ -64,25 +64,30 @@ jobs:
             python -m engine backtest
           fi
 
-      - name: Refit model and scan open markets
+      # The flag ledger is append-only: continue from the published copy, not the one in main.
+      - name: Load the published scan (ledger + scanned_at)
+        run: |
+          if git fetch -q --depth 1 origin live; then
+            git show FETCH_HEAD:ledger.jsonl > output/ledger.jsonl 2>/dev/null || git checkout -- output/ledger.jsonl
+            prev=$(git show FETCH_HEAD:flags.json | python -c 'import json,sys; print(json.load(sys.stdin)["meta"]["scanned_at"])' || true)
+            echo "PREV_SCANNED_AT=$prev" >> "$GITHUB_ENV"
+          fi
+
+      - name: Refit model, scan open markets, grade the ledger
         run: |
           python -m engine fit
           python -m engine scan
+          python -m engine grade
 
       - name: Engine and ops tests
         run: python -m pytest -q engine/tests ops/tests
 
       - name: Data checks (keep previous live data if these fail)
-        run: |
-          prev=""
-          if git fetch -q --depth 1 origin live; then
-            prev=$(git show FETCH_HEAD:flags.json | python -c 'import json,sys; print(json.load(sys.stdin)["meta"]["scanned_at"])' || true)
-          fi
-          python ops/checks.py output ${prev:+--prev-scanned-at "$prev"}
+        run: python ops/checks.py output ${PREV_SCANNED_AT:+--prev-scanned-at "$PREV_SCANNED_AT"}
 
       - name: Publish outputs to the live branch
         run: |
-          mkdir -p /tmp/pub && cp output/*.json /tmp/pub/
+          mkdir -p /tmp/pub && cp output/*.json output/*.jsonl /tmp/pub/
           cd /tmp/pub
           git init -q -b live
           git config user.name "marketedge-bot"

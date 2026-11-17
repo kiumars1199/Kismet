@@ -65,6 +65,7 @@ def write(tmp_path, m, f):
     (tmp_path / "markets.json").write_text(json.dumps(m))
     (tmp_path / "flags.json").write_text(json.dumps(f))
     (tmp_path / "model.json").write_text("{}")
+    (tmp_path / "ledger.jsonl").write_text("{}\n")
     return str(tmp_path)
 
 
@@ -73,7 +74,7 @@ def test_upload_all_files_flags_last(tmp_path):
     http = FakeHttp(prev=None)
     assert upload.publish(out, upload.Storage("https://x.supabase.co/", "svc", http), log=lambda *_: None)
     posts = [c for c in http.calls if c[0] == "POST"]
-    assert [u.rsplit("/", 1)[1] for _, u, _ in posts] == ["markets.json", "model.json", "flags.json"]
+    assert [u.rsplit("/", 1)[1] for _, u, _ in posts] == ["ledger.jsonl", "markets.json", "model.json", "flags.json"]
     assert all("/storage/v1/object/scan/" in u for _, u, _ in posts)
     assert posts[0][2]["Authorization"] == "Bearer svc" and posts[0][2]["x-upsert"] == "true"
     assert http.calls[0][1] == "https://x.supabase.co/storage/v1/object/authenticated/scan/flags.json"
@@ -91,7 +92,7 @@ def test_scheduler_plan(monkeypatch):
     monkeypatch.setattr(scheduler.os.path, "exists", lambda p: True)
     t = calendar.timegm((2026, 11, 17, 7, 20, 0))
     assert scheduler.plan(t, {"backtest": t - 600, "fit": t - 600}) == ["scan"]
-    assert scheduler.plan(t, {"backtest": t - 600, "fit": t - 3600}) == ["update", "fit", "scan"]
+    assert scheduler.plan(t, {"backtest": t - 600, "fit": t - 3600}) == ["update", "fit", "grade", "scan"]
     assert scheduler.plan(t, {"backtest": t - 86400, "fit": t - 600}) == ["backtest", "scan"]
     early = calendar.timegm((2026, 11, 17, 5, 0, 0))  # before the 06:00 UTC backtest slot
     assert scheduler.plan(early, {"backtest": early - 86400, "fit": early}) == ["scan"]

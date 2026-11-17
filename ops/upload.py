@@ -1,4 +1,4 @@
-"""Upload output/*.json to the private Supabase Storage bucket `scan` (docs/14 §4).
+"""Upload output/*.json and *.jsonl to the private Supabase Storage bucket `scan` (docs/14 §4).
 
     SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... python ops/upload.py [output_dir]
 
@@ -47,7 +47,7 @@ def publish(out_dir, storage, log=print):
             log(f"data check failed: {e}")
         log("upload skipped; the bucket keeps the previous scan")
         return False
-    files = sorted(glob.glob(os.path.join(out_dir, "*.json")))
+    files = sorted(glob.glob(os.path.join(out_dir, "*.json")) + glob.glob(os.path.join(out_dir, "*.jsonl")))
     # flags.json last: it carries the scanned_at that the next run compares against.
     files.sort(key=lambda p: os.path.basename(p) == "flags.json")
     for p in files:

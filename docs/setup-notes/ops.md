@@ -7,7 +7,7 @@ How the pieces fit:
 
 ```
 Engine container (Railway, or Fly)            GitHub Actions refresh.yml (every 2 h, fallback)
-  scan every 10 min, update+fit hourly,         same engine run → data checks → `live` branch
+  scan every 10 min, update+fit+grade hourly,   same engine run → data checks → `live` branch
   backtest daily 06:00 UTC
   → data checks → private Supabase bucket `scan`
                          │                                     │
@@ -43,13 +43,14 @@ Platform cron is not used: Fly schedules are hourly at best, and Railway allows 
    (Dockerfile `engine/Dockerfile`, start `python ops/scheduler.py`, always restart, 1 replica).
    It redeploys only when `engine/`, `pipeline/`, `ops/` or `config/` change.
 2. Service → **Volumes** → add a volume mounted at **`/app/data`** (5 GB is plenty). Without it every
-   restart re-downloads market history (about 1 hour).
+   restart re-downloads market history (about 1 hour) and loses the flag ledger. `output/` lives on the
+   same volume; on a fresh volume the ledger continues from the copy baked into the image.
 3. Service → **Variables**:
    - `SUPABASE_URL` = Supabase Project URL
    - `SUPABASE_SERVICE_ROLE_KEY` = service_role key
    - `BACKTEST_HOUR_UTC` = `6` (optional)
 4. Service → Settings → Networking: **no public domain** (the engine serves nothing).
-5. Deploy. The first run bootstraps history (~1 hour), then backtest, update, fit, scan, upload.
+5. Deploy. The first run bootstraps history (~1 hour), then backtest, update, fit, grade, scan, upload.
    Logs show `[scheduler] scan: ...` and `uploaded flags.json`. Check the bucket has 6–8 JSON files.
 6. Resources: 1 GB RAM is enough; raise to 2 GB if logs show the backtest being killed. Cost about $5/month.
 

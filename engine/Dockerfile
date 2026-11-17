@@ -1,7 +1,7 @@
 # MarketEdge engine container (docs/14 §4). Build from the repo root:
 #   docker build -f engine/Dockerfile -t marketedge-engine .
 # Runs ops/scheduler.py: scan every 10 min, update+fit hourly, backtest daily, upload to Supabase Storage.
-# Mount a persistent volume at /app/data (market history), or every restart re-bootstraps (~1 hour).
+# Mount a persistent volume at /app/data (market history + output/), or every restart re-bootstraps (~1 hour).
 #
 # Non-root: the engine always runs as uid 10001. Railway and Fly mount volumes owned by root, so the
 # image starts as root only long enough for ops/scheduler.py to chown /app/data and drop to uid 10001
@@ -18,10 +18,14 @@ COPY engine engine
 COPY pipeline pipeline
 COPY config config
 COPY ops ops
+# Seed for the live flag ledger on a fresh volume (ops/scheduler.py seed_ledger).
+COPY output/ledger.jsonl ops/seed/ledger.jsonl
 
+# output/ lives on the volume too (output -> data/output): the append-only ledger must survive restarts.
 RUN groupadd --system --gid 10001 engine \
  && useradd --system --uid 10001 --gid 10001 --home-dir /app --no-create-home engine \
- && mkdir -p data output \
- && chown -R engine:engine data output
+ && mkdir -p data/output \
+ && ln -s data/output output \
+ && chown -R engine:engine data
 
 CMD ["python", "ops/scheduler.py"]

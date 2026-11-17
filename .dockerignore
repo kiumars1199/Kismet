@@ -6,7 +6,8 @@
 apps
 docs
 data
-output
+output/*
+!output/ledger.jsonl
 **/__pycache__
 **/*.pyc
 **/tests
