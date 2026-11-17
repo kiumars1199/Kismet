@@ -92,7 +92,8 @@ export const getTier = async (): Promise<Tier> => (await getMe()).tier;
 
 /** `next=` must be a same-origin relative path (docs/15 § open redirects). */
 export function safeNext(next: string | null | undefined, fallback = "/"): string {
-  if (!next || !/^\/(?![/\\])/.test(next) || /[\r\n\t]/.test(next)) return fallback;
+  // Printable ASCII only (RT-13): anything else can't go in a Location header (500) and is never one of our paths.
+  if (!next || !/^\/(?![/\\])/.test(next) || /[^\x20-\x7e]/.test(next)) return fallback;
   return next;
 }
 

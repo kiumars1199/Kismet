@@ -82,3 +82,14 @@ describe("RT-12 request bodies are capped while reading", () => {
     expect(s.pulled).toBeLessThanOrEqual(64 * 1024 * 2);
   });
 });
+
+describe("RT-13 next= with non-ASCII falls back to / instead of a 500", () => {
+  it("every accepted next is a valid Location header value", async () => {
+    const { safeNext } = await import("@/lib/auth/server");
+    for (const bad of ["/　/evil.test", "/é", "/\u0000x", "/x\u007f", "/ "]) {
+      expect(safeNext(bad), JSON.stringify(bad)).toBe("/");
+      expect(() => new Headers({ location: safeNext(bad) })).not.toThrow();
+    }
+    expect(safeNext("/flags?topics=sports.nfl")).toBe("/flags?topics=sports.nfl");
+  });
+});
