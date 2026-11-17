@@ -28,6 +28,26 @@ const total = async (p: string) => ((await (await markets(req(p))).json()) as { 
 
 beforeEach(() => { abuse.setLimiter(abuse.memoryLimiter()); h.tier = "free"; h.user = null; h.jar.clear(); });
 
+describe("RT-01 signed-out reveals are counted on the server, not in the cookie", () => {
+  it("dropping the me_reveals cookie on every request still gets only 3 exact markets a day", async () => {
+    const { GET: market } = await import("@/app/api/markets/[id]/route");
+    const store = await getStore();
+    const ids = store.markets.slice(0, 5).map((m) => m.id);
+    const out = [];
+    for (const id of ids) {
+      h.jar.clear();   // a scraper that never sends the cookie back
+      const body = (await (await market(req(`/api/markets/${id}?detail=1`), { params: Promise.resolve({ id }) })).json()) as
+        { market: { best: { ranges?: unknown } }; reveals_left: number };
+      out.push([body.market.best.ranges ? "banded" : "exact", body.reveals_left]);
+    }
+    expect(out).toEqual([["exact", 2], ["exact", 1], ["exact", 0], ["banded", 0], ["banded", 0]]);
+    h.jar.clear();   // re-opening one already revealed today stays exact
+    const again = (await (await market(req(`/api/markets/${ids[0]}?detail=1`), { params: Promise.resolve({ id: ids[0]! }) })).json()) as
+      { market: { best: { ranges?: unknown } } };
+    expect(again.market.best.ranges).toBeUndefined();
+  });
+});
+
 describe("RT-04 Free filters and sorts see the banded numbers, not the exact ones", () => {
   it("a return threshold inside one band can't tell markets in that band apart", async () => {
     const store = await getStore();

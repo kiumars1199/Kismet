@@ -30,12 +30,15 @@ interface Limiter {
   limit(rule: Rule, key: string): Promise<{ ok: boolean; reset: number }>;
   /** Adds n rows to the key's hour; returns the hour's total. */
   rows(key: string, n: number): Promise<number>;
+  /** Adds ids to the set at key (kept ttlMs) unless that would grow it past limit: all or nothing. ok + the set's size. */
+  distinct(key: string, ids: string[], limit: number, ttlMs: number): Promise<{ ok: boolean; size: number }>;
 }
 
 /** Sliding-window log in memory (tests; one instance only). */
 export function memoryLimiter(now = () => Date.now()): Limiter {
   const hits = new Map<string, number[]>();
   const rows = new Map<string, number>();
+  const sets = new Map<string, { exp: number; ids: Set<string> }>();
   return {
     async limit(rule, key) {
       const { limit, window } = RULES[rule];
@@ -52,8 +55,27 @@ export function memoryLimiter(now = () => Date.now()): Limiter {
       rows.set(k, total);
       return total;
     },
+    async distinct(key, ids, limit, ttlMs) {
+      const t = now();
+      if (sets.size > 50_000) for (const [k, v] of sets) if (v.exp < t) sets.delete(k);
+      let e = sets.get(key);
+      if (!e || e.exp < t) sets.set(key, (e = { exp: t + ttlMs, ids: new Set() }));
+      const fresh = [...new Set(ids)].filter((id) => !e.ids.has(id));
+      if (e.ids.size + fresh.length > limit) return { ok: false, size: e.ids.size };
+      for (const id of fresh) e.ids.add(id);
+      return { ok: true, size: e.ids.size };
+    },
   };
 }
+
+// Same all-or-nothing rule as memoryLimiter().distinct, atomic in Redis.
+const DISTINCT_LUA = `local fresh = {}
+for i = 3, #ARGV do if redis.call('SISMEMBER', KEYS[1], ARGV[i]) == 0 then table.insert(fresh, ARGV[i]) end end
+local size = redis.call('SCARD', KEYS[1])
+if size + #fresh > tonumber(ARGV[1]) then return {0, size} end
+for _, id in ipairs(fresh) do redis.call('SADD', KEYS[1], id) end
+if #fresh > 0 and redis.call('PTTL', KEYS[1]) < 0 then redis.call('PEXPIRE', KEYS[1], ARGV[2]) end
+return {1, size + #fresh}`;
 
 function upstashLimiter(redis: Redis): Limiter {
   const limiters = Object.fromEntries(Object.entries(RULES).map(([name, r]) => [name, new Ratelimit({
@@ -70,10 +92,15 @@ function upstashLimiter(redis: Redis): Limiter {
       if (total === n) await redis.expire(k, 7_200);
       return total;
     },
+    async distinct(key, ids, limit, ttlMs) {
+      const [ok, size] = (await redis.eval(DISTINCT_LUA, [`me:set:${key}`], [limit, ttlMs, ...new Set(ids)])) as [number, number];
+      return { ok: ok === 1, size };
+    },
   };
 }
 
-const noop: Limiter = { limit: async () => ({ ok: true, reset: 0 }), rows: async () => 0 };
+// Dev / demo: no traffic limits, but distinct() budgets (paywall controls, RT-01/RT-03) always count.
+const noop: Limiter = { limit: async () => ({ ok: true, reset: 0 }), rows: async () => 0, distinct: (...a) => fallback().distinct(...a) };
 
 /** Upstash client when configured (shared with the trading nonce store). */
 export function redis(): Redis | null {
@@ -128,6 +155,16 @@ export async function rateLimit(rule: Rule, key: string): Promise<Response | nul
     console.error("[abuse] rate limiter unavailable, using the per-instance limiter", e instanceof Error ? e.message : e);
     const r = await fallback().limit(rule, key);   // Upstash outage: same limits per instance, never unlimited
     return r.ok ? null : tooMany(r.reset);
+  }
+}
+
+/** Distinct-id budget (RT-01 anonymous reveals, RT-03 Free rows): Upstash, else per instance. Never unlimited. */
+export async function distinct(key: string, ids: string[], limit: number, ttlMs: number): Promise<{ ok: boolean; size: number }> {
+  try {
+    return await limiter().distinct(key, ids, limit, ttlMs);
+  } catch (e) {
+    console.error("[abuse] budget store unavailable, using the per-instance one", e instanceof Error ? e.message : e);
+    return fallback().distinct(key, ids, limit, ttlMs);
   }
 }
 

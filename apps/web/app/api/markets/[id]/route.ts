@@ -15,7 +15,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     let shown: Tier = tier;
     let reveals_left: number | undefined;
     if (!can(tier, "exact_edge") && detail) {
-      const r = await reveal(tier, me.user, id);
+      const r = await reveal(req, tier, me.user, id);
       if (r.ok) shown = "pro";
       reveals_left = r.left;
     }
