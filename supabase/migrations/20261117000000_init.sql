@@ -73,7 +73,7 @@ create table public.alert_rules (
   market_id text, side_index smallint, threshold numeric,
   channels text[] default '{email}',
   webhook_url text,
-  cooldown_minutes int default 60, quiet_hours int4range,
+  cooldown_minutes int default 60, quiet_hours smallint[],   -- [start_hour, end_hour), may wrap midnight
   last_fired_at timestamptz, created_at timestamptz default now()
 );
 
