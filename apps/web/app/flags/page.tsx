@@ -1,8 +1,16 @@
-// Placeholder. Owner: Lane C (T-24).
-import { Placeholder } from "@/components/shell/Placeholder";
+import { Suspense } from "react";
+import { OnboardingNudge } from "@/components/onboarding/OnboardingNudge";
+import { BestBets } from "@/components/screener/BestBets";
 
 export const metadata = { title: "Best bets" };
 
 export default function Page() {
-  return <Placeholder title="Best bets" line="Bets priced lower than how often bets like them have won." />;
+  return (
+    <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-4">
+      <OnboardingNudge />
+      <Suspense>
+        <BestBets />
+      </Suspense>
+    </div>
+  );
 }

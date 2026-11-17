@@ -19,12 +19,13 @@
 //   /api/model/curve?segment=&h=   → Curve           segment = "all" | "cat:<category>" | "<niche>" | "<niche>:<market_type>"
 //                                                    (MarketResponse.segment gives a market's own), h = horizon hours
 //   /api/backtest                  → BacktestResponse backtest.json as is + `chosen` (result for the chosen half-life)
+//   /api/book?token=&q=&cat=&stake= → BookResponse   live execution check of one side (fetchBook)
 import type { Curve } from "@/lib/data/model";
 import type { Counts, Facets, Group } from "@/lib/filters/apply";
 import type { FilterInput } from "@/lib/filters/state";
 import { FilterState } from "@/lib/filters/state";
 import { serialize } from "@/lib/filters/url";
-import type { BacktestFile, BacktestRecord, BacktestResult, ScanMeta, Side, StoreMarket } from "@/lib/types";
+import type { BacktestFile, BacktestRecord, BacktestResult, Execution, ScanMeta, Side, StoreMarket } from "@/lib/types";
 
 export type { Curve, Facets, StoreMarket, Side };
 
@@ -82,6 +83,13 @@ export const fetchEventBySlug = (slug: string, init?: RequestInit) => get<EventR
 export const fetchCurve = (segment: string, h: number, init?: RequestInit) =>
   get<Curve>(`/api/model/curve?${new URLSearchParams({ segment, h: String(h) })}`, init);
 export const fetchBacktest = (init?: RequestInit) => get<BacktestResponse>("/api/backtest", init);
+
+export type BookResponse = { fetched_at?: number } & (
+  | (Execution & { warning?: string })
+  | { verdict: "no book" | "no sellers"; book_ok: false }
+);
+export const fetchBook = (p: { token: string; q: number; cat: string; stake?: number }, init?: RequestInit) =>
+  get<BookResponse>(`/api/book?${new URLSearchParams({ token: p.token, q: String(p.q), cat: p.cat, ...(p.stake ? { stake: String(p.stake) } : {}) })}`, init);
 
 /** Group rows back out of a MarketsResponse. */
 export const groupRows = (r: MarketsResponse, g: ApiGroup) => r.rows.slice(g.start, g.start + g.count);

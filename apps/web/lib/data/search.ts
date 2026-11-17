@@ -5,7 +5,7 @@ import type { Market } from "@/lib/types";
 export const tokenize = (s: string) =>
   s.toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "").split(/[^a-z0-9]+/).filter(Boolean);
 
-const SLUG_URL = /polymarket\.com\/(?:[a-z]{2}\/)?(?:event|market)\/([^/?#\s]+)/i;
+export const SLUG_URL = /polymarket\.com\/(?:[a-z]{2}\/)?(?:event|market)\/([^/?#\s]+)/i;
 
 export interface SearchIndex {
   /** Matching market ids → score (higher = better). Empty query → null (no filter). */
