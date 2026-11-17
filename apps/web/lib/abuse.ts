@@ -90,12 +90,19 @@ function limiter(): Limiter {
 /** Tests swap in memoryLimiter(); undefined = back to the env choice. */
 export const setLimiter = (l: Limiter | undefined) => void (g.__meLimiter = l);
 
+/** Client IP from the platform only (RT-07): on Vercel `x-real-ip` / `x-vercel-forwarded-for`, which the edge sets.
+ *  A client-sent `X-Forwarded-For` is never read. Off Vercel there is no trusted proxy: every anonymous caller
+ *  shares one key ("local"), so limits stay global rather than per-request. */
+export function clientIp(req: Request): string {
+  if (!process.env.VERCEL) return "local";
+  return req.headers.get("x-real-ip")?.trim() || req.headers.get("x-vercel-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+}
+
 /** Rate-limit key: the signed-in user, else the client IP (+ JA4 TLS fingerprint on Vercel). */
 export function clientKey(req: Request, userId?: string | null): string {
   if (userId) return `u:${userId}`;
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("x-real-ip") || "unknown";
-  const ja4 = req.headers.get("x-vercel-ja4-digest");
-  return `ip:${ip}${ja4 ? `:${ja4}` : ""}`;
+  const ja4 = process.env.VERCEL ? req.headers.get("x-vercel-ja4-digest") : null;
+  return `ip:${clientIp(req)}${ja4 ? `:${ja4}` : ""}`;
 }
 
 export const tooMany = (reset: number) => {

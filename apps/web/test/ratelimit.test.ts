@@ -14,6 +14,7 @@ vi.mock("@/lib/auth/server", () => ({
   getUser: async () => h.user,
   supabaseServer: async () => ({ auth: { signInWithOtp: async () => ({ error: null }) } }),
 }));
+vi.mock("botid/server", () => ({ checkBotId: async () => ({ isBot: false }) }));
 vi.mock("@/lib/auth/terms", () => ({ rememberTerms: async () => {} }));
 vi.mock("@/lib/billing/stripe", () => ({ PRICE_KEYS: ["pro_monthly"], billingMode: () => "links", paymentLinkUrl: () => "https://buy.stripe.com/x" }));
 
@@ -24,7 +25,7 @@ const { POST: magic } = await import("@/app/api/auth/magic-link/route");
 const { POST: checkout } = await import("@/app/api/stripe/checkout/route");
 
 const req = (p: string, ip = "1.1.1.1", init?: RequestInit) =>
-  new Request(`http://t${p}`, { ...init, headers: { "x-forwarded-for": `${ip}, 10.0.0.1`, origin: "http://t", ...(init?.headers ?? {}) } });
+  new Request(`http://t${p}`, { ...init, headers: { "x-real-ip": ip, "x-forwarded-for": `${ip}, 10.0.0.1`, origin: "http://t", ...(init?.headers ?? {}) } });
 const post = (p: string, body: unknown, ip?: string) => req(p, ip, { method: "POST", body: JSON.stringify(body), headers: { "content-type": "application/json" } });
 
 async function until429(call: () => Promise<Response>, max: number) {
@@ -44,10 +45,12 @@ describe("rate limits", () => {
     expect((await markets(req("/api/markets?ps=1"))).status).toBe(200);
   });
 
-  it("signed out: keyed by the client IP (first X-Forwarded-For hop)", async () => {
+  it("signed out: keyed by the platform client IP (x-real-ip on Vercel, RT-07)", async () => {
+    vi.stubEnv("VERCEL", "1");
     h.user = null; h.tier = "free";
     await until429(() => markets(req("/api/markets", "9.9.9.9")), 60);
     expect((await markets(req("/api/markets", "8.8.8.8"))).status).toBe(200);
+    vi.unstubAllEnvs();
   });
 
   it("list pages past the first: 50 a minute", async () => {
