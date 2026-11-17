@@ -10,6 +10,11 @@ describe("scopes (docs/15: read + write::trade only)", () => {
     expect(scopeError(["read", "write::trade", "write::transfer"])).toMatch(/write::transfer/);
     expect(scopeError(["read", "write::trade", "write::fcm_risk"])).toMatch(/fcm_risk/);
   });
+  it("RT-09: allow-list, case- and spacing-proof: any other scope is refused", () => {
+    for (const s of ["WRITE::TRANSFER", "transfer", "write:transfer", "admin", "*", "write::*", "write:trade", " Write::Transfer ", "read:*"])
+      expect(scopeError(["read", "write::trade", s]), s).not.toBeNull();
+    expect(scopeError([" READ ", "Write::Trade", "read::portfolio_balance"])).toBeNull();
+  });
   it("requires read and write::trade", () => {
     expect(scopeError(["write::trade"])).toMatch(/read/);
     expect(scopeError(["read::portfolio_balance", "write::trade"])).toMatch(/read/);
