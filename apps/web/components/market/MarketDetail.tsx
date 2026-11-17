@@ -119,7 +119,8 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
   const realistic = realisticReturn(s);
   const c = chance(s.win_prob);
 
-  const pickSide = (i: 0 | 1) => router.replace(pathname + drawerHref(m.id, i, params), { scroll: false });
+  const pickSide = (i: 0 | 1) => router.replace(pathname + (onClose ? drawerHref(m.id, i, params) : `?side=${i}`), { scroll: false });
+  const H = onClose ? "h2" : "h1";
 
   return (
     <Frame
@@ -127,7 +128,7 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
       title={
         <div>
           <div className="text-xs text-muted">{topicLabel(m)} · closes in {closesIn(m.closes_at)} <span title={new Date(m.closes_at * 1000).toLocaleString()}>({new Date(m.closes_at * 1000).toLocaleString(undefined, { weekday: "short", hour: "numeric", minute: "2-digit" })})</span></div>
-          <h2 className="mt-1.5 text-[22px] font-semibold leading-tight">{m.question}</h2>
+          <H className="mt-1.5 text-[22px] font-semibold leading-tight">{m.question}</H>
           {m.event !== m.question && <Link href={`/event/${m.event_id}`} className="mt-1 inline-block text-[13px] text-accent-hover hover:text-accent-soft">{m.event}</Link>}
         </div>
       }
@@ -214,7 +215,7 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
           <ul className="flex flex-col">
             {data.event_markets.slice(0, 8).map((o) => (
               <li key={o.id}>
-                <Link href={drawerHref(o.id, undefined, onClose ? params : undefined)} replace={!!onClose} scroll={false}
+                <Link href={onClose ? drawerHref(o.id, undefined, params) : `/m/${o.id}`} replace={!!onClose} scroll={!onClose}
                   className="flex min-h-11 items-center justify-between gap-3 border-t border-border py-2 text-[13px] hover:text-accent-hover">
                   <span className="line-clamp-2">{o.question}</span>
                   <span className={`flex-none tabular-nums ${returnTone(o.best.roi_pct)}`}>{pro ? edge(o.best.edge) : ret(o.best.roi_pct)}</span>
