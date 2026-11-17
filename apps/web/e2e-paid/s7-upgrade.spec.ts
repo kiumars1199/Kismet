@@ -14,8 +14,11 @@ async function signIn(page: Page, email: string) {
   expect(url).toContain("/auth/callback");
   await page.goto(url);
   await expect(page).toHaveURL(/\/onboarding/);   // first sign-in: onboarding, then Best bets
-  await page.getByRole("button", { name: "Skip setup" }).click();
-  await expect(page).toHaveURL(/:\d+\/(\?|$)/);
+  // On a cold dev server the click can land before hydration; retry until the navigation happens.
+  await expect(async () => {
+    await page.getByRole("button", { name: "Skip setup" }).click();
+    await expect(page).toHaveURL(/:\d+\/(\?|$)/, { timeout: 3_000 });
+  }).toPass({ timeout: 30_000 });
 }
 
 const rows = async (page: Page) => (await (await page.request.get("/api/markets?ps=200")).json()) as MarketsResponse;
