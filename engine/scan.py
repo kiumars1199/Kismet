@@ -3,6 +3,7 @@
 Outputs (all in output/, read by the UI):
   markets.json  every scanned market: both sides, model win prob, edge at the current ask
   flags.json    the subset that passes the flag rule (edge >= min AND confident)
+  events.json   event slug -> event id, market ids, flag ids (lookup for the extension)
   spreads.json  live bid/ask spread by segment, used by the backtest as real trading cost
 """
 import json
@@ -79,9 +80,11 @@ def run(cfg, log=print):
         h = nearest_h(hours)
         mid = (bid + ask) / 2
         spreads[(niche, mt)].append(ask - bid)
-        if h is None or cat not in V["cat"] or niche not in V["niche"] or mt not in V["mt"]:
+        if h is None or cat not in V["cat"] or mt not in V["mt"]:
             continue
-        c, n, t = V["cat"].index(cat), V["niche"].index(niche), V["mt"].index(mt)
+        # a niche the model has not seen yet (new in NICHE_TAGS, before a refit) uses its category node
+        n = V["niche"].index(niche) if niche in V["niche"] else -1
+        c, t = V["cat"].index(cat), V["mt"].index(mt)
         sides = []
         for side, price, smid in ((0, ask, mid), (1, 1 - bid, 1 - mid)):
             r = model.predict(smid, h, c, n, t)
@@ -113,6 +116,10 @@ def run(cfg, log=print):
                                and (rec["t"] or 0) >= 2)
                           for rec in (record.get(cat), hrecord.get(h))),
             liquidity=round(float(m.get("liquidityNum") or 0), 2), spread=round(ask - bid, 4),
+            volume_24h=(round(float(m["volume24hr"]), 2) if m.get("volume24hr") is not None else None),
+            created_at=(int(c_ts) if (c_ts := parse_ts(m.get("createdAt"))) else None),
+            # distance of the market mid from 50c; same for both sides (side 1 mid = 1 - side 0 mid)
+            competitive=round(abs(mid - 0.5), 4),
             sides=sides, best=best))
 
     def is_flag(r):
@@ -151,6 +158,17 @@ def run(cfg, log=print):
                           price_range=[cfg.price_min, cfg.price_max]))
     json.dump(dict(meta=meta, markets=rows), open(cfg.path("output", "markets.json"), "w"))
     json.dump(dict(meta=meta, flags=flags), open(cfg.path("output", "flags.json"), "w"), indent=1)
+    from . import ledger
+    log(f"ledger: {ledger.append(cfg, flags, now)} new rows")
+    # slug -> event index, so the extension can look up a Polymarket page by its URL slug
+    events = {}
+    for r in rows:
+        ev = events.setdefault(r["slug"], dict(event_id=r["event_id"], event=r["event"],
+                                               market_ids=[], flag_ids=[]))
+        ev["market_ids"].append(r["id"])
+    for r in flags:
+        events[r["slug"]]["flag_ids"].append(r["id"])
+    json.dump(events, open(cfg.path("output", "events.json"), "w"))
     sp = {f"{k[0]}|{k[1]}": dict(n=len(v), median=round(float(np.median(v)), 4),
                                   p75=round(float(np.percentile(v, 75)), 4))
           for k, v in spreads.items() if len(v) >= 5}

@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "MarketEdge for Polymarket",
+  "short_name": "MarketEdge",
+  "version": "0.1.0",
+  "description": "Shows MarketEdge analytics next to Polymarket outcomes.",
+  "permissions": ["storage", "sidePanel"],
+  "host_permissions": ["http://localhost:3000/*"],
+  "background": { "service_worker": "background.js", "type": "module" },
+  "action": { "default_title": "MarketEdge", "default_popup": "popup.html" },
+  "side_panel": { "default_path": "sidepanel.html" },
+  "content_scripts": [
+    {
+      "matches": ["https://polymarket.com/event/*", "https://polymarket.com/sports/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

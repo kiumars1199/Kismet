@@ -1,0 +1,22 @@
+{
+  "_note": "Owner fills the empty strings. Nothing here is secret: keys go in .env, not here.",
+  "name": "MarketEdge",
+  "domain": "",
+  "support_email": "",
+  "legal": {
+    "operator_names": "",
+    "operator_type": "individuals (sole proprietors)",
+    "governing_state": "",
+    "mailing_address": "",
+    "refund_policy": "",
+    "min_age": 18,
+    "countries": "United States",
+    "last_updated": ""
+  },
+  "stripe": {
+    "mode": "checkout",
+    "paymentLinks": { "pro_monthly": "", "pro_yearly": "", "premium_monthly": "", "premium_yearly": "" },
+    "portal_url": ""
+  },
+  "prices_usd": { "pro_monthly": 19, "pro_yearly": 190, "premium_monthly": 29, "premium_yearly": 290 }
+}

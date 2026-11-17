@@ -1,0 +1,29 @@
+/* Web app design tokens (docs/06-ui.md § Design system). No remote fonts: system fallbacks. */
+:root {
+  --bg: #070a09; --surface: #0c120f; --raised: #101613; --muted-bg: #141c18; --border: #1a2520;
+  --text: #e6efe9; --muted: #a9bab1; --soft: #c2d1c9;
+  --accent: #10b981; --accent-hover: #34d399; --on-accent: #04140d;
+  --accent-bg: #0f2a1e; --accent-border: #1d4a35; --accent-soft: #d1fae5; --accent-softer: #a7f3d0;
+  --market-bar: #4b5a53; --warning: #f59e0b;
+  --heading: "Space Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --sans: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.45 var(--sans); }
+a { color: var(--accent-hover); text-decoration: none; }
+h1, h2, .num { font-family: var(--heading); letter-spacing: -0.02em; margin: 0; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 14px; }
+.inner { background: var(--raised); border: 1px solid var(--border); border-radius: 16px; padding: 12px; }
+.accent { background: var(--accent-bg); border-color: var(--accent-border); }
+.muted { color: var(--muted); }
+.small { font-size: 12px; }
+.row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.stack > * + * { margin-top: 10px; }
+.btn { display: block; width: 100%; text-align: center; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--border);
+  background: var(--muted-bg); color: var(--text); font: 600 14px var(--sans); cursor: pointer; transition: background 150ms ease; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.btn:hover { filter: brightness(1.1); }
+.dot { width: 8px; height: 8px; border-radius: 4px; display: inline-block; margin-right: 6px; }
+.disclaimer { color: var(--muted); font-size: 12px; border-top: 1px solid var(--border); padding-top: 10px; }
+.bar { height: 10px; border-radius: 5px; background: var(--muted-bg); overflow: hidden; }
+.bar > i { display: block; height: 100%; border-radius: 5px; }

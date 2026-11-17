@@ -37,7 +37,7 @@ def run_backtest(cfg, log=print):
 def main():
     ap = argparse.ArgumentParser(prog="python -m engine")
     ap.add_argument("--config", default="config/demo.json")
-    ap.add_argument("cmd", choices=["update", "fit", "backtest", "scan", "all"])
+    ap.add_argument("cmd", choices=["update", "fit", "backtest", "scan", "all", "grade"])
     a = ap.parse_args()
     cfg = config.load(a.config)
     if a.cmd in ("update", "all"):
@@ -48,6 +48,9 @@ def main():
         fit(cfg)
     if a.cmd in ("scan", "all"):
         scan.run(cfg)
+    if a.cmd == "grade":
+        from . import ledger
+        ledger.grade(cfg)
 
 
 if __name__ == "__main__":

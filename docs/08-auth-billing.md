@@ -42,4 +42,4 @@ const LIMITS = {
 useEntitlements() // client: from /api/me; server: getEntitlements(userId) (cached 60 s)
 ```
 Gates are enforced **server-side** in API routes (trimming fields and rows), and mirrored in the UI
-with `<UpgradeGate>`. Demo mode (no auth configured) runs as `pro` so the demo shows everything.
+with `<UpgradeGate>`. Demo mode (no auth configured) runs as `premium` so the demo shows everything, including the extension.
