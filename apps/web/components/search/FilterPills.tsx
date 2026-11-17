@@ -12,11 +12,12 @@ import { timeWindow } from "@/lib/search/parse";
 import { TAXONOMY, TAXONOMY_TREE } from "@/lib/taxonomy";
 import { FilterPanel } from "@/components/screener/FilterPanel";
 import type { Mode } from "@/components/screener/useScreener";
+import { exactCount, formatCount } from "@/lib/format";
 
 type Change = (p: Partial<FilterState>) => void;
 type Opt = { key: string; label: string; n?: number; patch: Partial<FilterState>; on: boolean };
 
-const nf = (n: number) => n.toLocaleString("en-US");
+const nf = formatCount;   // docs/18 §4
 const H = 3_600_000;
 const r2 = (x: number) => Math.round(x * 100) / 100;
 const CATEGORIES = new Set(TAXONOMY_TREE.map((n) => n.id));
@@ -89,7 +90,7 @@ function Options({ opts, onChange, close }: { opts: Opt[]; onChange: Change; clo
             className={`flex min-h-11 w-full items-center gap-2 rounded-input px-3 text-left text-sm md:min-h-10 ${o.on ? "bg-accent-bg text-accent-soft" : o.n === 0 ? "text-muted hover:bg-muted-bg" : "text-soft hover:bg-muted-bg hover:text-text"}`}
           >
             {o.label}
-            {o.n !== undefined && <span className="ml-auto pl-3 text-xs tabular-nums text-muted">{nf(o.n)}</span>}
+            {o.n !== undefined && <span className="ml-auto pl-3 text-xs tabular-nums text-muted" title={exactCount(o.n)}>{nf(o.n)}</span>}
           </button>
         </li>
       ))}
@@ -131,7 +132,7 @@ function TopicPill({ s, facets, onChange }: { s: FilterState; facets?: Facets; o
       <label className={`flex min-h-11 cursor-pointer items-center gap-2.5 rounded-input px-3 text-sm md:min-h-10 ${on(id) ? "text-accent-soft" : count(id) === 0 ? "text-muted" : "text-soft"} hover:bg-muted-bg hover:text-text`}>
         <input type="checkbox" checked={on(id)} onChange={() => flip(id)} className="size-4 flex-none accent-[var(--accent)]" />
         {TAXONOMY[id]?.label ?? id}
-        {count(id) !== undefined && <span className="ml-auto pl-3 text-xs tabular-nums text-muted">{nf(count(id)!)}</span>}
+        {count(id) !== undefined && <span className="ml-auto pl-3 text-xs tabular-nums text-muted" title={exactCount(count(id))}>{nf(count(id)!)}</span>}
       </label>
     </li>
   );

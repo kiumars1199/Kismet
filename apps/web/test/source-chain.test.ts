@@ -43,7 +43,7 @@ describe("data source chain", () => {
     const calls = stubFetch({ supabase: "ok", github: "ok" });
     const raw = await loadRaw(sourceChain("supabase"));
     expect(raw.source).toBe("supabase");
-    expect(raw.markets.markets).toHaveLength(500);
+    expect(raw.markets.markets).toHaveLength(501);
     expect(calls.every((u) => u.startsWith("https://abc.supabase.co/storage/v1/object/authenticated/scan/"))).toBe(true);
     expect(raw.events).toBeUndefined(); // optional file missing (400) is fine
   });

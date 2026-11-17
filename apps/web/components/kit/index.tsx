@@ -1,6 +1,7 @@
 "use client";
 // Small UI kit for Lane D2 pages (settings, dashboards, My bets, tools, alerts). Tokens only (docs/06).
 import { useEffect, useId, useRef, type ReactNode } from "react";
+import { exactCount, formatCount } from "@/lib/format";
 
 export const card = "rounded-card border border-border bg-surface";
 export const inner = "rounded-inner border border-border bg-raised";
@@ -13,6 +14,13 @@ export const btnPrimary =
 export const btnGhost =
   "inline-flex min-h-11 items-center justify-center gap-2 rounded-input px-3 py-2 text-sm text-muted hover:bg-muted-bg hover:text-text";
 export const label = "text-xs font-medium text-muted";
+
+/** A count of bets, markets or events: short and rounded down ("9.6K"), exact on hover (docs/18 §4). */
+export function Count({ n, className }: { n: number | null | undefined; className?: string }) {
+  const short = formatCount(n);
+  const exact = exactCount(n);
+  return <span className={className} title={short === exact ? undefined : exact}>{short}</span>;
+}
 
 export function PageTitle({ title, sub, children }: { title: string; sub?: ReactNode; children?: ReactNode }) {
   return (

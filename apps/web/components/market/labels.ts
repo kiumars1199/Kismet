@@ -48,3 +48,7 @@ export function rowNotes(x: Execution | undefined, best: Side): Note[] {
 }
 
 export const NOTE_TONE: Record<Note["tone"], string> = { warning: "text-warning", negative: "text-negative", muted: "text-muted" };
+
+/** docs/18 §6: the edge read as a price ("better price than usual", then +N pts); a negative edge says so plainly. */
+export const priceVerdict = (s: Pick<Side, "edge" | "ranges">) =>
+  s.ranges || s.edge > 0 ? "Better price than usual" : "Priced above how often bets like it won";

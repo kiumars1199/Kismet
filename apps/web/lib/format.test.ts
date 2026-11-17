@@ -1,5 +1,22 @@
 import { describe, expect, it } from "vitest";
-import { ago, chance, closesIn, edge, expectedProfit, money, pays, pct, price, realisticReturn, ret } from "./format";
+import { ago, chance, closesIn, edge, exactCount, expectedProfit, formatCount, money, pays, pct, price, realisticReturn, ret, sidePts, testedLine, winsAbout } from "./format";
+
+describe("docs/18 numbers", () => {
+  it("formatCount rounds down, never up", () => {
+    expect([999, 1_000, 9_999, 10_000, 999_999].map(formatCount)).toEqual(["999", "1K", "9.9K", "10K", "999K"]);
+    expect([9_666, 12_340, 778_152, 1_240_000, 1_333_014, 0, 7].map(formatCount)).toEqual(["9.6K", "12K", "778K", "1.2M", "1.3M", "0", "7"]);
+    expect([1_000_000, 2_300, 9_999_999, null].map(formatCount)).toEqual(["1M", "2.3K", "9.9M", "—"]);
+    expect(exactCount(1_333_014)).toBe("1,333,014");
+  });
+  it("wins about, points and the tested line", () => {
+    expect([0.14, 0.1, 0.33, 0.5, 0.75, 0.97, 0].map(winsAbout)).toEqual(["1 in 7", "1 in 10", "1 in 3", "5 in 10", "8 in 10", "9 in 10", "—"]);
+    expect([sidePts({ edge: 0.04 }), sidePts({ edge: 0.011 }), sidePts({ edge: 0.03, ranges: { roi_pct: [0, 5], edge: [0.02, 0.05] } })]).toEqual(["+4 pts", "+1 pt", "+2–5 pts"]);
+    expect(testedLine({ flags: 111, win_rate: 0.0541, roi_pct: -41.85 })).toBe("Bets like this: won 5% of the time, lost money in testing (−42%)");
+    expect(testedLine({ flags: 1186, win_rate: 0.14, roi_pct: 6 })).toBe("Bets like this: won 14% of the time, +6% return in testing");
+    expect(testedLine({ combos: 2001, win_rate: 0.65, roi_pct: 25.71 }, "3-leg combos")).toBe("3-leg combos: won 65% of the time, +26% return in testing");
+    expect([testedLine({ flags: 0 }), testedLine(undefined)]).toEqual([null, null]);
+  });
+});
 
 describe("format", () => {
   it("formats numbers per docs/06", () => {

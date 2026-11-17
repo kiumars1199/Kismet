@@ -2,10 +2,10 @@
 // The /tools Kelly half of S6 belongs to Lane D2.
 import { expect, test } from "@playwright/test";
 import fixture from "../test/fixtures/backtest.json";
-import { edge, ret } from "../lib/format";
+import { edge, formatCount, ret } from "../lib/format";
 
 const r = fixture.results[String(fixture.chosen_half_life_days ?? "None") as keyof typeof fixture.results].taker;
-const int = (x: number) => x.toLocaleString("en-US");
+const int = formatCount;   // docs/18 §4: counts short, rounded down (exact on hover)
 
 test("S6: Results tiles equal backtest.json", async ({ page }) => {
   await page.goto("/track-record");

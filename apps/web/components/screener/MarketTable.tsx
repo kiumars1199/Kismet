@@ -9,7 +9,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { ApiGroup, ApiRow } from "@/lib/api";
 import type { SortKey } from "@/lib/filters/state";
 import type { FilterState } from "@/lib/filters/state";
-import { basis, chance, closesIn, DASH, edge, money, pays, PAYS_HELP, pct, price, RETURN_HELP, sideRet, sideEdge } from "@/lib/format";
+import { basis, chance, closesIn, DASH, edge, money, pays, PAYS_HELP, pct, price, RETURN_HELP, sideRet, sideEdge, formatCount } from "@/lib/format";
 import { WatchStar } from "@/components/watch/WatchStar";
 import { drawerHref, useOpenDrawer } from "@/components/market/DrawerHost";
 import { AlertLink, Notes, Val } from "@/components/market/bits";
@@ -58,7 +58,7 @@ function columns(pro: boolean): Col[] {
     h.display({ id: "volume", header: "Volume", meta: { label: "Volume", pro: true, sort: "volume", right: true }, cell: ({ row: { original: r } }) => <Val v={usd(r.market.volume)} /> }),
     h.display({ id: "volume_24h", header: "24h volume", meta: { label: "24h volume", pro: true, sort: "volume_24h", right: true }, cell: ({ row: { original: r } }) => <Val v={usd(r.market.volume_24h)} /> }),
     h.display({ id: "liquidity", header: "Liquidity", meta: { label: "Liquidity", pro: true, sort: "liquidity", right: true }, cell: ({ row: { original: r } }) => <Val v={usd(r.market.liquidity)} /> }),
-    h.display({ id: "evidence", header: "Evidence", meta: { label: "Evidence (events)", pro: true, sort: "evidence", right: true }, cell: ({ row: { original: r } }) => <Val v={num(r.side.model_events, (n) => n.toLocaleString("en-US"))} title={basis(r.market, r.side)} /> }),
+    h.display({ id: "evidence", header: "Evidence", meta: { label: "Evidence (events)", pro: true, sort: "evidence", right: true }, cell: ({ row: { original: r } }) => <Val v={num(r.side.model_events, formatCount)} title={basis(r.market, r.side)} /> }),
     h.display({ id: "level", header: "Model level", meta: { label: "Model level", pro: true }, cell: ({ row: { original: r } }) => <span className="whitespace-nowrap">{LEVEL[r.side.model_level] ?? r.side.model_level}</span> }),
     h.display({ id: "type", header: "Market type", meta: { label: "Market type", pro: true }, cell: ({ row: { original: r } }) => <span className="whitespace-nowrap">{r.market.market_type}</span> }),
     h.display({ id: "retention", header: "Retention", meta: { label: "Retention", pro: true, sort: "retention", right: true }, cell: ({ row: { original: r } }) => <Val v={pct(r.market.execution?.retention)} /> }),

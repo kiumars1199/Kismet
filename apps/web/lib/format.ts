@@ -99,3 +99,46 @@ export function basis(m: { niche: string; market_type: string; horizon_h: number
   const lvl = { all: "all markets", cat: "category", niche: "niche", nmt: "niche + type" }[s.model_level] ?? s.model_level;
   return `Model: ${m.niche.toUpperCase()} · ${m.market_type} · ~${m.horizon_h} h · ${Math.round(s.model_neff).toLocaleString("en-US")} eff. samples · ${s.model_events.toLocaleString("en-US")} events (${lvl} level)`;
 }
+
+/** docs/18 §4: counts of bets, markets, events. Under 1,000 exact; above, ROUNDED DOWN to a short form so a count
+ *  is never overstated: 9,666 → "9.6K", 12,340 → "12K", 778,152 → "778K", 1,333,014 → "1.3M". The exact number
+ *  goes in the hover (<Count> in components/kit does both). */
+export function formatCount(n: number | null | undefined): string {
+  if (!ok(n)) return DASH;
+  const a = Math.floor(Math.abs(n));
+  const sign = n < 0 ? "−" : "";
+  if (a < 1000) return `${sign}${a}`;
+  const [d, u] = a >= 1e9 ? [1e9, "B"] : a >= 1e6 ? [1e6, "M"] : [1e3, "K"];
+  const tenths = Math.floor(a / (d / 10));   // integer math: no 2.3 * 10 = 22.999… surprises
+  return `${sign}${tenths < 100 ? tenths / 10 : Math.floor(tenths / 10)}${u}`;
+}
+/** exact count for the hover: 9666 → "9,666" */
+export const exactCount = (n: number | null | undefined) => (ok(n) ? Math.round(n).toLocaleString("en-US") : DASH);
+
+/** docs/18 §6 "wins about 1 in 7": under 50% as 1 in N; from 50% as K in 10 (capped at 9, so it never reads as certain). */
+export function winsAbout(p: number | null | undefined): string {
+  if (!ok(p) || p <= 0) return DASH;
+  if (p < 0.5) return `1 in ${Math.max(2, Math.round(1 / p))}`;
+  return `${Math.min(9, Math.max(5, Math.round(p * 10)))} in 10`;
+}
+/** docs/18 §6 edge as points of win chance above the price: 0.04 → "+4 pts"; the Free tier gets its band "+2–5 pts". */
+export function sidePts(s: Pick<Side, "edge" | "ranges">): string {
+  const pt = (e: number) => Math.round(e * 100);
+  if (s.ranges) {
+    const [lo, hi] = s.ranges.edge;
+    return lo === null ? `under ${pt(hi ?? 0)} pts` : hi === null ? `over +${pt(lo)} pts` : `+${pt(lo)}–${pt(hi)} pts`;
+  }
+  if (!ok(s.edge)) return DASH;
+  const p = pt(s.edge);
+  return `${p < 0 ? "−" : "+"}${Math.abs(p)} ${Math.abs(p) === 1 ? "pt" : "pts"}`;
+}
+/** How a payout band (or combo size) did in the walk-forward test, docs/18 §2. Losing records always say
+ *  "lost money in testing": labelled, never hidden. Null when nothing was tested. */
+export function testedLine(r: { flags?: number; combos?: number; win_rate?: number; roi_pct?: number } | null | undefined, who = "Bets like this"): string | null {
+  const n = r?.flags ?? r?.combos;
+  if (!r || !n || !ok(r.roi_pct)) return null;
+  const won = ok(r.win_rate) ? `won ${pct(r.win_rate)} of the time, ` : "";
+  return `${who}: ${won}${r.roi_pct < 0 ? `lost money in testing (${ret(r.roi_pct)})` : `${ret(r.roi_pct)} return in testing`}`;
+}
+/** Under 25% chance the drawer says plainly what usually happens (docs/18 §6). */
+export const LONG_SHOT_LINE = "Most of the time this loses. The edge means you're getting a better price than usual, not that it will hit.";
