@@ -2,7 +2,8 @@
 // concurrent loads de-duplicated. Server only — never ship markets.json to the browser.
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { DATA_SOURCE, dataDirSetting, github, supabaseStorage, type DataSource } from "@/lib/config";
+import "server-only";
+import { DATA_SOURCE, dataDirSetting, type DataSource } from "@/lib/config";
 import { DELAY_MIN, type Tier } from "@/lib/entitlements";
 import { Flag as FlagSchema, Market as MarketSchema, ScanMeta as MetaSchema } from "@/lib/schemas";
 import type { BacktestFile, EventsFile, FlagsFile, LedgerSummary, MarketsFile, ModelFile, ScanMeta, StoreMarket } from "@/lib/types";
@@ -38,6 +39,19 @@ export interface Store {
   ledgerSummary?: LedgerSummary;
   source?: DataSource;
 }
+
+const github = () => ({
+  token: process.env.GITHUB_DATA_TOKEN,
+  repo: process.env.GITHUB_DATA_REPO || "kiumars1199/marketedge",
+  ref: process.env.GITHUB_DATA_REF || "live",
+});
+
+/** The service key never leaves the server (this file is server-only; no NEXT_PUBLIC_ prefix). */
+const supabaseStorage = () => ({
+  url: process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/+$/, ""),
+  key: process.env.SUPABASE_SERVICE_ROLE_KEY,
+  bucket: "scan",
+});
 
 const TTL_MS = 120_000;
 const dataDir = () => path.resolve(process.cwd(), dataDirSetting());

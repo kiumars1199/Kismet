@@ -2,13 +2,14 @@
 // Does nothing in demo mode or before Supabase is configured.
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { DEMO_MODE } from "@/lib/config";
 
 const COOKIE_OPTIONS = { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax" as const, path: "/" };
 const SIGNED_IN_ONLY = ["/account", "/watchlist", "/journal", "/alerts", "/dashboards"];
 
 export async function middleware(req: NextRequest) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL, anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (process.env.DEMO_MODE !== "false" || !url || !anon) return NextResponse.next();
+  if (DEMO_MODE || !url || !anon) return NextResponse.next();
 
   let res = NextResponse.next({ request: req });
   const supabase = createServerClient(url, anon, {

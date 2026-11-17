@@ -1,10 +1,11 @@
+import { demoFlag } from "@/lib/config";
 import { LocalRepo } from "./local";
 import type { Repo } from "./types";
 
 export * from "./types";
 
-/** NEXT_PUBLIC_DEMO_MODE defaults to true when unset. */
-export const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE !== "false";
+/** Browser copy of DEMO_MODE: next.config always sets NEXT_PUBLIC_DEMO_MODE from the server flag (lib/config.ts). */
+export const DEMO_MODE = demoFlag(process.env.NEXT_PUBLIC_DEMO_MODE);
 
 // getRepo() returns one stable object; the backing store can switch (LocalRepo → SupabaseRepo after
 // sign-in) without hooks re-subscribing: subscribers here are told when the store switches.
