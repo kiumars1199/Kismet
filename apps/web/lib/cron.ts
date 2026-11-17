@@ -1,5 +1,6 @@
 // Vercel Cron auth (docs/02): `Authorization: Bearer $CRON_SECRET`, compared in constant time.
 // Server only. No secret configured = every request is refused.
+import "server-only";
 import { createHash, timingSafeEqual } from "node:crypto";
 
 const digest = (s: string) => createHash("sha256").update(s).digest();

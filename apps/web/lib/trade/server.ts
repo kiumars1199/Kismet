@@ -1,8 +1,10 @@
 // Server side of paper trading and the extension sign-in (docs/16 §3–4, docs/15 § Trading keys, docs/09 § Auth).
 // We never see Kalshi keys. We only issue (1) short-lived extension sign-in tokens and (2) one-time order nonces
 // bound to the exact order the user confirmed, which the extension checks with us before it signs anything.
+import "server-only";
 import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
-import { getMe } from "@/lib/auth/server";
+import { redis } from "@/lib/abuse";
+import { getMe, sameOrigin } from "@/lib/auth/server";
 import { DEMO_MODE } from "@/lib/config";
 import type { Tier } from "@/lib/entitlements";
 
@@ -29,10 +31,11 @@ export const extensionId = () => process.env.NEXT_PUBLIC_EXTENSION_ID || "cgoaai
 
 // On globalThis so every route bundle (and dev hot reloads) in one server process share them.
 const g = globalThis as { __meDevSecret?: Buffer; __meUsedNonces?: Map<string, number> };
-function secret(): Buffer | null {
-  const s = process.env.EXT_SIGNING_SECRET;
+/** A real deploy never signs with a made-up key, demo mode included (docs/15 § Trading keys). */
+export function secret(env: Record<string, string | undefined> = process.env): Buffer | null {
+  const s = env.EXT_SIGNING_SECRET;
   if (s && s.length >= 32) return Buffer.from(s);
-  if (DEMO_MODE) return (g.__meDevSecret ??= randomBytes(32)); // per process: fine for one dev server
+  if (DEMO_MODE && env.VERCEL_ENV !== "production") return (g.__meDevSecret ??= randomBytes(32)); // per process: one dev server
   return null;
 }
 
@@ -71,17 +74,25 @@ type Nonce = { k: "nonce"; a: string; h: string; exp: number; n: string };
 export const issueNonce = (action: "place" | "cancel", payload: unknown, now = Date.now()) =>
   seal({ k: "nonce", a: action, h: digest(action, payload), exp: now + NONCE_TTL_MS, n: randomBytes(12).toString("base64url") } satisfies Nonce);
 
-// ponytail: consumed set is per server instance; a replay on another instance still can't double-place because
-// Kalshi dedupes client_order_id (part of the hashed payload). Move to Upstash SET NX if that guarantee is not enough.
+// Used nonces: Upstash SET NX (one answer across every instance). Without Upstash (dev, e2e) a per-process Map.
 const used = (g.__meUsedNonces ??= new Map<string, number>());
+async function firstUse(id: string, exp: number, now: number): Promise<boolean> {
+  const r = redis();
+  if (r) {
+    try { return (await r.set(`me:nonce:${id}`, 1, { nx: true, pxat: exp })) === "OK"; }
+    catch (e) { console.error("[trade] nonce store failed, refusing:", (e as Error).message); return false; }   // fail closed
+  }
+  for (const [k, e] of used) if (e < now) used.delete(k);
+  if (used.has(id)) return false;
+  used.set(id, exp);
+  return true;
+}
 
 /** True once per nonce, and only for the same action + payload it was issued for. */
-export function consumeNonce(nonce: string, action: string, payload: unknown, now = Date.now()): boolean {
+export async function consumeNonce(nonce: string, action: string, payload: unknown, now = Date.now()): Promise<boolean> {
   const n = open<Nonce>(nonce);
-  if (!n || n.k !== "nonce" || n.a !== action || n.exp < now || n.h !== digest(action, payload) || used.has(n.n)) return false;
-  for (const [id, exp] of used) if (exp < now) used.delete(id);
-  used.set(n.n, n.exp);
-  return true;
+  if (!n || n.k !== "nonce" || n.a !== action || n.exp < now || n.h !== digest(action, payload)) return false;
+  return firstUse(n.n, n.exp, now);
 }
 
 export const EXT_TOKEN_TTL_MS = 30 * 60_000;
@@ -99,9 +110,6 @@ export function verifyExtToken(token: string | null | undefined, now = Date.now(
   return t && t.k === "ext" && t.exp > now ? t : null;
 }
 
-/** Same-origin check for browser POSTs that mint nonces/tokens (CSRF): Origin must match the host we serve. */
-export function sameOrigin(req: Request): boolean {
-  const origin = req.headers.get("origin");
-  if (!origin) return false;
-  try { return new URL(origin).host === new URL(req.url).host || new URL(origin).host === req.headers.get("host"); } catch { return false; }
-}
+/** CSRF for /api/ext/token: our site (/ext/connect) or our own extension's worker, nothing else. */
+export const siteOrExtension = (req: Request) =>
+  sameOrigin(req) || req.headers.get("origin") === `chrome-extension://${extensionId()}`;

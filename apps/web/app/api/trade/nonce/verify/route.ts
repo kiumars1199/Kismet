@@ -8,9 +8,9 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: Request): Promise<Response> {
   if (!tradingEnv()) return Response.json({ ok: false }, { status: 404 });
-  const raw = (await req.json().catch(() => null)) as { nonce?: unknown } | null;
-  const body = NonceRequest.safeParse(raw);
-  if (!body.success || typeof raw?.nonce !== "string" || raw.nonce.length > 1024) return Response.json({ ok: false }, { status: 400 });
-  const ok = consumeNonce(raw.nonce, body.data.action, body.data.payload);
+  const { nonce, ...rest } = ((await req.json().catch(() => null)) ?? {}) as { nonce?: unknown };
+  const body = NonceRequest.safeParse(rest);
+  if (!body.success || typeof nonce !== "string" || nonce.length > 1024) return Response.json({ ok: false }, { status: 400 });
+  const ok = await consumeNonce(nonce, body.data.action, body.data.payload);
   return Response.json({ ok }, { status: ok ? 200 : 403, headers: { "cache-control": "no-store" } });
 }

@@ -12,14 +12,14 @@ import { fetchMarket, fetchMarkets } from "@/lib/api";
 import { ago, price, ret } from "@/lib/format";
 import { parse } from "@/lib/filters/url";
 import { askPermission } from "@/lib/notify";
-import { getRepo } from "@/lib/repo";
+import { DEMO_MODE, getRepo } from "@/lib/repo";
 import { useCollection } from "@/lib/repo/hooks";
 import type { AlertChannel, AlertRule } from "@/lib/repo/types";
 import type { Market } from "@/lib/types";
 import { allViews, viewById } from "@/lib/views";
 
 const DEV = process.env.NODE_ENV !== "production";
-const DEMO = process.env.NEXT_PUBLIC_DEMO_MODE !== "false";   // demo runs alerts in the tab; "Run now" is a local test aid
+const DEMO = DEMO_MODE;   // demo runs alerts in the tab; "Run now" is a local test aid
 type Draft = Omit<AlertRule, "id" | "created_at" | "last_fired_at"> & { id?: string; view_id: string };
 
 const blank = (): Draft => ({

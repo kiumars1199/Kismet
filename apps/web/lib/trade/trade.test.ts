@@ -19,24 +19,24 @@ describe("trading flag", () => {
 });
 
 describe("nonce", () => {
-  it("is one-time and bound to the exact order", () => {
+  it("is one-time and bound to the exact order", async () => {
     const n = issueNonce("place", order)!;
-    expect(consumeNonce(n, "place", { ...order, count: 11 })).toBe(false);
-    expect(consumeNonce(n, "cancel", order)).toBe(false);
+    expect(await consumeNonce(n, "place", { ...order, count: 11 })).toBe(false);
+    expect(await consumeNonce(n, "cancel", order)).toBe(false);
     // key order doesn't matter, content does
     const reordered = Object.fromEntries(Object.entries(order).reverse());
-    expect(consumeNonce(n, "place", reordered)).toBe(true);
-    expect(consumeNonce(n, "place", order)).toBe(false); // used
+    expect(await consumeNonce(n, "place", reordered)).toBe(true);
+    expect(await consumeNonce(n, "place", order)).toBe(false); // used
   });
-  it("expires", () => {
+  it("expires", async () => {
     const n = issueNonce("place", order, 0)!;
-    expect(consumeNonce(n, "place", order, NONCE_TTL_MS + 1)).toBe(false);
+    expect(await consumeNonce(n, "place", order, NONCE_TTL_MS + 1)).toBe(false);
   });
-  it("rejects tampering", () => {
+  it("rejects tampering", async () => {
     const n = issueNonce("place", order)!;
     const [body, sig] = n.split(".");
-    expect(consumeNonce(`${body}x.${sig}`, "place", order)).toBe(false);
-    expect(consumeNonce("garbage", "place", order)).toBe(false);
+    expect(await consumeNonce(`${body}x.${sig}`, "place", order)).toBe(false);
+    expect(await consumeNonce("garbage", "place", order)).toBe(false);
   });
   it("canonical JSON sorts keys", () => expect(canonical({ b: 1, a: [{ d: 2, c: 3 }] })).toBe('{"a":[{"c":3,"d":2}],"b":1}'));
   it("request schema strips nothing it shouldn't and rejects bad intents", () => {
@@ -44,6 +44,35 @@ describe("nonce", () => {
     expect(NonceRequest.safeParse({ action: "place", payload: { ...order, price_cents: 100 } }).success).toBe(false);
     expect(NonceRequest.safeParse({ action: "place", payload: { ...order, client_order_id: "x" } }).success).toBe(false);
     expect(NonceRequest.safeParse({ action: "transfer", payload: {} }).success).toBe(false);
+  });
+});
+
+describe("nonce store and signing key (docs/15 § Trading keys)", () => {
+  it("used nonces go to Upstash SET NX across instances; a store error refuses", async () => {
+    const abuse = await import("@/lib/abuse");
+    const seen = new Set<string>();
+    const set = vi.fn(async (k: string, _v: unknown, o: { nx: boolean; pxat: number }) => {
+      expect(o.nx).toBe(true);
+      expect(o.pxat).toBeGreaterThan(Date.now());
+      return seen.has(k) ? null : (seen.add(k), "OK");
+    });
+    const spy = vi.spyOn(abuse, "redis").mockReturnValue({ set } as never);
+    const n = issueNonce("place", order)!;
+    expect(await consumeNonce(n, "place", order)).toBe(true);
+    expect(await consumeNonce(n, "place", order)).toBe(false);   // another instance asking: same answer
+    expect(set).toHaveBeenCalledTimes(2);
+    set.mockRejectedValueOnce(new Error("down"));
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    expect(await consumeNonce(issueNonce("place", order)!, "place", order)).toBe(false);
+    spy.mockRestore();
+  });
+
+  it("a production deploy without EXT_SIGNING_SECRET issues nothing, demo mode included", async () => {
+    const { secret } = await import("./server");
+    expect(secret({ VERCEL_ENV: "production" })).toBeNull();
+    expect(secret({ VERCEL_ENV: "production", EXT_SIGNING_SECRET: "short" })).toBeNull();
+    expect(secret({ VERCEL_ENV: "production", EXT_SIGNING_SECRET: "x".repeat(32) })).not.toBeNull();
+    expect(secret({})).not.toBeNull();   // local demo: per-process key
   });
 });
 

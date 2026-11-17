@@ -1,5 +1,6 @@
 // Continue with Google (docs/08). Form POST from /login (box ticked) → Google consent → /auth/callback.
 import { NextResponse } from "next/server";
+import { clientKey, rateLimit } from "@/lib/abuse";
 import { authEnabled, safeNext, sameOrigin, supabaseServer } from "@/lib/auth/server";
 import { rememberTerms } from "@/lib/auth/terms";
 
@@ -10,6 +11,8 @@ export async function POST(req: Request) {
   const origin = new URL(req.url).origin;
   const back = (q: string) => NextResponse.redirect(`${origin}/login?${q}`, 303);
   if (!authEnabled() || !sameOrigin(req)) return back("error=unavailable");
+  // A form navigation, so BotID can't attach its header here (docs/SECURITY_EVIDENCE.md); 5/min per IP still applies.
+  if (await rateLimit("auth_ip", clientKey(req))) return back("error=rate");
   const form = await req.formData().catch(() => null);
   const next = safeNext(form?.get("next")?.toString());
   if (form?.get("accept") !== "on") return back(`error=terms&next=${encodeURIComponent(next)}`);

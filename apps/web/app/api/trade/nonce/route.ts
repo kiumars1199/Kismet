@@ -2,7 +2,8 @@
 // The nonce is bound to this exact order and expires in 2 minutes; other sites can't read it (no CORS) and
 // can't message the extension (externally_connectable), so they can't fire orders through it.
 import { NonceRequest } from "@/lib/trade/intent";
-import { currentUser, issueNonce, sameOrigin, tradingAllowed, tradingEnv } from "@/lib/trade/server";
+import { sameOrigin } from "@/lib/auth/server";
+import { currentUser, issueNonce, tradingAllowed, tradingEnv } from "@/lib/trade/server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

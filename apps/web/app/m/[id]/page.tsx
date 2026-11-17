@@ -3,9 +3,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import type { MarketResponse } from "@/lib/api";
-import { categoryRecord, curve, segmentOf } from "@/lib/data/model";
 import { getTier } from "@/lib/auth/server";
-import { gateMarket } from "@/lib/data/gate";
+import { marketBody } from "@/lib/data/respond";
 import { getStoreFor } from "@/lib/data/store";
 import { betLine, sideRet } from "@/lib/format";
 import { MarketDetail } from "@/components/market/MarketDetail";
@@ -18,15 +17,7 @@ async function load(id: string): Promise<MarketResponse | null> {
   const tier = await getTier();   // T-44: same tier shaping as /api/markets/[id]
   const store = await getStoreFor(tier);
   const m = store.flagsById.get(id) ?? store.byId.get(id);
-  if (!m) return null;
-  const segment = segmentOf(m);
-  return {
-    market: gateMarket(m, tier),
-    segment,
-    curve: curve(store.model, segment, m.horizon_h),
-    backtest: categoryRecord(store.backtest, m.category),
-    event_markets: (store.byEvent.get(m.event_id) ?? []).filter((x) => x.id !== id).map((x) => gateMarket(x, tier)),
-  };
+  return m ? marketBody(store, m, tier) : null;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

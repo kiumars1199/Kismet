@@ -88,6 +88,11 @@ jobs:
       - name: Publish outputs to the live branch
         run: |
           mkdir -p /tmp/pub && cp output/*.json output/*.jsonl /tmp/pub/
+          # Free tier is 15 min behind (docs/15): publish the scan being replaced as *-prev.json so a cold web
+          # instance can serve it. FETCH_HEAD = the live branch fetched above; first publish has none.
+          for f in markets flags; do
+            git show "FETCH_HEAD:$f.json" > "/tmp/pub/$f-prev.json" 2>/dev/null || rm -f "/tmp/pub/$f-prev.json"
+          done
           cd /tmp/pub
           git init -q -b live
           git config user.name "marketedge-bot"

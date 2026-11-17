@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { fetchBook, fetchMarket, type BookResponse, type MarketResponse } from "@/lib/api";
-import { ago, basis, betLine, chance, closesIn, edge, expectedProfit, money, pays, PAYS_HELP, pct, price, realisticReturn, ret, RETURN_HELP, sideRet, sideEdge, sidePts, formatCount, LONG_SHOT_LINE, winsAbout } from "@/lib/format";
+import { ago, basis, betLine, chance, closesIn, edge, money, pays, PAYS_HELP, pct, price, realisticReturn, ret, RETURN_HELP, sideProfit, sideRet, sideEdge, sidePts, formatCount, LONG_SHOT_LINE, winsAbout } from "@/lib/format";
 import { useProfile } from "@/lib/repo/hooks";
 import type { Execution, Side, StoreMarket } from "@/lib/types";
 import { WatchStar } from "@/components/watch/WatchStar";
@@ -157,10 +157,10 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
             <span className="underline decoration-dotted underline-offset-4">{pro ? "edge per share" : "expected return"}</span>
           </div>
         </div>
-        {realistic !== null && (
+        {realistic !== null && !s.ranges && (
           <p className="mt-1.5 text-[13px] text-accent-soft">Similar past bets returned <strong>{ret(realistic)}</strong> on average.</p>
         )}
-        <p className={`mt-1.5 text-[13px] ${chanceTone(c)}`}>{c ?? ""}{c && " · "}<span className="text-accent-soft">$100 bet → expect {money(Math.round(expectedProfit(s.roi_pct) ?? NaN), true)}</span></p>
+        <p className={`mt-1.5 text-[13px] ${chanceTone(c)}`}>{c ?? ""}{c && " · "}<span className="text-accent-soft">$100 bet → expect {sideProfit(s)}</span></p>
         {m.tier === "edge" && <TierNote s={s} className="mt-1.5 !text-accent-soft" />}
       </section>
 

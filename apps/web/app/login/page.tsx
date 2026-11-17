@@ -11,6 +11,7 @@ const ERRORS: Record<string, string> = {
   terms: "Tick the box to confirm you're 18 or older and agree to the Terms.",
   link: "That sign-in link didn't work. It may have expired or been opened in a different browser. Send a new one.",
   google: "Google sign-in didn't start. Try again, or use your email.",
+  rate: "Too many sign-in tries. Wait a minute and try again.",
   unavailable: "Sign-in isn't available right now. Try again in a minute.",
 };
 

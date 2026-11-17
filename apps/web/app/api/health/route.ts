@@ -1,7 +1,8 @@
 // GET /api/health — uptime monitor target (docs/14 §5): data age, DB reachable, Stripe configured.
 // 503 when there is no data, the DB is configured but unreachable, or the scan is older than
 // HEALTH_MAX_DATA_AGE_MIN (default 30) on a remote data source. Never echoes keys, URLs or errors.
-import { DATA_SOURCE } from "@/lib/config";
+import { redis } from "@/lib/abuse";
+import { DATA_SOURCE, DEMO_MODE } from "@/lib/config";
 import { getStore } from "@/lib/data/store";
 
 export const runtime = "nodejs";
@@ -27,7 +28,10 @@ export async function GET(): Promise<Response> {
   const [store, dbState] = await Promise.all([getStore().catch(() => undefined), db()]);
   const ageMin = store ? Math.round((Date.now() / 1000 - store.meta.scanned_at) / 60) : null;
   const stale = ageMin === null || ageMin > maxAgeMin;
-  const ok = !!store && dbState !== "unreachable" && !(stale && DATA_SOURCE !== "local");
+  // docs/15: without Upstash, rate limits are off. Fine in dev and demo; a live production deploy is degraded.
+  const ratelimit = redis() ? "on" : "off";
+  const rlDown = ratelimit === "off" && process.env.NODE_ENV === "production" && !DEMO_MODE;
+  const ok = !!store && dbState !== "unreachable" && !(stale && DATA_SOURCE !== "local") && !rlDown;
   return Response.json({
     ok,
     data: store
@@ -35,5 +39,6 @@ export async function GET(): Promise<Response> {
       : { error: "no data loaded" },
     db: dbState,
     stripe: process.env.STRIPE_SECRET_KEY ? "configured" : "not configured",
+    ratelimit,
   }, { status: ok ? 200 : 503, headers: { "Cache-Control": "no-store" } });
 }

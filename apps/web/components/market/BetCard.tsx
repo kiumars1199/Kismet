@@ -4,7 +4,7 @@
 // docs/18 §6: the card leads with what happens on this one bet ("Pays 10x · wins about 1 in 7"), then the edge as
 // "better price than usual (+4 pts)"; expected return sits under it, smaller.
 import type { ApiRow } from "@/lib/api";
-import { RETURN_HELP, basis, chance, closesIn, expectedProfit, money, pays, PAYS_HELP, price, sideRet, sideEdge, sidePts, winsAbout } from "@/lib/format";
+import { RETURN_HELP, basis, chance, closesIn, pays, PAYS_HELP, price, sideProfit, sideRet, sideEdge, sidePts, winsAbout } from "@/lib/format";
 import { WatchStar } from "@/components/watch/WatchStar";
 import { VenueIconLink } from "@/components/trade/TradeButton";
 import { drawerHref, useOpenDrawer } from "./DrawerHost";
@@ -16,7 +16,6 @@ export function BetCard({ r, highlight = false, help = false, pro = false }: { r
   const { open } = useOpenDrawer();
   const { market: m, side: s } = r;
   const c = chance(s.win_prob);
-  const profit = expectedProfit(s.roi_pct);
   const edgeTier = m.tier === "edge";
   return (
     <article data-row data-market-id={m.id} data-tier={m.tier ?? undefined} className={`relative flex w-full flex-col gap-3.5 rounded-card border p-[18px] hover:border-accent ${highlight ? "border-accent-border bg-accent-bg/40" : "border-border bg-surface"}`}>
@@ -66,7 +65,7 @@ export function BetCard({ r, highlight = false, help = false, pro = false }: { r
       <Notes notes={rowNotes(m.execution, s)} />
       {edgeTier && <TierNote s={s} />}
       <div className="mt-auto flex items-center justify-between gap-2 border-t border-border pt-3 text-[13px]">
-        <span className="text-muted">$100 bet → <span className="text-text">expect {money(profit === null ? null : Math.round(profit), true)}</span></span>
+        <span className="text-muted">$100 bet → <span className="text-text">expect {sideProfit(s)}</span></span>
         <span className="flex items-center gap-1">
           {c && <span className={chanceTone(c)}>{c}</span>}
           <VenueIconLink m={m} className="-my-2" />

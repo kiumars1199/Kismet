@@ -25,6 +25,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = { themeColor: "#070a09" };
+// The CSP nonce is per request (middleware.ts), so no page may be prerendered with a stale one.
+export const dynamic = "force-dynamic";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

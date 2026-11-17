@@ -46,6 +46,16 @@ export function sideRet(s: Pick<Side, "roi_pct" | "ranges">): string {
 export function sideEdge(s: Pick<Side, "edge" | "ranges">): string {
   return s.ranges ? span(s.ranges.edge, (e) => edge(e).replace(".0¢", "¢"), "¢") : edge(s.edge);
 }
+/** "$100 bet → expect +$33": exact, or its band on the Free tier ("+$5–$10"), so a band's low end never reads as exact. */
+export function sideProfit(s: Pick<Side, "roi_pct" | "ranges">): string {
+  if (!s.ranges) {
+    const p = expectedProfit(s.roi_pct);
+    return money(p === null ? null : Math.round(p), true);
+  }
+  const [lo, hi] = s.ranges.roi_pct;
+  const f = (x: number) => money(x, true);
+  return lo === null ? `under ${f(hi ?? 0).replace(/^\+/, "")}` : hi === null ? `over ${f(lo)}` : `${f(lo)}–${f(hi).replace(/^\+/, "")}`;
+}
 /** $1,234 (whole dollars ≥ $100, cents below) ; signed adds +/− */
 export function money(usd: number | null | undefined, signed = false): string {
   if (!ok(usd)) return DASH;

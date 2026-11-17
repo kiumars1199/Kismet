@@ -2,7 +2,7 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   oxc: { jsx: { runtime: "automatic" } },
-  resolve: { alias: { "@": import.meta.dirname } },
+  resolve: { alias: { "@": import.meta.dirname, "server-only": `${import.meta.dirname}/test/server-only.ts` } },
   test: {
     environment: "node",
     include: ["**/*.test.{ts,tsx}"],

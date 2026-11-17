@@ -37,6 +37,22 @@ class Storage:
                                     "Cache-Control": "no-cache"})
         r.raise_for_status()
 
+    def copy(self, src, dst):
+        """Server-side copy inside the bucket (no 20 MB round trip). Delete first: copy won't overwrite."""
+        r = self.http.delete(f"{self.base}/{BUCKET}/{dst}", headers=self.headers, timeout=60)
+        if r.status_code not in (200, 204, 400, 404):
+            r.raise_for_status()
+        r = self.http.post(f"{self.base}/copy", timeout=120,
+                           data=json.dumps({"bucketId": BUCKET, "sourceKey": src, "destinationKey": dst}),
+                           headers={**self.headers, "Content-Type": "application/json"})
+        r.raise_for_status()
+
+
+# Free tier is 15 min behind (docs/15): before the new scan lands, the current one is kept as *-prev.json so
+# every web instance (including a cold one) can serve the scan before the newest to free users.
+DELAYED = ("markets.json", "flags.json")
+prev_name = lambda name: name.replace(".json", "-prev.json")  # noqa: E731
+
 
 def publish(out_dir, storage, log=print):
     prev = storage.get_json("flags.json")
@@ -47,7 +63,12 @@ def publish(out_dir, storage, log=print):
             log(f"data check failed: {e}")
         log("upload skipped; the bucket keeps the previous scan")
         return False
+    if prev is not None:
+        for name in DELAYED:
+            storage.copy(name, prev_name(name))
+            log(f"kept {name} as {prev_name(name)}")
     files = sorted(glob.glob(os.path.join(out_dir, "*.json")) + glob.glob(os.path.join(out_dir, "*.jsonl")))
+    files = [p for p in files if not p.endswith("-prev.json")]
     # flags.json last: it carries the scanned_at that the next run compares against.
     files.sort(key=lambda p: os.path.basename(p) == "flags.json")
     for p in files:

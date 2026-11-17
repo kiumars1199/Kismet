@@ -39,6 +39,30 @@ describe("/api/health", () => {
     expect((await (await load())()).status).toBe(200);
   });
 
+  it("live production without Upstash: ratelimit off is degraded (503) so the uptime monitor sees it", async () => {
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "");
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("DEMO_MODE", "false");
+    vi.stubEnv("UPSTASH_REDIS_REST_URL", "");
+    vi.stubEnv("UPSTASH_REDIS_REST_TOKEN", "");
+    const res = await (await load())();
+    expect(res.status).toBe(503);
+    expect(await res.json()).toMatchObject({ ok: false, ratelimit: "off" });
+    vi.resetModules();
+    vi.stubEnv("UPSTASH_REDIS_REST_URL", "https://x.upstash.io");
+    vi.stubEnv("UPSTASH_REDIS_REST_TOKEN", "t");
+    const on = await (await load())();
+    expect(await on.json()).toMatchObject({ ok: true, ratelimit: "on" });
+  });
+
+  it("dev reports ratelimit off without failing", async () => {
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "");
+    vi.stubEnv("UPSTASH_REDIS_REST_URL", "");
+    const res = await (await load())();
+    expect(res.status).toBe(200);
+    expect((await res.json()).ratelimit).toBe("off");
+  });
+
   it("503 when a remote scan is older than the limit", async () => {
     vi.stubEnv("DATA_SOURCE", "github"); // the fixture store is already cached in memory
     vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "");

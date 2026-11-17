@@ -1,8 +1,11 @@
-// Safe to import from client and server code (no Node builtins).
+// Safe to import from client and server code (no Node builtins, no secret env names: those live in server-only files).
 
 // Demo mode (docs/01 § Demo scope): no auth, no billing, tier forced to premium, LocalRepo.
-// Defaults to true when unset; only DEMO_MODE=false turns it off.
-export const DEMO_MODE = process.env.DEMO_MODE !== "false";
+// Fails safe (docs/15): on only with DEMO_MODE=true, or with DEMO_MODE unset outside a production build.
+// A production deploy that forgets the variable runs with accounts and the Free tier, never as everyone-premium.
+export const demoFlag = (v: string | undefined, nodeEnv = process.env.NODE_ENV): boolean =>
+  v === "true" || (!v && nodeEnv !== "production");
+export const DEMO_MODE = demoFlag(process.env.DEMO_MODE);
 
 export type DataSource = "local" | "github" | "supabase";
 const SOURCES: DataSource[] = ["local", "github", "supabase"];
@@ -11,16 +14,3 @@ export const DATA_SOURCE: DataSource = SOURCES.find((s) => s === process.env.DAT
 
 /** Folder with markets.json etc. for DATA_SOURCE=local; relative paths resolve from cwd (apps/web). */
 export const dataDirSetting = () => process.env.DATA_DIR || "../../output";
-
-export const github = () => ({
-  token: process.env.GITHUB_DATA_TOKEN,
-  repo: process.env.GITHUB_DATA_REPO || "kiumars1199/marketedge",
-  ref: process.env.GITHUB_DATA_REF || "live",
-});
-
-/** Server only: the service key never leaves the server (no NEXT_PUBLIC_ prefix). */
-export const supabaseStorage = () => ({
-  url: process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/+$/, ""),
-  key: process.env.SUPABASE_SERVICE_ROLE_KEY,
-  bucket: "scan",
-});

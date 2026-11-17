@@ -5,4 +5,4 @@ import { withTier } from "@/lib/data/respond";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export const GET = () => withTier((store, tier) => Response.json(gateCombos(suggestCombos(store), tier)));
+export const GET = (req: Request) => withTier(req, "markets", (store, tier) => Response.json(gateCombos(suggestCombos(store), tier)));

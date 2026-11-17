@@ -30,7 +30,7 @@ import type { FilterInput } from "@/lib/filters/state";
 import type { Chip } from "@/lib/search/parse";
 import { FilterState } from "@/lib/filters/state";
 import { serialize } from "@/lib/filters/url";
-import type { BacktestFile, BacktestRecord, BacktestResult, Execution, ScanMeta, Side, StoreMarket } from "@/lib/types";
+import type { BacktestFile, BacktestRecord, BacktestResult, Execution, ScanMeta, Side, SideRanges, StoreMarket } from "@/lib/types";
 
 export type { Curve, Facets, StoreMarket, Side };
 
@@ -73,9 +73,10 @@ export type BacktestResponse = BacktestFile & { chosen: BacktestResult | null };
 export interface SuggestResponse {
   q: string;
   line: string;                            // how q is understood: "Barcelona · Pays ~3x"
-  entities: { name: string; count: number; best_roi: number }[];   // teams, players, cities (≤ 3)
+  // Free tier: roi numbers hold the band's low end and `ranges` the band (lib/data/gate.ts), as on /api/markets.
+  entities: { name: string; count: number; best_roi: number; ranges?: SideRanges }[];   // teams, players, cities (≤ 3)
   topics: { id: string; label: string; count: number }[];          // ≤ 2
-  markets: { id: string; question: string; side_index: 0 | 1; outcome: string; pays: number | null; roi_pct: number }[];   // ≤ 4
+  markets: { id: string; question: string; side_index: 0 | 1; outcome: string; pays: number | null; roi_pct: number; ranges?: SideRanges }[];   // ≤ 4
 }
 /** /api/suggest?q=&tz=&view= — suggestions as you type (docs/13). */
 export const fetchSuggest = (q: string, view: "markets" | "flags", init?: RequestInit) =>

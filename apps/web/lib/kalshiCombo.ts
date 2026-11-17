@@ -12,8 +12,8 @@ export const kalshiBase = () =>
   process.env.KALSHI_TRADING_ENV === "demo" ? "https://demo-api.kalshi.co/trade-api/v2" : "https://api.elections.kalshi.com/trade-api/v2";
 
 export const ComboCheckBody = z.object({
-  legs: z.array(z.object({ ticker: Ticker, side: z.enum(["yes", "no"]) })).min(2).max(6),
-});
+  legs: z.array(z.object({ ticker: Ticker, side: z.enum(["yes", "no"]) }).strict()).min(2).max(6),
+}).strict();
 export type ComboCheckBody = z.infer<typeof ComboCheckBody>;
 export type ComboQuote = { ok: true; ticker: string; ask_cents: number } | { ok: false; error: string };
 
