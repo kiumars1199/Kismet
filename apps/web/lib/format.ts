@@ -27,6 +27,18 @@ export function edge(e: number | null | undefined): string {
   if (!ok(e)) return DASH;
   return `${e < 0 ? "−" : "+"}${Math.abs(e * 100).toFixed(1)}¢`;
 }
+/** Free tier (T-44): the API sends `ranges` instead of exact numbers. "+5–10%", "under 0%", "over +50%". */
+type Band = [number | null, number | null];
+const span = ([lo, hi]: Band, f: (x: number) => string, unit: string) =>
+  lo === null ? `under ${f(hi ?? 0).replace(/^\+/, "")}` : hi === null ? `over ${f(lo)}` : `${f(lo).slice(0, -unit.length)}–${f(hi).replace(/^\+/, "")}`;
+/** Expected return for a side: exact, or its band on the Free tier. */
+export function sideRet(s: Pick<Side, "roi_pct" | "ranges">): string {
+  return s.ranges ? span(s.ranges.roi_pct, ret, "%") : ret(s.roi_pct);
+}
+/** Edge per share for a side: exact, or its band on the Free tier. */
+export function sideEdge(s: Pick<Side, "edge" | "ranges">): string {
+  return s.ranges ? span(s.ranges.edge, (e) => edge(e).replace(".0¢", "¢"), "¢") : edge(s.edge);
+}
 /** $1,234 (whole dollars ≥ $100, cents below) ; signed adds +/− */
 export function money(usd: number | null | undefined, signed = false): string {
   if (!ok(usd)) return DASH;

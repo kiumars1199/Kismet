@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { eventBody } from "@/lib/data/respond";
-import { getStore } from "@/lib/data/store";
+import { getTier } from "@/lib/auth/server";
+import { getStoreFor } from "@/lib/data/store";
 import { EventView } from "@/components/screener/EventView";
 
 export const dynamic = "force-dynamic";
@@ -10,9 +11,10 @@ export const dynamic = "force-dynamic";
 type Props = { params: Promise<{ id: string }> };
 
 async function load(id: string) {
-  const store = await getStore();
+  const tier = await getTier();
+  const store = await getStoreFor(tier);
   const markets = store.byEvent.get(id);
-  return markets ? eventBody(store, markets) : null;
+  return markets ? eventBody(store, markets, tier) : null;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

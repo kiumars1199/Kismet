@@ -1,7 +1,8 @@
 // Share card for /m/[id]: question, the bet, expected return, won-before, disclaimer. Colors = dark theme tokens (globals.css).
 import { ImageResponse } from "next/og";
 import { getStore } from "@/lib/data/store";
-import { betLine, pct, ret } from "@/lib/format";
+import { gateMarket } from "@/lib/data/gate";
+import { betLine, pct, sideRet } from "@/lib/format";
 import { DISCLAIMER } from "@/components/shell/Footer";
 
 export const runtime = "nodejs";
@@ -14,7 +15,8 @@ const C = { bg: "#070a09", surface: "#0c120f", border: "#1a2520", text: "#e6efe9
 export default async function Image({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const store = await getStore().catch(() => null);
-  const m = store?.flagsById.get(id) ?? store?.byId.get(id);
+  const raw = store?.flagsById.get(id) ?? store?.byId.get(id);
+  const m = raw && gateMarket(raw, "free");   // public image: Free-tier shape (T-44)
   const s = m?.best;
   return new ImageResponse(
     (
@@ -25,7 +27,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
             <div style={{ fontSize: 54, fontWeight: 700, lineHeight: 1.15, maxHeight: 190, overflow: "hidden" }}>{m.question}</div>
             <div style={{ display: "flex", gap: 56, alignItems: "flex-end" }}>
               <div style={{ display: "flex", flexDirection: "column" }}>
-                <div style={{ fontSize: 96, fontWeight: 700, color: s.roi_pct >= 0 ? C.accent : C.muted, lineHeight: 1 }}>{ret(s.roi_pct)}</div>
+                <div style={{ fontSize: 96, fontWeight: 700, color: s.roi_pct >= 0 ? C.accent : C.muted, lineHeight: 1 }}>{sideRet(s)}</div>
                 <div style={{ color: C.muted }}>expected return</div>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8, fontSize: 32 }}>

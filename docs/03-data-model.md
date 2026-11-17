@@ -42,6 +42,8 @@ export interface Side {
   model_neff: number;       // effective independent sample behind the estimate
   model_events: number;     // distinct past events behind the estimate
   realistic_edge?: number | null;   // flags only: what similar predicted edges actually earned
+  ranges?: { roi_pct: [lo|null, hi|null]; edge: [lo|null, hi|null] }  // API only, Free tier: return/edge as bands
+                                    // ("+5–10%", "2–5¢"); numeric fields then hold the band's low end, win_prob floored to 5%
 }
 
 export interface Market {
@@ -74,10 +76,11 @@ export interface Execution {
   spread: number; spread_cost: number; fee_at_ask: number;
   gross_edge: number;       // win_prob - mid
   net_edge: number;         // win_prob - ask - fee
-  retention: number;        // net_edge / gross_edge
-  capacity_usd: number;     // $ you can buy before edge < min_edge
+  // API only, Free tier (T-44): retention, capacity_usd, limit_price, limit_edge omitted and stakes = [].
+  retention?: number;       // net_edge / gross_edge
+  capacity_usd?: number;    // $ you can buy before edge < min_edge
   stakes: StakeRow[];       // $25, $100, $500, $1000
-  limit_price: number; limit_edge: number;
+  limit_price?: number; limit_edge?: number;
   verdict: Verdict; warning?: string;
   ask_size?: number | null; // shares at the best ask of the best side's book (scan only, not part of check())
   bid_size?: number | null; // shares at the best bid; null when that side of the book is empty or no book

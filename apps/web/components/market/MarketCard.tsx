@@ -3,7 +3,7 @@
 // Compact row card (MobileHybrid artboard): topic · closes, question, "Bet X at Y · won Z before", big return.
 // The question link covers the card (opens the drawer); star and alert sit above it.
 import type { ApiRow } from "@/lib/api";
-import { basis, closesIn, edge, pct, price, ret } from "@/lib/format";
+import { basis, closesIn, edge, pct, price, sideRet, sideEdge } from "@/lib/format";
 import { WatchStar } from "@/components/watch/WatchStar";
 import { drawerHref, useOpenDrawer } from "./DrawerHost";
 import { AlertLink, Notes } from "./bits";
@@ -32,7 +32,7 @@ export function MarketCard({ r, pro = false, notes = true }: { r: ApiRow; pro?: 
       </div>
       <div className="flex flex-none flex-col items-end justify-between gap-1">
         <div className="text-right">
-          <div className={`font-heading text-2xl font-bold ${returnTone(s.roi_pct)}`}>{pro ? edge(s.edge) : ret(s.roi_pct)}</div>
+          <div className={`font-heading text-2xl font-bold ${returnTone(s.roi_pct)}`}>{pro ? sideEdge(s) : sideRet(s)}</div>
           <div className="text-[11px] text-muted">{pro ? "edge" : "expected"}</div>
         </div>
         <div className="relative z-10 -mb-2 -mr-2 flex">

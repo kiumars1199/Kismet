@@ -9,7 +9,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { ApiGroup, ApiRow } from "@/lib/api";
 import type { SortKey } from "@/lib/filters/state";
 import type { FilterState } from "@/lib/filters/state";
-import { DASH, RETURN_HELP, basis, chance, closesIn, edge, money, pct, price, ret } from "@/lib/format";
+import { DASH, RETURN_HELP, basis, chance, closesIn, edge, money, pct, price, sideRet, sideEdge } from "@/lib/format";
 import { WatchStar } from "@/components/watch/WatchStar";
 import { drawerHref, useOpenDrawer } from "@/components/market/DrawerHost";
 import { AlertLink, Notes, Val } from "@/components/market/bits";
@@ -39,8 +39,8 @@ function columns(pro: boolean): Col[] {
       id: "return", meta: { label: pro ? "Edge" : "Expected return", sort: pro ? "edge" : "roi", right: true, help: RETURN_HELP },
       header: pro ? "Edge" : "Expected return",
       cell: ({ row: { original: r } }) => pro
-        ? <Val v={edge(r.side.edge)} className={`font-heading text-base ${returnTone(r.side.roi_pct)}`} title={basis(r.market, r.side)} />
-        : <Val v={ret(r.side.roi_pct)} className={`font-heading text-base ${returnTone(r.side.roi_pct)}`} title={basis(r.market, r.side)} />,
+        ? <Val v={sideEdge(r.side)} className={`font-heading text-base ${returnTone(r.side.roi_pct)}`} title={basis(r.market, r.side)} />
+        : <Val v={sideRet(r.side)} className={`font-heading text-base ${returnTone(r.side.roi_pct)}`} title={basis(r.market, r.side)} />,
     }),
     h.display({ id: "won", header: "Won before", meta: { label: "Won before", sort: "win_prob", right: true }, cell: ({ row: { original: r } }) => <Val v={pct(r.side.win_prob)} className="text-accent-soft" title={basis(r.market, r.side)} /> }),
     h.display({ id: "says", header: "Market says", meta: { label: "Market says", sort: "price", right: true }, cell: ({ row: { original: r } }) => <Val v={pct(r.side.ask)} /> }),

@@ -2,7 +2,7 @@
 
 // Best-bets card (Hybrid artboard). Exported for other lanes: <BetCard r={{ market, side }} />.
 import type { ApiRow } from "@/lib/api";
-import { RETURN_HELP, basis, chance, closesIn, edge, expectedProfit, money, price, ret } from "@/lib/format";
+import { RETURN_HELP, basis, chance, closesIn, expectedProfit, money, price, sideRet, sideEdge } from "@/lib/format";
 import { WatchStar } from "@/components/watch/WatchStar";
 import { drawerHref, useOpenDrawer } from "./DrawerHost";
 import { AlertLink, Notes, OddsBars } from "./bits";
@@ -41,7 +41,7 @@ export function BetCard({ r, highlight = false, help = false, pro = false }: { r
             {pro ? "Edge per share" : help ? <span className="underline decoration-dotted underline-offset-4">Expected return</span> : "Expected return"}
           </div>
           <div className={`font-heading text-4xl font-bold leading-[1.1] tracking-[-0.02em] ${s.roi_pct >= 0 ? "text-accent" : "text-negative"}`} title={basis(m, s)}>
-            {pro ? edge(s.edge) : ret(s.roi_pct)}
+            {pro ? sideEdge(s) : sideRet(s)}
           </div>
         </div>
         <div className="text-right">

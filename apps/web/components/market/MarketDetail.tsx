@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { fetchBook, fetchMarket, type BookResponse, type MarketResponse } from "@/lib/api";
-import { RETURN_HELP, ago, basis, betLine, chance, closesIn, edge, expectedProfit, money, pct, price, realisticReturn, ret } from "@/lib/format";
+import { RETURN_HELP, ago, basis, betLine, chance, closesIn, edge, expectedProfit, money, pct, price, realisticReturn, ret, sideRet, sideEdge } from "@/lib/format";
 import { useProfile } from "@/lib/repo/hooks";
 import type { Execution, Side, StoreMarket } from "@/lib/types";
 import { WatchStar } from "@/components/watch/WatchStar";
@@ -26,7 +26,7 @@ export function MarketDetail({ id, side, initial, onClose }: { id: string; side?
     if (initial && initial.market.id === id) return;
     const ac = new AbortController();
     setRes({ id });
-    fetchMarket(id, { signal: ac.signal })
+    fetchMarket(id, { signal: ac.signal }, true)
       .then((data) => setRes({ id, data }))
       .catch(() => !ac.signal.aborted && setRes({ id, error: true }));
     return () => ac.abort();
@@ -139,7 +139,7 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
         <div className="text-[13px] text-accent-softer">{betLine(s)} · pays $1 if it hits</div>
         <div className="mt-2 flex items-baseline gap-2.5">
           <div className={`font-heading text-[42px] font-bold leading-none tracking-tight ${s.roi_pct >= 0 ? "text-accent-soft" : "text-negative"}`} title={basis(m, s)}>
-            {pro ? edge(s.edge) : ret(s.roi_pct)}
+            {pro ? sideEdge(s) : sideRet(s)}
           </div>
           <div className="text-[13px] text-accent-soft" title={RETURN_HELP}>
             <span className="underline decoration-dotted underline-offset-4">{pro ? "edge per share" : "expected return"}</span>
@@ -164,7 +164,7 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
                 </div>
                 <div className="mt-1 flex justify-between text-xs text-muted">
                   <span title={basis(m, x)}>won {pct(x.win_prob)} before</span>
-                  <span className={returnTone(x.roi_pct)}>{pro ? edge(x.edge) : ret(x.roi_pct)}</span>
+                  <span className={returnTone(x.roi_pct)}>{pro ? sideEdge(x) : sideRet(x)}</span>
                 </div>
               </button>
             );
@@ -201,7 +201,7 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
             <div key={k} className="contents"><dt className="text-muted">{k}</dt><dd className="m-0 text-right"><Val v={v} /></dd></div>
           ))}
         </dl>
-        {x && x.limit_price > 0 && (
+        {x && x.limit_price != null && x.limit_edge != null && x.limit_price > 0 && (
           <p className="mt-3 leading-relaxed">Prefer a limit order? At {price(x.limit_price)} your edge would be {edge(x.limit_edge)} per share, but it may not fill.</p>
         )}
         <p className="mt-2 text-xs text-muted">{basis(m, s)}</p>
@@ -218,7 +218,7 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
                 <Link href={onClose ? drawerHref(o.id, undefined, params) : `/m/${o.id}`} replace={!!onClose} scroll={!onClose}
                   className="flex min-h-11 items-center justify-between gap-3 border-t border-border py-2 text-[13px] hover:text-accent-hover">
                   <span className="line-clamp-2">{o.question}</span>
-                  <span className={`flex-none tabular-nums ${returnTone(o.best.roi_pct)}`}>{pro ? edge(o.best.edge) : ret(o.best.roi_pct)}</span>
+                  <span className={`flex-none tabular-nums ${returnTone(o.best.roi_pct)}`}>{pro ? sideEdge(o.best) : sideRet(o.best)}</span>
                 </Link>
               </li>
             ))}
@@ -261,8 +261,8 @@ function StakeSection({ x, live, fetchedAt, error, bookState, scanAt, stake, onS
   const check =
     bookState ? <span className="text-warning">{VERDICT_LABEL[bookState as keyof typeof VERDICT_LABEL] ?? bookState}</span>
     : !x ? <span className="text-muted">{error ? "Live price unavailable" : "Checking the live price…"}</span>
-    : v === "worth it" && x.capacity_usd >= 100 ? <span className="text-accent">Price check ✓ fair fill</span>
-    : v === "worth it" ? <span className="text-warning">Only ~{money(Math.round(x.capacity_usd))} available at this price</span>
+    : v === "worth it" && (x.capacity_usd == null || x.capacity_usd >= 100) ? <span className="text-accent">Price check ✓ fair fill</span>
+    : v === "worth it" && x.capacity_usd != null ? <span className="text-warning">Only ~{money(Math.round(x.capacity_usd))} available at this price</span>
     : <span className={v === "thin" ? "text-warning" : "text-negative"}>{VERDICT_LABEL[v!]}</span>;
 
   const submit = (e: React.FormEvent) => {
@@ -310,7 +310,7 @@ function StakeSection({ x, live, fetchedAt, error, bookState, scanAt, stake, onS
         </label>
         <button type="submit" className="min-h-10 rounded-input border border-accent-border bg-accent-bg px-4 text-accent-soft hover:border-accent">Check</button>
       </form>
-      {x && x.capacity_usd > 0 && (
+      {x && x.capacity_usd != null && x.capacity_usd > 0 && (
         <p className="mt-2.5 text-xs text-muted">The good price holds for bets up to about {money(Math.round(x.capacity_usd))}.</p>
       )}
       <p className="mt-1 text-xs text-muted">
@@ -353,7 +353,7 @@ function TrackRecord({ data, pro }: { data: MarketResponse; pro: boolean }) {
 function Warnings({ m, s, x }: { m: StoreMarket; s: Side; x?: Execution }) {
   const w: string[] = [];
   if (x && x.spread >= 0.05) w.push(`Wide spread: buyers and sellers are ${price(x.spread)} apart, so the price can move against you.`);
-  if (x && x.verdict !== "not worth it" && x.capacity_usd < 100) w.push(`Thin order book: only about ${money(Math.round(x.capacity_usd))} can be bought at a good price.`);
+  if (x && x.verdict !== "not worth it" && x.capacity_usd != null && x.capacity_usd < 100) w.push(`Thin order book: only about ${money(Math.round(x.capacity_usd))} can be bought at a good price.`);
   if (s.edge >= 0.15) w.push("Unusually high: in testing, bets that looked this good earned far less than predicted.");
   if (s.model_events < 50) w.push(`Small evidence: only ${s.model_events} past events like this.`);
   if (s.model_level === "all" || s.model_level === "cat")

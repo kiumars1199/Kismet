@@ -12,7 +12,7 @@
 //                                    flattened in order; `groups[i]` covers rows[start .. start+count) and
 //                                    rows[start] is its best row.
 //   /api/flags?<FilterState>       → MarketsResponse same as /api/markets with view=flags forced
-//   /api/markets/[id]              → MarketResponse  market + its model curve + category backtest record +
+//   /api/markets/[id][?detail=1]   → MarketResponse  market + its model curve + category backtest record +
 //                                    the other markets in its event
 //   /api/events/[id]               → EventResponse   all markets of one event (by event_id)
 //   /api/events/by-slug/[slug]     → EventResponse   same, by Polymarket event slug; CORS * (Chrome extension)
@@ -53,6 +53,7 @@ export interface MarketResponse {
   curve: Curve | null;                     // that segment at the market's horizon
   backtest: BacktestRecord | null;         // walk-forward record for the market's category
   event_markets: StoreMarket[];            // other markets in the same event
+  reveals_left?: number;                   // Free tier with ?detail=1: exact-number reveals left today (3/day)
 }
 
 export interface EventResponse {
@@ -77,7 +78,9 @@ const qs = (state: FilterInput) => {
 export const fetchMeta = (init?: RequestInit) => get<MetaResponse>("/api/meta", init);
 export const fetchMarkets = (state: FilterInput = {}, init?: RequestInit) => get<MarketsResponse>(`/api/markets${qs(state)}`, init);
 export const fetchFlags = (state: FilterInput = {}, init?: RequestInit) => get<MarketsResponse>(`/api/flags${qs(state)}`, init);
-export const fetchMarket = (id: string, init?: RequestInit) => get<MarketResponse>(`/api/markets/${encodeURIComponent(id)}`, init);
+/** `detail` = the details panel is opening (counts toward the Free tier's 3 exact reveals a day). */
+export const fetchMarket = (id: string, init?: RequestInit, detail = false) =>
+  get<MarketResponse>(`/api/markets/${encodeURIComponent(id)}${detail ? "?detail=1" : ""}`, init);
 export const fetchEvent = (id: string, init?: RequestInit) => get<EventResponse>(`/api/events/${encodeURIComponent(id)}`, init);
 export const fetchEventBySlug = (slug: string, init?: RequestInit) => get<EventResponse>(`/api/events/by-slug/${encodeURIComponent(slug)}`, init);
 export const fetchCurve = (segment: string, h: number, init?: RequestInit) =>
