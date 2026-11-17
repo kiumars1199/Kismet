@@ -4,10 +4,14 @@ import { badgeText, buildIndex, match, slugFrom, type Index } from "./match";
 import type { EventResponse, Msg } from "./types";
 
 const TAG = "me-badge";
+const PILL = "me-pill";
+const PILL_AFTER = 6000; // ms after data arrives with no badge on screen
 let slug: string | null = null;
 let data: EventResponse | null = null;
 let idx: Index | null = null;
 const mounted = new Map<string, HTMLElement>(); // market id → badge host
+let pill: HTMLElement | null = null;
+let pillTimer: ReturnType<typeof setTimeout> | undefined;
 
 const send = <T>(msg: Msg) => chrome.runtime.sendMessage(msg) as Promise<T>;
 
@@ -22,10 +26,10 @@ button:hover { filter: brightness(1.2); }
 b { flex: none; display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 999px;
   background: #10b981; color: #04140d; font: 700 9px/1 "Space Grotesk", system-ui, sans-serif; letter-spacing: -0.02em; }`;
 
-function badge(text: string, positive: boolean, marketId: string | null): HTMLElement {
-  const host = document.createElement(TAG);
+function badge(text: string, positive: boolean, marketId: string | null, tag = TAG): HTMLElement {
+  const host = document.createElement(tag);
   const root = host.attachShadow({ mode: "closed" });
-  root.innerHTML = `<style>${BADGE_CSS}</style><button class="${positive ? "pos" : ""}" title="MarketEdge: open details"><b>ME</b><span></span></button>`;
+  root.innerHTML = `<style>${BADGE_CSS}${tag === PILL ? PILL_CSS : ""}</style><button class="${positive ? "pos" : ""}" title="MarketEdge: open details"><b>ME</b><span></span></button>`;
   root.querySelector("span")!.textContent = text;
   // Rows and headings are clickable on Polymarket: keep our clicks to ourselves.
   for (const ev of ["pointerdown", "mousedown", "mouseup"]) host.addEventListener(ev, (e) => e.stopPropagation());
@@ -64,16 +68,39 @@ function scan() {
   }
 }
 
+const PILL_CSS = `:host { all: initial; position: fixed; right: 20px; bottom: 20px; z-index: 2147483647; }
+button { padding: 8px 14px 8px 6px; border-radius: 999px; font-size: 13px; border-color: #1d4a35; }`;
+
+// Fallback (T-54): page has markets but no label matched, e.g. after a Polymarket markup change.
+function checkPill() {
+  if (!data || !slug) return;
+  const shown = [...mounted.values()].some((h) => h.isConnected && visible(h));
+  if (shown) { pill?.remove(); pill = null; return; }
+  if (pill?.isConnected) return;
+  // Selector breakage goes to the console only; /api/ext/telemetry comes with paid v1.
+  console.warn("[MarketEdge] no outcome rows matched", { slug, markets: data.markets.length });
+  const n = data.flags.length;
+  pill = badge(n ? `MarketEdge: ${n} best bet${n > 1 ? "s" : ""} on this page` : "MarketEdge: no best bets on this page", n > 0, null, PILL);
+  document.body.append(pill);
+}
+
 function reset() {
   for (const h of mounted.values()) h.remove();
   mounted.clear();
+  pill?.remove();
+  pill = null;
+  clearTimeout(pillTimer);
   data = null;
   idx = null;
 }
 
 async function onUrl() {
   const s = slugFrom(location.pathname);
-  if (s === slug) return scan();
+  if (s === slug) {
+    scan();
+    if (pill) checkPill(); // badges showed up late: drop the pill
+    return;
+  }
   slug = s;
   reset();
   if (!s) return;
@@ -82,6 +109,7 @@ async function onUrl() {
   data = d;
   idx = buildIndex(d.markets);
   scan();
+  pillTimer = setTimeout(checkPill, PILL_AFTER);
 }
 
 // SPA: Polymarket swaps pages and renders late. One debounced observer covers navigation and re-renders.
