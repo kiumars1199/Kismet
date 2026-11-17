@@ -2,7 +2,7 @@
 import { PageTitle } from "@/components/kit";
 import { JournalView } from "@/components/journal/JournalView";
 
-export const metadata = { title: "My bets" };
+export const metadata = { title: "My bets", robots: { index: false } };
 
 export default function Page() {
   return (

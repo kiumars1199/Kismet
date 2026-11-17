@@ -2,7 +2,7 @@
 import { PageTitle } from "@/components/kit";
 import { SettingsForm } from "@/components/settings/SettingsForm";
 
-export const metadata = { title: "Settings" };
+export const metadata = { title: "Settings", robots: { index: false } };
 
 export default function Page() {
   return (

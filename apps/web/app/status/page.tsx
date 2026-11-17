@@ -4,7 +4,7 @@ import { getStore } from "@/lib/data/store";
 import { DASH, ago } from "@/lib/format";
 import { freshness } from "@/lib/freshness";
 
-export const metadata = { title: "Status" };
+export const metadata = { title: "Status", description: "When MarketEdge data last refreshed." };
 export const dynamic = "force-dynamic";
 
 const n = (x: number | null | undefined) => (typeof x === "number" ? x.toLocaleString("en-US") : DASH);

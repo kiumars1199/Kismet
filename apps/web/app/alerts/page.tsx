@@ -2,7 +2,7 @@
 import { Suspense } from "react";
 import { AlertsView } from "@/components/alerts/AlertsView";
 
-export const metadata = { title: "Alerts" };
+export const metadata = { title: "Alerts", robots: { index: false } };
 
 export default function Page() {
   return (

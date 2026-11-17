@@ -2,7 +2,7 @@
 import { PageTitle } from "@/components/kit";
 import { Calculators } from "@/components/tools/Calculators";
 
-export const metadata = { title: "Tools" };
+export const metadata = { title: "Tools", description: "Expected-return and bet-sizing calculators for prediction markets." };
 
 export default function Page() {
   return (
