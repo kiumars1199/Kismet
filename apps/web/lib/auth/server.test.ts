@@ -8,7 +8,7 @@ describe("safeNext (open redirects, docs/15)", () => {
   });
   it("rejects anything that could leave the site", () => {
     for (const bad of ["https://evil.com", "//evil.com", "/\\evil.com", "evil.com", "javascript:alert(1)", "/x\r\nSet-Cookie: a=b", "", null, undefined]) {
-      expect(safeNext(bad)).toBe("/flags");
+      expect(safeNext(bad)).toBe("/");
     }
   });
 });

@@ -88,7 +88,7 @@ export async function getMe(): Promise<Me> {
 export const getTier = async (): Promise<Tier> => (await getMe()).tier;
 
 /** `next=` must be a same-origin relative path (docs/15 § open redirects). */
-export function safeNext(next: string | null | undefined, fallback = "/flags"): string {
+export function safeNext(next: string | null | undefined, fallback = "/"): string {
   if (!next || !/^\/(?![/\\])/.test(next) || /[\r\n\t]/.test(next)) return fallback;
   return next;
 }

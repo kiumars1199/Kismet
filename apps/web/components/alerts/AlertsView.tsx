@@ -19,6 +19,7 @@ import type { Market } from "@/lib/types";
 import { allViews, viewById } from "@/lib/views";
 
 const DEV = process.env.NODE_ENV !== "production";
+const DEMO = process.env.NEXT_PUBLIC_DEMO_MODE !== "false";   // demo runs alerts in the tab; "Run now" is a local test aid
 type Draft = Omit<AlertRule, "id" | "created_at" | "last_fired_at"> & { id?: string; view_id: string };
 
 const blank = (): Draft => ({
@@ -72,7 +73,7 @@ export function AlertsView() {
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-6">
       <PageTitle title="Alerts" sub="Rules check while MarketEdge is open in a tab, every 2 minutes. Alerts land in the bell and, if you allow it, as browser notifications.">
-        {DEV && <button type="button" className={btn} onClick={runNow} title="Development only">Run now</button>}
+        {(DEV || DEMO) && <button type="button" className={btn} onClick={runNow} title="Demo and development only">Run now</button>}
         <button type="button" className={btnPrimary} onClick={() => setDraft({ ...blank(), view_id: filters ? "current" : "builtin:best" })}>New alert</button>
       </PageTitle>
       {runMsg && <p role="status" className="-mt-3 text-sm text-muted">{runMsg}</p>}

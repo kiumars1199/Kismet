@@ -32,7 +32,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Rec
       ) : (
         <p className="rounded-card border border-border bg-surface p-5 text-sm leading-relaxed text-soft">
           Accounts aren&apos;t switched on here. Everything is unlocked and saved in this browser.{" "}
-          <Link href="/flags" className="text-accent-hover underline-offset-4 hover:underline">Go to Best bets</Link>
+          <Link href="/" className="text-accent-hover underline-offset-4 hover:underline">Go to Best bets</Link>
         </p>
       )}
     </section>
