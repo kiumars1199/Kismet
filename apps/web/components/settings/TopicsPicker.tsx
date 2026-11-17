@@ -31,7 +31,7 @@ export function TopicsPicker() {
   return (
     <div className="flex flex-col gap-6">
       <p className="text-sm text-muted" aria-live="polite">
-        {favorite_topics.length ? `${favorite_topics.length} picked. They show first in your quick filters.` : "Pick any you follow. You can change them later in Settings."}
+        {favorite_topics.length ? `${favorite_topics.length} chosen. They show first in your quick filters.` : "Choose any you follow. You can change them later in Settings."}
       </p>
       {GROUPS.map((g) => (
         <fieldset key={g.label} className="flex flex-col gap-2.5">

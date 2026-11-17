@@ -91,7 +91,7 @@ export function SettingsForm() {
         </Row>
       </Section>
 
-      <Section id="s-topics" title="Topics" sub="Favorite topics pin chips on the screener. Picked by you, never from your bets.">
+      <Section id="s-topics" title="Topics" sub="Favorite topics pin chips on the screener. Chosen by you, never from your bets.">
         <div className="pt-0"><TopicsPicker /></div>
         {profile.favorite_topics.length > 0 && (
           <p className="pt-3 text-sm text-muted">Favorites: {profile.favorite_topics.join(", ")}</p>

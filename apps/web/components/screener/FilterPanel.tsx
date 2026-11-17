@@ -138,11 +138,11 @@ function PanelBody({ state: s, mode, facets, meta, onChange, onReset }: Props) {
       </Section>
 
       <UpgradeGate feature="all_filters">
-        <Section title="Edge">
-          <Num label="Min edge" unit="¢" step={0.5} value={s.edge_min === undefined ? undefined : Math.round(s.edge_min * 1000) / 10} onCommit={(v) => onChange({ edge_min: v === undefined ? undefined : v / 100 })} />
+        <Section title="Value">
+          <Num label="Min price gap" unit="¢" step={0.5} value={s.edge_min === undefined ? undefined : Math.round(s.edge_min * 1000) / 10} onCommit={(v) => onChange({ edge_min: v === undefined ? undefined : v / 100 })} />
           <Num label="Min expected return" unit="%" value={s.roi_min} onCommit={(v) => onChange({ roi_min: v })} />
           <Num label="Min past events behind it" value={s.min_events} min={0} step={10} onCommit={(v) => onChange({ min_events: v === undefined ? undefined : Math.round(v) })} />
-          <Check label="Confident only (edge holds on the cautious estimate)" on={!!s.edge_low_positive} onChange={(on) => onChange({ edge_low_positive: on || undefined })} />
+          <Check label="Confident only (still good on the cautious estimate)" on={!!s.edge_low_positive} onChange={(on) => onChange({ edge_low_positive: on || undefined })} />
           <Check label="Tested on past data" on={!!s.validated_only} onChange={(on) => onChange({ validated_only: on || undefined })} />
         </Section>
 
@@ -151,7 +151,7 @@ function PanelBody({ state: s, mode, facets, meta, onChange, onReset }: Props) {
           {Verdict.options.map((v) => (
             <Check key={v} label={VERDICT_LABEL[v]} count={facets?.verdicts[v]} on={!!s.verdicts?.includes(v)} onChange={() => onChange({ verdicts: toggle(s.verdicts, v) })} />
           ))}
-          <Num label="Min edge kept after spread" unit="%" min={0} max={100} value={s.retention_min === undefined ? undefined : Math.round(s.retention_min * 100)} onCommit={(v) => onChange({ retention_min: v === undefined ? undefined : v / 100 })} />
+          <Num label="Min gain kept after the spread" unit="%" min={0} max={100} value={s.retention_min === undefined ? undefined : Math.round(s.retention_min * 100)} onCommit={(v) => onChange({ retention_min: v === undefined ? undefined : v / 100 })} />
           <Num label="Min room at this price" unit="$" value={s.capacity_min_usd} min={0} step={100} onCommit={(v) => onChange({ capacity_min_usd: v })} />
         </Section>
 

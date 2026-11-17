@@ -41,7 +41,7 @@ function PriceStrip({ f, total }: { f: MarketsResponse["facets"]; total: number 
   const cats = Object.entries(f.categories).filter(([, n]) => n > 0).sort((a, b) => b[1] - a[1]);
   const parts = [
     v["worth it"] ? `${nf(v["worth it"])} fill at a fair price` : null,
-    v.thin ? `${nf(v.thin)} where the spread eats most of the edge` : null,
+    v.thin ? `${nf(v.thin)} where the price you’d really pay eats most of the gain` : null,
   ].filter(Boolean);
   const hidden = v["not worth it"] ?? 0;
   return (

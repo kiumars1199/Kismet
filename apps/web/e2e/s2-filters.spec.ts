@@ -11,9 +11,9 @@ test("S2 filters live in the URL", async ({ page }) => {
   await expect(page).toHaveURL(/t=sports\.nfl/);
   await panel.getByRole("checkbox", { name: /^spreads\b/ }).click();
   await expect(page).toHaveURL(/mt=spreads/);
-  await panel.getByLabel("Min edge", { exact: true }).fill("2");
+  await panel.getByLabel("Min price gap", { exact: true }).fill("2");
   const filtered = page.waitForResponse((r) => r.url().includes("/api/markets?") && r.url().includes("e=0.02"));
-  await panel.getByLabel("Min edge", { exact: true }).press("Enter");
+  await panel.getByLabel("Min price gap", { exact: true }).press("Enter");
   await expect(page).toHaveURL(/e=0\.02/);
   await filtered;
 
@@ -25,7 +25,7 @@ test("S2 filters live in the URL", async ({ page }) => {
   await expect(page).toHaveURL(/t=sports\.nfl/);
   await expect(page).toHaveURL(/e=0\.02/);
   await expect(panel.getByRole("checkbox", { name: /^NFL\b/ })).toBeChecked();
-  await expect(panel.getByLabel("Min edge", { exact: true })).toHaveValue("2");
+  await expect(panel.getByLabel("Min price gap", { exact: true })).toHaveValue("2");
   await expect.poll(() => rows.evaluateAll((els) => els.map((e) => (e as HTMLElement).dataset.marketId))).toEqual(ids);
 
   await panel.getByRole("button", { name: "Reset", exact: true }).click();
