@@ -93,6 +93,14 @@ test("pills: Pays 3–5x and Biggest payout land in the URL; long shots toggle",
   await page.getByRole("dialog", { name: "Sort" }).getByRole("button", { name: "Biggest payout" }).click();
   await expect(page).toHaveURL(/s=pays\.desc/);
 
+  // phone: the pill opens as a sheet; tapping the dimmed area closes it without changing filters
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole("button", { name: /^Chance/ }).click();
+  await expect(page.getByRole("dialog", { name: "Chance" })).toBeVisible();
+  await page.mouse.click(195, 60);
+  await expect(page.getByRole("dialog", { name: "Chance" })).toBeHidden();
+  await page.setViewportSize({ width: 1280, height: 720 });
+
   await page.goto("/markets");
   await page.getByRole("button", { name: /Hiding long shots/ }).click();
   await expect(page).toHaveURL(/wp=0(&|$)/);

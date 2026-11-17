@@ -61,7 +61,7 @@ function Pill({ name, value, wide, right, children }: { name: string; value?: st
       </button>
       {open && (
         <>
-          <div className="fixed inset-0 z-40 bg-black/60 md:hidden" aria-hidden="true" />
+          <div className="fixed inset-0 z-40 bg-black/60 md:hidden" aria-hidden="true" onClick={() => setOpen(false)} />
           <div
             id={id}
             role="dialog"
