@@ -83,6 +83,12 @@ export interface Execution {
 export interface Flag extends Market { execution: Execution }
 ```
 
+```ts
+// output/events.json  (written by scan; slug = Polymarket event URL slug)
+// market_ids: every scored market of the event (same ids as markets.json); flag_ids ⊆ market_ids
+export type EventsFile = Record<string, { event_id: string; event: string; market_ids: string[]; flag_ids: string[] }>;
+```
+
 `model.json` (curves for charts): `nodes[]` with `level, horizon_h, key, market_type, n, neff, events,
 win_prob_at_price: {"0.05": 0.03, ..., "0.95": 0.97}`.
 `backtest.json`: `results[half_life]` with `taker, maker, taker_tight_spread, baseline_all_bets_taker,

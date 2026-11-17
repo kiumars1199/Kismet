@@ -3,6 +3,7 @@
 Outputs (all in output/, read by the UI):
   markets.json  every scanned market: both sides, model win prob, edge at the current ask
   flags.json    the subset that passes the flag rule (edge >= min AND confident)
+  events.json   event slug -> event id, market ids, flag ids (lookup for the extension)
   spreads.json  live bid/ask spread by segment, used by the backtest as real trading cost
 """
 import json
@@ -155,6 +156,15 @@ def run(cfg, log=print):
                           price_range=[cfg.price_min, cfg.price_max]))
     json.dump(dict(meta=meta, markets=rows), open(cfg.path("output", "markets.json"), "w"))
     json.dump(dict(meta=meta, flags=flags), open(cfg.path("output", "flags.json"), "w"), indent=1)
+    # slug -> event index, so the extension can look up a Polymarket page by its URL slug
+    events = {}
+    for r in rows:
+        ev = events.setdefault(r["slug"], dict(event_id=r["event_id"], event=r["event"],
+                                               market_ids=[], flag_ids=[]))
+        ev["market_ids"].append(r["id"])
+    for r in flags:
+        events[r["slug"]]["flag_ids"].append(r["id"])
+    json.dump(events, open(cfg.path("output", "events.json"), "w"))
     sp = {f"{k[0]}|{k[1]}": dict(n=len(v), median=round(float(np.median(v)), 4),
                                   p75=round(float(np.percentile(v, 75)), 4))
           for k, v in spreads.items() if len(v) >= 5}
