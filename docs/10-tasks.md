@@ -86,8 +86,9 @@ Each task: one PR named `T-xx: title`, done only when its checks pass.
 | T-64 | Analytics (PostHog): page views, filter usage, preset saves, upgrade funnel | — | events visible |
 | T-65 | Launch checklist in `12-test-plan.md` complete | 12 | |
 
-## Tonight's critical path (demo)
-T-01 → T-10 → T-11 → T-13 → T-14 → T-20 → T-21 → T-23 → T-24 → T-30/31/32 → T-26 → T-28 → T-61.
-Parallel: T-12 (execution port) with T-13; T-27, T-29 anytime after T-10; T-60 first thing in Lane G.
-Demo runs with `DATA_SOURCE=local` (reads `../../output`) or `github` once T-01 is done, no auth,
-`LocalRepo`, tier forced to `pro`.
+## Tonight's plan (demo = every user-facing feature)
+Order: A(T-02, T-03, T-04, T-05, T-06) ‖ B(T-10..T-15, T-60) → C(T-20..T-29) ‖ D(T-30..T-39) → F(T-50..T-54, local API)
+→ G(T-61 flows S1–S6). Lane E is **not** built tonight except `<UpgradeGate>` (always passes in demo mode).
+Demo-mode deltas: alerts evaluated client-side every 2 min with an in-app inbox + `Notification` API;
+journal settlement via `/api/settle` on page load; extension uses `http://localhost:3000` and no token.
+`DEMO_MODE=true`: no auth, `LocalRepo`, tier = premium, `DATA_SOURCE=local`.

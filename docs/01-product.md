@@ -39,20 +39,28 @@ price says, after fees, and whether you can actually get that price right now."
 7-day free trial on Pro and Premium. Annual = 2 months free.
 Prices are a starting point (`11-research.md` has competitor pricing).
 
-## Demo scope (tonight → this week)
-Must have, all real data:
-1. Screener with search, filters, sorting, grouping by event (F-01, F-02, F-03)
-2. Market detail drawer: win-chance curve, execution check, stake table, evidence (F-04, F-05)
-3. Flags page (validated shortlist) (F-06)
-4. Saved presets + favorite topics, saved in localStorage for the demo (F-07, F-08)
-5. Watchlist in localStorage (F-09)
-6. Track record page from `backtest.json` (F-14)
-7. Calculators: edge, Kelly, payout (F-15)
-8. Landing page + pricing page (static) (F-20)
+## Demo scope (tonight): every user-facing feature, no paid plumbing
+The demo includes **every feature a paying user would see**, running in `DEMO_MODE=true`:
+no login, no Stripe, tier forced to Premium, user data in `localStorage` (`LocalRepo`).
+| Feature | Demo behavior | Paid version adds |
+|---|---|---|
+| Screener, search, all filters, grouping (F-01..F-03) | full | — |
+| Drawer + live execution check + stake table (F-04, F-05) | full | — |
+| Flags, event pages, share links, OG images (F-06, F-16, F-26) | full | — |
+| Presets, favorite topics, watchlist (F-07..F-09) | full, saved locally | saved to account, synced across devices |
+| Dashboards (F-10) | full, saved locally | synced |
+| Alerts (F-11) | rules editor + in-app inbox + browser notifications, evaluated in the open tab every 2 min | server cron, email, web push when the tab is closed, Telegram/Discord |
+| Bet journal + CLV + P&L (F-12) | full, settlement runs on page load via `/api/settle` | nightly server settlement |
+| Kelly sizing, calculators (F-13, F-15) | full | — |
+| Track record + methodology (F-14), flag ledger (F-29) | full | — |
+| Display settings, keyboard, CSV export, onboarding (F-17..F-19, F-27) | full | — |
+| Landing + pricing (F-20) | full; "Start trial" buttons go to `/markets` | Stripe checkout |
+| Chrome extension (F-25) | full, pointed at `http://localhost:3000` | store build, token auth |
+| Auth, billing, gates, admin (F-21, F-22, F-28) | **not in demo**; `<UpgradeGate>` exists but always passes | real |
 
-## Paid v1 (week 2)
-Everything in Demo, plus: auth, Stripe, server-side presets/watchlist/dashboards, alerts (email + push),
-bet journal with CLV, feature gates, onboarding, Chrome extension (Premium).
+## Paid v1 (right after the demo)
+Swap `LocalRepo` → `SupabaseRepo`, add auth, Stripe, entitlements (gates already in place), server-side
+alert delivery, extension token auth, admin. No UI rebuild needed.
 
 ## Later
 Kalshi (after written permission), cross-venue comparison, whale/large-trade feed, mobile PWA polish,
