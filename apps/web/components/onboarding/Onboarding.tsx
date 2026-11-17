@@ -39,7 +39,7 @@ export function Onboarding() {
     try { localStorage.setItem(ORDER_STYLE_KEY, style); } catch { /* storage off */ }
     const p = await getRepo().profile.patch({ onboarded_at: new Date().toISOString() });
     const topics = p.favorite_topics.length ? p.favorite_topics : undefined;
-    router.push(`/flags${toQuery(FilterState.parse({ view: "flags", topics }))}`);
+    router.push(`/${toQuery(FilterState.parse({ view: "flags", topics }))}`);
   }
 
   const setStake = (usd: number) => usd > 0 && getRepo().profile.patch({ default_stake_usd: usd });

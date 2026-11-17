@@ -1,6 +1,6 @@
 "use client";
 
-// /flags "Best bets" (Hybrid artboard): title + stat tiles, topic chips, sort, card grid, price-check strip.
+// / "Best bets" (Hybrid artboard): title + stat tiles, topic chips, sort, card grid, price-check strip.
 import { useEffect, useState } from "react";
 import { fetchBacktest, type BacktestResponse, type MarketsResponse } from "@/lib/api";
 import type { FilterState } from "@/lib/filters/state";

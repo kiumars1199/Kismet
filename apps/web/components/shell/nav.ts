@@ -1,6 +1,6 @@
 // Shell navigation (docs/06 § App shell, "Words to use").
 export const MAIN_TABS = [
-  { href: "/flags", label: "Best bets" },
+  { href: "/", label: "Best bets" },
   { href: "/markets", label: "All markets" },
   { href: "/watchlist", label: "My list" },
   { href: "/journal", label: "My bets" },
@@ -15,6 +15,7 @@ export const MORE_LINKS = [
   { href: "/dashboards", label: "Dashboards" },
   { href: "/settings", label: "Settings" },
   { href: "/status", label: "Status" },
+  { href: "/about", label: "How it works" },
 ] as const;
 
 export const isActive = (pathname: string, href: string) =>

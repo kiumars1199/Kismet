@@ -19,8 +19,8 @@ test("S6: Results tiles equal backtest.json", async ({ page }) => {
   await expect(page.getByText("Market analytics, not financial advice.")).toBeVisible();
 });
 
-test("landing: headline, counters, preview cards, Open screener", async ({ page }) => {
-  await page.goto("/");
+test("landing (/about): headline, counters, preview cards, Open screener", async ({ page }) => {
+  await page.goto("/about");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Same payout. Different odds.");
   await expect(page.getByText("past bets tested")).toBeVisible();
   await expect(page.getByTestId("preview-card").first()).toBeVisible();
@@ -35,7 +35,7 @@ test("pricing: yearly toggle shows 2 months free", async ({ page }) => {
   await page.getByRole("radio", { name: /Yearly/ }).click();
   await expect(page.getByText("$190 billed yearly")).toBeVisible();
   await expect(page.getByText("Demo: every feature is unlocked", { exact: false })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Start trial" }).first()).toHaveAttribute("href", "/flags");
+  await expect(page.getByRole("link", { name: "Start trial" }).first()).toHaveAttribute("href", "/");
 });
 
 test("status page lists scan, fit and backtest times", async ({ page }) => {

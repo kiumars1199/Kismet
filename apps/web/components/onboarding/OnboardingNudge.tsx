@@ -1,5 +1,5 @@
 "use client";
-// One-time "Choose your topics" prompt for people who haven't onboarded. Mount at the top of /flags.
+// One-time "Choose your topics" prompt for people who haven't onboarded. Mount at the top of / (Best bets).
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useProfile } from "@/lib/repo/hooks";

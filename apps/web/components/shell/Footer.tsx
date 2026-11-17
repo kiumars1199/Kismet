@@ -8,6 +8,8 @@ export function Footer() {
     <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-4 pb-24 pt-5 text-xs text-muted md:px-8 md:pb-5">
       <p>{DISCLAIMER}</p>
       <nav aria-label="Legal" className="flex gap-1">
+        <Link href="/about" className="px-1 hover:text-text">How it works</Link>
+        <span aria-hidden="true">·</span>
         <Link href="/terms" className="px-1 hover:text-text">Terms</Link>
         <span aria-hidden="true">·</span>
         <Link href="/privacy" className="px-1 hover:text-text">Privacy</Link>

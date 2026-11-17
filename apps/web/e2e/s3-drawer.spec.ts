@@ -15,7 +15,7 @@ test("S3 drawer: price check, stake table, curve, custom stake", async ({ page }
     const stake = Number(new URL(r.request().url()).searchParams.get("stake")) || undefined;
     return r.fulfill({ json: book(stake) });
   });
-  await page.goto("/flags");
+  await page.goto("/");
   await page.locator("[data-row] h3 a").first().click();
 
   const drawer = page.getByRole("dialog", { name: "Market details" });

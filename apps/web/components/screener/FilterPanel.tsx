@@ -97,7 +97,7 @@ function PanelBody({ state: s, mode, facets, meta, onChange, onReset }: Props) {
           {(["markets", "flags"] as const).map((v) => {
             const on = mode === v;
             const next = { ...s, view: v, page: 1, verdicts: v === "flags" ? undefined : s.verdicts };
-            const href = (v === "flags" ? "/flags" : "/markets") + queryFor(v === "flags" ? { ...next, group_by_event: false } : { ...next, verdicts: undefined, group_by_event: true }, v);
+            const href = (v === "flags" ? "/" : "/markets") + queryFor(v === "flags" ? { ...next, group_by_event: false } : { ...next, verdicts: undefined, group_by_event: true }, v);
             return (
               <Link key={v} href={href} aria-current={on ? "page" : undefined} className={`flex min-h-9 items-center justify-center rounded-[9px] text-[13px] ${on ? "bg-accent-bg text-accent-soft" : "text-soft hover:text-text"}`}>
                 {v === "markets" ? "All markets" : "Best bets"}

@@ -48,7 +48,7 @@ export function Shortcuts() {
       const k = e.key;
       if (Date.now() - pendingG.current < 1000) {
         pendingG.current = 0;
-        if (k === "f") { e.preventDefault(); return router.push("/flags"); }
+        if (k === "f") { e.preventDefault(); return router.push("/"); }
         if (k === "w") { e.preventDefault(); return router.push("/watchlist"); }
       }
       const row = currentRow();
