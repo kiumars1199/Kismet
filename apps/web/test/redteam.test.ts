@@ -115,6 +115,17 @@ describe("RT-14 health and extension ID give nothing away", () => {
   });
 });
 
+describe("RT-08 the database quota refusal reaches the user as the plan limit", () => {
+  it("plan_quota from the trigger → 403 upgrade, not 400", async () => {
+    const { insertRow } = await import("@/lib/repo/server");
+    // the app's count still says 0 (a parallel insert landed after it), the trigger refuses
+    const db = { from: () => ({ select: async () => ({ count: 0 }), insert: () => ({ select: () => ({ single: async () => ({ data: null, error: { code: "P0001", message: "plan_quota: your plan allows 1 presets", hint: "1" } }) }) }) }) };
+    const res = await insertRow({ db: db as never, userId: "u" }, "presets", { name: "p", emoji: null, query: {}, columns: null, sort: null, is_default: false, position: 0 });
+    expect(res.status).toBe(403);
+    expect(await res.json()).toMatchObject({ upgrade: true, limit: 1 });
+  });
+});
+
 describe("RT-13 next= with non-ASCII falls back to / instead of a 500", () => {
   it("every accepted next is a valid Location header value", async () => {
     const { safeNext } = await import("@/lib/auth/server");

@@ -69,7 +69,12 @@ export async function insertRow(ctx: Ctx, name: string, body: unknown): Promise<
       if ((count ?? 0) >= limit) return err(403, `Your plan allows ${limit}`, { upgrade: true, limit });
     }
   }
+  // The count above is the fast path; the database trigger (plan_quota, RT-08) is the exact one under races.
   const { data, error } = await ctx.db.from(name).insert(row).select("*").single();
+  if (error?.message?.startsWith("plan_quota")) {
+    const limit = Number(error.hint) || (key ? quota(tier, key) : 0);
+    return err(403, `Your plan allows ${limit}`, { upgrade: true, limit });
+  }
   if (error) return error.code === "23505" ? err(409, "unique_violation") : err(400, "Couldn't save");
   return Response.json(out(data));
 }

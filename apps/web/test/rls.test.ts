@@ -146,6 +146,22 @@ describe("RLS (supabase/migrations)", () => {
     await expect(as("authenticated", A, "insert into watchlist (market_id, side_index) values ('m1', null)")).rejects.toThrow(/duplicate key/);
   });
 
+  it("RT-08: plan quotas are enforced by the database, not only the API (count-then-insert race)", async () => {
+    // A is Free (presets 1, watchlist 10, dashboards 0, alert_rules 0) and already holds 1 preset + 1 watchlist row.
+    await expect(as("authenticated", A, `insert into presets (name, query) values ('second', '{}')`)).rejects.toThrow(/plan_quota/);
+    for (let i = 2; i <= 10; i++) await as("authenticated", A, `insert into watchlist (market_id) values ('w${i}')`);
+    await expect(as("authenticated", A, `insert into watchlist (market_id) values ('w11')`)).rejects.toThrow(/plan_quota/);
+    await expect(as("authenticated", A, `insert into dashboards (name, layout) values ('d', '[]')`)).rejects.toThrow(/plan_quota/);
+    await expect(as("authenticated", A, `insert into alert_rules (name, kind) values ('r', 'closing_soon')`)).rejects.toThrow(/plan_quota/);
+    // Pro: 3 dashboards; the 4th is refused. The service role (webhooks, admin) is not bound.
+    await db.exec(`update subscriptions set tier = 'pro' where user_id = '${B}'`);
+    for (let i = 0; i < 3; i++) await as("authenticated", B, `insert into dashboards (name, layout) values ('d${i}', '[]')`);
+    await expect(as("authenticated", B, `insert into dashboards (name, layout) values ('d3', '[]')`)).rejects.toThrow(/plan_quota/);
+    await db.exec(`insert into dashboards (user_id, name, layout) values ('${B}', 'by service', '[]')`);
+    await db.exec(`update subscriptions set tier = 'free' where user_id = '${B}'`);
+    await db.exec(`delete from dashboards where user_id = '${B}'`);
+  });
+
   it("keeps at most 3 sessions per user, newest win", async () => {
     for (let i = 1; i <= 4; i++) {
       await db.exec(`insert into auth.sessions (user_id, created_at) values ('${A}', now() + interval '${i} minutes')`);
