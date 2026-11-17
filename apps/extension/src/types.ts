@@ -1,6 +1,8 @@
 // Subset of apps/web/lib/types.ts + EventResponse (apps/web/lib/api.ts) the extension reads.
 // Copied, not imported: the extension is a standalone project.
-export const API = "http://localhost:3000";
+declare const __ME_ORIGIN__: string;
+/** Web app origin, set at build time from ME_ORIGIN (default http://localhost:3000). */
+export const API: string = __ME_ORIGIN__;
 
 export interface Side {
   side_index: 0 | 1;
