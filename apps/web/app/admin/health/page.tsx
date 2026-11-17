@@ -2,6 +2,7 @@
 // alert run, and env-driven flags. Shows only "configured / not configured", never a key or URL.
 import { GET as health } from "@/app/api/health/route";
 import { day } from "@/components/admin/Stats";
+import { adminEmails } from "@/lib/admin/core";
 import { requireAdmin } from "@/lib/admin/server";
 import { DATA_SOURCE, DEMO_MODE } from "@/lib/config";
 import { chosenResult } from "@/lib/data/model";
@@ -77,7 +78,7 @@ export default async function Page() {
           <Item k="DATA_SOURCE" v={DATA_SOURCE} />
           <Item k="KALSHI_TRADING_ENV" v={process.env.KALSHI_TRADING_ENV || "Off"} />
           <Item k="KALSHI_DATA_PERMISSION" v={process.env.KALSHI_DATA_PERMISSION === "true" ? "On" : "Off"} />
-          <Item k="ADMIN_EMAILS" v={`${exactCount((process.env.ADMIN_EMAILS ?? "").split(",").filter((s) => s.trim()).length)} admins`} />
+          <Item k="ADMIN_EMAILS" v={(() => { const n = adminEmails(process.env.ADMIN_EMAILS).length; return `${exactCount(n)} ${n === 1 ? "admin" : "admins"}`; })()} />
         </Panel>
       </div>
 
