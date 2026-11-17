@@ -9,6 +9,8 @@
     "governing_state": "",
     "mailing_address": "",
     "refund_policy": "",
+    "_refund_policy_options": "none | first_charge_7_days | prorated (or your own sentence)",
+    "response_time": "",
     "min_age": 18,
     "countries": "United States",
     "last_updated": ""

@@ -2,6 +2,7 @@
 // We never see Kalshi keys. We only issue (1) short-lived extension sign-in tokens and (2) one-time order nonces
 // bound to the exact order the user confirmed, which the extension checks with us before it signs anything.
 import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
+import { getMe } from "@/lib/auth/server";
 import { DEMO_MODE } from "@/lib/config";
 import type { Tier } from "@/lib/entitlements";
 
@@ -16,13 +17,11 @@ export function tradingAllowed(email: string | null): boolean {
   return list.includes(email.toLowerCase());
 }
 
-/**
- * Signed-in user's email. ponytail: no auth yet (Lane L builds Supabase Auth); returns null so outside demo
- * mode nobody is allow-listed until the session lookup lands here.
- */
+/** Signed-in user's email and plan from the Supabase session cookie (tier from the webhook-written subscriptions row). */
 export async function currentUser(_req: Request): Promise<{ email: string; tier: Tier } | null> {
   if (DEMO_MODE) return { email: "demo@localhost", tier: "premium" };
-  return null;
+  const me = await getMe();
+  return me.user?.email ? { email: me.user.email, tier: me.tier } : null;
 }
 
 /** The extension's ID (Chrome Web Store ID in production; the pinned dev ID otherwise). */

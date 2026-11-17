@@ -1,6 +1,9 @@
 // GET /api/book?token=<clob token id>&q=<win prob>&cat=<category>&stake=<optional usd>
 // Live execution check (docs/07-execution.md). Book cached 5 s per token.
 import { check, edgeWarning, feeRate, STAKES, type Book } from "@/lib/execution";
+import { getTier } from "@/lib/auth/server";
+import { freeExecution } from "@/lib/data/gate";
+import { can } from "@/lib/entitlements";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -48,7 +51,9 @@ export async function GET(req: Request): Promise<Response> {
     const stakes = stake === null || STAKES.includes(stake) ? STAKES : [...STAKES, stake].sort((a, b) => a - b);
     const ex = check(q, book, feeRate(p.get("cat")), MIN_EDGE, { stakes });
     const warning = ex.book_ok ? edgeWarning(ex.net_edge) : undefined;
-    return Response.json({ ...ex, ...(warning ? { warning } : {}), fetched_at: at });
+    // Free: verdict and the first share only (docs/08 execution: "verdict")
+    const shaped = can(await getTier(), "full_execution") ? ex : freeExecution(ex);
+    return Response.json({ ...shaped, ...(warning ? { warning } : {}), fetched_at: at });
   } catch (e) {
     return bad(e instanceof Error ? e.message : "order book unavailable", 502);
   }

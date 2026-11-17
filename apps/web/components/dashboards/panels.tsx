@@ -6,7 +6,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { drawerHref } from "@/components/market/DrawerHost";
 import { fetchCurve, fetchMarkets, type ApiRow, type Curve } from "@/lib/api";
-import { closesIn, DASH, edge, money, pct, price, ret } from "@/lib/format";
+import { closesIn, DASH, edge, money, pct, price, ret, sideRet, sideEdge } from "@/lib/format";
 import type { FilterState } from "@/lib/filters/state";
 import { summarize } from "@/lib/journal";
 import { useCollection, useProfile } from "@/lib/repo/hooks";
@@ -79,7 +79,7 @@ function MarketRows({ rows, pro }: { rows: ApiRow[]; pro: boolean }) {
               <span className="block truncate text-sm font-medium">{m.question}</span>
               <span className="text-xs text-muted">Bet {s.outcome} at {price(s.ask)} · Won before {pct(s.win_prob)} · {closesIn(m.closes_at)}</span>
             </span>
-            <span className={`flex-none font-heading text-lg font-bold tabular-nums ${s.roi_pct > 0 ? "text-accent" : "text-muted"}`}>{pro ? edge(s.edge) : ret(s.roi_pct)}</span>
+            <span className={`flex-none font-heading text-lg font-bold tabular-nums ${s.roi_pct > 0 ? "text-accent" : "text-muted"}`}>{pro ? sideEdge(s) : sideRet(s)}</span>
           </Link>
         </li>
       ))}

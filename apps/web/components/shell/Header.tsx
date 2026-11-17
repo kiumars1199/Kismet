@@ -6,6 +6,7 @@ import { MAIN_TABS, isActive } from "./nav";
 import { SearchCombobox } from "@/components/search/SearchCombobox";
 import { FreshnessPill } from "@/components/header/FreshnessPill";
 import { Bell } from "@/components/header/Bell";
+import { AccountLink } from "@/components/auth/AccountLink";
 
 export function Logo() {
   return (
@@ -45,6 +46,7 @@ export function Header() {
         <Link href="/about" aria-current={pathname === "/about" ? "page" : undefined} className="hidden whitespace-nowrap text-sm text-muted hover:text-text lg:block">How it works</Link>
         <FreshnessPill />
         <Bell />
+        <AccountLink />
       </div>
     </header>
   );

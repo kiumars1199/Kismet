@@ -37,7 +37,10 @@ export interface Side {
   model_neff: number;       // effective independent sample behind the estimate
   model_events: number;     // distinct past events behind the estimate
   realistic_edge?: number | null;   // flags only: what similar predicted edges actually earned
+  ranges?: SideRanges;      // API only, Free tier: exact numbers replaced by bands (lib/data/gate.ts)
 }
+/** Free tier bands [low, high]; null = open end. The numeric fields then hold the band's low end. */
+export interface SideRanges { roi_pct: [number | null, number | null]; edge: [number | null, number | null] }
 
 export interface Market {
   id: string;               // Polymarket market id
@@ -71,10 +74,12 @@ export interface Execution {
   spread: number; spread_cost: number; fee_at_ask: number;
   gross_edge: number;       // win_prob - mid
   net_edge: number;         // win_prob - ask - fee
-  retention: number;        // net_edge / gross_edge
-  capacity_usd: number;     // $ you can buy before edge < min_edge
+  // T-44: retention, capacity_usd, limit_price, limit_edge are absent and stakes is [] on the Free tier (API only;
+  // the engine always writes them).
+  retention?: number;       // net_edge / gross_edge
+  capacity_usd?: number;    // $ you can buy before edge < min_edge
   stakes: StakeRow[];       // $25, $100, $500, $1000
-  limit_price: number; limit_edge: number;
+  limit_price?: number; limit_edge?: number;
   verdict: Verdict; warning?: string;
   ask_size?: number | null;   // T-02: shares at best ask of the best side's book
   bid_size?: number | null;   // shares at best bid

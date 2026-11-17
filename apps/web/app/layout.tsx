@@ -8,6 +8,8 @@ import { DrawerHost } from "@/components/market/DrawerHost";
 import { AlertRunner } from "@/components/alerts/AlertRunner";
 import { DisplayEffects } from "@/components/settings/DisplayEffects";
 import { Shortcuts } from "@/components/keyboard/Shortcuts";
+import { AuthBoot } from "@/components/auth/AuthBoot";
+import { siteUrl } from "@/lib/site";
 import { TicketHost } from "@/components/trade/TradeTicket";
 import "./globals.css";
 
@@ -15,6 +17,8 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "sw
 const grotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-space-grotesk", display: "swap" });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl()),
+  openGraph: { siteName: "MarketEdge", type: "website" },
   title: { default: "MarketEdge", template: "%s · MarketEdge" },
   description: "Prediction-market analytics: which contracts are priced below how often bets like them have won.",
 };
@@ -41,6 +45,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <TicketHost />
         <AlertRunner />
         <DisplayEffects />
+        <AuthBoot />
       </body>
     </html>
   );

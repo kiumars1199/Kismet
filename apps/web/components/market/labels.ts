@@ -37,7 +37,7 @@ export function rowNotes(x: Execution | undefined, best: Side): Note[] {
   const out: Note[] = [];
   if (x?.verdict === "not worth it") out.push({ text: VERDICT_LABEL["not worth it"], tone: "negative" });
   else if (x?.verdict === "thin") out.push({ text: VERDICT_LABEL.thin, tone: "warning" });
-  if (x && x.book_ok !== false && x.verdict !== "not worth it" && x.capacity_usd < 100)
+  if (x && x.book_ok !== false && x.verdict !== "not worth it" && x.capacity_usd != null && x.capacity_usd < 100)
     out.push({ text: `Only ~${money(Math.round(x.capacity_usd))} available at this price`, tone: "warning" });
   if (best.edge >= 0.15) {
     // the model overshoots at this size; show what similar past bets really returned when we know it

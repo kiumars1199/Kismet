@@ -6,9 +6,41 @@ export * from "./types";
 /** NEXT_PUBLIC_DEMO_MODE defaults to true when unset. */
 export const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE !== "false";
 
-let repo: Repo | null = null;
+// getRepo() returns one stable object; the backing store can switch (LocalRepo → SupabaseRepo after
+// sign-in) without hooks re-subscribing: subscribers here are told when the store switches.
+let impl: Repo | null = null;
+let local: LocalRepo | null = null;
+let wired: Repo | null = null;
+let off = () => {};
+const listeners = new Set<() => void>();
+const emit = () => listeners.forEach((f) => f());
+function current(): Repo {
+  const r = (impl ??= (local ??= new LocalRepo()));
+  if (wired !== r) { off(); off = r.subscribe(emit); wired = r; }
+  return r;
+}
+
+const proxy = new Proxy({} as Repo, {
+  get(_, key) {
+    if (key === "subscribe") {
+      return (cb: () => void) => { listeners.add(cb); return () => { listeners.delete(cb); }; };
+    }
+    const r = current();
+    const v = (r as unknown as Record<PropertyKey, unknown>)[key];
+    return typeof v === "function" ? v.bind(r) : v;
+  },
+});
 
 export function getRepo(): Repo {
-  if (!DEMO_MODE) throw new Error("SupabaseRepo not built yet: set NEXT_PUBLIC_DEMO_MODE=true");
-  return (repo ??= new LocalRepo());
+  return proxy;
+}
+
+/** The browser's local data (demo mode and signed-out visitors); used for the first sign-in import. */
+export const getLocalRepo = (): LocalRepo => (local ??= new LocalRepo());
+
+/** Switch the backing store (AuthBoot does this after /api/me). */
+export function setRepo(next: Repo) {
+  impl = next;
+  current();
+  emit();
 }

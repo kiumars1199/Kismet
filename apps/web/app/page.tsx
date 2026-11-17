@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { OnboardingNudge } from "@/components/onboarding/OnboardingNudge";
 import { BestBets } from "@/components/screener/BestBets";
 
-export const metadata = { title: "Best bets" };
+export const metadata = { title: "Best bets", description: "Contracts priced below how often similar bets have won, after fees and the spread." };
 
 export default function Page() {
   return (

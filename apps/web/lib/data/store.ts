@@ -3,6 +3,7 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { DATA_SOURCE, dataDirSetting, github, supabaseStorage, type DataSource } from "@/lib/config";
+import { DELAY_MIN, type Tier } from "@/lib/entitlements";
 import { Flag as FlagSchema, Market as MarketSchema, ScanMeta as MetaSchema } from "@/lib/schemas";
 import type { BacktestFile, EventsFile, FlagsFile, LedgerSummary, MarketsFile, ModelFile, ScanMeta, StoreMarket } from "@/lib/types";
 import { derive } from "./derive";
@@ -185,7 +186,7 @@ export async function loadRaw(chain = sourceChain()): Promise<RawData> {
 const RETRY_MS = 30_000;
 
 // Kept on globalThis so dev hot reloads don't re-parse 20 MB each time.
-const g = globalThis as unknown as { __meStore?: { cache?: Store; inflight?: Promise<Store>; failedAt?: number } };
+const g = globalThis as unknown as { __meStore?: { cache?: Store; inflight?: Promise<Store>; failedAt?: number; prev?: Store } };
 const state = (g.__meStore ??= {});
 
 export function getStore(): Promise<Store> {
@@ -194,9 +195,23 @@ export function getStore(): Promise<Store> {
   // While every source is down, serve the last good copy and retry at most every 30 s.
   if (state.cache && state.failedAt && Date.now() - state.failedAt < RETRY_MS) return Promise.resolve(state.cache);
   state.inflight = loadRaw()
-    .then((raw) => { state.failedAt = undefined; return (state.cache = buildStore(raw)); })
+    .then((raw) => {
+      state.failedAt = undefined;
+      const next = buildStore(raw);
+      if (state.cache && state.cache.meta.scanned_at !== next.meta.scanned_at) state.prev = state.cache;
+      return (state.cache = next);
+    })
     .catch((e) => { state.failedAt = Date.now(); throw e; })
     .finally(() => (state.inflight = undefined));
   // A failed refresh keeps serving the previous copy if there is one.
   return state.cache ? state.inflight.catch(() => state.cache!) : state.inflight;
+}
+
+/** Free data is DELAY_MIN behind (docs/08): while the newest scan is younger than that, serve the one before.
+ *  ponytail: previous scan kept in memory per instance; a fresh instance has none and serves the newest.
+ *  Upgrade: have the engine publish a delayed copy (e.g. scan/delayed/) and read that for free users. */
+export async function getStoreFor(tier: Tier): Promise<Store> {
+  const s = await getStore();
+  const cutoff = Date.now() / 1000 - DELAY_MIN[tier] * 60;
+  return DELAY_MIN[tier] === 0 || s.meta.scanned_at <= cutoff || !state.prev ? s : state.prev;
 }

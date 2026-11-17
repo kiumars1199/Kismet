@@ -9,9 +9,11 @@
     "lint": "eslint . --max-warnings 0",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "e2e": "playwright test"
+    "e2e": "playwright test && playwright test -c playwright.paid.config.ts"
   },
   "dependencies": {
+    "@supabase/ssr": "0.12.7",
+    "@supabase/supabase-js": "2.118.0",
     "@sentry/nextjs": "11.9.0",
     "@tanstack/react-table": "^8.21.3",
     "@tanstack/react-virtual": "^3.14.26",
@@ -21,10 +23,12 @@
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "recharts": "^3.10.1",
+    "stripe": "23.1.0",
     "zod": "^4.6.7",
     "zustand": "^5.1.0"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "0.5.14",
     "@eslint/eslintrc": "3.3.7",
     "@playwright/test": "^1.65.1",
     "@tailwindcss/postcss": "^4.3.5",

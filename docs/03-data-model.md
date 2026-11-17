@@ -42,6 +42,8 @@ export interface Side {
   model_neff: number;       // effective independent sample behind the estimate
   model_events: number;     // distinct past events behind the estimate
   realistic_edge?: number | null;   // flags only: what similar predicted edges actually earned
+  ranges?: { roi_pct: [lo|null, hi|null]; edge: [lo|null, hi|null] }  // API only, Free tier: return/edge as bands
+                                    // ("+5–10%", "2–5¢"); numeric fields then hold the band's low end, win_prob floored to 5%
 }
 
 export interface Market {
@@ -77,10 +79,11 @@ export interface Execution {
   spread: number; spread_cost: number; fee_at_ask: number;
   gross_edge: number;       // win_prob - mid
   net_edge: number;         // win_prob - ask - fee
-  retention: number;        // net_edge / gross_edge
-  capacity_usd: number;     // $ you can buy before edge < min_edge
+  // API only, Free tier (T-44): retention, capacity_usd, limit_price, limit_edge omitted and stakes = [].
+  retention?: number;       // net_edge / gross_edge
+  capacity_usd?: number;    // $ you can buy before edge < min_edge
   stakes: StakeRow[];       // $25, $100, $500, $1000
-  limit_price: number; limit_edge: number;
+  limit_price?: number; limit_edge?: number;
   verdict: Verdict; warning?: string;
   ask_size?: number | null; // shares at the best ask of the best side's book (scan only, not part of check())
   bid_size?: number | null; // shares at the best bid; null when that side of the book is empty or no book
@@ -182,6 +185,8 @@ create table profiles (
   default_stake_usd numeric default 100,
   odds_format text default 'cents' check (odds_format in ('cents','percent','decimal','american')),
   favorite_topics text[] default '{}',  -- taxonomy ids, e.g. {'sports.nfl','weather'}
+  density text default 'comfortable', theme text default 'dark', numbers_mode text default 'simple',  -- display prefs (F-17)
+  accepted_terms_at timestamptz,        -- 18+ and Terms checkbox at sign-up
   onboarded_at timestamptz, created_at timestamptz default now()
 );
 
@@ -191,7 +196,17 @@ create table subscriptions (
   tier text not null default 'free' check (tier in ('free','pro','premium')),
   status text,                          -- trialing | active | past_due | canceled
   current_period_end timestamptz, cancel_at_period_end boolean default false,
+  trialed_at timestamptz,               -- first trial start; checkout offers the 7-day trial only while null
   updated_at timestamptz default now()
+);
+-- Written only by the Stripe webhook (service role). Users can read their own row, never write it.
+
+create table stripe_events (id text primary key, type text not null, processed_at timestamptz default now());
+                                        -- webhook idempotency, RLS on with no policies
+
+create table drawer_reveals (           -- free tier: market details opened per day (LIMITS.flagsPerDay)
+  user_id uuid references auth.users on delete cascade, day date default current_date, market_id text,
+  primary key (user_id, day, market_id)
 );
 
 create table presets (                  -- a saved filter + sort + columns
@@ -218,7 +233,7 @@ create table watchlist (                -- saved bets / markets to watch
   note text, target_price numeric,                       -- alert when ask <= target
   snapshot jsonb,                                        -- Market row at save time (question, ask, win_prob, edge)
   created_at timestamptz default now(),
-  unique (user_id, market_id, side_index)
+  unique nulls not distinct (user_id, market_id, side_index)   -- one whole-market row per market
 );
 
 create table alert_rules (
@@ -230,13 +245,13 @@ create table alert_rules (
   market_id text, side_index smallint, threshold numeric,
   channels text[] default '{email}',    -- email | push | telegram | discord
   webhook_url text,                     -- Premium: Discord/Telegram
-  cooldown_minutes int default 60, quiet_hours int4range,
+  cooldown_minutes int default 60, quiet_hours smallint[],   -- [start_hour, end_hour), may wrap midnight
   last_fired_at timestamptz, created_at timestamptz default now()
 );
 
 create table alert_events (             -- what fired, for the in-app inbox + dedupe
   id bigserial primary key, rule_id uuid references alert_rules on delete cascade,
-  user_id uuid not null, market_id text not null, side_index smallint,
+  user_id uuid not null references auth.users on delete cascade, market_id text not null, side_index smallint,
   payload jsonb, sent_channels text[], fired_at timestamptz default now(), read_at timestamptz,
   dedupe_key text not null,             -- app sets: rule_id|market_id|side|cooldown bucket
   unique (dedupe_key)
@@ -261,6 +276,10 @@ create table push_subscriptions (
   endpoint text unique not null, keys jsonb not null, created_at timestamptz default now()
 );
 ```
+Migration: `supabase/migrations/`. Every user table's `user_id` defaults to `auth.uid()`. A trigger on
+`auth.users` creates `profiles` + `subscriptions(tier='free')`; a trigger on `auth.sessions` keeps the 3 newest
+sessions per user (docs/14 §1). RLS tests: `apps/web/test/rls.test.ts` (PGlite) and `supabase/tests/rls.test.sql` (pgTAP).
+
 Demo mode (no auth): presets, watchlist, favorites and journal live in `localStorage` behind
 the same repository interface (`lib/repo/*.ts`: `LocalRepo` and `SupabaseRepo`). At first login
 the app offers to import local data into the account.
