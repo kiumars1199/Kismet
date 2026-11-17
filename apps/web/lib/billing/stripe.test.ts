@@ -1,12 +1,13 @@
 // T-43 webhook: forged / stale signatures rejected, duplicates ignored, tier mapping from price.
 import Stripe from "stripe";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { handleWebhook, tierFromPrice, type BillingDb, type SubscriptionRow } from "./stripe";
+import { clientRef, handleWebhook, tierFromPrice, verifyClientRef, type BillingDb, type SubscriptionRow } from "./stripe";
 
 vi.mock("@/lib/email", () => ({ sendEmail: vi.fn(async () => ({ sent: true })), siteUrl: () => "http://test", unsubscribeUrl: () => "http://test/u" }));
 
 const SECRET = "whsec_test_secret";
 const U = "user-1";
+const REF = clientRef(U, Date.now(), SECRET)!;
 
 function memDb() {
   const events = new Set<string>();
@@ -18,6 +19,7 @@ function memDb() {
     markSeen: async (id) => { events.add(id); },
     linkCustomer: async (u, c) => { customers.set(c, u); subs.set(u, { ...subs.get(u), stripe_customer_id: c }); },
     userForCustomer: async (c) => customers.get(c) ?? null,
+    customerOf: async (u) => ({ customer: subs.get(u)?.stripe_customer_id ?? null, status: subs.get(u)?.status ?? null }),
     emailFor: async () => "a@x.test",
     upsertSubscription: async (u, row) => { subs.set(u, { ...subs.get(u), ...row }); },
   };
@@ -60,7 +62,7 @@ describe("stripe webhook", () => {
 
   it("links the customer on checkout, then sets the tier from subscription events", async () => {
     const db = memDb();
-    const done = ev("evt_c", "checkout.session.completed", { id: "cs_1", object: "checkout.session", client_reference_id: U, customer: "cus_1", subscription: null });
+    const done = ev("evt_c", "checkout.session.completed", { id: "cs_1", object: "checkout.session", client_reference_id: REF, customer: "cus_1", subscription: null });
     expect((await handleWebhook(signed(done), db, null, SECRET)).status).toBe(200);
     const created = ev("evt_s", "customer.subscription.created", sub("trialing", { id: "price_pro_m" }, { trial_start: 1_800_000_000 }));
     expect((await handleWebhook(signed(created), db, null, SECRET)).status).toBe(200);
@@ -92,6 +94,39 @@ describe("stripe webhook", () => {
     const e = ev("evt_early", "customer.subscription.created", sub("active", { id: "price_pro_m" }));
     expect((await handleWebhook(signed(e), db, null, SECRET)).status).toBe(500);
     expect(await db.seen("evt_early")).toBe(false);
+  });
+});
+
+describe("RT-05 client_reference_id is signed; a raw or edited id can't take over another user's billing", () => {
+  const done = (id: string, ref: string, customer: string) =>
+    ev(id, "checkout.session.completed", { id: "cs_" + id, object: "checkout.session", client_reference_id: ref, customer, subscription: null });
+
+  it("a raw user id (an edited Payment Link) links nothing", async () => {
+    const db = memDb();
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    expect((await handleWebhook(signed(done("evt_raw", U, "cus_attacker")), db, null, SECRET)).status).toBe(200);
+    expect(await db.userForCustomer("cus_attacker")).toBeNull();
+    expect(db.subs.get(U)).toBeUndefined();
+  });
+
+  it("tampered, expired or other-secret references are refused", () => {
+    const now = Date.now();
+    const [, exp, mac] = REF.split("_");
+    expect(verifyClientRef(REF, now, SECRET)).toBe(U);
+    expect(verifyClientRef(`victim-2_${exp}_${mac}`, now, SECRET)).toBeNull();
+    expect(verifyClientRef(REF, now + 25 * 3_600_000, SECRET)).toBeNull();
+    expect(verifyClientRef(clientRef(U, now, "whsec_other"), now, SECRET)).toBeNull();
+    expect(REF).toMatch(/^[A-Za-z0-9_-]{1,200}$/);   // what Stripe accepts in client_reference_id
+  });
+
+  it("never re-links a user who already pays through another customer", async () => {
+    const db = memDb();
+    await db.linkCustomer(U, "cus_victim");
+    await db.upsertSubscription(U, { stripe_customer_id: "cus_victim", stripe_subscription_id: "sub_v", tier: "pro", status: "active", current_period_end: null, cancel_at_period_end: false });
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    await handleWebhook(signed(done("evt_relink", REF, "cus_other")), db, null, SECRET);
+    expect(db.subs.get(U)).toMatchObject({ stripe_customer_id: "cus_victim", tier: "pro" });
+    expect(await db.userForCustomer("cus_other")).toBeNull();
   });
 });
 

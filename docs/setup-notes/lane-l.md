@@ -51,6 +51,11 @@ the four Payment Link URLs into `stripe.paymentLinks`, and optionally the portal
 (or `STRIPE_PORTAL_URL`). Give each price a metadata key `tier` = `pro` or `premium`. You still need
 `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET`. Set each link's after-payment page to `https://<your-domain>/account?checkout=success`.
 
+**Signed `client_reference_id` (RT-05):** Checkout sessions and Payment Links carry `<user id>_<expiry>_<HMAC>`, keyed
+from `STRIPE_WEBHOOK_SECRET` (no new env value). The webhook links a Stripe customer only when the signature checks out
+and the reference is less than 24 hours old. It never re-links a user who already pays through another customer.
+Rotating the webhook secret voids open checkout links. Users click "Upgrade" again to get a new one.
+
 With any Stripe value missing, pricing buttons say "Coming soon" and a dev-only banner says Stripe isn't configured.
 
 ## 4. Turn accounts on

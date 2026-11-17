@@ -17,6 +17,10 @@ export function supabaseBillingDb(): BillingDb {
     },
     userForCustomer: async (customer) =>
       must(await db.from("subscriptions").select("user_id").eq("stripe_customer_id", customer).maybeSingle()).data?.user_id ?? null,
+    customerOf: async (userId) => {
+      const row = must(await db.from("subscriptions").select("stripe_customer_id, status").eq("user_id", userId).maybeSingle()).data;
+      return { customer: row?.stripe_customer_id ?? null, status: row?.status ?? null };
+    },
     emailFor: async (userId) => (await db.auth.admin.getUserById(userId)).data.user?.email ?? null,
     upsertSubscription: async (user_id, row) => {
       must(await db.from("subscriptions").upsert({ user_id, ...row, updated_at: new Date().toISOString() }, { onConflict: "user_id" }));

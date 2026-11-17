@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { guard } from "@/lib/abuse";
 import { getUser, sameOrigin, supabaseServer } from "@/lib/auth/server";
-import { PRICE_KEYS, billingMode, paymentLinkUrl, priceId, stripeClient } from "@/lib/billing/stripe";
+import { PRICE_KEYS, billingMode, clientRef, paymentLinkUrl, priceId, stripeClient } from "@/lib/billing/stripe";
 import { readJson, TOO_LARGE, tooLarge } from "@/lib/body";
 
 export const runtime = "nodejs";
@@ -34,7 +34,7 @@ export async function POST(req: Request) {
     const session = await stripeClient()!.checkout.sessions.create({
       mode: "subscription",
       line_items: [{ price: priceId(price), quantity: 1 }],
-      client_reference_id: user.id,
+      client_reference_id: clientRef(user.id) ?? undefined,   // signed (RT-05), one verification path with Links
       ...(sub?.stripe_customer_id ? { customer: sub.stripe_customer_id } : { customer_email: user.email || undefined }),
       subscription_data: { metadata: { user_id: user.id }, ...(sub?.trialed_at ? {} : { trial_period_days: 7 }) },
       success_url: `${origin}/account?checkout=success`,

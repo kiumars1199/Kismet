@@ -2,6 +2,7 @@
 // Two modes, picked by config: Checkout (keys + price ids in env) or Payment Links (config/site.json).
 // Either way the tier is written only here, from verified webhook events.
 import "server-only";
+import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import Stripe from "stripe";
 import { site } from "@/lib/site";
 import type { Tier } from "@/lib/entitlements";
@@ -35,10 +36,31 @@ export function billingMode(): "checkout" | "links" | null {
   return null;
 }
 
-/** Payment Link with the user attached so the webhook can match them (docs/14 §2). */
+export const CLIENT_REF_TTL_MS = 24 * 3_600_000;   // a Checkout Session lives at most 24 h
+const refMac = (secret: string, body: string) =>
+  createHmac("sha256", createHash("sha256").update(`me:cref:${secret}`).digest()).update(body).digest("hex");
+
+/** Signed client_reference_id (RT-05): `<user id>_<expiry ms>_<hex HMAC>`, keyed by the webhook secret.
+ *  Stripe allows only letters, digits, - and _ there, so not the seal() format. Null without a secret. */
+export function clientRef(userId: string, now = Date.now(), secret = process.env.STRIPE_WEBHOOK_SECRET): string | null {
+  if (!secret || !/^[A-Za-z0-9-]{1,64}$/.test(userId)) return null;
+  const body = `${userId}_${now + CLIENT_REF_TTL_MS}`;
+  return `${body}_${refMac(secret, body)}`;
+}
+
+/** The user id in a reference we signed and that hasn't expired, else null (a raw or edited id is never trusted). */
+export function verifyClientRef(ref: string | null | undefined, now = Date.now(), secret = process.env.STRIPE_WEBHOOK_SECRET): string | null {
+  const m = ref && secret ? /^([A-Za-z0-9-]{1,64})_(\d{1,15})_([0-9a-f]{64})$/.exec(ref) : null;
+  if (!m || Number(m[2]) < now) return null;
+  const want = Buffer.from(refMac(secret!, `${m[1]}_${m[2]}`), "hex");
+  return timingSafeEqual(want, Buffer.from(m[3]!, "hex")) ? m[1]! : null;
+}
+
+/** Payment Link with the user attached (signed, RT-05) so the webhook can match them (docs/14 §2). */
 export function paymentLinkUrl(k: PriceKey, user: { id: string; email: string }): string {
   const u = new URL(links()[k]);
-  u.searchParams.set("client_reference_id", user.id);
+  const ref = clientRef(user.id);
+  if (ref) u.searchParams.set("client_reference_id", ref);
   if (user.email) u.searchParams.set("prefilled_email", user.email);
   return u.toString();
 }
@@ -67,6 +89,8 @@ export interface BillingDb {
   markSeen(eventId: string, type: string): Promise<void>;
   linkCustomer(userId: string, customerId: string): Promise<void>;
   userForCustomer(customerId: string): Promise<string | null>;
+  /** The user's linked Stripe customer and subscription status, if any. */
+  customerOf(userId: string): Promise<{ customer: string | null; status: string | null }>;
   emailFor(userId: string): Promise<string | null>;
   upsertSubscription(userId: string, row: SubscriptionRow): Promise<void>;
 }
@@ -99,13 +123,22 @@ async function applySubscription(db: BillingDb, sub: Stripe.Subscription, userHi
   await db.upsertSubscription(userId, row);
 }
 
-export async function handleEvent(event: Stripe.Event, db: BillingDb, stripe: Stripe | null): Promise<void> {
+export async function handleEvent(event: Stripe.Event, db: BillingDb, stripe: Stripe | null, secret?: string): Promise<void> {
   switch (event.type) {
     case "checkout.session.completed": {
       const s = event.data.object;
-      const userId = s.client_reference_id;
+      // Only a reference we signed for this user (RT-05): a Payment Link's id is a URL parameter anyone can edit.
+      const userId = verifyClientRef(s.client_reference_id, Date.now(), secret);
       const customer = idOf(s.customer);
-      if (!userId || !customer) return;   // not ours (no user attached)
+      if (!userId || !customer) {
+        if (s.client_reference_id) console.warn("[stripe] checkout with an unsigned or expired client_reference_id ignored", s.id);
+        return;   // not ours (no verified user attached)
+      }
+      const had = await db.customerOf(userId);
+      if (had.customer && had.customer !== customer && had.status && PAYING.has(had.status)) {
+        console.error("[stripe] refusing to re-link a user with another active customer", s.id);
+        return;
+      }
       await db.linkCustomer(userId, customer);
       const subId = idOf(s.subscription);
       if (subId && stripe) await applySubscription(db, await stripe.subscriptions.retrieve(subId), userId);
@@ -147,7 +180,7 @@ export async function handleWebhook(req: Request, db: BillingDb, stripe: Stripe 
   }
   if (await db.seen(event.id)) return Response.json({ received: true, duplicate: true });
   try {
-    await handleEvent(event, db, stripe);
+    await handleEvent(event, db, stripe, secret);
   } catch (e) {
     console.error("[stripe] webhook failed", event.type, event.id, e instanceof Error ? e.message : e);
     return Response.json({ error: "Retry" }, { status: 500 });
