@@ -47,7 +47,8 @@ export interface EventResponse {
 export type Msg =
   | { type: "event"; slug: string }
   | { type: "open"; slug: string; marketId: string | null }
-  | { type: "session" };
+  | { type: "session" }
+  | { type: "telemetry"; slug: string; markets: number };
 
 /** Sign-in from /ext/connect: short-lived token (chrome.storage.session), exp in ms. */
 export interface Auth { token: string; exp: number; tier: "free" | "pro" | "premium" }

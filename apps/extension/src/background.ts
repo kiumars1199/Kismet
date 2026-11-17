@@ -225,6 +225,13 @@ chrome.runtime.onMessage.addListener((msg: Msg | Record<string, unknown>, sender
     eventBySlug(m.slug).then(reply);
     return true; // async reply
   }
+  if (m.type === "telemetry") {
+    fetch(`${API}/api/ext/telemetry`, {
+      method: "POST", headers: { "content-type": "application/json" }, credentials: "omit",
+      body: JSON.stringify({ kind: "no_rows", slug: m.slug, markets: m.markets }),
+    }).catch(() => {});
+    return false;
+  }
   if (m.type === "session") {
     session().then((a) => reply(a ? { signedIn: true, tier: a.tier } : { signedIn: false, tier: null }));
     return true;

@@ -1,13 +1,14 @@
 // Content script: URL slug → background (API, 60 s cache) → badge next to each market label found on the page.
 // Reads no prices from the page. State lives here and in chrome.storage, never in page globals.
 import { badgeText, buildIndex, match, slugFrom, type Index } from "./match";
-import type { EventResponse, Msg } from "./types";
+import { API, type EventResponse, type Msg, type SessionInfo } from "./types";
 
 const TAG = "me-badge";
 const PILL = "me-pill";
 const PILL_AFTER = 6000; // ms after data arrives with no badge on screen
 let slug: string | null = null;
 let data: EventResponse | null = null;
+let locked = false; // not Premium: badges show a lock and link to pricing (docs/09 § Auth)
 let idx: Index | null = null;
 const mounted = new Map<string, HTMLElement>(); // market id → badge host
 let pill: HTMLElement | null = null;
@@ -26,17 +27,21 @@ button:hover { filter: brightness(1.2); }
 b { flex: none; display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 999px;
   background: #10b981; color: #04140d; font: 700 9px/1 "Space Grotesk", system-ui, sans-serif; letter-spacing: -0.02em; }`;
 
+const LOCK = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>`;
+
 function badge(text: string, positive: boolean, marketId: string | null, tag = TAG): HTMLElement {
   const host = document.createElement(tag);
   const root = host.attachShadow({ mode: "closed" });
-  root.innerHTML = `<style>${BADGE_CSS}${tag === PILL ? PILL_CSS : ""}</style><button class="${positive ? "pos" : ""}" title="MarketEdge: open details"><b>ME</b><span></span></button>`;
-  root.querySelector("span")!.textContent = text;
+  // Static markup only; every API string goes in via textContent (never HTML from the API).
+  root.innerHTML = `<style>${BADGE_CSS}${tag === PILL ? PILL_CSS : ""}</style><button class="${positive ? "pos" : ""}" title="${locked ? "MarketEdge Premium" : "MarketEdge: open details"}"><b>${locked ? LOCK : "ME"}</b><span></span></button>`;
+  root.querySelector("span")!.textContent = locked ? "MarketEdge Premium" : text;
   // Rows and headings are clickable on Polymarket: keep our clicks to ourselves.
   for (const ev of ["pointerdown", "mousedown", "mouseup"]) host.addEventListener(ev, (e) => e.stopPropagation());
   host.addEventListener("click", (e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (slug) send({ type: "open", slug, marketId });
+    if (locked) window.open(`${API}/pricing`, "_blank", "noopener");
+    else if (slug) send({ type: "open", slug, marketId });
   });
   return host;
 }
@@ -76,8 +81,8 @@ function checkPill() {
   const shown = [...mounted.values()].some((h) => h.isConnected && visible(h));
   if (shown) { pill?.remove(); pill = null; return; }
   if (pill?.isConnected) return;
-  // Selector breakage goes to the console only; /api/ext/telemetry comes with paid v1.
-  console.warn("[MarketEdge] no outcome rows matched", { slug, markets: data.markets.length });
+  // Selector breakage → /api/ext/telemetry (slug + count only) so a Polymarket markup change shows up fast.
+  send({ type: "telemetry", slug, markets: data.markets.length });
   const n = data.flags.length;
   pill = badge(n ? `MarketEdge: ${n} best bet${n > 1 ? "s" : ""} on this page` : "MarketEdge: no best bets on this page", n > 0, null, PILL);
   document.body.append(pill);
@@ -103,8 +108,9 @@ async function onUrl() {
   slug = s;
   reset();
   if (!s) return;
-  const d = await send<EventResponse | null>({ type: "event", slug: s });
+  const [d, who] = await Promise.all([send<EventResponse | null>({ type: "event", slug: s }), send<SessionInfo>({ type: "session" })]);
   if (s !== slug || !d?.markets?.length) return;
+  locked = who?.tier !== "premium";
   data = d;
   idx = buildIndex(d.markets);
   scan();
