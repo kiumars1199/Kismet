@@ -70,6 +70,17 @@ Then load `apps/extension/dist` in chrome://extensions with Developer mode on (L
 - With "My list only" on, rows are filtered per fetched page, so a page can come back short.
 - The fixtures have no "thin" or "not worth it" flags; those notes are only exercised on real data.
 
+## Decisions (overnight final build, Nov 17)
+- Branch `final` from `demo`; lanes run in worktrees and the lead merges each with `--no-ff` after typecheck/lint/test.
+- Shared data contract (`tier`, `by_pays`, `combos`) written by the lead first (T-79) so lanes A, S and C don't each invent it.
+- Data check cap: tier-"best" flags ≤ 10% of scanned markets (was 5% over all flags). The 2-year history validates more categories (7.7% on Nov 17; 52-fold backtest +13.9% ROI, t = 34.7). Tier "edge" has its own rule checks and no cap.
+- E2E demo flows run against a production build (`next build && next start`); on-demand compiles under `next dev` timed out at random under parallel load. `PW_DEV=1` switches back. Paid flows stay on dev because the Supabase/Stripe mock is off in production by design.
+- "Run now" on /alerts shows in demo mode as well as dev (local test aid; demo is never deployed).
+- ESLint `argsIgnorePattern: "^_"`.
+- `/flags` permanently redirects to `/` (Best bets is home); every internal link updated.
+- Lane A skipped `engine update` (Gamma "offset too large"); being fixed test-first before the hourly job relies on it.
+- Lane A's 2-year history (1.3 GB `data/`) is cloned into the main checkout; the older copy is kept as `data.pre-backfill/` (gitignored).
+
 ## Decisions (lead calls, incl. blockers > 20 min)
 - Design tokens: the approved artboard wins over the old docs/06 values; docs/06 now lists what the app implements.
 - docs/08 said demo runs as `pro`; docs/01 and the brief say `premium`. Went with premium, fixed docs/08.

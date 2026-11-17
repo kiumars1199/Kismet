@@ -15,7 +15,7 @@ async function signIn(page: Page, email: string) {
   await page.goto(url);
   await expect(page).toHaveURL(/\/onboarding/);   // first sign-in: onboarding, then Best bets
   await page.getByRole("button", { name: "Skip setup" }).click();
-  await expect(page).toHaveURL(/\/flags/);
+  await expect(page).toHaveURL(/:\d+\/(\?|$)/);
 }
 
 const rows = async (page: Page) => (await (await page.request.get("/api/markets?ps=200")).json()) as MarketsResponse;
