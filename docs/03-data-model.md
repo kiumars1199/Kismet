@@ -19,6 +19,7 @@ export interface ScanMeta {
   markets_scanned: number;
   flags: number;
   verdicts?: Record<Verdict, number>;
+  tiers?: { best: number; edge: number };   // docs/18 §2: flag count per tier; `flags` = best + edge
   rule: { min_edge: number; confidence_z: number; price_range: [number, number] };
 }
 
@@ -126,7 +127,12 @@ by_category, by_horizon, edge_buckets, folds[]` and `chosen_half_life_days`.
 Added by docs/18: `results[hl].by_pays[tier][band]` (tier `best|edge`; band `<1.5x, 1.5-2x, 2-3x, 3-5x, 5-10x, 10x+`;
 fields `flags, win_rate, predicted_win_rate, roi_pct, t_stat`), and top-level `combos["2"|"3"]` =
 `{combos, win_rate, predicted_win_rate, avg_pays, roi_pct, t_stat}` (random cross-event combos of tier-"best" bets
-that closed the same day).
+that closed the same day; Q = product of leg chances, price = product of all-in leg costs, ROI per $ staked).
+`by_pays` bands use pays = 1 / price at the snapshot; cost includes fee and half the live spread.
+Tier "edge" in the backtest = edge ≥ 2¢ after fee and spread, price ≥ `edge_tier.price_min` (0.03), model node
+neff ≥ `edge_tier.min_neff` (40), not tier "best" (no order book in history, so the live-book rule is scan-only).
+Also top-level `tested_bets` (every bet scored out of sample across all folds) and `folds` (52 weekly).
+`flags.json` holds both tiers, Best bets first; `ledger.jsonl` records tier "best" only.
 
 A zod schema mirrors these types; the data layer validates `meta` and a 1% sample of rows on load
 and logs (does not crash) on mismatch.

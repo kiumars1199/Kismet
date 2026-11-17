@@ -64,15 +64,98 @@ def score(b, mask, cost):
                 t_stat=round(clustered_t(pnl, b.ev[mask]), 2))
 
 
+PAYS_BANDS = [("<1.5x", 1.0, 1.5), ("1.5-2x", 1.5, 2.0), ("2-3x", 2.0, 3.0),
+              ("3-5x", 3.0, 5.0), ("5-10x", 5.0, 10.0), ("10x+", 10.0, float("inf"))]
+
+
+def pays_band(p):
+    """Payout band of a $1-payout share bought at price p (pays = 1 / p)."""
+    x = round(1.0 / p, 9)  # 1 / 0.1 must land in 10x+, not 9.999...
+    return next(name for name, lo, hi in PAYS_BANDS if lo <= x < hi)
+
+
+def node_neff(m, b):
+    """Effective sample size of the model node that answers each bet (nan if none)."""
+    out = np.full(b.n, np.nan)
+    combos = np.stack([b.h, b.cat, b.niche, b.mt], 1)
+    uniq, inv = np.unique(combos, axis=0, return_inverse=True)
+    inv = inv.ravel()
+    for i, (h, c, nc, t) in enumerate(uniq):
+        found = m.node_for(int(h), int(c), int(nc), int(t))
+        if found:
+            out[inv == i] = found[1]["neff"]
+    return out
+
+
+def edge_mask(cfg, b, q, neff, cost, best):
+    """Tier "edge" (docs/18 §2): edge after fee and spread >= min_edge at any payout,
+    lower price floor, model node with enough data; never a bet that is already tier "best".
+    (The live rule also needs an order book; history has none, so that part is scan-only.)"""
+    et = cfg.edge_tier or {}
+    ok = (b.p >= et.get("price_min", 0.03)) & (b.p < cfg.price_max) & ~np.isnan(q)
+    return ok & (q - cost >= cfg.flag_min_edge) & (np.nan_to_num(neff) >= et.get("min_neff", 40)) & ~best
+
+
+def by_pays(b, mask, cost, q):
+    """Record per payout band: the BacktestRecord fields plus predicted_win_rate (mean model q)."""
+    band = np.array([pays_band(p) for p in b.p]) if b.n else np.array([], str)
+    out = {}
+    for name, _, _ in PAYS_BANDS:
+        sel = mask & (band == name)
+        r = score(b, sel, cost)
+        if r["flags"]:
+            r["predicted_win_rate"] = round(float(q[sel].mean()), 4)
+        out[name] = r
+    return out
+
+
+def combo_backtest(y, q, cost, ts, ev, legs, per_day=20, seed=7):
+    """Random `legs`-leg combos of tier-"best" test bets that resolved the same UTC day,
+    one leg per event (same-event legs are correlated). Combo wins if every leg wins; its
+    price is the product of the legs' all-in costs, its predicted chance the product of q.
+    Deterministic for a given seed."""
+    rng = np.random.default_rng(seed)
+    day = np.floor(ts / DAY).astype(np.int64)
+    W, Q, C, D = [], [], [], []
+    for d in np.unique(day):
+        idx = np.where(day == d)[0]
+        events = {}
+        for i in idx:
+            events.setdefault(int(ev[i]), []).append(i)
+        keys = sorted(events)
+        if len(keys) < legs:
+            continue
+        seen = set()
+        for _ in range(per_day * 3):
+            if len(seen) >= per_day:
+                break
+            pick = tuple(sorted(int(rng.choice(events[k])) for k in rng.choice(keys, legs, replace=False)))
+            if pick in seen:
+                continue
+            seen.add(pick)
+            sel = list(pick)
+            W.append(float(np.prod(y[sel]))); Q.append(float(np.prod(q[sel])))
+            C.append(float(np.prod(cost[sel]))); D.append(int(d))
+    if not W:
+        return dict(combos=0)
+    W, Q, C, D = map(np.array, (W, Q, C, D))
+    pnl = W - C
+    _, dcode = np.unique(D, return_inverse=True)
+    return dict(combos=int(len(W)), win_rate=round(float(W.mean()), 4),
+                predicted_win_rate=round(float(Q.mean()), 4), avg_pays=round(float((1 / C).mean()), 2),
+                roi_pct=round(float(pnl.sum() / C.sum() * 100), 2),
+                t_stat=round(clustered_t(pnl, dcode.ravel()), 2))
+
+
 def run(cfg, b, half_lives=None, log=print):
     half_lives = half_lives if half_lives is not None else cfg.half_life_grid
     wf = cfg.walk_forward
     end = b.ts.max() - cfg.settle_days * DAY
     starts = [end - (i + 1) * wf["test_days"] * DAY for i in reversed(range(wf["folds"]))]
-    results = {}
+    results, combos, tested = {}, {}, 0
     for hl in half_lives:
         allm, allc, allmk, allmc, test_idx = [], [], [], [], []
-        allt, alltc, allq = [], [], []
+        allt, alltc, allq, alle = [], [], [], []
         fold_rows = []
         for s in starts:
             train = b.ts < s
@@ -86,6 +169,7 @@ def run(cfg, b, half_lives=None, log=print):
             mm, mcost = flag_mask(cfg, tb, q, lo, maker=True)
             tm, tcost = flag_mask(cfg, tb, q, lo, tight=True)
             allt.append(tm); alltc.append(tcost); allq.append(q)
+            alle.append(edge_mask(cfg, tb, q, node_neff(m, tb), cost, fm))
             fold_rows.append(dict(start=int(s), **score(tb, fm, cost)))
             allm.append(fm); allc.append(cost); allmk.append(mm); allmc.append(mcost)
             test_idx.append(np.where(test)[0])
@@ -93,10 +177,12 @@ def run(cfg, b, half_lives=None, log=print):
             continue
         idx = np.concatenate(test_idx)
         tb = b.take(idx)
+        tested = int(tb.n)
         fm, cost = np.concatenate(allm), np.concatenate(allc)
         mm, mcost = np.concatenate(allmk), np.concatenate(allmc)
         tm, tcost = np.concatenate(allt), np.concatenate(alltc)
         qq = np.concatenate(allq)
+        em = np.concatenate(alle)
         # do predicted edges come true? (used to show a realistic edge in the app)
         pe = qq - cost
         edge_buckets = []
@@ -120,11 +206,18 @@ def run(cfg, b, half_lives=None, log=print):
             taker_tight_spread=score(tb, tm, tcost), by_category_tight_spread=by_cat_tight,
             edge_buckets=edge_buckets,
             baseline_all_bets_taker=score(tb, base, cost), by_category=by_cat,
-            by_horizon=by_h, folds=fold_rows)
+            by_horizon=by_h, folds=fold_rows,
+            by_pays=dict(best=by_pays(tb, fm, cost, qq), edge=by_pays(tb, em, cost, qq)))
+        # combos of tier-"best" test bets only: every leg was predicted by a model fit before its fold
+        combos[str(hl)] = {str(k): combo_backtest(tb.y[fm], qq[fm], cost[fm], tb.ts[fm], tb.ev[fm], k)
+                           for k in (2, 3)}
         t = results[str(hl)]["taker"]
         log(f"half-life {hl}: taker flags={t.get('flags')} pnl={t.get('pnl_cents_per_share')}c "
             f"roi={t.get('roi_pct')}% t={t.get('t_stat')}")
-    return dict(test_days=wf["test_days"], folds=len(starts), results=results)
+    # tested_bets: every bet scored out of sample (all folds, any price); the same for each half-life
+    ran = max((len(r["folds"]) for r in results.values()), default=0)
+    return dict(test_days=wf["test_days"], folds=len(starts), folds_run=ran, results=results,
+                tested_bets=tested, combos_by_half_life=combos)
 
 
 def pick_half_life(bt, min_flags=300):

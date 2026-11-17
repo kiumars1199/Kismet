@@ -45,6 +45,15 @@ def fetch_open(cfg, log=print):
     return out
 
 
+def is_edge(cfg, r):
+    """Tier "edge" / "More bets with an edge" (docs/18 §2), before the order-book check:
+    edge after fee at the ask >= min_edge at any payout, lower price floor, and a model
+    node with enough effective samples. Not validated, no edge_low requirement."""
+    s, et = r["best"], cfg.edge_tier or {}
+    return (et.get("price_min", 0.03) <= s["mid"] < cfg.price_max and abs(s["mid"] - 0.5) >= 0.005
+            and s["edge"] >= cfg.flag_min_edge and s["model_neff"] >= et.get("min_neff", 40))
+
+
 def run(cfg, log=print):
     d = json.load(open(cfg.path("output", "model.json")))
     model = Model.from_json(cfg, d)
@@ -129,10 +138,19 @@ def run(cfg, log=print):
                 and (r["validated"] or not record))
 
     flags = [r for r in rows if is_flag(r)]
+    edge = [r for r in rows if not is_flag(r) and is_edge(cfg, r)]
     # check every flag against the live order book (ask vs mid, depth, capacity)
     from pipeline.common import FEE_RATE
     from .execution import enrich
-    enrich(cfg, flags, FEE_RATE, log)
+    enrich(cfg, flags + edge, FEE_RATE, log)
+    # tier "edge" also needs a live book; flags stay a superset-free list: each row has one tier
+    edge = [r for r in edge if r["execution"].get("book_ok")]
+    for r in flags:
+        r["tier"] = "best"
+    for r in edge:
+        r["tier"] = "edge"
+    best_flags = flags
+    flags = flags + edge
     # realistic edge: what flags with this predicted edge actually earned in the backtest
     buckets = []
     try:
@@ -148,10 +166,11 @@ def run(cfg, log=print):
             r["execution"]["warning"] = ("Edge looks too good: in testing, flags above 15c "
                                          "earned far less than predicted.")
     rank = {"worth it": 0, "thin": 1}
-    flags.sort(key=lambda r: (rank.get(r["execution"]["verdict"], 2),
+    flags.sort(key=lambda r: (r["tier"] != "best", rank.get(r["execution"]["verdict"], 2),
                               -(r["execution"].get("net_edge") or -1)))
     meta = dict(instance=cfg.instance, platform=cfg.platform, scanned_at=int(now),
                 model_half_life_days=model.hl, markets_scanned=len(rows), flags=len(flags),
+                tiers=dict(best=len(best_flags), edge=len(edge)),
                 verdicts={v: sum(1 for r in flags if r["execution"]["verdict"] == v)
                           for v in ("worth it", "thin", "not worth it", "no sellers", "no book")},
                 rule=dict(min_edge=cfg.flag_min_edge, confidence_z=cfg.flag_confidence_z,
@@ -159,14 +178,14 @@ def run(cfg, log=print):
     json.dump(dict(meta=meta, markets=rows), open(cfg.path("output", "markets.json"), "w"))
     json.dump(dict(meta=meta, flags=flags), open(cfg.path("output", "flags.json"), "w"), indent=1)
     from . import ledger
-    log(f"ledger: {ledger.append(cfg, flags, now)} new rows")
+    log(f"ledger: {ledger.append(cfg, best_flags, now)} new rows")  # track record = Best bets only
     # slug -> event index, so the extension can look up a Polymarket page by its URL slug
     events = {}
     for r in rows:
         ev = events.setdefault(r["slug"], dict(event_id=r["event_id"], event=r["event"],
                                                market_ids=[], flag_ids=[]))
         ev["market_ids"].append(r["id"])
-    for r in flags:
+    for r in best_flags:  # flag_ids = Best bets only (the extension badges these)
         events[r["slug"]]["flag_ids"].append(r["id"])
     json.dump(events, open(cfg.path("output", "events.json"), "w"))
     sp = {f"{k[0]}|{k[1]}": dict(n=len(v), median=round(float(np.median(v)), 4),

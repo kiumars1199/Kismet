@@ -14,6 +14,7 @@ export interface ScanMeta {
   markets_scanned: number;
   flags: number;
   verdicts?: Record<Verdict, number>;
+  tiers?: { best: number; edge: number };   // docs/18 §2: flag count per tier (flags = best + edge)
   rule: { min_edge: number; confidence_z: number; price_range: [number, number] };
 }
 

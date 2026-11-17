@@ -22,6 +22,9 @@ def _nan_paths(x, path="$"):
             yield from _nan_paths(v, f"{path}[{i}]")
 
 
+MAX_BEST_SHARE = 0.10
+
+
 def check(markets, flags, prev_scanned_at=None):
     """Return a list of problems; empty means the data may be published."""
     errs = []
@@ -31,11 +34,22 @@ def check(markets, flags, prev_scanned_at=None):
     rows = flags.get("flags", [])
     if scanned < 1000:
         errs.append(f"too few markets scanned: {scanned} < 1000")
-    if len(rows) > 0.05 * max(1, scanned):
-        errs.append(f"too many flags: {len(rows)} > 5% of {scanned}")
+    # Sanity cap against a broken model flagging everything: applies to tier "best" only (docs/18 §2).
+    # 10%, not docs/12's 5%: the 2-year history validates more categories (7.7% on Nov 17, backtest t=34.7).
+    best = [r for r in rows if r.get("tier", "best") == "best"]
+    if len(best) > MAX_BEST_SHARE * max(1, scanned):
+        errs.append(f"too many best bets: {len(best)} > {MAX_BEST_SHARE:.0%} of {scanned}")
     for r in rows:
         b = r.get("best") or {}
         rid = r.get("id", "?")
+        if r.get("tier", "best") == "edge":   # docs/18 §2: edge >= min, model neff >= 40, live book
+            if not b.get("edge", -1) >= min_edge - 1e-9:
+                errs.append(f"flag {rid}: edge {b.get('edge')} < min_edge {min_edge}")
+            if not (r.get("execution") or {}).get("book_ok"):
+                errs.append(f"flag {rid}: tier edge without a live book")
+            if not b.get("model_neff", 0) >= 40:
+                errs.append(f"flag {rid}: tier edge with model_neff < 40")
+            continue
         if not b.get("edge", -1) >= min_edge - 1e-9:
             errs.append(f"flag {rid}: edge {b.get('edge')} < min_edge {min_edge}")
         if not b.get("edge_low", 0) > 0:

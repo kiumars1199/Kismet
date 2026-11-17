@@ -106,3 +106,13 @@ def test_backtest_never_trains_on_fold_or_later(tmp_path, monkeypatch):
     ts = np.random.default_rng(1).uniform(0, 60 * DAY, n)
     backtest.run(cfg(tmp_path), synthetic(n, ts), half_lives=[None], log=lambda *a: None)
     assert len(seen) == 3
+
+
+def test_fit_skips_horizon_with_too_few_bets(tmp_path):
+    # early walk-forward folds (52 weekly) can hold a horizon with < 20 training bets
+    n = 2000
+    b = synthetic(n, np.zeros(n))
+    b.h = np.where(np.arange(n) < 5, 1, 24)
+    m = Model(cfg(tmp_path), b.vocab, None).fit(b, asof=0)
+    assert ("all", 24) in m.nodes and ("all", 1) not in m.nodes
+    assert m.predict(np.array([0.5]), 1, 0, 0, 0) is None

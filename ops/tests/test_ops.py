@@ -32,8 +32,13 @@ def test_checks_pass_and_fail():
     m4["markets"][0]["ask"] = float("nan")
     assert any("NaN" in e for e in checks.check(m4, f4))
     m5, f5 = good()
-    f5["flags"] = f5["flags"] * 101  # > 5% of 2000
-    assert any("too many flags" in e for e in checks.check(m5, f5))
+    f5["flags"] = f5["flags"] * 201  # > 10% of 2000 (MAX_BEST_SHARE)
+    assert any("too many best bets" in e for e in checks.check(m5, f5))
+    m6, f6 = good()   # tier "edge" rows don't count toward the cap
+    edge = {**f6["flags"][0], "tier": "edge", "best": {**f6["flags"][0]["best"], "model_neff": 50}}
+    edge["execution"] = {**edge["execution"], "book_ok": True}
+    f6["flags"] = f6["flags"] + [edge] * 300
+    assert checks.check(m6, f6) == []
 
 
 class Resp:
