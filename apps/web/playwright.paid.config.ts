@@ -7,7 +7,7 @@ const ORIGIN = `http://localhost:${PORT}`;
 export default defineConfig({
   testDir: "e2e-paid",
   workers: 1,
-  timeout: 60_000,
+  timeout: 120_000,   // a cold .next compiles every route on first hit
   use: { baseURL: ORIGIN },
   webServer: {
     command: `pnpm exec next dev -p ${PORT}`,

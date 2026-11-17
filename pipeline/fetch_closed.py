@@ -73,6 +73,26 @@ def _iso(ts):
     return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(ts))
 
 
+MAX_OFFSET = 2000  # Gamma rejects deeper offsets ("offset too large")
+
+
+def closed_events(tag, lo, hi, order="endDate"):
+    """Every closed event of `tag` with end date in [lo, hi]. Pages up to Gamma's offset
+    limit; a window with more events than that is split in half and each half fetched."""
+    out = []
+    for off in range(0, MAX_OFFSET + 1, 100):
+        evs = http("GET", f"{GAMMA}/events", params=dict(
+            limit=100, offset=off, closed="true", order=order, ascending="false",
+            end_date_min=_iso(lo), end_date_max=_iso(hi), tag_slug=tag))
+        out += evs or []
+        if len(evs or []) < 100:
+            return out
+    if hi - lo <= 60:  # cannot split further; keep what we have
+        return out
+    mid = (lo + hi) / 2
+    return closed_events(tag, mid, hi, order) + closed_events(tag, lo, mid, order)
+
+
 def windows(anchor, days, window_days):
     """(lo, hi) end-date windows from `anchor` back `days` days, newest first."""
     out, hi = [], anchor

@@ -56,3 +56,31 @@ def test_windowed_history_groups_fit_clob_limit(monkeypatch):
     for toks, s, e in got:
         assert e - s <= fetch_prices.WINDOW_S
     assert [g[0] for g in got] == [["0", "3", "6"], ["20"]]
+
+
+def test_update_never_requests_offset_past_gamma_limit(tmp_path, monkeypatch):
+    """Gamma rejects offset > 2000 ("offset too large"); a busy window must be split, not paged deeper."""
+    from engine import update
+    from engine.tests.test_engine import cfg
+    from pipeline.common import parse_ts
+
+    now = 100 * DAY
+    ends = [now - i * 600 for i in range(5000)]  # 5000 events in ~35 days, newest first
+
+    def fake(method, url, params=None, **kw):
+        if params["offset"] > 2000:
+            raise RuntimeError("422 offset too large, use /events/keyset for deeper pagination")
+        lo, hi = parse_ts(params["end_date_min"]), parse_ts(params["end_date_max"])
+        evs = [e for e in ends if lo <= e <= hi]
+        page = evs[params["offset"]:params["offset"] + params["limit"]]
+        return [dict(event(f"e{int(e)}", f"m{int(e)}", fetch_closed._iso(e)),
+                     markets=[dict(event("x", f"m{int(e)}", fetch_closed._iso(e))["markets"][0],
+                                   startDate="1970-01-02T00:00:00Z")]) for e in page]
+
+    monkeypatch.setattr(fetch_closed, "http", fake)
+    monkeypatch.setattr(update, "SAMPLE_TAGS", ["nba"])
+    monkeypatch.setattr(update.fetch_prices, "fetch_pending", lambda *a, **k: 0)
+    monkeypatch.setattr(update.time, "time", lambda: now)
+    c = cfg(tmp_path, data_dir=str(tmp_path), update_lookback_days=3)
+    want = sum(e >= now - 33 * DAY for e in ends)  # 30-day default + 3-day lookback
+    assert want > 2100 and update.run(c, log=lambda *a: None) == want
