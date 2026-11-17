@@ -113,6 +113,10 @@ def run(cfg, log=print):
                                and (rec["t"] or 0) >= 2)
                           for rec in (record.get(cat), hrecord.get(h))),
             liquidity=round(float(m.get("liquidityNum") or 0), 2), spread=round(ask - bid, 4),
+            volume_24h=(round(float(m["volume24hr"]), 2) if m.get("volume24hr") is not None else None),
+            created_at=(int(c_ts) if (c_ts := parse_ts(m.get("createdAt"))) else None),
+            # distance of the market mid from 50c; same for both sides (side 1 mid = 1 - side 0 mid)
+            competitive=round(abs(mid - 0.5), 4),
             sides=sides, best=best))
 
     def is_flag(r):

@@ -55,6 +55,9 @@ export interface Market {
   tags: string[];           // raw Polymarket tag slugs (used for sub-niche filters, see §2)
   hours_to_close: number; closes_at: number; horizon_h: 1 | 6 | 24 | 72 | 168;
   volume: number; liquidity: number; spread: number;
+  volume_24h: number | null;  // Gamma `volume24hr` (USD traded in the last 24 h); null if Gamma omits it
+  created_at: number | null;  // Gamma `createdAt` as unix seconds; null if missing/unparseable
+  competitive: number;        // abs(mid - 0.5) of the market mid; identical for both sides (side 1 mid = 1 - side 0 mid). 0 = coin flip
   validated: boolean;       // category AND horizon made money in the walk-forward test
   backtest: { flags: number; pnl_cents: number; t: number } | null;   // category record
   sides: Side[];
@@ -74,6 +77,8 @@ export interface Execution {
   stakes: StakeRow[];       // $25, $100, $500, $1000
   limit_price: number; limit_edge: number;
   verdict: Verdict; warning?: string;
+  ask_size?: number | null; // shares at the best ask of the best side's book (scan only, not part of check())
+  bid_size?: number | null; // shares at the best bid; null when that side of the book is empty or no book
 }
 export interface Flag extends Market { execution: Execution }
 ```
