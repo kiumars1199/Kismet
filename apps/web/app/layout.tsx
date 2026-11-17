@@ -11,6 +11,7 @@ import { Shortcuts } from "@/components/keyboard/Shortcuts";
 import { AuthBoot } from "@/components/auth/AuthBoot";
 import { siteUrl } from "@/lib/site";
 import { TicketHost } from "@/components/trade/TradeTicket";
+import { ComboTray } from "@/components/combo/ComboTray";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
@@ -43,6 +44,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Shortcuts />
         </Suspense>
         <TicketHost />
+        <ComboTray />
         <AlertRunner />
         <DisplayEffects />
         <AuthBoot />

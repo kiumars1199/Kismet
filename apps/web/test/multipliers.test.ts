@@ -1,5 +1,6 @@
 // docs/18 §2–3 against the fixtures: two tiers, Pays searches both, the 10x / 14% example lands in tier "edge".
 import { describe, expect, it } from "vitest";
+import { gateCombos, suggestCombos } from "@/lib/data/combos";
 import { getStore } from "@/lib/data/store";
 import { apply } from "@/lib/filters/apply";
 import { FilterState, type FilterInput } from "@/lib/filters/state";
@@ -8,6 +9,36 @@ import { parse, serialize } from "@/lib/filters/url";
 const LONG_SHOT = "9900010";   // fixture: 10¢, our chance 14%, edge +4 pts, tier "edge"
 const run = async (f: FilterInput) => apply(await getStore(), FilterState.parse({ view: "flags", group_by_event: false, page_size: 200, ...f }));
 const ids = (p: Awaited<ReturnType<typeof run>>) => p.rows.map((r) => r.market.id);
+
+describe("suggested combos", () => {
+  it("tier-best legs on different events closing within 24 h, Q_low beats the price, top 5 per size", async () => {
+    const store = await getStore();
+    const groups = suggestCombos(store);
+    expect(groups.map((g) => g.size)).toEqual([2, 3]);
+    for (const g of groups) {
+      expect(g.combos.length).toBeGreaterThan(0);
+      expect(g.combos.length).toBeLessThanOrEqual(5);
+      for (const c of g.combos) {
+        expect(c.items).toHaveLength(g.size);
+        expect(new Set(c.items.map((l) => l.event_id)).size).toBe(g.size);
+        expect(c.q_low).toBeGreaterThan(c.price);
+        for (const l of c.items) {
+          const m = store.flagsById.get(l.market_id)!;
+          expect(m.tier ?? "best").toBe("best");
+          expect(m.hours_to_close).toBeLessThanOrEqual(24);
+        }
+      }
+      expect(g.combos.map((c) => c.ret)).toEqual([...g.combos.map((c) => c.ret)].sort((a, b) => b - a));
+    }
+  });
+  it("hides a leg count that lost money in testing; Free gets bands", async () => {
+    const store = await getStore();
+    const losing = { ...store, backtest: { ...store.backtest, combos: { ...store.backtest.combos, "3": { combos: 50, roi_pct: -4 } } } };
+    expect(suggestCombos(losing).map((g) => g.size)).toEqual([2]);
+    const free = gateCombos(suggestCombos(store), "free");
+    expect(free.groups[0]!.combos[0]!.ret_range).toBeDefined();
+  });
+});
 
 describe("flag tiers", () => {
   it("default is tier best", async () => {
