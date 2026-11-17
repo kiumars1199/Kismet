@@ -2,6 +2,7 @@
 // alert run, and env-driven flags. Shows only "configured / not configured", never a key or URL.
 import { GET as health } from "@/app/api/health/route";
 import { day } from "@/components/admin/Stats";
+import { Count } from "@/components/kit";
 import { adminEmails } from "@/lib/admin/core";
 import { requireAdmin } from "@/lib/admin/server";
 import { DATA_SOURCE, DEMO_MODE } from "@/lib/config";
@@ -53,9 +54,9 @@ export default async function Page() {
         <Panel title="Data">
           <Item k="Last scan" v={store ? `${ago(store.meta.scanned_at)}` : "No data loaded"} tone={!store || h.data.stale ? "warn" : undefined} />
           <Item k="Source in use" v={store?.source ?? DATA_SOURCE} />
-          <Item k="Markets scanned" v={exactCount(store?.meta.markets_scanned)} />
-          <Item k="Best bets" v={exactCount(store?.meta.flags)} />
-          <Item k="Events" v={exactCount(store?.byEvent.size)} />
+          <Item k="Markets scanned" v={<Count n={store?.meta.markets_scanned} />} />
+          <Item k="Best bets" v={<Count n={store?.meta.flags} />} />
+          <Item k="Events" v={<Count n={store?.byEvent.size} />} />
         </Panel>
         <Panel title="Engine (chosen backtest)">
           <Item k="Average return (ROI)" v={rec.ret} />
