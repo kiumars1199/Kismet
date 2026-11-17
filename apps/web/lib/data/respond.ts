@@ -5,7 +5,7 @@ import { getMe, type Me } from "@/lib/auth/server";
 import { gateMarket, gateMarkets } from "./gate";
 import { categoryRecord, curve, segmentOf } from "./model";
 import { can, quota, type Tier } from "@/lib/entitlements";
-import { apply } from "@/lib/filters/apply";
+import { apply, nowFor, openOnly } from "@/lib/filters/apply";
 import { parse } from "@/lib/filters/url";
 import { RELAX_STEPS, relax, relaxedNote, type ParsedQuery } from "@/lib/search/parse";
 import { BEST_BETS_VERDICTS, type FilterState } from "@/lib/filters/state";
@@ -79,9 +79,11 @@ const byRoi = (a: StoreMarket, b: StoreMarket) => b.best.roi_pct - a.best.roi_pc
 /** First `quota(tier, "rows")` items (Free: 25 rows per request, docs/08). */
 const capRows = <T,>(list: T[], tier: Tier) => list.slice(0, quota(tier, "rows"));
 
-export function eventBody(store: Store, markets: StoreMarket[], tier: Tier = "premium"): EventResponse {
-  const sorted = [...markets].sort(byRoi);
+/** Open markets of one event; null once every one has closed (routes answer 404). */
+export function eventBody(store: Store, markets: StoreMarket[], tier: Tier = "premium"): EventResponse | null {
+  const sorted = openOnly(markets, nowFor(store)).sort(byRoi);
   const m = sorted[0];
+  if (!m) return null;
   return {
     event_id: m.event_id, event: m.event, slug: m.slug,
     markets: capRows(sorted, tier).map((x) => gateMarket(x, tier)),
@@ -97,7 +99,7 @@ export function marketBody(store: Store, m: StoreMarket, tier: Tier, shown: Tier
     segment,
     curve: curve(store.model, segment, m.horizon_h),
     backtest: categoryRecord(store.backtest, m.category),
-    event_markets: capRows((store.byEvent.get(m.event_id) ?? []).filter((x) => x.id !== m.id), tier).map((x) => gateMarket(x, tier)),
+    event_markets: capRows(openOnly(store.byEvent.get(m.event_id) ?? [], nowFor(store)).filter((x) => x.id !== m.id), tier).map((x) => gateMarket(x, tier)),
   };
 }
 

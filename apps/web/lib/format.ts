@@ -92,6 +92,11 @@ export function closesIn(closesAt: number | null | undefined, now = Date.now()):
   if (h < 48) return `${Math.round(h)}h`;
   return `${Math.round(h / 24)} days`;
 }
+/** "closes in 45m" for an open market, "Closed" once closes_at has passed: never "closes in closed". */
+export function closesLine(closesAt: number | null | undefined, now = Date.now(), cap = false): string {
+  if (ok(closesAt) && closesAt * 1000 <= now) return "Closed";
+  return `${cap ? "Closes" : "closes"} in ${closesIn(closesAt, now)}`;
+}
 /** "12 min ago" from unix seconds */
 export function ago(unixSec: number | null | undefined, now = Date.now()): string {
   if (!ok(unixSec)) return DASH;

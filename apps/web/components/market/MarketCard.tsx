@@ -4,7 +4,7 @@
 // ("Pays 10x · wins about 1 in 7", docs/18 §6), the price line, and the return on the right, smaller.
 // The question link covers the card (opens the drawer); star and alert sit above it.
 import type { ApiRow } from "@/lib/api";
-import { basis, cardReturn, closesIn, gameTime, pays, PAYS_HELP, price, sideEdge, sidePts, winsAbout } from "@/lib/format";
+import { basis, cardReturn, closesLine, gameTime, pays, PAYS_HELP, price, sideEdge, sidePts, winsAbout } from "@/lib/format";
 import { WatchStar } from "@/components/watch/WatchStar";
 import { VenueIconLink } from "@/components/trade/TradeButton";
 import { drawerHref, useOpenDrawer } from "./DrawerHost";
@@ -21,7 +21,7 @@ export function MarketCard({ r, pro = false, notes = true }: { r: ApiRow; pro?: 
     <div data-row data-market-id={m.id} data-tier={m.tier ?? undefined} className="relative flex gap-3 rounded-inner border border-border bg-surface p-3.5 hover:border-accent-border focus-within:border-accent-border">
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted">
-          <span title={`Closes in ${closesIn(m.closes_at)}`}>{topicLabel(m)} · <span className="whitespace-nowrap">{gameTime(m.closes_at)}</span></span>
+          <span title={closesLine(m.closes_at, undefined, true)}>{topicLabel(m)} · <span className="whitespace-nowrap">{gameTime(m.closes_at)}</span></span>
           {edgeTier && <LowerConfidence className="py-0" />}
         </div>
         <a

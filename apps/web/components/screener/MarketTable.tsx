@@ -9,7 +9,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { ApiGroup, ApiRow } from "@/lib/api";
 import type { SortKey } from "@/lib/filters/state";
 import type { FilterState } from "@/lib/filters/state";
-import { basis, chance, closesIn, DASH, edge, money, pays, PAYS_HELP, pct, price, RETURN_HELP, sideRet, sideEdge, formatCount } from "@/lib/format";
+import { basis, chance, closesIn, closesLine, DASH, edge, money, pays, PAYS_HELP, pct, price, RETURN_HELP, sideRet, sideEdge, formatCount } from "@/lib/format";
 import { WatchStar } from "@/components/watch/WatchStar";
 import { drawerHref, useOpenDrawer } from "@/components/market/DrawerHost";
 import { AlertLink, Notes, Val } from "@/components/market/bits";
@@ -189,7 +189,7 @@ export function MarketTable({ items, sort, onSort, onToggleGroup, pro = false, l
                   <td colSpan={visible.length} className="px-3 pb-1.5 pt-4">
                     <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                       <Link href={`/event/${it.g.event_id}`} className="font-heading text-[15px] font-semibold hover:text-accent-hover">{it.g.event}</Link>
-                      <span className="text-xs text-muted">Closes in {closesIn(it.g.closes_at)}</span>
+                      <span className="text-xs text-muted">{closesLine(it.g.closes_at, undefined, true)}</span>
                       {it.g.flagged > 0 && <span className="text-xs text-accent-softer">{it.g.flagged} best {it.g.flagged === 1 ? "bet" : "bets"}</span>}
                     </div>
                   </td>

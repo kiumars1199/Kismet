@@ -9,7 +9,7 @@
 import { useRef } from "react";
 import type { ApiRow } from "@/lib/api";
 import { useEntitlements } from "@/lib/entitlements";
-import { REALISTIC_HELP, RETURN_HELP, basis, cardReturn, chance, closesIn, gameTime, pays, PAYS_HELP, price, sideEdge, sidePts, winsAbout } from "@/lib/format";
+import { REALISTIC_HELP, RETURN_HELP, basis, cardReturn, chance, closesLine, gameTime, pays, PAYS_HELP, price, sideEdge, sidePts, winsAbout } from "@/lib/format";
 import { WatchStar } from "@/components/watch/WatchStar";
 import { VenueIconLink } from "@/components/trade/TradeButton";
 import { drawerHref, useOpenDrawer } from "./DrawerHost";
@@ -56,7 +56,7 @@ export function BetCard({ r, pro = false }: { r: ApiRow; pro?: boolean }) {
             {m.question}
           </a>
         </h3>
-        <p className="mt-1 text-xs text-muted" title={`Closes in ${closesIn(m.closes_at)}`}>{gameTime(m.closes_at)} · closes in {closesIn(m.closes_at)}</p>
+        <p className="mt-1 text-xs text-muted" title={closesLine(m.closes_at, undefined, true)}>{gameTime(m.closes_at)} · {closesLine(m.closes_at)}</p>
       </div>
       <div>
         <p data-testid="one-bet" className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5" title={basis(m, s)}>

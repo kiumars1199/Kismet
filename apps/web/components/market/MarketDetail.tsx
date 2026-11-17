@@ -6,7 +6,7 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { fetchBook, fetchMarket, type BookResponse, type MarketResponse } from "@/lib/api";
-import { ago, basis, chance, closesIn, gameTime, edge, money, pays, PAYS_HELP, pct, price, realisticReturn, ret, RETURN_HELP, sideProfit, sideRet, sideEdge, sidePts, formatCount, LONG_SHOT_LINE, winsAbout } from "@/lib/format";
+import { ago, basis, chance, closesLine, gameTime, edge, money, pays, PAYS_HELP, pct, price, realisticReturn, ret, RETURN_HELP, sideProfit, sideRet, sideEdge, sidePts, formatCount, LONG_SHOT_LINE, winsAbout } from "@/lib/format";
 import { useProfile } from "@/lib/repo/hooks";
 import type { Execution, Side, StoreMarket } from "@/lib/types";
 import { WatchStar } from "@/components/watch/WatchStar";
@@ -133,7 +133,7 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
       onClose={onClose}
       title={
         <div>
-          <div className="text-xs text-muted">{topicLabel(m)} · <span title={new Date(m.closes_at * 1000).toLocaleString()}>{gameTime(m.closes_at)}</span> · closes in {closesIn(m.closes_at)}</div>
+          <div className="text-xs text-muted">{topicLabel(m)} · <span title={new Date(m.closes_at * 1000).toLocaleString()}>{gameTime(m.closes_at)}</span> · {closesLine(m.closes_at)}</div>
           <H className="mt-1.5 text-[22px] font-semibold leading-tight">{m.question}</H>
           {m.event !== m.question && <Link href={`/event/${m.event_id}`} className="mt-1 inline-block text-[13px] text-accent-hover hover:text-accent-soft">{m.event}</Link>}
         </div>

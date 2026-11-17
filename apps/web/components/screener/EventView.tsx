@@ -6,7 +6,7 @@ import { Bar, CartesianGrid, ComposedChart, Line, Tooltip, XAxis, YAxis } from "
 import type { EventResponse } from "@/lib/api";
 import { comparator } from "@/lib/filters/apply";
 import type { FilterState } from "@/lib/filters/state";
-import { closesIn, pct } from "@/lib/format";
+import { closesLine, pct } from "@/lib/format";
 import { useProfile } from "@/lib/repo/hooks";
 import { MarketCard } from "@/components/market/MarketCard";
 import { MarketTable } from "./MarketTable";
@@ -59,7 +59,7 @@ export function EventView({ ev }: { ev: EventResponse }) {
   return (
     <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-5">
       <header>
-        {first && <p className="text-xs text-muted">Closes in {closesIn(first.closes_at)}</p>}
+        {first && <p className="text-xs text-muted">{closesLine(first.closes_at, undefined, true)}</p>}
         <h1 className="mt-1 text-[28px] font-bold leading-tight tracking-tight md:text-[34px]">{ev.event}</h1>
         <p className="mt-1.5 text-sm text-muted">
           {flagged.size > 0

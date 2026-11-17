@@ -7,6 +7,6 @@ export default defineConfig({
     environment: "node",
     include: ["**/*.test.{ts,tsx}"],
     exclude: ["node_modules/**", "e2e/**", ".next/**"],
-    env: { DATA_DIR: "test/fixtures", DATA_SOURCE: "local" },
+    env: { DATA_DIR: "test/fixtures", DATA_SOURCE: "local", DATA_CLOCK: "scan" },
   },
 });

@@ -14,7 +14,7 @@ export default defineConfig({
     port: PORT,
     reuseExistingServer: false,
     env: {
-      DATA_DIR: "test/fixtures", DATA_SOURCE: "local", DEMO_MODE: "false", NEXT_PUBLIC_DEMO_MODE: "false", E2E_MOCK: "1",
+      DATA_DIR: "test/fixtures", DATA_SOURCE: "local", DATA_CLOCK: "scan", DEMO_MODE: "false", NEXT_PUBLIC_DEMO_MODE: "false", E2E_MOCK: "1",
       NEXT_PUBLIC_SITE_URL: ORIGIN,
       NEXT_PUBLIC_SUPABASE_URL: `${ORIGIN}/e2e-mock/supabase`, NEXT_PUBLIC_SUPABASE_ANON_KEY: "e2e-anon", SUPABASE_SERVICE_ROLE_KEY: "e2e-service",
       STRIPE_SECRET_KEY: "sk_test_e2e", STRIPE_WEBHOOK_SECRET: "whsec_e2e", STRIPE_API_BASE: ORIGIN,

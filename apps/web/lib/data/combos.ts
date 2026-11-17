@@ -5,6 +5,7 @@ import { combo, legOf, type Combo, type Leg } from "@/lib/combos";
 import { band } from "@/lib/data/gate";
 import { can, type Tier } from "@/lib/entitlements";
 import type { ComboBacktestRecord } from "@/lib/types";
+import { nowFor } from "@/lib/filters/apply";
 import type { Store } from "./store";
 
 export interface SuggestedCombo extends Combo { items: Leg[]; ret_range?: [number | null, number | null] }
@@ -21,13 +22,15 @@ function* choose<T>(xs: T[], k: number, start = 0, acc: T[] = []): Generator<T[]
 }
 
 export function suggestCombos(store: Store): ComboGroup[] {
+  const now = nowFor(store);
   const hit = cache.get(store);
-  if (hit) return hit;
+  // a leg that closed since the cache was built takes its combos with it (the cache lives as long as the store)
+  if (hit) return hit.map((g) => ({ ...g, combos: g.combos.filter((c) => c.items.every((l) => (store.byId.get(l.market_id)?.closes_at ?? 0) > now)) })).filter((g) => g.combos.length);
   // one leg per event (its best-return side), so every combo is across different events
   const perEvent = new Map<string, Leg & { roi: number }>();
   for (const m of store.flags) {
     const v = m.execution?.verdict;
-    if ((m.tier ?? "best") !== "best" || (v !== "worth it" && v !== "thin") || !(m.hours_to_close > 0 && m.hours_to_close <= 24)) continue;
+    if ((m.tier ?? "best") !== "best" || (v !== "worth it" && v !== "thin") || !(m.hours_to_close > 0 && m.hours_to_close <= 24) || m.closes_at <= now) continue;
     const s = m.best;
     const cur = perEvent.get(m.event_id);
     if (!cur || s.roi_pct > cur.roi) perEvent.set(m.event_id, { ...legOf(m, s), roi: s.roi_pct });

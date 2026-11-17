@@ -87,7 +87,7 @@ async function candidates(rule: AlertRule, d: Deps): Promise<Hit[]> {
   // market_price / edge_change: live book for the one token
   if (!rule.market_id || rule.threshold == null) return [];
   const m = await d.fetchMarket(rule.market_id);
-  if (!m) return [];
+  if (!m || m.closes_at * 1000 <= (d.now ?? new Date()).getTime()) return [];   // closed: no bet left to alert on
   const s = m.sides[rule.side_index ?? m.best.side_index] ?? m.best;
   const token = m.tokens[s.side_index];
   const x = token ? await d.fetchBook(token, s.win_prob, m.category) : null;

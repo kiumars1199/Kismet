@@ -9,7 +9,7 @@ import { gateMarket } from "@/lib/data/gate";
 import { getStoreFor } from "@/lib/data/store";
 import { apply } from "@/lib/filters/apply";
 import { FilterState } from "@/lib/filters/state";
-import { DASH, REALISTIC_HELP, RETURN_HELP, cardReturn, chance, closesIn, formatCount, pays, pct, price, winsAbout } from "@/lib/format";
+import { DASH, REALISTIC_HELP, RETURN_HELP, cardReturn, chance, closesLine, formatCount, pays, pct, price, winsAbout } from "@/lib/format";
 import { topicLabel } from "@/components/market/labels";
 import { tiles } from "@/lib/trackRecord";
 import type { Side, StoreMarket } from "@/lib/types";
@@ -137,7 +137,7 @@ function PreviewCard({ m, s }: { m: StoreMarket; s: Side }) {
       className="flex flex-col gap-3 rounded-card border border-border bg-surface p-4 transition-colors duration-200 ease-out hover:border-accent-border">
       <div className="flex items-center justify-between gap-2 text-xs text-muted">
         <span className="truncate rounded-full bg-muted-bg px-2.5 py-[3px]">{topicLabel(m)}</span>
-        <span className="flex-none">Closes in {closesIn(m.closes_at)}</span>
+        <span className="flex-none">{closesLine(m.closes_at, undefined, true)}</span>
       </div>
       <p className="line-clamp-3 min-h-[42px] text-base font-semibold leading-[1.3]">{m.question}</p>
       <div>
