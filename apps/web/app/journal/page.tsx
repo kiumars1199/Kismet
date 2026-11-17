@@ -1,6 +1,7 @@
 // Owner: Lane D2 (T-37).
 import { PageTitle } from "@/components/kit";
 import { JournalView } from "@/components/journal/JournalView";
+import { KalshiPanel } from "@/components/trade/KalshiPanel";
 
 export const metadata = { title: "My bets" };
 
@@ -9,6 +10,7 @@ export default function Page() {
     <div className="mx-auto flex max-w-7xl flex-col gap-6">
       <PageTitle title="My bets" sub="Bets you logged, settled automatically when Polymarket resolves them. Stored on this device only." />
       <JournalView />
+      <KalshiPanel />
     </div>
   );
 }
