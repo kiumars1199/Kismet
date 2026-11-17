@@ -52,9 +52,8 @@ function scan() {
     const el = n.parentElement;
     if (!el || seen.has(el) || !n.textContent?.trim()) continue;
     seen.add(el);
-    if (el.closest(TAG) || el.closest("script,style,textarea,[contenteditable]") || !visible(el)) continue;
-    const hit = match(el.textContent ?? "", idx, used);
-    if (!hit) continue;
+    const hit = match(el.textContent ?? "", idx, used); // cheap text test first, layout reads only on hits
+    if (!hit || el.closest(TAG) || el.closest("script,style,textarea,[contenteditable]") || !visible(el)) continue;
     // Sports headings sit in a tight row; put the badge under the heading row instead.
     const anchor = hit.heading ? (el.parentElement ?? el) : el;
     if (anchor.nextElementSibling?.localName === TAG) continue; // one badge per label
@@ -112,10 +111,10 @@ async function onUrl() {
   pillTimer = setTimeout(checkPill, PILL_AFTER);
 }
 
-// SPA: Polymarket swaps pages and renders late. One debounced observer covers navigation and re-renders.
+// SPA: Polymarket swaps pages and renders late. One throttled observer covers navigation and re-renders
+// (throttle, not debounce: live prices mutate the page nonstop and would starve a debounce).
 let timer: ReturnType<typeof setTimeout> | undefined;
 new MutationObserver(() => {
-  clearTimeout(timer);
-  timer = setTimeout(onUrl, 300);
+  timer ??= setTimeout(() => { timer = undefined; onUrl(); }, 300);
 }).observe(document.documentElement, { childList: true, subtree: true });
 onUrl();
