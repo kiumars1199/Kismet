@@ -32,14 +32,14 @@ export function ErrorState({ onRetry, what = "markets" }: { onRetry: () => void;
   );
 }
 
-export function EmptyState({ title, line, onReset }: { title: string; line: string; onReset?: () => void }) {
+export function EmptyState({ title, line, onReset, resetLabel = "Reset filters" }: { title: string; line: string; onReset?: () => void; resetLabel?: string }) {
   return (
     <div className="flex flex-col items-start gap-3 rounded-card border border-border bg-surface p-6">
       <p className="font-semibold">{title}</p>
       <p className="max-w-prose text-sm text-muted">{line}</p>
       {onReset && (
         <button type="button" onClick={onReset} className="min-h-11 rounded-input border border-accent-border bg-accent-bg px-4 text-accent-soft hover:border-accent">
-          Reset filters
+          {resetLabel}
         </button>
       )}
     </div>

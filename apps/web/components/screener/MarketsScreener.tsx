@@ -4,6 +4,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { fetchEvent, groupRows, type ApiGroup, type ApiRow } from "@/lib/api";
 import { pickSide, sideOk } from "@/lib/filters/apply";
+import { defaultState } from "@/lib/filters/state";
 import { ago } from "@/lib/format";
 import { useProfile } from "@/lib/repo/hooks";
 import { PresetBar } from "@/components/presets/PresetBar";
@@ -88,7 +89,8 @@ export function MarketsScreener() {
           <EmptyState
             title={state.q ? "No matches in open markets" : "No markets match these filters"}
             line={state.q ? `Nothing open matches “${state.q}” with the filters you have on. Clear the filters to search every open market.` : "Every open market is hidden by at least one filter. Remove a filter above, or start over."}
-            onReset={reset}
+            onReset={state.q ? () => set({ ...defaultState(), q: state.q }) : reset}
+            resetLabel={state.q ? "Clear filters, keep search" : undefined}
           />
         ) : (
           <>
