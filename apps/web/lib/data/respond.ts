@@ -1,6 +1,6 @@
 // Server helpers shared by the API routes.
 import { getStore, type Store } from "./store";
-import { apply } from "@/lib/filters/apply";
+import { apply, type UserCtx } from "@/lib/filters/apply";
 import type { FilterState } from "@/lib/filters/state";
 import type { EventResponse, MarketsResponse } from "@/lib/api";
 import type { StoreMarket } from "@/lib/types";
@@ -19,8 +19,15 @@ export async function withStore(fn: (store: Store) => Response | Promise<Respons
 
 export const notFound = (what: string, headers?: HeadersInit) => Response.json({ error: `${what} not found` }, { status: 404, headers });
 
-export function marketsPage(store: Store, f: FilterState): MarketsResponse {
-  const page = apply(store, f);
+/** UserCtx from `uw` (watchlist market ids) and `uf` (favorite topic ids): the API is stateless, the client sends them. */
+export function userCtx(p: URLSearchParams): UserCtx | undefined {
+  const list = (k: string) => (p.get(k) ?? "").split(",").filter(Boolean).slice(0, 2000);
+  if (!p.has("uw") && !p.has("uf")) return undefined;
+  return { watchlist: new Set(list("uw")), favoriteTopics: list("uf") };
+}
+
+export function marketsPage(store: Store, f: FilterState, user?: UserCtx): MarketsResponse {
+  const page = apply(store, f, user);
   let start = 0;
   const groups = page.groups?.map(({ rows, best: _best, ...g }) => {
     const out = { ...g, start, count: rows.length };
