@@ -62,6 +62,8 @@ export interface Market {
   backtest: { flags: number; pnl_cents: number; t: number } | null;   // category record
   sides: Side[];
   best: Side;               // the side with the higher edge
+  // T-02 (engine) adds these; absent today. Filters treat missing as "no value", never invent one.
+  volume_24h?: number; created_at?: number; competitive?: number; ask_size?: number; bid_size?: number;
 }
 
 export type Verdict = "worth it" | "thin" | "not worth it" | "no sellers" | "no book";
