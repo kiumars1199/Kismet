@@ -15,6 +15,10 @@
 | 11 | [Research](11-research.md) | Competitors, feature parity, sources |
 | 12 | [Test plan](12-test-plan.md) | Unit, e2e smoke flows, data checks, launch checklist |
 | 13 | [Search & filters v2](13-search-and-filters-v2.md) | Smart search, live suggestions, simple filters, Best bets home |
+| 14 | [Launch](14-launch.md) | Accounts, Stripe placeholders, legal pages, hosting, ops, pre-launch audit |
+| 15 | [Security](15-security.md) | Threat model and the security checklist |
+| 16 | [Calendar](16-calendar.md) | Calendar feed + add-to-calendar (no Google OAuth) |
+| 17 | [UI polish](17-ui-polish.md) | Fixes from screenshots + all-day usefulness |
 | — | [Agent prompts](AGENT_PROMPTS.md) | Copy-paste prompts for Claude Code, one per lane |
 
 Engine docs: the repo `README.md` (model, backtest, outputs).
