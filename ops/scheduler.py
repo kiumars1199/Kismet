@@ -64,10 +64,30 @@ def tick(last):
             return  # no history yet: nothing else can run
 
 
+ENGINE_UID = 10001
+
+
+def drop_root():
+    """Container start: give the mounted volume to the engine user, then never run as root again."""
+    if os.getuid() != 0:
+        return
+    for d in ("data", "output"):
+        p = os.path.join(ROOT, d)
+        os.makedirs(p, exist_ok=True)
+        for base, dirs, files in os.walk(p):
+            for name in [base, *(os.path.join(base, x) for x in dirs + files)]:
+                os.lchown(name, ENGINE_UID, ENGINE_UID)
+    os.setgroups([])
+    os.setgid(ENGINE_UID)
+    os.setuid(ENGINE_UID)
+    assert os.getuid() == ENGINE_UID and os.geteuid() == ENGINE_UID
+
+
 def main(argv=None):
     a = argparse.ArgumentParser(prog="ops/scheduler.py")
     a.add_argument("--once", action="store_true")
     once = a.parse_args(argv).once
+    drop_root()
     last = {}
     while True:
         start = time.time()

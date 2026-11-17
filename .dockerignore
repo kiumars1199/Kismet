@@ -1,0 +1,13 @@
+# Engine image needs only engine/, pipeline/, config/, ops/ (engine/Dockerfile).
+.git
+.github
+.claude
+.impeccable
+apps
+docs
+data
+output
+**/__pycache__
+**/*.pyc
+**/tests
+.env*
