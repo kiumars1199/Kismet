@@ -84,7 +84,7 @@ code=$(curl -sS -o "$tmp/out" -w '%{http_code}' -X POST "$URL/storage/v1/bucket"
 if [ "$code" = 200 ]; then echo "   created"
 elif grep -qiE 'already exists|duplicate|409' "$tmp/out"; then echo "   exists"
 else echo "   FAIL: create returned HTTP $code: $(cat "$tmp/out")" >&2; exit 1; fi
-code=$(curl -sS -o "$tmp/out" -w '%{http_code}' -X PUT "$URL/storage/v1/bucket/scan" -H @"$tmp/h" -d "$body")
+code=$(curl -sS -o "$tmp/out" -w '%{http_code}' -X PUT "$URL/storage/v1/bucket/scan" -H @"$tmp/h" -d '{"public":false,"file_size_limit":52428800}')
 [ "$code" = 200 ] || { echo "   FAIL: update returned HTTP $code: $(cat "$tmp/out")" >&2; exit 1; }
 curl -sS -o "$tmp/out" "$URL/storage/v1/bucket/scan" -H @"$tmp/h"
 if grep -qE '"public" *: *false' "$tmp/out"; then echo "   private: yes"; else echo "   FAIL: bucket scan is not private: $(cat "$tmp/out")" >&2; exit 1; fi

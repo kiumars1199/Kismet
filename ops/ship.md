@@ -146,7 +146,7 @@ such as no Sentry, or an extension that isn't published yet.
 ## 9. Vercel project and env (15 min)
 
 **By hand:** in Vercel, go to Add New → Project and import the repo. Set **Root Directory = `apps/web`**
-(the CLI can't set it). Don't deploy yet. Then:
+(the CLI can't set it). Skip the first deploy, or let it fail: the env isn't set yet. Then:
 
 ```bash
 cd apps/web && vercel login && vercel link && cd ../..
@@ -172,7 +172,7 @@ give it a public domain. The first run downloads the market history, which takes
 
 ## 12. Deploy and smoke test (10 min)
 
-Push to `main`, or run `cd apps/web && vercel deploy --prod`. Then:
+Push to `main` (Vercel deploys it), or click Redeploy on the latest deployment. Then:
 
 ```bash
 CRON_SECRET=<value from .env.prod> ops/smoke-prod.sh https://<domain>
@@ -210,7 +210,7 @@ Protection is on, the Vercel Firewall may challenge curl.
    node ops/vercel-env.mjs --yes
    ```
 
-3. Redeploy (`vercel deploy --prod`, or push).
+3. Redeploy: Vercel → Deployments → latest → Redeploy (env changes need a new deploy).
 4. **By hand:** make one real purchase, cancel it in the portal, and refund it in Stripe.
 
 Before you announce, let the data refresh run for 48 hours. The Railway logs and `refresh.yml` must both stay green.

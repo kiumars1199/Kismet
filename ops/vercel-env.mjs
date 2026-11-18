@@ -57,5 +57,5 @@ if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
     execFileSync("vercel", c.args, { cwd, input: c.value, stdio: ["pipe", "ignore", "inherit"] });
     console.log("ok");
   }
-  console.log("\nDone. Env changes apply on the next deploy: vercel deploy --prod (or push to main).");
+  console.log("\nDone. Env changes apply on the next deploy: push to main, or Vercel → Deployments → Redeploy.");
 }
