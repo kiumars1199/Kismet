@@ -50,7 +50,7 @@ export function MarketCard({ r, pro = false, notes = true }: { r: ApiRow; pro?: 
       <div className="flex flex-none flex-col items-end justify-between gap-1">
         <div className="text-right">
           <div className={`font-heading text-lg leading-tight ${returnTone(pro ? s.roi_pct : ret.roi)}`} title={ret.realistic ? "What similar past bets returned" : undefined}>{pro ? sideEdge(s) : ret.text}</div>
-          <div className="text-[11px] text-muted">{pro ? "edge" : ret.realistic ? "similar bets" : "expected"}</div>
+          <div className="text-[11px] text-muted">{pro ? "edge" : ret.realistic ? "similar bets" : "estimated"}</div>
         </div>
         <div className="relative z-10 -mb-2 -mr-2 flex">
           <WatchStar marketId={m.id} side={s.side_index} market={m} />

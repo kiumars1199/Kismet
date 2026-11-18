@@ -119,7 +119,7 @@ function Charts({ rows }: { rows: JournalEntry[] }) {
           <span className="font-semibold">Profit over time</span>
           <span className="flex gap-4 text-xs text-muted">
             <span className="flex items-center gap-1.5"><i className="inline-block h-0.5 w-4 bg-accent" />Actual</span>
-            <span className="flex items-center gap-1.5"><i className="inline-block h-0 w-4 border-t-2 border-dashed border-market-bar" />Expected at entry</span>
+            <span className="flex items-center gap-1.5"><i className="inline-block h-0 w-4 border-t-2 border-dashed border-market-bar" />Estimated at entry</span>
           </span>
         </figcaption>
         <div className="mt-3 h-56">
@@ -128,7 +128,7 @@ function Charts({ rows }: { rows: JournalEntry[] }) {
               <CartesianGrid stroke="var(--border)" vertical={false} />
               <XAxis dataKey="n" {...axis} tickFormatter={(n) => `#${n}`} />
               <YAxis {...axis} width={56} tickFormatter={(v: number) => money(v)} />
-              <Tooltip {...tip} labelFormatter={(n) => `After bet #${n}`} formatter={(v, k) => [money(Number(v), true), k === "pnl" ? "Actual" : "Expected"]} />
+              <Tooltip {...tip} labelFormatter={(n) => `After bet #${n}`} formatter={(v, k) => [money(Number(v), true), k === "pnl" ? "Actual" : "Estimated at entry"]} />
               <Line type="linear" dataKey="expected" stroke="var(--market-bar)" strokeDasharray="5 4" strokeWidth={2} dot={false} isAnimationActive={false} />
               <Line type="linear" dataKey="pnl" stroke="var(--accent)" strokeWidth={2.5} dot={series.length < 30} isAnimationActive={false} />
             </LineChart>

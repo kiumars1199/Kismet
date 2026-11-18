@@ -29,6 +29,21 @@ describe("no expected-profit or guarantee wording (audit fail 8)", () => {
     expect(hits).toEqual([]);
   });
 
+  it("catches the audit run 2 forms: bare label, figure + expected, Expected-return", () => {
+    for (const bad of [`: "expected"}`, `/>Expected at entry`, `"Actual" : "Expected"]`, `"+20–50% expected"`, "${ret(b.roi_pct)} expected`",
+      `description: "Expected-return and bet-sizing calculators"`])
+      expect(bad).toMatch(PROFIT_CLAIM);
+    for (const ok of [`dataKey="expected"`, `expectedReturn(p, q)`, `r.expected_profit_usd`, `"+14% estimated"`, "Estimated at entry"])
+      expect(ok).not.toMatch(PROFIT_CLAIM);
+  });
+
+  it("in every page's meta description", () => {
+    const pages = walk(path.join(root, "app")).filter((f) => /(page|layout)\.tsx$/.test(f));
+    const metas = pages.flatMap((f) => [...readFileSync(f, "utf8").matchAll(/description:\s*(["'`])((?:(?!\1).)*)\1/g)].map((m) => [f, m[2]!] as const));
+    expect(metas.length).toBeGreaterThan(5);
+    expect(metas.filter(([, d]) => /expect/i.test(d))).toEqual([]);
+  });
+
   it("in the /m/[id] OG image and meta description", () => {
     for (const f of ["app/m/[id]/opengraph-image.tsx", "app/m/[id]/page.tsx", "app/opengraph-image.tsx"]) {
       let src = "";
