@@ -1,9 +1,13 @@
 # MarketEdge setup
 
+**Shortest path: [`ops/ship.md`](ops/ship.md), the morning runbook. Scripts do every step that has a CLI or API.**
+
 This guide walks through every account to create and every value to paste, in order.
 Each step points to the detailed notes in `docs/setup-notes/`.
 Every key goes in the platform's env settings: Vercel for the web app, Railway or Fly for the engine.
-For local runs, put keys in `apps/web/.env.local`, which git ignores. Never put a key in a committed file.
+For local runs, put keys in `apps/web/.env.local`, which git ignores. Production values go in `apps/web/.env.prod`
+(also ignored, never loaded by Next.js). `node ops/secrets.mjs --yes` creates it, and `node ops/vercel-env.mjs --yes`
+pushes it to Vercel. Never put a key in a committed file.
 `apps/web/.env.example` lists every web variable, empty. `.env.example` at the repo root lists the engine's variables.
 
 ## 0. Run it locally (no accounts needed)
@@ -47,7 +51,8 @@ which takes about an hour.
 
 ## 2. Every value and where it goes
 
-**Vercel → Project → Settings → Environment Variables** (root directory `apps/web`):
+**Vercel → Project → Settings → Environment Variables** (root directory `apps/web`). Fill `apps/web/.env.prod`,
+check it with `cd apps/web && pnpm preflight`, then push it with `node ops/vercel-env.mjs --yes` (Production and Preview):
 
 | Variable | Value | From step |
 |---|---|---|
@@ -57,17 +62,17 @@ which takes about an hour.
 | `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase → Settings → API | 2 |
 | `SUPABASE_SERVICE_ROLE_KEY` | service_role key. Sensitive, server only | 2 |
 | `NEXT_PUBLIC_SITE_URL` | `https://<your domain>` | 5 |
-| `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` | Stripe → Developers | 4 |
-| `STRIPE_PRICE_PRO_MONTHLY` / `_PRO_YEARLY` / `_PREMIUM_MONTHLY` / `_PREMIUM_YEARLY` | price ids. Leave empty in Payment Links mode | 4 |
+| `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` | Stripe → Developers / written by `node ops/stripe-setup.mjs --yes` | 4 |
+| `STRIPE_PRICE_PRO_MONTHLY` / `_PRO_YEARLY` / `_PREMIUM_MONTHLY` / `_PREMIUM_YEARLY` | price ids, written by `node ops/stripe-setup.mjs --yes`. Leave empty in Payment Links mode | 4 |
 | `STRIPE_PORTAL_URL` | optional portal login link | 4 |
 | `RESEND_API_KEY` / `EMAIL_FROM` | Resend sending key / `MarketEdge <alerts@mail.<domain>>` | 6 |
-| `UNSUBSCRIBE_SECRET` | `openssl rand -hex 32` | — |
+| `UNSUBSCRIBE_SECRET` | `node ops/secrets.mjs --yes` | — |
 | `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` | Upstash REST URL and token | 7 |
 | `NEXT_PUBLIC_SENTRY_DSN` | Sentry DSN | 8 |
 | `NEXT_PUBLIC_POSTHOG_KEY` / `NEXT_PUBLIC_POSTHOG_HOST` | PostHog project key / host | 9 |
-| `CRON_SECRET` | `openssl rand -hex 32` | — |
+| `CRON_SECRET` | `node ops/secrets.mjs --yes` | — |
 | `HEALTH_MAX_DATA_AGE_MIN` | `30` (use `150` if only the GitHub fallback runs) | — |
-| `EXT_SIGNING_SECRET` | `openssl rand -base64 48`. Required outside demo mode | — |
+| `EXT_SIGNING_SECRET` | `node ops/secrets.mjs --yes`. Required outside demo mode | — |
 | `NEXT_PUBLIC_EXTENSION_ID` / `NEXT_PUBLIC_EXTENSION_STORE_URL` | Chrome Web Store id / listing URL | 13 |
 | `KALSHI_TRADING_ENV` | **leave empty in production.** `demo` turns on paper trading | 14 |
 | `TRADING_ALLOWLIST` | emails allowed to paper-trade when trading is on | 14 |
@@ -81,13 +86,16 @@ Leave these empty everywhere except tests: `E2E_MOCK`, `STRIPE_API_BASE`, `DATA_
 **`config/site.json`** (committed; nothing in it is secret): `domain`, `support_email`, `legal.*` (operator names,
 governing state, mailing address, refund policy, response time, last updated). If you use Payment Links, also fill
 `stripe.mode = "links"` and `stripe.paymentLinks.*`. Empty values show as `[[PLACEHOLDER]]` on the site.
+Fill and validate it in one command: `node ops/site-config.mjs --domain … --support-email … --yes` (`--help` lists the flags).
 
-**Supabase dashboard**: run `supabase/migrations/*.sql`. Set the Auth redirect URLs, the Google provider, and custom
-SMTP through Resend. Set the magic-link OTP expiry to 15 minutes and keep email rate limits on. Then run the
-Security Advisor (`lane-l.md`, `security.md`).
+**Supabase**: `ops/supabase-setup.sh <project-ref> --yes` links the project, applies `supabase/migrations/*.sql`, runs the
+RLS tests and creates the private `scan` bucket. It then prints the dashboard steps that have no CLI: Auth redirect
+URLs, the Google provider, custom SMTP through Resend, magic-link OTP expiry of 15 minutes, email rate limits on, and
+the Security Advisor (`lane-l.md`, `security.md`).
 
-**Stripe dashboard**: create the products and prices, the webhook endpoint `https://<domain>/api/stripe/webhook`
-(5 events), and the Customer Portal settings. Turn on a 7-day trial in Checkout (the app sends it).
+**Stripe**: `node ops/stripe-setup.mjs --yes` (add `--live` with a live key) creates the products and prices, the webhook
+endpoint `https://<domain>/api/stripe/webhook` (5 events), and the Customer Portal settings, and writes the price ids
+and webhook secret into `apps/web/.env.prod`. The 7-day trial needs no setting (the app sends it with each Checkout).
 
 ## 3. Domain and DNS
 
@@ -102,12 +110,13 @@ Security Advisor (`lane-l.md`, `security.md`).
 1. Push to `main`. Vercel builds `apps/web`, and Railway builds `engine/Dockerfile`.
 2. Vercel → Firewall: Bot Protection = Challenge, AI Bots = Deny, and OWASP if your plan has it, then Publish
    (`security.md`).
-3. Check each of these:
-   - `curl -s https://<domain>/api/health` returns 200 with `db: ok`, a supabase data source, and rate limiting on.
-   - `curl -I https://<domain>/` shows the CSP, HSTS, `X-Frame-Options` and `Referrer-Policy` headers.
-   - `curl -i https://<domain>/api/alerts/run` returns 401.
-   - A new sign-up lands on Free.
-   - Pricing opens Checkout.
+3. Check each of these. Run step 3 before turning on Bot Protection in step 2 if curl gets challenged:
+   - `CRON_SECRET=… ops/smoke-prod.sh https://<domain>` prints PASS for everything. It checks that `/api/health`
+     returns 200 with `db: ok`, a supabase data source and rate limiting on; the CSP, HSTS, `X-Frame-Options` and
+     `Referrer-Policy` headers; that the cron routes return 401; robots, sitemap and og:image; that `/admin` and
+     `/e2e-mock` return 404; and a 429 after a burst.
+   - By hand: a new sign-up lands on Free.
+   - By hand: Pricing opens Checkout.
 4. Add the uptime monitors (`ops.md` §9).
 
 ## 5. Roll back
