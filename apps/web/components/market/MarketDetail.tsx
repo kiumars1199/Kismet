@@ -285,19 +285,21 @@ function Actions({ m, s }: { m: StoreMarket; s: Side }) {
     } catch {}
   };
   // docs/17 fix 10: the venue button gets its own full-width row; the rest sit under it as one even row
-  const btn = "flex min-h-11 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-input border border-border bg-muted-bg px-3 text-[13px] text-text hover:border-accent-border";
+  const box = "items-center justify-center rounded-input border border-border bg-muted-bg text-text hover:border-accent-border";
+  const btn = `flex min-h-11 flex-1 gap-1.5 whitespace-nowrap px-3 text-[13px] ${box}`;
+  const icon = `flex size-11 flex-none ${box}`;   // no px-3: conflicting padding classes made the star box 70 px
   return (
     <div className="flex flex-col gap-2">
       <VenueLink m={m} className="flex min-h-11 w-full items-center justify-center whitespace-nowrap rounded-input bg-accent px-4 font-semibold text-on-accent hover:bg-accent-hover" />
       <div className="flex flex-wrap gap-2">
         <TradeButton m={m} s={s} className={btn} />
         <AddToCombo m={m} s={s} className={btn} />
-        <div className={`${btn} flex-none px-0`}><WatchStar marketId={m.id} side={s.side_index} market={m} /></div>
+        <div className={`flex flex-none ${box}`}><WatchStar marketId={m.id} side={s.side_index} market={m} /></div>
         <Link href={`/alerts?market=${m.id}&side=${s.side_index}`} className={btn}>
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg>
           Alert me
         </Link>
-        <button type="button" onClick={share} className={`${btn} flex-none px-0 size-11`} aria-label={copied ? "Link copied" : "Copy a link to share"} title={copied ? "Link copied" : "Copy a link to share"}>
+        <button type="button" onClick={share} className={icon} aria-label={copied ? "Link copied" : "Copy a link to share"} title={copied ? "Link copied" : "Copy a link to share"}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             {copied ? <path d="M5 12.5l4.5 4.5L19 7.5" /> : <><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1" /><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" /></>}
           </svg>
