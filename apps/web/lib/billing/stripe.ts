@@ -126,6 +126,18 @@ async function applySubscription(db: BillingDb, sub: Stripe.Subscription, userHi
   await db.upsertSubscription(userId, row);
 }
 
+/** Stripe doesn't deliver events in order: set the tier from the subscription as Stripe holds it now, not from the event.
+ *  A subscription Stripe no longer has (resource_missing) falls back to the event; any other error retries (500). */
+async function currentSubscription(stripe: Stripe | null, fromEvent: Stripe.Subscription): Promise<Stripe.Subscription> {
+  if (!stripe) return fromEvent;
+  try {
+    return await stripe.subscriptions.retrieve(fromEvent.id);
+  } catch (e) {
+    if ((e as { code?: string }).code === "resource_missing") return fromEvent;
+    throw e;
+  }
+}
+
 export async function handleEvent(event: Stripe.Event, db: BillingDb, stripe: Stripe | null, secret?: string): Promise<void> {
   switch (event.type) {
     case "checkout.session.completed": {
@@ -150,7 +162,7 @@ export async function handleEvent(event: Stripe.Event, db: BillingDb, stripe: St
     case "customer.subscription.created":
     case "customer.subscription.updated":
     case "customer.subscription.deleted":
-      return applySubscription(db, event.data.object);
+      return applySubscription(db, await currentSubscription(stripe, event.data.object));
     case "invoice.payment_failed": {
       const customer = idOf(event.data.object.customer);
       const userId = customer && (await db.userForCustomer(customer));

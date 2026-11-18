@@ -142,3 +142,30 @@ describe("tierFromPrice", () => {
     expect(tierFromPrice(null)).toBeNull();
   });
 });
+
+// Out-of-order events: Stripe doesn't guarantee delivery order, so an older "premium" event arriving after a newer
+// "pro" one used to leave the user on premium. Every subscription event now sets the tier from the subscription as
+// Stripe holds it now.
+describe("stripe webhook: tier from the current subscription", () => {
+  it("an older event delivered late can't overwrite the current plan", async () => {
+    const db = memDb();
+    const current = sub("active", { id: "price_pro_m" }, { metadata: { user_id: U } });
+    const retrieve = vi.fn(async () => current);
+    const stripe = { subscriptions: { retrieve } } as unknown as Stripe;
+    const newer = ev("evt_new", "customer.subscription.updated", current);
+    const older = ev("evt_old", "customer.subscription.updated", sub("active", { id: "price_prem_y" }, { metadata: { user_id: U } }));
+    expect((await handleWebhook(signed(newer), db, stripe, SECRET)).status).toBe(200);
+    expect((await handleWebhook(signed(older), db, stripe, SECRET)).status).toBe(200);
+    expect(db.subs.get(U)?.tier).toBe("pro");
+    expect(retrieve).toHaveBeenCalledWith("sub_1");
+  });
+
+  it("a deleted subscription Stripe no longer returns falls back to the event (ends the plan)", async () => {
+    const db = memDb();
+    const gone = Object.assign(new Error("No such subscription"), { code: "resource_missing" });
+    const stripe = { subscriptions: { retrieve: vi.fn(async () => { throw gone; }) } } as unknown as Stripe;
+    const deleted = ev("evt_del", "customer.subscription.deleted", sub("canceled", { id: "price_pro_m" }, { metadata: { user_id: U } }));
+    expect((await handleWebhook(signed(deleted), db, stripe, SECRET)).status).toBe(200);
+    expect(db.subs.get(U)?.tier).toBe("free");
+  });
+});
