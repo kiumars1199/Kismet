@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Faq, Plans } from "@/components/pricing/Plans";
 import { Tiles } from "@/components/results/Tiles";
 import { DEMO_MODE } from "@/lib/config";
+import { getSettings } from "@/lib/settings";
 import { chosenResult } from "@/lib/data/model";
 import { getTier } from "@/lib/auth/server";
 import { gateMarket } from "@/lib/data/gate";
@@ -114,7 +115,7 @@ export default async function Page() {
 
       <section aria-labelledby="plans-h" className="flex flex-col gap-6">
         <h2 id="plans-h" className="text-[28px] font-semibold tracking-[-0.01em]">Plans</h2>
-        <Plans demo={DEMO_MODE} />
+        <Plans demo={DEMO_MODE} delay={(await getSettings()).free_delay_min} />
         <Link href="/pricing" className="flex min-h-11 w-fit items-center text-accent-hover hover:underline">Compare every feature</Link>
       </section>
 

@@ -25,7 +25,7 @@ const QUOTAS: Record<Tier, Record<QuotaKey, number>> = {
   premium: { presets: Infinity, dashboards: Infinity, watchlist: Infinity, alert_rules: 100, flags_revealed: Infinity, rows: Infinity },
 };
 
-/** Free data is 15 minutes behind (docs/01). */
+/** Default Free delay (docs/01). The live value is site setting free_delay_min: read it with delayMin() (lib/settings-core). */
 export const DELAY_MIN: Record<Tier, number> = { free: 15, pro: 0, premium: 0 };
 
 const RANK: Record<Tier, number> = { free: 0, pro: 1, premium: 2 };

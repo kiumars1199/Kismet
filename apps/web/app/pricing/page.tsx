@@ -2,12 +2,13 @@
 import Link from "next/link";
 import { Faq, Plans } from "@/components/pricing/Plans";
 import { DEMO_MODE } from "@/lib/config";
+import { getSettings } from "@/lib/settings";
 import { tradingEnv } from "@/lib/trade/server";
 
 export const metadata = { title: "Pricing", description: "Free, Pro and Premium plans for MarketEdge. Start free; paid plans include a 7-day trial and cancel any time.", alternates: { canonical: "/pricing" } };
 
-const ROWS: [string, string, string, string][] = [
-  ["All open markets", "At least 15 minutes behind, top 25 rows", "Live, unlimited", "Live, unlimited"],
+const rows = (delay: number): [string, string, string, string][] => [
+  ["All open markets", `At least ${delay} minutes behind, top 25 rows`, "Live, unlimited", "Live, unlimited"],
   ["Estimated return on each bet", "As a range", "Exact", "Exact"],
   ["Best bets", "3 a day", "All", "All"],
   ["Filters", "Topic, sport, price", "All", "All"],
@@ -32,7 +33,8 @@ const PRICING_FAQ: { q: string; a: React.ReactNode }[] = [
   { q: "Who can use it?", a: "Adults 18 and over, where prediction markets are legal for them." },
 ];
 
-export default function Page() {
+export default async function Page() {
+  const delay = (await getSettings()).free_delay_min;   // Free delay from site settings, the one place it is set
   return (
     <article className="mx-auto flex max-w-6xl flex-col gap-14 pb-8">
       <header className="flex max-w-2xl flex-col gap-3">
@@ -43,7 +45,7 @@ export default function Page() {
         </p>
       </header>
 
-      <Plans demo={DEMO_MODE} />
+      <Plans demo={DEMO_MODE} delay={delay} />
 
       <section aria-labelledby="compare-h" className="flex flex-col gap-4">
         <h2 id="compare-h" className="text-2xl font-semibold">Compare plans</h2>
@@ -58,7 +60,7 @@ export default function Page() {
               </tr>
             </thead>
             <tbody>
-              {ROWS.map(([f, ...v]) => (
+              {rows(delay).map(([f, ...v]) => (
                 <tr key={f} className="border-t border-border">
                   <th scope="row" className="sticky left-0 bg-surface px-4 py-2.5 text-left font-normal text-soft max-sm:w-32 max-sm:px-3 max-sm:shadow-[1px_0_0_var(--border)]">{f}</th>
                   {v.map((x, i) => <td key={i} className={`px-4 py-2.5 ${x === "—" ? "text-muted" : ""}`} title={x === "—" ? "not included" : undefined}>{x}</td>)}

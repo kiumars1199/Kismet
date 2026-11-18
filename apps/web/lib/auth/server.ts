@@ -6,6 +6,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import { DEMO_MODE } from "@/lib/config";
 import { effectiveTier, type Tier } from "@/lib/entitlements";
+import { delayMin } from "@/lib/settings-core";
 
 const env = () => ({
   url: process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
@@ -17,10 +18,10 @@ const env = () => ({
 export const authEnabled = () => !DEMO_MODE && !!env().url && !!env().anon;
 /** What /login and /account say while accounts are off. "Everything is unlocked" is true only in demo mode;
  *  a production build without Supabase keys serves the Free plan (lib/entitlements.ts). */
-export const accountsOffNote = (demo = DEMO_MODE) =>
+export const accountsOffNote = (demo = DEMO_MODE, delay = delayMin("free")) =>
   demo
     ? "Accounts aren't switched on here. Everything is unlocked and saved in this browser."
-    : "Sign-in isn't available yet. You can browse on the Free plan: every open market, at least 15 minutes behind, top 25 rows, with returns shown as ranges.";
+    : `Sign-in isn't available yet. You can browse on the Free plan: every open market, at least ${delay} minutes behind, top 25 rows, with returns shown as ranges.`;
 /** The service-role client can be built (cron jobs). */
 export const adminEnabled = () => !!env().url && !!env().service;
 

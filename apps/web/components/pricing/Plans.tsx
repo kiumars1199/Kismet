@@ -9,7 +9,7 @@ import { track } from "@/lib/telemetry";
 
 export const PLANS = [
   { id: "free", name: "Free", monthly: 0, line: "See how it works.",
-    points: ["All open markets, at least 15 minutes behind, top 25 rows", "Estimated return shown as a range", "3 best bets a day", "Topic, sport and price filters", "1 saved view · 10 bets in My list", "Results and win-chance charts"] },
+    points: ["All open markets, at least {delay} minutes behind, top 25 rows", "Estimated return shown as a range", "3 best bets a day", "Topic, sport and price filters", "1 saved view · 10 bets in My list", "Results and win-chance charts"] },
   { id: "pro", name: "Pro", monthly: 19, line: "For people who bet every week.",
     points: ["Live prices, every market, no row limit", "Exact estimated return on every bet", "Every best bet, every filter", "Full price check: order book, stake table, how much you can bet", "Alerts by email and browser, 20 rules", "My bets with profit and closing-price tracking", "25 saved views · 3 dashboards · CSV export"] },
   { id: "premium", name: "Premium", monthly: 29, line: "Everything, plus the browser extension.",
@@ -18,7 +18,8 @@ export const PLANS = [
 
 const usd = (x: number) => `$${Number.isInteger(x) ? x : x.toFixed(2)}`;
 
-export function Plans({ demo }: { demo: boolean }) {
+/** `delay`: the Free plan delay in minutes, from site settings (free_delay_min). */
+export function Plans({ demo, delay }: { demo: boolean; delay: number }) {
   const [annual, setAnnual] = useState(false);
   const me = useMe();
   return (
@@ -53,7 +54,7 @@ export function Plans({ demo }: { demo: boolean }) {
                 {p.points.map((x) => (
                   <li key={x} className="flex gap-2">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2.4" className="mt-0.5 shrink-0" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
-                    {x}
+                    {x.replace("{delay}", String(delay))}
                   </li>
                 ))}
               </ul>
