@@ -296,6 +296,7 @@ Observation, not a spec fail: there is no event-ordering check in `lib/billing/s
 - **Emails** (rendered with a scratch vitest, screenshots `audit3-email-alert_html-600.png`, `audit3-email-signin_html-600.png` and `audit3-email-payfail_html-600.png`): the alert, sign-in and payment-failed templates all go through `layout()`. Each has the Unsubscribe link and the disclaimer, in both the HTML and the text part. The alert text reads "Yes at 68¢ · won 92% before · estimated return +33% · …".
 - **Banned words** (`words.py` over 17 rendered pages, plus a source grep):
   - "pick", "lock", "guaranteed", "sure thing" and "can't lose" do not appear in any shipped UI text.
+  - `/admin`: `words.py` runs logged out, where `/admin*` is a 404, so it does not cover the admin pages. The signed-in admin crawl (item 3) found the disclaimer on all 10 admin views (5 pages at 2 widths). Its token check covers placeholder text only, not the banned words. For those, `grep -rniE "\b(picks?|locks?|locked|guaranteed?|sure thing|can.?t lose|expected)\b" app/admin components/admin` finds 0 matches in the 10 admin source files.
   - The only hits are code identifiers and the negation on `/terms`: "We give no guarantee that any estimate is right…".
 - **Expected-profit wording, judged.** No rendered page contains "expected". These are the strings I judged:
   - "+14% avg return in testing" (home stats);
