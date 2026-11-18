@@ -1,300 +1,299 @@
-# MarketEdge final audit, run 1
+# Audit run 2
+
+MarketEdge final audit, second run.
 
 Auditor: an independent agent that built none of this code. It checked and fixed nothing.
-Target: branch `final` at `5b7d177` ("STATUS.md: final build state, flags, owner values, known issues").
+Target: branch `final` at `f8adde4` ("STATUS: red-team fix decisions, webhook retry kept"), checked out as `audit2`.
 Date: 2026-11-17.
 Spec: `docs/OVERNIGHT.md` §3, items 1–11.
 
 How the audit ran:
-- Every check ran on fresh clones of `origin/final` in a scratch directory, never in the working tree.
-- `clean/` was used for tests, e2e, the mock dev server and the extension zip.
-- `prod/` was used for `pnpm build` with `DEMO_MODE` unset and every key empty. `pnpm start` served it on port 3320.
-- The `E2E_MOCK=1` dev server ran on port 3330. It had paid features on and `KALSHI_TRADING_ENV=demo`.
-- No Supabase, Stripe or Kalshi account exists. Where the in-repo mocks fully cover a check, it is marked PASS, and the live step is listed under "Owner verification".
+- Every check ran on fresh `git archive origin/final` copies in a scratch directory, never in the working tree.
+- `clean/` was used for the tests, the e2e runs and the extension zip.
+- `prod/` was set up by following `SETUP.md` from scratch: a new Python venv, `pip install -r requirements.txt`, `python -m engine scan`, then `pnpm i --frozen-lockfile` and `pnpm build` with `DEMO_MODE` unset and every key empty. `pnpm exec next start -p 3820` served it.
+- `mock/` ran the `E2E_MOCK=1` dev server on port 3830, with `ADMIN_EMAILS=admin-audit@example.com`, `KALSHI_TRADING_ENV=demo` and the fresh `output/*.json` from `prod/`.
+- Seeded users (free, pro, premium, admin) were made through the mock magic link and the mock checkout, which sends a signed Stripe webhook. Their cookies were saved as Playwright storage states.
+- Only ports 3800–3899 were used. A red-team agent was running at the same time, so the machine was heavily loaded (load average up to 37). Where that affected a result, the section says so.
+- No Supabase, Stripe, Upstash, Vercel or Kalshi account exists. Where the in-repo mocks fully cover a check, it is marked PASS, and the live step is listed under "Owner verification".
+- Docs, STATUS.md, REDTEAM.md and commit messages were not taken as proof of anything. Every claim below was re-checked.
 
 ## Summary
 
 | # | Item | Result |
 |---|------|--------|
 | 1 | Tests | PASS |
-| 2 | Production build | **FAIL** |
-| 3 | Every page × every state | **FAIL** |
-| 4 | Quality | **FAIL** |
+| 2 | Production build | **FAIL** (fail 1) |
+| 3 | Every page × every state | PASS |
+| 4 | Quality | **FAIL** (fails 5 and 6) |
 | 5 | Data correctness | PASS |
-| 6 | Security | **FAIL** |
-| 7 | Multipliers and combos | **FAIL** |
+| 6 | Security | **FAIL** (fails 2 and 3) |
+| 7 | Multipliers and combos | PASS |
 | 8 | Trading safety | PASS |
 | 9 | Billing | PASS |
-| 10 | Legal and wording | **FAIL** |
-| 11 | Publication readiness | **FAIL** |
+| 10 | Legal and wording | **FAIL** (fail 4) |
+| 11 | Publication readiness | **FAIL** (fails 1 and 5) |
 
-There are 4 passes and 7 fails. The numbered "Fails to fix" list at the end gives file:line, the symptom and a repro for each fail.
+There are 6 passes and 5 fails. The numbered "Fails to fix" list at the end gives file:line, the symptom and a repro for each fail.
 
 ---
 
 ## 1. Tests: PASS
 
-- **Clean install.** Ran `pnpm i --frozen-lockfile` on a fresh clone of `final` in `apps/web` and `apps/extension`. Exit 0.
-- **pytest.** `pytest -q` gave `40 passed` (engine/tests and ops/tests).
-- **typecheck.** `pnpm typecheck` in apps/web exited 0.
-- **lint.** `pnpm lint` ran with `--max-warnings 0` and exited 0, with zero warnings.
-- **unit tests.** `pnpm test` (Vitest): 45 files, 281 tests passed.
-- **e2e.** Ran `PW_PORT=3310 pnpm e2e`. Results: 50 passed in the demo project, 3 passed in the paid project, exit 0.
-  - Specs covered: S1–S6, S7 (upgrade and account delete), S8 alerts ("Run now fires one alert, running again keeps one"), search, trading-paper, multipliers, headers and a11y.
-- **Extension.** In apps/extension, `pnpm test` gave 37 passed, and typecheck exited 0.
+- **Clean install.** `pnpm i --frozen-lockfile` on a fresh copy of `final`, in `apps/web` and `apps/extension`, exited 0.
+- **pytest.** `pytest -q` gave `40 passed in 0.90s`.
+- **typecheck.** `pnpm typecheck` in `apps/web` exited 0. In `apps/extension` it also exited 0.
+- **lint.** `pnpm lint` in `apps/web` runs with `--max-warnings 0`. It exited 0 with zero warnings. `apps/extension` has no lint script.
+- **Unit tests.** `pnpm test` in `apps/web` gave `Test Files 51 passed (51)`, `Tests 335 passed (335)`. In `apps/extension` it gave `Tests 42 passed (42)`.
+- **e2e, demo project** (`pnpm e2e`, which runs `next build && next start`, `PW_PORT=3810`): `52 passed (1.6m)`. This covers S1–S6, S8 ("Run now fires one alert…"), search, trading-paper, multipliers, the axe pass and the headers spec.
+- **e2e, paid project** (`E2E_MOCK=1`, `playwright.paid.config.ts`): the first run gave `5 passed, 1 failed`. The failure was "keyboard only: search → drawer → save → upgrade reaches /pricing". It timed out after 5 s waiting for the `Saved` locator, on a 13.5 s run. As the brief requires, I re-ran that test once alone (`PW_PORT=3811`). It passed in 35.6 s. I judge it a load-related flake, not a fail. The passing paid tests are admin (2 tests), paywall-pages, S7 upgrade and account delete.
+- The mock dev server printed a `SyntaxError` for `app/e2e-mock/[...path]/route.ts:175` during the paid run. That route is mock-only and returns 404 in the production build (see item 11).
 
 ## 2. Production build: FAIL
 
-- **PASS: build.** `pnpm build` succeeded with `DEMO_MODE` unset and every key empty (`prod/` clone, `logs/build.log`).
-- **PASS: app runs.** The app starts with `pnpm start -p 3320`.
-- **Not a crash: /api/health.** It returns 503 with `stale: true`. The bundled data is about 925 min old, and `db` and `ratelimit` are both "off". This is the expected response with no keys.
-- **PASS: free tier works.** Anonymous users get 25 rows with ranges instead of exact numbers.
-- **PASS: paid buttons.** /pricing shows "Coming soon" twice (Pro and Premium). Screenshot: `docs/screenshots/audit/anon-pricing-1440.png`.
-- **PASS: no dev banners.** Grepped the HTML of every page. There is no "Stripe not configured", no "Draft" and no demo banner.
-- **PASS: no crashes.** The 56-page crawl on the prod build had no 500s and no error overlays.
-- **FAIL: false copy in production.**
-  - `/login` and `/account` say "Accounts aren't switched on here. Everything is unlocked and saved in this browser."
-  - The text renders whenever `!authEnabled()`, and a production build with empty keys meets that condition.
-  - It is false: the same build caps free users at 25 banded rows. A visitor is told everything is unlocked, then sees locked data.
-  - This is leftover demo/dev copy. Screenshots: `docs/screenshots/audit/anon-login-1440.png` and `anon-account-390.png`.
+Passing parts:
+- `pnpm build` with `DEMO_MODE` unset and every key empty exited 0 (`BUILD_EXIT=0`).
+- `/pricing` shows "Coming soon" on both paid plan buttons. No dev or demo banner appears on any page.
+- `/login` says "Sign-in isn't available yet. You can browse on the Free plan…". "Everything is unlocked" does not appear (`curl -s localhost:3820/login | grep -c "Everything is unlocked"` gives 0). See `docs/screenshots/audit/audit2-login-1440.png`.
+- Once the newest scan was at least 15 minutes old, the free tier worked: 25 banded rows on `/`, `/markets`, every `/m/[id]` and `/event/[id]`.
 
-## 3. Every page × every state: FAIL
+The fail: **the app crashes for its first 15 minutes after a fresh scan.**
+- Steps: follow `SETUP.md` on a fresh copy, so `python -m engine scan` writes `output/markets.json` and `output/flags.json` but no `markets-prev.json` or `flags-prev.json`. Then `pnpm build && pnpm exec next start -p 3820`.
+- For the next 15 minutes:
+  - `/about`, `/m/[id]` and `/event/[id]` return HTTP 500 with the styled error page, "Reference: 2546934538" (`docs/screenshots/audit/audit2-fresh-scan-500-1440.png`).
+  - `/api/flags` and `/api/markets` return 503 "Data is temporarily unavailable".
+  - `/` and `/markets` render, but show "Couldn't load best bets." (`audit2-fresh-scan-home-1440.png`, `audit2-fresh-scan-markets-1440.png`).
+  - The server log says `[store] no markets-prev.json: Free tier can't be served the delayed scan`.
+- At about 18:23, when the scan turned 15 minutes old, every page recovered without a restart.
+- Cause: `apps/web/lib/data/store.ts:238` (`loadDelayed`) throws when the `-prev` files are missing, and `getStoreFor` (around line 252) passes the error into Server Components. Only `ops/upload.py` writes the `-prev` files, and `SETUP.md` does not run it.
+- The same thing happens after every local `engine scan`, so anyone following `SETUP.md` meets a broken app first.
 
-Method: `crawl.mjs` ran Playwright Chromium with CDP throttling (40 ms latency, 10 Mbit/s down).
-- It visited 28 routes at 390 and 1440 px, which is 56 page-views per state.
-- The routes were every static page, plus 3 `/m/[id]` and 3 `/event/[id]` pages taken from live data, plus `/no-such-page`.
-- For every internal `<a href>` found, it requested the link and checked for a 200.
-- It also recorded console messages and searched the visible text.
+## 3. Every page × every state: PASS
 
-| State | Server | Page-views | Links checked | Result |
+How it was checked:
+- `crawl.mjs` (Playwright, Chromium) visits 28 routes plus three `/m/[id]`, one `/event/[id]` and one `/?m=` drawer URL, at 390 and 1440 px. It applies light throttling through CDP (40 ms latency, 10 Mbit/s) and waits 2.2 s between pages so the deliberate rate limit is not hit.
+- On each page it records console errors and warnings, page errors, any visible `NaN`, `undefined`, `null` or `[object Object]`, whether the disclaimer is in the footer, horizontal scroll, 5xx and 429 responses, the text "closes in closed" and the text "Everything is unlocked". It then requests every internal link it found.
+- States: logged out on the production build (3820); free, pro, premium and admin on the mock server (3830), each with its own seeded storage state.
+
+Results:
+
+| State | Server | Page views | Links checked | Session check | Result |
+|---|---|---|---|---|---|
+| logged out | production build :3820 | 66 | 100, all 200 | n/a | clean |
+| free | mock :3830 | 66 | 101 | `tier=free` at start, after 390 and after 1440 | clean |
+| pro | mock :3830 | 66 | 139 | `tier=pro` at start, after 390 and after 1440 | clean |
+| premium | mock :3830 | 66 | 282 | `tier=premium` at start, after 390 and after 1440 | clean |
+| admin (`admin-audit@example.com`) | mock :3830 | 66 | 107, all 200 | signed in throughout | clean |
+
+- "Clean" means: 0 console errors or warnings, 0 page errors, 0 visible `NaN`/`undefined`/`null`/`[object Object]`, the disclaimer on every page, 0 horizontal scroll at 390 px, 0 responses with status 5xx, 0 responses with status 429, no "closes in closed" and no "Everything is unlocked". The only console lines were the expected "Failed to load resource: … 404" on `/no-such-page` and, for non-admins, on the `/admin*` pages.
+- Non-admins (logged out, free, pro, premium) got 404 on all five admin pages (`/admin`, `/admin/users`, `/admin/health`, `/admin/settings`, `/admin/audit`) at both widths: `grep -c '"st":404' logs/crawl-<tier>.log` gives 12 for each (5 routes × 2 widths plus `/no-such-page` × 2). See `audit2-admin-anon-404.png`.
+- The admin got 200 on all five admin pages at both widths, with "Signed in as admin-audit@example.com" (`audit2-admin-health-1440.png`).
+- Link-check errors that were load timeouts, not app errors, were each re-requested alone with the same session, and all returned 200: free `/alerts?market=6642655&side=0` (ECONNRESET); pro `/account`, `/event/1195475`, `/journal`, `/markets`, `/pricing`, `/privacy`, `/settings` (30 s timeouts); premium `/track-record` (30 s timeout).
+
+Static checks on the shipped code:
+- `grep -rnE "TODO|FIXME" apps/web/app apps/web/components apps/web/lib apps/extension/src`: 0 hits.
+- `grep -rn "console.log" apps/web/app apps/web/components apps/web/lib apps/extension/src`: 0 hits.
+- `grep -rni "lorem" apps/web apps/extension/src --exclude-dir=node_modules --exclude-dir=.next`: 0 hits.
+
+Notes on how the crawl evidence was gathered:
+- The first logged-out and free crawls ran inside the 15-minute window after a fresh scan and saw 500/503 on most pages. Those logs were set aside and the crawls re-run after the window. That outage is fail 1, judged under items 2 and 11.
+- The first paid crawls reused one saved storage state in two browser contexts. The mock Supabase rotated the refresh token, so the second context was signed out (`refresh_token_not_found` in the mock log). That is an artefact of the test harness, not the app. The crawler was changed to use one context per run, each tier was re-seeded right before its crawl, and `/api/me` was checked at the start and after each width (the "Session check" column).
+
+## 4. Quality: **FAIL**
+
+**Lighthouse** (12.8.2, mobile, default simulated throttling, Playwright's Chromium) on the production build:
+
+| Page | Run A | Run B | Run C | Run D |
 |---|---|---|---|---|
-| logged out | prod build :3320 | 56 | 124, all 200 | clean, except the expected 404 console line on `/no-such-page` |
-| free (seeded via mock magic link) | mock :3330 | 56 | 70, all 200 | clean, except the same expected 404 |
-| pro (mock checkout + signed webhook) | mock :3330 | 56 | 109, all 200 | clean, except the same expected 404 |
-| premium (mock checkout + signed webhook) | mock :3330 | 56 | 110, all 200 | clean, except the same expected 404 |
+| `/` | 72 / 100 / 96 / 91 | 90 / 100 / 96 / 91 | 87 / 100 / 96 / 100 | 91 / 100 / 96 / 91 |
+| `/about` | 92 / 100 / 96 / 91 | 92 / 100 / 96 / 91 | 91 / 100 / 96 / 91 | 86 / 100 / 96 / 91 |
+| `/pricing` | 94 / 100 / 96 / 91 | 86 / 100 / 96 / 91 | 92 / 100 / 96 / 91 | 89 / 100 / 96 / 91 |
 
-- **PASS: no NaN, undefined, null or "[object Object]" on screen.** Checked in every state.
-- **PASS: disclaimer.** It is in the footer of every page.
-- **PASS: no horizontal scroll at 390 px.**
-- **PASS: no lorem ipsum.** Ran `grep -rniE "lorem|ipsum"` over the shipped source: 0 hits.
-- **PASS: no TODO or FIXME.** Ran `grep -rnE "TODO|FIXME"` over `apps/web/{app,components,lib}` and `apps/extension/src`: 0 hits.
-- **PASS: no `console.log` in shipped code.** The only hit is `apps/extension/scripts/zip.mjs:16`, a build script that is not shipped.
-- **Note: dev-only console warnings.** "[Fast Refresh] performing full reload" appeared on the mock dev server. These come from dev mode and never ship.
-- **FAIL: cards show "closes in closed".**
-  - On the prod home page, Best-bets cards read "Tue 2:45 PM · closes in closed". Screenshot: `docs/screenshots/audit/anon-home-1440.png`.
-  - Cause: `/api/flags` still serves markets whose `closes_at` has passed (for example market 6674492, `closes_at` 1794944700), and `closesIn()` (`lib/format.ts:89`) returns the word "closed".
-  - The grammar breaks at `BetCard.tsx:59`, `MyList.tsx:78` and `MarketDetail.tsx:136`. A closed market is also still listed as a bet with an edge.
-  - It is not only stale data. Right after a fresh `python3 -m engine scan` (`scanned_at` 1794952529), `/api/flags` still returned 9 of 25 rows whose `closes_at` was already in the past.
+Scores are performance / accessibility / best practices / SEO.
+- Accessibility (100), best practices (96) and SEO (91–100) meet the bar on every run. The best-practices deduction is one "Content security policy" inspector issue. The SEO deduction is `meta-description`, which Lighthouse did not find even though the server HTML has it (Next 15 streams metadata), so it is a note, not a fail.
+- **Performance is not reliably at or above 90 (fail 6).** Every page scored 90 or more at least once, but each also scored below 90 (`/` 72 and 87, `/about` 86, `/pricing` 86 and 89). The only low audits were Total Blocking Time (300–420 ms) and Largest Contentful Paint (2.3–3.3 s), which are CPU-bound. The machine's load average was 11–37 during these runs and 33–54 afterwards, so an idle re-run was not possible in this session. I cannot show the threshold is met, so the item fails until an idle run confirms it.
 
-## 4. Quality: FAIL
+**axe.** The e2e a11y spec passed: zero serious or critical violations on 22 pages and on the open drawer.
 
-- **PASS: Lighthouse mobile.** Two runs per page on the prod build. Scores are performance / accessibility / best practices / SEO; reports are in the scratch `lh/*.json`.
-  - `/`: 94/100/96/100, then 96/100/96/91
-  - `/about`: 95/100/96/91, then 97/100/96/91
-  - `/pricing`: 91/100/96/91, then 94/100/96/91
-  - Every score is at least 90. Best practices and SEO lose points on "inspector issues" and the missing meta description.
-  - The runs overlapped with the crawl on the dev server. That can only lower scores, so the PASS stands.
-- **PASS: axe.** `e2e/a11y.spec.ts` asserts zero serious or critical violations (wcag2a, wcag2aa, wcag21a, wcag21aa). It covers 22 static pages, `/event`, `/m` and the open drawer, and it passed.
-- **PASS: reduced motion.** With `prefers-reduced-motion: reduce`, there were 0 running animations and 0 elements with an animation or transition longer than 11 ms (`kbd.mjs`).
-- **Keyboard-only walkthrough (search, drawer, save, upgrade).** The free user signed in through the mock magic link.
-  - PASS, search: the search box is reached in 8 Tabs, and focus is visible.
-  - PASS, search results: ArrowDown plus Enter opens the results.
-  - PASS, drawer: Enter on a market opens it.
-  - PASS, save: Save is reached in 5 Tabs. Enter shows "Saved", and the row appears in `/api/data` watchlist.
-  - PASS, checkout: on `/pricing`, "Start trial" is reached in 18 Tabs. Enter runs checkout, and the tier becomes `pro`.
-  - Screenshots: `docs/screenshots/audit/kbd-1-search.png` to `kbd-4-upgraded.png`.
-- **FAIL: drawer has no focus trap.**
-  - `DrawerHost.tsx:70` declares `role="dialog" aria-modal="true"`, but Tab moves out of the open drawer into the background page.
-  - Shown by the auditor's scratch scripts `kbd2.mjs`/`kbd3.mjs` on the prod build: the focused element was outside `[role=dialog]` while the drawer stayed visible.
-- **FAIL: focus not restored after Esc.**
-  - After the drawer closes with Esc, `document.activeElement` is `BODY`, not the card that opened it.
-  - The restore at `DrawerHost.tsx:50` (`prev?.focus?.()`) captures the wrong element when the drawer opens by URL or after re-renders.
-- **FAIL: no keyboard upgrade path from the product.**
-  - On `/`, the only `a[href="/pricing"]` sits inside a `display:none` dialog. The footer (`/about /terms /privacy /refunds /disclaimer /contact /status`) has no Pricing link, and the drawer has no upgrade link.
-  - A keyboard user can only reach the upgrade through "How it works", then `/about`, then "Compare every feature". Shown by the auditor's scratch scripts `kbd4.mjs` and `kbd5.mjs`, which Tab through `/` until focus wraps.
-- **Note: Esc once did not close the drawer.** On the mock run, Esc pressed while focus was on Save failed to close it. The same step worked on the prod build, so it is not counted as a fail.
-- **PASS: design review.** Screenshots at 390 and 1440 px were compared against `docs/design/project/Hybrid.dc.html` and `MobileHybrid.dc.html`. Cards, borders, spacing, emerald accent and truncation all match.
+**Keyboard-only walkthrough** (`kbd.mjs`, production build, logged out):
+- The search box is reached in 8 Tabs. Typing and Enter go to `/?q=…`.
+- A bet card is reached in 24 Tabs. Enter opens the drawer and puts focus inside it (`audit2-kbd-drawer.png`).
+- With the drawer open, 60 Tabs and 20 Shift+Tabs never moved focus outside the dialog (0 escapes).
+- Esc closes the drawer, and focus returns to the card that opened it.
+- The footer Pricing link is reached in 181 Tabs, and Enter goes to `/pricing` (`audit2-kbd-pricing.png`).
+- Logged out, there is no Save button. The signed-in save step is covered by the paid e2e test "keyboard only: search → drawer → save → upgrade reaches /pricing", which passed on its solo re-run (item 1).
+- A signed-in free keyboard run on the mock dev server could not be completed: under load, the drawer never got past its loading skeleton, so there was no Save button to reach. The Save step therefore rests on the paid e2e keyboard test above, which passed on its solo re-run.
+
+**Reduced motion.** With `prefers-reduced-motion: reduce` emulated, `document.getAnimations()` returned 0 running animations, and no element had an animation or transition longer than 0.01 s.
+
+**Design review.** I compared the production screenshots (`audit2-home-1440.png`, `audit2-home-390.png`, `audit2-pricing-390.png`, `audit2-kbd-drawer.png`, `audit2-fresh-scan-500-1440.png`) with `docs/design/project/Hybrid.dc.html`, `MobileHybrid.dc.html` and the reference shots in `docs/screenshots/`.
+- Alignment, spacing, borders and contrast match the chosen design: dark theme, emerald accent, rounded-xl cards with thin borders, consistent 16 px mobile gutters, and the same card anatomy (league chip, title, "Pays N.Nx", price line, estimated return, market-vs-won bars).
+- Truncation on mobile is acceptable: the search placeholder and the topics banner are clipped with an ellipsis, which is the intended single-line behaviour.
+- One truncation defect: the market OG image cuts the line "Similar bets won 95% of the time befo…" off at the right edge (`audit2-og-market.png`). That is listed as a fail under item 11.
 
 ## 5. Data correctness: PASS
 
-- **PASS: cards match the API.** `cards.mjs` compared the first 9 Best-bets cards on `/` with `/api/flags` (Pays, price in ¢, chance, ROI range): 0 mismatches.
-- **PASS: API matches the output files.** The values in `/api/flags` equal `output/markets.json` after free-tier banding.
-- **PASS: fees and returns.** `fees.py` sampled 20 bets from `output/flags.json` and recomputed fee, edge and ROI with `engine.scan.taker_fee` and `FEE_RATE`: 0 mismatches.
-- **PASS: freshness pill.** It reads "Updated 16 h ago · data may be stale", and `/api/meta` `scanned_at` gives an age of 949 min.
-- **PASS: free tier is capped on the server.**
-  - `probe.py` and `probe2.py` requested with `ps=200`, `page_size=1000`, `tier=pro` and an `x-tier: premium` header.
-  - Every request returned 25 rows with ranges instead of exact values.
-  - Market-detail, event and flags responses are banded, and `stakes` is `[]`.
-- **PASS: free tier is delayed on the server.** The 15-min delay (`lib/data/store.ts` `DELAY_MIN`) is enforced in the server and covered by `test/delay.test.ts`. It cannot be seen live because the bundled data is already more than 15 min old.
+- **Cards equal the API.** `cards.mjs` read all 25 cards on `/` (free) and compared each with the same page's `/api/flags` response: price, pays multiplier, chance and return band. 25 cards, 0 mismatches. Prices under 10¢ are shown to one decimal (for example "3.4¢"), and the script accepts that form.
+- **API equals `output/*.json`.** `probe.py` compared the 25 `/api/flags` rows with `output/flags.json` and `output/markets.json`: 0 mismatches. Every banded value contains the exact engine value.
+- **Fees and returns on 20 sampled bets.** `fees.py` recomputed the fee, edge and return for both sides of 20 sampled bets (40 sides) with the engine's own formulas from `engine/`. 0 mismatches.
+- **Freshness pill.** It read "Updated 8 min ago" when the scan was 7.5 minutes old.
+- **Free is capped on the server.** `/api/markets` and `/api/flags` returned 25 rows, with returns as bands, whatever was sent in `ps`, `page_size`, `tier`, an `x-tier` header or a forged tier cookie.
+- **Free is delayed on the server.** After a fresh scan, `/api/flags` returned 503 until the scan was 15 minutes old, and then served the previous scan. The delay is in the server response, not the client. (The 503 itself is fail 1.)
+- **Free execution data is banded.** The free row's execution block has bands and `stakes: []`.
+- **No closed markets.** After the restart, `curl -s localhost:3820/api/flags` returned 25 rows with 0 whose `closes_at` is in the past. `/api/markets?s=closes.asc` also had 0, and the soonest closed 70 s in the future.
 
 ## 6. Security: FAIL
 
-- **PASS: paid data as anonymous or free.** Covered by `probe.py` (item 5). No query parameter or header unlocks exact numbers.
-- **PASS: another user's rows with the anon key.** `test/rls.test.ts` runs the real migrations on pglite with the `anon` and `authenticated` roles, and cross-user reads and writes return nothing. A live check is under Owner verification.
-- **PASS: forged webhook.** `webhook.mjs` against the mock server:
-  - unsigned: 400
-  - wrong secret: 400
-  - timestamp 1 h old: 400
-- **PASS: replayed webhook.** A valid `customer.subscription.created` gives 200 and tier premium. Sending the same event id again gives `{"duplicate":true}`, and the tier is unchanged.
-- **PASS: rate limits.** They are off locally because Upstash is not configured. `test/ratelimit.test.ts` covers the limiter, and a live check is under Owner verification.
-- **PASS: AI crawlers.** GPTBot, ClaudeBot, CCBot, PerplexityBot and Google-Extended get 403.
-- **Owner verification: headless bots.** HeadlessChrome, python-requests and curl get 200 locally, because BotID only runs on Vercel.
-- **PASS: headers.** `curl -I` shows:
-  - CSP with a per-request nonce, `strict-dynamic` and `frame-ancestors 'none'`
-  - HSTS `max-age=63072000; includeSubDomains`
-  - `X-Frame-Options: DENY`
-  - Referrer-Policy and Permissions-Policy
-  - `X-Content-Type-Options: nosniff`
-- **PASS: pip-audit.** "No known vulnerabilities found".
-- **FAIL: `pnpm audit --prod` has a high.**
-  - In apps/web: **1 high**, picomatch 4.0.7 (GHSA-fc5q-39xc-vjpf), via `@sentry/nextjs > @sentry/cloudflare > vite > picomatch`; plus 2 moderate (glob, minimatch).
-  - apps/extension has the same high through vite.
-  - STATUS.md says there is no high, which is out of date.
-- **PASS: secrets in git history.** `secrets.py` is a gitleaks-equivalent regex scan of all 185 commits and 1002 blobs. The only hits are lockfile integrity hashes and the PEM header string in a form label and a test fixture, and only `.env.example` files were ever committed.
-- **PASS: client bundles.** `pnpm check:bundle` reports "101 files, no secrets". A manual grep of `.next/static` for `SERVICE_ROLE`, `sk_live`, `sk_test`, `whsec_` and `STRIPE_SECRET` found 0 hits.
-- **PASS: cookies.** Session cookies are HttpOnly and `SameSite=Lax`. Secure is off on http localhost, and the unit test asserts Secure in production.
+**Dependencies (the fail).**
+- `cd apps/web && pnpm audit --prod` and `cd apps/extension && pnpm audit` both report 1 high: picomatch ≤ 4.0.7, GHSA-fc5q-39xc-vjpf, "Patched versions: None", via `@sentry/nextjs > @sentry/cloudflare > vite > picomatch`. A full `pnpm audit` in `apps/web` reports 1 high and 1 moderate.
+- STATUS.md records this as a lead decision ("build-time only, no upstream fix"). The spec says "`pnpm audit` and `pip-audit` with no high/critical". It has no exception for build-time packages or for advisories without a patch. So item 6 fails on the spec as written. Removing the path (for example by dropping or pinning the Sentry Cloudflare integration, or with a pnpm override once a fix exists) would clear it.
+- `pip-audit -r requirements.txt`: "No known vulnerabilities found".
 
-## 7. Multipliers and combos: FAIL
+**Admin routes reveal themselves to non-admins (second fail).**
+- `/admin`, `/admin/users`, `/admin/health`, `/admin/settings` and `/admin/audit` return 404 to logged-out, free, pro and premium users (crawl rows above, `audit2-admin-anon-404.png`). `GET /api/admin/export` also returns 404.
+- But `GET /api/admin` returns **405** (logged out on the production build, and with the free cookie on the mock), and `POST /api/admin/export` returns **405**. A 405 tells a stranger the route exists. The brief says everyone who is not an admin gets a 404.
 
-- **PASS: 10x bet in tier 2.**
-  - The engine test `test_ten_x_long_shot_is_tier_edge` passes.
-  - The e2e multipliers spec also passes: a 10x bet with a 14% chance and +4 pts appears under "More bets with an edge".
-- **PASS: combo math.** A scratch Vitest file, not committed, checked hand-computed cases against `combo()` in `lib/combos.ts`. All 4 cases pass.
-  - Two legs on different events: ask 0.5, fee 0.0125, q 0.6, q_low 0.55; and ask 0.4, fee 0.012, q 0.5, q_low 0.45. Expected: price 0.21115, q 0.3, q_low 0.2475, pays 4.73597, ret 0.42079, `has_edge` true.
-  - Three identical legs (ask 0.8, fee 0.008, q 0.85, q_low 0.8): price 0.527514, q 0.614125, ret 0.164187, `has_edge` false.
-  - Two legs on the same event produce the warning `["Game X"]`.
-- **PASS: same-event warning.** It appears for legs from the same event. Covered by the e2e spec and checked by hand.
-- **PASS: losing combos hidden.** Suggested combos are hidden when the combo backtest ROI is at or below 0 (`lib/data/combos.ts:40`, `test/multipliers.test.ts`).
-- **PASS: `formatCount` never rounds up.** 9,999, 99,999, 999,999, 1,999,999, 10,000, 1,484,104 and 1,738,882 give 9.9K, 99K, 999K, 1.9M, 10K, 1.4M and 1.7M.
-- **FAIL: raw counts bypass `formatCount`.**
-  - `basis()` in `lib/format.ts:110` uses `toLocaleString`, so it prints "4,236 events" and "N eff. samples".
-  - That text is shown on screen in the drawer's "Details for pros" (`MarketDetail.tsx:225`) and in tooltips (`:149`, `:155`, `:181`, `:195`).
-  - `MarketDetail.tsx:244` also prints a raw count ("All {n} markets in this event").
+**Passing parts.**
+- *Paid data as free or anon.* Server-capped at 25 banded rows whatever the parameters, headers or cookies (item 5). `/api/markets/7084699` (a flagged market outside the free top 25), fetched logged out, returns each side with `q: null` and `ranges` bands (`roi_pct: [10, 20]`), not the exact model values.
+- *Another user's rows.* The PGlite RLS tests in `apps/web/test` pass: user B sees none of user A's rows in any user table, the anon role sees nothing, and admin tables are service-role only. The live check is under Owner verification.
+- *Webhooks* (mock server, real `stripe` signature code, `webhook.mjs`):
+  - Unsigned body: 400. Wrong secret: 400. Valid signature with a timestamp 1 hour old: 400. Body changed after signing: 400.
+  - Replaying a delivered event: `{"duplicate":true}`, no state change.
+  - A pro update followed by a replay of an older premium event: the user stays pro.
+  - A raw, unsigned `client_reference_id` is ignored, and the subscription event for that customer returns 500 (Stripe will retry) instead of upgrading anyone.
+- *Rate limits* (`hammer.py`, production build):
+  - `/api/markets` 40 times quickly: 26 × 200, then 14 × 429 with `Retry-After: 4`.
+  - `/api/flags` and `/api/markets/6970279` also returned 429 when hammered.
+  - 40 requests with a different `X-Forwarded-For` and `X-Real-IP` each: 40 × 429, so header spoofing does not bypass the limit.
+  - `/api/suggest` 250 times: 80 × 200, 170 × 429.
+  - Distinct-row quota (`rowquota.py`, distinct `q=` searches 2.1 s apart): "call 134 q=Pelicans: 429 after 1452 distinct markets, 301s".
+  - `/api/health` returns 503 `{"ok":false,…}` because the in-memory limiter is used without Upstash, as designed.
+- *Crawlers.* GPTBot, ClaudeBot, CCBot, PerplexityBot, Google-Extended and Bytespider get 403 from the middleware. HeadlessChrome, python-requests and curl get 200; blocking those depends on Vercel BotID, which only runs on Vercel (Owner verification).
+- *Headers* (`curl -I localhost:3820/`): `Strict-Transport-Security`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `X-Frame-Options: DENY`, `Permissions-Policy`, and a `Content-Security-Policy` with a per-request nonce, `strict-dynamic` and `frame-ancestors 'none'`.
+- *Secrets in git history.* gitleaks is not installed, so I ran an equivalent regex scan (Stripe `sk_`/`rk_`/`whsec_`, Supabase JWTs and service keys, PEM private keys, AWS, Google and generic `*_SECRET=`/`*_KEY=` assignments) over `git log --all -p` (225 commits). The only hits were a PEM placeholder in a form label and a test fixture key. Only `.env.example` files were ever committed.
+- *Client bundles.* `pnpm check:bundle` printed "116 files in .next/static, no secrets". A manual grep of `.next/static` for `SUPABASE_SERVICE_ROLE`, `STRIPE_SECRET`, `sk_live`, `sk_test`, `whsec_`, `UPSTASH_REDIS_REST_TOKEN`, `RESEND_API_KEY` and `CRON_SECRET` found 0. The extension build also had 0.
+- *Cookies.* Auth cookies are `HttpOnly` and `SameSite=Lax`. `Secure` is off on plain-http localhost; `middleware.ts` sets `secure: process.env.NODE_ENV === "production"`, and a unit test asserts `Secure` in production.
+
+## 7. Multipliers and combos: PASS
+
+- **10x bet with a 14% chance and a 4-point edge is in tier 2.** The engine tier tests (17 passed), the e2e multipliers spec and the vitest test "the 10x bet with a 14% chance shows in tier edge" all pass.
+- **Combo math against hand-computed cases** (scratch vitest file, not committed):
+  - Two legs on different events (ask 0.5, fee 0.0125, q 0.6, q_low 0.55; ask 0.4, fee 0.012, q 0.5, q_low 0.45): price 0.21115, q 0.3, q_low 0.2475, pays 4.735969, return 0.420791, `has_edge` true. Matches.
+  - Three identical legs (ask 0.8, fee 0.008, q 0.85, q_low 0.8): price 0.527514, return 0.164187, `has_edge` false because q_low 0.512 is below the price. Matches.
+  - Kalshi combo at 30¢ with Q 0.4: fee 2¢ (ceil of 1.47¢), edge 0.08, return 0.25. Matches.
+- **Same-event legs are warned.** Two legs from "Game X" give `same_event: ["Game X"]`, which the UI shows as a warning.
+- **Losing combos are hidden.** `apps/web/lib/data/combos.ts:43` drops suggested combos whose backtest return is 0 or less.
+- **`formatCount` never rounds up.** 999 → "999", 1000 → "1K", 9999 → "9.9K", 99999 → "99K", 999999 → "999K", 1999999 → "1.9M", 1484104 → "1.4M".
+- **Raw counts.** `grep -rn "toLocaleString" apps/web/components apps/web/lib` leaves only: `exactCount` (used in hovers and admin pages), the exact contract quantity in `TradeTicket`, a date title, and money formatting in `lib/format.ts:63`. `basis()` now uses `formatCount`, and `MarketDetail.tsx:254` uses `formatCount`. Run 1's raw counts are gone.
 
 ## 8. Trading safety: PASS
 
-- **PASS: off without the env var.** With no `KALSHI_TRADING_ENV`, `/api/trade/config` returns `enabled:false` on the prod build, and the extension hides trading.
-- **PASS: every order needs a confirm.**
-  - `placeOrder` has exactly one call site: the Confirm handler in `TradeTicket.tsx`, which shows "Every order needs this confirmation".
-  - `test/no-auto-trade.test.ts` passes. It greps for any other call path.
-  - The e2e `trading-paper.spec.ts` loads the real MV3 extension with the demo env. Kalshi is mocked at the network layer, and the spec checks `KALSHI-ACCESS-SIGNATURE` against a generated test key.
-  - Every order also needs a one-time server nonce.
-- **PASS: caps.** The cap and scope tests pass, and over-cap orders are refused before signing.
-- **PASS: keys stay in the extension.**
-  - `kalshi/vault.ts` imports the PEM as a **non-extractable** WebCrypto key and keeps it in IndexedDB.
-  - Code review of every extension `fetch` shows none of them sends the PEM.
-  - A clean-profile run of the extension showed empty `chrome.storage`.
-- **PASS: transfer-scope keys rejected.** The scope tests pass.
+- **Off without `KALSHI_TRADING_ENV`.** On the production build, `/api/trade/config` returns `{"enabled":false,"env":null}` and `/api/trade/nonce` returns 404 "Trading is off.". The extension popup shows "Paper trading Off" (`audit2-extension-popup.png`).
+- **Every order needs a confirm.** `placeOrder` has one call site, the Confirm button handler in `apps/web/components/trade/TradeTicket.tsx` (lines 197–240). Each order also needs a one-time server nonce, so a replayed message cannot place a second order.
+- **Caps.** `apps/extension/src/background.ts:146` calls `capError(order, caps, spend)` before signing and refuses the order if it breaks the per-order or daily limit; the spend is reserved at `:150`. `caps.set` (`:201-205`) refuses a per-order limit above the daily limit. `capError` is covered by `apps/extension/test/trade.test.ts` (42 extension tests passed).
+- **Keys never leave the extension.** A scratch Playwright spec loaded the built extension with `KALSHI_TRADING_ENV=demo`, imported a test key and placed a demo order. Across 79 requests (the extension origin, `localhost:3812` and `external-api.demo.kalshi.co`), the PEM appeared 0 times and the key id appeared 0 times outside Kalshi. Extension storage held only `{"spend":…}`, and the web page's localStorage held no PEM or key id. Keys are imported as non-extractable WebCrypto keys in IndexedDB.
+- **Transfer-scope keys are rejected.** `apps/extension/src/kalshi/trade.ts:80` (`scopeError`) is an allow-list of `read`, `write::trade` and `read::x`. Any other scope, including transfer, is rejected.
 
-## 9. Billing: PASS
+## 9. Billing: PASS (mock)
 
-- **PASS: checkout to tier up.** The e2e S7 spec (paid project) passes: checkout, then signed webhook, then the tier rises.
-- **PASS: cancel to tier down at period end.**
-  - `webhook.mjs`: `cancel_at_period_end` keeps premium, and `customer.subscription.deleted` drops the user to free.
-  - After that, a request with a spoofed tier still gets only 25 rows.
-- **PASS: Payment Link path.** `checkout.session.completed` with `client_reference_id` gives 200, and the user maps correctly.
-- **PASS: duplicate events.** A duplicate event id returns `{"duplicate":true}` and has no effect.
-- **PASS: account delete cancels the subscription.** Covered by an e2e spec.
+- Checkout → webhook → tier up: the S7 e2e test passed, and `webhook.mjs` showed a signed `checkout.session.completed` plus `customer.subscription.created` taking a user to premium (185 rows visible).
+- Portal cancel → tier down at period end: `cancel_at_period_end: true` keeps premium; `customer.subscription.deleted` drops to free.
+- Payment Link with `client_reference_id`: a signed reference (`<uid>_<expiry>_<HMAC>`) links the customer and upgrades the user. An unsigned or tampered reference is ignored.
+- Duplicate events: the second delivery returns `{"duplicate":true}` and changes nothing.
+- Delete account cancels the subscription: `apps/web/lib/auth/delete.ts:13-23` calls `stripe.subscriptions.cancel` before deleting the user, and a failed cancel returns 502 and deletes nothing. The paid e2e S7 test deletes a paying pro account through the UI and reaches `/?deleted=1` with `/api/me` signed out, which can only happen after the mock cancel succeeded.
+- The live Stripe test-mode run and the Customer Portal UI are under Owner verification.
 
 ## 10. Legal and wording: FAIL
 
-- **PASS: legal pages.** `/terms`, `/privacy`, `/refunds`, `/disclaimer` and `/contact` all return 200.
-- **PASS: footer links.** The footer links `/about /terms /privacy /refunds /disclaimer /contact /status`.
-- **Placeholders (listed, not failed).** These come from `config/site.json`: `[[OPERATOR_NAMES]]`, `[[SUPPORT_EMAIL]]`, `[[GOVERNING_STATE]]`, `[[LAST_UPDATED]]`, `[[REFUND_POLICY]]` and `[[RESPONSE_TIME]]`.
-- **PASS: disclaimer on every page.** "Market analytics, not financial advice. Based on past results. 18+." appears on every page (crawl) and in the extension popup and side panel (`docs/screenshots/audit/extension-popup.png`, `extension-sidepanel.png`).
-- **PASS: 18+ gate.** The 18+ checkbox is required at sign-up (S7).
-- **PASS: banned words.** Grepped for `pick|lock|guaranteed|sure thing|can't lose`. The only hits are code identifiers and "We give no guarantee", which is a negation.
-- **PASS: responsible-gambling resources.** `/disclaimer` lists 1-800-GAMBLER and ncpgambling.org.
-- **FAIL: expected-profit claims.** The spec says "no claim of … expected profit anywhere, including meta tags, OG images and emails". The build makes that claim in:
-  - `app/m/[id]/opengraph-image.tsx` and the `/m/[id]` meta description: "Bet Yes at 70¢ · +20–50% expected return" (`docs/screenshots/audit/og-market.png`).
-  - The alert email (`lib/alerts.ts:42`): "expected return".
-  - On-page copy: `MarketDetail.tsx:332` has an "Expected profit" column, `MarketDetail.tsx:165` says "$100 bet → expect …", and `Calculators.tsx:77` ("$100 bet → expect …") and `:208` ("Expected profit, all bets") use the same wording.
-- **FAIL: unsubscribe missing in an email.**
-  - The payment-failed email (`lib/billing/stripe.ts:123-126`) has only a `List-Unsubscribe` header. Its body has no unsubscribe link and no disclaimer.
-  - The alert email template (`lib/email/templates.ts`) has both.
-  - The comment in `lib/email/index.ts` promises an unsubscribe link in every body.
+Passing parts:
+- `/terms`, `/privacy`, `/refunds`, `/disclaimer` and `/contact` all return 200 and are linked in every page's footer.
+- `config/site.json` placeholders still shown (listed, not failed): `[[GOVERNING_STATE]]`, `[[LAST_UPDATED]]`, `[[OPERATOR_NAMES]]` and `[[SUPPORT_EMAIL]]` on `/terms`; the same plus `[[REFUND_POLICY]]` and `[[RESPONSE_TIME]]` on `/refunds`; `[[RESPONSE_TIME]]` on `/contact`; `© 2026 [[OPERATOR_NAMES]]` in every footer.
+- The disclaimer "Market analytics, not financial advice. Based on past results. 18+." is in the footer of every crawled page and in the extension popup and side panel.
+- The sign-up form requires the 18+ checkbox.
+- `/disclaimer` lists 1-800-GAMBLER, 1-800-426-2537 and ncpgambling.org.
+- Every email template (`lib/email/templates.ts`, including `paymentFailedEmail`) renders through `layout()`, which adds an Unsubscribe link and the disclaimer. Rendered: `audit2-email-alert.png`, `audit2-email-paymentFailed.png`.
+- Banned words: `grep -rniE "\bpick|\block|guarantee|sure thing|can'?t lose"` over `apps/web/app`, `components`, `lib` and `apps/extension/src` finds only code (`Pick<…>`, a `LOCK` icon, `locked` state) and the negation "We give no guarantee". None is a fail.
+
+The fail: **three places still claim expected profit.** The spec says "no claim of guaranteed or expected profit anywhere, including meta tags".
+- `apps/web/components/market/MarketCard.tsx:53` labels the return on every compact (mobile) card "expected", so a free user on a phone reads "**+20–50% expected**" (`audit2-home-390.png`). This is the main list on mobile.
+- `apps/web/app/tools/page.tsx:5`, the `/tools` meta description: "**Expected-return and bet-sizing calculators for prediction markets.**"
+- `apps/web/components/journal/JournalView.tsx:122` and `:131` label a chart line "**Expected at entry**" and its tooltip "**Expected**". This is the user's own P&L journal, so it is weaker, but it still presents model profit as "expected".
+
+Strings I judged and did **not** count as claims (each is labelled as an estimate or a past result):
+- "Estimated return +20–50%" (desktop cards); "estimated return, based on past results" (OG image and `/m/[id]` meta).
+- "$100 → +$20–50" and "$100 → over +$50" on cards.
+- "+14% avg return in testing"; "Est. profit (past results)" (`MarketDetail.tsx` stakes table header).
+- "Calculated profit, all bets" with "calculated return … at the win chances you entered" (`Calculators.tsx:208`), which is the user's own inputs.
+- "Likely to hit" (a chance band) and "Bets where the odds lean your way".
+- Alert email: "estimated return" (`lib/alerts.ts`).
 
 ## 11. Publication readiness: FAIL
 
-- **PASS: robots.** `/robots.txt` blocks the AI bots and disallows `/api/` and app-only pages.
-- **FAIL: sitemap.** `/sitemap.xml` is missing `/about`. `app/sitemap.ts:5` `PUBLIC_PAGES` leaves it out, even though `/about` exists and the comment at line 1 says to add it once the landing page moves there.
-- **Placeholder: sitemap and OG domain.** The URLs use `localhost:3000` because `config/site.json` has no domain yet. This is listed, not failed.
-- **PASS: no debug routes in prod.**
-  - `/e2e-mock/*` returns 404.
-  - Cron routes return 401 without the secret.
-  - `/api/data` returns 404 "Accounts are off".
-  - No seeded users exist.
-- **PASS: error pages.** The 404 page is styled (`docs/screenshots/audit/anon-no-such-page-390.png`). The 500 page (`app/error.tsx`; there is no `global-error.tsx`) was checked in code only, because no route can be made to throw.
-- **PASS: favicon.** `icon.svg` returns 200.
-- **FAIL: OG images.** `/`, `/about` and `/pricing` have no `og:image`. Only `/m/[id]` has an OG image, and it carries the wording problem in item 10.
-- **PASS: email templates render.** The alert email rendered with its unsubscribe link and disclaimer. The payment-failed email gap is item 10. Magic-link emails live in Supabase (Owner verification).
-- **PASS: extension.**
-  - `ME_ORIGIN=https://example.com pnpm ext:zip` produced 15 files.
-  - The MV3 manifest uses minimal permissions (`storage`, `sidePanel`), has a CSP, and has no `eval`.
-  - In a clean Chromium profile the extension loaded and its service worker registered. The popup and side panel render with the disclaimer.
-  - The popup's `/api/meta` 404 is expected with the fake origin.
-- **PASS: SETUP.md from scratch.** On a fresh clone, these SETUP.md local steps ran:
-  - `pip install -r requirements.txt` succeeded.
-  - `python3 -m engine scan` exited 0 and reported "scanned 16484 markets, 1833 flags".
-  - `pnpm i --frozen-lockfile`, `pnpm build` and `pnpm start` led to a running app.
-  - Not run: the optional `python3 -m engine all` refit (SETUP.md line 26) and the deploy steps, which need accounts.
+Passing parts:
+- **robots.txt** blocks the AI crawlers and disallows `/api`, `/auth`, `/login`, `/onboarding`, `/account`, `/settings`, `/watchlist`, `/journal`, `/alerts`, `/dashboards` and `/admin`.
+- **sitemap.xml** lists the 12 public pages, including `/about` (`curl -s localhost:3820/sitemap.xml | grep -c about` gives 1). It uses the placeholder origin `http://localhost:3000` until the domain is set (Owner verification).
+- **No debug routes in production.** `/e2e-mock/*` returns 404, `/api/data` 404, the cron route 401 without its secret, and `/admin` 404. No seeded or test user exists in the production build.
+- **Error pages are styled**: the 404 page and the 500 page (`audit2-fresh-scan-500-1440.png`) use the app shell and footer.
+- **Favicon and OG.** `/icon.svg` returns 200. `/`, `/about` and `/pricing` have `og:image` and `twitter:image` (`curl -s localhost:3820/ | grep -c og:image` gives 2). `/opengraph-image` is a 1200 × 630 PNG (`audit2-og-site.png`). `/m/[id]` has its own OG image and the meta "Bet Under at 71¢ · +20–50% estimated return, based on past results. Market analytics, not financial advice."
+- **Email templates render** (item 10).
+- **Extension.** `ME_ORIGIN=http://localhost:3820 pnpm ext:zip` produced a 15-file zip with manifest_version 3, permissions `storage` and `sidePanel` only, no `eval`, no `console.log`. Loaded unpacked in a clean Chromium profile (`ext.mjs`), the service worker registered, the popup and side panel rendered with the disclaimer, there were 0 console errors and storage was empty (`audit2-extension-popup.png`, `audit2-extension-sidepanel.png`).
+
+The fails:
+- **`SETUP.md` from scratch does not reach a working app at first.** Following it on a fresh copy reaches a running server, but for 15 minutes after the scan it serves 500s and 503s (fail 1, item 2).
+- **The market OG image is cut off.** In `apps/web/app/m/[id]/opengraph-image.tsx:35`, "Similar bets won 95% of the time before…" runs past the right edge of the 1200 px image, so shared links show "befo" (`audit2-og-market.png`).
 
 ---
 
-## Owner verification (needs live accounts)
-
-1. Supabase:
-   - RLS against the real project, with an anon key and two real users.
-   - The magic-link and Google sign-in email templates.
-2. Stripe test mode, end to end:
-   - real Checkout
-   - the Customer Portal cancel
-   - a real `stripe trigger` of a duplicate event
-   - a Payment Link with `client_reference_id`
-3. Upstash rate limits under a hammer test, and Vercel BotID blocking HeadlessChrome and python-requests.
-4. Kalshi demo:
-   - a real demo key, with DevTools network and storage inspection while placing a confirmed order
-   - rejection of a key with transfer scope
-5. After the domain is set: the sitemap and OG URLs on the real domain, and the freshness pill on live data, which will also show the 15-min free delay.
-
 ## Fails to fix
 
-1. **False "Everything is unlocked" copy in production.**
-   - Where: `apps/web/app/login/page.tsx:35` and `apps/web/app/account/page.tsx:24`.
-   - Symptom: a production build with empty keys says everything is unlocked, while free users are capped at 25 banded rows.
-   - Repro: `pnpm build && pnpm start -p 3320`, then `curl -s localhost:3320/login | grep -o "Everything is unlocked"`.
-2. **Closed markets shown as bets, with the text "closes in closed".**
-   - Where: `apps/web/lib/format.ts:89` returns "closed" into `components/market/BetCard.tsx:59`, `components/watch/MyList.tsx:78` and `components/market/MarketDetail.tsx:136`. `/api/flags` does not drop markets whose `closes_at` has passed.
-   - Repro: on a fresh clone, run `python3 -m engine scan`, then `pnpm build && pnpm start -p 3320`, then `curl -s localhost:3320/api/flags | jq '[.rows[] | select(.market.closes_at < now)] | length'`. The audit got 9 (of 25). Load `/`: cards read "closes in closed".
-3. **Drawer has no focus trap.**
-   - Where: `apps/web/components/market/DrawerHost.tsx:70`.
-   - Symptom: in the `aria-modal` dialog, Tab moves focus to the page behind it.
-   - Repro: open `/?m=6674492` and press Tab about 20 times. `document.activeElement.closest('[role=dialog]')` becomes null.
-4. **Focus not restored after the drawer closes.**
-   - Where: `apps/web/components/market/DrawerHost.tsx:50`.
-   - Symptom: after Esc, focus is on `BODY`, not on the card that opened the drawer.
-   - Repro: Tab to a card, press Enter, press Esc, then check `document.activeElement.tagName` (it is BODY).
-5. **No keyboard upgrade path from the product.**
-   - Where: `apps/web/components/shell/Footer.tsx`, which links /about through /status but not /pricing, and the drawer, which has no upgrade link.
-   - Symptom: from `/`, the only focusable Pricing link is inside a `display:none` dialog.
-   - Repro: on `/`, run `[...document.querySelectorAll('a[href="/pricing"]')].map(a => getComputedStyle(a.closest('dialog') ?? a).display)` in the console. Every value is `none`. Tab from the top of `/` until focus wraps: there is no `/pricing` stop.
-6. **High-severity dependency.**
-   - Where: `apps/web` and `apps/extension` lockfiles.
-   - Symptom: picomatch 4.0.7 (GHSA-fc5q-39xc-vjpf, high) via `@sentry/nextjs > @sentry/cloudflare > vite`, plus 2 moderate (glob, minimatch).
-   - Repro: `cd apps/web && pnpm audit --prod`.
-7. **Raw counts not using `formatCount`.**
-   - Where: `apps/web/lib/format.ts:110` (`basis()`, which uses `toLocaleString`), shown at `components/market/MarketDetail.tsx:225`, in tooltips at `:149`, `:155`, `:181` and `:195`, and the raw count at `:244`.
-   - Symptom: "4,236 events" and "N eff. samples" shown exactly.
-   - Repro: open any drawer and expand "Details for pros".
-8. **Expected-profit claims in the OG image, meta, email and UI.**
-   - Where: `apps/web/app/m/[id]/opengraph-image.tsx` and the `/m/[id]` metadata ("+20–50% expected return"), `apps/web/lib/alerts.ts:42`, `components/market/MarketDetail.tsx:165` and `:332`, and `components/tools/Calculators.tsx:77` and `:208`.
-   - Repro: `curl -s localhost:3320/m/6674492 | grep -o 'expected return[^"]*'`.
-9. **Payment-failed email has no unsubscribe link or disclaimer in the body.**
-   - Where: `apps/web/lib/billing/stripe.ts:123-126`.
-   - Repro: `sed -n 123,126p apps/web/lib/billing/stripe.ts`. The `html` is only the message and an account link. The one "unsubscribe" in the block is the `unsubscribeUrl` header option.
-10. **Sitemap is missing /about.**
-    - Where: `apps/web/app/sitemap.ts:5`.
-    - Repro: `curl -s localhost:3320/sitemap.xml | grep -c about` returns 0.
-11. **No og:image on the main pages.**
-    - Where: `apps/web/app/layout.tsx:22`, whose `openGraph` has no `images`. No `opengraph-image` exists for `/`, `/about` or `/pricing`.
-    - Repro: `curl -s localhost:3320/ | grep -c 'og:image'` returns 0.
+1. **Pages crash for 15 minutes after a fresh scan when no `*-prev.json` exists** (items 2 and 11).
+   - Where: `apps/web/lib/data/store.ts:234` throws in `loadDelayed`, and `getStoreFor` (`:247-258`) returns that rejection to every caller. The API routes turn it into 503, which is the intended design, but the Server Components for `/about`, `/m/[id]` and `/event/[id]` do not catch it and render the 500 page; `/` and `/markets` show "Couldn't load best bets.".
+   - Symptom: on a setup that follows `SETUP.md` (which never runs `ops/upload.py`, the only writer of `*-prev.json`), the app is broken for the first 15 minutes after every local `engine scan`. Server log: `[store] no markets-prev.json: Free tier can't be served the delayed scan`.
+   - Repro: on a fresh clone, `python3 -m engine scan && cd apps/web && pnpm build && pnpm exec next start -p 3820`, then within 15 minutes `curl -s -o /dev/null -w '%{http_code}' localhost:3820/about` gives 500 and `curl -s -o /dev/null -w '%{http_code}' localhost:3820/api/flags` gives 503.
+2. **High-severity dependency** (item 6).
+   - Where: `apps/web/pnpm-lock.yaml` and `apps/extension/pnpm-lock.yaml`: picomatch ≤ 4.0.7 (GHSA-fc5q-39xc-vjpf, high, "Patched versions: None") via `@sentry/nextjs > @sentry/cloudflare > vite > picomatch`.
+   - Symptom: the spec requires `pnpm audit` with no high or critical. STATUS.md accepts it as build-time only, but the spec has no such exception.
+   - Repro: `cd apps/web && pnpm audit --prod`; `cd apps/extension && pnpm audit`.
+3. **Admin API routes answer 405 instead of 404 to non-admins** (item 6).
+   - Where: `apps/web/app/api/admin/route.ts` exports only `POST`, and `apps/web/app/api/admin/export/route.ts` exports only `GET`, so Next.js answers the other method with 405 before any admin check runs.
+   - Symptom: a logged-out or free user can tell the routes exist. Every other admin URL gives 404.
+   - Repro: `curl -s -o /dev/null -w '%{http_code}' localhost:3820/api/admin` gives 405; `curl -s -o /dev/null -w '%{http_code}' -X POST localhost:3820/api/admin/export` gives 405; `curl -s -o /dev/null -w '%{http_code}' localhost:3820/api/admin/nope` gives 404.
+4. **Expected-profit wording** (item 10).
+   - Where: `apps/web/components/market/MarketCard.tsx:53` (the label "expected" under the return on every compact card, so mobile reads "+20–50% expected"); `apps/web/app/tools/page.tsx:5` (meta description "Expected-return and bet-sizing calculators for prediction markets."); `apps/web/components/journal/JournalView.tsx:122` and `:131` ("Expected at entry", tooltip "Expected").
+   - Symptom: the spec forbids any claim of expected profit, including meta tags. The rest of the app already says "estimated" or "past results".
+   - Repro: `grep -rn "expected" apps/web/components/market/MarketCard.tsx apps/web/app/tools/page.tsx apps/web/components/journal/JournalView.tsx`; `curl -s localhost:3820/tools | grep -o '<meta name="description"[^>]*>'`; open `/` at 390 px wide.
+5. **Market OG image text is cut off** (items 4 and 11).
+   - Where: `apps/web/app/m/[id]/opengraph-image.tsx:33-35`. The right column has no width limit or wrapping, so "Similar bets won 95% of the time before" runs past 1200 px.
+   - Symptom: shared market links show "Similar bets won 95% of the time befo" (`docs/screenshots/audit/audit2-og-market.png`).
+   - Repro: `curl -s localhost:3820/m/6970279/opengraph-image -o og.png` and open `og.png`.
+6. **Lighthouse mobile performance not confirmed at or above 90** (item 4).
+   - Where: `/`, `/about` and `/pricing` on the production build.
+   - Symptom: performance ranged 72–94 over four runs per page (`/` 72, 90, 87, 91; `/about` 92, 92, 91, 86; `/pricing` 94, 86, 92, 89). The only low audits were TBT (300–420 ms) and LCP (2.3–3.3 s). All runs were on a heavily loaded machine (load average 11–54), so the cause may be the machine, not the code.
+   - Repro: on an idle machine, `pnpm build && pnpm start`, then `npx lighthouse http://localhost:3000/ --only-categories=performance` (mobile is the default), and the same for `/about` and `/pricing`. If all three give 90 or more on repeated runs, drop this fail.
+
+## Owner verification
+
+These need live accounts, so the mocks can only cover the code path:
+- Supabase: run the RLS checks against the live project with the anon key (user B cannot read user A's rows), and send a real magic-link email.
+- Stripe test mode end to end: Checkout, webhook delivery to the deployed URL, Customer Portal cancel, and a real Payment Link.
+- Upstash: set the Redis keys so the shared limiter replaces the in-memory one and `/api/health` reports ok.
+- Vercel BotID: confirm headless browsers and scripted clients are challenged on the deployed site.
+- Kalshi demo: place one demo order from the extension with a real demo key.
+- Domain: set the site origin so the sitemap, canonical URLs and OG URLs stop using `http://localhost:3000`, and fill the `config/site.json` placeholders.
+
+## Fixed since run 1
+
+Each of run 1's 11 fails was re-checked on `f8adde4`:
+
+1. **"Everything is unlocked" in production: fixed.** `curl -s localhost:3820/login | grep -c "Everything is unlocked"` gives 0; `/login` says "Sign-in isn't available yet. You can browse on the Free plan…". The string remains only in the demo branch of `lib/auth/server.ts:18-22`. No crawled page in any state contained it.
+2. **Closed markets shown as bets, "closes in closed": fixed.** `/api/flags` and `/api/markets?s=closes.asc` returned 0 rows with a past `closes_at` (soonest 70 s ahead). `closesLine` in `lib/format.ts` never returns "closed", and no crawled page contained "closes in closed".
+3. **Drawer has no focus trap: fixed.** 60 Tabs and 20 Shift+Tabs inside the drawer gave 0 escapes. `DrawerHost.tsx` makes the page behind `inert` and wraps Tab.
+4. **Focus not restored after the drawer closes: fixed.** After Esc, focus is back on the card that opened the drawer (keyboard walkthrough, item 4).
+5. **No keyboard upgrade path: fixed.** The footer now links `/pricing` (`components/shell/Footer.tsx:16`), reached in 181 Tabs from the top of `/`. The drawer has a "See plans" link, used by the paid e2e keyboard test.
+6. **High-severity dependency: not fixed.** picomatch ≤ 4.0.7 is still reported high (Fails to fix, 2).
+7. **Raw counts not using `formatCount`: fixed.** `basis()` and `MarketDetail.tsx:254` use `formatCount`; exact counts remain only in hovers and admin pages (item 7).
+8. **Expected-profit claims: mostly fixed, not fully.** The `/m/[id]` OG image and meta now say "estimated return, based on past results"; the alert email says "estimated return"; `MarketDetail` says "Est. profit (past results)"; `Calculators` says "Calculated profit". Still present: the `/tools` meta description, the "expected" label on compact cards, and the journal chart (Fails to fix, 4).
+9. **Payment-failed email without unsubscribe or disclaimer: fixed.** `paymentFailedEmail` renders through `layout()`; the rendered HTML has the Unsubscribe link and the disclaimer (`audit2-email-paymentFailed.png`).
+10. **Sitemap missing /about: fixed.** `curl -s localhost:3820/sitemap.xml | grep -c about` gives 1.
+11. **No og:image on main pages: fixed.** `/`, `/about` and `/pricing` have `og:image` and `twitter:image`; `app/opengraph-image.tsx` and `app/twitter-image.tsx` exist and render 1200 × 630 PNGs.
+
+So 9 of run 1's fails are fixed, 1 is partly fixed (8) and 1 is not fixed (6).
