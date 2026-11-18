@@ -40,4 +40,12 @@ describe("robots.txt and sitemap.xml (T-76)", () => {
     expect(src).toMatch(/twitter: \{ card: "summary_large_image"/);
     expect(src).toMatch(/openGraph: \{[^}]*images:/);
   });
+  it("the market share card wraps instead of running off the 1200 px edge (audit run 2 fail 5)", () => {
+    const src = readFileSync(path.resolve(import.meta.dirname, "../app/m/[id]/opengraph-image.tsx"), "utf8");
+    expect(src).toMatch(/fontSize: 54[^}]*lineClamp: 3/);                       // question: 3 lines, then …
+    expect(src).toMatch(/flexShrink: 0, maxWidth: 420/);                         // left column has a width cap
+    expect(src).toMatch(/fontSize: 32, flex: 1, minWidth: 0/);                    // right column takes the rest and can shrink
+    expect(src.match(/lineClamp: 2/g)?.length).toBe(2);                          // bet line and won-before wrap, 2 lines max
+    expect(src).not.toMatch(/of the time before/);                               // the shorter copy
+  });
 });

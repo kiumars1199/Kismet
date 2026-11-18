@@ -24,15 +24,17 @@ export default async function Image({ params }: { params: Promise<{ id: string }
         <div style={{ display: "flex", fontSize: 30, fontWeight: 700, color: C.accent }}>MarketEdge</div>
         {m && s ? (
           <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
-            <div style={{ fontSize: 54, fontWeight: 700, lineHeight: 1.15, maxHeight: 190, overflow: "hidden" }}>{m.question}</div>
-            <div style={{ display: "flex", gap: 56, alignItems: "flex-end" }}>
-              <div style={{ display: "flex", flexDirection: "column" }}>
+            {/* 3 lines at most, ellipsis after (the longest real titles are ~120 characters) */}
+            <div style={{ display: "block", fontSize: 54, fontWeight: 700, lineHeight: 1.15, lineClamp: 3 }}>{m.question}</div>
+            <div style={{ display: "flex", gap: 48, alignItems: "flex-end" }}>
+              <div style={{ display: "flex", flexDirection: "column", flexShrink: 0, maxWidth: 420 }}>
                 <div style={{ fontSize: 96, fontWeight: 700, color: s.roi_pct >= 0 ? C.accent : C.muted, lineHeight: 1 }}>{sideRet(s)}</div>
                 <div style={{ color: C.muted }}>estimated return, based on past results</div>
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8, fontSize: 32 }}>
-                <div style={{ color: C.soft }}>{betLine(s)}</div>
-                <div style={{ color: C.muted }}>{`Similar bets won ${pct(s.win_prob)} of the time before`}</div>
+              {/* right column: takes what's left of the 1072 px and wraps, 2 lines per item at most */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 8, fontSize: 32, flex: 1, minWidth: 0 }}>
+                <div style={{ display: "block", color: C.soft, lineClamp: 2 }}>{betLine(s)}</div>
+                <div style={{ display: "block", color: C.muted, lineClamp: 2 }}>{`Similar bets won ${pct(s.win_prob)} before`}</div>
               </div>
             </div>
           </div>
