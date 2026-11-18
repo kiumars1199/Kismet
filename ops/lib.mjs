@@ -49,6 +49,9 @@ export function loadEnv(args) {
   return { env: { ...process.env }, source: "process environment", file: null };
 }
 
+/** config/site.json, or --site <file> (tests). */
+export const loadSite = (args = {}) => JSON.parse(readFileSync(typeof args.site === "string" ? resolve(args.site) : SITE_JSON, "utf8"));
+
 const quote = (v) => (/^[\w@.:/+,=-]*$/.test(v) ? v : JSON.stringify(v));
 
 /** Sets KEY=value in env-file text: fills an empty `KEY=` line in place, else appends. Never touches a non-empty value. */

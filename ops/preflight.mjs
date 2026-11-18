@@ -7,9 +7,10 @@
 //
 // --env   env file to check. Default: apps/web/.env.prod, else apps/web/.env.local, else the process environment.
 // --live  launch check: Stripe test keys become blockers.
+// --site  site.json to check instead of config/site.json.
 import { readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
-import { isEmail, loadEnv, MUST_BE_EMPTY, parseArgs, SECRET_ENV, SITE_JSON, validateSite } from "./lib.mjs";
+import { isEmail, loadEnv, MUST_BE_EMPTY, parseArgs, SECRET_ENV, loadSite, validateSite } from "./lib.mjs";
 
 /** Service → where to get its values (SETUP.md sections, setup notes). */
 export const GROUPS = {
@@ -136,10 +137,10 @@ export function report(problems, source) {
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
   const args = parseArgs(process.argv.slice(2));
-  if (args.help) { console.log(readFileSync(new URL(import.meta.url), "utf8").split("\n").slice(1, 10).join("\n")); process.exit(0); }
+  if (args.help) { console.log(readFileSync(new URL(import.meta.url), "utf8").split("\n").filter((l) => l.startsWith("// ") || l === "//").join("\n")); process.exit(0); }
   let loaded;
   try { loaded = loadEnv(args); } catch (e) { console.error(e.message); process.exit(2); }
-  const site = JSON.parse(readFileSync(SITE_JSON, "utf8"));
+  const site = loadSite(args);
   const problems = check(loaded.env, site, { live: !!args.live });
   console.log(report(problems, `${loaded.source}${args.live ? " (--live)" : ""}`));
   process.exit(problems.some((p) => p.level === "block") ? 1 : 0);
