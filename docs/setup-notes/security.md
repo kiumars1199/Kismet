@@ -58,8 +58,11 @@ None exist. The browser never fetches data files directly. The server reads the 
   - Version `4.0.8-marketedge.1`. Tests: `node --test vendor/picomatch/test` (the PoC under a 200 ms bound; unpatched,
     `+(*)` took 79 s) and `apps/web/test/picomatch-redos.test.ts` (lockfiles point at the vendored copy).
 - **Wiring:** `"picomatch@4": file:../../vendor/picomatch` under `overrides` in `apps/web/pnpm-workspace.yaml` and
-  `apps/extension/pnpm-workspace.yaml`. picomatch 2.3.2 (fast-glob, dev tooling only) is outside the audited prod tree
-  and is left alone. On Vercel (Root Directory `apps/web`), keep "Include files outside the Root Directory" on (the
+  `apps/extension/pnpm-workspace.yaml`, plus `"picomatch@2"` in the web app: 2.3.2 came in through eslint-config-next >
+  fast-glob > micromatch (dev only) and is just as affected. The 4.x API covers what micromatch uses; fast-glob and
+  micromatch were checked against the vendored copy (same file counts and matches), and eslint still reports a planted
+  error. The one audit line left in the web app is a moderate minimatch advisory, also eslint-only (below the
+  high/critical bar). On Vercel (Root Directory `apps/web`), keep "Include files outside the Root Directory" on (the
   default) so `vendor/` is there at install.
-- **Dropping it:** when picomatch ships a release that fixes the advisory, delete both override lines and
+- **Dropping it:** when picomatch ships a release that fixes the advisory, delete the override lines and
   `vendor/picomatch`, run `pnpm i` in both apps, and confirm `pnpm audit` stays clean.
