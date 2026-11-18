@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Production preflight (ops/ship.md step 6). Reads the production env file and config/site.json and reports every
+// Production preflight (ops/ship.md step 8). Reads the production env file and config/site.json and reports every
 // missing, malformed or dangerous value, grouped by service, with where to get it. Exit 1 on any blocker.
 // Read-only: changes nothing, contacts nothing.
 //

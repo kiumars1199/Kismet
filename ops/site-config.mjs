@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Fills config/site.json (owner, legal and Stripe-link values) from flags or a JSON file, validates the result, and
-// shows the diff (ops/ship.md step 3). Dry run unless --yes. Not interactive. Re-running with the same values changes nothing.
+// shows the diff (ops/ship.md step 4). Dry run unless --yes. Not interactive. Re-running with the same values changes nothing.
 //
 //   node ops/site-config.mjs --domain marketedge.com --support-email help@marketedge.com \
 //     --operator-names "Jane Doe and John Roe" --state Delaware --refund-policy first_charge_7_days \
@@ -54,6 +54,7 @@ export function apply(site, updates, now = new Date()) {
 if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
   const args = parseArgs(process.argv.slice(2));
   const fail = (msg) => { console.error(msg); process.exit(2); };
+  if (args.help) { console.log(readFileSync(new URL(import.meta.url), "utf8").split("\n").filter((l) => /^\/\/( |$)/.test(l)).join("\n")); process.exit(0); }
   const file = typeof args.file === "string" ? resolve(args.file) : SITE_JSON;
   const site = JSON.parse(readFileSync(file, "utf8"));
   const updates = {};

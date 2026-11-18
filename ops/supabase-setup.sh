@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Supabase project setup (ops/ship.md step 5): link, apply migrations, run the RLS tests, create the private `scan`
+# Supabase project setup (ops/ship.md step 6): link, apply migrations, run the RLS tests, create the private `scan`
 # bucket, then print the dashboard settings that have no CLI. Dry run unless --yes. Safe to re-run: link and db push
 # are no-ops when already done, and the bucket step only makes sure `scan` exists, is private and allows 50 MB files.
 #

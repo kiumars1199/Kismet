@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Generates the app's own secrets into the production env file (ops/ship.md step 2). Never overwrites a value,
+// Generates the app's own secrets into the production env file (ops/ship.md step 3). Never overwrites a value,
 // never prints one, refuses a file git would commit. Dry run unless --yes.
 //
 //   node ops/secrets.mjs [--env apps/web/.env.prod] [--yes]
