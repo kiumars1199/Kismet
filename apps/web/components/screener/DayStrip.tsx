@@ -89,7 +89,7 @@ export function TodayCard() {
   const stat = "flex min-h-11 min-w-0 items-center gap-1.5 rounded-input px-2 transition-colors duration-200 ease-out hover:bg-raised";
   return (
     <section aria-labelledby="today-h" data-testid="today" className="flex flex-wrap items-center gap-x-3 rounded-input border border-border bg-surface px-3 text-[13px] md:flex-nowrap">
-      <h2 id="today-h" className="flex-none pl-1 font-sans text-[13px] font-semibold">Today</h2>
+      <h2 id="today-h" className="flex-none pl-2 font-sans text-[13px] font-semibold">Today</h2>
       <Link href="/watchlist" className={stat}>
         <span className="flex-none text-muted">Saved, closing today</span>
         <span className="truncate text-text">{closing.length ? `${formatCount(closing.length)} · ${(closing[0]!.snapshot as WatchSnapshot).question}` : "none"}</span>

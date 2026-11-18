@@ -209,7 +209,7 @@ function RuleEditor({ draft, filters, onClose }: { draft: Draft | null; filters:
                 {views.map((v) => <option key={v.id} value={v.id}>{v.name}</option>)}
               </select>
             </label>
-            <label className="flex w-32 flex-col gap-1.5 text-xs font-medium text-muted">
+            <label className="flex w-24 flex-col gap-1.5 text-xs font-medium text-muted sm:w-32">
               Max per check
               <NumberInput ariaLabel="Max alerts per check" value={d.threshold} onChange={(v) => set({ threshold: v === null ? null : Math.min(10, Math.max(1, Math.round(v))) })} min={1} max={10} step="1" />
             </label>
@@ -246,7 +246,7 @@ function RuleEditor({ draft, filters, onClose }: { draft: Draft | null; filters:
           </label>
         )}
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid gap-3 sm:grid-cols-2">
           <label className="flex flex-col gap-1.5 text-xs font-medium text-muted">
             Name
             <input className={input} value={d.name} onChange={(e) => set({ name: e.target.value })} maxLength={80} placeholder="Named after the view or market" />

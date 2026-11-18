@@ -44,6 +44,9 @@ Links) shows as `[[PLACEHOLDER]]` until filled. Every key in `SETUP.md` §2. Law
 ## Final audit
 Audit run 5 (`AUDIT.md`): all 11 items PASS, zero fails. Runs 1–4 found 11, 6, 5 and 2 fails; all fixed. Billing is verified against the in-app Stripe mock only; the "Owner verification" list in `AUDIT.md` covers the live checks.
 
+## Launch polish
+T-220–T-231 (branch `polish`): a real-user pass at 390 and 1440 px fixed overflow, wrapping and tap targets on /m, the drawer, /, /about, /pricing, onboarding/Settings topics, alerts and the footer. Before/after shots in `docs/screenshots/polish/`. Lighthouse mobile on `/` after the pass: 97 / 97 / 97 (median 97).
+
 ## Known issues
 - Vercel Hobby rejects the 5-minute alerts cron; needs Pro (in `LAUNCH_TODO.md`).
 - Kalshi fee formula in the order ticket is unverified against a live Kalshi fill.
@@ -53,7 +56,6 @@ Audit run 5 (`AUDIT.md`): all 11 items PASS, zero fails. Runs 1–4 found 11, 6,
 - Lighthouse SEO 91: Next 15 streams the meta description into `<body>` for normal browsers (`htmlLimitedBots: /.*/` fixes it but costs ~15 performance points).
 - No 500 screenshot (no route can be forced to fail); `app/error.tsx` checked in code.
 - Edge tier 2–3x, 5–10x and 10x+ lost money in the backtest; those bands are shown with their record, not promoted.
-- At 390 px a market page's other-side card truncates the name and wraps the multiplier (cosmetic).
 - Exact counts kept on purpose: trade-ticket contract quantity and the bell's `aria-label` unread number.
 - Closing-soon strip and results ticker are empty on current data (nothing closes within 3 h; nothing settled yet).
 - `volume_24h` is null for most markets (Gamma omits it); the 24h-volume filter matches only markets that report it.

@@ -146,7 +146,7 @@ function PreviewCard({ m, s }: { m: StoreMarket; s: Side }) {
         <span className="truncate rounded-full bg-muted-bg px-2.5 py-[3px]">{topicLabel(m)}</span>
         <span className="flex-none">{closesLine(m.closes_at, undefined, true)}</span>
       </div>
-      <p className="line-clamp-3 min-h-[42px] text-base font-semibold leading-[1.3]">{m.question}</p>
+      <p className="line-clamp-3 text-base font-semibold leading-[1.3] md:min-h-[42px]">{m.question}</p>
       <div>
         <p className="flex flex-wrap items-baseline gap-x-2">
           <span className="font-heading text-[32px] font-bold leading-none tracking-[-0.02em]">Pays {pays(s.ask)}</span>

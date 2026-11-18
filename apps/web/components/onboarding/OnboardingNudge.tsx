@@ -24,7 +24,7 @@ export function OnboardingNudge() {
   return (
     // docs/17 fix 7: one slim line, lighter than the content; dismissal is remembered
     <aside aria-label="Get started" className="flex min-h-11 items-center gap-3 rounded-input border border-border bg-surface pl-4 text-[13px] text-soft">
-      <p className="min-w-0 flex-1 truncate">
+      <p className="min-w-0 flex-1 py-2 leading-snug sm:truncate sm:py-0">
         <Link href="/onboarding" className="font-semibold text-accent-hover hover:text-accent-soft">Choose your topics</Link>
         <span className="text-muted"> and we’ll show those bets first.</span>
       </p>

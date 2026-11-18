@@ -182,10 +182,10 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
             const on = x === s;
             return (
               <button key={x.side_index} type="button" aria-pressed={on} onClick={() => pickSide(x.side_index)}
-                className={`min-h-11 rounded-input border p-3 text-left ${on ? "border-accent-border bg-accent-bg/60" : "border-border bg-raised hover:border-accent-border"}`}>
-                <div className="flex items-baseline justify-between gap-2">
-                  <span className="truncate font-semibold">{x.outcome}</span>
-                  <span className="tabular-nums">{price(x.ask)} <span className="text-xs text-muted">· {pays(x.ask)}</span></span>
+                className={`flex min-h-11 flex-col rounded-input border p-3 text-left ${on ? "border-accent-border bg-accent-bg/60" : "border-border bg-raised hover:border-accent-border"}`}>
+                <div className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-2">
+                  <span className="min-w-0 break-words font-semibold leading-snug sm:truncate">{x.outcome}</span>
+                  <span className="shrink-0 whitespace-nowrap tabular-nums">{price(x.ask)} <span className="text-xs text-muted">· {pays(x.ask)}</span></span>
                 </div>
                 <div className="mt-1 flex flex-wrap justify-between gap-x-2 whitespace-nowrap text-xs text-muted">
                   <span title={basis(m, x)}>won {pct(x.win_prob)} before</span>
@@ -285,19 +285,21 @@ function Actions({ m, s }: { m: StoreMarket; s: Side }) {
     } catch {}
   };
   // docs/17 fix 10: the venue button gets its own full-width row; the rest sit under it as one even row
-  const btn = "flex min-h-11 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-input border border-border bg-muted-bg px-3 text-[13px] text-text hover:border-accent-border";
+  const box = "items-center justify-center rounded-input border border-border bg-muted-bg text-text hover:border-accent-border";
+  const btn = `flex min-h-11 flex-1 gap-1.5 whitespace-nowrap px-3 text-[13px] ${box}`;
+  const icon = `flex size-11 flex-none ${box}`;   // no px-3: conflicting padding classes made the star box 70 px
   return (
     <div className="flex flex-col gap-2">
       <VenueLink m={m} className="flex min-h-11 w-full items-center justify-center whitespace-nowrap rounded-input bg-accent px-4 font-semibold text-on-accent hover:bg-accent-hover" />
       <div className="flex flex-wrap gap-2">
         <TradeButton m={m} s={s} className={btn} />
         <AddToCombo m={m} s={s} className={btn} />
-        <div className={`${btn} flex-none px-0`}><WatchStar marketId={m.id} side={s.side_index} market={m} /></div>
+        <div className={`flex flex-none ${box}`}><WatchStar marketId={m.id} side={s.side_index} market={m} /></div>
         <Link href={`/alerts?market=${m.id}&side=${s.side_index}`} className={btn}>
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg>
           Alert me
         </Link>
-        <button type="button" onClick={share} className={`${btn} flex-none px-0 size-11`} aria-label={copied ? "Link copied" : "Copy a link to share"} title={copied ? "Link copied" : "Copy a link to share"}>
+        <button type="button" onClick={share} className={icon} aria-label={copied ? "Link copied" : "Copy a link to share"} title={copied ? "Link copied" : "Copy a link to share"}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             {copied ? <path d="M5 12.5l4.5 4.5L19 7.5" /> : <><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1" /><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" /></>}
           </svg>
@@ -334,10 +336,10 @@ function StakeSection({ x, live, fetchedAt, error, bookState, scanAt, stake, onS
         <span className="text-xs" aria-live="polite">{check}</span>
       </div>
       {x && x.stakes.length > 0 ? (
-        <table className="w-full border-collapse text-sm">
+        <table className="w-full border-collapse text-sm tabular-nums">
           <thead>
             <tr className="text-left text-xs text-muted">
-              <th scope="col" className="py-1 font-medium">You bet</th>
+              <th scope="col" className="whitespace-nowrap py-1 pr-2 font-medium">You bet</th>
               <th scope="col" className="font-medium">You get back if it wins</th>
               <th scope="col" className="text-right font-medium">Est. profit (past results)</th>
             </tr>
@@ -345,7 +347,7 @@ function StakeSection({ x, live, fetchedAt, error, bookState, scanAt, stake, onS
           <tbody>
             {x.stakes.map((r) => (
               <tr key={r.stake_usd} className={r.stake_usd === stake ? "text-accent-soft" : ""}>
-                <td className="py-1.5">{money(r.stake_usd)}{r.filled_usd < r.stake_usd - 0.01 && <span className="block text-xs text-warning">only {money(r.filled_usd)} fills</span>}</td>
+                <td className="py-1.5 pr-2">{money(r.stake_usd)}{r.filled_usd < r.stake_usd - 0.01 && <span className="block text-xs text-warning">only {money(r.filled_usd)} fills</span>}</td>
                 <td>{money(r.shares)}</td>
                 <td className={`text-right ${r.expected_profit_usd >= 0 ? "text-accent" : "text-negative"}`}>{money(r.expected_profit_usd, true)}</td>
               </tr>

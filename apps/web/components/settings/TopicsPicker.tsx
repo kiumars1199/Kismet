@@ -43,7 +43,7 @@ export function TopicsPicker() {
               const n = counts?.[t.id];
               return (
                 <button key={t.id} type="button" aria-pressed={on} onClick={() => toggle(t.id)}
-                  className={`flex min-h-12 items-center justify-between gap-2 rounded-input border px-3.5 py-2.5 text-left text-sm ${
+                  className={`flex min-h-12 flex-col items-start justify-center gap-0.5 rounded-input border px-3.5 py-2.5 text-left text-sm ${
                     on ? "border-accent-border bg-accent-bg text-accent-soft" : "border-border bg-input text-soft hover:border-accent-border hover:text-text"
                   }`}>
                   <span className="flex items-center gap-2">
@@ -52,7 +52,7 @@ export function TopicsPicker() {
                     </span>
                     {t.label}
                   </span>
-                  <span className={`whitespace-nowrap text-xs tabular-nums ${on ? "text-accent-softer" : "text-muted"}`}>
+                  <span className={`ml-6 whitespace-nowrap text-xs tabular-nums ${on ? "text-accent-softer" : "text-muted"}`}>
                     {counts === null ? "" : `${formatCount(n ?? 0)} open`}
                   </span>
                 </button>
