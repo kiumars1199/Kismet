@@ -1,6 +1,9 @@
 // Status (T-29, F-24): when each part of the data was last refreshed, and what it holds.
 import { DATA_SOURCE } from "@/lib/config";
-import { getStore } from "@/lib/data/store";
+import { getTier } from "@/lib/auth/server";
+import { pendingLine } from "@/lib/data/respond";
+import { getStoreFor, type Store } from "@/lib/data/store";
+import { PendingState } from "@/components/screener/States";
 import { DASH, ago, formatCount } from "@/lib/format";
 import { freshness } from "@/lib/freshness";
 import { delayMin } from "@/lib/settings-core";
@@ -18,7 +21,15 @@ const VERDICT_LABEL: Record<string, string> = {
 };
 
 export default async function Page() {
-  const s = await getStore();
+  // RT3-07: the scan this tier is served (Free / signed-out: the delayed copy), like /api/meta: its time and counts.
+  const tier = await getTier();
+  let s: Store;
+  try {
+    s = await getStoreFor(tier);
+  } catch (e) {
+    return <div className="mx-auto w-full max-w-[720px] pt-4 md:pt-10"><PendingState line={pendingLine(e)} /></div>;
+  }
+  const delay = delayMin(tier);
   const { meta, model, backtest, ledgerSummary: l } = s;
   const level = freshness(meta.scanned_at);
   const times: [string, unknown, string][] = [
@@ -36,7 +47,7 @@ export default async function Page() {
           <span className={`size-2 rounded-full ${level === "fresh" ? "bg-accent" : level === "amber" ? "bg-warning" : "bg-negative"}`} aria-hidden="true" />
           {level === "fresh" ? `Data is current. Last scan ${ago(meta.scanned_at)}.` : `Data may be stale. Last scan ${ago(meta.scanned_at)}; prices normally refresh about every 10 minutes.`}
         </p>
-        {delayMin("free") > 0 && <p className="text-sm text-muted">On the Free plan and when signed out, you see each scan {delayMin("free")} minutes after it runs.</p>}
+        {delay > 0 && <p className="text-sm text-muted">On the Free plan and when signed out, you see each scan at least {delay} minutes after it runs: the scan above is the one you see. Paid plans see the newest scan.</p>}
       </header>
 
       <section aria-labelledby="times-h" className="flex flex-col gap-3">

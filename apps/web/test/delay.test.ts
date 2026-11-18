@@ -36,6 +36,7 @@ const { ErrorState } = await import("@/components/screener/States");
 const { default: About } = await import("@/app/about/page");
 const { default: MarketPage } = await import("@/app/m/[id]/page");
 const { default: EventPage } = await import("@/app/event/[id]/page");
+const { default: StatusPage } = await import("@/app/status/page");
 /** A cold instance: the module-level store state starts empty. */
 const cold = () => {
   const s = (globalThis as { __meStore?: Record<string, unknown> }).__meStore ?? {};
@@ -174,5 +175,19 @@ describe("RT3-03: the Free copy is at least the delay old", () => {
     withScan("markets.json", OLD, "markets-prev2.json");
     withScan("flags.json", OLD, "flags-prev2.json");
     expect((await getStoreFor("free")).meta.scanned_at).toBe(SIXTEEN);
+  });
+});
+
+// RT3-07: /status showed Free / signed-out the live scan's time and counts; it now dates the copy that tier is served.
+describe("RT3-07: /status follows the tier's copy", () => {
+  const stamp = (unix: number) => new Date(unix * 1000).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" });
+  it("Free sees the delayed scan's time, Pro the newest", async () => {
+    withScan("markets.json", OLD, "markets-prev.json");
+    withScan("flags.json", OLD, "flags-prev.json");
+    const free = renderToStaticMarkup((await StatusPage()) as ReactElement);
+    expect(free).toContain(stamp(OLD));
+    expect(free).not.toContain(stamp(NEW));
+    h.tier = "pro";
+    expect(renderToStaticMarkup((await StatusPage()) as ReactElement)).toContain(stamp(NEW));
   });
 });
