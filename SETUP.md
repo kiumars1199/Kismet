@@ -20,6 +20,9 @@ pip install -r requirements.txt
 ```bash
 python3 -m engine scan
 ```
+The scan keeps the one it replaced as `output/markets-prev.json` and `flags-prev.json` (git ignores them). The Free
+tier is shown that copy for 15 minutes, so a production build (`pnpm build && pnpm start`) works at once. With no
+older scan, Free pages say "first update shortly" instead.
 ```bash
 cd apps/web && pnpm i --frozen-lockfile && pnpm dev
 ```
