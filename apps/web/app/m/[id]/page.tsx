@@ -1,12 +1,11 @@
 // Shareable market page (T-25): the drawer's content as a page, server-rendered from the store.
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, cache } from "react";
 import type { MarketResponse } from "@/lib/api";
-import { getTier } from "@/lib/auth/server";
-import { marketBody, pendingLine } from "@/lib/data/respond";
+import { SlowDown, marketBody, pageBudget, pageStore, pendingLine } from "@/lib/data/respond";
 import { PendingState } from "@/components/screener/States";
-import { getStoreFor } from "@/lib/data/store";
+import { SlowDownState } from "@/components/screener/SlowDownState";
 import { betLine, sideRet } from "@/lib/format";
 import { MarketDetail } from "@/components/market/MarketDetail";
 
@@ -14,15 +13,23 @@ export const dynamic = "force-dynamic";
 
 type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ side?: string }> };
 
-async function load(id: string): Promise<MarketResponse | null> {
-  const tier = await getTier();   // T-44: same tier shaping as /api/markets/[id]
-  const store = await getStoreFor(tier);
-  const m = store.flagsById.get(id) ?? store.byId.get(id);
-  return m ? marketBody(store, m, tier) : null;
-}
+// T-44: same tier shaping as /api/markets/[id]; RT3-02: same rate limit, plus the Free row budget. cache(): the
+// metadata and the page share one load (one count) per request.
+const load = cache(async (id: string): Promise<MarketResponse | null> => {
+  const ctx = await pageStore();
+  const m = ctx.store.flagsById.get(id) ?? ctx.store.byId.get(id);
+  if (!m) return null;
+  await pageBudget(ctx, [m.id]);
+  return marketBody(ctx.store, m, ctx.tier);
+});
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const data = await load((await params).id).catch(() => null);
+  let data: MarketResponse | null;
+  try {
+    data = await load((await params).id);
+  } catch (e) {
+    return e instanceof SlowDown ? { title: "Market", robots: { index: false } } : { title: "Market" };   // RT3-02: never index the slow-down state
+  }
   if (!data) return { title: "Market" };
   const m = data.market;
   return { title: m.question, description: `${betLine(m.best)} · ${sideRet(m.best)} estimated return, based on past results. Market analytics, not financial advice.` };
@@ -34,6 +41,7 @@ export default async function Page({ params, searchParams }: Props) {
   try {
     data = await load(id);
   } catch (e) {
+    if (e instanceof SlowDown) return <div className="mx-auto w-full max-w-[720px]"><SlowDownState /></div>;
     return <div className="mx-auto w-full max-w-[720px]"><PendingState line={pendingLine(e)} /></div>;   // a missing store is not a missing market
   }
   if (!data) notFound();

@@ -16,6 +16,19 @@ ADMIN_EMAILS=marcyamin10@gmail.com,kiumarsmomtaz@gmail.com
 - To remove an admin, edit the variable and redeploy. The panel has no way to grant or remove admin access.
 - Everyone else (signed out or not on the list) gets a plain 404 on `/admin` and on `/api/admin/*`.
 
+### MFA for admins (RT3-06)
+
+Today an admin is anyone who can open a listed inbox (or that Google account). Turn on a second factor:
+
+1. Turn on two-factor on both admin Google accounts and mail inboxes now (it protects the magic link and Google sign-in).
+2. Supabase → Authentication → Multi-Factor → enable **TOTP** (authenticator app). Supabase Auth then issues `aal2`
+   sessions after a verified TOTP challenge.
+3. The app needs a small enroll + verify screen for admins (`supabase.auth.mfa.enroll` / `challenge` / `verify`).
+   It is not built yet (LAUNCH_TODO.md). Until it exists, leave `ADMIN_REQUIRE_MFA` empty.
+4. Once both admins have enrolled, set `ADMIN_REQUIRE_MFA=true` in Vercel and redeploy. `requireAdmin()` and the
+   middleware's `/api/admin` check then treat an admin session below `aal2` like a non-admin (404). The level is read
+   from the session JWT (`mfa.getAuthenticatorAssuranceLevel()`), no extra network call.
+
 ## 2. Apply the migration
 
 Run `supabase/migrations/20261118000000_admin.sql` (Supabase → SQL editor, or `supabase db push`). It adds:
@@ -29,7 +42,9 @@ Until the migration runs, `/admin` pages show errors; the rest of the site keeps
 
 ## 3. Site settings (`/admin/settings`)
 
-Every save is validated, written to `app_settings` and to the audit log. The server reads settings through a cache: the
+Every save is validated, recorded in the audit log first (if that write fails, nothing changes), then written to
+`app_settings`; a `settings.update.done` row follows. Every other admin action works the same way (`<action>` row, the
+change, `<action>.done` row). The server reads settings through a cache: the
 instance that saved sees the change at once; other instances within 60 seconds. Maintenance mode is read at the edge
 with a 30-second cache.
 

@@ -12,7 +12,7 @@
 // Key: STRIPE_SECRET_KEY from the environment, else the env file. Needs a secret key (or a restricted key with write on
 // products, prices, webhook endpoints and portal configurations). A live key needs --live as well as --yes.
 // With --yes and an env file, empty STRIPE_PRICE_* / STRIPE_WEBHOOK_SECRET lines are filled in; set values are never replaced.
-import { readFileSync, writeFileSync } from "node:fs";
+import { chmodSync, readFileSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -158,13 +158,18 @@ if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
   let text = args.yes && loaded.file ? readFileSync(loaded.file, "utf8") : null;
   console.log(`\nEnv values${text !== null ? ` (empty lines filled in ${rel(loaded.file)})` : " to paste into apps/web/.env.prod and Vercel"}:`);
   for (const [k, v] of Object.entries(env)) {
-    const shown = k === "STRIPE_WEBHOOK_SECRET" && text !== null ? mask(v) : v;
+    const shown = k === "STRIPE_WEBHOOK_SECRET" ? mask(v) : v;   // RT3-08: never in full (CI logs, scrollback)
     if (text === null) { console.log(`${k}=${shown}`); continue; }
     const r = setIfEmpty(text, k, v);
     text = r.text;
     const old = loaded.env[k];
     console.log(`${k}=${shown}${r.changed ? "  (written)" : old === v ? "  (already set)" : `  (file has a different value: replace it by hand)`}`);
   }
-  if (text !== null) writeFileSync(loaded.file, text, { mode: 0o600 });
+  if (text !== null) {
+    writeFileSync(loaded.file, text, { mode: 0o600 });
+    chmodSync(loaded.file, 0o600);   // the mode above only applies when the file is created
+  } else if (webhookSecret) {
+    console.log("STRIPE_WEBHOOK_SECRET is masked above. Copy it from Stripe → Developers → Webhooks → this endpoint → Signing secret (Reveal).");
+  }
   if (!webhookSecret && args.yes) console.log("STRIPE_WEBHOOK_SECRET: unchanged (the endpoint already existed).");
 }

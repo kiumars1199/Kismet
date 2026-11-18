@@ -4,6 +4,7 @@
 //   void pnl = 0 (stake returned)
 //   CLV = closing_price − price
 import type { JournalEntry, Patch } from "@/lib/repo/types";
+import { cell } from "@/lib/csv";
 
 export type Result = NonNullable<JournalEntry["result"]>;
 type Bet = Pick<JournalEntry, "price" | "shares" | "fee">;
@@ -97,10 +98,6 @@ export const CSV_COLS = [
   "model_win_prob", "model_edge", "closing_price", "result", "settled_at", "pnl_usd", "note",
 ] as const;
 
-const cell = (v: unknown) => {
-  const s = v == null ? "" : String(v);
-  return /[",\n\r]/.test(s) ? `"${s.replaceAll('"', '""')}"` : s;
-};
 
 export const toCsv = (rows: JournalEntry[]) =>
   [CSV_COLS.join(","), ...rows.map((r) => CSV_COLS.map((c) => cell(r[c])).join(","))].join("\n");
@@ -132,7 +129,10 @@ export function fromCsv(text: string): { rows: JournalImport[]; skipped: number 
   const [head, ...body] = parseCsvRows(text);
   if (!head) return { rows: [], skipped: 0 };
   const idx = Object.fromEntries(head.map((h, i) => [h.trim(), i]));
-  const get = (r: string[], k: string) => { const v = r[idx[k] ?? -1]?.trim(); return v === undefined || v === "" ? null : v; };
+  const get = (r: string[], k: string) => {
+    const v = r[idx[k] ?? -1]?.trim().replace(/^'(?=[=+\-@])/, "");   // undo the export's formula guard (lib/csv cell)
+    return v === undefined || v === "" ? null : v;
+  };
   const num = (r: string[], k: string) => { const v = get(r, k); const n = v === null ? NaN : Number(v); return Number.isFinite(n) ? n : null; };
   const rows: JournalImport[] = [];
   let skipped = 0;

@@ -64,3 +64,12 @@ describe("journal P&L", () => {
     expect(fromCsv("market_id,side_index,price,shares\nm,0,1.5,10\n,0,0.5,10\nm2,1,0.4,5").rows).toHaveLength(1);
   });
 });
+
+it("RT3-04: journal CSV neutralizes formulas and round-trips the text", () => {
+  const e = { market_id: "m1", side_index: 0, outcome: "Yes", question: "=1+1", category: "c", niche: "n", price: 0.5, shares: 2, fee: 0, placed_at: 1, note: "@x" };
+  const csv = toCsv([e as never]);
+  expect(csv.split("\n")[1]).toContain(",'=1+1,");
+  const back = fromCsv(csv).rows[0]!;
+  expect(back.question).toBe("=1+1");
+  expect(back.note).toBe("@x");
+});

@@ -211,7 +211,7 @@ const RETRY_MS = 30_000;
 
 // Kept on globalThis so dev hot reloads don't re-parse 20 MB each time.
 const g = globalThis as unknown as {
-  __meStore?: { cache?: Store; inflight?: Promise<Store>; failedAt?: number; prev?: Store; delayed?: { for: number; load: Promise<Store> } };
+  __meStore?: { cache?: Store; inflight?: Promise<Store>; failedAt?: number; prev?: Store; prev2?: Store; delayed?: { for: number; load: Promise<void> } };
 };
 const state = (g.__meStore ??= {});
 
@@ -224,7 +224,7 @@ export function getStore(): Promise<Store> {
     .then((raw) => {
       state.failedAt = undefined;
       const next = buildStore(raw);
-      if (state.cache && state.cache.meta.scanned_at !== next.meta.scanned_at) state.prev = state.cache;
+      if (state.cache && state.cache.meta.scanned_at !== next.meta.scanned_at) [state.prev2, state.prev] = [state.prev, state.cache];
       return (state.cache = next);
     })
     .catch((e) => { state.failedAt = Date.now(); throw e; })
@@ -233,34 +233,58 @@ export function getStore(): Promise<Store> {
   return state.cache ? state.inflight.catch(() => state.cache!) : state.inflight;
 }
 
-/** The scan before `s`, from the `*-prev.json` copies the publisher keeps (ops/upload.py, refresh.yml), on the
- *  same source as `s`. Model, backtest and events are the newest (they carry no live prices). Throws when missing. */
-async function loadDelayed(s: Store): Promise<Store> {
+/** One delayed copy (`*-prev.json` or `*-prev2.json`, which the publishers keep: engine scan_keeping_prev,
+ *  ops/upload.py, refresh.yml) on the same source as `s`. Model, backtest and events are the newest (they carry no live
+ *  prices). undefined when the copy is missing or not older than `s`. */
+async function loadCopy(s: Store, suffix: "prev" | "prev2"): Promise<Store | undefined> {
   const chain = sourceChain(s.source ?? DATA_SOURCE);
   const read = async <T>(file: string) => {
     const text = await readSource(file, chain);
-    if (text === undefined) throw new DelayedPending(`[store] no ${file}: Free tier can't be served the delayed scan`);
-    return JSON.parse(text) as T;
+    return text === undefined ? undefined : (JSON.parse(text) as T);
   };
-  const [markets, flags] = await Promise.all([read<MarketsFile>("markets-prev.json"), read<FlagsFile>("flags-prev.json")]);
-  if (!(markets.meta.scanned_at < s.meta.scanned_at)) throw new DelayedPending("[store] *-prev.json is not older than the newest scan");
+  const [markets, flags] = await Promise.all([read<MarketsFile>(`markets-${suffix}.json`), read<FlagsFile>(`flags-${suffix}.json`)]);
+  if (!markets || !flags || !(markets.meta.scanned_at < s.meta.scanned_at)) return undefined;
   return buildStore({ markets, flags, model: s.model, backtest: s.backtest, events: s.events, ledgerSummary: s.ledgerSummary, source: s.source });
 }
 
-/** Free data is delayMin("free") behind (site settings, default 15) (docs/08, docs/15): while the newest scan is younger than that, serve the one
- *  before: this instance's previous copy, else the published `*-prev.json` (so a cold instance holds the delay too).
- *  Neither available = throw DelayedPending (routes answer 503, pages show DelayedPendingState): Free never falls through to the live scan.
- *  ponytail: "the scan before" can be < 15 min old when scans run more often than every 15 min; keep N copies if so. */
+/** Newest of the stores at or before `cutoff` (unix s). */
+const newestBy = (cutoff: number, ...stores: (Store | undefined)[]) =>
+  stores.filter((x): x is Store => !!x && x.meta.scanned_at <= cutoff).sort((a, b) => b.meta.scanned_at - a.meta.scanned_at)[0];
+
+/** Free data is at least delayMin("free") behind (site settings, default 15) (docs/08, docs/15): Free gets the newest
+ *  scan whose scanned_at is at least the delay before now (RT3-03: "the scan before" is not enough when scans run more
+ *  often than the delay). Candidates: the newest scan itself, this instance's two previous copies, else the published
+ *  `*-prev.json` / `*-prev2.json` (so a cold instance holds the delay too; prev2 is read only when prev is too young).
+ *  None old enough = throw DelayedPending (routes answer 503, pages show the pending state): Free never gets a younger scan.
+ *  ponytail: two copies cover a cadence down to half the delay (10 min for 15); a burst of back-to-back scans can leave
+ *  a few minutes of pending state until one ages past the delay. Keep more copies if scans ever run that often. */
 export async function getStoreFor(tier: Tier): Promise<Store> {
   const [s] = await Promise.all([getStore(), getSettings()]);   // getSettings refreshes the Free rows/delay snapshot
   const delay = delayMin(tier);
   const cutoff = Date.now() / 1000 - delay * 60;
-  if (delay === 0 || s.meta.scanned_at <= cutoff) return s;
-  if (state.prev && state.prev.meta.scanned_at < s.meta.scanned_at) return state.prev;
+  if (delay === 0) return s;
+  const pick = () => newestBy(cutoff, s, state.prev, state.prev2);
+  const hit = pick();
+  if (hit) return hit;
   const at = s.meta.scanned_at;
-  if (state.delayed?.for === at) return state.delayed.load;
-  const load = loadDelayed(s);
-  state.delayed = { for: at, load };
-  load.catch(() => { if (state.delayed?.load === load) state.delayed = undefined; });   // retry on the next request
-  return load;
+  if (state.delayed?.for !== at) {
+    // Published copies, read once per newest scan: kept in memory as prev / prev2 so they age into eligibility.
+    const load = (async () => {
+      const prev = await loadCopy(s, "prev");
+      const keep = (c: Store | undefined) => {
+        if (c && !(state.prev?.meta.scanned_at === c.meta.scanned_at || state.prev2?.meta.scanned_at === c.meta.scanned_at)) {
+          if (!state.prev || c.meta.scanned_at > state.prev.meta.scanned_at) [state.prev2, state.prev] = [state.prev, c];
+          else if (!state.prev2 || c.meta.scanned_at > state.prev2.meta.scanned_at) state.prev2 = c;
+        }
+      };
+      keep(prev);
+      if (!prev || prev.meta.scanned_at > cutoff) keep(await loadCopy(s, "prev2"));
+    })();
+    state.delayed = { for: at, load };
+    load.catch(() => { if (state.delayed?.load === load) state.delayed = undefined; });   // retry on the next request
+  }
+  await state.delayed!.load;
+  const late = pick();
+  if (late) return late;
+  throw new DelayedPending(`[store] no scan at least ${delay} min old yet: Free tier can't be served`);
 }

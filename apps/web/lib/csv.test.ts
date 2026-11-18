@@ -35,3 +35,14 @@ it("stops at the 5,000-row cap and at the last page", async () => {
   const m = (await getStore()).markets[0];
   expect(toCsv(Array.from({ length: MAX_ROWS + 3 }, () => ({ market: m, side: m.best }))).split("\r\n")).toHaveLength(MAX_ROWS + 1);
 });
+
+// RT3-04: upstream text (question, event, outcome) must never run as a spreadsheet formula.
+it("neutralizes formula cells; numbers stay numbers", async () => {
+  for (const s of ["=HYPERLINK(\"http://x\")", "+cmd|' /C calc'!A0", "-2+3", "@SUM(A1)", "\t=1", "\r=1"])
+    expect(cell(s).replace(/^"/, "")).toMatch(/^'/);
+  expect(cell(-0.05)).toBe("-0.05");
+  expect(cell("Will X win?")).toBe("Will X win?");
+  const m = (await getStore()).markets[0];
+  const row = toCsv([{ market: { ...m, question: "=1+1", event: "@x" }, side: m.best }]).split("\r\n")[1];
+  expect(row.startsWith("'=1+1,'@x,")).toBe(true);
+});

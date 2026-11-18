@@ -4,15 +4,18 @@
 import "server-only";
 import { notFound } from "next/navigation";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { getUser, supabaseAdmin, type SessionUser } from "@/lib/auth/server";
+import { getUser, supabaseAdmin, supabaseServer, type SessionUser } from "@/lib/auth/server";
 import { DEMO_MODE } from "@/lib/config";
-import { isAdminEmail } from "./core";
+import { isAdminEmail, mfaRequired } from "./core";
 
 /** The signed-in admin, or null. Server-decided (ADMIN_EMAILS is a server-only env). */
 export async function adminUser(): Promise<SessionUser | null> {
   if (DEMO_MODE) return null;
   const user = await getUser();
-  return user && isAdminEmail(user, process.env.ADMIN_EMAILS, DEMO_MODE) ? user : null;
+  if (!user || !isAdminEmail(user, process.env.ADMIN_EMAILS, DEMO_MODE)) return null;
+  if (!mfaRequired(process.env.ADMIN_REQUIRE_MFA)) return user;
+  const { data } = await (await supabaseServer()).auth.mfa.getAuthenticatorAssuranceLevel().catch(() => ({ data: null }));
+  return data?.currentLevel === "aal2" ? user : null;   // RT3-06
 }
 
 export interface AdminCtx { admin: SessionUser; db: SupabaseClient }

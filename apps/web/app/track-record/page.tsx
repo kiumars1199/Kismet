@@ -2,7 +2,9 @@
 // from model.json, live forward record from ledger_summary.json. Every figure is read, never invented.
 import { Tiles } from "@/components/results/Tiles";
 import { Count } from "@/components/kit";
-import { chosenResult, curve } from "@/lib/data/model";
+import { chosenResult, coarseCurve, curve } from "@/lib/data/model";
+import { getTier } from "@/lib/auth/server";
+import { can } from "@/lib/entitlements";
 import { getStore, readSource } from "@/lib/data/store";
 import { DASH, RETURN_HELP, edge, formatCount, pct } from "@/lib/format";
 import { TAXONOMY } from "@/lib/taxonomy";
@@ -30,7 +32,8 @@ async function firstFlaggedAt(): Promise<number | null> {
 }
 
 export default async function Page() {
-  const store = await getStore();
+  const [store, tier] = await Promise.all([getStore(), getTier()]);
+  const exact = can(tier, "exact_edge");   // RT3-01: Free / signed-out see the curves rounded to their band width
   const b = store.backtest;
   const r = chosenResult(b);
   const folds = foldRows(b);
@@ -42,7 +45,7 @@ export default async function Page() {
     label: c === "all" ? "All categories" : label(c),
     byH: Object.fromEntries(Object.keys(H_NAME).map((h) => {
       const cv = curve(store.model, c === "all" ? "all" : `cat:${c}`, Number(h));
-      return [h, cv ? { points: cv.points, events: cv.events } : null];
+      return [h, cv ? { points: (exact ? cv : coarseCurve(cv)).points, events: cv.events } : null];
     })),
   }]));
 

@@ -12,6 +12,7 @@ import { RELAX_STEPS, relax, relaxedNote, type ParsedQuery } from "@/lib/search/
 import { BEST_BETS_VERDICTS, type FilterState } from "@/lib/filters/state";
 import { DELAYED_PENDING, delayedPendingLine, type EventResponse, type MarketResponse, type MarketsResponse } from "@/lib/api";
 import type { StoreMarket } from "@/lib/types";
+import { headers } from "next/headers";
 
 /** RT-15: tier-shaped bodies must never sit in a shared cache. A route's own private Cache-Control is kept. */
 export function noStore(res: Response): Response {
@@ -67,6 +68,29 @@ export function pendingLine(e: unknown): string {
   throw e;
 }
 
+/** A page load refused by pageStore / pageBudget (RT3-02): the page renders its "slow down" state. */
+export class SlowDown extends Error {
+  constructor() { super("rate limited"); }
+}
+
+/** RT3-02: /m/[id] and /event/[id] page loads carry the same data as /api/markets/[id] and /api/events/[id], so they
+ *  get the same `markets` rate limit (keyed like the API: user id, else platform IP), checked before the store load.
+ *  Throws SlowDown when refused. Wrap the page's load() in React cache() so generateMetadata and the page count once. */
+export async function pageStore(): Promise<{ store: Store; tier: Tier; me: Me; req: Request }> {
+  const [me, h] = await Promise.all([getMe(), headers()]);
+  const req = new Request("http://page/", { headers: h });
+  if (await rateLimit("markets", clientKey(req, me.user?.id))) throw new SlowDown();
+  return { store: await getStoreFor(me.tier), tier: me.tier, me, req };
+}
+
+/** RT3-02: Free / signed-out page loads count the markets they show against the RT-03 distinct-row budget
+ *  (FREE_ROWS_PER_HOUR, shared with the list routes). Throws SlowDown past it. Paid tiers: no budget, like the API. */
+export async function pageBudget({ tier, me, req }: { tier: Tier; me: Me; req: Request }, ids: string[]): Promise<void> {
+  if (can(tier, "live_data")) return;
+  if (await rowBudget(req, me.user?.id, ids)) throw new SlowDown();
+  await noteRows(req, me.user?.id, ids.length);
+}
+
 export const notFound =(what: string, headers?: HeadersInit) => Response.json({ error: `${what} not found` }, { status: 404, headers });
 
 /** One page for the API. When q finds nothing, relax it step by step (docs/13 § honest fallback) and say so. */
@@ -119,7 +143,7 @@ export function marketBody(store: Store, m: StoreMarket, tier: Tier, shown: Tier
   return {
     market: gateMarket(store.flagsById.get(m.id) ?? m, shown),   // the flag row carries best.realistic_edge
     segment,
-    curve: curve(store.model, segment, m.horizon_h),
+    curve: can(shown, "exact_edge") ? curve(store.model, segment, m.horizon_h) : null,   // RT3-01: curve + mid = exact win chance
     backtest: categoryRecord(store.backtest, m.category),
     event_markets: capRows(openOnly(store.byEvent.get(m.event_id) ?? [], nowFor(store)).filter((x) => x.id !== m.id), tier).map((x) => gateMarket(x, tier)),
   };

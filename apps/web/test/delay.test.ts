@@ -9,6 +9,7 @@ import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 const h = vi.hoisted(() => ({ tier: "free" as "free" | "pro" }));
 vi.mock("@/lib/auth/server", () => ({ getMe: async () => ({ user: null, tier: h.tier }), getTier: async () => h.tier }));
+vi.mock("next/headers", () => ({ headers: async () => new Headers() }));   // page loads key the rate limit on it (RT3-02)
 
 const FIX = path.resolve(__dirname, "fixtures");
 const dir = mkdtempSync(path.join(tmpdir(), "me-delay-"));
@@ -35,6 +36,7 @@ const { ErrorState } = await import("@/components/screener/States");
 const { default: About } = await import("@/app/about/page");
 const { default: MarketPage } = await import("@/app/m/[id]/page");
 const { default: EventPage } = await import("@/app/event/[id]/page");
+const { default: StatusPage } = await import("@/app/status/page");
 /** A cold instance: the module-level store state starts empty. */
 const cold = () => {
   const s = (globalThis as { __meStore?: Record<string, unknown> }).__meStore ?? {};
@@ -80,7 +82,7 @@ describe("Free delay on a cold instance", () => {
   it("fails closed (503) when there is no previous scan, instead of serving live data", async () => {
     rmSync(path.join(dir, "markets-prev.json"), { force: true });
     rmSync(path.join(dir, "flags-prev.json"), { force: true });
-    await expect(getStoreFor("free")).rejects.toThrow(/prev/);
+    await expect(getStoreFor("free")).rejects.toBeInstanceOf(DelayedPending);
     expect((await flags(new Request("http://t/api/flags"))).status).toBe(503);
     expect((await getStoreFor("premium")).meta.scanned_at).toBe(NEW);
   });
@@ -88,7 +90,7 @@ describe("Free delay on a cold instance", () => {
   it("refuses a *-prev.json that is not older than the newest scan", async () => {
     withScan("markets.json", NEW, "markets-prev.json");
     withScan("flags.json", NEW, "flags-prev.json");
-    await expect(getStoreFor("free")).rejects.toThrow(/not older/);
+    await expect(getStoreFor("free")).rejects.toBeInstanceOf(DelayedPending);
   });
 });
 
@@ -137,5 +139,55 @@ describe("Free delay with no delayed copy yet", () => {
     expect(pending).toContain(LINE);
     expect(pending).not.toContain("Couldn");
     expect(renderToStaticMarkup(createElement(ErrorState, { onRetry: () => {}, error: "/api/flags: HTTP 500" }))).toContain("Couldn");
+  });
+});
+
+// RT3-03: the delay was "one scan behind", not 15 minutes: a prev copy merely older than the newest scan was served
+// even when seconds old. Free now gets the newest scan at least the delay old: the newest itself, *-prev.json or
+// *-prev2.json (the publishers keep two, since at a 10-minute cadence the replaced scan is only ~10 min old).
+describe("RT3-03: the Free copy is at least the delay old", () => {
+  const TEN = now - 600;
+  const rm = (...f: string[]) => f.forEach((x) => rmSync(path.join(dir, x), { force: true }));
+  afterAll(() => rm("markets-prev2.json", "flags-prev2.json"));
+
+  it("a prev copy younger than the delay is not served: pending, never the young copy", async () => {
+    rm("markets-prev2.json", "flags-prev2.json");
+    withScan("markets.json", TEN, "markets-prev.json");
+    withScan("flags.json", TEN, "flags-prev.json");
+    await expect(getStoreFor("free")).rejects.toBeInstanceOf(DelayedPending);
+    expect((await meta()).status).toBe(503);
+  });
+
+  it("serves *-prev2.json when prev is too young; /api/meta dates that copy", async () => {
+    withScan("markets.json", TEN, "markets-prev.json");
+    withScan("flags.json", TEN, "flags-prev.json");
+    withScan("markets.json", OLD, "markets-prev2.json");
+    withScan("flags.json", OLD, "flags-prev2.json");
+    expect((await getStoreFor("free")).meta.scanned_at).toBe(OLD);
+    expect((await (await meta()).json()).meta.scanned_at).toBe(OLD);
+    expect((await getStoreFor("pro")).meta.scanned_at).toBe(NEW);
+  });
+
+  it("prefers the newer copy once it is old enough", async () => {
+    const SIXTEEN = now - 16 * 60;
+    withScan("markets.json", SIXTEEN, "markets-prev.json");
+    withScan("flags.json", SIXTEEN, "flags-prev.json");
+    withScan("markets.json", OLD, "markets-prev2.json");
+    withScan("flags.json", OLD, "flags-prev2.json");
+    expect((await getStoreFor("free")).meta.scanned_at).toBe(SIXTEEN);
+  });
+});
+
+// RT3-07: /status showed Free / signed-out the live scan's time and counts; it now dates the copy that tier is served.
+describe("RT3-07: /status follows the tier's copy", () => {
+  const stamp = (unix: number) => new Date(unix * 1000).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" });
+  it("Free sees the delayed scan's time, Pro the newest", async () => {
+    withScan("markets.json", OLD, "markets-prev.json");
+    withScan("flags.json", OLD, "flags-prev.json");
+    const free = renderToStaticMarkup((await StatusPage()) as ReactElement);
+    expect(free).toContain(stamp(OLD));
+    expect(free).not.toContain(stamp(NEW));
+    h.tier = "pro";
+    expect(renderToStaticMarkup((await StatusPage()) as ReactElement)).toContain(stamp(NEW));
   });
 });

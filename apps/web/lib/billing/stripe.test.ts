@@ -114,7 +114,8 @@ describe("RT-05 client_reference_id is signed; a raw or edited id can't take ove
     const [, exp, mac] = REF.split("_");
     expect(verifyClientRef(REF, now, SECRET)).toBe(U);
     expect(verifyClientRef(`victim-2_${exp}_${mac}`, now, SECRET)).toBeNull();
-    expect(verifyClientRef(REF, now + 25 * 3_600_000, SECRET)).toBeNull();
+    expect(verifyClientRef(REF, now + 6 * 86_400_000, SECRET)).toBe(U);   // RT3-09: a Payment Link tab paid days later still links
+    expect(verifyClientRef(REF, now + 7 * 86_400_000 + 3_600_000, SECRET)).toBeNull();
     expect(verifyClientRef(clientRef(U, now, "whsec_other"), now, SECRET)).toBeNull();
     expect(REF).toMatch(/^[A-Za-z0-9_-]{1,200}$/);   // what Stripe accepts in client_reference_id
   });

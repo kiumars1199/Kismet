@@ -14,8 +14,6 @@ export const POST = other, PUT = other, PATCH = other, DELETE = other, OPTIONS =
 const PAGE = 200, MAX_PAGES = 100;   // ponytail: 20,000 users; stream it if the list outgrows that
 const COLS = ["id", "email", "created_at", "last_sign_in_at", "tier", "status", "comp_tier", "comp_expires_at"] as const;
 type Row = Record<(typeof COLS)[number], unknown>;
-/** Spreadsheet formula injection: a cell that starts with = + - @ is shown as text. */
-const safe = (v: unknown) => cell(typeof v === "string" && /^[=+\-@\t\r]/.test(v) ? `'${v}` : v);
 
 export async function GET(req: Request): Promise<Response> {
   const ctx = await requireAdmin();
@@ -30,7 +28,7 @@ export async function GET(req: Request): Promise<Response> {
     if (!data || data.length < PAGE) break;
   }
   await audit(ctx, "users.export", null, null, { rows: rows.length });
-  const csv = [COLS.join(","), ...rows.map((r) => COLS.map((c) => safe(r[c])).join(","))].join("\r\n");
+  const csv = [COLS.join(","), ...rows.map((r) => COLS.map((c) => cell(r[c])).join(","))].join("\r\n");
   return new Response(csv, {
     headers: {
       "Content-Type": "text/csv; charset=utf-8",

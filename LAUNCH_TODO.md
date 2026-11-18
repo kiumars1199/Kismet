@@ -26,6 +26,10 @@ Code can't do these. Do them in order. `SETUP.md` has the how-to for every accou
    `NEXT_PUBLIC_EXTENSION_ID` to the store ID and redeploy.
 10. **Run a data refresh for 48 hours** before launch. Both of these must be green: the Railway/Fly engine logs, and
     `refresh.yml` as the fallback.
+11. **Protect admin access (RT3-06).** Turn on two-factor on both admin Google accounts and inboxes. Enable TOTP in
+    Supabase → Authentication → Multi-Factor. Admin should require `aal2`: build the small admin TOTP enroll/verify
+    screen, enroll both admins, then set `ADMIN_REQUIRE_MFA=true` in Vercel and redeploy
+    (`docs/setup-notes/admin.md` § MFA). Don't set the flag before the screen exists: it locks admins out.
 
 ## Before real-money trading (docs/16 §5) — trading stays paper-only until all of these are done
 

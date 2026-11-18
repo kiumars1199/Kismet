@@ -3,13 +3,13 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
 import { createServer } from "node:http";
-import { readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { promisify } from "node:util";
 import { parseEnv } from "node:util";
 import { after, before, test } from "node:test";
 import { webhookEvents } from "../stripe-setup.mjs";
-import { ROOT, WEB } from "../lib.mjs";
+import { PROD_ENV, ROOT, WEB } from "../lib.mjs";
 
 /** Stripe form encoding (a[b][0]=x) → nested objects/arrays. */
 function decode(params) {
@@ -127,6 +127,27 @@ test("a live key needs --live", async () => {
     await assert.rejects(promisify(execFile)("node", [join(ROOT, "ops/stripe-setup.mjs"), "--env", envFile, "--domain", "x.example", "--yes"], {
       env: { ...process.env, STRIPE_SECRET_KEY: "sk_live_FAKEFAKEFAKEFAKE" },
     }), /LIVE key/);
+  } finally {
+    rmSync(envFile, { force: true });
+  }
+});
+
+// RT3-08: with no env file the secret was printed in full (CI logs, scrollback). Always masked now; an existing env
+// file is also forced to 0600 (writeFileSync's mode only applies when it creates the file).
+test("the webhook secret is never printed; the env file ends up 0600", async (t) => {
+  if (existsSync(PROD_ENV) || existsSync(join(WEB, ".env.local"))) return t.skip("an env file exists: the no-file path can't run here");
+  state.hooks.length = 0;   // a fresh endpoint, so a new secret is issued
+  const out = await promisify(execFile)("node", [join(ROOT, "ops/stripe-setup.mjs"), "--domain", "marketedge.example", "--yes"], {
+    env: { ...process.env, STRIPE_SECRET_KEY: "sk_test_FAKEFAKEFAKEFAKE", STRIPE_API_BASE: base },
+  }).then((r) => r.stdout);
+  assert.doesNotMatch(out, /whsec_mocksecret/);
+  assert.match(out, /Signing secret/);
+
+  writeFileSync(envFile, "STRIPE_WEBHOOK_SECRET=\n", { mode: 0o644 });
+  try {
+    state.hooks.length = 0;
+    await run("--yes");
+    assert.equal(statSync(envFile).mode & 0o777, 0o600);
   } finally {
     rmSync(envFile, { force: true });
   }

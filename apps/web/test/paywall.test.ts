@@ -184,3 +184,62 @@ describe.each(["pro", "premium"] as const)("%s", (tier) => {
     expect((await json(routes.markets(req(`/api/markets?ps=200&g=0&pg=${pages + 1}`)))).status).toBe(400);
   });
 });
+
+// RT3-01: ops/redteam/run3/curve_unband.py as a test. Free got banded win chances but the exact `mid` and the market's
+// model curve; interpolating the curve at the mid gave the exact win chance (88% within 0.5 pp). Every curve Free can
+// get (market body, /api/model/curve, /track-record) must leave it no better than the band plus the public mid alone.
+describe("RT3-01: curve + mid can't un-band Free", () => {
+  beforeEach(() => { h.tier = "free"; h.user = null; });
+  const interp = (pts: { price: number; win_prob: number }[], p: number) => {
+    if (p <= pts[0]!.price) return pts[0]!.win_prob;
+    for (let i = 1; i < pts.length; i++) {
+      const a = pts[i - 1]!, b = pts[i]!;
+      if (p <= b.price) return a.win_prob + ((b.win_prob - a.win_prob) * (p - a.price)) / (b.price - a.price);
+    }
+    return pts.at(-1)!.win_prob;
+  };
+  const segOf = (m: { niche: string; market_type: string; category: string }, l?: string) =>
+    l === "nmt" ? `${m.niche}:${m.market_type}` : l === "niche" ? m.niche : l === "cat" ? `cat:${m.category}` : "all";
+
+  it("market body and page props carry no curve for Free; paid and a counted reveal keep it", async () => {
+    const s = await getStore();
+    const m = s.markets.find((x) => x.best.model_level === "nmt")!;
+    expect(marketBody(s, m, "free").curve).toBeNull();
+    expect(marketBody(s, m, "free", "pro").curve).not.toBeNull();
+    expect(marketBody(s, m, "pro").curve).not.toBeNull();
+    const { body } = await json(routes.market(req(`/api/markets/${m.id}`), ctx("id", m.id)));
+    expect((body as { curve: unknown }).curve).toBeNull();
+  });
+
+  it("/api/model/curve: Free gets only all / cat: segments, rounded to 5 pp; Pro gets every segment exact", async () => {
+    expect((await json(routes.curve(req("/api/model/curve?segment=nfl:moneyline&h=72")))).status).toBe(403);
+    const c = (await json(routes.curve(req("/api/model/curve?segment=all&h=24")))).body as { points: { win_prob: number }[] };
+    for (const p of c.points) expect(Math.round(p.win_prob * 20) / 20).toBeCloseTo(p.win_prob, 10);
+    h.tier = "pro";
+    expect((await json(routes.curve(req("/api/model/curve?segment=nfl:moneyline&h=72")))).status).toBe(200);
+  });
+
+  it("match rate of the curve attack over the whole scan is at chance level (band + mid alone)", async () => {
+    const s = await getStore();
+    const curves = new Map<string, { price: number; win_prob: number }[] | null>();
+    let n = 0, attack = 0, chance = 0;
+    for (const exact of s.markets) {
+      const body = marketBody(s, exact, "free");   // what /api/markets/<id> and /m/<id> send Free
+      const b = body.market.best;
+      const key = `${segOf(body.market, b.model_level)}|${body.market.horizon_h}`;
+      if (!curves.has(key)) {
+        const r = await json(routes.curve(req(`/api/model/curve?${new URLSearchParams({ segment: key.split("|")[0]!, h: key.split("|")[1]! })}`)));
+        curves.set(key, r.status === 200 ? (r.body as { points: { price: number; win_prob: number }[] }).points : null);
+      }
+      const pts = body.curve?.points ?? curves.get(key);
+      const lo = b.win_prob, w = exact.best.win_prob;   // Free's band is [lo, lo + 5 pp)
+      const clamp = (x: number) => Math.min(Math.max(x, lo), lo + 0.0499);
+      const guess = clamp(pts ? interp(pts, b.mid) : b.mid);
+      n++;
+      attack += Number(Math.abs(guess - w) < 0.005);
+      chance += Number(Math.abs(clamp(b.mid) - w) < 0.005);
+    }
+    expect(n).toBeGreaterThan(400);
+    expect(attack / n).toBeLessThanOrEqual(chance / n + 0.03);
+  });
+});

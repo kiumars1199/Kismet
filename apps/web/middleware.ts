@@ -2,7 +2,7 @@
 // Refuses AI crawlers always (docs/15); the session part does nothing in demo mode or before Supabase is configured.
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { isAdminEmail } from "@/lib/admin/core";
+import { isAdminEmail, mfaRequired } from "@/lib/admin/core";
 import { maintenanceOn } from "@/lib/maintenance";
 import { isAiBot } from "@/lib/bots";
 import { DEMO_MODE } from "@/lib/config";
@@ -67,7 +67,8 @@ export async function middleware(req: NextRequest) {
   const { data } = await supabase.auth.getUser();   // refreshes an expired access token; revoked session → null
 
   const path = req.nextUrl.pathname;
-  const admin = isAdminEmail(data.user && { email: data.user.email, verified: !!data.user.email_confirmed_at }, process.env.ADMIN_EMAILS, DEMO_MODE);
+  const admin = isAdminEmail(data.user && { email: data.user.email, verified: !!data.user.email_confirmed_at }, process.env.ADMIN_EMAILS, DEMO_MODE) &&
+    (!mfaRequired(process.env.ADMIN_REQUIRE_MFA) || (await supabase.auth.mfa.getAuthenticatorAssuranceLevel()).data?.currentLevel === "aal2");   // RT3-06
   if (adminApi && !admin) return hidden();
   if (!under(path, MAINTENANCE_OPEN) && (await maintenanceOn(url))) {
     if (!admin) {

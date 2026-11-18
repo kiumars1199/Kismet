@@ -39,18 +39,22 @@ DELAYED = ("markets.json", "flags.json")
 
 
 def scan_keeping_prev(cfg, run=None):
-    """Scan, then keep the scan it replaced as *-prev.json: the Free tier is served that one while the new
-    scan is younger than the delay (docs/15). Same rotation as ops/upload.py does for Storage."""
+    """Scan, then keep the two scans before it: the replaced one as *-prev.json, the one before that as
+    *-prev2.json. The Free tier is served the newest scan at least the delay old (docs/15; the web store picks).
+    Two copies, not one (RT3-03): at a 10-minute cadence the replaced scan is only ~10 min old, so a single copy
+    either breaks the 15-min delay or leaves Free with nothing for 5 minutes of every 10. Same shift as
+    ops/upload.py (Storage) and refresh.yml (live branch)."""
     old = {}
     for name in DELAYED:
-        try:
-            with open(cfg.path("output", name), "rb") as f:
-                old[name] = f.read()
-        except FileNotFoundError:
-            pass
+        for src in (name, name.replace(".json", "-prev.json")):
+            try:
+                with open(cfg.path("output", src), "rb") as f:
+                    old[src] = f.read()
+            except FileNotFoundError:
+                pass
     (run or scan.run)(cfg)  # a failed scan raises: nothing rotated, the old files stay as they were
-    for name, data in old.items():
-        with open(cfg.path("output", name.replace(".json", "-prev.json")), "wb") as f:
+    for src, data in old.items():
+        with open(cfg.path("output", src.replace(".json", "-prev.json").replace("-prev-prev", "-prev2")), "wb") as f:
             f.write(data)
 
 
