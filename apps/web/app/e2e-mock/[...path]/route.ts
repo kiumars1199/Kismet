@@ -33,7 +33,7 @@ const handle = async (req: Request, { params }: Ctx) => {
   if (svc === "stripe") return stripe(req, rest);
   return json({ error: "unknown mock" }, 404);
 };
-export { handle as GET, handle as POST, handle as PATCH, handle as DELETE };
+export { handle as GET, handle as HEAD, handle as POST, handle as PATCH, handle as DELETE };
 
 // ------------------------------------------------------------------ Supabase
 function session(user: User) {
@@ -151,6 +151,8 @@ async function rest(req: Request, url: URL, name: string) {
     return prefer.includes("return=representation") || req.method === "GET" ? json(out, status) : new Response(null, { status: status === 200 ? 204 : status });
   };
 
+  // HEAD with Prefer: count=exact is supabase-js `select(..., { count: "exact", head: true })` (the plan-quota fast path).
+  if (req.method === "HEAD") return new Response(null, { status: 200, headers: { "content-range": `*/${rows.filter(match).length}` } });
   if (req.method === "GET") {
     let out = rows.filter(match);
     const order = url.searchParams.get("order");
@@ -161,7 +163,8 @@ async function rest(req: Request, url: URL, name: string) {
     return reply(out);
   }
   if (req.method === "PATCH") {
-    const patch = (await req.json()) as Row;
+    const patch = (await req.json().catch(() => null)) as Row | null;
+    if (!patch) return json({ code: "PGRST102", message: "Empty or invalid json" }, 400);
     const hit = rows.filter(match);
     for (const r of hit) Object.assign(r, patch);
     return reply(hit);
@@ -172,7 +175,8 @@ async function rest(req: Request, url: URL, name: string) {
     return reply(hit);
   }
   // POST: insert or upsert
-  const body = (await req.json()) as Row | Row[];
+  const body = (await req.json().catch(() => null)) as Row | Row[] | null;
+  if (!body) return json({ code: "PGRST102", message: "Empty or invalid json" }, 400);
   const conflict = url.searchParams.get("on_conflict")?.split(",");
   const out: Row[] = [];
   for (const raw of Array.isArray(body) ? body : [body]) {
