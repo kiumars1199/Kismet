@@ -9,7 +9,7 @@ import { InboxList, markAllRead, useInbox } from "@/components/alerts/Inbox";
 import { Dialog, NumberInput, PageTitle, Segmented, Switch, Tabs, btn, btnGhost, btnPrimary, card, input } from "@/components/kit";
 import { KIND_LABEL } from "@/lib/alerts";
 import { fetchMarket, fetchMarkets } from "@/lib/api";
-import { ago, price, ret } from "@/lib/format";
+import { ago, formatCount, price, ret } from "@/lib/format";
 import { parse } from "@/lib/filters/url";
 import { askPermission } from "@/lib/notify";
 import { DEMO_MODE, getRepo } from "@/lib/repo";
@@ -77,7 +77,7 @@ export function AlertsView() {
         <button type="button" className={btnPrimary} onClick={() => setDraft({ ...blank(), view_id: filters ? "current" : "builtin:best" })}>New alert</button>
       </PageTitle>
       {runMsg && <p role="status" className="-mt-3 text-sm text-muted">{runMsg}</p>}
-      <Tabs label="Alerts" value={tab} onChange={setTab} tabs={[{ value: "rules", label: `Rules (${rules.length})` }, { value: "inbox", label: unread ? `Inbox (${unread} new)` : "Inbox" }]} />
+      <Tabs label="Alerts" value={tab} onChange={setTab} tabs={[{ value: "rules", label: `Rules (${rules.length})` }, { value: "inbox", label: unread ? `Inbox (${formatCount(unread)} new)` : "Inbox" }]} />
 
       {tab === "rules" ? (
         !rules.length ? (

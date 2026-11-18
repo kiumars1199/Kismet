@@ -222,7 +222,7 @@ function Chip({ label, on, onClick, count }: { label: string; on: boolean; onCli
   return (
     <button type="button" aria-pressed={on} onClick={onClick}
       className={`min-h-9 rounded-full border px-3 text-[13px] ${on ? "border-accent-border bg-accent-bg text-accent-soft" : `border-border bg-input ${count === 0 ? "text-muted" : "text-soft"} hover:text-text`}`}>
-      {label}{count !== undefined && <span className="ml-1 text-xs text-muted">{count}</span>}
+      {label}{count !== undefined && <span className="ml-1 text-xs tabular-nums text-muted" title={exactCount(count)}>{formatCount(count)}</span>}
     </button>
   );
 }
