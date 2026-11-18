@@ -29,7 +29,9 @@ Until the migration runs, `/admin` pages show errors; the rest of the site keeps
 
 ## 3. Site settings (`/admin/settings`)
 
-Every save is validated, written to `app_settings` and to the audit log. The server reads settings through a cache: the
+Every save is validated, recorded in the audit log first (if that write fails, nothing changes), then written to
+`app_settings`; a `settings.update.done` row follows. Every other admin action works the same way (`<action>` row, the
+change, `<action>.done` row). The server reads settings through a cache: the
 instance that saved sees the change at once; other instances within 60 seconds. Maintenance mode is read at the edge
 with a 30-second cache.
 
