@@ -334,10 +334,10 @@ function StakeSection({ x, live, fetchedAt, error, bookState, scanAt, stake, onS
         <span className="text-xs" aria-live="polite">{check}</span>
       </div>
       {x && x.stakes.length > 0 ? (
-        <table className="w-full border-collapse text-sm">
+        <table className="w-full border-collapse text-sm tabular-nums">
           <thead>
             <tr className="text-left text-xs text-muted">
-              <th scope="col" className="py-1 font-medium">You bet</th>
+              <th scope="col" className="whitespace-nowrap py-1 pr-2 font-medium">You bet</th>
               <th scope="col" className="font-medium">You get back if it wins</th>
               <th scope="col" className="text-right font-medium">Est. profit (past results)</th>
             </tr>
@@ -345,7 +345,7 @@ function StakeSection({ x, live, fetchedAt, error, bookState, scanAt, stake, onS
           <tbody>
             {x.stakes.map((r) => (
               <tr key={r.stake_usd} className={r.stake_usd === stake ? "text-accent-soft" : ""}>
-                <td className="py-1.5">{money(r.stake_usd)}{r.filled_usd < r.stake_usd - 0.01 && <span className="block text-xs text-warning">only {money(r.filled_usd)} fills</span>}</td>
+                <td className="py-1.5 pr-2">{money(r.stake_usd)}{r.filled_usd < r.stake_usd - 0.01 && <span className="block text-xs text-warning">only {money(r.filled_usd)} fills</span>}</td>
                 <td>{money(r.shares)}</td>
                 <td className={`text-right ${r.expected_profit_usd >= 0 ? "text-accent" : "text-negative"}`}>{money(r.expected_profit_usd, true)}</td>
               </tr>
