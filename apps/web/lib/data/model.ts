@@ -41,8 +41,8 @@ export function curve(model: ModelFile, segment: string, h: number): Curve | nul
 
 /** RT3-01 / audit run 6: the curve Free / signed-out callers may see. Rounding to 5 pp alone still let rows modelled at
  *  "all" / "cat" level be un-banded (44 of 98 within 0.5 pp), so the public curve keeps only one point per 10¢ of price,
- *  rounded to 10 pp: interpolating it at a market's mid is no better than guessing the middle of Free's band
- *  (test/paywall.test.ts measures it over the scan). */
+ *  rounded to 10 pp. A small leak remains and is an accepted risk (AUDIT.md "Accepted risks"); test/paywall.test.ts
+ *  fails if the attack's mean error drops below 1.2 pp. */
 export function coarseCurve(c: Curve): Curve {
   const at = (x: number) => {
     const p = c.points, k = p.findIndex((q) => q.price >= x);

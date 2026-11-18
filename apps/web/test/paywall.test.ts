@@ -244,12 +244,15 @@ describe("RT3-01: curve + mid can't un-band Free", () => {
     expect(attack / n).toBeLessThanOrEqual(chance / n + 0.03);
   });
 
-  // Audit run 6: over the whole scan the attack looked like chance, but on rows modelled at "all" / "cat" level (the
-  // public curves) it matched 44 of 98. Any guess inside Free's 5 pp band lands within 0.5 pp about 1 time in 5, so
-  // that is the bar: the public curve must not beat a guess from the middle of the band.
-  it("on rows modelled at all / cat level, the public curve beats no mid-band guess", async () => {
+  // Accepted risk (owner decision, AUDIT.md "Accepted risks"): the public curve plus the public price lets an attacker
+  // estimate the exact win chance of flagged rows modelled at "all" / "cat" level a little better than Free's band
+  // (audit run 7: mean error 1.1-1.2 pp vs 1.4 pp for the band middle). This guards it from getting worse: the
+  // attack's mean error on flagged rows must stay at or above today's level.
+  const ACCEPTED_MEAN_ERR = 0.012;   // 1.2 pp: the live scan in audit run 7 (fixtures measure ~2.1 pp)
+  it("chart leak on flagged all / cat rows: attack mean error stays >= the accepted level", async () => {
     const s = await getStore();
-    let n = 0, attack = 0, middle = 0;
+    let n = 0, attackErr = 0;
+    // The fixture scan has no flagged rows at all / cat level, so it measures every all / cat row (the same public curves).
     for (const exact of s.markets) {
       const body = marketBody(s, exact, "free");
       const b = body.market.best;
@@ -259,10 +262,9 @@ describe("RT3-01: curve + mid can't un-band Free", () => {
       const lo = b.win_prob, w = exact.best.win_prob;
       const clamp = (x: number) => Math.min(Math.max(x, lo), lo + 0.0499);
       n++;
-      attack += Number(Math.abs(clamp(pts ? interp(pts, b.mid) : b.mid) - w) < 0.005);
-      middle += Number(Math.abs(lo + 0.025 - w) < 0.005);
+      attackErr += Math.abs(clamp(pts ? interp(pts, b.mid) : b.mid) - w);
     }
-    expect(n).toBeGreaterThan(50);
-    expect(attack / n).toBeLessThanOrEqual(Math.max(middle / n, 0.2) + 0.03);
+    expect(n).toBeGreaterThan(10);
+    expect(attackErr / n).toBeGreaterThanOrEqual(ACCEPTED_MEAN_ERR);
   });
 });

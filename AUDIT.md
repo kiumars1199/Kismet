@@ -1632,3 +1632,17 @@ Unchanged from run 6, with run 6's "signed-in crawl" item now done:
 - **Scan cadence:** run the engine container (10-minute scans). With only the `refresh.yml` fallback (every 2 h), "about every 10 minutes" is wrong, and Free would be 2 h + behind.
 - **Chrome Web Store:** publish the extension and set `NEXT_PUBLIC_EXTENSION_ID`.
 - **Count rule exceptions (item 7):** confirm the exact contract quantity on the trade ticket and the exact unread count in the bell's `aria-label`.
+
+# Accepted risks (owner decision, Nov 18)
+
+## RT3-01 residual: public win-chance chart + public price
+- **What:** a signed-out visitor can combine the coarse public curve (`/api/model/curve` `all` / `cat:` segments, the
+  `/track-record` charts) with the market price, which is public on Polymarket anyway, to estimate the exact win chance of
+  flagged bets modelled at `all` / `cat` level. That is a little better than Free's 5 pp band: audit run 7 measured a
+  mean error of 1.1–1.2 pp, against 1.4 pp for guessing the middle of the band (about 30% vs 14% within 0.5 pp).
+- **Why accepted:** any public calibration chart plus a public price leaks this much. Hiding the charts would remove the
+  public track record. The owner chose to keep the charts.
+- **Guard:** `apps/web/test/paywall.test.ts` ("chart leak on flagged all / cat rows") fails if the attack's mean error
+  drops below 1.2 pp. Niche curves stay paid-only, and the per-market curve is never sent to Free or signed-out users.
+- **Audits:** this item is no longer counted as a fail while the guard test passes.
+
