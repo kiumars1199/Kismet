@@ -1343,3 +1343,292 @@ Unchanged from run 5, plus the new items (marked new):
 - **Chrome Web Store:** publish the extension and set `NEXT_PUBLIC_EXTENSION_ID`.
 - (new) **Signed-in crawl:** run `crawl2.mjs`-style checks (every page at 390 and 1440, console errors, disclaimer, horizontal scroll) as Pro, Premium and admin. Not run in audit 6.
 - **Count rule exceptions (item 7):** confirm the exact contract quantity on the trade ticket and the exact unread count in the bell's `aria-label`.
+
+# Audit run 7
+
+MarketEdge final audit, seventh run.
+
+Auditor: a fresh agent that built none of this code. It checked and fixed nothing.
+Target: branch `final` at `30e7362` ("T-242: Free delay copy says at least 15 minutes everywhere (audit run 6 fail 2)"), checked out as worktree `audit7` (branch `audit7`).
+Date: 2026-11-18, 13:02–14:35 local.
+Spec: `docs/OVERNIGHT.md` §3, items 1–11, plus the brief's priorities: re-check run 6's two fails, run the Pro, Premium and admin crawls that run 6 could not, two runs of each e2e suite, the Lighthouse protocol, ops dry runs, `smoke-prod.sh` against a local production build, `pnpm audit` and a raw-count sweep.
+
+Since run 6 (`4aa0400`), `final` gained 2 product commits plus the run 6 report:
+- T-241 (`cc57728`): the public model curve for Free and signed-out callers is now 10 points (one per 10¢ of price, at 5¢, 15¢ … 95¢), win chance rounded to 10 pp (`lib/data/model.ts:42-55`). New test in `test/paywall.test.ts:247-267`.
+- T-242 (`30e7362`): the freshness pill and the pending line say "at least 15 minutes" (`components/header/FreshnessPill.tsx:30`, `lib/api.ts:89`).
+- `git diff --stat 4aa0400 30e7362 -- apps` touches 4 files: those three and the test. Nothing in `apps/extension`, trading, billing, email or combos changed.
+
+How the audit ran:
+- Everything ran outside `~/Desktop`, in a scratch directory:
+  - `audit7/` is a git worktree at `30e7362`. Unit tests, lint, typecheck and both e2e suites (twice each) ran here, after `pnpm i --frozen-lockfile` (exit 0 for web and extension). The main checkout has no `output/*-prev*.json`, so only the 8 committed output files were copied (none of the `* 2.json` iCloud duplicates).
+  - `a7/prod/` and `a7/mock/` are `git archive` copies of `30e7362`.
+- `a7/prod/` followed `SETUP.md` §0: a new venv (Python 3.13.1; there is no 3.12 on this Mac), `pip install -r requirements.txt` (exit 0), `pytest -q` (45 passed), `pnpm i --frozen-lockfile` (exit 0), and `pnpm build` with `DEMO_MODE` and `NEXT_PUBLIC_DEMO_MODE` unset, no `.env*` file except `.env.example`, no Supabase/Stripe/Upstash/cron/Kalshi variable in the environment, and `NEXT_PUBLIC_SITE_URL=http://localhost:5050` (`BUILD_EXIT=0`). It ran as `next start -p 5050` with `DATA_DIR=a7/prod/output`. The same build served item 2, the logged-out crawl, Lighthouse, the probes and `smoke-prod.sh`.
+- One fresh scan ran into `a7/prod/output` at 13:05:57–13:06:49 (`python -m engine scan`: 22,710 markets, 1,777 flags, `scanned_at 1795025158`). The committed scan (`1794895125`) became `*-prev.json`.
+- For the pending state I ran a second instance of the same build on 5051, with a copy of the output whose `scanned_at` I set to "now" and no `*-prev` copies (a cold instance with nothing 15 minutes old). This replaces run 6's three back-to-back scans and a restart.
+- `a7/mock/` ran the `E2E_MOCK=1` dev server on 5030 with the paid-config env (as `playwright.paid.config.ts`), `ADMIN_EMAILS=admin-audit7@example.com`, `KALSHI_TRADING_ENV=demo` and `DATA_DIR=a7/prod/output`. Users were seeded through the mock magic link and the mock Stripe checkout (`seed.mjs`).
+- Only ports 5010–5051 were used (5000 is taken by macOS AirPlay). Every server I started was stopped before the commit.
+- No Supabase, Stripe, Upstash, Vercel or Kalshi account exists. Where the in-repo mocks fully cover a check it is marked PASS; each live step is under "Owner verification".
+- I did not accept commit messages, STATUS.md or run 6's text as proof.
+- The machine was lightly loaded for most of the run (1-minute load 2–8; one spike to 34 at 13:22 from macOS `mds`/`spindump`/iCloud). `uptime` is recorded next to each e2e run, crawl and Lighthouse batch.
+- Scratch helpers stayed in the scratch directory and are not committed. Reused from run 6 with ports and paths changed: `crawl2.mjs`, `seed.mjs`, `probe.py`, `cards.mjs`, `fees.mjs`, `webhook.mjs`, `hammer.py`, `kbd.mjs`, `me.mjs`, `extload.mjs`, `poll.py`, `scrape2.sh`/`one.sh`, `pendshot.mjs`, `lh.sh`, `ops.sh`, `secrets_scan.py`. New: `curve_check4.py` (RT3-01 attack over flagged bets, both sides, three baselines), `pill.mjs` (reads the freshness pill's title), `crawl1.sh` (restart the mock, warm it, seed one user, crawl).
+
+## Summary
+
+| # | Item | Result |
+|---|------|--------|
+| 1 | Tests | PASS |
+| 2 | Production build | PASS |
+| 3 | Every page × every state | PASS |
+| 4 | Quality | PASS |
+| 5 | Data correctness | PASS |
+| 6 | Security | **FAIL** (RT3-01 residual, low) |
+| 7 | Multipliers and combos | PASS |
+| 8 | Trading safety | PASS |
+| 9 | Billing | PASS (mock) |
+| 10 | Legal and wording | PASS (placeholders listed) |
+| 11 | Publication readiness | PASS |
+
+One fail, low severity. Run 6's fail 2 (Free delay copy) is fixed. Run 6's fail 1 (RT3-01) is smaller but not closed: T-241 cut the curve attack on flagged bets from 45% to about 30% within 0.5 pp, but a 10-point public curve plus the exact mid still places the exact win chance better than any guess from the band alone, which is the bar T-241's own comment and test set. The new test passes only because it averages over every market at `all`/`cat` level, most of which are not flagged bets, the same population gap as run 6.
+
+Run 6's missing crawls ran: Pro, Premium and admin, each at 390 and 1440 px, on a mock dev server restarted and reseeded before each one (the first Pro attempt lost its user to a dev-server memory restart and was discarded, see item 3).
+
+Fails, in short (details and repro under "Fails to fix"):
+1. **RT3-01 residual: the coarse public curve still beats a band-only guess on flagged bets modelled at `all`/`cat` level.** Two scans, best side: 46/147 (31.3%) and 39/131 (29.8%) within 0.5 pp, against 20 (13.6%) and 18 (13.7%) for the middle of the band; the bar in `test/paywall.test.ts:266` is max(mid-band, 20%) + 3 pp = 23%. Mean absolute error 1.11–1.22 pp against 1.37–1.40 pp for the band middle.
+
+## Fixed since run 6
+
+| Run 6 fail | Fix | Holds? | Evidence |
+|---|---|---|---|
+| 1. RT3-01 residual (coarse curve un-bands 44/98 flagged `all`/`cat` bets) | T-241: public curve = 10 points at 10 pp | **Partly** (still a fail, item 6) | See below. |
+| 2. Free delay copy says "15 minutes", not "at least" | T-242: pill and pending line say "at least" | **Yes** | See below. |
+
+**Run 6 fail 2, Free delay copy: fixed.**
+- Every user-facing delay string, by `grep -rniE "delay|15.?min|fifteen|behind"` over `apps/web/app`, `components`, `lib`, `apps/extension/src` and `config`:
+  - `components/header/FreshnessPill.tsx:30` "On the Free plan you see prices at least 15 minutes behind."
+  - `lib/api.ts:89` "Free prices run at least 15 minutes behind; the first update is on its way."
+  - `app/status/page.tsx:50` "…you see each scan at least 15 minutes after it runs…"
+  - `app/pricing/page.tsx:10` "At least 15 minutes behind, top 25 rows"; `components/pricing/Plans.tsx:12` "…at least 15 minutes behind, top 25 rows"
+  - `lib/auth/server.ts:23` "…every open market, at least 15 minutes behind, top 25 rows…"
+  - The admin hint (`components/admin/Controls.tsx:188`) "Free sees the scan from at least this long ago."
+  - No other match is a delay claim ("Every 15 min" is a market frequency filter; "expires in 15 minutes" is the sign-in link). The extension has no delay copy.
+- Rendered, production build 5050, logged out:
+  - 13:10, Free still on the committed scan: pill "Updated 36 h ago · data may be stale", title "The last scan was 36 h ago. Prices may have moved since, so check the market before betting. On the Free plan you see prices at least 15 minutes behind." (`audit7-anon-pill-1440.png`)
+  - 13:21, right after Free switched to the fresh scan: pill "Updated 15 min ago", title "Prices and win chances were last checked 15 min ago. Prices refresh about every 10 minutes. On the Free plan you see prices at least 15 minutes behind." (`audit7-anon-pill-fresh-1440.png`)
+- Pending state (5051, cold instance, newest scan stamped "now", no `*-prev`): `/api/meta` → 503 `{"error":"Free prices run at least 15 minutes behind; the first update is on its way.","code":"delayed_pending"}`. `/`, `/markets`, `/status` and `/m/6117510` at 390 and 1440 all show the card "New prices are on the way · Free prices run at least 15 minutes behind; the first update is on its way. Paid plans see live prices. See plans" (`audit7-anon-pending-{home,markets,status,m_6117510}-{390,1440}.png`).
+- Is "at least 15 minutes" true? `poll.py` read `/api/meta` logged out every 20 s from 13:07:52 to 13:32 (74 reads, all 200): 39 reads of the committed scan, then the switch to the 13:05:58 scan at 13:20:59, 15.0 min after it (912 s when I checked 10 s later). Never younger than 15 min (`BAD_TOTAL 0`). The server rule is unchanged (`lib/data/store.ts:262-290`).
+- Note, not a fail: the hard-coded "15" in `/pricing`, `Plans.tsx` and `lib/auth/server.ts` does not follow the admin setting `free_delay_min` (0–60). If an admin ever sets it below 15, those three strings become false; above 15 they stay true. The pill, the pending line and `/status` use the setting.
+- Nit: on `/markets` in the pending state, the subtitle under "All markets" still says "Loading markets…" above the pending card (`audit7-anon-pending-markets-1440.png`).
+
+**Run 6 fail 1, RT3-01: partly fixed.**
+- What changed: `GET /api/model/curve?segment=all&h=24`, logged out, now returns exactly 10 points, prices 0.05…0.95, win chances on a 10 pp grid: `0, 0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9, 1`. Niche segments still 403 (`segment=soccer` → 403). Pro gets the exact curve (`test/paywall.test.ts` "Pro gets every segment exact" passed).
+- What a signed-out caller still gets per market: `GET /api/markets/6591800` (logged out, 5050) → `best.mid 0.905`, `best.win_prob 0.95` (Free band [0.95, 1.00)), `model_level "all"`, `horizon_h 168`, `category "weather"`, `curve null`. That is every input the attack needs.
+- The attack, as in run 6 (`curve_check4.py`): for each flagged bet whose side is modelled at `all`/`cat`, fetch the public curve for its segment and horizon (logged out), interpolate at `mid`, clamp to Free's band `[lo, lo + 0.05)`, and compare with the exact win chance from the scan. Baselines: the mid clamped to the band (run 6's), and the middle of the band `lo + 0.025` (T-241's).
+
+  | Scan | Population | n | Attack within 0.5 pp | Mid clamped | Mid-band guess | Attack median error |
+  |---|---|---|---|---|---|---|
+  | `1794895125` (committed) | flagged, best side | 147 | **46 (31.3%)** | 19 (12.9%) | 20 (13.6%) | 0.99 pp |
+  | | flagged, every side | 294 | 87 (29.6%) | 41 (13.9%) | 45 (15.3%) | 1.04 pp |
+  | `1795025158` (fresh) | flagged, best side | 131 | **39 (29.8%)** | 11 (8.4%) | 18 (13.7%) | 0.96 pp |
+  | | flagged, every side | 262 | 70 (26.7%) | 27 (10.3%) | 41 (15.6%) | 1.05 pp |
+
+- Worked example: market 6591800. Exact win chance 0.9563. Free band [0.95, 1.00), mid 0.905. The public `all` curve at h=168 has (0.85, 0.9) and (0.95, 1.0), so interpolation gives 0.955: 0.13 pp from the exact value. The band middle (0.975) is 1.9 pp off.
+- T-241's own test, applied to the real scans (`curve-allmarkets.log`), bar = max(mid-band, 20%) + 3 pp:
+  - every market at `all`/`cat`: 70/632 (11.1%) and 98/717 (13.7%): pass, as in the unit test;
+  - flagged bets only: 39/131 (29.8%) and 46/147 (31.3%) against a bar of 23.0%: **fail**;
+  - unflagged only: 6.2% and 9.1%.
+  `test/paywall.test.ts:253` loops over `s.markets`, not `s.flags`, so it measures the population where the leak does not matter. Run 6 named this exact gap.
+- How much of the gain is the curve? Flagged win chances sit low inside their 5 pp band, so a constant guess can beat the band middle too. The best constant, chosen with the answers in hand, gets 42/147 and 34/131. Learned on one scan and applied to the other, a constant gets 28/131 (21.4%) and 41/147 (27.9%), with a mean absolute error of 1.63–1.87 pp. The curve attack still wins on both scans: 39 and 46 hits, mean absolute error 1.22 and 1.11 pp, against 1.37–1.40 pp for the band middle (`curve-xval.log`). So the curve still adds real information, though much less than in run 6.
+- Severity: low. The leak is now about 0.2–0.3 pp of mean error on roughly 130–150 bets per scan, against 0.5 pp or better for 45% of them in run 6. Whether this is acceptable is the owner's call; by the bar T-241 set itself, it is not closed.
+
+## 1. Tests: PASS
+
+- `pytest -q` (new venv in `a7/prod`): 45 passed.
+- `apps/web` in the worktree: `pnpm i --frozen-lockfile` exit 0; `pnpm typecheck` exit 0; `pnpm lint` (`eslint . --max-warnings 0`) exit 0.
+- `pnpm test`, run 1 (13:05:39): 1 failed, 378 passed. The failure was `test/api.test.ts:115` "apply() timing > p95 < 150 ms over 15k rows" (270 ms, then 195 ms on retry). The fresh `engine scan` was running on the same CPU at that moment (13:05:57–13:06:49). Run 2 (13:07, nothing else of mine running): **60 files, 379 tests passed**. A timing test that fails under a concurrent CPU-bound job: note, not a fail.
+- `apps/extension`: `pnpm i --frozen-lockfile` exit 0, typecheck exit 0, **6 files, 42 tests passed**.
+- **Demo e2e** (`playwright.config.ts`: production build of the fixture data; S1–S6, S8 `alerts.spec.ts`, search, trading-paper, multipliers, headers/CSP, `a11y.spec.ts`):
+  - Run 1, PW_PORT 5010: **52 passed** (1.5 m), ended 13:09:33, load 12.59.
+  - Run 2, PW_PORT 5012: **52 passed** (50 s), ended 13:12:03, load 4.67.
+- **Paid e2e** (`playwright.paid.config.ts`, `E2E_MOCK=1` dev server; admin ×2, paywall pages, S7, account delete, keyboard search → drawer → save → upgrade):
+  - Run 1, PW_PORT 5011: **6 passed** (1.6 m), ended 13:11:12, load 6.31.
+  - Run 2, PW_PORT 5013: **6 passed** (1.3 m), ended 13:13:22, load 3.38.
+  - No failure or retry in any of the four runs.
+- **Paid webserver log** (`DEBUG=pw:webserver`, 916 and 892 `[WebServer]` lines): 0 `SyntaxError`, `Unexpected end of JSON`, `⨯` or `TypeError`; 0 responses 5xx. Every non-2xx is expected: the 6 `/admin*` pages → 404 twice each (non-admin and anonymous) in both runs; in run 2 `GET /api/data` → 401 and `GET /e2e-mock/supabase/auth/v1/user` → 401 (signed-out checks).
+- DB proofs: `ops/redteam/run3/rt3-db.test.ts`, `ops/redteam/rt2-db.test.ts` and `test/rls.test.ts` copied into `apps/web/test/` and run together: first try at load 34 (13:22, a macOS `mds`/`spindump` spike) 4 tests timed out at vitest's 5 s default; re-run with `--testTimeout=60000`: **3 files, 25 tests passed** (copies deleted afterwards).
+
+## 2. Production build: PASS
+
+- `SETUP.md` §0 in `a7/prod` (see the top): `BUILD_EXIT=0`.
+- `next start -p 5050` served every page with 200 in the logged-out crawl (item 3). Server log: only the expected `[abuse] UPSTASH_REDIS_REST_URL/TOKEN not set` line and Node's localStorage ExperimentalWarning.
+- `/pricing` and `/about` show "Coming soon" on the paid buttons (2 matches each). No dev or demo banner (0 matches for "demo mode" in `/`).
+- `/api/trade/config` → `{"enabled":false,"env":null,"extensionId":"","riskUrl":"https://kalshi.com/regulatory"}`; POST `/api/trade/nonce` → `{"error":"Trading is off."}`.
+- POST `/api/auth/magic-link` → `{"error":"Accounts are not set up yet"}` (keyless build).
+
+## 3. Every page × every state: PASS
+
+Crawler `crawl2.mjs` (as run 6): 33 routes (every page, 3 market pages, an event page, the drawer `/?m=`, a search) at 390 and 1440 px, with light CDP throttling (40 ms, 10 Mbit/s). On each view it checks console errors and warnings, page errors, bad tokens on screen (`NaN`, `undefined`, `null`, `[object Object]`, lorem, TODO, FIXME…), the footer disclaimer, horizontal scroll, and any 5xx/429. Then it requests every internal link it found, in the same session. `tiers` is `/api/me` before, between and after the two widths.
+
+| State | Server | Start (load) | Views | Problems | Links checked | `tiers` | Result |
+|---|---|---|---|---|---|---|---|
+| Logged out | prod 5050 | 13:15:41 (2.24) | 66 | 0 | 99, 0 bad | `nouser:free` ×3 | PASS |
+| Free | mock 5030 | 13:20:26 (7.15) | 66 | 0 | 130, 0 bad | `free` ×3 | PASS |
+| Pro | mock 5030 (restarted, reseeded) | 13:43:48 (4.07) | 66 | 0 | 274, 0 bad | `pro` ×3 | PASS |
+| Premium | mock 5030 (restarted, reseeded) | 13:59:09 (3.49) | 66 | 0 | 274, 0 bad | `premium` ×3 | PASS |
+| Admin | mock 5030 (restarted, reseeded) | 14:14:31 (6.01) | 66 | 0 | 115, 1 by design (below) | `free+admin` ×3 | PASS |
+
+- Logged out and Free: every page 200 except `/admin*` and `/no-such-page` (404, styled). Pro and Premium: same; their `/watchlist`, `/journal`, `/alerts`, `/dashboards`, `/account` render (200) with the user's own data.
+- Admin: `/admin`, `/admin/users`, `/admin/health`, `/admin/settings`, `/admin/audit` → 200 with h1 "Admin" at both widths, no console error.
+- The one admin link the crawler flagged is `/api/admin/export` → 403 `{"error":"Open the export from the admin page"}`. That is the RT2-01 same-site guard (`app/api/admin/export/route.ts:20`): the crawler's request carries no `Sec-Fetch-Site`. A real click on "Export CSV" in `/admin/users` as the admin downloads `marketedge-users-2026-11-18.csv` with the header `id,email,created_at,last_sign_in_at,tier,status,comp_tier,comp_expires_at` (`exportclick.mjs`). Not a fail.
+- Disclaimer in the footer, no horizontal scroll and no console error or warning on all 330 views.
+- **How the signed-in crawls were kept honest.** The first Pro crawl (13:34, right after Free on the same server) lost its user: the dev server logged "Server is approaching the used memory threshold, restarting..." (`mock.log:4740`), the in-memory mock users were wiped, and from the 13th view on the crawler was browsing as a signed-out visitor (`/e2e-mock/supabase/auth/v1/user` 401 from then on). I discarded that run. Each of Pro, Premium and admin then ran on a freshly started mock (`crawl1.sh`: start, warm the routes, seed the one user through the UI, crawl). Their server logs show 0 restarts, 0 `auth/v1/user` 401s, 0 `⨯`/`TypeError`/`SyntaxError`, and no 5xx. The Free crawl finished before the restart (`tiers` `free` ×3).
+- Screenshots: `audit7-{anon,free,pro,premium,admin}-{home,markets,pricing,account,admin_health,m_<id>}-{390,1440}.png`.
+
+## 4. Quality: PASS
+
+**Lighthouse: PASS.** `npx lighthouse@12` (12.8.2), `--form-factor=mobile`, default simulated throttling, Playwright Chromium headless, on the 5050 production build. Nothing else of mine ran (the e2e suites had finished, the mock was not started yet). Scores are performance / accessibility / best practices / SEO; `uptime` is the 1/5/15-minute load average just before each page's 3 runs.
+
+| Page | uptime | Run 1 | Run 2 | Run 3 | Perf median |
+|---|---|---|---|---|---|
+| `/` | 2.93 11.60 25.81 | 93/100/100/91 | 92/100/100/91 | 92/100/100/91 | **92** |
+| `/about` | 2.47 10.39 24.72 | 93/100/100/91 | 93/100/100/91 | 93/100/100/91 | **93** |
+| `/pricing` | 2.17 9.46 23.80 | 95/100/100/91 | 94/100/100/91 | 94/100/100/91 | **94** |
+
+- One batch, at a 1-minute load of 2–3 (below 15), so no batch was discarded. TBT 117–162 ms, LCP 2.7–3.2 s, FCP 0.76–0.91 s.
+- Accessibility 100 and best practices 100 on all 9 runs.
+- SEO 91 on all 9: the only deduction is `meta-description`, as in runs 3–6. The tag is in the HTML (`curl /about` → `<meta name="description" content="Prediction-market analytics: …"/>`); Next 15 streams it and Lighthouse misses it. Note, not a fail.
+
+**axe:** zero serious or critical violations: `e2e/a11y.spec.ts` passed in both demo runs.
+
+**Keyboard-only walkthrough** (`kbd.mjs`, prod 5050, logged out, `reducedMotion: "reduce"`):
+- `/` focuses the search; "barcelona", ArrowDown, Enter → `/?q=FC+Barcelona`.
+- A result's title link in 24 Tabs; Enter opens the "Market details" dialog with focus inside.
+- "Save" in 5 Tabs; Enter → "Saved", focus kept, dialog open.
+- "Pricing" in 37 Tabs; Enter → `/pricing`.
+- Signed in: `s7-upgrade.spec.ts` (keyboard search → drawer → save → upgrade) passed in both paid runs.
+
+**Reduced motion:** `matchMedia` matched; the longest animation and transition durations were 0.01 ms.
+
+**Design review** of the crawl screenshots at 390 and 1440 (all four states now, plus the pending cards) against `docs/design/project/Hybrid.dc.html` / `MobileHybrid.dc.html`: dark theme, emerald accent, rounded-xl cards, 16 px gutters hold. Pro market page at 390 (`audit7-pro-m_6970279-390.png`): hero card, both side cards and "Why it's a good price" bars fit without truncation; Pro `/markets` at 1440 shows grouped events with "+29 more in this event". No new alignment, truncation or contrast problem. The Next.js dev-tools "N" button overlaps the first bottom-nav item in mock screenshots; it exists only in `next dev` (not in the 5050 production screenshots).
+
+## 5. Data correctness: PASS
+
+- **Free is capped and delayed on the server.** `probe.py` against 5050, logged out, with `ps`, `page`, `page_size`, `tier`, an `x-tier` header and forged tier cookies on `/api/flags` and `/api/markets`: all 7 responses 200, 25 rows, page 1, every row banded. The 25 rows matched the scan they were served from (the committed scan, while the fresh one was 5.2 min old): 0 mismatches.
+- **Delay:** see "Fixed since run 6": Free switched to the fresh scan at 15.0 min, never earlier.
+- **Pro and Premium are live while Free is delayed** (`me.mjs`, mock 5030, after a second fresh scan `1795030129` at 14:28:49): at 14:30:16, signed out and Free read scan `1795025158` (`delay_min 15`); Pro and Premium read `1795030129` (`delay_min 0`). The production build (5050), signed out, also read `1795025158`.
+- **Cards equal the API.** `cards.mjs` on 5050: 16 API rows, 13 cards on `/` matched, 0 mismatched.
+- **Fees and returns match the engine formulas** (`fees.mjs`, Pro on the mock, 20 bets, 40 sides, `fee = FEE_RATE[cat]·p·(1−p)` from `pipeline/common.py`, `edge = q − (p + fee)`, `roi = edge / cost · 100`): fee matches on all 40, edge within 0.0001 on all 40. Three sides with small asks (0.25, 0.17, 0.131) differ by 0.02–0.03 roi points: 4-decimal rounding of `edge` over a small cost, the same pattern as runs 3–6. Pass.
+- **Freshness pill:** number and copy now both right (see "Fixed since run 6").
+
+## 6. Security: **FAIL** (RT3-01 residual, low)
+
+- **Paid data as free/anon:** rows capped and banded (item 5). But the coarse public curve still narrows the exact win chance of flagged bets modelled at `all`/`cat` level beyond Free's band ("Fixed since run 6", fail 1).
+- **RT3-02 page limits still hold:** `scrape2.sh` on 5050, 300 distinct `/m/<id>` with 8 in parallel: **59 pages with market data, 241 "Slow down a little" with `noindex`**, 4 s.
+- **Headers** (`curl -I` on 5050): `Strict-Transport-Security: max-age=63072000; includeSubDomains`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `X-Frame-Options: DENY`, `Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()`, CSP with a per-request nonce and `strict-dynamic`. `e2e/headers.spec.ts` passed in both demo runs.
+- **Hidden routes** (5050, logged out): `/admin`, `/admin/users`, `/api/admin`, `/api/admin/export`, `/e2e-mock/supabase/_inbox`, `/e2e-mock/supabase/auth/v1/user`, `/api/data` → 404. `/api/admin` POST/PUT/PATCH/DELETE → 404. POST `/api/settle/run`, `/api/alerts/run` → 401.
+- **Another user's rows:** `test/rls.test.ts`, `rt2-db.test.ts`, `rt3-db.test.ts` (PGlite, real migrations): 25 passed (item 1). Live check under Owner verification.
+- **Rate limits** (`hammer.py` on 5050, in-memory limiter):
+  - `/api/markets` ×40 → 27 × 200 then 13 × 429 (`Retry-After: 59`).
+  - `/api/flags` ×40 right after → 40 × 429.
+  - `/api/suggest?q=bar` ×250 → 120 × 200, 130 × 429.
+  - `/api/markets` ×40 with a new `X-Forwarded-For`/`X-Real-IP` each → 40 × 429.
+  - `smoke-prod.sh`: 40 × POST `/api/ext/telemetry` → 429 after the burst.
+- **Crawlers:** GPTBot, ClaudeBot, CCBot, PerplexityBot, Google-Extended, Bytespider → 403 on `/` and `/api/markets`. HeadlessChrome, python-requests, curl → 200 (BotID runs only on Vercel; Owner verification).
+- **Stripe webhooks:** unsigned, wrong secret, stale timestamp and altered body all rejected (400); replay → duplicate (item 9).
+- **Dependencies:** `apps/web` `pnpm audit --prod`: no known vulnerabilities. Full `pnpm audit`: 1 moderate (dev tooling, `minimatch`). `apps/extension`: none. `pip-audit -r requirements.txt` (in the `a7/prod` venv): "No known vulnerabilities found".
+- **Secrets in history:** `secrets_scan.py` (gitleaks-equivalent rules) over `git log --all -p`, 300 commits: 23 hits = run 6's 22 known fakes + 1 in `bb2cb59` (the run 6 report quoting the fake `sk_test_FAKEFAKEFAKEFAKE`). Commits since run 6: that one hit only.
+- **Client bundles:** `pnpm check:bundle` on the prod build: "127 files in .next/static, no secrets". My grep for `SUPABASE_SERVICE_ROLE`, `STRIPE_SECRET_KEY`, `sk_live_`, `sk_test_`, `whsec_`, `UPSTASH_REDIS_REST_TOKEN`, `CRON_SECRET`, `EXT_SIGNING_SECRET`, `UNSUBSCRIBE_SECRET`, `service_role` in `.next/static`: 0 files.
+- **Cookies:** the prod build sets no cookie on `/` (no `Set-Cookie` in `curl -I`). `Secure` on auth cookies is production-only; under Owner verification.
+
+## 7. Multipliers and combos: PASS
+
+- No change since run 6 in `lib/combos.ts`, the multiplier tiers or the combo UI (`git diff 4aa0400 30e7362 -- apps` touches only the 4 files above). `test/multipliers.test.ts` and the combo tests passed in `pnpm test`; `e2e/multipliers.spec.ts` (same-event warning in the UI) passed in both demo runs.
+- Live: in the fresh scan one side is ≥10x with a 10–20% chance and a ≥4-point edge: market 6841253, ask 0.06, win 0.1077, edge 0.0448, tier `best`. Tier split: 769 best / 1,008 edge.
+- **Raw-count sweep.** The diff since run 6 adds no count display. Grep for counts in JSX and template strings (`.length`, `.count`, `.total`, `.unread`, `toLocaleString()`) over `apps/web/app`, `apps/web/components` and `apps/extension/src`, without `formatCount`: every hit is either wrapped in `<Count>` (which calls `formatCount`, `components/kit/index.tsx:18-22`) or bounded far below 1,000: combo legs (`MAX_LEGS = 6`), dashboard panels, the inbox (`slice(0, 50)`), chosen topics, the 280-character banner counter, chart aria-labels, `colSpan`. Live: "621 bets where the odds lean your way" (Free), "766 bets…" (Pro), "18K markets match · 22K open" (Pro `/markets`), "16K past bets tested". **No production count that can pass 999 shows without `formatCount`.**
+
+## 8. Trading safety: PASS
+
+- Prod 5050: `/api/trade/config` → `{"enabled":false,"env":null,…}`; POST `/api/trade/nonce` → `{"error":"Trading is off."}`.
+- `git diff 4aa0400 30e7362 -- apps/extension apps/web/lib/trade apps/web/components/trade` is empty; run 5's live extension spec and grep review stand. `e2e/trading-paper.spec.ts` passed in both demo runs.
+
+## 9. Billing: PASS (mock)
+
+`webhook.mjs` on the mock (5030), signed with the test secret (real `stripe` signing code), separate user `webhook-audit7@example.com`:
+- Unsigned → 400 "Not configured or unsigned"; wrong secret, 1-hour-old timestamp, body changed after signing → 400 "Bad signature".
+- `checkout.session.completed` with a raw unsigned `client_reference_id` → 200 but not linked; a subscription for that customer → 500 "Retry".
+- `checkout.session.completed` with a signed `client_reference_id` linked the customer (Payment Link path); `customer.subscription.created` premium → tier premium.
+- Replay of the same event id → `{"duplicate":true}`, tier unchanged.
+- Portal cancel (`cancel_at_period_end=true`) → still premium. `customer.subscription.deleted` → free. Replaying the deletion → duplicate.
+- S7 (checkout → tier up) and account delete with a live subscription (`s7-upgrade.spec.ts`) passed in both paid runs; the seed flow upgraded Pro and Premium users through the mock Checkout four times.
+- Unchanged observation (runs 3–6), reproduced again: a newer `pro` event followed by an older `premium` event (created 10 min earlier) leaves the user on premium (`lib/billing/stripe.ts` `handleEvent` has no ordering guard). Under Owner verification.
+
+## 10. Legal and wording: PASS (placeholders listed)
+
+- Footer disclaimer "Market analytics, not financial advice. Based on past results. 18+." on every crawled view in every state (item 3), on the pending state, and in the extension popup.
+- `/terms`, `/privacy`, `/refunds`, `/disclaimer`, `/contact`, `/status` → 200, all linked from the footer. `/disclaimer` names 1-800-GAMBLER and ncpgambling.org.
+- 18+ gate: the keyless prod build answers 503 "Accounts are not set up yet"; on the mock the seed flow must tick the box (`seed.mjs` `getByRole("checkbox").check()`), and `s7-upgrade.spec.ts` passed twice. Email templates are unchanged since run 6 (`git diff 4aa0400 30e7362 -- apps/web/lib/email` empty); run 6's render stands.
+- Banned words: `grep -rniE "\b(picks?|locks?|guaranteed?|sure thing|can.?t lose|risk.?free|expected profit)\b"` over `apps/web/app`, `components`, `lib/email` and `apps/extension/src`: only comments and identifiers (`pick`, "Sentry picks errors up", "never picks", "The owner picks the policy") and the negation on `/terms` ("We give no guarantee…").
+- All Free-delay copy is now truthful ("Fixed since run 6").
+- TODO/FIXME and `console.log` in shipped code (`apps/web/app`, `components`, `lib`, `apps/extension/src`, tests excluded): 0 and 0.
+- Placeholders (listed, not failed), as rendered by the prod build: `/terms` `[[GOVERNING_STATE]] [[LAST_UPDATED]] [[OPERATOR_NAMES]] [[SUPPORT_EMAIL]]`; `/privacy` `[[LAST_UPDATED]] [[OPERATOR_NAMES]] [[SUPPORT_EMAIL]]`; `/refunds` `[[LAST_UPDATED]] [[OPERATOR_NAMES]] [[REFUND_POLICY]] [[RESPONSE_TIME]] [[SUPPORT_EMAIL]]`; `/disclaimer` `[[LAST_UPDATED]] [[OPERATOR_NAMES]]`; `/contact` `[[LAST_UPDATED]] [[OPERATOR_NAMES]] [[RESPONSE_TIME]] [[SUPPORT_EMAIL]]`; every footer `[[OPERATOR_NAMES]]`.
+
+## 11. Publication readiness: PASS
+
+- `robots.txt` 200: disallows the AI user agents and `/api/`, `/auth/`, `/login`, `/onboarding`, `/account`, `/settings`, `/watchlist`, `/journal`, `/alerts`, `/dashboards`, `/admin`; `Sitemap: http://localhost:5050/sitemap.xml`. `sitemap.xml` 200 with 12 `<loc>`.
+- No test users, seed data or debug routes in prod: `/e2e-mock/*`, `/api/data`, `/admin*` → 404.
+- 404 is the styled "This page doesn't exist" inside the shell (crawl, all states).
+- Favicon `/icon.svg` → 200 `image/svg+xml`; `/favicon.ico` → 404 (harmless, as runs 4–6). `/opengraph-image` → 200 `image/png`.
+- Extension: `ME_ORIGIN=https://marketedge.example pnpm ext:zip` wrote `marketedge-extension-0.1.0.zip` (26,267 bytes; moved out of the worktree). Manifest: MV3, permissions `storage`, `sidePanel`, hosts the app origin and `external-api.demo.kalshi.co`, CSP `script-src 'self'; object-src 'self'`; 0 files with `eval(` or `new Function`. Loaded unpacked in a clean Chromium profile: the service worker registered and the popup reads "MarketEdge Signed out … Paper trading Off … Market analytics, not financial advice. Based on past results. 18+." The only console error is DNS for the placeholder domain.
+- **Owner scripts, dry-run mode** (`ops.sh`, in the worktree with `env -i PATH HOME`, no env file):
+  - `node ops/secrets.mjs`: dry-run plan, exit 0.
+  - `node ops/site-config.mjs --domain … --support-email …`: dry run, lists the missing legal fields, exit 0. `config/site.json` md5 unchanged (`bda0c50c…`).
+  - `node ops/stripe-setup.mjs --domain marketedge.example`: prints the plan, exit 0.
+  - `node ops/preflight.mjs`: 24 blockers, 6 warnings, all expected on an unconfigured clone. Exit 1 by design.
+  - `bash ops/supabase-setup.sh abcdefghijklmnopqrst`: prints the plan, exit 0.
+  - `node ops/vercel-env.mjs`: "Refusing: no env file…", exit 2. With a test env file: only the 2 documented keys × 2 targets, the Stripe key `--sensitive` and masked (`sk_t…(24 chars)`), "Not pushed (test-only): E2E_MOCK", "Not pushed (not in apps/web/.env.example): FOO, HOME, PATH", exit 0.
+  - `python ops/checks.py a7/prod/output` (after the fresh scan): "data checks ok", exit 0.
+  - `python ops/upload.py` without credentials: "SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required", exit 1, nothing uploaded.
+  - `ops/scheduler.py` `plan(now, {})`: `bootstrap, backtest, update, fit, grade, scan`.
+  - `git status` after the dry runs: no tracked file changed.
+- **`ops/smoke-prod.sh`**: `SMOKE_EXPECT_HEALTH=503 ops/smoke-prod.sh http://localhost:5050` (no Upstash, so health is 503 by design): **18 passed, 0 failed**, exit 0.
+- `SETUP.md` from scratch reaches a running app (item 2).
+
+## Fails to fix
+
+1. **RT3-01 residual: the coarse public curve still beats a band-only guess on flagged bets modelled at `all`/`cat` level.** (Low: about 130–150 bets per scan; mean error 1.1–1.2 pp against 1.4 pp for the band middle.)
+   - Where:
+     - `apps/web/lib/data/model.ts:42-55` (`coarseCurve`): 10 points, 10 pp. The comment claims interpolation "is no better than guessing the middle of Free's band"; on flagged bets it is better.
+     - `apps/web/app/api/model/curve/route.ts:24-26`: Free and signed-out callers get `all` and `cat:<category>` curves.
+     - `apps/web/lib/data/gate.ts:25-37` (`rangeSide`): Free rows keep the exact `mid`, `model_level`, `category` and `horizon_h`.
+     - `apps/web/test/paywall.test.ts:250-267`: loops over `s.markets` (`:253`), so most rows are unflagged and the test passes; it never measures `s.flags`.
+   - Repro, on any build, logged out:
+     1. Take flagged ids (`/api/flags`, search, event pages; or the scan's `flags.json` for the full population).
+     2. `GET /api/markets/<id>` → `best.mid`, `best.win_prob` (band low end), `best.model_level`, `horizon_h`, `category`. Keep rows with `model_level` `all` or `cat`.
+     3. `GET /api/model/curve?segment=<all | cat:category>&h=<horizon_h>`.
+     4. Interpolate the points at `mid`; clamp to `[win_prob, win_prob + 0.05)`.
+     - Example: `/api/markets/6591800` → mid 0.905, band [0.95, 1.00), `all`, h 168; curve points (0.85, 0.9), (0.95, 1.0) → 0.955. Exact 0.9563.
+   - Result: 46/147 (31.3%) and 39/131 (29.8%) within 0.5 pp, against 20 and 18 for the band middle; the test's bar is 23%.
+   - Fix direction (owner's call): measure on `s.flags`; then drop `mid` from Free rows modelled at `all`/`cat` (or round it to the 10¢ step), or withhold the curve's interpolation inputs another way. Or decide this residual is acceptable and say so in the test.
+
+## Owner verification
+
+Unchanged from run 6, with run 6's "signed-in crawl" item now done:
+
+- **Supabase:**
+  - Run the RLS checks against the live project with the anon key (user B cannot read user A's rows).
+  - Send a real magic-link email.
+  - Run `ops/supabase-setup.sh <ref> --yes`.
+  - After a real sign-in on the deployed site, confirm the auth cookies carry `Secure; HttpOnly; SameSite=Lax`.
+  - Confirm the `plan_quota` trigger blocks an 11th Free watchlist row on the live database.
+  - Decide whether to set `ADMIN_REQUIRE_MFA=true` (RT3-06), and if so enrol TOTP for every admin first.
+- **Stripe test mode end to end:** Checkout; webhook delivery to the deployed URL; Customer Portal cancel; a real Payment Link if `stripe.mode` is `links`; decide whether out-of-order subscription events need a `created`/`current_period` guard.
+- **Upstash:** set the Redis keys, so the shared limiter replaces the in-memory one and `/api/health` reports ok.
+- **Vercel:** confirm BotID challenges headless browsers and scripted clients; set Root Directory to `apps/web`; push env with `node ops/vercel-env.mjs --env apps/web/.env.prod`; check that a shared office/NAT IP is not throttled by the per-IP + JA4 page limit.
+- **Search crawlers on market pages:** past 60 `/m/` or `/event/` loads a minute from one key, the slow-down page is HTTP 200 with `noindex`. Decide whether known search-engine crawlers need a 503 or a separate budget.
+- **Burst scans:** a cold instance after back-to-back scans shows Free the pending state until a kept copy is 15 min old.
+- (new) **Free delay setting:** if `free_delay_min` is ever set below 15 in admin, update the hard-coded "at least 15 minutes" in `app/pricing/page.tsx:10`, `components/pricing/Plans.tsx:12` and `lib/auth/server.ts:23`.
+- (new) **RT3-01 residual:** decide whether the fail above is fixed or accepted.
+- **Kalshi demo:** place one demo order from the extension with a real demo key.
+- **Domain and `config/site.json`:** fill the placeholders listed in item 10; set `NEXT_PUBLIC_SITE_URL`.
+- **Scan cadence:** run the engine container (10-minute scans). With only the `refresh.yml` fallback (every 2 h), "about every 10 minutes" is wrong, and Free would be 2 h + behind.
+- **Chrome Web Store:** publish the extension and set `NEXT_PUBLIC_EXTENSION_ID`.
+- **Count rule exceptions (item 7):** confirm the exact contract quantity on the trade ticket and the exact unread count in the bell's `aria-label`.
