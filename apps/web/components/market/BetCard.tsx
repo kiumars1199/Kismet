@@ -32,8 +32,8 @@ export function BetCard({ r, pro = false }: { r: ApiRow; pro?: boolean }) {
     <article ref={ref} data-row data-market-id={m.id} data-tier={m.tier ?? undefined}
       className="relative flex w-full flex-1 flex-col gap-3 rounded-card border border-border bg-surface p-4 transition-colors duration-200 ease-out hover:border-accent-border">
       <div className="-mr-2 -mt-2 flex items-center justify-between gap-2 text-xs text-muted">
-        <span className="flex min-w-0 items-center gap-1.5">
-          <span className="truncate rounded-full bg-muted-bg px-2.5 py-[3px]">{topicLabel(m)}</span>
+        <span className="flex min-w-0 flex-wrap items-center gap-1.5">
+          <span className="max-w-full truncate rounded-full bg-muted-bg px-2.5 py-[3px]">{topicLabel(m)}</span>
           {isNew && <span data-testid="new-badge" title="Listed since your last visit" className="whitespace-nowrap rounded-full border border-accent-border px-2 py-[2px] text-accent-softer">New</span>}
           {m.tier === "edge" && <LowerConfidence />}
         </span>
