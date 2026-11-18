@@ -182,10 +182,10 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
             const on = x === s;
             return (
               <button key={x.side_index} type="button" aria-pressed={on} onClick={() => pickSide(x.side_index)}
-                className={`min-h-11 rounded-input border p-3 text-left ${on ? "border-accent-border bg-accent-bg/60" : "border-border bg-raised hover:border-accent-border"}`}>
-                <div className="flex items-baseline justify-between gap-2">
-                  <span className="truncate font-semibold">{x.outcome}</span>
-                  <span className="tabular-nums">{price(x.ask)} <span className="text-xs text-muted">· {pays(x.ask)}</span></span>
+                className={`flex min-h-11 flex-col rounded-input border p-3 text-left ${on ? "border-accent-border bg-accent-bg/60" : "border-border bg-raised hover:border-accent-border"}`}>
+                <div className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-2">
+                  <span className="min-w-0 break-words font-semibold leading-snug sm:truncate">{x.outcome}</span>
+                  <span className="shrink-0 whitespace-nowrap tabular-nums">{price(x.ask)} <span className="text-xs text-muted">· {pays(x.ask)}</span></span>
                 </div>
                 <div className="mt-1 flex flex-wrap justify-between gap-x-2 whitespace-nowrap text-xs text-muted">
                   <span title={basis(m, x)}>won {pct(x.win_prob)} before</span>
