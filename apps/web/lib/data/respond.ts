@@ -20,15 +20,28 @@ export function noStore(res: Response): Response {
   return res;
 }
 
-/** Runs `fn` with the store; a store load failure becomes 503 instead of a crash. */
-export async function withStore(fn: (store: Store) => Response | Promise<Response>, headers?: HeadersInit): Promise<Response> {
-  let store: Store;
+/** The store for `tier` (undefined = the newest scan); a load failure becomes a private 503 Response instead of a crash.
+ *  Free with no delayed copy yet gets the honest "first update shortly" body (code DELAYED_PENDING). */
+async function loadStore(tier: Tier | undefined, headers?: HeadersInit): Promise<Store | Response> {
   try {
-    store = await getStore();
+    return tier ? await getStoreFor(tier) : await getStore();
   } catch (e) {
+    if (e instanceof DelayedPending) {
+      console.warn(e.message);
+      const h = new Headers(headers);
+      h.set("Retry-After", "60");
+      return noStore(Response.json({ error: delayedPendingLine(delayMin("free")), code: DELAYED_PENDING }, { status: 503, headers: h }));
+    }
     console.error("[api] store load failed", e);
-    return Response.json({ error: "Data is temporarily unavailable" }, { status: 503, headers });
+    return noStore(Response.json({ error: "Data is temporarily unavailable" }, { status: 503, headers }));
   }
+}
+
+/** Runs `fn` with the store; a store load failure becomes 503 instead of a crash. With `tier`, Free gets the
+ *  delayed scan (getStoreFor), so scan meta matches the data that tier sees; the body is private either way. */
+export async function withStore(fn: (store: Store) => Response | Promise<Response>, headers?: HeadersInit, tier?: Tier): Promise<Response> {
+  const store = await loadStore(tier, headers);
+  if (store instanceof Response) return store;
   return noStore(await fn(store));
 }
 
@@ -43,19 +56,8 @@ export async function withTier(
   const me = await getMe();
   const refused = (bot ? await botCheck() : null) ?? (await rateLimit(rule, clientKey(req, me.user?.id)));
   if (refused) return noStore(refused);
-  let store: Store;
-  try {
-    store = await getStoreFor(me.tier);
-  } catch (e) {
-    if (e instanceof DelayedPending) {
-      console.warn(e.message);
-      const h = new Headers(headers);
-      h.set("Retry-After", "60");
-      return noStore(Response.json({ error: delayedPendingLine(delayMin("free")), code: DELAYED_PENDING }, { status: 503, headers: h }));
-    }
-    console.error("[api] store load failed", e);
-    return noStore(Response.json({ error: "Data is temporarily unavailable" }, { status: 503, headers }));
-  }
+  const store = await loadStore(me.tier, headers);
+  if (store instanceof Response) return store;
   return noStore(await fn(can(me.tier, "exact_edge") ? store : freeView(store), me.tier, me));   // RT-04: Free filters on what it sees
 }
 

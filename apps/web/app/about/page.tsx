@@ -22,7 +22,7 @@ export const metadata = { title: "How it works" };
 const n = (x: number | undefined) => formatCount(x);   // docs/18 §4
 
 const STEPS: [string, string][] = [
-  ["Read the price", "A Yes at 68¢ means the market says 68%. We check every open Polymarket market, every 2 hours."],
+  ["Read the price", "A Yes at 68¢ means the market says 68%. We check every open Polymarket market, about every 10 minutes."],
   ["Check the history", "How often did bets like this one win? Same sport or topic, same kind of bet, same time before close, across thousands of settled markets."],
   ["Show the gap", "When bets like it won more often than the price says, after the fee and what you'd really pay, it's a best bet. You decide what to do with it."],
 ];
