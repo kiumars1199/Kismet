@@ -42,10 +42,14 @@ const COLUMNS: [header: string, cell: (r: ApiRow) => unknown][] = [
   ["capacity_usd", (r) => r.market.execution?.capacity_usd],
 ];
 
-/** RFC 4180 cell: quote when it holds a comma, quote or line break; missing/NaN → empty. */
+/** A text cell starting with one of these runs as a formula in a spreadsheet (RT3-04). */
+export const FORMULA_START = /^[=+\-@\t\r]/;
+
+/** RFC 4180 cell: quote when it holds a comma, quote or line break; missing/NaN → empty. Text that would start a
+ *  formula (= + - @ tab CR) gets a leading ' so it shows as text (RT3-04); numbers stay numbers (-0.05 is data). */
 export function cell(v: unknown): string {
   if (v === null || v === undefined || (typeof v === "number" && !Number.isFinite(v))) return "";
-  const s = String(v);
+  const s = typeof v === "string" && FORMULA_START.test(v) ? `'${v}` : String(v);
   return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 
