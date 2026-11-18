@@ -7,7 +7,7 @@ import { tradingEnv } from "@/lib/trade/server";
 export const metadata = { title: "Pricing", description: "Free, Pro and Premium plans for MarketEdge. Start free; paid plans include a 7-day trial and cancel any time.", alternates: { canonical: "/pricing" } };
 
 const ROWS: [string, string, string, string][] = [
-  ["All open markets", "15 minutes behind, top 25 rows", "Live, unlimited", "Live, unlimited"],
+  ["All open markets", "At least 15 minutes behind, top 25 rows", "Live, unlimited", "Live, unlimited"],
   ["Estimated return on each bet", "As a range", "Exact", "Exact"],
   ["Best bets", "3 a day", "All", "All"],
   ["Filters", "Topic, sport, price", "All", "All"],
