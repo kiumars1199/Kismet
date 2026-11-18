@@ -86,7 +86,7 @@ export const fetchSuggest = (q: string, view: "markets" | "flags", init?: Reques
 
 /** 503 `code` when Free has no delayed scan yet (lib/data/store.ts DelayedPending). */
 export const DELAYED_PENDING = "delayed_pending";
-export const delayedPendingLine = (min: number) => `Free data refreshes every ${min} minutes; first update shortly.`;
+export const delayedPendingLine = (min: number) => `Free prices run at least ${min} minutes behind; the first update is on its way.`;
 /** Error-message prefix the screeners read to show the honest pending state instead of "Couldn't load". */
 export const PENDING_PREFIX = "pending: ";
 
