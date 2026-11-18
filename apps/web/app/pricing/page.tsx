@@ -51,7 +51,7 @@ export default function Page() {
           <table className="w-full min-w-[620px] border-collapse text-sm">
             <thead>
               <tr className="text-left text-xs text-muted">
-                <th scope="col" className="px-4 py-3 font-medium">Feature</th>
+                <th scope="col" className="sticky left-0 bg-surface px-4 py-3 font-medium max-sm:w-32 max-sm:px-3 max-sm:shadow-[1px_0_0_var(--border)]">Feature</th>
                 <th scope="col" className="px-4 py-3 font-medium">Free</th>
                 <th scope="col" className="px-4 py-3 font-medium text-accent-softer">Pro · $19</th>
                 <th scope="col" className="px-4 py-3 font-medium">Premium · $29</th>
@@ -60,7 +60,7 @@ export default function Page() {
             <tbody>
               {ROWS.map(([f, ...v]) => (
                 <tr key={f} className="border-t border-border">
-                  <th scope="row" className="px-4 py-2.5 text-left font-normal text-soft">{f}</th>
+                  <th scope="row" className="sticky left-0 bg-surface px-4 py-2.5 text-left font-normal text-soft max-sm:w-32 max-sm:px-3 max-sm:shadow-[1px_0_0_var(--border)]">{f}</th>
                   {v.map((x, i) => <td key={i} className={`px-4 py-2.5 ${x === "—" ? "text-muted" : ""}`} title={x === "—" ? "not included" : undefined}>{x}</td>)}
                 </tr>
               ))}
