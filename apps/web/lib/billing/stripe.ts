@@ -37,7 +37,9 @@ export function billingMode(): "checkout" | "links" | null {
   return null;
 }
 
-export const CLIENT_REF_TTL_MS = 24 * 3_600_000;   // a Checkout Session lives at most 24 h
+// 7 days (RT3-09): a Checkout Session lives at most 24 h, but a Payment Link tab never expires, and a payer who comes
+// back to it days later must still be upgraded. The MAC still binds the ref to one user; the window only limits replay.
+export const CLIENT_REF_TTL_MS = 7 * 86_400_000;
 const refMac = (secret: string, body: string) =>
   createHmac("sha256", createHash("sha256").update(`me:cref:${secret}`).digest()).update(body).digest("hex");
 
