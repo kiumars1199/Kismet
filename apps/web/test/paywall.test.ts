@@ -211,10 +211,11 @@ describe("RT3-01: curve + mid can't un-band Free", () => {
     expect((body as { curve: unknown }).curve).toBeNull();
   });
 
-  it("/api/model/curve: Free gets only all / cat: segments, rounded to 5 pp; Pro gets every segment exact", async () => {
+  it("/api/model/curve: Free gets only all / cat: segments, coarse (10¢ steps, 10 pp); Pro gets every segment exact", async () => {
     expect((await json(routes.curve(req("/api/model/curve?segment=nfl:moneyline&h=72")))).status).toBe(403);
     const c = (await json(routes.curve(req("/api/model/curve?segment=all&h=24")))).body as { points: { win_prob: number }[] };
-    for (const p of c.points) expect(Math.round(p.win_prob * 20) / 20).toBeCloseTo(p.win_prob, 10);
+    expect(c.points.length).toBeLessThanOrEqual(10);
+    for (const p of c.points) expect(Math.round(p.win_prob * 10) / 10).toBeCloseTo(p.win_prob, 10);
     h.tier = "pro";
     expect((await json(routes.curve(req("/api/model/curve?segment=nfl:moneyline&h=72")))).status).toBe(200);
   });
@@ -241,5 +242,27 @@ describe("RT3-01: curve + mid can't un-band Free", () => {
     }
     expect(n).toBeGreaterThan(400);
     expect(attack / n).toBeLessThanOrEqual(chance / n + 0.03);
+  });
+
+  // Audit run 6: over the whole scan the attack looked like chance, but on rows modelled at "all" / "cat" level (the
+  // public curves) it matched 44 of 98. Any guess inside Free's 5 pp band lands within 0.5 pp about 1 time in 5, so
+  // that is the bar: the public curve must not beat a guess from the middle of the band.
+  it("on rows modelled at all / cat level, the public curve beats no mid-band guess", async () => {
+    const s = await getStore();
+    let n = 0, attack = 0, middle = 0;
+    for (const exact of s.markets) {
+      const body = marketBody(s, exact, "free");
+      const b = body.market.best;
+      if (b.model_level !== "all" && b.model_level !== "cat") continue;
+      const r = await json(routes.curve(req(`/api/model/curve?${new URLSearchParams({ segment: segOf(body.market, b.model_level), h: String(body.market.horizon_h) })}`)));
+      const pts = r.status === 200 ? (r.body as { points: { price: number; win_prob: number }[] }).points : null;
+      const lo = b.win_prob, w = exact.best.win_prob;
+      const clamp = (x: number) => Math.min(Math.max(x, lo), lo + 0.0499);
+      n++;
+      attack += Number(Math.abs(clamp(pts ? interp(pts, b.mid) : b.mid) - w) < 0.005);
+      middle += Number(Math.abs(lo + 0.025 - w) < 0.005);
+    }
+    expect(n).toBeGreaterThan(50);
+    expect(attack / n).toBeLessThanOrEqual(Math.max(middle / n, 0.2) + 0.03);
   });
 });

@@ -39,10 +39,20 @@ export function curve(model: ModelFile, segment: string, h: number): Curve | nul
   return { segment, horizon_h: node.horizon_h, level: node.level, n: node.n, neff: node.neff, events: node.events, points };
 }
 
-/** RT3-01: the curve Free / signed-out callers may see. Win chance rounded to 5 pp, the width of Free's win-chance band
- *  (lib/data/gate.ts floor5), so interpolating it at a market's public mid is no closer to the exact win chance than the
- *  band plus the mid alone (test/curve-coarse.test.ts measures it over the scan). */
-export const coarseCurve = (c: Curve): Curve => ({ ...c, points: c.points.map((p) => ({ price: p.price, win_prob: Math.round(p.win_prob * 20) / 20 })) });
+/** RT3-01 / audit run 6: the curve Free / signed-out callers may see. Rounding to 5 pp alone still let rows modelled at
+ *  "all" / "cat" level be un-banded (44 of 98 within 0.5 pp), so the public curve keeps only one point per 10¢ of price,
+ *  rounded to 10 pp: interpolating it at a market's mid is no better than guessing the middle of Free's band
+ *  (test/paywall.test.ts measures it over the scan). */
+export function coarseCurve(c: Curve): Curve {
+  const at = (x: number) => {
+    const p = c.points, k = p.findIndex((q) => q.price >= x);
+    if (k <= 0) return (p[k < 0 ? p.length - 1 : 0])?.win_prob ?? x;
+    const a = p[k - 1]!, b = p[k]!;
+    return a.win_prob + ((b.win_prob - a.win_prob) * (x - a.price)) / (b.price - a.price || 1);
+  };
+  const points = c.points.length ? Array.from({ length: 10 }, (_, i) => (i * 10 + 5) / 100).map((price) => ({ price, win_prob: Math.round(at(price) * 10) / 10 })) : [];
+  return { ...c, points };
+}
 
 /** Segments a Free caller may ask /api/model/curve for: the ones /track-record charts publicly ("all", "cat:<category>"). */
 export const publicSegment = (segment: string) => segment === "all" || segment.startsWith("cat:");
