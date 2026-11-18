@@ -1,18 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
-import { Suspense } from "react";
 import { Header } from "@/components/shell/Header";
 import { Footer } from "@/components/shell/Footer";
 import { MobileNav } from "@/components/shell/MobileNav";
-import { DrawerHost } from "@/components/market/DrawerHost";
-import { AlertRunner } from "@/components/alerts/AlertRunner";
-import { DisplayEffects } from "@/components/settings/DisplayEffects";
-import { Shortcuts } from "@/components/keyboard/Shortcuts";
-import { AuthBoot } from "@/components/auth/AuthBoot";
+import { LazyHosts } from "@/components/shell/LazyHosts";
 import { siteUrl } from "@/lib/site";
 import { getSettings } from "@/lib/settings";
-import { TicketHost } from "@/components/trade/TradeTicket";
-import { ComboTray } from "@/components/combo/ComboTray";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
@@ -50,15 +43,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         </main>
         <Footer />
         <MobileNav />
-        <Suspense>
-          <DrawerHost />
-          <Shortcuts />
-        </Suspense>
-        <TicketHost />
-        <ComboTray />
-        <AlertRunner />
-        <DisplayEffects />
-        <AuthBoot />
+        <LazyHosts />
       </body>
     </html>
   );

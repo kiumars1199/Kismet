@@ -2,9 +2,15 @@
 import { initBotId } from "botid/client/core";
 import { initAnalytics, sentryOptions } from "@/lib/telemetry";
 
+// Sentry and PostHog start once the page is idle, so their download and init stay off the first paint and
+// hydration (Lighthouse TBT/LCP). Errors before that still reach Next's error pages.
 const dsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
-if (dsn) void import("@sentry/nextjs").then((Sentry) => Sentry.init(sentryOptions(dsn)));
-void initAnalytics();
+const whenIdle = (fn: () => void) =>
+  "requestIdleCallback" in window ? requestIdleCallback(fn, { timeout: 4000 }) : setTimeout(fn, 2000);
+whenIdle(() => {
+  if (dsn) void import("@sentry/nextjs").then((Sentry) => Sentry.init(sentryOptions(dsn)));
+  void initAnalytics();
+});
 
 // Vercel BotID (docs/15): the browser half of checkBotId() in lib/abuse.ts. Same routes as the server checks.
 // Only on Vercel (next.config sets the flag), where the challenge proxy exists.
