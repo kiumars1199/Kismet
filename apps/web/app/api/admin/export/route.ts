@@ -1,12 +1,15 @@
 // GET /api/admin/export — the user list as CSV (T-141). Admin only (404 otherwise), rate-limited, audited.
 // Account and plan fields only: no saved items, no bets.
 import { rateLimit } from "@/lib/abuse";
-import { audit, requireAdmin } from "@/lib/admin/server";
+import { adminOnly405, audit, requireAdmin } from "@/lib/admin/server";
 import { sameSiteRequest } from "@/lib/auth/server";
 import { cell } from "@/lib/csv";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+const other = adminOnly405("GET");
+export const POST = other, PUT = other, PATCH = other, DELETE = other, OPTIONS = other;
 
 const PAGE = 200, MAX_PAGES = 100;   // ponytail: 20,000 users; stream it if the list outgrows that
 const COLS = ["id", "email", "created_at", "last_sign_in_at", "tier", "status", "comp_tier", "comp_expires_at"] as const;

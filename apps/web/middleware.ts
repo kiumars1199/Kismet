@@ -12,6 +12,7 @@ const SIGNED_IN_ONLY = ["/account", "/watchlist", "/journal", "/alerts", "/dashb
 // Reachable during maintenance (T-142): sign-in (so an admin can always get back in), session, uptime check.
 const MAINTENANCE_OPEN = ["/login", "/auth", "/api/auth", "/api/me", "/api/health", "/maintenance"];
 const under = (path: string, list: string[]) => list.some((p) => path === p || path.startsWith(p + "/"));
+const hidden = () => Response.json({ error: "Not found" }, { status: 404, headers: { "Cache-Control": "private, no-store" } });
 
 
 /** docs/15 § Headers. Per-request nonce: Next stamps it on its own scripts (every page renders dynamically,
@@ -46,7 +47,10 @@ export async function middleware(req: NextRequest) {
     return r;
   };
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL, anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (DEMO_MODE || !url || !anon) return next();
+  // /api/admin* for a non-admin: 404 before routing, whatever the method or path (the routes' requireAdmin()
+  // stays the real guard). With no auth configured, or in demo mode, nobody is an admin.
+  const adminApi = under(req.nextUrl.pathname, ["/api/admin"]);
+  if (DEMO_MODE || !url || !anon) return adminApi ? hidden() : next();
 
   let res = next();
   const supabase = createServerClient(url, anon, {
@@ -63,9 +67,10 @@ export async function middleware(req: NextRequest) {
   const { data } = await supabase.auth.getUser();   // refreshes an expired access token; revoked session → null
 
   const path = req.nextUrl.pathname;
+  const admin = isAdminEmail(data.user && { email: data.user.email, verified: !!data.user.email_confirmed_at }, process.env.ADMIN_EMAILS, DEMO_MODE);
+  if (adminApi && !admin) return hidden();
   if (!under(path, MAINTENANCE_OPEN) && (await maintenanceOn(url))) {
-    const u = data.user;
-    if (!isAdminEmail(u && { email: u.email, verified: !!u.email_confirmed_at }, process.env.ADMIN_EMAILS, DEMO_MODE)) {
+    if (!admin) {
       if (path.startsWith("/api/")) {
         return Response.json({ error: "MarketEdge is down for maintenance. Try again shortly." }, { status: 503, headers: { "Retry-After": "300" } });
       }

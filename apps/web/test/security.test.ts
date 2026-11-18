@@ -66,6 +66,7 @@ describe("web hardening greps", () => {
       "app/api/alerts/run/route.ts": "CRON_SECRET",
       "app/api/settle/run/route.ts": "CRON_SECRET",
       "app/e2e-mock/[...path]/route.ts": "404 unless E2E_MOCK=1 outside production",
+      "app/api/admin/export/route.ts": "GET only (sameSiteRequest); its POST/PUT/PATCH/DELETE are adminOnly405: 404 or 405, no state change",
     };
     const routes = files().filter((f) => f.endsWith("route.ts") && /export (async )?(function|const) (POST|PUT|PATCH|DELETE)\b/.test(read(f)));
     expect(routes.length).toBeGreaterThan(10);

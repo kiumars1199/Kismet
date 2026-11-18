@@ -24,6 +24,13 @@ export async function requireAdmin(): Promise<AdminCtx> {
   return { admin, db: supabaseAdmin() };
 }
 
+/** Handler for the methods an admin route doesn't support: 404 for anyone else (so Next's automatic 405
+ *  doesn't reveal the route exists), 405 for an admin. */
+export const adminOnly405 = (allow: string) => async (): Promise<Response> => {
+  await requireAdmin();
+  return new Response(null, { status: 405, headers: { Allow: allow } });
+};
+
 /** Append-only record of an admin mutation (public.admin_audit_log). Throws when it can't be written. */
 export async function audit(
   { admin, db }: AdminCtx, action: string, target: string | null, before: unknown = null, after: unknown = null,

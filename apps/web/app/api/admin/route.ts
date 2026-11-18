@@ -3,7 +3,7 @@
 // append to admin_audit_log. Destructive actions need the target's email typed back; never on your own account.
 import { z } from "zod";
 import { rateLimit } from "@/lib/abuse";
-import { audit, requireAdmin, type AdminCtx } from "@/lib/admin/server";
+import { adminOnly405, audit, requireAdmin, type AdminCtx } from "@/lib/admin/server";
 import { deleteAccount } from "@/lib/auth/delete";
 import { sameOrigin } from "@/lib/auth/server";
 import { sendEmail, siteUrl, unsubscribeUrl } from "@/lib/email";
@@ -14,6 +14,9 @@ import { SETTINGS, type SettingKey } from "@/lib/settings-core";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+const other = adminOnly405("POST");
+export const GET = other, HEAD = other, PUT = other, PATCH = other, DELETE = other, OPTIONS = other;
 
 const uid = z.uuid();
 const confirm = z.string().max(254);
