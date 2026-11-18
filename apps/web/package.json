@@ -8,9 +8,11 @@
     "start": "next start",
     "lint": "eslint . --max-warnings 0",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
+    "test": "vitest run && pnpm test:ops",
     "check:bundle": "node scripts/check-bundle.mjs",
-    "e2e": "playwright test && playwright test -c playwright.paid.config.ts"
+    "e2e": "playwright test && playwright test -c playwright.paid.config.ts",
+    "test:ops": "node --test \"../../ops/tests/*.test.mjs\"",
+    "preflight": "node ../../ops/preflight.mjs"
   },
   "dependencies": {
     "@sentry/nextjs": "11.9.0",

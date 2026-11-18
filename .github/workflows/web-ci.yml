@@ -59,6 +59,8 @@ jobs:
       - uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Only needed if the repo moves to a GitHub organization; empty (and unused) on a personal account.
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
       - uses: pnpm/action-setup@v4
         with:
           package_json_file: apps/web/package.json

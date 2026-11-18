@@ -1,5 +1,7 @@
 # Launch to-do (owner only)
 
+**Scripted runbook: [`ops/ship.md`](ops/ship.md). It covers items 1, 3, 4 and 6 below with commands.**
+
 Code can't do these. Do them in order. `SETUP.md` has the how-to for every account and key.
 
 ## Before charging money
