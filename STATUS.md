@@ -15,7 +15,7 @@ Extension: `pnpm ext:zip` (see `docs/setup-notes/trading-extension.md`).
 - **App (Lanes S, C, U):** Best bets home at `/`, landing at `/about`, smart search with suggestions, five pills,
   Pays pill on both tiers, "Biggest payout" sort, 2x+/5x+/10x+ chips, "More bets with an edge", `formatCount`,
   combo tray and suggested combos (hidden when the combo backtest loses), docs/17 polish, live price pulse,
-  New badge, closing-soon strip, results ticker, Today card. Lighthouse mobile performance medians 91 / 91 / 94 on `/`, `/about`, `/pricing` after T-190 (thin margin; single runs dip to 88 under load);
+  New badge, closing-soon strip, results ticker, Today card. Lighthouse mobile performance medians 92 / 93 / 94 on `/`, `/about`, `/pricing` (audit run 5); accessibility and best practices 100, SEO 91;
   axe 0 serious/critical. Screenshots of every page at 390 and 1440 px in `docs/screenshots/final/`.
 - **Accounts and billing (Lane L):** Supabase Auth (Google + magic link), 18+/Terms checkbox, onboarding saved to the
   account and honoring a safe `next`, `/account` export/delete/sign-out-everywhere, local→account import, 3-session
@@ -41,6 +41,9 @@ Extension: `pnpm ext:zip` (see `docs/setup-notes/trading-extension.md`).
 `config/site.json` (domain, support email, operator names, state, address, refund policy, response time, Payment
 Links) shows as `[[PLACEHOLDER]]` until filled. Every key in `SETUP.md` §2. Lawyer review of legal pages (`LAUNCH_TODO.md`).
 
+## Final audit
+Audit run 5 (`AUDIT.md`): all 11 items PASS, zero fails. Runs 1–4 found 11, 6, 5 and 2 fails; all fixed. Billing is verified against the in-app Stripe mock only; the "Owner verification" list in `AUDIT.md` covers the live checks.
+
 ## Known issues
 - Vercel Hobby rejects the 5-minute alerts cron; needs Pro (in `LAUNCH_TODO.md`).
 - Kalshi fee formula in the order ticket is unverified against a live Kalshi fill.
@@ -48,9 +51,10 @@ Links) shows as `[[PLACEHOLDER]]` until filled. Every key in `SETUP.md` §2. Law
 - `pnpm audit`: no high. picomatch ReDoS (GHSA-fc5q-39xc-vjpf) has no upstream release, so a patched copy lives in `vendor/picomatch` (pnpm overrides, web + extension) with a ReDoS regression test. One moderate remains in eslint-only dev tooling (minimatch).
 - Vercel OWASP managed ruleset needs Enterprise; other firewall rules apply.
 - Lighthouse SEO 91: Next 15 streams the meta description into `<body>` for normal browsers (`htmlLimitedBots: /.*/` fixes it but costs ~15 performance points).
-- Lighthouse best practices 96: one undetailed CSP entry in Chrome's Issues panel; no console violations.
 - No 500 screenshot (no route can be forced to fail); `app/error.tsx` checked in code.
 - Edge tier 2–3x, 5–10x and 10x+ lost money in the backtest; those bands are shown with their record, not promoted.
+- At 390 px a market page's other-side card truncates the name and wraps the multiplier (cosmetic).
+- Exact counts kept on purpose: trade-ticket contract quantity and the bell's `aria-label` unread number.
 - Closing-soon strip and results ticker are empty on current data (nothing closes within 3 h; nothing settled yet).
 - `volume_24h` is null for most markets (Gamma omits it); the 24h-volume filter matches only markets that report it.
 - With "My list only" on, rows are filtered per fetched page, so a page can come back short.
