@@ -1,7 +1,7 @@
 "use client";
 // Alert inbox list (F-23): used by the header bell and the Inbox tab on /alerts.
 import { usePathname, useRouter } from "next/navigation";
-import { drawerHref } from "@/components/market/DrawerHost";
+import { drawerHref } from "@/components/market/drawer";
 import { ago } from "@/lib/format";
 import { getRepo } from "@/lib/repo";
 import { useCollection } from "@/lib/repo/hooks";

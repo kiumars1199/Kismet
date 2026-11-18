@@ -2,7 +2,7 @@
 // Demo alert evaluator (docs/10 demo deltas): runs enabled rules in the open tab once on load and every
 // 2 minutes, writes alert_events (inbox) and shows a browser notification when allowed. Mounted in app/layout.tsx.
 import { useEffect } from "react";
-import { drawerHref } from "@/components/market/DrawerHost";
+import { drawerHref } from "@/components/market/drawer";
 import { runRules } from "@/lib/alerts";
 import { fetchMarket, fetchMarkets } from "@/lib/api";
 import { showNotification } from "@/lib/notify";

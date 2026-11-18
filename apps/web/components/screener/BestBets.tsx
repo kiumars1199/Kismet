@@ -12,7 +12,7 @@ import { useProfile } from "@/lib/repo/hooks";
 import { TAXONOMY } from "@/lib/taxonomy";
 import { BetCard } from "@/components/market/BetCard";
 import { MarketCard } from "@/components/market/MarketCard";
-import { drawerHref, useOpenDrawer } from "@/components/market/DrawerHost";
+import { drawerHref, useOpenDrawer } from "@/components/market/drawer";
 import { SaveViewDialog, chipClass } from "@/components/presets/SaveViewDialog";
 import { SuggestedCombos } from "@/components/combo/SuggestedCombos";
 import { Count } from "@/components/kit";

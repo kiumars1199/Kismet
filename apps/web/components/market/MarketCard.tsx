@@ -7,7 +7,7 @@ import type { ApiRow } from "@/lib/api";
 import { basis, cardReturn, closesLine, gameTime, pays, PAYS_HELP, price, sideEdge, sidePts, winsAbout } from "@/lib/format";
 import { WatchStar } from "@/components/watch/WatchStar";
 import { VenueIconLink } from "@/components/trade/TradeButton";
-import { drawerHref, useOpenDrawer } from "./DrawerHost";
+import { drawerHref, useOpenDrawer } from "./drawer";
 import { AlertLink, Notes } from "./bits";
 import { priceVerdict, returnTone, rowNotes, topicLabel } from "./labels";
 import { LowerConfidence, TierNote } from "./TierNote";

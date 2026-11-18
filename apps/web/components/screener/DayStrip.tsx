@@ -10,7 +10,7 @@ import { summarize } from "@/lib/journal";
 import { useMe } from "@/lib/me";
 import { DEMO_MODE } from "@/lib/repo";
 import { useCollection } from "@/lib/repo/hooks";
-import { drawerHref, useOpenDrawer } from "@/components/market/DrawerHost";
+import { drawerHref, useOpenDrawer } from "@/components/market/drawer";
 import type { WatchSnapshot } from "@/components/watch/WatchStar";
 
 function useNow(ms: number) {

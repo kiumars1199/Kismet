@@ -1,5 +1,6 @@
 // zod for user rows coming into /api/data (docs/15: every API input parsed, unknown keys rejected,
 // numbers bounded). user_id is never accepted from the client: the DB defaults it to auth.uid().
+import "@/lib/zod-jitless";
 import { z } from "zod";
 import type { CollectionName } from "./types";
 

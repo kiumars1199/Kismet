@@ -18,7 +18,7 @@ import { InfoTip, OddsBars, Skeleton, Val } from "./bits";
 import { VERDICT_LABEL, chanceTone, priceVerdict, returnTone, topicLabel } from "./labels";
 import { LowerConfidence, TierNote } from "./TierNote";
 import { AddToCombo } from "@/components/combo/AddToCombo";
-import { drawerHref } from "./DrawerHost";
+import { drawerHref } from "./drawer";
 import { TradeButton, VenueLink } from "@/components/trade/TradeButton";
 import { Count } from "@/components/kit";
 

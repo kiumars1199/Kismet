@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Dialog, NumberInput, Segmented, Stat, btn, btnDanger, btnGhost, btnPrimary, card, input } from "@/components/kit";
-import { drawerHref } from "@/components/market/DrawerHost";
+import { drawerHref } from "@/components/market/drawer";
 import { DASH, edge, formatCount, money, pct, price, ret, RETURN_HELP } from "@/lib/format";
 import { byTopic, clv, cumulative, day, entryReturn, fromCsv, pnl, settlePatch, stake, summarize, toCsv, type Result, type Settlement } from "@/lib/journal";
 import { useOdds } from "@/lib/odds";

@@ -12,7 +12,7 @@ import { useEntitlements } from "@/lib/entitlements";
 import { REALISTIC_HELP, RETURN_HELP, basis, cardReturn, chance, closesLine, gameTime, pays, PAYS_HELP, price, sideEdge, sidePts, winsAbout } from "@/lib/format";
 import { WatchStar } from "@/components/watch/WatchStar";
 import { VenueIconLink } from "@/components/trade/TradeButton";
-import { drawerHref, useOpenDrawer } from "./DrawerHost";
+import { drawerHref, useOpenDrawer } from "./drawer";
 import { AlertLink, InfoTip, Notes, OddsBars } from "./bits";
 import { chanceTone, priceVerdict, returnTone, rowNotes, topicLabel } from "./labels";
 import { useLastVisit, useLiveAsk } from "./live";

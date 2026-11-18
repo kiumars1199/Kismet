@@ -1,4 +1,5 @@
 // FilterState: one object drives URL, presets, alerts and the API (docs/04 § FilterState).
+import "@/lib/zod-jitless";
 import { z } from "zod";
 import { Category, MarketType, Verdict } from "@/lib/schemas";
 

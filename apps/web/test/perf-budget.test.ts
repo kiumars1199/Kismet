@@ -1,6 +1,6 @@
 // Audit run 2 fail 6: Lighthouse mobile performance >= 90 on /, /about and /pricing. The wins were keeping the
 // site-wide hosts and telemetry out of first paint and hydration. These source checks keep them out.
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -21,6 +21,25 @@ describe("first-load JS budget", () => {
       expect(lazy, h).toMatch(new RegExp(`const ${h} = dynamic\\(\\(\\) => import\\([^)]*\\)\\.then\\(\\(m\\) => m\\.${h}\\), \\{ ssr: false \\}\\)`));
       expect(lazy, h).toMatch(new RegExp(`<${h} />`));
     }
+  });
+
+  // Audit run 3 fail 5: cards, the header bell and the screeners imported drawerHref from DrawerHost, which put
+  // MarketDetail in every page's first load. Only DrawerGate loads DrawerHost, lazily, when ?m is set.
+  it("no module imports DrawerHost statically; DrawerGate loads it only for ?m", () => {
+    const root = path.resolve(import.meta.dirname, "..");
+    const bad: string[] = [];
+    const walk = (d: string) => {
+      for (const e of readdirSync(d, { withFileTypes: true })) {
+        const p = path.join(d, e.name);
+        if (e.isDirectory()) walk(p);
+        else if (/\.tsx?$/.test(e.name) && /^import [^;]*from "(@\/components\/market|\.)\/DrawerHost"/m.test(readFileSync(p, "utf8"))) bad.push(path.relative(root, p));
+      }
+    };
+    for (const d of ["app", "components", "lib"]) walk(path.join(root, d));
+    expect(bad).toEqual([]);
+    const gate = src("components/market/DrawerGate.tsx");
+    expect(gate).toMatch(/dynamic\(\(\) => import\("\.\/DrawerHost"\)/);
+    expect(gate).toMatch(/useSearchParams\(\)\.has\("m"\)/);
   });
 
   it("Sentry and PostHog start when the page is idle, not at load", () => {
