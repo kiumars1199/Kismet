@@ -12,10 +12,11 @@ const TEXT = { fresh: "text-muted", amber: "text-warning", red: "text-negative" 
 
 export function FreshnessPill({ scannedAt: initial }: { scannedAt?: number }) {
   const [scannedAt, setScannedAt] = useState(initial);
+  const [delay, setDelay] = useState(0);
   const [now, setNow] = useState<number | null>(null);
 
   useEffect(() => {
-    const load = () => fetchMeta().then((m) => setScannedAt(m.meta.scanned_at)).catch(() => {});
+    const load = () => fetchMeta().then((m) => { setScannedAt(m.meta.scanned_at); setDelay(m.delay_min ?? 0); }).catch(() => {});
     if (initial === undefined) load();
     setNow(Date.now());
     const tick = setInterval(() => setNow(Date.now()), 60_000);
@@ -26,9 +27,10 @@ export function FreshnessPill({ scannedAt: initial }: { scannedAt?: number }) {
   if (scannedAt === undefined || now === null) return null;
   const level = freshness(scannedAt, now);
   const when = ago(scannedAt, now);
+  const behind = delay > 0 ? ` On the Free plan you see prices ${delay} minutes behind.` : "";
   const title = level === "fresh"
-    ? `Prices and win chances were last checked ${when}. A new scan runs about every 2 hours.`
-    : `The last scan was ${when}. Prices may have moved since, so check the market before betting.`;
+    ? `Prices and win chances were last checked ${when}. Prices refresh about every 10 minutes.${behind}`
+    : `The last scan was ${when}. Prices may have moved since, so check the market before betting.${behind}`;
 
   return (
     <Link href="/status" title={title} data-testid="freshness" data-level={level}

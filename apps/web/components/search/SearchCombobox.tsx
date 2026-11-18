@@ -129,7 +129,7 @@ function Combobox() {
       return v ? [{ kind: "view" as const, label: v.name, href: viewHref(v.state) }] : [];
     });
     return [
-      ...(r?.entities ?? []).map((e) => ({ kind: "entity" as const, label: e.name, meta: `${e.count} open · best ${sideRet({ roi_pct: e.best_roi, ranges: e.ranges })}` })),
+      ...(r?.entities ?? []).map((e) => ({ kind: "entity" as const, label: e.name, meta: `${formatCount(e.count)} open · best ${sideRet({ roi_pct: e.best_roi, ranges: e.ranges })}` })),
       ...(r?.topics ?? []).map((t) => ({ kind: "topic" as const, label: t.label, id: t.id, meta: `${formatCount(t.count)} open` })),
       ...(r?.markets ?? []).map((m) => ({
         kind: "market" as const, label: m.question, id: m.id, side: m.side_index,

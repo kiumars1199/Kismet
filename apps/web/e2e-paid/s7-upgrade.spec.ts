@@ -15,10 +15,11 @@ async function signIn(page: Page, email: string) {
   await page.goto(url);
   await expect(page).toHaveURL(/\/onboarding\?next=%2Fpricing/);   // first sign-in: onboarding, then the page sign-in started from
   // On a cold dev server the click can land before hydration; retry until the navigation starts.
+  // Re-click only while still on /onboarding: a click that started as the page left would wait for a missing button.
   await expect(async () => {
-    await page.getByRole("button", { name: "Skip setup" }).click();
-    await expect(page).toHaveURL(/\/pricing$/, { timeout: 5_000 });
-  }).toPass({ timeout: 60_000 });
+    if (new URL(page.url()).pathname === "/onboarding") await page.getByRole("button", { name: "Skip setup" }).click({ timeout: 10_000 });
+    await expect(page).toHaveURL(/\/pricing$/, { timeout: 10_000 });
+  }).toPass({ timeout: 90_000 });
   // Skipping is saved to the account, not just this browser (the next sign-in goes straight to `next`).
   const { profile } = await (await page.request.get("/api/data")).json();
   expect(profile.onboarded_at).toBeTruthy();

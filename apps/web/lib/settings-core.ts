@@ -1,5 +1,6 @@
 // Site settings (T-140): schema, defaults and the last-loaded snapshot. No server-only imports: the tier
 // shaping in lib/data/gate.ts reads rowCap()/delayMin() synchronously. lib/settings.ts loads from the DB.
+import "@/lib/zod-jitless";
 import { z } from "zod";
 import { DELAY_MIN, quota, type Tier } from "@/lib/entitlements";
 

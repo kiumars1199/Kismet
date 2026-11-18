@@ -3,6 +3,7 @@
 // (docs/16 §2), so it runs only when KALSHI_DATA_PERMISSION=true. Server only. Public market-data endpoints, no key.
 // Endpoints (docs/18 §5): GET /markets/{ticker}, GET /multivariate_event_collections,
 // POST /multivariate_event_collections/{ticker}/lookup, then GET /markets/{combo ticker} for the quote.
+import "@/lib/zod-jitless";
 import { z } from "zod";
 import { Ticker } from "@/lib/trade/intent";
 

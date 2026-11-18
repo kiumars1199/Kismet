@@ -11,7 +11,7 @@ import type { SortKey } from "@/lib/filters/state";
 import type { FilterState } from "@/lib/filters/state";
 import { basis, chance, closesIn, closesLine, DASH, edge, money, pays, PAYS_HELP, pct, price, RETURN_HELP, sideRet, sideEdge, formatCount } from "@/lib/format";
 import { WatchStar } from "@/components/watch/WatchStar";
-import { drawerHref, useOpenDrawer } from "@/components/market/DrawerHost";
+import { drawerHref, useOpenDrawer } from "@/components/market/drawer";
 import { AlertLink, Notes, Val } from "@/components/market/bits";
 import { VenueIconLink } from "@/components/trade/TradeButton";
 import { VERDICT_LABEL, chanceTone, returnTone, rowNotes, topicLabel } from "@/components/market/labels";

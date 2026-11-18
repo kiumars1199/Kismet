@@ -4,7 +4,7 @@
 // TBT/LCP, audit run 2 fail 6). AuthBoot and DisplayEffects only act in effects (after hydration) anyway.
 import dynamic from "next/dynamic";
 
-const DrawerHost = dynamic(() => import("@/components/market/DrawerHost").then((m) => m.DrawerHost), { ssr: false });
+const DrawerHost = dynamic(() => import("@/components/market/DrawerGate").then((m) => m.DrawerHost), { ssr: false });
 const Shortcuts = dynamic(() => import("@/components/keyboard/Shortcuts").then((m) => m.Shortcuts), { ssr: false });
 const TicketHost = dynamic(() => import("@/components/trade/TradeTicket").then((m) => m.TicketHost), { ssr: false });
 const ComboTray = dynamic(() => import("@/components/combo/ComboTray").then((m) => m.ComboTray), { ssr: false });

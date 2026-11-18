@@ -7,7 +7,8 @@ import { createElement, type ReactElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("@/lib/auth/server", () => ({ getMe: async () => ({ user: null, tier: "free" }), getTier: async () => "free" }));
+const h = vi.hoisted(() => ({ tier: "free" as "free" | "pro" }));
+vi.mock("@/lib/auth/server", () => ({ getMe: async () => ({ user: null, tier: h.tier }), getTier: async () => h.tier }));
 
 const FIX = path.resolve(__dirname, "fixtures");
 const dir = mkdtempSync(path.join(tmpdir(), "me-delay-"));
@@ -28,6 +29,7 @@ const saved = process.env.DATA_DIR;
 process.env.DATA_DIR = dir;
 const { DelayedPending, getStoreFor } = await import("@/lib/data/store");
 const { GET: flags } = await import("@/app/api/flags/route");
+const { GET: meta } = await import("@/app/api/meta/route");
 const { DELAYED_PENDING, delayedPendingLine } = await import("@/lib/api");
 const { ErrorState } = await import("@/components/screener/States");
 const { default: About } = await import("@/app/about/page");
@@ -39,7 +41,7 @@ const cold = () => {
   for (const k of Object.keys(s)) delete s[k];
 };
 afterAll(() => { process.env.DATA_DIR = saved; rmSync(dir, { recursive: true, force: true }); cold(); });
-beforeEach(cold);
+beforeEach(() => { cold(); h.tier = "free"; });
 
 describe("Free delay on a cold instance", () => {
   it("serves the published previous scan, not the live one", async () => {
@@ -49,6 +51,30 @@ describe("Free delay on a cold instance", () => {
     expect((await getStoreFor("pro")).meta.scanned_at).toBe(NEW);
     const body = await (await flags(new Request("http://t/api/flags"))).json();
     expect(JSON.stringify(body)).not.toContain("77.7");
+  });
+
+  // AUDIT run 3 fail 1: the freshness pill and "Scanned N ago" read /api/meta; it must date the scan each tier is served.
+  it("/api/meta: Free gets the delayed scan's scanned_at and delay, paid the newest; never shared-cacheable", async () => {
+    withScan("markets.json", OLD, "markets-prev.json");
+    withScan("flags.json", OLD, "flags-prev.json");
+    const free = await meta();
+    const fb = await free.json();
+    expect(fb.meta.scanned_at).toBe(OLD);
+    expect(fb.delay_min).toBe(15);
+    expect(free.headers.get("cache-control")).toMatch(/private|no-store/);
+    expect(free.headers.get("vary")).toMatch(/Cookie/);
+    h.tier = "pro";
+    const pb = await (await meta()).json();
+    expect(pb.meta.scanned_at).toBe(NEW);
+    expect(pb.delay_min).toBe(0);
+  });
+
+  it("/api/meta: Free with no delayed copy gets 503 pending, not the live scan's time", async () => {
+    rmSync(path.join(dir, "markets-prev.json"), { force: true });
+    rmSync(path.join(dir, "flags-prev.json"), { force: true });
+    const res = await meta();
+    expect(res.status).toBe(503);
+    expect((await res.json()).code).toBe(DELAYED_PENDING);
   });
 
   it("fails closed (503) when there is no previous scan, instead of serving live data", async () => {

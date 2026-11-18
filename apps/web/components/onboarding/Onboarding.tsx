@@ -3,7 +3,7 @@
 // Ends on the safe `next` page when sign-in brought one, else Best bets filtered to the chosen topics.
 // Finishing or skipping sets profile.onboarded_at; a failed or slow save shows an error and still navigates.
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { TopicsPicker } from "@/components/settings/TopicsPicker";
 import { toQuery } from "@/lib/filters/url";
 import { FilterState } from "@/lib/filters/state";
@@ -35,13 +35,21 @@ export function Onboarding({ next }: { next?: string }) {
   const profile = useProfile();
   const [step, setStep] = useState(0);
   const [style, setStyle] = useState<"market" | "limit">("market");
+  // Skip is disabled until hydrated (a click on the server HTML did nothing) and while finishing (one save, one navigation).
+  const [ready, setReady] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const started = useRef(false);
   useEffect(() => {
+    setReady(true);
     try { if (localStorage.getItem(ORDER_STYLE_KEY) === "limit") setStyle("limit"); } catch { /* storage off */ }
   }, []);
   const [custom, setCustom] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   async function finish() {
+    if (started.current) return;
+    started.current = true;
+    setBusy(true);
     try { localStorage.setItem(ORDER_STYLE_KEY, style); } catch { /* storage off */ }
     setError(null);
     let topics: string[] | undefined;
@@ -70,7 +78,7 @@ export function Onboarding({ next }: { next?: string }) {
         <div className="flex flex-1 items-center gap-2" role="progressbar" aria-valuemin={1} aria-valuemax={3} aria-valuenow={step + 1} aria-label={`Step ${step + 1} of 3`}>
           {STEPS.map((_, i) => <span key={i} className={`h-1 flex-1 rounded-full ${i <= step ? "bg-accent" : "bg-muted-bg"}`} />)}
         </div>
-        <button type="button" onClick={finish} className="rounded-input px-3 py-2 text-sm text-muted hover:text-text">Skip setup</button>
+        <button type="button" onClick={finish} disabled={!ready || busy} className="rounded-input px-3 py-2 text-sm text-muted hover:text-text disabled:opacity-60">Skip setup</button>
       </div>
 
       {error && <p role="alert" className="rounded-input border border-border bg-muted-bg px-4 py-3 text-sm text-soft">{error}</p>}

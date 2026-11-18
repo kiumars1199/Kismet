@@ -1,5 +1,6 @@
 // Order intent + ticket math, shared by the ticket (client) and the nonce routes (server).
 // Mirrors apps/extension/src/kalshi/trade.ts (the extension re-validates everything). Keep in sync.
+import "@/lib/zod-jitless";
 import { z } from "zod";
 
 export const KALSHI_RISK_URL = "https://kalshi.com/regulatory";

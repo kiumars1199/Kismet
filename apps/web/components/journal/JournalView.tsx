@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Dialog, NumberInput, Segmented, Stat, btn, btnDanger, btnGhost, btnPrimary, card, input } from "@/components/kit";
-import { drawerHref } from "@/components/market/DrawerHost";
-import { DASH, edge, money, pct, price, ret, RETURN_HELP } from "@/lib/format";
+import { drawerHref } from "@/components/market/drawer";
+import { DASH, edge, formatCount, money, pct, price, ret, RETURN_HELP } from "@/lib/format";
 import { byTopic, clv, cumulative, day, entryReturn, fromCsv, pnl, settlePatch, stake, summarize, toCsv, type Result, type Settlement } from "@/lib/journal";
 import { useOdds } from "@/lib/odds";
 import { getRepo } from "@/lib/repo";
@@ -60,7 +60,7 @@ export function JournalView() {
   const importCsv = async (file: File) => {
     const { rows: add, skipped } = fromCsv(await file.text());
     for (const r of add) await getRepo().journal.insert(r);
-    setMsg(`Imported ${add.length} bet${add.length === 1 ? "" : "s"}${skipped ? `, skipped ${skipped} row${skipped === 1 ? "" : "s"} missing market, side, price or shares` : ""}.`);
+    setMsg(`Imported ${formatCount(add.length)} bet${add.length === 1 ? "" : "s"}${skipped ? `, skipped ${formatCount(skipped)} row${skipped === 1 ? "" : "s"} missing market, side, price or shares` : ""}.`);
   };
 
   return (
@@ -85,7 +85,7 @@ export function JournalView() {
       ) : (
         <>
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-7">
-            <Stat label="Bets" value={s.open ? `${s.bets} · ${s.open} open` : String(s.bets)} />
+            <Stat label="Bets" value={s.open ? `${formatCount(s.bets)} · ${formatCount(s.open)} open` : formatCount(s.bets)} />
             <Stat label="Staked" value={money(s.staked)} />
             <Stat label="Profit / loss" value={s.settled ? money(s.pnl, true) : DASH} tone={tone(s.pnl)} title="Settled bets only" />
             <Stat label="Return (ROI)" value={ret(s.roi)} tone={tone(s.roi)} title="Profit ÷ money staked on settled bets" />

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { drawerHref } from "@/components/market/DrawerHost";
+import { drawerHref } from "@/components/market/drawer";
 import { fetchCurve, fetchMarkets, type ApiRow, type Curve } from "@/lib/api";
 import { closesLine, DASH, edge, money, pct, price, ret, sideRet, sideEdge, formatCount } from "@/lib/format";
 import type { FilterState } from "@/lib/filters/state";

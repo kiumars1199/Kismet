@@ -1,37 +1,10 @@
 "use client";
 
 // Owner: Lane C (T-23 MarketDrawer). Mounted once in the app shell. URL contract: ?m=<market id>&side=<0|1>.
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useRef } from "react";
+import { useOpenDrawer } from "./drawer";
 import { MarketDetail } from "./MarketDetail";
-
-/** Query string that opens the drawer, keeping the other params of `current` (e.g. the screener filters). */
-export function drawerHref(marketId: string, side?: 0 | 1, current?: string | URLSearchParams): string {
-  const p = new URLSearchParams(current);
-  p.set("m", marketId);
-  if (side === undefined) p.delete("side");
-  else p.set("side", String(side));
-  return `?${p}`;
-}
-
-/** Open / close the drawer from any page: `const { open, close } = useOpenDrawer()`. */
-export function useOpenDrawer() {
-  const router = useRouter();
-  const pathname = usePathname();
-  const params = useSearchParams();
-  const open = useCallback(
-    (marketId: string, side?: 0 | 1) => router.push(pathname + drawerHref(marketId, side, params), { scroll: false }),
-    [router, pathname, params],
-  );
-  const close = useCallback(() => {
-    const p = new URLSearchParams(params);
-    p.delete("m");
-    p.delete("side");
-    const qs = p.toString();
-    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
-  }, [router, pathname, params]);
-  return { open, close };
-}
 
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex]:not([tabindex="-1"])';
 

@@ -1,4 +1,5 @@
 // Zod mirrors of lib/types.ts, used to validate engine output on load (log, don't crash).
+import "@/lib/zod-jitless";
 import { z } from "zod";
 
 export const Category = z.enum(["sports", "crypto", "politics", "finance", "culture", "weather", "tech", "geopolitics", "other"]);

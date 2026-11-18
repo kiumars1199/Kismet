@@ -7,7 +7,8 @@ export function freshness(scannedAt: number | null | undefined, now = Date.now()
   return h > 6 ? "red" : h > 3 ? "amber" : "fresh";
 }
 
-/** Minutes until the next scheduled scan. Keep in step with .github/workflows/refresh.yml: "17 *\/2 * * *" (UTC). */
+/** Minutes until the next GitHub Actions fallback scan (.github/workflows/refresh.yml: "17 *\/2 * * *" UTC). The engine
+ *  container scans every 10 minutes (ops/scheduler.py), so the UI no longer quotes this as "next scan". */
 export function nextScanMin(now = Date.now()): number {
   const d = new Date(now);
   const sinceSlot = ((d.getUTCHours() % 2) * 60 + d.getUTCMinutes() - 17 + 120) % 120;   // minutes past the last :17 slot
