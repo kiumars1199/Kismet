@@ -36,3 +36,30 @@ vercel firewall publish --confirm-name <project>
 ## Signed URLs
 
 None exist. The browser never fetches data files directly. The server reads the Supabase bucket with the service key, or reads the GitHub `live` branch. Keep the bucket **private**.
+
+## Vendored picomatch (GHSA-fc5q-39xc-vjpf)
+
+- **Advisory:** https://github.com/advisories/GHSA-fc5q-39xc-vjpf (CVE-2026-112366, high). picomatch up to 4.0.7
+  has a ReDoS in single-branch repeated extglobs such as `+(*)` and `+(*a)`. There is no patched release.
+- **Why we vendor it:** `pnpm audit` must show no high or critical (prod in `apps/web`, full in `apps/extension`).
+  picomatch 4 reaches us through `@sentry/nextjs` (`@rollup/plugin-commonjs`, `@sentry/cloudflare > vite > tinyglobby`)
+  and, in the extension, through `vitest > vite`.
+- **Upstream state (checked 2026-11-17):** no fix is merged. The newest master commit is `9fab7bf619` (2026-08-27,
+  globstar work). Fix PRs are open and unmerged: https://github.com/micromatch/picomatch/pull/194 (its own notes say
+  `+(*a)` stays exponential) and #254 to #266. So option (b) from the audit brief applies: a minimal fix of our own.
+- **The fix:** `vendor/picomatch` is picomatch 4.0.7 (MIT, `LICENSE` kept) with one change in `lib/parse.js`
+  (search for "MarketEdge patch"). A `+(...)`/`*(...)` branch that holds a wildcard `*` is no longer repeated:
+  - one plain branch (no `/`, groups, braces, escapes or negated brackets) is emitted once: `+(*a)` becomes
+    `(?:[^/]*?a)` instead of `(?:[^/]*?a)+`. Such a language is closed under concatenation, so the matches are the
+    same. A differential run against 4.0.7 (60 pattern/option pairs × 19,531 subjects up to 6 characters, with `/`
+    and `.`) found no difference on these shapes;
+  - any other branch with a `*` (several branches, braces, negated brackets) is treated like the shapes picomatch
+    already refuses (`*(*|a)`): matched literally. This changes matching for those rare patterns, by design.
+  - Version `4.0.8-marketedge.1`. Tests: `node --test vendor/picomatch/test` (the PoC under a 200 ms bound; unpatched,
+    `+(*)` took 79 s) and `apps/web/test/picomatch-redos.test.ts` (lockfiles point at the vendored copy).
+- **Wiring:** `"picomatch@4": file:../../vendor/picomatch` under `overrides` in `apps/web/pnpm-workspace.yaml` and
+  `apps/extension/pnpm-workspace.yaml`. picomatch 2.3.2 (fast-glob, dev tooling only) is outside the audited prod tree
+  and is left alone. On Vercel (Root Directory `apps/web`), keep "Include files outside the Root Directory" on (the
+  default) so `vendor/` is there at install.
+- **Dropping it:** when picomatch ships a release that fixes the advisory, delete both override lines and
+  `vendor/picomatch`, run `pnpm i` in both apps, and confirm `pnpm audit` stays clean.
