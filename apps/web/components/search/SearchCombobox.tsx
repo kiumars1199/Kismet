@@ -281,7 +281,7 @@ function Combobox() {
               }
             }}
             placeholder="Search a team, city or “3x”"
-            className="w-full min-w-0 bg-transparent text-text placeholder:text-muted focus:outline-none [&::-webkit-search-cancel-button]:hidden"
+            className="w-full min-w-0 text-ellipsis bg-transparent text-text placeholder:text-muted focus:outline-none [&::-webkit-search-cancel-button]:hidden"
           />
           {text && (
             <button type="button" aria-label="Clear search" onClick={() => (setText(""), input.current?.focus())} className="-mr-1.5 flex size-8 items-center justify-center rounded-full text-muted hover:text-text">
