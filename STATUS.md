@@ -74,7 +74,31 @@ Audit run 5 (`AUDIT.md`): all 11 items PASS, zero fails. Runs 1–4 found 11, 6,
 
 - picomatch: first accepted as build-time-only, then failed audit run 2; replaced by the vendored patched copy (T-190). The patch treats a few rare glob shapes as literal text; only build tooling uses them.
 - Stripe webhook keeps answering 500 for a subscription whose customer has no linked user yet (Payment Link events can beat checkout.session.completed; Stripe's retry links it). Triggering it costs the sender a real payment, so the retry load is self-limiting.
-- Red-team fixes: production without Upstash uses a per-instance in-memory limiter (never unlimited); Free/anon get 30 list calls/min and 1,500 distinct rows/hour; filters run on banded values; Payment Link refs are HMAC-signed (key derived from STRIPE_WEBHOOK_SECRET, 24 h); quotas and server-owned profile columns enforced by Postgres triggers.
+- Red-team fixes: production without Upstash uses a per-instance in-memory limiter (never unlimited); Free/anon get 30 list calls/min and 1,500 distinct rows/hour; filters run on banded values; Payment Link refs are HMAC-signed (key derived from STRIPE_WEBHOOK_SECRET, 7 days since T-236); quotas and server-owned profile columns enforced by Postgres triggers.
+- Red-team run 3 fixes (T-230 to T-237, branch `fix-rt3`):
+  - RT3-01: the per-market curve goes only to tiers with exact edge, or with a counted Free reveal. Free and signed-out get `curve: null` in `/api/markets/<id>` and the `/m` props. The drawer shows no curve chart for them.
+  - RT3-01: `/api/model/curve` is tier-aware and limited to 60 calls a minute. Pro+ get any segment, exact. Free and signed-out get only `all` and `cat:<category>`, rounded to 5 pp (the width of Free's band). Niche segments answer 403.
+  - RT3-01: `/track-record` stays public. Free and signed-out see its curves rounded to 5 pp; paid tiers see them exact. `docs/02-architecture.md` is updated.
+  - RT3-01, measured: over the full scan, the red team's suggested coarsening (1 pp, 10-point grid) still matched 76% of markets, so it was rejected. With no curve for niche segments and 5 pp curves for `all`/`cat`, the attack in `test/paywall.test.ts` matches at the "band + public mid" baseline: 93% before the fix, about 27% after. On `all`/`cat` markets alone, 5 pp gives 20% against a 28% baseline.
+  - RT3-02: `/m/<id>` and `/event/<id>` apply the API's `markets` rule to every tier, keyed by user id or platform IP. Free and signed-out also count each market shown against the 1,500 distinct-rows-an-hour budget shared with the list routes.
+  - RT3-02: a refused page load shows a "Slow down a little" state with HTTP 200 and `robots: noindex`. A Server Component can't set 429, and `lib/abuse.ts` is Node-only, so middleware can't run it. No exemption by user agent.
+  - RT3-02: BotID is not added to the pages. `checkBotId()` on a first HTML load would flag real visitors, because the client challenge hasn't run yet.
+  - RT3-02: `load()` is wrapped in React `cache()`, so metadata and page count once per request.
+  - RT3-03: the brief's rule, "rotate the replaced scan into prev only when it is at least 15 min old", was not used. At the 10-minute cadence the replaced scan is always about 10 min old, so prev would never move and Free would freeze on one scan.
+  - RT3-03: instead, every publisher keeps two older scans: engine `scan_keeping_prev`, `ops/upload.py` and `refresh.yml` all shift prev to prev2, then live to prev. `getStoreFor` serves Free the newest of {newest scan, prev, prev2} that is at least the delay old, or the pending state if none is.
+  - RT3-03: the store reads prev2 only when prev is too young. Published copies are kept in memory, so they become eligible as they age. Steady state, Free sees data 15 to 25 min old.
+  - RT3-03 ceiling (`ponytail:` in store.ts): a burst of back-to-back scans can show Free a few minutes of the pending state.
+  - RT3-03: `delay_min` stays the plan minimum (15), and `meta.scanned_at` gives the real age. The copy in `lib/` and `/status` now says "at least 15 minutes". The "15 minutes behind" strings in `components/pricing/Plans.tsx` and `app/pricing/page.tsx` are left for the polish branch; they are now a true minimum.
+  - RT3-07: `/status` uses `getStoreFor(tier)`, so Free and signed-out see their copy's time and counts. If Free has no copy old enough, it shows the pending state.
+  - RT3-04: the formula guard is in the shared `cell()` and applies to text cells only, so numbers like -0.05 stay numbers. Text cells starting with "+", such as "+12%", now export as "'+12%". Negative formatted values use U+2212, so they are not prefixed.
+  - RT3-04: the admin export's private `safe()` is deleted; it uses `cell()`. The journal export uses `cell()` too, and the journal import strips the leading `'`.
+  - RT3-05: every admin action first writes an intent audit row. If that write fails, nothing changes and the route answers 500.
+  - RT3-05: after the change, a `<action>.done` row is written on a best-effort basis. If it fails, the error is logged and the response still succeeds, because the intent row already records the action.
+  - RT3-05: the settings "before" value is read straight from `app_settings`, not the 60 s cache. A failed read aborts the action.
+  - RT3-06: MFA is not built. `ADMIN_REQUIRE_MFA` is empty by default. When it is `true`, `requireAdmin()` and the middleware admin check need an aal2 session, read from the JWT with no network call.
+  - RT3-06: the app has no TOTP enroll screen, so the flag stays off until that screen exists. See `docs/setup-notes/admin.md` and `LAUNCH_TODO.md` step 11.
+  - RT3-08: `stripe-setup.mjs` always masks the webhook secret and points to the Stripe dashboard. It runs `chmod 600` after writing an env file.
+  - RT3-09: the signed `client_reference_id` lasts 7 days instead of 24 h. A later payment is still ignored: the owner refunds it or comps the user. There is no customer-email matching and no alert.
 
 ## Decisions (lead calls, incl. blockers > 20 min)
 - Design tokens: the approved artboard wins over the old docs/06 values; docs/06 now lists what the app implements.
