@@ -13,10 +13,13 @@ async function signIn(page: Page, email: string) {
   await expect(page.getByRole("heading", { name: "Check your email" })).toBeVisible({ timeout: 30_000 });
   const { url } = await (await page.request.get(`/e2e-mock/supabase/_inbox?email=${encodeURIComponent(email)}`)).json();
   await page.goto(url);
+  await expect(page).toHaveURL(/\/onboarding\?next=%2Faccount/);   // first sign-in: onboarding, then `next` (as s7-upgrade)
+  // Skip is enabled once hydrated. Re-click only while still on /onboarding: a click that started as the page left
+  // would wait forever for a button /account doesn't have (AUDIT run 3 fail 2: a slow /account compile under load).
   await expect(async () => {
-    await page.getByRole("button", { name: "Skip setup" }).click();
-    await expect(page).toHaveURL(/\/account$/, { timeout: 5_000 });
-  }).toPass({ timeout: 60_000 });
+    if (new URL(page.url()).pathname === "/onboarding") await page.getByRole("button", { name: "Skip setup" }).click({ timeout: 10_000 });
+    await expect(page).toHaveURL(/\/account$/, { timeout: 10_000 });
+  }).toPass({ timeout: 90_000 });
 }
 
 async function expectNoAdmin(page: Page) {
