@@ -15,7 +15,7 @@
 - [ ] All gating is server-side in API routes and server components; the client never receives fields the
       tier doesn't allow (contract tests per tier). The full `markets.json` is never served or publicly reachable.
 - [ ] Scan output lives in a private bucket / private repo branch; only the server reads it.
-- [ ] Free tier: 15-min delay, 25 rows per request, return shown as ranges, max 3 drawers/day revealed.
+- [ ] Free tier: at least a 15-min delay (the newest scan that old, RT3-03), 25 rows per request, return shown as ranges, max 3 drawers/day revealed.
 - [ ] Pagination cap: `page_size ≤ 200`, max 50 pages per minute per user; deny `page` beyond total.
 - [ ] Response shaping: no raw model internals (theta, covariance) to non-admin users.
 

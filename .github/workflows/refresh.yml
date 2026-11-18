@@ -88,9 +88,12 @@ jobs:
       - name: Publish outputs to the live branch
         run: |
           mkdir -p /tmp/pub && cp output/*.json output/*.jsonl /tmp/pub/
-          # Free tier is 15 min behind (docs/15): publish the scan being replaced as *-prev.json so a cold web
-          # instance can serve it. FETCH_HEAD = the live branch fetched above; first publish has none.
+          # Free tier is at least 15 min behind (docs/15): publish the scan being replaced as *-prev.json and the one
+          # before it as *-prev2.json, so a cold web instance can serve the newest one old enough (RT3-03: at a
+          # 10-minute cadence the replaced scan is only ~10 min old). Same shift as engine scan_keeping_prev and
+          # ops/upload.py. FETCH_HEAD = the live branch fetched above; first publishes have none.
           for f in markets flags; do
+            git show "FETCH_HEAD:$f-prev.json" > "/tmp/pub/$f-prev2.json" 2>/dev/null || rm -f "/tmp/pub/$f-prev2.json"
             git show "FETCH_HEAD:$f.json" > "/tmp/pub/$f-prev.json" 2>/dev/null || rm -f "/tmp/pub/$f-prev.json"
           done
           cd /tmp/pub

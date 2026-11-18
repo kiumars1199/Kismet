@@ -37,21 +37,28 @@ class Storage:
                                     "Cache-Control": "no-cache"})
         r.raise_for_status()
 
-    def copy(self, src, dst):
-        """Server-side copy inside the bucket (no 20 MB round trip). Delete first: copy won't overwrite."""
+    def copy(self, src, dst, missing_ok=False):
+        """Server-side copy inside the bucket (no 20 MB round trip). Delete first: copy won't overwrite.
+        missing_ok: a missing source (400/404) is not an error; returns False."""
         r = self.http.delete(f"{self.base}/{BUCKET}/{dst}", headers=self.headers, timeout=60)
         if r.status_code not in (200, 204, 400, 404):
             r.raise_for_status()
         r = self.http.post(f"{self.base}/copy", timeout=120,
                            data=json.dumps({"bucketId": BUCKET, "sourceKey": src, "destinationKey": dst}),
                            headers={**self.headers, "Content-Type": "application/json"})
+        if missing_ok and r.status_code in (400, 404):
+            return False
         r.raise_for_status()
+        return True
 
 
-# Free tier is 15 min behind (docs/15): before the new scan lands, the current one is kept as *-prev.json so
-# every web instance (including a cold one) can serve the scan before the newest to free users.
+# Free tier is at least 15 min behind (docs/15): before the new scan lands, the current one is kept as *-prev.json
+# and the one before it as *-prev2.json, so every web instance (including a cold one) can serve free users the newest
+# scan that is old enough. Two copies (RT3-03): at a 10-minute cadence the replaced scan is only ~10 min old.
+# Same shift as engine scan_keeping_prev and refresh.yml.
 DELAYED = ("markets.json", "flags.json")
 prev_name = lambda name: name.replace(".json", "-prev.json")  # noqa: E731
+prev2_name = lambda name: name.replace(".json", "-prev2.json")  # noqa: E731
 
 
 def publish(out_dir, storage, log=print):
@@ -65,6 +72,8 @@ def publish(out_dir, storage, log=print):
         return False
     if prev is not None:
         for name in DELAYED:
+            if storage.copy(prev_name(name), prev2_name(name), missing_ok=True):
+                log(f"kept {prev_name(name)} as {prev2_name(name)}")
             storage.copy(name, prev_name(name))
             log(f"kept {name} as {prev_name(name)}")
     files = sorted(glob.glob(os.path.join(out_dir, "*.json")) + glob.glob(os.path.join(out_dir, "*.jsonl")))

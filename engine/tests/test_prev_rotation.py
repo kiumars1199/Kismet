@@ -50,3 +50,16 @@ def test_failed_scan_rotates_nothing(tmp_path):
         scan_keeping_prev(Cfg(d), run=boom)
     assert not os.path.exists(os.path.join(d, "flags-prev.json"))
     assert at(d, "flags.json") == 100
+
+
+def test_keeps_two_older_scans(tmp_path):
+    """RT3-03: at a 10-minute cadence the scan just replaced is only ~10 min old, so one copy can't hold a 15-min
+    delay. The publisher keeps two (prev, prev2); the web store serves the newest that is old enough."""
+    d = str(tmp_path)
+    write(d, 100)
+    for t in (200, 300):
+        scan_keeping_prev(Cfg(d), run=lambda cfg, t=t: write(d, t))
+    for name in ("markets", "flags"):
+        assert at(d, f"{name}.json") == 300
+        assert at(d, f"{name}-prev.json") == 200
+        assert at(d, f"{name}-prev2.json") == 100

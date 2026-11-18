@@ -40,7 +40,7 @@ export interface MetaResponse {
   counts: { markets: number; flags: number; events: number };
   facets: { categories: Counts; niches: Counts; market_types: Counts; periods: Counts; frequency: Counts; topics: Counts };
   results?: { graded: number; wins: number; losses: number; avg_pnl: number | null } | null;   // live ledger totals (ledger_summary.json)
-  delay_min?: number;                      // minutes the caller's plan sees prices behind (Free 15, paid 0); `meta` is that delayed scan
+  delay_min?: number;                      // the plan's minimum delay in minutes (Free 15, paid 0); `meta` is the scan served, at least that old (RT3-03)
 }
 
 export interface ApiRow { market: StoreMarket; side: Side }   // side = the side chosen by FilterState.side
