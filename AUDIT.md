@@ -213,7 +213,7 @@ Passing parts:
 - Every email template (`lib/email/templates.ts`, including `paymentFailedEmail`) renders through `layout()`, which adds an Unsubscribe link and the disclaimer. Rendered: `audit2-email-alert.png`, `audit2-email-paymentFailed.png`.
 - Banned words: `grep -rniE "\bpick|\block|guarantee|sure thing|can'?t lose"` over `apps/web/app`, `components`, `lib` and `apps/extension/src` finds only code (`Pick<…>`, a `LOCK` icon, `locked` state) and the negation "We give no guarantee". None is a fail.
 
-The fail: **two places still claim expected profit.** The spec says "no claim of guaranteed or expected profit anywhere, including meta tags".
+The fail: **three places still claim expected profit.** The spec says "no claim of guaranteed or expected profit anywhere, including meta tags".
 - `apps/web/components/market/MarketCard.tsx:53` labels the return on every compact (mobile) card "expected", so a free user on a phone reads "**+20–50% expected**" (`audit2-home-390.png`). This is the main list on mobile.
 - `apps/web/app/tools/page.tsx:5`, the `/tools` meta description: "**Expected-return and bet-sizing calculators for prediction markets.**"
 - `apps/web/components/journal/JournalView.tsx:122` and `:131` label a chart line "**Expected at entry**" and its tooltip "**Expected**". This is the user's own P&L journal, so it is weaker, but it still presents model profit as "expected".
