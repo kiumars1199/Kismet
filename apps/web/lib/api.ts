@@ -58,7 +58,7 @@ export interface MarketsResponse {
 export interface MarketResponse {
   market: StoreMarket;
   segment: string;                         // model segment of the best side (for /api/model/curve)
-  curve: Curve | null;                     // that segment at the market's horizon
+  curve: Curve | null;                     // that segment at the market's horizon; null for Free / signed-out (RT3-01)
   backtest: BacktestRecord | null;         // walk-forward record for the market's category
   event_markets: StoreMarket[];            // other markets in the same event
   reveals_left?: number;                   // Free tier with ?detail=1: exact-number reveals left today (3/day)

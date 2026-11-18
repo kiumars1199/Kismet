@@ -119,7 +119,7 @@ export function marketBody(store: Store, m: StoreMarket, tier: Tier, shown: Tier
   return {
     market: gateMarket(store.flagsById.get(m.id) ?? m, shown),   // the flag row carries best.realistic_edge
     segment,
-    curve: curve(store.model, segment, m.horizon_h),
+    curve: can(shown, "exact_edge") ? curve(store.model, segment, m.horizon_h) : null,   // RT3-01: curve + mid = exact win chance
     backtest: categoryRecord(store.backtest, m.category),
     event_markets: capRows(openOnly(store.byEvent.get(m.event_id) ?? [], nowFor(store)).filter((x) => x.id !== m.id), tier).map((x) => gateMarket(x, tier)),
   };

@@ -57,12 +57,12 @@ The scan is regenerated every 2 h and is read-only. An in-memory store is simple
 |---|---|---|---|
 | `/api/meta` | GET | public | scan time, counts, facets (categories, niches, types with counts) |
 | `/api/markets` | GET | public (free tier trimmed) | filtered, sorted, paginated markets (`04-filters.md` params) |
-| `/api/markets/[id]` | GET | public (trimmed) | one market + its model curve + backtest record for its segment |
+| `/api/markets/[id]` | GET | public (trimmed) | one market + backtest record for its segment; its model curve only for Pro+ or a counted reveal (`curve: null` for Free / signed-out, RT3-01) |
 | `/api/flags` | GET | public (trimmed) | flags with the same filter params |
 | `/api/events/[id]` | GET | public | all markets in one event |
 | `/api/events/by-slug/[slug]` | GET | Premium (extension) | event markets + flags by Polymarket slug |
 | `/api/book` | GET `?token=` | Pro+ | live execution check for one token (`07-execution.md`) |
-| `/api/model/curve` | GET `?segment=&h=` | public | win-prob curve points for charts |
+| `/api/model/curve` | GET `?segment=&h=` | public (trimmed), rate-limited | win-prob curve points for charts. Pro+: any segment, exact. Free / signed-out: only `all` and `cat:<category>` (what `/track-record` charts), win chance rounded to 5 pp (the width of Free's band), other segments 403. Exact curve + the public mid = exact win chance (RT3-01) |
 | `/api/backtest` | GET | public | `backtest.json` summary |
 | `/api/presets` etc. | CRUD | user | see `05-features.md` |
 | `/api/alerts/run` | POST | cron secret | evaluates alert rules (Vercel Cron, every 5 min) |

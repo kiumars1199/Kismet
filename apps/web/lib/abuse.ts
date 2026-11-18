@@ -13,6 +13,7 @@ export const RULES = {
   pages: { limit: 50, window: "1 m" },       // list pages past the first, per user (docs/15 pagination cap)
   list_free: { limit: 30, window: "1 m" },   // Free / signed-out list requests (RT-03), on top of markets
   suggest: { limit: 120, window: "1 m" },
+  curve: { limit: 60, window: "1 m" },       // /api/model/curve (RT3-01)
   book: { limit: 30, window: "1 m" },
   auth_ip: { limit: 5, window: "1 m" },      // /api/auth/*, per IP
   auth_email: { limit: 5, window: "1 h" },   // magic links, per address

@@ -39,6 +39,14 @@ export function curve(model: ModelFile, segment: string, h: number): Curve | nul
   return { segment, horizon_h: node.horizon_h, level: node.level, n: node.n, neff: node.neff, events: node.events, points };
 }
 
+/** RT3-01: the curve Free / signed-out callers may see. Win chance rounded to 5 pp, the width of Free's win-chance band
+ *  (lib/data/gate.ts floor5), so interpolating it at a market's public mid is no closer to the exact win chance than the
+ *  band plus the mid alone (test/curve-coarse.test.ts measures it over the scan). */
+export const coarseCurve = (c: Curve): Curve => ({ ...c, points: c.points.map((p) => ({ price: p.price, win_prob: Math.round(p.win_prob * 20) / 20 })) });
+
+/** Segments a Free caller may ask /api/model/curve for: the ones /track-record charts publicly ("all", "cat:<category>"). */
+export const publicSegment = (segment: string) => segment === "all" || segment.startsWith("cat:");
+
 /** Walk-forward result for the chosen half-life (results are keyed "21" | ... | "None"). */
 export const chosenResult = (b: BacktestFile) => b.results[String(b.chosen_half_life_days ?? "None")];
 
