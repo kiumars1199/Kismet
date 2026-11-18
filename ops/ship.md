@@ -150,7 +150,8 @@ such as no Sentry, or an extension that isn't published yet.
 
 ```bash
 cd apps/web && vercel login && vercel link && cd ../..
-node ops/vercel-env.mjs            # prints every `vercel env add`, secrets masked
+node ops/vercel-env.mjs            # prints every `vercel env add`, secrets masked. Reads apps/web/.env.prod (or --env);
+                                   # refuses with no env file; pushes only keys in apps/web/.env.example
 node ops/vercel-env.mjs --yes      # Production + Preview; refuses while preflight has blockers
 ```
 
