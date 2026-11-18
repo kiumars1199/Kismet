@@ -271,7 +271,7 @@ export function BestBets({ initialTotal }: { initialTotal?: number }) {
       <StaleBanner scannedAt={scanned} />
 
       {error && !data ? (
-        <ErrorState onRetry={sc.retry} what="best bets" />
+        <ErrorState onRetry={sc.retry} what="best bets" error={error} />
       ) : !data ? (
         <ul className={desktop ? GRID : "flex flex-col gap-2.5"} aria-busy="true" aria-label="Loading best bets">
           {Array.from({ length: desktop ? 8 : 4 }, (_, i) => <li key={i} className="flex"><CardSkeleton /></li>)}
@@ -284,7 +284,7 @@ export function BestBets({ initialTotal }: { initialTotal?: number }) {
         />
       ) : (
         <>
-          {error && <ErrorState onRetry={sc.retry} what="best bets" />}
+          {error && <ErrorState onRetry={sc.retry} what="best bets" error={error} />}
           <Cards slots={slots.slice(0, split)} desktop={desktop} pro={pro} dim={loading} />
           <BigPayouts state={state} pro={pro} />
           {tierOf(state) === "best" && <SuggestedCombos />}

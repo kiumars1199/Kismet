@@ -84,7 +84,7 @@ export function MarketsScreener() {
         <StaleBanner scannedAt={scanned} />
 
         {error && !data ? (
-          <ErrorState onRetry={sc.retry} />
+          <ErrorState onRetry={sc.retry} error={error} />
         ) : !data ? (
           <div className="flex flex-col gap-2" aria-busy="true" aria-label="Loading markets">
             {Array.from({ length: 8 }, (_, i) => <Skeleton key={i} className="h-16" />)}
@@ -98,7 +98,7 @@ export function MarketsScreener() {
           />
         ) : (
           <>
-            {error && <ErrorState onRetry={sc.retry} />}
+            {error && <ErrorState onRetry={sc.retry} error={error} />}
             {desktop ? (
               <MarketTable items={items} sort={state.sort} onSort={(sort) => set({ sort })} onToggleGroup={toggle} pro={pro} loading={loading} />
             ) : (

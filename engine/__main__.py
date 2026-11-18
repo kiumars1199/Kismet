@@ -35,6 +35,25 @@ def run_backtest(cfg, log=print):
     log(f"chosen half-life: {bt['chosen_half_life_days']}")
 
 
+DELAYED = ("markets.json", "flags.json")
+
+
+def scan_keeping_prev(cfg, run=None):
+    """Scan, then keep the scan it replaced as *-prev.json: the Free tier is served that one while the new
+    scan is younger than the delay (docs/15). Same rotation as ops/upload.py does for Storage."""
+    old = {}
+    for name in DELAYED:
+        try:
+            with open(cfg.path("output", name), "rb") as f:
+                old[name] = f.read()
+        except FileNotFoundError:
+            pass
+    (run or scan.run)(cfg)  # a failed scan raises: nothing rotated, the old files stay as they were
+    for name, data in old.items():
+        with open(cfg.path("output", name.replace(".json", "-prev.json")), "wb") as f:
+            f.write(data)
+
+
 def main():
     ap = argparse.ArgumentParser(prog="python -m engine")
     ap.add_argument("--config", default="config/demo.json")
@@ -48,7 +67,7 @@ def main():
     if a.cmd in ("fit", "all"):
         fit(cfg)
     if a.cmd in ("scan", "all"):
-        scan.run(cfg)
+        scan_keeping_prev(cfg)
     if a.cmd == "grade":
         from . import ledger
         ledger.grade(cfg)

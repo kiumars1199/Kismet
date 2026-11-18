@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { PENDING_PREFIX } from "@/lib/api";
 import { ago } from "@/lib/format";
 
 const STALE_S = 3 * 3600;
@@ -15,7 +16,21 @@ export function StaleBanner({ scannedAt }: { scannedAt?: number }) {
   );
 }
 
-export function ErrorState({ onRetry, what = "markets" }: { onRetry: () => void; what?: string }) {
+/** Free has no delayed scan yet (right after a fresh scan, docs/15): an honest wait, not an error. */
+export function PendingState({ line }: { line: string }) {
+  return (
+    <div role="status" className="flex flex-col items-start gap-3 rounded-card border border-border bg-surface p-6">
+      <p className="font-semibold">New prices are on the way</p>
+      <p className="max-w-prose text-sm text-muted">{line} Paid plans see live prices.</p>
+      <Link href="/pricing" className="flex min-h-11 items-center rounded-input border border-border px-4 hover:border-accent-border">
+        See plans
+      </Link>
+    </div>
+  );
+}
+
+export function ErrorState({ onRetry, what = "markets", error }: { onRetry: () => void; what?: string; error?: string }) {
+  if (error?.startsWith(PENDING_PREFIX)) return <PendingState line={error.slice(PENDING_PREFIX.length)} />;
   return (
     <div role="alert" className="flex flex-col items-start gap-3 rounded-card border border-border bg-surface p-6">
       <p className="font-semibold">Couldn&apos;t load {what}.</p>

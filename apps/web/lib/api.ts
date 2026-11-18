@@ -83,8 +83,18 @@ export interface SuggestResponse {
 export const fetchSuggest = (q: string, view: "markets" | "flags", init?: RequestInit) =>
   get<SuggestResponse>(`/api/suggest?${new URLSearchParams({ q, view, ...(userTz() ? { tz: userTz()! } : {}) })}`, init);
 
+/** 503 `code` when Free has no delayed scan yet (lib/data/store.ts DelayedPending). */
+export const DELAYED_PENDING = "delayed_pending";
+export const delayedPendingLine = (min: number) => `Free data refreshes every ${min} minutes; first update shortly.`;
+/** Error-message prefix the screeners read to show the honest pending state instead of "Couldn't load". */
+export const PENDING_PREFIX = "pending: ";
+
 async function get<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(path, init);
+  if (res.status === 503) {
+    const body = (await res.json().catch(() => null)) as { error?: string; code?: string } | null;
+    if (body?.code === DELAYED_PENDING) throw new Error(PENDING_PREFIX + (body.error ?? ""));
+  }
   if (!res.ok) throw new Error(`${path}: HTTP ${res.status}`);
   return res.json() as Promise<T>;
 }

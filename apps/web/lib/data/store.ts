@@ -11,6 +11,13 @@ import { Flag as FlagSchema, Market as MarketSchema, ScanMeta as MetaSchema } fr
 import type { BacktestFile, EventsFile, FlagsFile, LedgerSummary, MarketsFile, ModelFile, ScanMeta, StoreMarket } from "@/lib/types";
 import { derive } from "./derive";
 import { buildSearch, type SearchIndex } from "@/lib/search/index";
+import { DELAYED_PENDING } from "@/lib/api";
+
+/** Free can't be served yet: no older scan to show inside the delay window (docs/15). Pages render an honest
+ *  "first update shortly" state and the API answers 503; Free never falls through to the live scan. */
+export class DelayedPending extends Error {
+  readonly code = DELAYED_PENDING;
+}
 
 export interface RawData {
   markets: MarketsFile;
@@ -232,17 +239,17 @@ async function loadDelayed(s: Store): Promise<Store> {
   const chain = sourceChain(s.source ?? DATA_SOURCE);
   const read = async <T>(file: string) => {
     const text = await readSource(file, chain);
-    if (text === undefined) throw new Error(`[store] no ${file}: Free tier can't be served the delayed scan`);
+    if (text === undefined) throw new DelayedPending(`[store] no ${file}: Free tier can't be served the delayed scan`);
     return JSON.parse(text) as T;
   };
   const [markets, flags] = await Promise.all([read<MarketsFile>("markets-prev.json"), read<FlagsFile>("flags-prev.json")]);
-  if (!(markets.meta.scanned_at < s.meta.scanned_at)) throw new Error("[store] *-prev.json is not older than the newest scan");
+  if (!(markets.meta.scanned_at < s.meta.scanned_at)) throw new DelayedPending("[store] *-prev.json is not older than the newest scan");
   return buildStore({ markets, flags, model: s.model, backtest: s.backtest, events: s.events, ledgerSummary: s.ledgerSummary, source: s.source });
 }
 
 /** Free data is delayMin("free") behind (site settings, default 15) (docs/08, docs/15): while the newest scan is younger than that, serve the one
  *  before: this instance's previous copy, else the published `*-prev.json` (so a cold instance holds the delay too).
- *  Neither available = throw (routes answer 503): Free never falls through to the live scan.
+ *  Neither available = throw DelayedPending (routes answer 503, pages show DelayedPendingState): Free never falls through to the live scan.
  *  ponytail: "the scan before" can be < 15 min old when scans run more often than every 15 min; keep N copies if so. */
 export async function getStoreFor(tier: Tier): Promise<Store> {
   const [s] = await Promise.all([getStore(), getSettings()]);   // getSettings refreshes the Free rows/delay snapshot

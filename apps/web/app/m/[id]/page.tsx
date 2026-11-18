@@ -4,7 +4,8 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import type { MarketResponse } from "@/lib/api";
 import { getTier } from "@/lib/auth/server";
-import { marketBody } from "@/lib/data/respond";
+import { marketBody, pendingLine } from "@/lib/data/respond";
+import { PendingState } from "@/components/screener/States";
 import { getStoreFor } from "@/lib/data/store";
 import { betLine, sideRet } from "@/lib/format";
 import { MarketDetail } from "@/components/market/MarketDetail";
@@ -29,7 +30,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function Page({ params, searchParams }: Props) {
   const [{ id }, { side }] = await Promise.all([params, searchParams]);
-  const data = await load(id);
+  let data: MarketResponse | null;
+  try {
+    data = await load(id);
+  } catch (e) {
+    return <div className="mx-auto w-full max-w-[720px]"><PendingState line={pendingLine(e)} /></div>;   // a missing store is not a missing market
+  }
   if (!data) notFound();
   return (
     <div className="mx-auto w-full max-w-[720px]">

@@ -1,16 +1,16 @@
 // Server helpers shared by the API routes.
-import { getStore, getStoreFor, type Store } from "./store";
+import { DelayedPending, getStore, getStoreFor, type Store } from "./store";
 import { botCheck, clientKey, noteRows, rateLimit, rowBudget, type Rule } from "@/lib/abuse";
 import { getMe, type Me } from "@/lib/auth/server";
 import { freeView, gateMarket, gateMarkets } from "./gate";
 import { categoryRecord, curve, segmentOf } from "./model";
 import { can, type Tier } from "@/lib/entitlements";
-import { rowCap } from "@/lib/settings-core";
+import { delayMin, rowCap } from "@/lib/settings-core";
 import { apply, nowFor, openOnly } from "@/lib/filters/apply";
 import { parse } from "@/lib/filters/url";
 import { RELAX_STEPS, relax, relaxedNote, type ParsedQuery } from "@/lib/search/parse";
 import { BEST_BETS_VERDICTS, type FilterState } from "@/lib/filters/state";
-import type { EventResponse, MarketResponse, MarketsResponse } from "@/lib/api";
+import { DELAYED_PENDING, delayedPendingLine, type EventResponse, type MarketResponse, type MarketsResponse } from "@/lib/api";
 import type { StoreMarket } from "@/lib/types";
 
 /** RT-15: tier-shaped bodies must never sit in a shared cache. A route's own private Cache-Control is kept. */
@@ -47,13 +47,25 @@ export async function withTier(
   try {
     store = await getStoreFor(me.tier);
   } catch (e) {
+    if (e instanceof DelayedPending) {
+      console.warn(e.message);
+      const h = new Headers(headers);
+      h.set("Retry-After", "60");
+      return noStore(Response.json({ error: delayedPendingLine(delayMin("free")), code: DELAYED_PENDING }, { status: 503, headers: h }));
+    }
     console.error("[api] store load failed", e);
     return noStore(Response.json({ error: "Data is temporarily unavailable" }, { status: 503, headers }));
   }
   return noStore(await fn(can(me.tier, "exact_edge") ? store : freeView(store), me.tier, me));   // RT-04: Free filters on what it sees
 }
 
-export const notFound = (what: string, headers?: HeadersInit) => Response.json({ error: `${what} not found` }, { status: 404, headers });
+/** Server Components: the honest "first update shortly" line when Free has no delayed scan yet; any other error rethrows. */
+export function pendingLine(e: unknown): string {
+  if (e instanceof DelayedPending) return delayedPendingLine(delayMin("free"));
+  throw e;
+}
+
+export const notFound =(what: string, headers?: HeadersInit) => Response.json({ error: `${what} not found` }, { status: 404, headers });
 
 /** One page for the API. When q finds nothing, relax it step by step (docs/13 § honest fallback) and say so. */
 export function marketsPage(store: Store, f: FilterState): MarketsResponse {

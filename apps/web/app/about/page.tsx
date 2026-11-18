@@ -6,7 +6,9 @@ import { DEMO_MODE } from "@/lib/config";
 import { chosenResult } from "@/lib/data/model";
 import { getTier } from "@/lib/auth/server";
 import { gateMarket } from "@/lib/data/gate";
-import { getStoreFor } from "@/lib/data/store";
+import { getStoreFor, type Store } from "@/lib/data/store";
+import { pendingLine } from "@/lib/data/respond";
+import { PendingState } from "@/components/screener/States";
 import { apply } from "@/lib/filters/apply";
 import { FilterState } from "@/lib/filters/state";
 import { DASH, REALISTIC_HELP, RETURN_HELP, cardReturn, chance, closesLine, formatCount, pays, pct, price, winsAbout } from "@/lib/format";
@@ -34,7 +36,12 @@ const FAQ: { q: string; a: React.ReactNode }[] = [
 
 export default async function Page() {
   const tier = await getTier();   // landing preview: same tier shaping and Free delay as the API (docs/15)
-  const store = await getStoreFor(tier);
+  let store: Store;
+  try {
+    store = await getStoreFor(tier);
+  } catch (e) {
+    return <div className="mx-auto w-full max-w-[720px] pt-4 md:pt-10"><PendingState line={pendingLine(e)} /></div>;
+  }
   const page = apply(store, FilterState.parse({ view: "flags", verdicts: ["worth it"], page_size: 3 }));
   const top = (page.groups ?? []).map((g) => g.best).map(({ market, side }) => {
     const m = gateMarket(market, tier);
