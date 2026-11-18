@@ -9,6 +9,7 @@ import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 const h = vi.hoisted(() => ({ tier: "free" as "free" | "pro" }));
 vi.mock("@/lib/auth/server", () => ({ getMe: async () => ({ user: null, tier: h.tier }), getTier: async () => h.tier }));
+vi.mock("next/headers", () => ({ headers: async () => new Headers() }));   // page loads key the rate limit on it (RT3-02)
 
 const FIX = path.resolve(__dirname, "fixtures");
 const dir = mkdtempSync(path.join(tmpdir(), "me-delay-"));

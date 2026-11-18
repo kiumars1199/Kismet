@@ -1,26 +1,30 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
-import { eventBody, pendingLine } from "@/lib/data/respond";
+import { Suspense, cache } from "react";
+import { SlowDown, eventBody, pageBudget, pageStore, pendingLine } from "@/lib/data/respond";
 import { PendingState } from "@/components/screener/States";
-import { getTier } from "@/lib/auth/server";
-import { getStoreFor } from "@/lib/data/store";
+import { SlowDownState } from "@/components/screener/SlowDownState";
 import { EventView } from "@/components/screener/EventView";
 
 export const dynamic = "force-dynamic";
 
 type Props = { params: Promise<{ id: string }> };
 
-async function load(id: string) {
-  const tier = await getTier();
-  const store = await getStoreFor(tier);
-  const markets = store.byEvent.get(id);
-  return markets ? eventBody(store, markets, tier) : null;
-}
+// RT3-02: the /api/events/[id] rate limit plus the Free row budget; cache(): metadata and page count once per request.
+const load = cache(async (id: string) => {
+  const ctx = await pageStore();
+  const markets = ctx.store.byEvent.get(id);
+  const ev = markets ? eventBody(ctx.store, markets, ctx.tier) : null;
+  if (ev) await pageBudget(ctx, ev.markets.map((m) => m.id));
+  return ev;
+});
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const ev = await load((await params).id).catch(() => null);
-  return { title: ev?.event ?? "Event" };
+  try {
+    return { title: (await load((await params).id))?.event ?? "Event" };
+  } catch (e) {
+    return e instanceof SlowDown ? { title: "Event", robots: { index: false } } : { title: "Event" };   // RT3-02: never index the slow-down state
+  }
 }
 
 export default async function Page({ params }: Props) {
@@ -29,6 +33,7 @@ export default async function Page({ params }: Props) {
   try {
     ev = await load(id);
   } catch (e) {
+    if (e instanceof SlowDown) return <div className="mx-auto w-full max-w-[720px]"><SlowDownState /></div>;
     return <div className="mx-auto w-full max-w-[720px]"><PendingState line={pendingLine(e)} /></div>;   // a missing store is not a missing event
   }
   if (!ev) notFound();
