@@ -181,6 +181,18 @@ export async function rowBudget(req: Request, userId: string | null | undefined,
   return r.ok ? null : tooMany((hour + 1) * 3_600_000);
 }
 
+/** A search engine or other bot Vercel has verified (BotID `isVerifiedBot`, checked by Vercel, not by user agent).
+ *  Owner decision (Nov 18): these skip the market-page limits so search engines can index /m and /event. Off Vercel,
+ *  or if the check fails: false (normal limits apply). */
+export async function verifiedBot(): Promise<boolean> {
+  if (!process.env.VERCEL) return false;
+  try {
+    return (await checkBotId()).isVerifiedBot === true;
+  } catch {
+    return false;
+  }
+}
+
 /** Vercel BotID (docs/15). Pass-through off Vercel (local, CI, e2e). 403 for a detected bot, else null.
  *  The browser side is initBotId() in instrumentation-client.ts; its protect list must name the same routes. */
 export async function botCheck(): Promise<Response | null> {

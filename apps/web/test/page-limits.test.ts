@@ -6,6 +6,8 @@ import type { Tier } from "@/lib/entitlements";
 
 const h = vi.hoisted(() => ({ tier: "free" as Tier }));
 vi.mock("@/lib/auth/server", () => ({ getMe: async () => ({ user: null, tier: h.tier }), getTier: async () => h.tier }));
+const bot = vi.hoisted(() => ({ isBot: false, isVerifiedBot: false }));
+vi.mock("botid/server", () => ({ checkBotId: async () => bot }));
 vi.mock("next/headers", () => ({ headers: async () => new Headers(), cookies: async () => ({ get: () => undefined }) }));
 
 const { memoryLimiter, rowBudget, setLimiter, FREE_ROWS_PER_HOUR, RULES } = await import("@/lib/abuse");
@@ -44,5 +46,22 @@ describe("RT3-02: market and event pages are metered like the API", () => {
     expect(slowed(await event(s.markets[1]!.event_id))).toBe(true);
     h.tier = "pro";   // paid tiers have no row budget (like the API)
     expect(slowed(await market(s.markets[0]!.id))).toBe(false);
+  });
+
+  it("a bot Vercel verified (search engine) skips the limits; an unverified bot doesn't", async () => {
+    vi.stubEnv("VERCEL", "1");
+    try {
+      const s = await getStore();
+      const ids = s.markets.slice(0, RULES.markets.limit + 5).map((m) => m.id);
+      Object.assign(bot, { isBot: true, isVerifiedBot: true });
+      for (const id of ids) expect(slowed(await market(id))).toBe(false);
+      Object.assign(bot, { isBot: true, isVerifiedBot: false });   // e.g. a spoofed Googlebot user agent
+      const out = [];
+      for (const id of ids) out.push(slowed(await market(id)));
+      expect(out.at(-1)).toBe(true);
+    } finally {
+      vi.unstubAllEnvs();
+      Object.assign(bot, { isBot: false, isVerifiedBot: false });
+    }
   });
 });

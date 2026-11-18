@@ -1,6 +1,6 @@
 // Server helpers shared by the API routes.
 import { DelayedPending, getStore, getStoreFor, type Store } from "./store";
-import { botCheck, clientKey, noteRows, rateLimit, rowBudget, type Rule } from "@/lib/abuse";
+import { botCheck, clientKey, noteRows, rateLimit, rowBudget, verifiedBot, type Rule } from "@/lib/abuse";
 import { getMe, type Me } from "@/lib/auth/server";
 import { freeView, gateMarket, gateMarkets } from "./gate";
 import { categoryRecord, curve, segmentOf } from "./model";
@@ -76,17 +76,17 @@ export class SlowDown extends Error {
 /** RT3-02: /m/[id] and /event/[id] page loads carry the same data as /api/markets/[id] and /api/events/[id], so they
  *  get the same `markets` rate limit (keyed like the API: user id, else platform IP), checked before the store load.
  *  Throws SlowDown when refused. Wrap the page's load() in React cache() so generateMetadata and the page count once. */
-export async function pageStore(): Promise<{ store: Store; tier: Tier; me: Me; req: Request }> {
-  const [me, h] = await Promise.all([getMe(), headers()]);
+export async function pageStore(): Promise<{ store: Store; tier: Tier; me: Me; req: Request; bot: boolean }> {
+  const [me, h, bot] = await Promise.all([getMe(), headers(), verifiedBot()]);
   const req = new Request("http://page/", { headers: h });
-  if (await rateLimit("markets", clientKey(req, me.user?.id))) throw new SlowDown();
-  return { store: await getStoreFor(me.tier), tier: me.tier, me, req };
+  if (!bot && (await rateLimit("markets", clientKey(req, me.user?.id)))) throw new SlowDown();
+  return { store: await getStoreFor(me.tier), tier: me.tier, me, req, bot };
 }
 
 /** RT3-02: Free / signed-out page loads count the markets they show against the RT-03 distinct-row budget
  *  (FREE_ROWS_PER_HOUR, shared with the list routes). Throws SlowDown past it. Paid tiers: no budget, like the API. */
-export async function pageBudget({ tier, me, req }: { tier: Tier; me: Me; req: Request }, ids: string[]): Promise<void> {
-  if (can(tier, "live_data")) return;
+export async function pageBudget({ tier, me, req, bot }: { tier: Tier; me: Me; req: Request; bot?: boolean }, ids: string[]): Promise<void> {
+  if (can(tier, "live_data") || bot) return;   // verified search bots: owner decision, see verifiedBot()
   if (await rowBudget(req, me.user?.id, ids)) throw new SlowDown();
   await noteRows(req, me.user?.id, ids.length);
 }
