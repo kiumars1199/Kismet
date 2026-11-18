@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { drawerHref } from "@/components/market/DrawerHost";
 import { fetchMarket, type StoreMarket } from "@/lib/api";
-import { DASH, betLine, chance, closesLine, pct, price, ret } from "@/lib/format";
+import { DASH, betLine, formatCount, chance, closesLine, pct, price, ret } from "@/lib/format";
 import { getRepo, type WatchlistItem } from "@/lib/repo";
 import { useCollection } from "@/lib/repo/hooks";
 import { WatchStar, type WatchSnapshot } from "./WatchStar";
@@ -153,7 +153,7 @@ export function MyList() {
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight md:text-4xl">My list</h1>
-          <p className="mt-2 text-muted">{items.length ? `${items.length} saved. Numbers update with every scan.` : "Markets you saved, and how they moved since."}</p>
+          <p className="mt-2 text-muted">{items.length ? `${formatCount(items.length)} saved. Numbers update with every scan.` : "Markets you saved, and how they moved since."}</p>
         </div>
         {items.length > 0 && (
           <div className="flex items-center gap-3 text-sm">
@@ -164,7 +164,7 @@ export function MyList() {
             </label>
             <button type="button" onClick={removeSelected} disabled={!chosen.length}
               className="rounded-input border border-border px-3.5 py-2 text-soft hover:border-negative hover:text-negative disabled:opacity-40 disabled:hover:border-border disabled:hover:text-soft">
-              Remove{chosen.length ? ` ${chosen.length}` : ""}
+              Remove{chosen.length ? ` ${formatCount(chosen.length)}` : ""}
             </button>
           </div>
         )}

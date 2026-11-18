@@ -92,7 +92,7 @@ export function TodayCard() {
       <h2 id="today-h" className="flex-none pl-1 font-sans text-[13px] font-semibold">Today</h2>
       <Link href="/watchlist" className={stat}>
         <span className="flex-none text-muted">Saved, closing today</span>
-        <span className="truncate text-text">{closing.length ? `${closing.length} · ${(closing[0]!.snapshot as WatchSnapshot).question}` : "none"}</span>
+        <span className="truncate text-text">{closing.length ? `${formatCount(closing.length)} · ${(closing[0]!.snapshot as WatchSnapshot).question}` : "none"}</span>
       </Link>
       <Link href="/alerts" className={stat}>
         <span className="text-muted">Alerts fired</span>
@@ -101,7 +101,7 @@ export function TodayCard() {
       <Link href="/journal" className={stat}>
         <span className="flex-none text-muted">My bets P&amp;L</span>
         <span className={`truncate ${s.settled ? (s.pnl >= 0 ? "text-accent-softer" : "text-negative") : "text-text"}`}>
-          {s.bets ? `${s.settled ? money(s.pnl, true) : "no results yet"} · ${s.open} open` : "no bets logged"}
+          {s.bets ? `${s.settled ? money(s.pnl, true) : "no results yet"} · ${formatCount(s.open)} open` : "no bets logged"}
         </span>
       </Link>
     </section>
