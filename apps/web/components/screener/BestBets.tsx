@@ -5,7 +5,6 @@
 import { useEffect, useState } from "react";
 import { backtestOnce, fetchFlags, type ApiGroup, type ApiRow, type BacktestResponse, type MarketsResponse } from "@/lib/api";
 import { tierOf, type FilterState } from "@/lib/filters/state";
-import { nextScanIn } from "@/lib/freshness";
 import { RETURN_HELP, ago, ret, formatCount, pays, price } from "@/lib/format";
 import { savePresetFromState } from "@/lib/presets";
 import { useProfile } from "@/lib/repo/hooks";
@@ -279,7 +278,7 @@ export function BestBets({ initialTotal }: { initialTotal?: number }) {
       ) : data.total === 0 ? (
         <EmptyState
           title={topic ? `Nothing in ${topic} right now` : "No best bets match these filters"}
-          line={`Nothing with these filters is priced below how often similar bets have won. Next scan in ${nextScanIn()}.`}
+          line={`Nothing with these filters is priced below how often similar bets have won. Prices refresh about every 10 minutes.`}
           onReset={reset}
         />
       ) : (
