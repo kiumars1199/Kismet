@@ -7,7 +7,7 @@ export type Tier = "free" | "pro" | "premium";
 
 export type Feature =
   | "live_data" | "exact_edge" | "all_filters" | "full_execution" | "journal" | "csv_export"
-  | "dashboards" | "alerts" | "push" | "webhooks" | "extension";
+  | "dashboards" | "alerts" | "push" | "webhooks" | "extension" | "combos";
 
 export type QuotaKey = "presets" | "dashboards" | "watchlist" | "alert_rules" | "flags_revealed" | "rows";
 
@@ -16,11 +16,11 @@ const FEATURES: Record<Tier, readonly Feature[]> = {
   pro: ["live_data", "exact_edge", "all_filters", "full_execution", "journal", "csv_export",
     "dashboards", "alerts", "push"],
   premium: ["live_data", "exact_edge", "all_filters", "full_execution", "journal", "csv_export",
-    "dashboards", "alerts", "push", "webhooks", "extension"],
+    "dashboards", "alerts", "push", "webhooks", "extension", "combos"],   // docs/19 P3: combos are Premium
 };
 
 const QUOTAS: Record<Tier, Record<QuotaKey, number>> = {
-  free: { presets: 1, dashboards: 0, watchlist: 10, alert_rules: 0, flags_revealed: 3, rows: 25 },
+  free: { presets: 1, dashboards: 0, watchlist: 10, alert_rules: 0, flags_revealed: 3, rows: 10 },   // rows: Free Best bets a day (docs/19 P3) and rows per list
   pro: { presets: 25, dashboards: 3, watchlist: Infinity, alert_rules: 20, flags_revealed: Infinity, rows: Infinity },
   premium: { presets: Infinity, dashboards: Infinity, watchlist: Infinity, alert_rules: 100, flags_revealed: Infinity, rows: Infinity },
 };

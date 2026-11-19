@@ -10,7 +10,7 @@ export function returnTone(roi: number | null | undefined): string {
 }
 
 export const chanceTone = (c: Chance | null) =>
-  c === "Likely to hit" ? "text-accent-softer" : c === "Leans your way" ? "text-soft" : c === "Long shot" ? "text-warning" : "text-muted";
+  c === "Leans your way" ? "text-soft" : c === "Long shot" ? "text-warning" : "text-muted";
 
 /** Short topic label for a market: the sports league, else the category ("Weather & Climate" → "Weather"). */
 export function topicLabel(m: Pick<Market, "category" | "niche" | "tags" | "market_type">): string {

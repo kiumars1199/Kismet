@@ -22,6 +22,8 @@ import { AppliedPills } from "./AppliedPills";
 import { ClosingSoon, ResultsTicker, TodayCard } from "./DayStrip";
 import { EmptyState, ErrorState, StaleBanner } from "./States";
 import { useDesktop } from "./useDesktop";
+import { LockedBets } from "./LockedBets";
+import { useEntitlements } from "@/lib/entitlements";
 import { useMeta, useScreener } from "./useScreener";
 
 const nf = formatCount;   // docs/18 §4: counts short, rounded down
@@ -212,6 +214,7 @@ export function BestBets({ initialTotal }: { initialTotal?: number }) {
   const total = data?.total ?? initialTotal;
   const desktop = useDesktop();
   const pro = useProfile().numbers_mode === "pro";
+  const live = useEntitlements().can("live_data");   // Free: the day's sample, then locked cards (docs/19 P3)
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState<{ ok: boolean; msg: string } | null>(null);
   const soon = useSide(state, { closes_within_h: 3, sort: { key: "closes", dir: "asc" }, page: 1, page_size: 5, group_by_event: false });
@@ -288,7 +291,8 @@ export function BestBets({ initialTotal }: { initialTotal?: number }) {
           <BigPayouts state={state} pro={pro} />
           {tierOf(state) === "best" && <SuggestedCombos />}
           {slots.length > split && <Cards slots={slots.slice(split)} desktop={desktop} pro={pro} dim={loading} />}
-          {left > 0 && (
+          {!live && <LockedBets total={data.total} shown={rows.length} desktop={desktop} />}
+          {live && left > 0 && (
             <button
               type="button"
               onClick={sc.loadMore}

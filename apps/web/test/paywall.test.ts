@@ -1,5 +1,5 @@
 // docs/15 § Paywall contract tests (Lane X): every data route, per tier (anon / free / pro / premium).
-// Free and anon must never receive exact returns, the full price check, model internals or more than 25 rows.
+// Free and anon must never receive exact returns, the full price check, model internals or more than 10 rows.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Tier } from "@/lib/entitlements";
 
@@ -119,12 +119,12 @@ describe.each([
 ] as const)("%s", (_name, user) => {
   beforeEach(() => { h.tier = "free"; h.user = user; });
 
-  it("every data route: bands only, verdict-only price check, no internals, ≤ 25 rows", async () => {
+  it("every data route: bands only, verdict-only price check, no internals, ≤ 10 rows", async () => {
     const all = await everyRoute();
     for (const [route, { status, body }] of Object.entries(all)) {
       expect(status, route).toBe(200);
       const a = expectFreeShape(body);
-      expect(a.maxList, route).toBeLessThanOrEqual(route === "curve" || route === "backtest" ? Infinity : 25);
+      expect(a.maxList, route).toBeLessThanOrEqual(route === "curve" || route === "backtest" ? Infinity : 10);
     }
     const s = all.suggest.body as { markets: { ranges?: unknown }[]; entities: { ranges?: unknown }[] };
     expect(s.markets.length).toBeGreaterThan(0);
@@ -134,7 +134,7 @@ describe.each([
   it("tier=edge rows are banded and capped like the rest", async () => {
     const { body } = await json(routes.flags(req("/api/flags?ps=200&tier=edge")));
     const rows = (body as { rows: { tier?: string }[] }).rows;
-    expect(rows.length).toBeLessThanOrEqual(25);
+    expect(rows.length).toBeLessThanOrEqual(10);
     expect(rows.every((r) => r.tier === "edge")).toBe(true);
   });
 
@@ -155,14 +155,14 @@ describe.each([
     expect(body).toMatchObject({ page: 1, pages: 1 });
   });
 
-  it("events with more than 25 markets are cut to 25", async () => {
+  it("events with more than 10 markets are cut to 10", async () => {
     const s = await getStore();
     const many = Array.from({ length: 40 }, (_, i) => ({ ...s.markets[0]!, id: `x${i}` }));
-    expect(eventBody(s, many, "free")!.markets).toHaveLength(25);
+    expect(eventBody(s, many, "free")!.markets).toHaveLength(10);
     expect(eventBody(s, many, "pro")!.markets).toHaveLength(40);
     const m = { ...s.markets[0]!, event_id: "big" };
     const store = { ...s, byEvent: new Map([["big", many.map((x) => ({ ...x, event_id: "big" }))]]) };
-    expect(marketBody(store, m, "free").event_markets).toHaveLength(25);
+    expect(marketBody(store, m, "free").event_markets).toHaveLength(10);
   });
 });
 

@@ -22,7 +22,7 @@ price says, after fees, and whether you can actually get that price right now."
 ## Tiers
 | | Free | Pro $11.99/mo | Premium $19.99/mo |
 |---|---|---|---|
-| Market screener (all open markets) | Yes, 15-min delay, top 25 rows per view | Live, unlimited | Live, unlimited |
+| Market screener (all open markets) | Yes, 15-min delay, top 10 rows per view; Best bets: 10 a day, a random sample per user per day (docs/19 P3) | Live, unlimited | Live, unlimited |
 | Win chance + edge on each market | Edge shown as a range ("2–5¢") | Exact | Exact |
 | Flags (validated shortlist) | 3 per day revealed | All | All |
 | Filters | Category, niche, price | All (`04-filters.md`) | All |

@@ -4,27 +4,30 @@
 // docs/18 §6: the card leads with what happens on this one bet ("Pays 10x · wins about 1 in 7"), then the bet and
 // the edge as "better price than usual (+4 pts)"; the return sits under it, smaller.
 // docs/17: the return is what similar past bets returned when known (fix 1), with an ⓘ on every card (fix 4); the bet
-// is one line under the number (fix 5); star + bell top-right as 44px buttons, "$100 → +$24" left and the chance
-// pill right in the footer (fix 9); league and game time on top (fix 14); live price on Pro (60 s, from /api/book).
+// is one line under the number (fix 5); star + bell top-right as 44px buttons; footer (docs/19 P4): "Bet $10 → get $13
+// if it wins" from the default stake, after the fee, and a "Strong record" / "Thin record" pill from the sample size; league and game time on top (fix 14); live price on Pro (60 s, from /api/book).
 import { useRef } from "react";
 import type { ApiRow } from "@/lib/api";
 import { useEntitlements } from "@/lib/entitlements";
-import { REALISTIC_HELP, RETURN_HELP, basis, cardReturn, chance, closesLine, gameTime, pays, PAYS_HELP, price, sideEdge, sidePts, winsAbout } from "@/lib/format";
+import { REALISTIC_HELP, RETURN_HELP, basis, cardReturn, closesLine, gameTime, money, pays, PAYS_HELP, payoutIfWins, payoutMoney, price, recordHelp, recordLabel, sideEdge, sidePts, winsAbout } from "@/lib/format";
+import { useProfile } from "@/lib/repo/hooks";
 import { WatchStar } from "@/components/watch/WatchStar";
 import { VenueIconLink } from "@/components/trade/TradeButton";
 import { drawerHref, useOpenDrawer } from "./drawer";
 import { AlertLink, InfoTip, Notes, OddsBars } from "./bits";
-import { chanceTone, priceVerdict, returnTone, rowNotes, topicLabel } from "./labels";
+import { priceVerdict, returnTone, rowNotes, topicLabel } from "./labels";
 import { useLastVisit, useLiveAsk } from "./live";
 import { LowerConfidence, TierNote } from "./TierNote";
 
 export function BetCard({ r, pro = false }: { r: ApiRow; pro?: boolean }) {
   const { open } = useOpenDrawer();
   const { market: m, side: s } = r;
-  const c = chance(s.win_prob);
+  const rec = recordLabel(s.model_neff);
   const ret = cardReturn(s);
   const ref = useRef<HTMLElement>(null);
   const live = useLiveAsk(m.tokens?.[s.side_index], useEntitlements().can("live_data"), ref);
+  const stake = useProfile().default_stake_usd;
+  const win = payoutIfWins(stake, { ask: live?.ask ?? s.ask, fee: s.fee });
   const since = useLastVisit();
   const isNew = since !== null && (m.created_at ?? 0) > since;
   const dir = live && Math.abs(live.ask - s.ask) >= 0.005 ? (live.ask > s.ask ? "up" : "down") : null;
@@ -87,9 +90,11 @@ export function BetCard({ r, pro = false }: { r: ApiRow; pro?: boolean }) {
       <Notes notes={rowNotes(m.execution)} />
       {m.tier === "edge" && <TierNote s={s} />}
       <div className="mt-auto flex items-center justify-between gap-2 border-t border-border pt-3 text-[13px]">
-        <span className="text-muted">$100 → <span className="font-semibold tabular-nums text-text">{ret.profit}</span></span>
+        <span data-testid="payout" className="text-muted" title="What your default stake (Settings) pays back if this side wins, after the fee. If it loses, you lose the stake.">
+          {win !== null ? <><span className="whitespace-nowrap">Bet <span className="tabular-nums text-soft">{money(stake)}</span> →</span>{" "}<span className="whitespace-nowrap">get <span className="font-semibold tabular-nums text-text">{payoutMoney(win)}</span> if it wins</span></> : null}
+        </span>
         <span className="flex items-center gap-1">
-          {c && <span className={`whitespace-nowrap rounded-full bg-muted-bg px-2.5 py-[3px] text-xs ${chanceTone(c)}`}>{c}</span>}
+          {rec && <span title={`${recordHelp(s.model_neff)} ${basis(m, s)}`} className={`whitespace-nowrap rounded-full bg-muted-bg px-2.5 py-[3px] text-xs ${rec === "Strong record" ? "text-soft" : "text-muted"}`}>{rec}</span>}
           <VenueIconLink m={m} className="-my-2 -mr-2" />
         </span>
       </div>

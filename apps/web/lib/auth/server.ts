@@ -22,7 +22,7 @@ export const authEnabled = () => !DEMO_MODE && !!env().url && !!env().anon;
 export const accountsOffNote = (demo = DEMO_MODE, delay = delayMin("free")) =>
   demo
     ? "Accounts aren't switched on here. Everything is unlocked and saved in this browser."
-    : `Sign-in isn't available yet. You can browse on the Free plan: every open market, ${behindWords(delay)}, top 25 rows, with returns shown as ranges.`;
+    : `Sign-in isn't available yet. You can browse on the Free plan: every open market, ${behindWords(delay)}, 10 Best bets a day, with returns shown as ranges.`;
 /** The service-role client can be built (cron jobs). */
 export const adminEnabled = () => !!env().url && !!env().service;
 

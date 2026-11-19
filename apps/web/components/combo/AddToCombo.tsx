@@ -1,6 +1,8 @@
 "use client";
 // Drawer → "Add to combo" (docs/18 §5.1). Toggles this market's chosen side in the user's combo tray.
+import Link from "next/link";
 import { useState } from "react";
+import { useEntitlements } from "@/lib/entitlements";
 import { legOf } from "@/lib/combos";
 import type { Side, StoreMarket } from "@/lib/types";
 import { useCombo } from "./useCombo";
@@ -11,6 +13,9 @@ export function AddToCombo({ m, s, className }: { m: StoreMarket; s: Side; class
   const remove = useCombo((c) => c.remove);
   const [error, setError] = useState<string | null>(null);
   const inCombo = leg?.side_index === s.side_index;
+  // docs/19 P3: combos are Premium; other plans get the way up instead of the tray
+  const allowed = useEntitlements().can("combos");
+  if (!allowed) return <Link href="/pricing" className={className}>Combos on Premium</Link>;
   return (
     <>
       <button

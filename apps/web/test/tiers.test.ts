@@ -33,9 +33,9 @@ beforeEach(() => { h.jar.clear(); });
 describe("Free tier", () => {
   beforeEach(() => { h.tier = "free"; });
 
-  it("/api/markets: top 25 rows, page 1 only, ranges instead of exact numbers", async () => {
+  it("/api/markets: top 10 rows, page 1 only, ranges instead of exact numbers", async () => {
     const b = await body<MarketsResponse>(markets(req("/api/markets?pg=3&ps=200")));
-    expect(b.rows).toHaveLength(25);
+    expect(b.rows).toHaveLength(10);
     expect(b).toMatchObject({ page: 1, pages: 1 });
     for (const { market: m, side } of b.rows) {
       expect(side.ranges).toBeDefined();
@@ -46,6 +46,29 @@ describe("Free tier", () => {
       expect((side.win_prob * 20) % 1).toBeCloseTo(0);                                // floored to 5%
     }
     expect(b.groups!.reduce((n, g) => n + g.count, 0)).toBe(b.rows.length);
+  });
+
+  it("/api/flags: 10 Best bets a day, the same on refresh, a new sample per visitor and per UTC day (docs/19 P3)", async () => {
+    const ids = async () => (await body<MarketsResponse>(flags(req("/api/flags?ps=200&pg=3")))).rows.map((x) => x.market.id).sort().join();
+    const b = await body<MarketsResponse>(flags(req("/api/flags?ps=200&pg=3")));
+    expect(b.rows.length).toBeGreaterThan(0);
+    expect(b.rows.length).toBeLessThanOrEqual(10);
+    expect(b.total).toBeGreaterThan(b.rows.length);   // the real N, for "Unlock all N bets"
+    expect(b.groups).toBeUndefined();                  // a game group would carry bets outside the sample
+    expect(b).toMatchObject({ page: 1, pages: 1 });
+    expect(await ids()).toBe(await ids());
+    const { freeSample } = await import("@/lib/data/respond");
+    const store = await getStoreFor("free");
+    const day = Date.UTC(2026, 10, 19, 12);
+    expect([...freeSample(store, "k", day)].sort()).toEqual([...freeSample(store, "k", day + 3600_000)].sort());
+    expect([...freeSample(store, "k", day)].sort()).not.toEqual([...freeSample(store, "k", day + 86400_000)].sort());
+    expect([...freeSample(store, "k", day)].sort()).not.toEqual([...freeSample(store, "u:other", day)].sort());
+    expect(freeSample(store, "k", day).size).toBe(10);
+  });
+
+  it("/api/combos: none for Free (Premium only, docs/19 P3)", async () => {
+    const { GET: combos } = await import("@/app/api/combos/route");
+    expect(await body(combos(req("/api/combos")))).toEqual({ groups: [] });
   });
 
   it("/api/flags: price check cut to the verdict and first share", async () => {

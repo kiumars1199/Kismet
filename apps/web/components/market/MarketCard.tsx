@@ -4,7 +4,8 @@
 // ("Pays 10x · wins about 1 in 7", docs/18 §6), the price line, and the return on the right, smaller.
 // The question link covers the card (opens the drawer); star and alert sit above it.
 import type { ApiRow } from "@/lib/api";
-import { basis, cardReturn, closesLine, gameTime, pays, PAYS_HELP, price, sideEdge, sidePts, winsAbout } from "@/lib/format";
+import { basis, cardReturn, closesLine, gameTime, money, pays, PAYS_HELP, payoutIfWins, payoutMoney, price, sideEdge, sidePts, winsAbout } from "@/lib/format";
+import { useProfile } from "@/lib/repo/hooks";
 import { WatchStar } from "@/components/watch/WatchStar";
 import { VenueIconLink } from "@/components/trade/TradeButton";
 import { drawerHref, useOpenDrawer } from "./drawer";
@@ -17,6 +18,8 @@ export function MarketCard({ r, pro = false, notes = true }: { r: ApiRow; pro?: 
   const { market: m, side: s } = r;
   const edgeTier = m.tier === "edge";
   const ret = cardReturn(s);
+  const stake = useProfile().default_stake_usd;
+  const win = payoutIfWins(stake, s);   // docs/19 P4, as on BetCard
   return (
     <div data-row data-market-id={m.id} data-tier={m.tier ?? undefined} className="relative flex gap-3 rounded-inner border border-border bg-surface p-3.5 hover:border-accent-border focus-within:border-accent-border">
       <div className="min-w-0 flex-1">
@@ -43,6 +46,12 @@ export function MarketCard({ r, pro = false, notes = true }: { r: ApiRow; pro?: 
         <div className="mt-0.5 text-xs text-muted">
           Bet {s.outcome} at {price(s.ask)}
           <span className={`block ${s.ranges || s.edge > 0 ? "text-accent-softer" : "text-negative"}`}>{priceVerdict(s).toLowerCase()} ({sidePts(s)})</span>
+          {win !== null && (
+            <span data-testid="payout" className="block" title="What your default stake (Settings) pays back if this side wins, after the fee. If it loses, you lose the stake.">
+              <span className="whitespace-nowrap">Bet <span className="tabular-nums text-soft">{money(stake)}</span> →</span>{" "}
+              <span className="whitespace-nowrap">get <span className="font-semibold tabular-nums text-text">{payoutMoney(win)}</span> if it wins</span>
+            </span>
+          )}
         </div>
         {notes && <Notes notes={rowNotes(m.execution)} className="mt-1" />}
         {edgeTier && <TierNote s={s} className="mt-1" />}
