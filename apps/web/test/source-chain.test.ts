@@ -72,6 +72,13 @@ describe("data source chain", () => {
     await expect(loadRaw(sourceChain("supabase"))).rejects.toThrow(/no data source answered/);
   });
 
+  it("serves the expired copy at once and reloads in the background (stale-while-revalidate)", async () => {
+    const old = await getStore();
+    old.loadedAt = 0; // expired
+    expect(await getStore()).toBe(old);   // no request waits for the reload
+    await vi.waitFor(async () => expect(await getStore()).not.toBe(old));
+  });
+
   it("keeps serving the last good copy when a refresh fails", async () => {
     const good = await getStore();
     good.loadedAt = 0; // expired

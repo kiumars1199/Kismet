@@ -219,7 +219,7 @@ const state = (g.__meStore ??= {});
 
 export function getStore(): Promise<Store> {
   if (state.cache && Date.now() - state.cache.loadedAt < TTL_MS) return Promise.resolve(state.cache);
-  if (state.inflight) return state.inflight;
+  if (state.inflight) return state.cache ? Promise.resolve(state.cache) : state.inflight;
   // While every source is down, serve the last good copy and retry at most every 30 s.
   if (state.cache && state.failedAt && Date.now() - state.failedAt < RETRY_MS) return Promise.resolve(state.cache);
   state.inflight = loadRaw()
@@ -231,8 +231,10 @@ export function getStore(): Promise<Store> {
     })
     .catch((e) => { state.failedAt = Date.now(); throw e; })
     .finally(() => (state.inflight = undefined));
-  // A failed refresh keeps serving the previous copy if there is one.
-  return state.cache ? state.inflight.catch(() => state.cache!) : state.inflight;
+  // Stale-while-revalidate (docs/19 P6): with a copy in hand, answer now and let the ~20 MB reload finish in the
+  // background, so no request waits on it. A failed refresh keeps serving the previous copy.
+  if (state.cache) { state.inflight.catch(() => {}); return Promise.resolve(state.cache); }
+  return state.inflight;
 }
 
 /** One delayed copy (`*-prev.json` or `*-prev2.json`, which the publishers keep: engine scan_keeping_prev,
