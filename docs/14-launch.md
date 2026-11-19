@@ -4,7 +4,7 @@ Goal: turn the demo into a paid website. Everything here must work with **placeh
 owner pastes real keys and links into `.env` / `config/site.json` (see `SETUP.md`, which the build creates).
 
 ## 1. Accounts (Supabase Auth)
-- Sign-in page `/login`: "Continue with Google" + email magic link. No passwords.
+- Sign-in page `/login`: "Continue with Google", then email + password (default tab) or an email magic link (T-275).
 - Sign-up flow: 18+ and Terms checkbox (required) → onboarding (topics) → Best bets.
 - Logged-out visitors can browse Best bets and All markets on the **Free** tier (delayed, capped);
   saving, alerts, My bets, dashboards prompt sign-in.

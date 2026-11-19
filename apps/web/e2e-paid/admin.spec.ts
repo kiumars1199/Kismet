@@ -7,7 +7,11 @@ const PAGES = ["/admin", "/admin/users", "/admin/settings", "/admin/health", "/a
 
 async function signIn(page: Page, email: string) {
   await page.goto("/login?next=/account");
-  await page.getByLabel("Email").fill(email);
+  await expect(async () => {   // T-275: the password tab is the default; retry until the page has hydrated
+    await page.getByRole("tab", { name: "Email link" }).click();
+    await expect(page.getByRole("button", { name: "Email me a sign-in link" })).toBeVisible({ timeout: 2_000 });
+  }).toPass({ timeout: 60_000 });
+  await page.getByLabel("Email", { exact: true }).fill(email);
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Email me a sign-in link" }).click();
   await expect(page.getByRole("heading", { name: "Check your email" })).toBeVisible({ timeout: 30_000 });

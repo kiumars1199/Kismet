@@ -10,7 +10,7 @@ import { DEMO_MODE } from "@/lib/config";
 const COOKIE_OPTIONS = { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax" as const, path: "/" };
 const SIGNED_IN_ONLY = ["/account", "/watchlist", "/journal", "/alerts", "/dashboards"];
 // Reachable during maintenance (T-142): sign-in (so an admin can always get back in), session, uptime check.
-const MAINTENANCE_OPEN = ["/login", "/auth", "/api/auth", "/api/me", "/api/health", "/maintenance"];
+const MAINTENANCE_OPEN = ["/login", "/reset-password", "/auth", "/api/auth", "/api/me", "/api/health", "/maintenance"];
 const under = (path: string, list: string[]) => list.some((p) => path === p || path.startsWith(p + "/"));
 const hidden = () => Response.json({ error: "Not found" }, { status: 404, headers: { "Cache-Control": "private, no-store" } });
 

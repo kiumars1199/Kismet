@@ -1,5 +1,5 @@
-// /login and /signup (docs/19 P2): one flow (email link, optional Google, 18+ and Terms box), copy per intent.
-// The magic link signs in an existing account or creates a free one, so both pages post to the same endpoints.
+// /login and /signup (docs/19 P2, T-275): optional Google, then email + password or an email link, behind the 18+ and
+// Terms box. The password tab signs in on /login and creates an account on /signup; the email link does either.
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { LoginForm } from "@/components/auth/LoginForm";
@@ -7,7 +7,7 @@ import { accountsOffNote, authEnabled, getUser, safeNext } from "@/lib/auth/serv
 
 const ERRORS: Record<string, string> = {
   terms: "Tick the box to confirm you're 18 or older and agree to the Terms.",
-  link: "That sign-in link didn't work. It may have expired or been opened in a different browser. Send a new one.",
+  link: "That link didn't work. It may have expired or been opened in a different browser. If you were confirming a new account, your email is confirmed: log in with your password. Otherwise send a new link.",
   google: "Google sign-in didn't start. Try again, or use your email.",
   rate: "Too many sign-in tries. Wait a minute and try again.",
   unavailable: "Sign-in isn't available right now. Try again in a minute.",
@@ -17,12 +17,12 @@ const ERRORS: Record<string, string> = {
 const COPY = {
   login: {
     title: "Log in",
-    lede: "Welcome back. We'll email you a link, no password needed.",
+    lede: "Welcome back. Log in with your email and password, or get a sign-in link by email.",
     other: { q: "New to Kismet?", label: "Create a free account", href: "/signup" },
   },
   signup: {
     title: "Create your free account",
-    lede: "See today's best bets, save views and keep My list on every device. No password, no card: we email you a link.",
+    lede: "See today's best bets, save views and keep My list on every device. Free, no card needed.",
     other: { q: "Already have an account?", label: "Log in", href: "/login" },
   },
 } as const;
@@ -45,7 +45,7 @@ export async function AuthPage({ mode, searchParams }: {
       </header>
       {authEnabled() ? (
         <>
-          <LoginForm next={next} error={sp.error ? ERRORS[sp.error] ?? ERRORS.unavailable : undefined} />
+          <LoginForm mode={mode} next={next} error={sp.error ? ERRORS[sp.error] ?? ERRORS.unavailable : undefined} />
           <p className="text-sm text-muted">
             {c.other.q}{" "}
             <Link href={other} className="font-medium text-accent-hover underline-offset-4 hover:underline">{c.other.label}</Link>

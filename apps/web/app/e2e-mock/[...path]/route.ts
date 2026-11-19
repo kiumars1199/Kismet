@@ -8,12 +8,13 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 type Row = Record<string, unknown>;
-type User = { id: string; email: string; created_at: string };
+type User = { id: string; email: string; created_at: string; confirmed: boolean; password?: string };
+type Code = { email: string; kind: "magiclink" | "signup" | "recovery" };
 const g = globalThis as unknown as { __e2eMock?: ReturnType<typeof fresh> };
 const fresh = () => ({
   users: new Map<string, User>(),                 // id → user
-  codes: new Map<string, string>(),               // auth code → email
-  inbox: new Map<string, string>(),               // email → magic link
+  codes: new Map<string, Code>(),                 // auth code (or "hash:" + token hash) → email + link kind
+  inbox: new Map<string, string>(),               // email → last link emailed (sign-in, sign-up confirmation, reset)
   refresh: new Map<string, string>(),             // refresh token → user id
   tables: new Map<string, Row[]>(),
   stripe: { sessions: new Map<string, Row>(), subs: new Map<string, Row>() },
@@ -33,7 +34,7 @@ const handle = async (req: Request, { params }: Ctx) => {
   if (svc === "stripe") return stripe(req, rest);
   return json({ error: "unknown mock" }, 404);
 };
-export { handle as GET, handle as HEAD, handle as POST, handle as PATCH, handle as DELETE };
+export { handle as GET, handle as HEAD, handle as POST, handle as PUT, handle as PATCH, handle as DELETE };
 
 // ------------------------------------------------------------------ Supabase
 function session(user: User) {
@@ -44,13 +45,15 @@ function session(user: User) {
   return { access_token, refresh_token, token_type: "bearer", expires_in: 3600, expires_at: exp, user: gotrueUser(user) };
 }
 const gotrueUser = (u: User) => ({
-  id: u.id, aud: "authenticated", role: "authenticated", email: u.email, email_confirmed_at: u.created_at,
+  id: u.id, aud: "authenticated", role: "authenticated", email: u.email, email_confirmed_at: u.confirmed ? u.created_at : null,
   app_metadata: { provider: "email", providers: ["email"] }, user_metadata: {}, identities: [], created_at: u.created_at, updated_at: u.created_at,
 });
-function signUp(email: string): User {
-  const found = [...db().users.values()].find((u) => u.email === email);
+const byEmail = (email: string) => [...db().users.values()].find((u) => u.email === email);
+/** The user for this address, created (confirmed) when missing: what a magic link or Google does. */
+function signUp(email: string, confirmed = true): User {
+  const found = byEmail(email);
   if (found) return found;
-  const u = { id: randomUUID(), email, created_at: new Date().toISOString() };
+  const u: User = { id: randomUUID(), email, created_at: new Date().toISOString(), confirmed };
   db().users.set(u.id, u);
   table("profiles").push({ user_id: u.id, accepted_terms_at: null, onboarded_at: null, created_at: u.created_at });   // handle_new_user()
   table("subscriptions").push({ user_id: u.id, tier: "free", stripe_customer_id: null, stripe_subscription_id: null, status: null, current_period_end: null, cancel_at_period_end: false, trialed_at: null });
@@ -79,21 +82,49 @@ async function supabase(req: Request, path: string[]) {
 async function gotrue(req: Request, url: URL, p: string[]) {
   const route = p.join("/");
   const body = req.method === "GET" || req.method === "DELETE" ? {} : await req.json().catch(() => ({}));
-  if (route === "otp") {
+  // Emails a PKCE link (GoTrue verifies it, then redirects to redirect_to?code=…).
+  const mail = (email: string, kind: Code["kind"]) => {
     const code = randomUUID();
-    db().codes.set(code, body.email);
+    db().codes.set(code, { email, kind });
     const to = new URL(url.searchParams.get("redirect_to") ?? `${url.origin}/auth/callback`);
     to.searchParams.set("code", code);
-    db().inbox.set(body.email, to.toString());
+    db().inbox.set(email, to.toString());
+  };
+  if (route === "otp") {
+    mail(body.email, "magiclink");
+    return json({});
+  }
+  // Email + password sign-up with "Confirm email" on: no session; a confirmation link goes to the inbox. An address
+  // that already has a confirmed account gets the same answer and no email (GoTrue's anti-enumeration reply).
+  if (route === "signup") {
+    const email = String(body.email ?? "").toLowerCase();
+    const found = byEmail(email);
+    if (found?.confirmed) return json({ ...gotrueUser({ ...found, id: randomUUID() }), identities: [] });
+    const u = found ?? signUp(email, false);
+    u.password = String(body.password ?? "");
+    mail(email, "signup");
+    return json({ ...gotrueUser(u), identities: [{ id: u.id, provider: "email" }] });
+  }
+  if (route === "recover") {   // "forgot password": a link only for a real account, the same {} either way
+    const email = String(body.email ?? "").toLowerCase();
+    if (byEmail(email)) mail(email, "recovery");
     return json({});
   }
   if (route === "token") {
     const grant = url.searchParams.get("grant_type");
     if (grant === "pkce") {
-      const email = db().codes.get(body.auth_code);
-      if (!email) return json({ code: 400, error_code: "flow_state_not_found", msg: "invalid code" }, 400);
+      const c = db().codes.get(body.auth_code);
+      if (!c) return json({ code: 400, error_code: "flow_state_not_found", msg: "invalid code" }, 400);
       db().codes.delete(body.auth_code);
-      return json(session(signUp(email)));
+      const u = signUp(c.email);
+      u.confirmed = true;   // opening a sign-up (or any) email link confirms the address
+      return json(session(u));
+    }
+    if (grant === "password") {
+      const u = byEmail(String(body.email ?? "").toLowerCase());
+      if (!u || !u.password || u.password !== body.password) return json({ code: 400, error_code: "invalid_credentials", msg: "Invalid login credentials" }, 400);
+      if (!u.confirmed) return json({ code: 400, error_code: "email_not_confirmed", msg: "Email not confirmed" }, 400);
+      return json(session(u));
     }
     if (grant === "refresh_token") {
       const uid = db().refresh.get(body.refresh_token);
@@ -104,6 +135,7 @@ async function gotrue(req: Request, url: URL, p: string[]) {
   if (route === "user") {
     const who = caller(req);
     const u = who && who !== "admin" ? db().users.get(who) : undefined;
+    if (u && req.method === "PUT" && typeof body.password === "string") u.password = body.password;   // updateUser({ password })
     return u ? json(gotrueUser(u)) : json({ code: 401, error_code: "bad_jwt", msg: "invalid JWT" }, 401);
   }
   if (route === "logout") return new Response(null, { status: 204 });
@@ -112,14 +144,17 @@ async function gotrue(req: Request, url: URL, p: string[]) {
     const u = [...db().users.values()].find((x) => x.email === body.email);
     if (!u) return json({ code: 404, msg: "User not found" }, 404);
     const hashed_token = randomUUID();
-    db().codes.set(`hash:${hashed_token}`, u.email);
+    db().codes.set(`hash:${hashed_token}`, { email: u.email, kind: "magiclink" });
     return json({ ...gotrueUser(u), action_link: `${url.origin}/verify`, email_otp: "000000", hashed_token, redirect_to: "", verification_type: "magiclink" });
   }
-  if (route === "verify" && body.token_hash) {
-    const email = db().codes.get(`hash:${body.token_hash}`);
-    if (!email) return json({ code: 403, error_code: "otp_expired", msg: "Token has expired or is invalid" }, 403);
+  if (route === "verify" && body.token_hash) {   // token_hash links: magiclink, or a signup / recovery email template
+    const c = db().codes.get(`hash:${body.token_hash}`);
+    const kinds: Record<string, Code["kind"]> = { magiclink: "magiclink", email: "magiclink", signup: "signup", recovery: "recovery" };
+    if (!c || (kinds[String(body.type)] ?? "magiclink") !== c.kind) return json({ code: 403, error_code: "otp_expired", msg: "Token has expired or is invalid" }, 403);
     db().codes.delete(`hash:${body.token_hash}`);
-    return json(session(signUp(email)));
+    const u = signUp(c.email);
+    u.confirmed = true;
+    return json(session(u));
   }
   if (p[0] === "admin" && p[1] === "users" && p[2]) {
     if (caller(req) !== "admin") return json({ msg: "forbidden" }, 403);

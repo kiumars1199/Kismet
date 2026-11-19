@@ -90,3 +90,17 @@ so a cloud session can continue. Work on `final`; every push to `final` deploys 
 - Testers see /kalshi even with `KALSHI_DATA_PERMISSION` off. /api/kalshi is `private, no-store` while in beta.
 - Every beta surface uses `components/beta/BetaBadge.tsx` (pill in nav, banner on the page, tag on the Best bets
   Combos row, "Add to combo" and the combo tray).
+
+## Email + password (T-275)
+- `/login` and `/signup`: Google first (when enabled), then tabs "Password" (default) and "Email link". `/signup`
+  creates the account and says "check your email to confirm"; "Forgot password?" emails a reset link that lands on
+  `/reset-password` (noindex). Routes: `app/api/auth/password` (signup/signin), `app/api/auth/reset`,
+  `app/api/auth/password/update`. Details and limits in docs/08 § Auth.
+- **Owner: Supabase Auth → Providers → Email → "Confirm email" must be ON.** With it off, sign-up returns a session
+  and the route deletes that user and answers 503 ("use the email link"), so password sign-up stays unavailable.
+- **Owner: session length** is the Supabase dashboard setting (Auth → Sessions: time-box / inactivity timeout,
+  refresh-token reuse). The `sb-*` cookies themselves last 400 days (`@supabase/ssr`); don't add `maxAge` to
+  `COOKIE_OPTIONS` (it would override sign-out's `maxAge: 0`).
+- Owner (optional): Supabase "leaked password protection" on; Site URL / redirect allow-list must include
+  `/auth/callback` (already used by the email link). A confirmation link opened in another browser confirms the
+  address but can't sign that browser in (PKCE); the /login error says to log in with the password.
