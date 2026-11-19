@@ -1,22 +1,24 @@
-import { OnboardingNudge } from "@/components/onboarding/OnboardingNudge";
-import { BestBets } from "@/components/screener/BestBets";
-import { flagsTotal } from "@/lib/data/respond";
-
-export const metadata = { title: { absolute: "Best bets · Kismet" }, description: "Contracts priced below how often similar bets have won, after fees and the spread." };
+// / (docs/19 P1): signed-in users and demo mode get Best bets, unchanged. A signed-out visitor on bare / gets the
+// landing; with a query (?m= drawer links, shared filter views, the /flags redirect) they get Best bets, so deep
+// links keep working. Signed-out Best bets also lives at /bets (the landing's CTA).
+import { cache } from "react";
+import { Landing } from "@/components/landing/Landing";
+import { getMe } from "@/lib/auth/server";
+import { DEMO_MODE } from "@/lib/config";
+import BestBetsPage, { metadata as bets } from "./bets/page";
 
 type Search = Record<string, string | string[] | undefined>;
+type Props = { searchParams: Promise<Search> };
 
-export default async function Page({ searchParams }: { searchParams: Promise<Search> }) {
-  const sp = await searchParams;
-  const params = new URLSearchParams(Object.entries(sp).flatMap(([k, v]) => (v === undefined ? [] : [[k, Array.isArray(v) ? v[0]! : v]])));
-  const total = await flagsTotal(params);
-  return (
-    // min-h: the footer starts below the fold, so cards arriving after hydration don't shift it (CLS)
-    <div className="mx-auto flex min-h-svh w-full max-w-[1400px] flex-col gap-4">
-      <OnboardingNudge />
-      {/* no Suspense: the page is dynamic (searchParams), and a boundary here made React hold the reveal of the
-          server-rendered cards for up to 300 ms, which Lighthouse counted as a late LCP */}
-      <BestBets initialTotal={total} />
-    </div>
-  );
+const me = cache(getMe);   // generateMetadata and the page share one auth lookup per request
+const landing = async (sp: Search) => !DEMO_MODE && !(await me()).user && Object.keys(sp).length === 0;
+
+export async function generateMetadata({ searchParams }: Props) {
+  return (await landing(await searchParams))
+    ? { title: { absolute: "Kismet · Less luck, more math." }, description: "Prediction-market bets priced below how often bets like them have won, after fees and the spread. See today's list free." }
+    : bets;
+}
+
+export default async function Page(props: Props) {
+  return (await landing(await props.searchParams)) ? <Landing /> : <BestBetsPage {...props} />;
 }
