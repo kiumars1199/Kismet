@@ -3,6 +3,9 @@ import Link from "next/link";
 import { useId, useState, type FormEvent } from "react";
 import { btn, btnPrimary, input } from "@/components/kit";
 
+/** Google sign-in shows only once the owner has configured the provider in Supabase (else it 400s). */
+const GOOGLE = process.env.NEXT_PUBLIC_GOOGLE_AUTH === "1";
+
 export function LoginForm({ next, error: initialError }: { next: string; error?: string }) {
   const [accept, setAccept] = useState(false);
   const [email, setEmail] = useState("");
@@ -68,6 +71,7 @@ export function LoginForm({ next, error: initialError }: { next: string; error?:
         {termsError && !accept && <p className="text-xs text-warning">Tick this box to continue.</p>}
       </div>
 
+      {GOOGLE && <>
       <form method="post" action="/api/auth/google" onSubmit={needTerms}>
         <input type="hidden" name="next" value={next} />
         <input type="hidden" name="accept" value={accept ? "on" : ""} />
@@ -82,6 +86,7 @@ export function LoginForm({ next, error: initialError }: { next: string; error?:
       <div className="flex items-center gap-3 text-xs text-muted" aria-hidden="true">
         <span className="h-px flex-1 bg-border" />or<span className="h-px flex-1 bg-border" />
       </div>
+      </>}
 
       <form method="post" onSubmit={sendLink} className="flex flex-col gap-3">{/* post: never put the email in the URL */}
         <label htmlFor={ids.email} className="text-xs font-medium text-muted">Email</label>
