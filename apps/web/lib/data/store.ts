@@ -2,6 +2,8 @@
 // concurrent loads de-duplicated. Server only — never ship markets.json to the browser.
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { promisify } from "node:util";
+import { gunzip } from "node:zlib";
 import "server-only";
 import { DATA_SOURCE, dataDirSetting, type DataSource } from "@/lib/config";
 import type { Tier } from "@/lib/entitlements";
@@ -134,11 +136,23 @@ export function buildStore(raw: RawData, loadedAt = Date.now()): Store {
 /** Sources tried in order (docs/14 §4): supabase → GitHub `live` branch; getStore adds the last good copy. */
 export const sourceChain = (s: DataSource = DATA_SOURCE): DataSource[] => (s === "supabase" ? ["supabase", "github"] : [s]);
 
+const inflate = promisify(gunzip);
+
+/** T-277: ops/upload.py stores objects gzip-compressed under their usual names, without Content-Encoding.
+ *  Sniff the gzip magic bytes (1f 8b) on the raw bytes: gzip → inflate, anything else is plain UTF-8 (objects from
+ *  before the rollout, the GitHub live branch, local files, or a response an HTTP layer already decoded).
+ *  JSON text never starts with 0x1f, so the sniff can't misread a plain file. */
+export async function decodeBody(bytes: Uint8Array): Promise<string> {
+  const buf = Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  const text = (buf[0] === 0x1f && buf[1] === 0x8b ? await inflate(buf) : buf).toString("utf8");
+  return text.charCodeAt(0) === 0xfeff ? text.slice(1) : text;   // drop a BOM, as Response.text() did
+}
+
 async function fetchText(url: string, headers: Record<string, string>, missing: number[]) {
   const res = await fetch(url, { headers, cache: "no-store", signal: AbortSignal.timeout(30_000) });
   if (missing.includes(res.status)) return undefined;
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.text();
+  return decodeBody(new Uint8Array(await res.arrayBuffer()));
 }
 
 /** One file from one source; undefined = the source has no such file. */
@@ -155,7 +169,7 @@ async function readFrom(source: DataSource, file: string): Promise<string | unde
       { Accept: "application/vnd.github.raw", ...(token ? { Authorization: `Bearer ${token}` } : {}) }, [404]);
   }
   try {
-    return await readFile(path.join(dataDir(), file), "utf8");
+    return await decodeBody(await readFile(path.join(dataDir(), file)));
   } catch (e) {
     if ((e as NodeJS.ErrnoException).code === "ENOENT") return undefined;
     throw e;

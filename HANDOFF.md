@@ -37,6 +37,20 @@ so a cloud session can continue. Work on `final`; every push to `final` deploys 
 - Paid e2e S7 keyboard flow now searches a bet from the Free user's daily sample (P3 hides the others on Best bets).
 - Research notes for P2, P5, P6, P7, P9: `docs/research/polish-round-2.md` (read this before continuing).
 
+- **T-277**: `ops/upload.py` stores bucket objects gzip-compressed under the same names (Content-Type
+  `application/gzip`, no Content-Encoding); `lib/data/store.ts` `decodeBody` and `upload.py` `get_json` sniff the
+  magic bytes `1f 8b`, so plain and gzip objects both read. Rollout order: see Owner actions (T-277/T-278 rollout).
+- **T-278**: `pipeline/fetch_closed.py` caps lifted. `--per-tag` and `--per-window` above Gamma's offset limit (~2000)
+  work (busy windows split, `iter_closed_events`), `0` = no cap, rows stream to disk page by page, `--pause` 0.1 s
+  between pages. Backfill checkpoints record each (window, tag)'s cap (`caps` in `data/fetch_closed_state.json`;
+  old entries count as 200), so a rerun with a bigger `--per-window` tops windows up instead of skipping them.
+  `mode=backfill` in refresh.yml now uses `--per-window 1000` (was 200). Defaults unchanged: `--days 365`,
+  `--per-tag 2000` (bootstrap, Railway), `--per-window 300`. A rerun after a kill trims a half-written last row.
+  Only backfill mode is resumable; default mode restarts. Tests: `engine/tests/test_fetch_closed_caps.py`.
+  Note: `mode=backfill` grows only the Actions cache copy of `data/`; the Railway engine (primary) has its own volume
+  and only bootstraps (no args) when `sample.jsonl` is missing, so the bigger history reaches Railway only if the
+  backfill is run there too (Owner actions).
+
 ## Next steps (in order)
 1. Read the failed refresh run's log (`gh run view 44583477740 --log-failed`) and fix; then confirm a scheduled
    scan-only run (:00 / :30) passes.
@@ -68,6 +82,15 @@ so a cloud session can continue. Work on `final`; every push to `final` deploys 
 7. Full audit (`docs/OVERNIGHT.md` §3) by a fresh auditor, loop to zero fails; then `ops/smoke-prod.sh https://kismetodds.com`.
 
 ## Owner actions
+- **T-277/T-278 rollout, in this order:** (1) confirm the `final` web deploy is live (its loader reads gzip and plain);
+  (2) merge `final` into `main` (Railway and the refresh.yml cron both run `main`'s `upload.py`; an old `upload.py`
+  can't read a gzipped `flags.json`, so never run the new uploader, e.g. a refresh.yml dispatch from `final`, while
+  Railway still runs the old one); (3) watch one Railway scan log `uploaded flags.json` and the site's scan time
+  advance (first real test of gzip against Storage); (4) dispatch refresh.yml `mode=backfill` **from `main`**, rerun
+  until the log says `backfill done`, check `history: N markets`. (5) Optional, for Railway's own model: stop the
+  scheduler (single writer), then in the container `python pipeline/fetch_closed.py --days 730 --window-days 30
+  --per-window 1000 && python pipeline/fetch_prices.py --extend --threads 8 && rm -f data/markets.jsonl`, then
+  restart. Watch the 5 GB volume and 1 GB RAM (the backfill holds every stored market id in memory).
 - Add GitHub Actions secrets `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` (LAUNCH_TODO item 12).
 - Vercel: `ADMIN_EMAILS` including `kismetodds@gmail.com`; check the Stripe env vars (live `/pricing` says "Coming soon"
   because `/api/me` reports `billing: false`).
