@@ -95,8 +95,8 @@ test("dry run reads only; --yes creates everything once; a second --yes changes 
     const first = await run("--yes");
     assert.equal(state.products.length, 2);
     assert.deepEqual(state.prices.map((p) => [p.lookup_key, p.unit_amount, p.recurring.interval, p.metadata.tier]), [
-      ["marketedge_pro_monthly", 1900, "month", "pro"], ["marketedge_pro_yearly", 19000, "year", "pro"],
-      ["marketedge_premium_monthly", 2900, "month", "premium"], ["marketedge_premium_yearly", 29000, "year", "premium"]]);
+      ["marketedge_pro_monthly", 1199, "month", "pro"], ["marketedge_pro_yearly", 9999, "year", "pro"],
+      ["marketedge_premium_monthly", 1999, "month", "premium"], ["marketedge_premium_yearly", 16999, "year", "premium"]]);
     assert.equal(state.hooks[0].url, "https://marketedge.example/api/stripe/webhook");
     assert.deepEqual(state.hooks[0].enabled_events, webhookEvents());
     const portal = state.portals[0].features;

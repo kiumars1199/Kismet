@@ -29,11 +29,12 @@ test("landing (/about): headline, counters, preview cards, Open screener", async
   await expect(page).toHaveURL(/\/markets/);
 });
 
-test("pricing: yearly toggle shows 2 months free", async ({ page }) => {
+test("pricing: yearly toggle shows the yearly price", async ({ page }) => {
   await page.goto("/pricing");
-  await expect(page.getByTestId("price-pro")).toHaveText("$19");
+  await expect(page.getByTestId("price-pro")).toHaveText("$11.99");
   await page.getByRole("radio", { name: /Yearly/ }).click();
-  await expect(page.getByText("$190 billed yearly")).toBeVisible();
+  await expect(page.getByText("$99.99 billed yearly")).toBeVisible();
+  await expect(page.getByTestId("price-premium")).toHaveText("$14.17");   // $169.99 / 12
   await expect(page.getByText("Demo: every feature is unlocked", { exact: false })).toBeVisible();
   await expect(page.getByRole("link", { name: "Start trial" }).first()).toHaveAttribute("href", "/");
 });

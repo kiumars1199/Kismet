@@ -37,7 +37,7 @@ Until steps 1–4 are done the app runs in demo mode (`DEMO_MODE=true`): no sign
 Use **test mode** first; repeat with live keys when you launch.
 
 1. dashboard.stripe.com → Products → add **Pro** and **Premium**, each with a monthly and a yearly recurring price
-   matching `config/site.json` → `prices_usd` (19 / 190 / 29 / 290). Copy the four price ids into
+   matching `config/site.json` → `prices_usd` (11.99 / 99.99 / 19.99 / 169.99). Copy the four price ids into
    `STRIPE_PRICE_PRO_MONTHLY`, `STRIPE_PRICE_PRO_YEARLY`, `STRIPE_PRICE_PREMIUM_MONTHLY`, `STRIPE_PRICE_PREMIUM_YEARLY`.
 2. Developers → API keys → `STRIPE_SECRET_KEY` (secret key; restricted key with Checkout, Customers, Subscriptions, Billing Portal write is fine).
 3. Developers → Webhooks → Add endpoint `https://<your-domain>/api/stripe/webhook`, events:

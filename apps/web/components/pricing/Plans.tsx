@@ -1,23 +1,26 @@
 "use client";
-// Tier cards with a monthly/annual toggle (docs/01 § Tiers: Pro $19, Premium $29, annual = 2 months free,
-// 7-day trial). In demo mode every button opens Best bets, since everything is already unlocked.
+// Tier cards with a monthly/annual toggle (docs/01 § Tiers). Prices come from config/site.json prices_usd (owner, Nov 18:
+// Pro $11.99/mo or $99.99/yr, Premium $19.99/mo or $169.99/yr; 7-day trial on both). In demo mode every button opens Best bets, since everything is already unlocked.
 // Paid mode: Start trial → /api/stripe/checkout (sign in first); "Coming soon" until Stripe is configured.
 import Link from "next/link";
 import { useState } from "react";
 import { useMe } from "@/lib/me";
 import { track } from "@/lib/telemetry";
 import { behindWords } from "@/lib/format";
+import { SITE } from "@/lib/site";
 
 export const PLANS = [
-  { id: "free", name: "Free", monthly: 0, line: "See how it works.",
+  { id: "free", name: "Free", monthly: 0, yearly: 0, line: "See how it works.",
     points: ["All open markets, {delay}, top 25 rows", "Estimated return shown as a range", "3 best bets a day", "Topic, sport and price filters", "1 saved view · 10 bets in My list", "Results and win-chance charts"] },
-  { id: "pro", name: "Pro", monthly: 19, line: "For people who bet every week.",
+  { id: "pro", name: "Pro", monthly: SITE.prices.pro_monthly, yearly: SITE.prices.pro_yearly, line: "For people who bet every week.",
     points: ["Live prices, every market, no row limit", "Exact estimated return on every bet", "Every best bet, every filter", "Full price check: order book, stake table, how much you can bet", "Alerts by email and browser, 20 rules", "My bets with profit and closing-price tracking", "25 saved views · 3 dashboards · CSV export"] },
-  { id: "premium", name: "Premium", monthly: 29, line: "Everything, plus the browser extension.",
+  { id: "premium", name: "Premium", monthly: SITE.prices.premium_monthly, yearly: SITE.prices.premium_yearly, line: "Everything, plus the browser extension.",
     points: ["Everything in Pro", "Chrome extension: estimated return right on Polymarket", "Telegram and Discord alerts, 100 rules", "Unlimited saved views and dashboards"] },
 ] as const;
 
 const usd = (x: number) => `$${Number.isInteger(x) ? x : x.toFixed(2)}`;
+/** The yearly saving shown on the toggle: the smallest across paid plans, in whole percent (never overstated). */
+const SAVE_PCT = Math.min(...PLANS.filter((p) => p.monthly > 0).map((p) => Math.floor((1 - p.yearly / (12 * p.monthly)) * 100)));
 
 /** `delay`: the Free plan delay in minutes, from site settings (free_delay_min). */
 export function Plans({ demo, delay }: { demo: boolean; delay: number }) {
@@ -29,14 +32,14 @@ export function Plans({ demo, delay }: { demo: boolean; delay: number }) {
         {[false, true].map((a) => (
           <button key={String(a)} type="button" role="radio" aria-checked={annual === a} onClick={() => setAnnual(a)}
             className={`min-h-11 rounded-full px-4 ${annual === a ? "bg-accent-bg text-accent-soft" : "text-soft hover:text-text"}`}>
-            {a ? <>Yearly <span className="text-accent-softer">· 2 months free</span></> : "Monthly"}
+            {a ? <>Yearly <span className="text-accent-softer">· save {SAVE_PCT}%</span></> : "Monthly"}
           </button>
         ))}
       </div>
       <div className="grid gap-4 md:grid-cols-3">
         {PLANS.map((p) => {
           const featured = p.id === "pro";
-          const perMonth = annual ? (p.monthly * 10) / 12 : p.monthly;
+          const perMonth = annual ? p.yearly / 12 : p.monthly;
           return (
             <section key={p.id} aria-labelledby={`plan-${p.id}`}
               className={`flex flex-col gap-4 rounded-card border p-5 md:p-6 ${featured ? "border-accent-border bg-accent-bg" : "border-border bg-surface"}`}>
@@ -49,7 +52,7 @@ export function Plans({ demo, delay }: { demo: boolean; delay: number }) {
                 <span className={`text-sm ${featured ? "text-accent-softer" : "text-muted"}`}>/ month</span>
               </p>
               <p className={`-mt-2 min-h-5 text-xs ${featured ? "text-accent-softer" : "text-muted"}`}>
-                {p.monthly === 0 ? "Free forever" : annual ? `${usd(p.monthly * 10)} billed yearly` : "7-day free trial"}
+                {p.monthly === 0 ? "Free forever" : annual ? `${usd(p.yearly)} billed yearly` : "7-day free trial"}
               </p>
               <ul className={`flex flex-1 flex-col gap-2 text-sm ${featured ? "text-accent-soft" : "text-soft"}`}>
                 {p.points.map((x) => (

@@ -20,7 +20,7 @@ Not for: market makers, high-frequency bots, copy-trading/whale watchers (out of
 price says, after fees, and whether you can actually get that price right now."
 
 ## Tiers
-| | Free | Pro $19/mo | Premium $29/mo |
+| | Free | Pro $11.99/mo | Premium $19.99/mo |
 |---|---|---|---|
 | Market screener (all open markets) | Yes, 15-min delay, top 25 rows per view | Live, unlimited | Live, unlimited |
 | Win chance + edge on each market | Edge shown as a range ("2–5¢") | Exact | Exact |
@@ -36,7 +36,8 @@ price says, after fees, and whether you can actually get that price right now."
 | Chrome extension badges | — | — | Yes |
 | CSV export | — | Yes | Yes |
 
-7-day free trial on Pro and Premium. Annual = 2 months free.
+7-day free trial on Pro and Premium. Prices (owner, Nov 18): Pro $11.99/mo or $99.99/yr, Premium $19.99/mo or $169.99/yr
+(`config/site.json` → `prices_usd`).
 Prices are a starting point (`11-research.md` has competitor pricing).
 
 ## Demo scope (tonight): every user-facing feature, no paid plumbing

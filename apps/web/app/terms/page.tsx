@@ -6,7 +6,7 @@ import { SITE } from "@/lib/site";
 
 export const metadata: Metadata = { title: "Terms of use", description: `The terms for using ${SITE.name}, a market analytics service.`, alternates: { canonical: "/terms" } };
 
-const usd = (n: number) => `$${n}`;
+const usd = (n: number) => `$${Number.isInteger(n) ? n : n.toFixed(2)}`;
 
 export default function Page() {
   const p = SITE.prices;

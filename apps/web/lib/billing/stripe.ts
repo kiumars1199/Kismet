@@ -74,8 +74,7 @@ export function tierFromPrice(p: { id: string; unit_amount?: number | null; meta
   for (const k of PRICE_KEYS) if (priceId(k) && priceId(k) === p.id) return k.startsWith("premium") ? "premium" : "pro";
   const meta = p.metadata?.tier;
   if (meta === "pro" || meta === "premium") return meta;
-  const usd = (p.unit_amount ?? -1) / 100;
-  const hit = PRICE_KEYS.find((k) => site.prices_usd[k] === usd);
+  const hit = PRICE_KEYS.find((k) => Math.round(site.prices_usd[k] * 100) === p.unit_amount);   // in cents, no float equality
   return hit ? (hit.startsWith("premium") ? "premium" : "pro") : null;
 }
 
