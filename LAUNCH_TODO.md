@@ -42,3 +42,6 @@ Code can't do these. Do them in order. `SETUP.md` has the how-to for every accou
 4. Only after steps 1–3 should anyone change the code to allow `KALSHI_TRADING_ENV=prod`. Today the code only knows
    the demo exchange.
 5. Kalshi combo price check: get written data permission from Kalshi first. Then set `KALSHI_DATA_PERMISSION=true`.
+
+## Vercel Hobby note (Nov 19)
+While on Vercel Hobby, crons may run at most once a day, so `/api/alerts/run` is set to daily (13:00 UTC) in apps/web/vercel.json. When you upgrade to Vercel Pro (before charging money), set it back to `*/5 * * * *`.

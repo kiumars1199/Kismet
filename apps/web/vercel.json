@@ -5,7 +5,7 @@
   "buildCommand": "pnpm build",
   "regions": ["iad1"],
   "crons": [
-    { "path": "/api/alerts/run", "schedule": "*/5 * * * *" },
+    { "path": "/api/alerts/run", "schedule": "0 13 * * *" },
     { "path": "/api/settle/run", "schedule": "30 7 * * *" }
   ]
 }
