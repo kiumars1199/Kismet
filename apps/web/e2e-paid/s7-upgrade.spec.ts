@@ -77,7 +77,9 @@ test("account delete: type the email, everything goes, signed out", async ({ pag
 // Audit fail 5: a Free user reaches the upgrade with the keyboard alone: search → drawer → save → "See plans".
 test("keyboard only: search → drawer → save → upgrade reaches /pricing", async ({ page }) => {
   await signIn(page, `kbd-${Date.now()}@example.com`);
-  const q = (await rows(page)).rows[0]!.market.question;
+  // Best bets (/) shows Free only the day's sample, so search for a bet in it (/api/flags is that sample).
+  const sample = (await (await page.request.get("/api/flags?ps=200")).json()) as MarketsResponse;
+  const q = sample.rows[0]!.market.question;
   await page.goto("/");
   await page.waitForLoadState("networkidle");
   const tabTo = async (target: ReturnType<Page["locator"]>, max = 80) => {
