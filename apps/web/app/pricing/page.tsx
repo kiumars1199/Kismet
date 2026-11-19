@@ -4,11 +4,12 @@ import { Faq, Plans } from "@/components/pricing/Plans";
 import { DEMO_MODE } from "@/lib/config";
 import { getSettings } from "@/lib/settings";
 import { tradingEnv } from "@/lib/trade/server";
+import { behindWords } from "@/lib/format";
 
 export const metadata = { title: "Pricing", description: "Free, Pro and Premium plans for MarketEdge. Start free; paid plans include a 7-day trial and cancel any time.", alternates: { canonical: "/pricing" } };
 
 const rows = (delay: number): [string, string, string, string][] => [
-  ["All open markets", `At least ${delay} minutes behind, top 25 rows`, "Live, unlimited", "Live, unlimited"],
+  ["All open markets", `${behindWords(delay).replace(/^./, (c) => c.toUpperCase())}, top 25 rows`, "Live, unlimited", "Live, unlimited"],
   ["Estimated return on each bet", "As a range", "Exact", "Exact"],
   ["Best bets", "3 a day", "All", "All"],
   ["Filters", "Topic, sport, price", "All", "All"],

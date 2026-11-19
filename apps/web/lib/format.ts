@@ -184,3 +184,8 @@ export function countdown(closesAt: number, now = Date.now()): string {
   if (m <= 0) return "closing";
   return m < 60 ? `${m}m` : `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, "0")}m`;
 }
+
+/** The Free delay in words (owner, Nov 18): 0 → "live", 1 → "at least 1 minute", N → "at least N minutes". */
+export const delayWords = (min: number) => (min <= 0 ? "live" : `at least ${min} minute${min === 1 ? "" : "s"}`);
+/** "live", or "at least N minutes behind". */
+export const behindWords = (min: number) => (min <= 0 ? "live" : `${delayWords(min)} behind`);

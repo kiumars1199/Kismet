@@ -31,6 +31,7 @@ import type { Chip } from "@/lib/search/parse";
 import { FilterState } from "@/lib/filters/state";
 import { serialize } from "@/lib/filters/url";
 import type { BacktestFile, BacktestRecord, BacktestResult, Execution, ScanMeta, Side, SideRanges, StoreMarket } from "@/lib/types";
+import { behindWords } from "@/lib/format";
 
 export type { Curve, Facets, StoreMarket, Side };
 
@@ -86,7 +87,7 @@ export const fetchSuggest = (q: string, view: "markets" | "flags", init?: Reques
 
 /** 503 `code` when Free has no delayed scan yet (lib/data/store.ts DelayedPending). */
 export const DELAYED_PENDING = "delayed_pending";
-export const delayedPendingLine = (min: number) => `Free prices run at least ${min} minutes behind; the first update is on its way.`;
+export const delayedPendingLine = (min: number) => `Free prices run ${behindWords(min)}; the first update is on its way.`;
 /** Error-message prefix the screeners read to show the honest pending state instead of "Couldn't load". */
 export const PENDING_PREFIX = "pending: ";
 

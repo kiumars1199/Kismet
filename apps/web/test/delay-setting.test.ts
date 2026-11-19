@@ -16,3 +16,20 @@ describe("Free delay comes from the setting", () => {
     }
   });
 });
+
+describe("delay copy (owner, Nov 18)", () => {
+  it("0 → live, 1 → at least 1 minute, N → at least N minutes", async () => {
+    const { behindWords, delayWords } = await import("@/lib/format");
+    expect(delayWords(0)).toBe("live");
+    expect(delayWords(1)).toBe("at least 1 minute");
+    expect(delayWords(15)).toBe("at least 15 minutes");
+    expect(behindWords(0)).toBe("live");
+    expect(behindWords(1)).toBe("at least 1 minute behind");
+    expect(behindWords(30)).toBe("at least 30 minutes behind");
+  });
+  it("no copy builds the delay as `${n} minutes` by hand", () => {
+    for (const f of ["app/pricing/page.tsx", "components/pricing/Plans.tsx", "lib/auth/server.ts", "components/header/FreshnessPill.tsx", "lib/api.ts", "app/status/page.tsx"]) {
+      expect(readFileSync(f, "utf8"), f).not.toMatch(/\{(delay|min)\}\s*minutes/);
+    }
+  });
+});

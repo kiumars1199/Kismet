@@ -4,7 +4,7 @@ import { getTier } from "@/lib/auth/server";
 import { pendingLine } from "@/lib/data/respond";
 import { getStoreFor, type Store } from "@/lib/data/store";
 import { PendingState } from "@/components/screener/States";
-import { DASH, ago, formatCount } from "@/lib/format";
+import { DASH, ago, delayWords, formatCount } from "@/lib/format";
 import { freshness } from "@/lib/freshness";
 import { delayMin } from "@/lib/settings-core";
 
@@ -47,7 +47,7 @@ export default async function Page() {
           <span className={`size-2 rounded-full ${level === "fresh" ? "bg-accent" : level === "amber" ? "bg-warning" : "bg-negative"}`} aria-hidden="true" />
           {level === "fresh" ? `Data is current. Last scan ${ago(meta.scanned_at)}.` : `Data may be stale. Last scan ${ago(meta.scanned_at)}; prices normally refresh about every 10 minutes.`}
         </p>
-        {delay > 0 && <p className="text-sm text-muted">On the Free plan and when signed out, you see each scan at least {delay} minutes after it runs: the scan above is the one you see. Paid plans see the newest scan.</p>}
+        {delay > 0 && <p className="text-sm text-muted">On the Free plan and when signed out, you see each scan {delayWords(delay)} after it runs: the scan above is the one you see. Paid plans see the newest scan.</p>}
       </header>
 
       <section aria-labelledby="times-h" className="flex flex-col gap-3">
