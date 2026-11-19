@@ -101,7 +101,11 @@ test("keyboard only: search → drawer → save → upgrade reaches /pricing", a
   const save = dialog.getByRole("button", { name: "Save", exact: true });
   await expect(save).toBeVisible({ timeout: 30_000 });
   await tabTo(save);
+  // Wait for the write itself, not a fixed 5 s: on next dev the drawer's first /api/book compile holds the server,
+  // and the POST queues behind it (seconds, more on a busy machine). The star flips only once the row is stored.
+  const write = page.waitForResponse((r) => r.request().method() === "POST" && new URL(r.url()).pathname === "/api/data/watchlist", { timeout: 60_000 });
   await page.keyboard.press("Enter");
+  expect((await write).status()).toBe(200);
   await expect(dialog.getByRole("button", { name: "Saved", exact: true })).toBeVisible();
 
   const plans = dialog.getByRole("link", { name: "See plans" });
