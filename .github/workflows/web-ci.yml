@@ -39,6 +39,8 @@ jobs:
       - run: pnpm test
       - run: pnpm build && pnpm check:bundle   # docs/15: no secrets in .next/static
       - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm i --frozen-lockfile   # e2e/trading-paper builds the extension
+        working-directory: apps/extension
       - run: pnpm e2e
 
       - uses: actions/upload-artifact@v4
