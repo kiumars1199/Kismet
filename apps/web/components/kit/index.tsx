@@ -13,7 +13,7 @@ export const btnPrimary =
   "inline-flex min-h-11 items-center justify-center gap-2 rounded-input bg-accent px-4 py-2 text-sm font-semibold text-on-accent hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50";
 export const btnGhost =
   "inline-flex min-h-11 items-center justify-center gap-2 rounded-input px-3 py-2 text-sm text-muted hover:bg-muted-bg hover:text-text";
-export const label = "text-xs font-medium text-muted";
+const label = "text-xs font-medium text-muted";
 
 /** A count of bets, markets or events: short and rounded down ("9.6K"), exact on hover (docs/18 §4). */
 export function Count({ n, className }: { n: number | null | undefined; className?: string }) {
@@ -127,7 +127,7 @@ export function Dialog({ open, onClose, title, children }: { open: boolean; onCl
   );
 }
 
-export function CloseButton({ onClick, label: l = "Close" }: { onClick: () => void; label?: string }) {
+function CloseButton({ onClick, label: l = "Close" }: { onClick: () => void; label?: string }) {
   return (
     <button type="button" onClick={onClick} aria-label={l} className="flex size-11 flex-none items-center justify-center rounded-input bg-muted-bg text-muted hover:text-text">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>

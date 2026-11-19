@@ -62,14 +62,14 @@ export const nowFor = (store: Pick<Store, "meta">): number =>
 /** Markets still open at `now`: one whose closes_at has passed is never listed or offered as a bet. */
 export const openOnly = <T extends { closes_at: number }>(list: T[], now: number): T[] => list.filter((m) => m.closes_at > now);
 
-export interface SearchPlan { f: FilterState; hits: Map<string, number> | null; parsed: ParsedQuery | null; relevance: boolean }
+interface SearchPlan { f: FilterState; hits: Map<string, number> | null; parsed: ParsedQuery | null; relevance: boolean }
 
 /**
  * q → filters + text hits (docs/13). A pasted URL/slug matches its event. Otherwise q is parsed; filter words merge
  * into FilterState (explicit filters win) and the leftover text goes to the index. With text and the default sort,
  * rows rank by relevance; a typed sort word ("soonest") or a chosen sort wins.
  */
-export function planSearch(store: Store, f: FilterState, parsed?: ParsedQuery): SearchPlan {
+function planSearch(store: Store, f: FilterState, parsed?: ParsedQuery): SearchPlan {
   const q = f.q ?? "";
   const direct = parsed ? null : store.search.slug(q);
   if (direct) return { f, hits: direct, parsed: null, relevance: false };
@@ -113,7 +113,7 @@ export function sideOk(s: Side, f: FilterState): boolean {
     gte(s.roi_pct, f.roi_min) && gte(s.model_events, f.min_events);
 }
 
-export function executionOk(x: Execution | undefined, f: FilterState): boolean {
+function executionOk(x: Execution | undefined, f: FilterState): boolean {
   if (!f.verdicts && f.retention_min === undefined && f.capacity_min_usd === undefined) return true;
   return !!x && inSet(x.verdict, f.verdicts) && gte(x.retention, f.retention_min) && gte(x.capacity_usd, f.capacity_min_usd);
 }
@@ -151,7 +151,7 @@ export function comparator(sort: FilterState["sort"]): (a: Row, b: Row) => numbe
   };
 }
 
-export function groupByEvent(rows: Row[], flagIds?: Map<string, unknown>): Group[] {
+function groupByEvent(rows: Row[], flagIds?: Map<string, unknown>): Group[] {
   const groups = new Map<string, Group>();
   for (const r of rows) {
     const m = r.market;

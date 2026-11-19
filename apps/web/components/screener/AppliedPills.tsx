@@ -20,7 +20,7 @@ function each<T extends string>(key: keyof FilterState, list: T[] | undefined, l
   });
 }
 
-export function pillsFor(s: FilterState, mode: Mode): Pill[] {
+function pillsFor(s: FilterState, mode: Mode): Pill[] {
   const out: Pill[] = [];
   const one = (key: string, on: unknown, label: string, patch: Partial<FilterState>) => on !== undefined && on !== false && out.push({ key, label, patch });
   // the search itself shows as parsed chips (components/search/SearchChips.tsx)

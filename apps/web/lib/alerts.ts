@@ -16,7 +16,7 @@ export const KIND_LABEL: Record<AlertRule["kind"], string> = {
   closing_soon: "Market closing soon",
 };
 
-export const bucket = (now: Date, cooldownMin: number) => Math.floor(now.getTime() / (Math.max(1, cooldownMin) * 60_000));
+const bucket = (now: Date, cooldownMin: number) => Math.floor(now.getTime() / (Math.max(1, cooldownMin) * 60_000));
 export const dedupeKey = (r: Pick<AlertRule, "id" | "cooldown_minutes">, marketId: string, side: 0 | 1 | null, now: Date) =>
   `${r.id}|${marketId}|${side ?? ""}|${bucket(now, r.cooldown_minutes)}`;
 
@@ -29,7 +29,7 @@ export function inQuietHours(r: Pick<AlertRule, "quiet_hours">, now: Date, timeZ
   return a <= b ? h >= a && h < b : h >= a || h < b;
 }
 
-export function closesAt(unixSec: number, timeZone: string): string {
+function closesAt(unixSec: number, timeZone: string): string {
   const d = new Date(unixSec * 1000);
   try { return d.toLocaleString("en-US", { weekday: "short", hour: "numeric", minute: "2-digit", timeZone }); }
   catch { return d.toLocaleString("en-US", { weekday: "short", hour: "numeric", minute: "2-digit" }); }

@@ -1,6 +1,6 @@
 // The few rules from apps/web/lib/format.ts the extension needs (docs/06 § Display language). Keep in sync.
 const ok = (x: number | null | undefined): x is number => typeof x === "number" && Number.isFinite(x);
-export const DASH = "—";
+const DASH = "—";
 
 /** docs/18 §4 counts: under 1,000 exact, above rounded DOWN to a short form (9,666 → "9.6K", 1,333,014 → "1.3M"). */
 export function formatCount(n: number | null | undefined): string {
@@ -56,6 +56,5 @@ export function ago(unixSec: number | null | undefined, now = Date.now()): strin
   const h = m / 60;
   return h < 48 ? `${Math.round(h)} h ago` : `${Math.round(h / 24)} days ago`;
 }
-export const DISCLAIMER = "Market analytics, not financial advice. Based on past results. 18+.";
 export const RETURN_HELP =
   "If you made this kind of bet many times, this is the average profit per dollar, based on how similar past bets resolved. Any single bet can lose.";

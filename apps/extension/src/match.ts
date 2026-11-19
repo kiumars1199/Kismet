@@ -3,7 +3,7 @@
 import { pays, pct, ret } from "./format";
 import type { Market } from "./types";
 
-export const norm = (s: string) =>
+const norm = (s: string) =>
   s.toLowerCase().replace(/[–—−]/g, "-").replace(/\s+/g, " ").trim().replace(/[?.!:]+$/, "").trim();
 
 // Sports game pages (/sports/<league>/<slug>) show no per-market labels, only section headings.
@@ -14,7 +14,7 @@ const WILL_WIN = /^will (.+?) win\b/i;
 const PARTIAL = /\b(1H|2H|[1-4]Q|half|quarter|team total|set \d|round \d)\b/i;
 
 /** Labels Polymarket uses for this market's row, most specific first. */
-export function labels(m: Pick<Market, "question" | "market_type">): string[] {
+function labels(m: Pick<Market, "question" | "market_type">): string[] {
   const out = [m.question];
   const t = m.question.match(TEMP);
   if (t) out.push(t[1]);

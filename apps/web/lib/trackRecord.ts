@@ -4,8 +4,8 @@ import { chosenResult } from "@/lib/data/model";
 import { edge, formatCount, ret } from "@/lib/format";
 import type { BacktestFile, BacktestRecord } from "@/lib/types";
 
-export interface Fold extends BacktestRecord { start: number }
-export interface EdgeBucket { predicted_lo: number; predicted_hi: number; flags: number; predicted_edge: number; realized_edge: number }
+interface Fold extends BacktestRecord { start: number }
+interface EdgeBucket { predicted_lo: number; predicted_hi: number; flags: number; predicted_edge: number; realized_edge: number }
 
 const ok = (x: unknown): x is number => typeof x === "number" && Number.isFinite(x);
 const int = (x: number | undefined) => (ok(x) ? formatCount(x) : "—");   // docs/18 §4; exact on hover in the UI
@@ -22,7 +22,7 @@ export function fmtRecord(r: BacktestRecord | undefined) {
   };
 }
 
-export type TileKey = "bets" | "ret" | "cents" | "t" | "events";
+type TileKey = "bets" | "ret" | "cents" | "t" | "events";
 export interface Tile { key: TileKey; label: string; help: string; value: number | undefined; text: string; baseline: string; baseline_value?: number }
 
 /** Headline tiles: strategy (taker at the ask) vs "every bet, no filter" baseline. */

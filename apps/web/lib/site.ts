@@ -4,7 +4,7 @@ import raw from "../../../config/site.json";
 export const site = raw;
 
 /** The owner's value, or a visible placeholder like [[SUPPORT_EMAIL]]. */
-export const ph = (value: string | undefined | null, name: string) => (value && value.trim()) || `[[${name}]]`;
+const ph = (value: string | undefined | null, name: string) => (value && value.trim()) || `[[${name}]]`;
 
 export const SITE = {
   name: site.name || "Kismet",

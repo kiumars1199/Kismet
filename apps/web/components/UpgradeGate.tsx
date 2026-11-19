@@ -25,5 +25,3 @@ export function UpgradeGate({ feature, children }: { feature: Feature; children:
     </div>
   );
 }
-
-export default UpgradeGate;

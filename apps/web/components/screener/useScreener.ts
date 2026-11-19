@@ -14,7 +14,7 @@ export type Mode = "markets" | "flags";
 import { BEST_BETS_VERDICTS } from "@/lib/filters/state";
 export { BEST_BETS_VERDICTS };
 
-export function stateFrom(params: URLSearchParams, mode: Mode): FilterState {
+function stateFrom(params: URLSearchParams, mode: Mode): FilterState {
   const s = parse(params);
   if (mode === "markets") return s;
   return {
@@ -135,4 +135,3 @@ export function useScreener(mode: Mode) {
     loadMore, loadingMore,
   };
 }
-export type Screener = ReturnType<typeof useScreener>;

@@ -12,7 +12,7 @@ export interface WatchSnapshot {
   question: string; outcome: string | null; closes_at: number; saved_side: 0 | 1;
 }
 
-export function snapshotOf(m: Market, side?: 0 | 1): WatchSnapshot {
+function snapshotOf(m: Market, side?: 0 | 1): WatchSnapshot {
   const s = (side === undefined ? undefined : m.sides[side]) ?? m.best;
   return {
     ask: s.ask, win_prob: s.win_prob, edge: s.edge, roi_pct: s.roi_pct,

@@ -59,5 +59,5 @@ export const PROFILE_PATCH = z.object({
   numbers_mode: z.enum(["simple", "pro"]),
 }).partial().strict();
 
-export const COLLECTIONS = Object.keys(ROW) as CollectionName[];
+const COLLECTIONS = Object.keys(ROW) as CollectionName[];
 export const isCollection = (x: string): x is CollectionName => (COLLECTIONS as string[]).includes(x);

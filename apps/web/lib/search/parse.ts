@@ -8,7 +8,7 @@ import { CONTEXT_ALIASES, TEXT_ALIASES, TOPIC_ALIASES } from "./aliases";
 export const SLUG_URL = /polymarket\.com\/(?:[a-z]{2}\/)?(?:event|market)\/([^/?#\s]+)/i;
 
 type Period = NonNullable<FilterState["periods"]>[number];
-export type ChipKind = "text" | "pays" | "price" | "chance" | "return" | "time" | "side" | "type" | "period" | "topic" | "sort" | "link";
+type ChipKind = "text" | "pays" | "price" | "chance" | "return" | "time" | "side" | "type" | "period" | "topic" | "sort" | "link";
 export interface Chip { kind: ChipKind; label: string; raw: string }   // raw = the typed words (remove = cut them from q)
 
 export interface ParsedQuery {

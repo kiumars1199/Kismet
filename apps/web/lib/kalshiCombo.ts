@@ -9,7 +9,7 @@ import { Ticker } from "@/lib/trade/intent";
 
 export const kalshiDataEnabled = () => process.env.KALSHI_DATA_PERMISSION === "true";
 /** Demo exchange while paper trading is on (so a combo found here can be paper-traded), else production data. */
-export const kalshiBase = () =>
+const kalshiBase = () =>
   process.env.KALSHI_TRADING_ENV === "demo" ? "https://demo-api.kalshi.co/trade-api/v2" : "https://api.elections.kalshi.com/trade-api/v2";
 
 export const ComboCheckBody = z.object({

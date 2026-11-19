@@ -29,7 +29,7 @@ export interface RawData {
   source?: DataSource;              // which source served this copy
 }
 
-export type Counts = Record<string, number>;
+type Counts = Record<string, number>;
 
 export interface Store {
   loadedAt: number;

@@ -9,7 +9,7 @@ import { track } from "@/lib/telemetry";
 import { behindWords } from "@/lib/format";
 import { SITE } from "@/lib/site";
 
-export const PLANS = [
+const PLANS = [
   { id: "free", name: "Free", monthly: 0, yearly: 0, line: "See how it works.",
     points: ["All open markets, {delay}, top 25 rows", "Estimated return shown as a range", "3 best bets a day", "Topic, sport and price filters", "1 saved view · 10 bets in My list", "Results and win-chance charts"] },
   { id: "pro", name: "Pro", monthly: SITE.prices.pro_monthly, yearly: SITE.prices.pro_yearly, line: "For people who bet every week.",

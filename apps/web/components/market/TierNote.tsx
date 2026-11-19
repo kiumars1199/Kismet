@@ -19,7 +19,7 @@ export function useBacktest(): BacktestResponse | null {
 }
 
 /** The by_pays record for this side's payout band in this tier, as a sentence (null if untested). */
-export function useBandLine(s: Pick<Side, "ask">, tier: FlagTier): { text: string; lost: boolean } | null {
+function useBandLine(s: Pick<Side, "ask">, tier: FlagTier): { text: string; lost: boolean } | null {
   const bt = useBacktest();
   const band = paysBand(s);
   const rec = band ? bt?.chosen?.by_pays?.[tier]?.[band] : undefined;
@@ -27,7 +27,7 @@ export function useBandLine(s: Pick<Side, "ask">, tier: FlagTier): { text: strin
   return text ? { text, lost: (rec?.roi_pct ?? 0) < 0 } : null;
 }
 
-export const LOWER_CONFIDENCE_HELP =
+const LOWER_CONFIDENCE_HELP =
   "The price beats how often similar bets won, but by less than our cautious estimate needs, or in a kind of market that hasn't been tested as much as Best bets.";
 
 export function LowerConfidence({ className = "" }: { className?: string }) {

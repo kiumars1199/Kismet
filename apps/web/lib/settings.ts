@@ -6,7 +6,7 @@ import { adminEnabled, supabaseAdmin } from "@/lib/auth/server";
 import { DEMO_MODE } from "@/lib/config";
 import { parseSettings, setSettingsSnapshot, settingsNow, type Settings } from "@/lib/settings-core";
 
-export const SETTINGS_TTL_MS = 60_000;
+const SETTINGS_TTL_MS = 60_000;
 const g = globalThis as { __meSettingsAt?: number; __meSettingsLoad?: Promise<Settings> };
 
 async function load(): Promise<Settings> {

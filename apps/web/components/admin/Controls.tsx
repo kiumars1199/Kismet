@@ -9,7 +9,7 @@ import { Dialog, Field, Switch, btn, btnDanger, btnPrimary, input } from "@/comp
 import type { Settings } from "@/lib/settings-core";
 import type { SignupDay } from "./SignupsChart";
 
-export const LazySignupsChart = dynamic(() => import("./SignupsChart"), { ssr: false, loading: () => <div className="h-[200px]" /> });
+const LazySignupsChart = dynamic(() => import("./SignupsChart"), { ssr: false, loading: () => <div className="h-[200px]" /> });
 
 async function post(body: object): Promise<{ ok: boolean; error?: string; data?: Record<string, unknown> }> {
   const res = await fetch("/api/admin", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).catch(() => null);

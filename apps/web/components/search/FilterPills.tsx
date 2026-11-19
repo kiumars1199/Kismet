@@ -22,7 +22,7 @@ const H = 3_600_000;
 const r2 = (x: number) => Math.round(x * 100) / 100;
 const CATEGORIES = new Set(TAXONOMY_TREE.map((n) => n.id));
 
-export const SIMPLE_SORTS: { label: string; sort: FilterState["sort"] }[] = [
+const SIMPLE_SORTS: { label: string; sort: FilterState["sort"] }[] = [
   { label: "Best return", sort: { key: "roi", dir: "desc" } },
   { label: "Most likely", sort: { key: "win_prob", dir: "desc" } },
   { label: "Closing soon", sort: { key: "closes", dir: "asc" } },

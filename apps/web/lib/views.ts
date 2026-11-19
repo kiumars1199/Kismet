@@ -4,7 +4,7 @@ import { FilterState, type FilterInput } from "@/lib/filters/state";
 import { parse, toQuery } from "@/lib/filters/url";
 import type { Preset } from "@/lib/repo/types";
 
-export const BUILTIN_VIEWS = [
+const BUILTIN_VIEWS = [
   { id: "builtin:best", name: "Best bets right now", qs: "view=flags&vd=worth it,thin&wp=0.4&s=roi.desc" },
   { id: "builtin:likely", name: "Most likely to win", qs: "view=flags&wp=0.8&s=win_prob.desc" },
   { id: "builtin:weather", name: "Weather tomorrow", qs: "t=weather&cw=36&conf=1" },

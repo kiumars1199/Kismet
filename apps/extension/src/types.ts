@@ -19,7 +19,7 @@ export interface Side {
   realistic_edge?: number | null;
 }
 
-export interface StakeRow { stake_usd: number; filled_usd: number; avg_price: number; expected_profit_usd: number; roi_pct: number }
+interface StakeRow { stake_usd: number; filled_usd: number; avg_price: number; expected_profit_usd: number; roi_pct: number }
 export interface Execution {
   spread: number; spread_cost: number; fee_at_ask: number; retention: number; capacity_usd: number;
   stakes: StakeRow[]; verdict: "worth it" | "thin" | "not worth it" | "no sellers" | "no book"; warning?: string;

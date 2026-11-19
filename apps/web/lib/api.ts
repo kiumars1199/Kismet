@@ -33,7 +33,7 @@ import { serialize } from "@/lib/filters/url";
 import type { BacktestFile, BacktestRecord, BacktestResult, Execution, ScanMeta, Side, SideRanges, StoreMarket } from "@/lib/types";
 import { behindWords } from "@/lib/format";
 
-export type { Curve, Facets, StoreMarket, Side };
+export type { Curve, Facets, StoreMarket };
 
 export interface MetaResponse {
   meta: ScanMeta;
@@ -102,7 +102,7 @@ async function get<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 /** The browser's IANA zone, so "today" / "tomorrow" in a search mean the user's day. */
-export const userTz = () => {
+const userTz = () => {
   try {
     return Intl.DateTimeFormat().resolvedOptions().timeZone || undefined;
   } catch {
@@ -126,7 +126,7 @@ export const fetchEvent = (id: string, init?: RequestInit) => get<EventResponse>
 export const fetchEventBySlug = (slug: string, init?: RequestInit) => get<EventResponse>(`/api/events/by-slug/${encodeURIComponent(slug)}`, init);
 export const fetchCurve = (segment: string, h: number, init?: RequestInit) =>
   get<Curve>(`/api/model/curve?${new URLSearchParams({ segment, h: String(h) })}`, init);
-export const fetchBacktest = (init?: RequestInit) => get<BacktestResponse>("/api/backtest", init);
+const fetchBacktest = (init?: RequestInit) => get<BacktestResponse>("/api/backtest", init);
 /** /api/combos — suggested combos, the same for everyone (docs/18 §5.2). */
 export const fetchCombos = (init?: RequestInit) => get<import("@/lib/data/combos").CombosResponse>("/api/combos", init);
 let backtestP: Promise<BacktestResponse> | null = null;

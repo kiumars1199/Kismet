@@ -96,6 +96,3 @@ export function topicsOf(m: Market): Set<string> {
   }
   return ids;
 }
-
-/** Unknown ids match nothing. */
-export const matchesTopic = (m: Market, id: string) => topicsOf(m).has(id);

@@ -3,10 +3,10 @@
 // The content script's Polymarket match is not a host permission.
 
 /** Dev-only public key: pins the unpacked extension ID to DEV_EXTENSION_ID. `pnpm ext:zip` strips it (the store assigns its own ID). */
-export const DEV_KEY =
+const DEV_KEY =
   "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnwUyu5kxsOb3jLm1j0EVI1TPvTVByXezVA+UZhYqKHzeo36HzcM56X1Ai1VMn4pRKKTjHrkcQXpYro3ho7L0lTtq46tAsuUn+din00yZAJa08Y24jQ6xu+DHXJQPLLP+aKeoy0yXMd0vdDrCawXQ+NNmqJduYNt6/XDaC/PXtk6aIdYHpQEEBA2eVeX+6vM5xUYCfk+sqxOgWQY4NgLWtinFomC0OB6Npeq2VQXsPiULaLAq4Rnz3ESOYrGtLvaBiAgLNsQoY2Y0Ivsjj8ZWI/hHm+OIGQ84JcfZ1x6Wsy5Zx1/RYcHg7/XIjKsbEK+FpG6shXSZHwKioZZ1PL+H/wIDAQAB";
-export const DEV_EXTENSION_ID = "cgoaaiaghbckpalppklocajbdpoelmbd";
-export const KALSHI_DEMO_HOST = "https://external-api.demo.kalshi.co";
+const DEV_EXTENSION_ID = "cgoaaiaghbckpalppklocajbdpoelmbd";
+const KALSHI_DEMO_HOST = "https://external-api.demo.kalshi.co";
 
 export function manifest(origin: string, version: string, store = false) {
   return {

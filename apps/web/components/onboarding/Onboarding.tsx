@@ -12,7 +12,7 @@ import { DEMO_MODE, getRepo, repoReady } from "@/lib/repo";
 import { useProfile } from "@/lib/repo/hooks";
 
 const STAKES = [10, 25, 50, 100, 250];
-export const ORDER_STYLE_KEY = "me:v1:order_style"; // "market" | "limit"; read by the drawer to lead with the limit price
+const ORDER_STYLE_KEY = "me:v1:order_style"; // "market" | "limit"; read by the drawer to lead with the limit price
 
 const STEPS = [
   { title: "What do you bet on?", line: "Your topics show first in quick filters and on Best bets." },

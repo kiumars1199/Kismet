@@ -93,7 +93,7 @@ export function day(iso: string | null | undefined, timeZone: string): string {
 }
 
 // CSV: one row per bet, header = these columns.
-export const CSV_COLS = [
+const CSV_COLS = [
   "market_id", "side_index", "outcome", "question", "category", "niche", "price", "shares", "fee", "placed_at",
   "model_win_prob", "model_edge", "closing_price", "result", "settled_at", "pnl_usd", "note",
 ] as const;

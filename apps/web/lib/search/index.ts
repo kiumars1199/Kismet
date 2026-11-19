@@ -8,9 +8,7 @@ import { TAXONOMY, topicsOf } from "@/lib/taxonomy";
 import type { StoreMarket } from "@/lib/types";
 import { SLUG_URL } from "./parse";
 
-export { SLUG_URL };
-
-export const tokenize = (s: string) =>
+const tokenize = (s: string) =>
   s.toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "").split(/[^a-z0-9.]+/).map((t) => t.replace(/^\.+|\.+$/g, "")).filter(Boolean);
 
 const fuzzy = (term: string) => (/\d/.test(term) ? false : term.length >= 9 ? 2 : term.length >= 5 ? 1 : false);
@@ -18,7 +16,7 @@ const EXACT: SearchOptions = { combineWith: "AND", prefix: true };
 const TYPO: SearchOptions = { ...EXACT, fuzzy };
 const BOOST = { question: 3, event: 2, outcomes: 2, entities: 3, tags: 1 };
 
-export interface Entity { name: string; ids: string[] }   // a team, player or city and the markets that mention it
+interface Entity { name: string; ids: string[] }   // a team, player or city and the markets that mention it
 export interface SearchIndex {
   /** Matching market ids → score (higher = better). Empty query → null (no filter). */
   find(q: string): Map<string, number> | null;

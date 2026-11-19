@@ -14,7 +14,7 @@ export function segmentOf(m: Market, s: Side = m.best): string {
   }
 }
 
-export function findNode(model: ModelFile, segment: string, h: number): ModelNode | undefined {
+function findNode(model: ModelFile, segment: string, h: number): ModelNode | undefined {
   const [a, b] = segment.split(":");
   const want =
     segment === "all" ? { level: "all", key: "all", mt: "all" }
