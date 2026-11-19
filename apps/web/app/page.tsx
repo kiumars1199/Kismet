@@ -11,7 +11,9 @@ type Search = Record<string, string | string[] | undefined>;
 type Props = { searchParams: Promise<Search> };
 
 const me = cache(getMe);   // generateMetadata and the page share one auth lookup per request
-const landing = async (sp: Search) => !DEMO_MODE && !(await me()).user && Object.keys(sp).length === 0;
+// Campaign/tracking tags (utm_*, fbclid, gclid, ref) still land on the landing; any other key is a product link.
+const TRACKING = /^(utm_.*|fbclid|gclid|ref)$/;
+const landing = async (sp: Search) => !DEMO_MODE && !(await me()).user && Object.keys(sp).every((k) => TRACKING.test(k));
 
 export async function generateMetadata({ searchParams }: Props) {
   return (await landing(await searchParams))
