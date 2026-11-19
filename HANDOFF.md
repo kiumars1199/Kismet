@@ -56,8 +56,10 @@ so a cloud session can continue. Work on `final`; every push to `final` deploys 
    (`firstPage`, parity-tested against /api/flags and /api/markets); Big payouts, Combos and More bets with an edge
    fetch when scrolled near (`useNear`), so a plain page load makes no protected list call. BotID's challenge script
    (c.js) only loads on the first protected fetch (`initBotId` itself just wraps fetch), so it no longer runs on plain
-   loads; Pro still starts it ~1.5 s in for live card prices. `withTier`/`pageStore` run BotID, the rate limit and
-   the store load in parallel. Lighthouse mobile, local prod build vs the P5 build: `/` 78 → 80–82, `/markets`
+   loads; Pro still starts it ~1.5 s in for live card prices. BotID and the rate limit still run before the store load
+   (a refused request costs nothing). Filter changes, the drawer and search on the same page update the URL with
+   `history.pushState` (`lib/softNav.ts`), so they no longer re-render the page on the server: filter chip → cards
+   ~215 ms, card → drawer ~845 ms locally. Lighthouse mobile, local prod build vs the P5 build: `/` 78 → 80–82, `/markets`
    41 → 74 (LCP 6.9 s → 1.2 s). `/markets` TBT is still ~1.4 s (hydrating ~200 mobile cards). Not done: CDN caching
    of static pages, because the per-request CSP nonce forces dynamic rendering; dropping the nonce would weaken the
    CSP. Check on prod after deploy: the first filter change on Best bets takes the BotID challenge (one-time).

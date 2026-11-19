@@ -4,6 +4,7 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { softNav } from "@/lib/softNav";
 import { useEffect, useRef, useState } from "react";
 import { fetchBook, fetchMarket, type BookResponse, type MarketResponse } from "@/lib/api";
 import { ago, basis, chance, closesLine, gameTime, edge, money, pays, PAYS_HELP, pct, price, realisticReturn, ret, RETURN_HELP, payoutIfWins, payoutMoney, sideRet, sideEdge, sidePts, formatCount, LONG_SHOT_LINE, winsAbout } from "@/lib/format";
@@ -128,7 +129,7 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
   const realistic = realisticReturn(s);
   const c = chance(s.win_prob);
 
-  const pickSide = (i: 0 | 1) => router.replace(pathname + (onClose ? drawerHref(m.id, i, params) : `?side=${i}`), { scroll: false });
+  const pickSide = (i: 0 | 1) => (onClose ? softNav(pathname + drawerHref(m.id, i, params), { replace: true }) : router.replace(`${pathname}?side=${i}`, { scroll: false }));
   const H = onClose ? "h2" : "h1";
 
   return (

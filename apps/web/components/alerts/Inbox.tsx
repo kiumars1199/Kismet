@@ -1,6 +1,7 @@
 "use client";
 // Alert inbox list (F-23): used by the header bell and the Inbox tab on /alerts.
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
+import { softNav } from "@/lib/softNav";
 import { drawerHref } from "@/components/market/drawer";
 import { ago } from "@/lib/format";
 import { getRepo } from "@/lib/repo";
@@ -20,12 +21,11 @@ export async function markAllRead() {
 }
 
 export function InboxList({ events, onOpen, compact }: { events: AlertEvent[]; onOpen?: () => void; compact?: boolean }) {
-  const router = useRouter();
   const pathname = usePathname();
   const open = (e: AlertEvent) => {
     if (!e.read_at) void getRepo().alert_events.update(e.id, { read_at: new Date().toISOString() });
     onOpen?.();
-    router.push(pathname + drawerHref(e.market_id, e.side_index ?? undefined, window.location.search), { scroll: false });
+    softNav(pathname + drawerHref(e.market_id, e.side_index ?? undefined, window.location.search));
   };
   if (!events.length) {
     return <p className="px-4 py-8 text-center text-sm text-muted">No alerts yet. When a rule matches, it shows up here.</p>;

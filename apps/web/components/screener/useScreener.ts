@@ -1,7 +1,8 @@
 "use client";
 
 // Screener state: the URL is the only source of truth (lib/filters/url.ts); data comes from lib/api.ts.
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
+import { softNav } from "@/lib/softNav";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { fetchFlags, fetchMarkets, fetchMeta, type MarketsResponse, type MetaResponse } from "@/lib/api";
 import { resolveUserFilters } from "@/lib/filters/user";
@@ -54,7 +55,6 @@ type Result = { key: string; data?: MarketsResponse; more?: MarketsResponse["row
 /** `initial`: the server-rendered first page for the URL the page loaded with; used instead of the first fetch. */
 export function useScreener(mode: Mode, initial?: MarketsResponse) {
   const params = useSearchParams();
-  const router = useRouter();
   const pathname = usePathname();
 
   // drawer params (m, side) don't change the list
@@ -101,12 +101,11 @@ export function useScreener(mode: Mode, initial?: MarketsResponse) {
   const set = useCallback(
     (patch: Partial<FilterState>, opts?: { replace?: boolean }) => {
       const href = pathname + queryFor({ ...state, page: 1, ...patch }, mode);
-      if (opts?.replace) router.replace(href, { scroll: false });
-      else router.push(href, { scroll: patch.page ? true : false });
+      softNav(href, { replace: opts?.replace, scroll: !!patch.page });
     },
-    [state, pathname, mode, router],
+    [state, pathname, mode],
   );
-  const reset = useCallback(() => router.push(pathname, { scroll: false }), [router, pathname]);
+  const reset = useCallback(() => softNav(pathname), [pathname]);
 
   /** Append the next page without touching the URL (Best bets "Show more"). */
   const [loadingMore, setLoadingMore] = useState(false);

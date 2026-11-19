@@ -48,7 +48,7 @@ export async function withStore(fn: (store: Store) => Response | Promise<Respons
 }
 
 /** Like withStore, for tier-shaped routes: resolves the caller's plan (server-side, docs/15), runs BotID and the
- *  route's rate limit (in parallel with the cached store load; a refusal still answers first), and serves free users the
+ *  route's rate limit (in parallel, before the store load, so a refused request costs nothing), and serves free users the
  *  delayed scan. `fn` must shape its body with lib/data/gate.ts. `bot: false` = no BotID (extension-facing routes). */
 export async function withTier(
   req: Request, rule: Rule,
@@ -56,12 +56,11 @@ export async function withTier(
   { headers, bot = true }: { headers?: HeadersInit; bot?: boolean } = {},
 ): Promise<Response> {
   const me = await getMe();
-  // P6: BotID, the rate limit and the (usually cached) store load run side by side; a refusal still wins
-  const [botRefused, limited, store] = await Promise.all([
-    bot ? botCheck() : null, rateLimit(rule, clientKey(req, me.user?.id)), loadStore(me.tier, headers),
-  ]);
+  // P6: BotID and the rate limit run side by side; the store loads only after both pass (a refused request costs nothing)
+  const [botRefused, limited] = await Promise.all([bot ? botCheck() : null, rateLimit(rule, clientKey(req, me.user?.id))]);
   const refused = botRefused ?? limited;
   if (refused) return noStore(refused);
+  const store = await loadStore(me.tier, headers);
   if (store instanceof Response) return store;
   return noStore(await fn(can(me.tier, "exact_edge") ? store : freeView(store), me.tier, me));   // RT-04: Free filters on what it sees
 }
@@ -83,11 +82,8 @@ export class SlowDown extends Error {
 export async function pageStore(): Promise<{ store: Store; tier: Tier; me: Me; req: Request; bot: boolean }> {
   const [me, h, bot] = await Promise.all([getMe(), headers(), verifiedBot()]);
   const req = new Request("http://page/", { headers: h });
-  const [limited, store] = await Promise.allSettled([bot ? null : rateLimit("markets", clientKey(req, me.user?.id)), getStoreFor(me.tier)]);
-  if (limited.status === "rejected") throw limited.reason;
-  if (limited.value) throw new SlowDown();
-  if (store.status === "rejected") throw store.reason;
-  return { store: store.value, tier: me.tier, me, req, bot };
+  if (!bot && (await rateLimit("markets", clientKey(req, me.user?.id)))) throw new SlowDown();
+  return { store: await getStoreFor(me.tier), tier: me.tier, me, req, bot };
 }
 
 /** RT3-02: Free / signed-out page loads count the markets they show against the RT-03 distinct-row budget

@@ -6,6 +6,7 @@
 // becomes a full-screen sheet. Enter on Best bets or All markets searches that page; elsewhere All markets.
 // The URL keeps the raw query (?q=barcelona+3x), so searches are shareable and savable as views.
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { softNav } from "@/lib/softNav";
 import { Suspense, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { fetchEventBySlug, fetchSuggest, type SuggestResponse } from "@/lib/api";
 import { formatCount, pays, sideRet } from "@/lib/format";
@@ -159,7 +160,9 @@ function Combobox() {
     if (q) p.set("q", q);
     else p.delete("q");
     const qs = p.toString();
-    router.push(`${here ? pathname : "/markets"}${qs ? `?${qs}` : ""}`, { scroll: false });
+    const href = `${here ? pathname : "/markets"}${qs ? `?${qs}` : ""}`;
+    if (here) softNav(href);
+    else router.push(href, { scroll: false });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [here, params, pathname, router, recent]);
 
@@ -203,7 +206,7 @@ function Combobox() {
         const p = new URLSearchParams(here ? params : undefined);
         p.set("m", it.id);
         p.set("side", String(it.side));
-        return router.push(`${here ? pathname : "/markets"}?${p}`, { scroll: false });
+        return here ? softNav(`${pathname}?${p}`) : router.push(`/markets?${p}`, { scroll: false });
       }
     }
   };
