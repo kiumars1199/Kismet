@@ -156,3 +156,33 @@ export interface LedgerEntry {
 export interface LedgerStats { entries: number; graded: number; wins: number; losses: number;
   avg_pnl: number | null; avg_clv: number | null }
 export interface LedgerSummary extends LedgerStats { by_category: Record<string, LedgerStats>; updated_at: number }
+
+// output/kalshi.json (optional; KALSHI_DATA_PERMISSION=true only; docs/03 § kalshi.json). Kalshi's data: credit it.
+export interface KalshiMarket {
+  ticker: string; event_ticker: string; series_ticker: string;
+  title: string; subtitle: string;
+  yes_bid_cents: number | null; yes_ask_cents: number | null;
+  volume: number;
+  close_time: string | null;
+  url: string;
+  source: "Kalshi";
+}
+export interface KalshiComboLeg {
+  market_ticker: string; event_ticker: string; side: "yes" | "no"; title: string;
+  ask_cents: number | null;
+  url: string;
+}
+export interface KalshiCombo {
+  ticker: string; event_ticker: string; collection_ticker: string; title: string;
+  legs: KalshiComboLeg[];
+  same_event: boolean;
+  kalshi_yes_bid_cents: number | null; kalshi_yes_ask_cents: number | null;
+  legs_product_cents: number | null;
+  price_basis: "kalshi_quote" | "legs_product";
+  volume: number; close_time: string | null; url: string; source: "Kalshi";
+}
+export interface KalshiFile {
+  meta: { source: "Kalshi"; attribution: string; fetched_at: number; api: string; n_markets: number; n_combos: number };
+  markets: KalshiMarket[];
+  combos: KalshiCombo[];
+}

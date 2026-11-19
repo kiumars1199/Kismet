@@ -137,6 +137,45 @@ Also top-level `tested_bets` (every bet scored out of sample across all folds) a
 A zod schema mirrors these types; the data layer validates `meta` and a 1% sample of rows on load
 and logs (does not crash) on mismatch.
 
+### `kalshi.json` (optional; only when `KALSHI_DATA_PERMISSION=true`, docs/16 §2, docs/18 §5)
+Written by the scan step (`pipeline/fetch_kalshi.py`) from Kalshi's public market-data API. Missing file = feature off.
+Every row is Kalshi's data and is shown with a "Kalshi" credit and a link to kalshi.com. Prices are whole cents
+(`null` = no quote on that side); `legs_product_cents` may carry two decimals.
+Kalshi lists its Combos (multivariate markets) publicly but they rarely carry a resting quote (combos are priced on
+request through authenticated RFQs), so `price_basis` says which number a combo has: Kalshi's own quote
+(`kalshi_quote`) or only the product of its legs' own Kalshi asks (`legs_product`; `null` when legs share an event).
+
+```ts
+export interface KalshiMarket {
+  ticker: string; event_ticker: string; series_ticker: string;
+  title: string; subtitle: string;                       // event title, market's yes label
+  yes_bid_cents: number | null; yes_ask_cents: number | null;
+  volume: number;                                        // contracts traded
+  close_time: string | null;                             // ISO 8601
+  url: string;                                           // https://kalshi.com/markets/<series ticker>
+  source: "Kalshi";
+}
+export interface KalshiComboLeg {
+  market_ticker: string; event_ticker: string; side: "yes" | "no"; title: string;
+  ask_cents: number | null;                              // that side's own Kalshi ask
+  url: string;
+}
+export interface KalshiCombo {
+  ticker: string; event_ticker: string; collection_ticker: string; title: string;
+  legs: KalshiComboLeg[];                                // 2–6 legs
+  same_event: boolean;                                   // two legs share an event (correlated)
+  kalshi_yes_bid_cents: number | null; kalshi_yes_ask_cents: number | null;   // Kalshi's combo quote, usually null
+  legs_product_cents: number | null;                     // Π leg asks; null if a leg has no ask or same_event
+  price_basis: "kalshi_quote" | "legs_product";
+  volume: number; close_time: string | null; url: string; source: "Kalshi";
+}
+export interface KalshiFile {
+  meta: { source: "Kalshi"; attribution: string; fetched_at: number; api: string; n_markets: number; n_combos: number };
+  markets: KalshiMarket[];
+  combos: KalshiCombo[];
+}
+```
+
 ## 2. Topic taxonomy (filters, favorite topics, presets)
 
 Built from Kalshi's category tree (`GET /search/tags_by_categories`) and Polymarket's tags, so a
