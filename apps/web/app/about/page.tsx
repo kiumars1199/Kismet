@@ -12,7 +12,7 @@ import { pendingLine } from "@/lib/data/respond";
 import { PendingState } from "@/components/screener/States";
 import { apply } from "@/lib/filters/apply";
 import { FilterState } from "@/lib/filters/state";
-import { DASH, REALISTIC_HELP, RETURN_HELP, cardReturn, chance, closesLine, formatCount, pays, pct, price, winsAbout } from "@/lib/format";
+import { DASH, REALISTIC_HELP, RETURN_HELP, cardReturn, closesLine, formatCount, pays, payoutIfWins, payoutMoney, pct, price, recordHelp, recordLabel, winsAbout } from "@/lib/format";
 import { topicLabel } from "@/components/market/labels";
 import { tiles } from "@/lib/trackRecord";
 import type { Side, StoreMarket } from "@/lib/types";
@@ -163,8 +163,8 @@ function PreviewCard({ m, s }: { m: StoreMarket; s: Side }) {
         <BarRow label="Won before" value={pct(s.win_prob)} width={bar(s.win_prob)} fill="bg-accent" strong />
       </div>
       <div className="mt-auto flex items-center justify-between border-t border-border pt-3 text-[13px]">
-        <span className="text-muted">$100 → <span className="font-semibold text-text">{r.profit}</span></span>
-        <span className="rounded-full bg-muted-bg px-2.5 py-[3px] text-xs text-accent-softer">{chance(s.win_prob) ?? DASH}</span>
+        <span className="text-muted">Bet $10 → get <span className="font-semibold tabular-nums text-text">{payoutMoney(payoutIfWins(10, s))}</span> if it wins</span>
+        <span className="rounded-full bg-muted-bg px-2.5 py-[3px] text-xs text-soft" title={recordHelp(s.model_neff)}>{recordLabel(s.model_neff) ?? DASH}</span>
       </div>
     </Link>
   );

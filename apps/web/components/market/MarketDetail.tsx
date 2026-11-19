@@ -6,7 +6,7 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { fetchBook, fetchMarket, type BookResponse, type MarketResponse } from "@/lib/api";
-import { ago, basis, chance, closesLine, gameTime, edge, money, pays, PAYS_HELP, pct, price, realisticReturn, ret, RETURN_HELP, sideProfit, sideRet, sideEdge, sidePts, formatCount, LONG_SHOT_LINE, winsAbout } from "@/lib/format";
+import { ago, basis, chance, closesLine, gameTime, edge, money, pays, PAYS_HELP, pct, price, realisticReturn, ret, RETURN_HELP, payoutIfWins, payoutMoney, sideRet, sideEdge, sidePts, formatCount, LONG_SHOT_LINE, winsAbout } from "@/lib/format";
 import { useProfile } from "@/lib/repo/hooks";
 import { useEntitlements } from "@/lib/entitlements";
 import type { Execution, Side, StoreMarket } from "@/lib/types";
@@ -111,7 +111,8 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
   const m = data.market;
   const s = m.sides.find((x) => x.side_index === sideParam) ?? m.best;
   const other = m.sides.find((x) => x !== s);
-  const pro = useProfile().numbers_mode === "pro";
+  const profile = useProfile();
+  const pro = profile.numbers_mode === "pro";
   const free = useEntitlements().tier === "free";   // the Free plan limits this drawer: say so, with a way up
   const router = useRouter();
   const pathname = usePathname();
@@ -164,7 +165,7 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
         {realistic !== null && !s.ranges && (
           <p className="mt-1.5 text-[13px] text-accent-soft">Similar past bets returned <strong>{ret(realistic)}</strong> on average.</p>
         )}
-        <p className={`mt-1.5 text-[13px] ${chanceTone(c)}`}>{c ?? ""}{c && " · "}<span className="text-accent-soft">Past results: {sideProfit(s)} per $100 bet</span></p>
+        <p className={`mt-1.5 text-[13px] ${chanceTone(c)}`}>{c ?? ""}{c && " · "}<span className="text-accent-soft">Bet {money(profile.default_stake_usd)} → get {payoutMoney(payoutIfWins(profile.default_stake_usd, s))} if it wins</span></p>
         {m.tier === "edge" && <TierNote s={s} className="mt-1.5 !text-accent-soft" />}
         {free && (
           <p data-testid="upgrade-note" className="mt-3 border-t border-accent-border pt-3 text-[13px] text-accent-softer">

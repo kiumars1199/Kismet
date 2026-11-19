@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ago, basis, chance, closesIn, edge, exactCount, expectedProfit, formatCount, money, pays, pct, price, realisticReturn, ret, sidePts, testedLine, usd, utcWhen, winsAbout } from "./format";
+import { ago, basis, chance, closesIn, edge, exactCount, expectedProfit, formatCount, money, pays, payoutIfWins, payoutMoney, pct, price, realisticReturn, recordLabel, ret, sidePts, testedLine, usd, utcWhen, winsAbout } from "./format";
 
 describe("docs/18 numbers", () => {
   it("formatCount rounds down, never up", () => {
@@ -29,7 +29,7 @@ describe("format", () => {
   });
   it("chance labels use the docs/06 bands", () => {
     expect([chance(0.8), chance(0.79), chance(0.55), chance(0.5), chance(0.39), chance(undefined)])
-      .toEqual(["Likely to hit", "Leans your way", "Leans your way", "Coin flip", "Long shot", null]);
+      .toEqual(["Leans your way", "Leans your way", "Leans your way", "Coin flip", "Long shot", null]);
   });
   it("relative times and realistic return", () => {
     const now = 1_000_000_000_000;
@@ -58,5 +58,19 @@ describe("shared helpers merged from page-local copies (CLEANUP.md)", () => {
   });
   it("utcWhen shows an ISO time in UTC", () => {
     expect(utcWhen("2026-11-18T15:04:00Z")).toBe("Nov 18, 2026, 3:04 PM UTC");
+  });
+});
+
+describe("docs/19 P4 card numbers", () => {
+  it("payout if it wins = stake / (price + fee), whole dollars from $10", () => {
+    expect(payoutIfWins(10, { ask: 0.75, fee: 0.0075 })).toBeCloseTo(13.2, 1);
+    expect(payoutMoney(payoutIfWins(10, { ask: 0.75, fee: 0.0075 }))).toBe("$13");
+    expect(payoutMoney(payoutIfWins(100, { ask: 0.1, fee: 0 }))).toBe("$1,000");
+    expect(payoutMoney(payoutIfWins(5, { ask: 0.9, fee: 0.01 }))).toBe("$5.49");
+    expect([payoutIfWins(0, { ask: 0.5, fee: 0 }), payoutIfWins(10, { ask: 0, fee: 0 }), payoutIfWins(10, { ask: 0.99, fee: 0.02 })]).toEqual([null, null, null]);
+  });
+  it("record label from the sample behind the estimate, never a promise", () => {
+    expect([recordLabel(40), recordLabel(99.9), recordLabel(100), recordLabel(2930), recordLabel(undefined)])
+      .toEqual(["Thin record", "Thin record", "Strong record", "Strong record", null]);
   });
 });

@@ -72,12 +72,31 @@ export function expectedProfit(roiPct: number | null | undefined, stake = 100): 
   return ok(roiPct) ? (roiPct / 100) * stake : null;
 }
 
-export type Chance = "Likely to hit" | "Leans your way" | "Coin flip" | "Long shot";
-/** chance label from win_prob: ≥80% Likely to hit, 55–80% Leans your way, 40–55% Coin flip, <40% Long shot */
+export type Chance = "Leans your way" | "Coin flip" | "Long shot";
+/** chance label from win_prob: ≥55% Leans your way, 40–55% Coin flip, <40% Long shot. docs/19 P4: no
+ *  "Likely to hit" bucket, it read as a promise. */
 export function chance(winProb: number | null | undefined): Chance | null {
   if (!ok(winProb)) return null;
-  return winProb >= 0.8 ? "Likely to hit" : winProb >= 0.55 ? "Leans your way" : winProb >= 0.4 ? "Coin flip" : "Long shot";
+  return winProb >= 0.55 ? "Leans your way" : winProb >= 0.4 ? "Coin flip" : "Long shot";
 }
+
+/** docs/19 P4: what a stake pays back if this side wins, after the fee: shares = stake / (price + fee), $1 each. */
+export function payoutIfWins(stake: number | null | undefined, s: Pick<Side, "ask" | "fee">): number | null {
+  const cost = s.ask + (ok(s.fee) ? s.fee : 0);
+  return ok(stake) && stake > 0 && ok(s.ask) && cost > 0 && cost < 1 ? stake / cost : null;
+}
+/** "$13", "$1,330", "$4.50": whole dollars from $10, cents below. */
+export const payoutMoney = (usd: number | null) => money(usd !== null && usd >= 10 ? Math.round(usd) : usd);
+
+/** docs/19 P4: a neutral confidence label from the sample behind the estimate (effective past bets, model_neff).
+ *  ponytail: one cutoff at 100 (fixture: min 40, Q1 87, median 272); tune here if the engine's sample sizes move. */
+export type RecordLabel = "Strong record" | "Thin record";
+export const STRONG_RECORD_NEFF = 100;
+export function recordLabel(neff: number | null | undefined): RecordLabel | null {
+  return ok(neff) ? (neff >= STRONG_RECORD_NEFF ? "Strong record" : "Thin record") : null;
+}
+export const recordHelp = (neff: number) =>
+  `About ${formatCount(neff)} similar past bets (effective sample) behind this estimate. More past bets means a firmer estimate, not a surer win.`;
 /** "Bet Yes at 68¢" */
 export function betLine(s: Pick<Side, "outcome" | "ask">): string {
   return `Bet ${s.outcome} at ${price(s.ask)}`;
