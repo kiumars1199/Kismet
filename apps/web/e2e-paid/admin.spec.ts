@@ -22,6 +22,17 @@ async function signIn(page: Page, email: string) {
   }).toPass({ timeout: 90_000 });
 }
 
+// Beta features (lib/beta.ts): customers get 404s and no nav link; admins get the pages, marked Beta.
+async function expectNoBeta(page: Page) {
+  for (const p of ["/combos", "/kalshi"]) expect((await page.goto(p))?.status(), p).toBe(404);
+  await page.goto("/pricing");
+  await expect(page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: /Combos|Kalshi/ })).toHaveCount(0);
+  expect((await (await page.request.get("/api/combos?pays=2")).json()).groups).toEqual([]);
+  expect((await page.request.get("/api/kalshi")).status()).toBe(404);
+  expect((await (await page.request.get("/api/combos/kalshi")).json()).enabled).toBe(false);
+  expect((await (await page.request.get("/api/me")).json()).beta).toBeFalsy();
+}
+
 async function expectNoAdmin(page: Page) {
   for (const p of PAGES) expect((await page.goto(p))?.status(), p).toBe(404);
   const origin = new URL(page.url()).origin;
@@ -35,6 +46,18 @@ async function expectNoAdmin(page: Page) {
 test("admin: sees /admin with a user count, flips the banner and everyone sees it", async ({ page, browser }) => {
   await signIn(page, ADMIN);
   await expect(page.getByRole("link", { name: "Admin panel" })).toBeVisible();
+
+  // beta access: Premium plan, beta pages (Kalshi with KALSHI_DATA_PERMISSION off), each marked Beta
+  expect(await (await page.request.get("/api/me")).json()).toMatchObject({ beta: true, tier: "premium" });
+  const nav = page.locator("header").getByRole("navigation", { name: "Main" });
+  for (const [label, path] of [["Combos", "/combos"], ["Kalshi", "/kalshi"]] as const) {
+    const link = nav.getByRole("link", { name: new RegExp(`^${label}`) });
+    await expect(link).toBeVisible();
+    await expect(link.getByTestId("beta-badge")).toHaveText("Beta");
+    expect((await page.goto(path))?.status(), path).toBe(200);
+    await expect(page.getByTestId("beta-banner")).toHaveText("Beta: only visible to admins and testers. Not live for customers.");
+  }
+  expect((await page.request.get("/api/kalshi")).status()).toBe(200);
 
   await page.goto("/admin");
   await expect(page.getByRole("heading", { name: "Admin", exact: true })).toBeVisible();
@@ -69,15 +92,17 @@ test("admin: sees /admin with a user count, flips the banner and everyone sees i
   await expect(page.getByTestId("site-banner")).toHaveCount(0);
 });
 
-test("normal user and anonymous visitor: 404 on every admin page and API route, no Admin link", async ({ page, browser }) => {
+test("normal user and anonymous visitor: 404 on every admin page and API route, no Admin link, no beta features", async ({ page, browser }) => {
   await signIn(page, `user-${Date.now()}@example.com`);
   await expect(page.getByRole("link", { name: "Admin panel" })).toHaveCount(0);
   await expect(page.getByRole("link", { name: "Admin", exact: true })).toHaveCount(0);
   await expectNoAdmin(page);
+  await expectNoBeta(page);
 
   const ctx = await browser.newContext();
   const anon = await ctx.newPage();
   await anon.goto("/");
   await expectNoAdmin(anon);
+  await expectNoBeta(anon);
   await ctx.close();
 });

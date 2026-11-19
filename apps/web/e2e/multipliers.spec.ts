@@ -46,11 +46,14 @@ test("combo: two legs from one event show the same-event warning", async ({ page
   for (const id of ["6674492", "6674493"]) {
     await page.goto(`/?m=${id}`);
     const drawer = page.getByRole("dialog", { name: "Market details" });
-    await drawer.getByRole("button", { name: "Add to combo" }).click();
+    const add = drawer.getByRole("button", { name: "Add to combo" });
+    await expect(add.getByTestId("beta-badge")).toBeVisible();   // a beta feature on a live page is tagged
+    await add.click();
     await expect(drawer.getByRole("button", { name: "In combo ✓" })).toBeVisible();
   }
   const tray = page.getByTestId("combo-tray");
   await expect(tray).toBeVisible();
+  await expect(tray.getByTestId("beta-badge")).toBeVisible();
   await expect(tray.getByText("Your combo · 2 legs")).toBeVisible();
   await expect(tray.getByTestId("combo-summary")).toContainText(/Pays \d/);
   await expect(tray.getByTestId("same-event")).toContainText("same event");
@@ -65,9 +68,20 @@ test("combo: two legs from one event show the same-event warning", async ({ page
 
 // docs/19 P5: the Combos page browses by payout; every card pays at least the chosen floor.
 test("combos page: payout tabs, each card pays at least the floor, Build this combo opens the tray", async ({ page }) => {
+  // the Combos row on Best bets (a live page) carries the Beta tag; it loads when scrolled near
+  await page.goto("/");
+  const row = page.getByTestId("suggested-combos");
+  await expect(async () => {
+    await page.mouse.wheel(0, 1500);
+    await expect(row).toBeVisible({ timeout: 1000 });
+  }).toPass({ timeout: 30_000 });
+  await expect(row.getByRole("heading", { name: /Combos/ }).getByTestId("beta-badge")).toBeVisible();
   await page.goto("/combos");
   await page.evaluate(() => localStorage.removeItem("me-combo-v1"));
   await expect(page.getByRole("heading", { level: 1, name: "Combos" })).toBeVisible();
+  // beta (lib/beta.ts; demo mode counts as a tester): banner on the page, pill on the nav link
+  await expect(page.getByTestId("beta-banner")).toHaveText("Beta: only visible to admins and testers. Not live for customers.");
+  await expect(page.locator("header").getByRole("link", { name: /^Combos/ }).getByTestId("beta-badge")).toBeVisible();
   for (const p of [2, 3, 5, 10]) {
     await page.getByRole("button", { name: `Pays ${p}x+` }).click();
     await expect(page).toHaveURL(new RegExp(`pays=${p}$`));

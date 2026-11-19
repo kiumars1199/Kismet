@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MAIN_TABS, isActive } from "./nav";
+import { BETA_LINKS, MAIN_TABS, isActive } from "./nav";
+import { BetaBadge } from "@/components/beta/BetaBadge";
+import { useEntitlements } from "@/lib/entitlements";
 import { SearchCombobox } from "@/components/search/SearchCombobox";
 import { FreshnessPill } from "@/components/header/FreshnessPill";
 import { Bell } from "@/components/header/Bell";
@@ -23,6 +25,7 @@ export function Logo() {
 
 export function Header() {
   const pathname = usePathname();
+  const { canBeta } = useEntitlements();
   return (
     <header className="flex flex-wrap items-center gap-x-7 gap-y-3 border-b border-border px-4 py-3 md:px-8 md:py-4">
       <Logo />
@@ -40,6 +43,16 @@ export function Header() {
             </Link>
           );
         })}
+        {BETA_LINKS.filter((l) => canBeta(l.feature)).map((l) => (
+          <Link
+            key={l.href}
+            href={l.href}
+            aria-current={isActive(pathname, l.href) ? "page" : undefined}
+            className={`flex items-center gap-1.5 rounded-[10px] px-3.5 py-2 transition-colors duration-200 ease-out ${isActive(pathname, l.href) ? "bg-nav-active text-text" : "text-muted hover:bg-muted-bg hover:text-text"}`}
+          >
+            {l.label} <BetaBadge variant="pill" />
+          </Link>
+        ))}
       </nav>
       <div className="flex flex-[1_1_260px] items-center justify-end gap-2 sm:gap-3">
         <SearchCombobox />

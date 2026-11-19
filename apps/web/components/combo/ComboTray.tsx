@@ -10,6 +10,8 @@ import { combo, kalshiComboEdge, MIN_LEGS, type Leg } from "@/lib/combos";
 import { LONG_SHOT_LINE, pct, price, ret, testedLine, winsAbout } from "@/lib/format";
 import { openTicket, useTradeConfig } from "@/lib/trade/ext";
 import { useCombo } from "./useCombo";
+import { BetaBadge } from "@/components/beta/BetaBadge";
+import { useEntitlements } from "@/lib/entitlements";
 
 const paysX = (x: number) => `${x >= 10 ? Math.round(x) : x.toFixed(1)}x`;
 type Quote = { ok: true; ticker: string; ask_cents: number } | { ok: false; error: string };
@@ -28,6 +30,7 @@ function useKalshiCheck(): boolean {
 
 export function ComboTray() {
   const { legs, open, remove, clear, setOpen } = useCombo();
+  const allowed = useEntitlements().canBeta("combos");   // beta (lib/beta.ts): a saved combo stays hidden without access
   useEffect(() => void useCombo.persist.rehydrate(), []);
   useEffect(() => {
     if (!open) return;
@@ -35,7 +38,7 @@ export function ComboTray() {
     window.addEventListener("keydown", esc);
     return () => window.removeEventListener("keydown", esc);
   }, [open, setOpen]);
-  if (!legs.length) return null;
+  if (!legs.length || !allowed) return null;
 
   const c = combo(legs);
   const ready = legs.length >= MIN_LEGS;
@@ -49,7 +52,7 @@ export function ComboTray() {
       >
         <div className="flex items-center gap-3 px-4 py-3">
           <button type="button" aria-expanded={open} aria-controls="combo-body" onClick={() => setOpen(!open)} className="flex min-h-11 min-w-0 flex-1 flex-col items-start text-left">
-            <span className="text-xs text-muted">Your combo · {legs.length} {legs.length === 1 ? "leg" : "legs"}</span>
+            <span className="flex items-center gap-2"><span className="text-xs text-muted">Your combo · {legs.length} {legs.length === 1 ? "leg" : "legs"}</span><BetaBadge /></span>
             <span data-testid="combo-summary" className="truncate font-heading text-[17px] font-bold">
               {ready ? <>Pays {paysX(c.pays)} <span className="font-sans text-sm font-medium text-soft">· wins about {winsAbout(c.q)}</span></> : <span className="font-sans text-sm font-medium text-soft">Add one more bet to see the combo</span>}
             </span>

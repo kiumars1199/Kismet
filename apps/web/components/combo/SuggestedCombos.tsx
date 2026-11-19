@@ -10,6 +10,7 @@ import { pct, price, ret, testedLine, winsAbout } from "@/lib/format";
 import { useCombo } from "./useCombo";
 import { useNear } from "@/components/screener/useNear";
 import Link from "next/link";
+import { BetaBadge } from "@/components/beta/BetaBadge";
 
 const retText = (c: SuggestedCombo) =>
   c.ret_range ? (c.ret_range[1] === null ? `over ${ret(c.ret_range[0]!)}` : `${ret(c.ret_range[0] ?? 0)}–${ret(c.ret_range[1]).replace(/^\+/, "")}`) : ret(c.ret * 100);
@@ -31,7 +32,7 @@ export function SuggestedCombos() {
     <section aria-labelledby="combos-h" data-testid="suggested-combos" className="flex flex-col gap-3">
       <div>
         <div className="flex items-baseline justify-between gap-3">
-          <h2 id="combos-h" className="text-xl font-semibold">Combos</h2>
+          <h2 id="combos-h" className="flex items-center gap-2 text-xl font-semibold">Combos <BetaBadge /></h2>
           <Link href="/combos" className="text-sm font-medium text-accent hover:underline">See all combos</Link>
         </div>
         <p className="mt-1 max-w-[760px] text-[13px] leading-relaxed text-muted">

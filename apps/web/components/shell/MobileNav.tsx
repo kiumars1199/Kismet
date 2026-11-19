@@ -3,14 +3,18 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
-import { MAIN_TABS, MORE_LINKS, isActive } from "./nav";
+import { BETA_LINKS, MAIN_TABS, MORE_LINKS, isActive } from "./nav";
+import { BetaBadge } from "@/components/beta/BetaBadge";
+import { useEntitlements } from "@/lib/entitlements";
 
 // Mobile (<768px) bottom tab bar: Best bets · All markets · My list · More (docs/06 § App shell).
 export function MobileNav() {
   const pathname = usePathname();
   const dialog = useRef<HTMLDialogElement>(null);
   useEffect(() => dialog.current?.close(), [pathname]);
-  const moreActive = MORE_LINKS.some((l) => isActive(pathname, l.href));
+  const { canBeta } = useEntitlements();
+  const beta = BETA_LINKS.filter((l) => canBeta(l.feature));
+  const moreActive = [...MORE_LINKS, ...beta].some((l) => isActive(pathname, l.href));
   const tab = "flex min-h-11 items-center justify-center py-2.5";
 
   return (
@@ -45,6 +49,13 @@ export function MobileNav() {
             <li key={l.href}>
               <Link href={l.href} aria-current={isActive(pathname, l.href) ? "page" : undefined} className="block rounded-card px-3 py-3 hover:bg-raised aria-[current=page]:text-accent">
                 {l.label}
+              </Link>
+            </li>
+          ))}
+          {beta.map((l) => (
+            <li key={l.href}>
+              <Link href={l.href} aria-current={isActive(pathname, l.href) ? "page" : undefined} className="flex items-center gap-2 rounded-card px-3 py-3 hover:bg-raised aria-[current=page]:text-accent">
+                {l.label} <BetaBadge variant="pill" />
               </Link>
             </li>
           ))}

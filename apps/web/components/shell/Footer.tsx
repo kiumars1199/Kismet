@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BETA_FEATURES } from "@/lib/beta-list";
 import { LEGAL_PAGES } from "@/components/legal/Legal";
 import { SITE } from "@/lib/site";
 
@@ -15,9 +16,9 @@ export function Footer() {
       </div>
       <nav aria-label="Site" className="-mx-2 flex flex-wrap gap-x-0.5 md:-mx-1 md:gap-x-2 md:gap-y-1">
         {[{ href: "/about", label: "How it works" }, { href: "/pricing", label: "Pricing" }, ...LEGAL_PAGES, { href: "/status", label: "Status" },
-          // Kalshi page only while KALSHI_DATA_PERMISSION=true (same check as kalshiDataEnabled; inlined so the OG
-          // images that import DISCLAIMER from here don't pull in zod)
-          ...(process.env.KALSHI_DATA_PERMISSION === "true" ? [{ href: "/kalshi", label: "Kalshi markets" }] : [])].map((p) => (
+          // Kalshi page only once it is out of beta (testers reach it from the nav) and KALSHI_DATA_PERMISSION=true
+          // (same check as kalshiDataEnabled; inlined so the OG images that import DISCLAIMER from here don't pull in zod)
+          ...(!BETA_FEATURES.includes("kalshi") && process.env.KALSHI_DATA_PERMISSION === "true" ? [{ href: "/kalshi", label: "Kalshi markets" }] : [])].map((p) => (
           <Link key={p.href} href={p.href} className="inline-flex min-h-11 items-center px-2 hover:text-text md:min-h-0 md:px-1 md:py-0.5">{p.label}</Link>
         ))}
       </nav>

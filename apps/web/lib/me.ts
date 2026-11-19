@@ -13,6 +13,7 @@ export interface MeResponse {
   auth: boolean;       // accounts configured
   billing: boolean;    // Stripe configured
   admin?: boolean;     // server-decided; shows the Admin link only
+  beta?: boolean;      // admin or live comp grant: sees beta features (lib/beta.ts); routes check again
 }
 
 let me: MeResponse | null = null;

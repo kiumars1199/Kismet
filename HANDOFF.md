@@ -80,3 +80,13 @@ so a cloud session can continue. Work on `final`; every push to `final` deploys 
 - On the owner's Mac `git fetch` fails with `bad object refs/remotes/origin/final 2` (an iCloud duplicate ref). Use
   `GIT_REF_PARANOIA=0 git fetch`. A cloud clone doesn't have this ref.
 - The GitHub repo is now `kiumars1199/Kismet` (old name redirects).
+
+## Beta access (T-274)
+- `getMe().beta`: admins (ADMIN_EMAILS, verified email) and accounts with a live comp grant (comp_tier set, not
+  expired). Admins are also Premium. Demo mode counts everyone as a tester (no customers there).
+- `lib/beta-list.ts` `BETA_FEATURES` = combos, kalshi. `canBeta(me, f)` in `lib/beta.ts`: beta → testers only, any
+  plan; customers (even Premium) get 404 pages, empty/404 APIs and no nav link. Once a feature is removed from the
+  list its live rule applies again (combos: Premium; Kalshi: `KALSHI_DATA_PERMISSION=true`).
+- Testers see /kalshi even with `KALSHI_DATA_PERMISSION` off. /api/kalshi is `private, no-store` while in beta.
+- Every beta surface uses `components/beta/BetaBadge.tsx` (pill in nav, banner on the page, tag on the Best bets
+  Combos row, "Add to combo" and the combo tray).

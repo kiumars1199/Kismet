@@ -10,13 +10,18 @@ export const MAIN_TABS = [
 export const MORE_LINKS = [
   { href: "/journal", label: "My bets" },
   { href: "/track-record", label: "Results" },
-  { href: "/combos", label: "Combos" },
   { href: "/tools", label: "Tools" },
   { href: "/alerts", label: "Alerts" },
   { href: "/dashboards", label: "Dashboards" },
   { href: "/settings", label: "Settings" },
   { href: "/status", label: "Status" },
   { href: "/about", label: "How it works" },
+] as const;
+
+/** Beta features (lib/beta.ts): shown only to testers, each with a Beta pill. */
+export const BETA_LINKS = [
+  { href: "/combos", label: "Combos", feature: "combos" },
+  { href: "/kalshi", label: "Kalshi", feature: "kalshi" },
 ] as const;
 
 export const isActive = (pathname: string, href: string) =>

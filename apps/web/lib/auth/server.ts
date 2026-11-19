@@ -5,7 +5,8 @@ import { createServerClient } from "@supabase/ssr";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import { DEMO_MODE } from "@/lib/config";
-import { effectiveTier, type Tier } from "@/lib/entitlements";
+import { compLive, effectiveTier, type Tier } from "@/lib/entitlements";
+import { isAdminEmail } from "@/lib/admin/core";
 import { delayMin } from "@/lib/settings-core";
 import { behindWords } from "@/lib/format";
 
@@ -76,21 +77,24 @@ export interface Me {
   status: string | null;
   current_period_end: string | null;
   cancel_at_period_end: boolean;
+  /** Admin (ADMIN_EMAILS) or a live comp grant: sees beta features (lib/beta.ts). Demo mode: everyone. */
+  beta: boolean;
 }
 
 /** Tier comes only from the webhook-written subscriptions row (docs/15 § Billing). Demo mode = premium. */
 export async function getMe(): Promise<Me> {
   const none = { status: null, current_period_end: null, cancel_at_period_end: false };
-  if (DEMO_MODE) return { user: null, tier: "premium", ...none };
+  if (DEMO_MODE) return { user: null, tier: "premium", ...none, beta: true };   // demo has no customers
   const user = await getUser();
-  if (!user) return { user: null, tier: "free", ...none };
+  if (!user) return { user: null, tier: "free", ...none, beta: false };
   // "*" so a deploy that runs before the T-140 migration (comp columns) still reads the paid tier.
   const { data } = await (await supabaseServer())
     .from("subscriptions").select("*")
     .eq("user_id", user.id).maybeSingle();
-  const tier: Tier = effectiveTier(data);
+  const admin = isAdminEmail(user, process.env.ADMIN_EMAILS, DEMO_MODE);
+  const tier: Tier = admin ? "premium" : effectiveTier(data);   // admins get every paid feature
   return {
-    user, tier,
+    user, tier, beta: admin || compLive(data),
     status: data?.status ?? null,
     current_period_end: data?.current_period_end ?? null,
     cancel_at_period_end: !!data?.cancel_at_period_end,

@@ -43,12 +43,12 @@ describe("KalshiBoard", () => {
 describe("footer link to /kalshi", () => {
   afterEach(() => { cleanup(); vi.unstubAllEnvs(); });
 
-  it("shows only with KALSHI_DATA_PERMISSION=true; disclaimer unchanged", () => {
+  it("hidden while Kalshi is in beta, even with KALSHI_DATA_PERMISSION=true; disclaimer unchanged", () => {
     const off = render(<Footer />);
     expect(off.container.querySelector('a[href="/kalshi"]')).toBeNull();
     expect(off.container.textContent).toContain(DISCLAIMER);
     cleanup();
     vi.stubEnv("KALSHI_DATA_PERMISSION", "true");
-    expect(render(<Footer />).container.querySelector('a[href="/kalshi"]')).not.toBeNull();
+    expect(render(<Footer />).container.querySelector('a[href="/kalshi"]')).toBeNull();
   });
 });

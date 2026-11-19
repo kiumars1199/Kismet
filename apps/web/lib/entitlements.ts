@@ -2,6 +2,7 @@
 // Server routes enforce; the UI mirrors with <UpgradeGate>. Infinity = unlimited.
 import { DEMO_MODE } from "@/lib/repo";
 import { currentMe, useMe } from "@/lib/me";
+import { canBeta, type Gated } from "@/lib/beta";
 
 export type Tier = "free" | "pro" | "premium";
 
@@ -44,6 +45,13 @@ export function effectiveTier(
   return live && RANK[comp] > RANK[paid] ? comp : paid;
 }
 
+/** An admin comp (T-140) that is set and not expired: the account is a tester (beta access, lib/beta.ts). */
+export function compLive(row: { comp_tier?: unknown; comp_expires_at?: string | null } | null | undefined, now = Date.now()): boolean {
+  if (asTier(row?.comp_tier) === "free") return false;
+  const exp = row?.comp_expires_at ? Date.parse(row.comp_expires_at) : Infinity;
+  return !(exp <= now);
+}
+
 export const can = (tier: Tier, feature: Feature): boolean => FEATURES[tier].includes(feature);
 export const quota = (tier: Tier, key: QuotaKey): number => QUOTAS[tier][key];
 
@@ -53,9 +61,12 @@ export const clientTier = (): Tier => (DEMO_MODE ? "premium" : currentMe()?.tier
 export function useEntitlements() {
   const me = useMe();
   const tier: Tier = DEMO_MODE ? "premium" : me?.tier ?? "free";
+  const beta = DEMO_MODE || !!me?.beta;
   return {
-    tier,
+    tier, beta,
     can: (f: Feature) => can(tier, f),
+    /** Beta-gated features (lib/beta.ts): display only, the server checks again. */
+    canBeta: (f: Gated) => canBeta({ tier, beta }, f),
     quota: (k: QuotaKey) => quota(tier, k),
   };
 }
