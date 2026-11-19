@@ -141,8 +141,8 @@ and logs (does not crash) on mismatch.
 Written by the scan step (`pipeline/fetch_kalshi.py`) from Kalshi's public market-data API. Missing file = feature off.
 Every row is Kalshi's data and is shown with a "Kalshi" credit and a link to kalshi.com. Prices are whole cents
 (`null` = no quote on that side); `legs_product_cents` may carry two decimals.
-Kalshi lists its Combos (multivariate markets) publicly but they rarely carry a resting quote (combos are priced on
-request through authenticated RFQs), so `price_basis` says which number a combo has: Kalshi's own quote
+Kalshi lists its Combos (multivariate markets) publicly (`GET /markets?mve_filter=only`, legs in `mve_selected_legs`),
+but in our sample none carried a resting ask (Kalshi's RFQ endpoints need a member key), so `price_basis` says which number a combo has: Kalshi's own quote
 (`kalshi_quote`) or only the product of its legs' own Kalshi asks (`legs_product`; `null` when legs share an event).
 
 ```ts

@@ -2,7 +2,8 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { cleanup, render, screen, within } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { DISCLAIMER, Footer } from "@/components/shell/Footer";
 import type { KalshiFile } from "@/lib/types";
 import { KalshiBoard } from "./KalshiBoard";
 
@@ -36,5 +37,18 @@ describe("KalshiBoard", () => {
     expect(combos.getByText("Kalshi's combo ask")).toBeTruthy();
     expect(combos.getByText("18.9¢")).toBeTruthy();
     expect(combos.getByText(/same event/)).toBeTruthy();
+  });
+});
+
+describe("footer link to /kalshi", () => {
+  afterEach(() => { cleanup(); vi.unstubAllEnvs(); });
+
+  it("shows only with KALSHI_DATA_PERMISSION=true; disclaimer unchanged", () => {
+    const off = render(<Footer />);
+    expect(off.container.querySelector('a[href="/kalshi"]')).toBeNull();
+    expect(off.container.textContent).toContain(DISCLAIMER);
+    cleanup();
+    vi.stubEnv("KALSHI_DATA_PERMISSION", "true");
+    expect(render(<Footer />).container.querySelector('a[href="/kalshi"]')).not.toBeNull();
   });
 });

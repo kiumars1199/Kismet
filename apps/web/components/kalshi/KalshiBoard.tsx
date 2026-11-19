@@ -127,7 +127,7 @@ export function KalshiBoard({ data, limit = 100 }: { data: KalshiFile; limit?: n
         <div className="flex flex-col gap-1">
           <h2 id="kalshi-combos-h" className="text-xl font-semibold">Kalshi Combos</h2>
           <p className="max-w-2xl text-sm text-muted">
-            One contract that pays $1 if every leg wins. Kalshi prices most combos on request, so when it shows no ask
+            One contract that pays $1 if every leg wins. Kalshi&apos;s combo markets usually show no resting ask, so then
             we multiply the legs&apos; own Kalshi asks instead and say so. Many legs means it usually loses.
           </p>
         </div>

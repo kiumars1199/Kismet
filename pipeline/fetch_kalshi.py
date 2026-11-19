@@ -8,8 +8,8 @@ Public endpoints, no key (https://docs.kalshi.com/api-reference/market/get-marke
   GET /markets?status=open&mve_filter=only           Kalshi Combos (multivariate markets) and their legs
   GET /markets?tickers=a,b,...                       leg quotes we don't have yet
 
-Combo prices: Kalshi lists its combo markets publicly, but they rarely carry a resting quote; combos are priced on
-request (RFQ), which needs an authenticated member key. So each combo carries Kalshi's own quote when there is one,
+Combo prices: Kalshi lists its combo markets publicly, but in a Nov 2026 sample none of 100 carried a resting ask
+(Kalshi's RFQ endpoints need an authenticated member key; whether combos are quoted that way is unconfirmed). So each combo carries Kalshi's own quote when there is one,
 and otherwise only the product of its legs' own Kalshi asks, labelled `price_basis: "legs_product"`.
 
 Polite: small pages, a pause between calls, backoff on 429/5xx, User-Agent "Kismet scanner", on-disk cache with TTL.
