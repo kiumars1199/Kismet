@@ -1214,7 +1214,7 @@ Batch 2 (07:02–07:04), once the load had dropped:
 - **Crawlers:** GPTBot, ClaudeBot, CCBot, PerplexityBot, Google-Extended, Bytespider → 403 on `/` and `/api/markets`. HeadlessChrome, python-requests, curl → 200 (BotID runs only on Vercel; Owner verification).
 - **Stripe webhooks** (`webhook.mjs`, mock, real `stripe` signing, separate user): unsigned → 400 "Not configured or unsigned"; wrong secret, 1-hour-old timestamp, body changed after signing → 400 "Bad signature". Replayed event id → `{"duplicate":true}`. A raw unsigned `client_reference_id` is ignored; a subscription for that unlinked customer gets 500 "Retry".
 - **Dependencies:** `apps/web` `pnpm audit --prod`: no known vulnerabilities. Full `pnpm audit`: 1 moderate (dev tooling, GHSA-g3hv-75wg-m249). `apps/extension`: none. `pip-audit -r requirements.txt` (installed into the `a6/prod` venv): "No known vulnerabilities found".
-- **Secrets in history:** the regex scanner (`secrets_scan.py`, gitleaks-equivalent rules) over `git log --all -p`, 296 commits: 22 hits. That is run 5's 21 known fakes plus one new one in `7df1a92`: `STRIPE_SECRET_KEY: "sk_test_FAKEFAKEFAKEFAKE"` in `ops/tests/stripe-setup.test.mjs`, a known fake. Commits since run 5: that 1 hit only.
+- **Secrets in history:** the regex scanner (`secrets_scan.py`, gitleaks-equivalent rules) over `git log --all -p`, 296 commits: 22 hits. That is run 5's 21 known fakes plus one new one in `7df1a92`: `STRIPE_SECRET_KEY: "[fake test key, redacted]"` in `ops/tests/stripe-setup.test.mjs`, a known fake. Commits since run 5: that 1 hit only.
 - **Client bundles:** `pnpm check:bundle` on the prod build: "127 files in .next/static, no secrets". My grep for `SUPABASE_SERVICE_ROLE`, `STRIPE_SECRET_KEY`, `sk_live_`, `sk_test_`, `whsec_`, `UPSTASH_REDIS_REST_TOKEN`, `CRON_SECRET`, `EXT_SIGNING_SECRET`, `UNSUBSCRIBE_SECRET`, `service_role` in `.next/static`: 0 files.
 - **Cookies:** the prod build sets no cookie on `/` or `/login`. `Secure` on auth cookies is production-only; under Owner verification.
 - RT3-04 to RT3-09: hold ("Changes since run 5").
@@ -1535,7 +1535,7 @@ Crawler `crawl2.mjs` (as run 6): 33 routes (every page, 3 market pages, an event
 - **Crawlers:** GPTBot, ClaudeBot, CCBot, PerplexityBot, Google-Extended, Bytespider → 403 on `/` and `/api/markets`. HeadlessChrome, python-requests, curl → 200 (BotID runs only on Vercel; Owner verification).
 - **Stripe webhooks:** unsigned, wrong secret, stale timestamp and altered body all rejected (400); replay → duplicate (item 9).
 - **Dependencies:** `apps/web` `pnpm audit --prod`: no known vulnerabilities. Full `pnpm audit`: 1 moderate (dev tooling, `minimatch`). `apps/extension`: none. `pip-audit -r requirements.txt` (in the `a7/prod` venv): "No known vulnerabilities found".
-- **Secrets in history:** `secrets_scan.py` (gitleaks-equivalent rules) over `git log --all -p`, 300 commits: 23 hits = run 6's 22 known fakes + 1 in `bb2cb59` (the run 6 report quoting the fake `sk_test_FAKEFAKEFAKEFAKE`). Commits since run 6: that one hit only.
+- **Secrets in history:** `secrets_scan.py` (gitleaks-equivalent rules) over `git log --all -p`, 300 commits: 23 hits = run 6's 22 known fakes + 1 in `bb2cb59` (the run 6 report quoting the fake `[fake test key, redacted]`). Commits since run 6: that one hit only.
 - **Client bundles:** `pnpm check:bundle` on the prod build: "127 files in .next/static, no secrets". My grep for `SUPABASE_SERVICE_ROLE`, `STRIPE_SECRET_KEY`, `sk_live_`, `sk_test_`, `whsec_`, `UPSTASH_REDIS_REST_TOKEN`, `CRON_SECRET`, `EXT_SIGNING_SECRET`, `UNSUBSCRIBE_SECRET`, `service_role` in `.next/static`: 0 files.
 - **Cookies:** the prod build sets no cookie on `/` (no `Set-Cookie` in `curl -I`). `Secure` on auth cookies is production-only; under Owner verification.
 
@@ -1841,7 +1841,7 @@ Crawler `crawl2.mjs` (as run 7): 33 routes at 390 and 1440 px with light CDP thr
 - **Crawlers:** GPTBot, ClaudeBot, CCBot, PerplexityBot, Google-Extended, Bytespider → 403 on `/` and `/api/*`. HeadlessChrome, python-requests, curl → 200 (BotID runs only on Vercel; Owner verification).
 - **Stripe webhooks:** unsigned, wrong secret, 1-hour-old timestamp, altered body → 400; replay → duplicate (item 9).
 - **Dependencies:** `apps/web` `pnpm audit --prod`: no known vulnerabilities; full `pnpm audit`: 1 moderate (`minimatch`, dev tooling). `apps/extension`: none. `pip-audit -r requirements.txt`: none.
-- **Secrets in history:** `secrets_scan.py` over `git log --all -p`, 306 commits: 24 hits = run 7's 23 known fakes + 1 in `3eb8132` (the run 7 report quoting the fake `sk_test_FAKEFAKEFAKEFAKE`). The 4 commits since run 7: 0 hits.
+- **Secrets in history:** `secrets_scan.py` over `git log --all -p`, 306 commits: 24 hits = run 7's 23 known fakes + 1 in `3eb8132` (the run 7 report quoting the fake `[fake test key, redacted]`). The 4 commits since run 7: 0 hits.
 - **Client bundles:** `pnpm check:bundle`: "127 files in .next/static, no secrets"; grep for `SUPABASE_SERVICE_ROLE`, `STRIPE_SECRET_KEY`, `sk_live_`, `sk_test_`, `whsec_`, `UPSTASH_REDIS_REST_TOKEN`, `CRON_SECRET`, `EXT_SIGNING_SECRET`, `UNSUBSCRIBE_SECRET`, `service_role`: 0 files. `checkBotId`/`isVerifiedBot` are server-only (0 files in `.next/static`).
 - **Cookies:** no `Set-Cookie` on `/` in the prod build. Auth-cookie flags under Owner verification.
 
@@ -2129,7 +2129,7 @@ Everything else in the brief holds:
   - `apps/web` `pnpm audit --prod`: no known vulnerabilities. Full `pnpm audit`: 1 moderate (`minimatch`, dev tooling).
   - `apps/extension`: none.
   - `pip-audit -r requirements.txt`: none.
-- **Secrets in history** (`secrets_scan.py` over `git log <every valid ref> -p`): 321 commits, 25 hits = run 8's 24 known fakes + 1 in `c387baa` (run 8's report quoting the fake `sk_test_FAKEFAKEFAKEFAKE`). The 14 product commits since run 8: 0 hits.
+- **Secrets in history** (`secrets_scan.py` over `git log <every valid ref> -p`): 321 commits, 25 hits = run 8's 24 known fakes + 1 in `c387baa` (run 8's report quoting the fake `[fake test key, redacted]`). The 14 product commits since run 8: 0 hits.
 - **Client bundles:**
   - `pnpm check:bundle`: "128 files in .next/static, no secrets".
   - grep for `SUPABASE_SERVICE_ROLE|STRIPE_SECRET_KEY|sk_live_|sk_test_|whsec_|UPSTASH_REDIS_REST_TOKEN|CRON_SECRET|EXT_SIGNING_SECRET|UNSUBSCRIBE_SECRET|service_role|RESEND_API_KEY|checkBotId`: 0 files.
