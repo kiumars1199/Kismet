@@ -107,7 +107,7 @@ and webhook secret into `apps/web/.env.prod`. The 7-day trial needs no setting (
 2. In Vercel → Domains, add the apex and `www`, and create the A/CNAME records Vercel shows. Set `NEXT_PUBLIC_SITE_URL`.
 3. Resend: add `kismetodds.com` and create the SPF, DKIM, DMARC and MX records (`ops.md` §7).
 4. Supabase Auth → Site URL = `https://<domain>`. Redirect URL = `https://<domain>/auth/callback`.
-5. Build the extension for the domain: `KISMET_ORIGIN=https://<domain> pnpm ext:zip` (`trading-extension.md` §4).
+5. Build the extension for the domain: `cd apps/extension && pnpm i --frozen-lockfile && KISMET_ORIGIN=https://<domain> pnpm ext:zip` (`trading-extension.md` §4).
 
 ## 4. Deploy
 

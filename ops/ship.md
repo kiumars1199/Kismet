@@ -40,6 +40,6 @@ the full env list. **By hand** = no CLI or API.
     `node ops/stripe-setup.mjs --yes --live`, `cd apps/web && pnpm preflight --live && cd ../..`,
     `node ops/vercel-env.mjs --yes`, and redeploy. **By hand:** one real purchase, cancel, refund. Let the data refresh
     run green for 48 hours before announcing.
-15. **By hand, extension:** `KISMET_ORIGIN=https://kismetodds.com pnpm ext:zip`, upload to the Chrome Web Store; once
+15. **By hand, extension:** `cd apps/extension && pnpm i --frozen-lockfile && KISMET_ORIGIN=https://kismetodds.com pnpm ext:zip`, upload to the Chrome Web Store; once
     approved set `NEXT_PUBLIC_EXTENSION_ID` and the store URL, `node ops/vercel-env.mjs --yes`, redeploy. Leave
     `KALSHI_TRADING_ENV` empty (`LAUNCH_TODO.md`).
