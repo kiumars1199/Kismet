@@ -1,5 +1,5 @@
 // ops/smoke-prod.sh against a fake site on 127.0.0.1 (the real check was run by hand against a local production
-// build; see ops/ship.md). Proves PASS on a healthy site and FAIL + exit 1 when a control is missing.
+// build). Proves PASS on a healthy site and FAIL + exit 1 when a control is missing.
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
 import { createServer } from "node:http";

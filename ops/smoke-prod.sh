@@ -3,11 +3,11 @@
 # Read-only apart from a burst of ~40 log-only POSTs to /api/ext/telemetry, which spends this machine's own rate
 # limit for that route group for one minute. Never calls a cron route with the secret (that would send alerts).
 #
-#   ops/smoke-prod.sh https://marketedge.com [--dry-run]
+#   ops/smoke-prod.sh https://kismetodds.com [--dry-run]
 #
 # Optional env:
 #   CRON_SECRET=...           also check /api/health details: db ok, data source supabase, rate limiting on
-#   SMOKE_EXPECT_HEALTH=503   expected /api/health status (default 200; see ops/ship.md for a local production build)
+#   SMOKE_EXPECT_HEALTH=503   expected /api/health status (default 200; 503 for a local production build without Upstash)
 # If checks return 403 with x-vercel-mitigated, the Vercel Firewall challenged curl: run this before turning on
 # Bot Protection, or add a bypass rule for your IP.
 set -uo pipefail
@@ -27,7 +27,7 @@ GET /api/meta → 200
 40 × POST /api/ext/telemetry → at least one 429"
 if [ $DRY = 1 ]; then echo "Would check $BASE:"; echo "$CHECKS" | sed 's/^/  - /'; exit 0; fi
 
-UA="marketedge-smoke/1"
+UA="kismet-smoke/1"
 tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
 pass=0 fail=0
 result() { if [ "$1" = 0 ]; then echo "PASS  $2"; pass=$((pass + 1)); else echo "FAIL  $2${3:+  ($3)}"; fail=$((fail + 1)); fi; }
