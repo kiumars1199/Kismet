@@ -159,7 +159,8 @@ export async function handleEvent(event: Stripe.Event, db: BillingDb, stripe: St
       }
       await db.linkCustomer(userId, customer);
       const subId = idOf(s.subscription);
-      if (subId && stripe) await applySubscription(db, await stripe.subscriptions.retrieve(subId), userId);
+      // A retried checkout for an earlier, since-canceled subscription must not override the one they pay for now.
+      if (subId && stripe) await applySubscription(db, await currentSubscription(stripe, await stripe.subscriptions.retrieve(subId)), userId);
       return;
     }
     case "customer.subscription.created":

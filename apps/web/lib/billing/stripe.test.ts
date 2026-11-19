@@ -185,4 +185,16 @@ describe("stripe webhook: tier from the current subscription", () => {
     expect((await handleWebhook(signed(ev("evt_c", "customer.subscription.updated", old)), db, both, SECRET)).status).toBe(200);
     expect(db.subs.get(U)?.tier).toBe("premium");
   });
+
+  // Audit run 10 fail 1: Stripe retries sub_1's original checkout event after the user moved to Premium (sub_2).
+  it("a late checkout event for a canceled subscription leaves the user on the plan they pay for", async () => {
+    const db = memDb();
+    const old = sub("canceled", { id: "price_pro_m" }, { id: "sub_1", metadata: { user_id: U } });
+    const now = sub("active", { id: "price_prem_y" }, { id: "sub_2", metadata: { user_id: U } });
+    const stripe = { subscriptions: { list: vi.fn(async () => ({ data: [now, old] })), retrieve: vi.fn(async () => old) } } as unknown as Stripe;
+    expect((await handleWebhook(signed(ev("evt_b", "customer.subscription.created", now)), db, stripe, SECRET)).status).toBe(200);
+    const late = ev("evt_late_c", "checkout.session.completed", { id: "cs_1", object: "checkout.session", client_reference_id: REF, customer: "cus_1", subscription: "sub_1" });
+    expect((await handleWebhook(signed(late), db, stripe, SECRET)).status).toBe(200);
+    expect(db.subs.get(U)).toMatchObject({ tier: "premium", stripe_subscription_id: "sub_2", status: "active" });
+  });
 });
