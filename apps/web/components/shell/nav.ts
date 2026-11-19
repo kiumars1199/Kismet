@@ -1,6 +1,6 @@
 // Shell navigation (docs/06 § App shell, "Words to use").
 export const MAIN_TABS = [
-  { href: "/", label: "Best bets" },
+  { href: "/bets", label: "Best bets" },   // "/" is the landing page when signed out (docs/19 P1)
   { href: "/markets", label: "All markets" },
   { href: "/watchlist", label: "My list" },
   { href: "/journal", label: "My bets" },
@@ -19,4 +19,4 @@ export const MORE_LINKS = [
 ] as const;
 
 export const isActive = (pathname: string, href: string) =>
-  pathname === href || pathname.startsWith(href + "/");
+  pathname === href || pathname.startsWith(href + "/") || (href === "/bets" && pathname === "/");
