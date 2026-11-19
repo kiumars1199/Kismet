@@ -2,7 +2,7 @@
 
 // Screener state: the URL is the only source of truth (lib/filters/url.ts); data comes from lib/api.ts.
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { fetchFlags, fetchMarkets, fetchMeta, type MarketsResponse, type MetaResponse } from "@/lib/api";
 import { resolveUserFilters } from "@/lib/filters/user";
 import type { FilterState } from "@/lib/filters/state";
@@ -51,7 +51,8 @@ export function useMeta() {
 
 type Result = { key: string; data?: MarketsResponse; more?: MarketsResponse["rows"]; moreGroups?: NonNullable<MarketsResponse["groups"]>; error?: string };
 
-export function useScreener(mode: Mode) {
+/** `initial`: the server-rendered first page for the URL the page loaded with; used instead of the first fetch. */
+export function useScreener(mode: Mode, initial?: MarketsResponse) {
   const params = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -81,9 +82,14 @@ export function useScreener(mode: Mode) {
     [mode, keep, state.watchlisted_only],
   );
 
-  const [res, setRes] = useState<Result>({ key: "" });
+  const [res, setRes] = useState<Result>(() => (initial ? { key: fetchKey, data: initial } : { key: "" }));
   const [retry, setRetry] = useState(0);
+  const first = useRef(!!initial);
   useEffect(() => {
+    if (first.current) {   // the server already sent this page
+      first.current = false;
+      if (res.key === fetchKey) return;
+    }
     const ac = new AbortController();
     load(query, { signal: ac.signal })
       .then((data) => setRes({ key: fetchKey, data }))

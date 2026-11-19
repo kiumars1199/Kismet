@@ -40,11 +40,11 @@ so a cloud session can continue. Work on `final`; every push to `final` deploys 
 ## Next steps (in order)
 1. Read the failed refresh run's log (`gh run view 44583477740 --log-failed`) and fix; then confirm a scheduled
    scan-only run (:00 / :30) passes.
-2. Re-pricing applies to `/api/flags` only; the market drawer (`/api/markets/[id]`) and `/api/markets` still show the
-   scan price (the drawer polls `/api/book` live on Pro). Extend if wanted. Known gaps: `flagsTotal()` (first-paint
-   headline) isn't re-priced, so it can read N while the page returns N−k; `total` subtracts only this page's drops;
-   `sideAt` leaves `side.mid` stale and doesn't re-check the engine's price band. Neither e2e suite exercises re-pricing
-   (`DATA_CLOCK=scan` turns it off); check it on prod with a Pro account after deploy.
+2. ~~Re-pricing gaps~~ done: Best bets, All markets, the drawer and `/m/[id]` re-price for live tiers (Free and a Free
+   reveal stay on the delayed scan); the win chance is recomputed at the live mid with the engine's own model formula
+   (`predictAt`, parity-tested against `output/flags.json`); a bet whose mid leaves the engine's price range drops
+   (best 5–95¢, edge 3–95¢, never within ½¢ of 50¢); Best bets page 1 is rendered on the server with the same body as
+   `/api/flags` (`listBody`), so the headline count matches the cards. `total` still subtracts only page 1's drops.
 3. P3 gaps: Free can still see flagged bets outside the day's 10 (banded) via `/api/markets`, `/api/events/[id]`,
    `/m/[id]` and `/api/suggest`; pass the daily seed into `eventBody`/`marketBody` and the suggest route.
 4. P5: `python pipeline/fetch_closed.py --days 730 --per-tag 4000` (resumable, ~1 h+), refit, report counts. The

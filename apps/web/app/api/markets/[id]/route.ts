@@ -1,4 +1,4 @@
-import { marketBody, notFound, withTier } from "@/lib/data/respond";
+import { liveMarketBody, notFound, withTier } from "@/lib/data/respond";
 import { reveal } from "@/lib/data/reveals";
 import { can, type Tier } from "@/lib/entitlements";
 
@@ -19,6 +19,6 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       if (r.ok) shown = "pro";
       reveals_left = r.left;
     }
-    return Response.json({ ...marketBody(store, m, tier, shown), ...(reveals_left !== undefined ? { reveals_left } : {}) });
+    return Response.json({ ...(await liveMarketBody(store, m, tier, shown)), ...(reveals_left !== undefined ? { reveals_left } : {}) });
   });
 }

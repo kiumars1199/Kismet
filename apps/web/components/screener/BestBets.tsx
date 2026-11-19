@@ -206,12 +206,13 @@ function MoreWithEdge({ state, desktop, pro }: { state: FilterState; desktop: bo
   );
 }
 
-/** initialTotal: the server's count for this URL, so the headline is final on first paint (no LCP change). */
-export function BestBets({ initialTotal }: { initialTotal?: number }) {
-  const sc = useScreener("flags");
+/** initial: the server's /api/flags page 1 for this URL, so the cards and the headline count are final on first
+ *  paint (no client fetch, no LCP change). */
+export function BestBets({ initial }: { initial?: MarketsResponse }) {
+  const sc = useScreener("flags", initial);
   const { state, set, reset, data, more, moreGroups, loading, error } = sc;
   const meta = useMeta();
-  const total = data?.total ?? initialTotal;
+  const total = data?.total;
   const desktop = useDesktop();
   const pro = useProfile().numbers_mode === "pro";
   const live = useEntitlements().can("live_data");   // Free: the day's sample, then locked cards (docs/19 P3)

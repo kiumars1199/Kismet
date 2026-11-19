@@ -64,6 +64,7 @@ export interface MarketResponse {
   backtest: BacktestRecord | null;         // walk-forward record for the market's category
   event_markets: StoreMarket[];            // other markets in the same event
   reveals_left?: number;                   // Free tier with ?detail=1: exact-number reveals left today (3/day)
+  price_at?: number;                       // live tiers: when the CLOB price was read (lib/reprice.ts); absent = scan price
 }
 
 export interface EventResponse {

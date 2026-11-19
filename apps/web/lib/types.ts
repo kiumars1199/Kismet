@@ -95,8 +95,9 @@ export interface ModelNode {
   level: ModelNodeLevel; horizon_h: number; key: string; market_type: string;   // "all" unless niche+type
   n: number; neff: number; events: number;
   win_prob_at_price: Record<string, number>;   // {"0.05": 0.03, ..., "0.95": 0.97}
+  theta?: number[]; cov?: number[][];          // fit: win chance at any price (lib/reprice.ts predictAt, server only)
 }
-export interface ModelFile { half_life_days: number | null; fitted_at: number; nodes: ModelNode[]; [k: string]: unknown }
+export interface ModelFile { half_life_days: number | null; fitted_at: number; nodes: ModelNode[]; knots?: number[]; [k: string]: unknown }
 
 // output/backtest.json. `results` is keyed by half-life as a string ("21", ..., "None").
 export interface BacktestRecord {

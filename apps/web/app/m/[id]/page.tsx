@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense, cache } from "react";
 import type { MarketResponse } from "@/lib/api";
-import { SlowDown, marketBody, pageBudget, pageStore, pendingLine } from "@/lib/data/respond";
+import { SlowDown, liveMarketBody, pageBudget, pageStore, pendingLine } from "@/lib/data/respond";
 import { PendingState } from "@/components/screener/States";
 import { SlowDownState } from "@/components/screener/SlowDownState";
 import { betLine, sideRet } from "@/lib/format";
@@ -20,7 +20,7 @@ const load = cache(async (id: string): Promise<MarketResponse | null> => {
   const m = ctx.store.flagsById.get(id) ?? ctx.store.byId.get(id);
   if (!m) return null;
   await pageBudget(ctx, [m.id]);
-  return marketBody(ctx.store, m, ctx.tier);
+  return liveMarketBody(ctx.store, m, ctx.tier);
 });
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

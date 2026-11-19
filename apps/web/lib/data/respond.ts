@@ -1,5 +1,5 @@
 // Server helpers shared by the API routes.
-import { repricePage } from "@/lib/reprice";
+import { ctxOf, livePrices, repriceMarkets, repricePage, type QuoteSource } from "@/lib/reprice";
 import { DelayedPending, getStore, getStoreFor, type Store } from "./store";
 import { botCheck, clientIp, clientKey, noteRows, rateLimit, rowBudget, verifiedBot, type Rule } from "@/lib/abuse";
 import { getMe, type Me } from "@/lib/auth/server";
@@ -10,7 +10,7 @@ import { delayMin, rowCap } from "@/lib/settings-core";
 import { apply, nowFor, openOnly } from "@/lib/filters/apply";
 import { parse } from "@/lib/filters/url";
 import { RELAX_STEPS, relax, relaxedNote, type ParsedQuery } from "@/lib/search/parse";
-import { BEST_BETS_VERDICTS, type FilterState } from "@/lib/filters/state";
+import { BEST_BETS_VERDICTS, tierOf, type FilterState } from "@/lib/filters/state";
 import { DELAYED_PENDING, delayedPendingLine, type EventResponse, type MarketResponse, type MarketsResponse } from "@/lib/api";
 import type { StoreMarket } from "@/lib/types";
 import { headers } from "next/headers";
@@ -139,15 +139,29 @@ export function eventBody(store: Store, markets: StoreMarket[], tier: Tier = "pr
 }
 
 /** /api/markets/[id] and the /m/[id] page. `shown` = the tier the market itself is shaped for (a Free reveal = "pro"). */
-export function marketBody(store: Store, m: StoreMarket, tier: Tier, shown: Tier = tier): MarketResponse {
+export function marketBody(store: Store, m: StoreMarket, tier: Tier, shown: Tier = tier, live?: Map<string, StoreMarket>): MarketResponse {
   const segment = segmentOf(m);
+  const at = (x: StoreMarket) => live?.get(x.id) ?? x;
   return {
-    market: gateMarket(store.flagsById.get(m.id) ?? m, shown),   // the flag row carries best.realistic_edge
+    market: gateMarket(at(store.flagsById.get(m.id) ?? m), shown),   // the flag row carries best.realistic_edge
     segment,
     curve: can(shown, "exact_edge") ? curve(store.model, segment, m.horizon_h) : null,   // RT3-01: curve + mid = exact win chance
     backtest: categoryRecord(store.backtest, m.category),
-    event_markets: capRows(openOnly(store.byEvent.get(m.event_id) ?? [], nowFor(store)).filter((x) => x.id !== m.id), tier).map((x) => gateMarket(x, tier)),
+    event_markets: siblings(store, m, tier).map((x) => gateMarket(at(x), tier)),
   };
+}
+
+const siblings = (store: Store, m: StoreMarket, tier: Tier) =>
+  capRows(openOnly(store.byEvent.get(m.event_id) ?? [], nowFor(store)).filter((x) => x.id !== m.id), tier);
+
+/** The drawer / market page body at live prices for live tiers (lib/reprice.ts). Gated on the caller's real tier, never
+ *  on `shown`: a Free reveal shows exact numbers, but from the delayed scan. */
+export async function liveMarketBody(store: Store, m: StoreMarket, tier: Tier, shown: Tier = tier): Promise<MarketResponse> {
+  if (!can(tier, "live_data") || !repriceOn()) return marketBody(store, m, tier, shown);
+  const own = store.flagsById.get(m.id) ?? m;
+  const { markets, at } = await repriceMarkets([own, ...siblings(store, m, tier)], ctxOf(store), quoteSource());
+  const body = marketBody(store, m, tier, shown, new Map(markets.map((x) => [x.id, x])));
+  return at === undefined ? body : { ...body, price_at: at };
 }
 
 /** 32-bit FNV-1a: a cheap, stable hash for the Free daily sample (not a secret, only a shuffle). */
@@ -183,8 +197,27 @@ function freeFlagsPage(store: Store, f: FilterState, key: string): MarketsRespon
 }
 
 /** Live re-pricing (lib/reprice.ts) is off for a frozen snapshot (DATA_CLOCK=scan: tests, demo fixtures), under
- *  Vitest, and with LIVE_REPRICE=0. */
-const repriceOn = () => process.env.LIVE_REPRICE !== "0" && process.env.DATA_CLOCK !== "scan" && !process.env.VITEST;
+ *  Vitest, and with LIVE_REPRICE=0. Tests turn it on with `_setReprice`. */
+let repriceForced: QuoteSource | null = null;
+export const _setReprice = (source: QuoteSource | null) => void (repriceForced = source);
+const repriceOn = () => !!repriceForced || (process.env.LIVE_REPRICE !== "0" && process.env.DATA_CLOCK !== "scan" && !process.env.VITEST);
+const quoteSource = () => repriceForced ?? livePrices;
+
+/** The /api/markets and /api/flags body for one request, after rate limits. Shared with the server render of
+ *  Best bets (flagsFirstPage) so the first paint and the API return the same rows and count.
+ *  null = a paid page past the last one. */
+export async function listBody(store: Store, f: FilterState, tier: Tier, sampleKey: string): Promise<MarketsResponse | null> {
+  const live = can(tier, "live_data");
+  const page = live ? marketsPage(store, f) : f.view === "flags" ? freeFlagsPage(store, f, sampleKey) : marketsPage(store, { ...f, page: 1 });
+  if (live && f.page > Math.max(1, page.pages)) return null;
+  if (!live || !repriceOn()) return gateMarkets(page, tier);   // Free stays 15 min behind
+  const want = tierOf(f);
+  // Best bets drops bets that lost their edge or tier; All markets keeps every row (a lost edge only clears its flag)
+  const keep = f.view === "flags" ? (t: "best" | "edge") => want === "all" || t === want : undefined;
+  return gateMarkets(await repricePage(page, ctxOf(store), keep, quoteSource()), tier);
+}
+
+const sampleKeyOf = (req: Request, me: Me) => (me.user?.id ? `u:${me.user.id}` : `ip:${clientIp(req)}`);
 
 /** GET /api/markets and /api/flags. Free: first page only (top 10 rows), exact numbers as ranges (docs/08 LIMITS);
  *  Best bets are the day's sample (freeSample). Paid: a page past the last one is refused (docs/15 § pagination cap). */
@@ -200,27 +233,30 @@ export const listRoute = (req: Request, view?: "flags") =>
       const refused = await rateLimit("list_free", clientKey(req, me.user?.id));   // RT-03: 30 a minute
       if (refused) return refused;
     }
-    const page = live ? marketsPage(store, f) : f.view === "flags" ? freeFlagsPage(store, f, me.user?.id ? `u:${me.user.id}` : `ip:${clientIp(req)}`) : marketsPage(store, { ...f, page: 1 });
-    if (live && f.page > Math.max(1, page.pages)) return Response.json({ error: "page is past the last page" }, { status: 400 });
-    const body = gateMarkets(live && f.view === "flags" && repriceOn() ? await repricePage(page) : page, tier);   // live tiers only: Free stays 15 min behind
+    const body = await listBody(store, f, tier, sampleKeyOf(req, me));
+    if (!body) return Response.json({ error: "page is past the last page" }, { status: 400 });
     const over = live ? null : await rowBudget(req, me.user?.id, body.rows.map((r) => r.market.id));   // RT-03
     if (over) return over;
     await noteRows(req, me.user?.id, body.rows.length);
     return Response.json(body);
   });
 
-/** Best bets headline count for the first server paint: the same query, store and gate as /api/flags page 1, so
- *  the headline doesn't change when the cards load (LCP stays at first paint). undefined when it can't match the
- *  browser's query (fav/wl resolve on the device) or on any failure. */
-export async function flagsTotal(params: URLSearchParams): Promise<number | undefined> {
+/** Best bets page 1 for the first server paint (docs/19 P6): the same body /api/flags returns for this URL (same
+ *  store, gate, Free sample and live prices), so the page needs no client fetch and the headline count matches the
+ *  cards. Counts against the same `markets` rate limit and Free row budget as a page load (pageStore / pageBudget).
+ *  undefined when it can't match the browser's query (fav/wl resolve on the device), when refused, or on any
+ *  failure: the browser then fetches /api/flags as before. */
+export async function flagsFirstPage(params: URLSearchParams): Promise<MarketsResponse | undefined> {
   if (params.has("fav") || params.has("wl")) return undefined;
   try {
-    const me = await getMe();
-    const live = await getStoreFor(me.tier);
-    const store = can(me.tier, "exact_edge") ? live : freeView(live);
+    const ctx = await pageStore();
+    const store = can(ctx.tier, "exact_edge") ? ctx.store : freeView(ctx.store);
     const f = parse(params);
     const state = { ...f, view: "flags" as const, verdicts: params.has("vd") ? f.verdicts : BEST_BETS_VERDICTS, page: 1 };
-    return gateMarkets(marketsPage(store, state), me.tier).total;
+    const body = await listBody(store, state, ctx.tier, sampleKeyOf(ctx.req, ctx.me));
+    if (!body) return undefined;
+    await pageBudget(ctx, body.rows.map((r) => r.market.id));
+    return body;
   } catch {
     return undefined;
   }
