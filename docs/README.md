@@ -25,4 +25,4 @@
 
 Engine docs: the repo `README.md` (model, backtest, outputs).
 
-Status as of Nov 16, 2026: engine done and producing live data; spec complete; app not started.
+Build status: see [STATUS.md](../STATUS.md).
