@@ -37,6 +37,19 @@ so a cloud session can continue. Work on `final`; every push to `final` deploys 
 - Paid e2e S7 keyboard flow now searches a bet from the Free user's daily sample (P3 hides the others on Best bets).
 - Research notes for P2, P5, P6, P7, P9: `docs/research/polish-round-2.md` (read this before continuing).
 
+- **T-277**: `ops/upload.py` stores bucket objects gzip-compressed under the same names (Content-Type
+  `application/gzip`, no Content-Encoding); `lib/data/store.ts` `decodeBody` and `upload.py` `get_json` sniff the
+  magic bytes `1f 8b`, so plain and gzip objects both read. Rollout: the web loader (on `final`) must be live before
+  either uploader (Railway engine and refresh.yml, both from `main`) runs the new `upload.py`; don't dispatch
+  refresh.yml from `final` before then.
+- **T-278**: `pipeline/fetch_closed.py` caps lifted. `--per-tag` and `--per-window` above Gamma's offset limit (~2000)
+  work (busy windows split, `iter_closed_events`), `0` = no cap, rows stream to disk page by page, `--pause` 0.1 s
+  between pages. Backfill checkpoints record each (window, tag)'s cap (`caps` in `data/fetch_closed_state.json`;
+  old entries count as 200), so a rerun with a bigger `--per-window` tops windows up instead of skipping them.
+  `mode=backfill` in refresh.yml now uses `--per-window 1000` (was 200). Defaults unchanged: `--days 365`,
+  `--per-tag 2000` (bootstrap, Railway), `--per-window 300`. Tests: `engine/tests/test_fetch_closed_caps.py`.
+  Owner: dispatch refresh.yml `mode=backfill` (rerun until "backfill done"), then check `history: N markets`.
+
 ## Next steps (in order)
 1. Read the failed refresh run's log (`gh run view 44583477740 --log-failed`) and fix; then confirm a scheduled
    scan-only run (:00 / :30) passes.

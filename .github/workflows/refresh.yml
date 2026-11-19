@@ -61,13 +61,14 @@ jobs:
             rm -f data/markets.jsonl
           fi
 
-      # docs/19 P5: 2 years of history, sampled evenly per 30-day window (about 4,800 events per tag at most).
-      # Resumable: finished windows are checkpointed in data/, and the cache is saved even if the run times out.
+      # docs/19 P5 / T-278: 2 years of history, sampled evenly per 30-day window (up to 1,000 events per tag per window,
+      # ~24,000 per tag; it was 200). Resumable: finished (window, tag) pairs are checkpointed in data/ with their cap,
+      # so this run tops up windows an earlier run fetched at 200; the cache is saved even if the run times out.
       - name: Backfill history to 730 days (mode=backfill)
         if: env.BACKFILL == 'true'
         id: backfill
         run: |
-          python pipeline/fetch_closed.py --days 730 --window-days 30 --per-window 200
+          python pipeline/fetch_closed.py --days 730 --window-days 30 --per-window 1000
           python pipeline/fetch_prices.py --extend --threads 8
           rm -f data/markets.jsonl
           python -c "import json; print('history:', sum(1 for _ in open('data/sample.jsonl')), 'markets')"

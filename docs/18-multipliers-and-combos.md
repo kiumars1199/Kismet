@@ -12,6 +12,12 @@ Owner request (Nov 16, 11:38 PM). Facts from the current data (Nov 16 scan):
 - `walk_forward.folds` 12 → 52 (one year of weekly folds). Keep the half-life grid. Report total tested bets.
 - Backfill: run `pipeline/fetch_closed.py --days 730` and `fetch_prices` (resumable) so the model and test cover
   two years where Gamma has the history; keep `settle_days`. Note in STATUS.md how many bets it reached.
+  T-278 lifted the `fetch_closed` caps: `--per-tag` / `--per-window` above Gamma's offset limit (~2000) now work (the
+  busy window is split, never paged deeper), `0` means every event, rows stream to disk page by page (memory stays
+  flat), `--pause` (0.1 s) spaces Gamma pages. The checkpoint records each (window, tag)'s cap, so rerunning with a
+  bigger `--per-window` tops up windows fetched at a smaller one (pre-T-278 checkpoints count as 200). The
+  `mode=backfill` workflow now runs `--days 730 --window-days 30 --per-window 1000`. How much of it reaches the model
+  is still capped downstream by `fetch_prices --extend --per-niche-month` (default 1500 per niche per month).
 - New backtest breakdown `by_pays`: bands `<1.5x, 1.5–2x, 2–3x, 3–5x, 5–10x, 10x+` with bets, hit rate,
   predicted vs. actual hit rate, ROI, t-stat, for both tiers below. This is what decides whether long shots are real.
 - Lower `price_min` to 0.03 (≈33x) for the second tier only; Best bets keep 0.05.
