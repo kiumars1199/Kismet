@@ -1,4 +1,4 @@
-"""Engine loop for the container (docs/14 §4): scan every 10 min, update+fit+grade hourly, backtest daily.
+"""Engine loop for the container (docs/14 §4): scan every SCAN_EVERY_SEC (default 120 s), update+fit+grade hourly, backtest daily.
 
 One process runs the jobs in order, so data/ and output/ never see two writers. After every scan
 the output is checked and uploaded (ops/upload.py); a failed check keeps the previous data live.
@@ -14,7 +14,9 @@ import sys
 import time
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-SCAN_EVERY = 600
+SCAN_EVERY = int(os.environ.get("SCAN_EVERY_SEC") or 120)
+# Free stays at least 15 min behind: upload.py rotates its *-prev copies only this far apart (see ROTATE_MIN_SEC there).
+ROTATE_MIN_SEC = max(0, 900 - SCAN_EVERY)
 BACKTEST_HOUR_UTC = int(os.environ.get("BACKTEST_HOUR_UTC", "6"))
 
 
@@ -46,7 +48,8 @@ CMDS = {
 def run(job):
     for args in CMDS[job]:
         print(f"[scheduler] {job}: python {' '.join(args)}", flush=True)
-        if subprocess.run([sys.executable, *args], cwd=ROOT).returncode != 0:
+        env = {**os.environ, "ROTATE_MIN_SEC": os.environ.get("ROTATE_MIN_SEC") or str(ROTATE_MIN_SEC)}
+        if subprocess.run([sys.executable, *args], cwd=ROOT, env=env).returncode != 0:
             print(f"[scheduler] {job} failed; previous data stays live", flush=True)
             return False
     if job == "bootstrap":

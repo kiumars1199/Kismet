@@ -136,3 +136,41 @@ def test_scheduler_plan(monkeypatch):
     assert scheduler.plan(early, {"backtest": early - 86400, "fit": early}) == ["scan"]
     monkeypatch.setattr(scheduler.os.path, "exists", lambda p: False)
     assert scheduler.plan(t, {})[:2] == ["bootstrap", "backtest"]
+
+
+class GapHttp(FakeHttp):
+    """Bucket with a live scan at `live_at` and a *-prev.json at `prev_at`."""
+    def __init__(self, live_at, prev_at):
+        super().__init__(prev={"meta": {"scanned_at": live_at}})
+        self.prev_at = prev_at
+
+    def get(self, url, headers, timeout):
+        if url.endswith("flags-prev.json"):
+            self.calls.append(("GET", url, headers))
+            return Resp(200, {"meta": {"scanned_at": self.prev_at}})
+        return super().get(url, headers, timeout)
+
+
+def _copies(http):
+    return [c for c in http.calls if c[0] == "POST" and c[1].endswith("/object/copy")]
+
+
+def test_upload_rotates_prev_only_when_far_enough_apart(tmp_path):
+    """SCAN_EVERY_SEC=120: rotating every scan would leave prev2 only ~4 min old, so Free (15 min behind) gets nothing."""
+    out = write(tmp_path, *good(scanned_at="2026-11-19T10:20:00Z"))
+    near = GapHttp(live_at="2026-11-19T10:10:00Z", prev_at="2026-11-19T10:00:00Z")   # 600 s apart < 780
+    assert upload.publish(out, upload.Storage("https://x.supabase.co", "svc", near), log=lambda *_: None, rotate_min_sec=780)
+    assert _copies(near) == []
+    far = GapHttp(live_at="2026-11-19T10:13:00Z", prev_at="2026-11-19T10:00:00Z")    # 780 s apart
+    assert upload.publish(out, upload.Storage("https://x.supabase.co", "svc", far), log=lambda *_: None, rotate_min_sec=780)
+    assert len(_copies(far)) == 4
+
+
+def test_scheduler_cadence_from_env(monkeypatch):
+    import importlib
+    monkeypatch.setenv("SCAN_EVERY_SEC", "300")
+    m = importlib.reload(scheduler)
+    assert (m.SCAN_EVERY, m.ROTATE_MIN_SEC) == (300, 600)
+    monkeypatch.delenv("SCAN_EVERY_SEC")
+    m = importlib.reload(scheduler)
+    assert (m.SCAN_EVERY, m.ROTATE_MIN_SEC) == (120, 780)

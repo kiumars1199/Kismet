@@ -7,7 +7,7 @@ How the pieces fit:
 
 ```
 Engine container (Railway, or Fly)            GitHub Actions refresh.yml (every 2 h, fallback)
-  scan every 10 min, update+fit+grade hourly,   same engine run → data checks → `live` branch
+  scan every SCAN_EVERY_SEC (default 120 s), update+fit+grade hourly,   same engine run → data checks → `live` branch
   backtest daily 06:00 UTC
   → data checks → private Supabase bucket `scan`
                          │                                     │

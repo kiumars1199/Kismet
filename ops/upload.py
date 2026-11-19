@@ -57,11 +57,35 @@ class Storage:
 # scan that is old enough. Two copies (RT3-03): at a 10-minute cadence the replaced scan is only ~10 min old.
 # Same shift as engine scan_keeping_prev and refresh.yml.
 DELAYED = ("markets.json", "flags.json")
+# At a fast scan cadence (ops/scheduler.py, SCAN_EVERY_SEC=120) two copies taken every scan would be only 2 and 4
+# minutes old, and Free would get nothing. So the scheduler sets ROTATE_MIN_SEC (15 min minus the cadence): the live
+# scan only becomes *-prev.json once it is that much newer than the current *-prev.json, which keeps *-prev2.json at
+# least 15 min old. 0 (the default) rotates on every upload, as before.
+ROTATE_MIN_SEC = int(os.environ.get("ROTATE_MIN_SEC") or 0)
 prev_name = lambda name: name.replace(".json", "-prev.json")  # noqa: E731
 prev2_name = lambda name: name.replace(".json", "-prev2.json")  # noqa: E731
 
 
-def publish(out_dir, storage, log=print):
+def _secs(at):
+    """scanned_at as epoch seconds (ISO string or number)."""
+    if isinstance(at, (int, float)):
+        return float(at)
+    from datetime import datetime
+    return datetime.fromisoformat(str(at).replace("Z", "+00:00")).timestamp()
+
+
+def _rotate(storage, prev_at, gap, log):
+    if gap <= 0 or prev_at is None:
+        return True
+    pp = storage.get_json(prev_name("flags.json"))
+    pp_at = (pp or {}).get("meta", {}).get("scanned_at")
+    if pp_at is None or _secs(prev_at) - _secs(pp_at) >= gap:
+        return True
+    log(f"kept *-prev.json as is: the live scan is less than {gap}s newer (Free stays at least 15 min behind)")
+    return False
+
+
+def publish(out_dir, storage, log=print, rotate_min_sec=None):
     prev = storage.get_json("flags.json")
     prev_at = (prev or {}).get("meta", {}).get("scanned_at")
     errs = check_dir(out_dir, prev_at)
@@ -70,7 +94,8 @@ def publish(out_dir, storage, log=print):
             log(f"data check failed: {e}")
         log("upload skipped; the bucket keeps the previous scan")
         return False
-    if prev is not None:
+    gap = ROTATE_MIN_SEC if rotate_min_sec is None else rotate_min_sec
+    if prev is not None and _rotate(storage, prev_at, gap, log):
         for name in DELAYED:
             if storage.copy(prev_name(name), prev2_name(name), missing_ok=True):
                 log(f"kept {prev_name(name)} as {prev2_name(name)}")
