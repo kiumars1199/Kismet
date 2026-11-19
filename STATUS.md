@@ -38,11 +38,18 @@ Extension: `pnpm ext:zip` (see `docs/setup-notes/trading-extension.md`).
 - `E2E_MOCK=1`: in-app Supabase/Stripe mock for paid e2e; refused in production.
 
 ## Needs an owner value
-`config/site.json` (domain, support email, operator names, state, address, refund policy, response time, Payment
-Links) shows as `[[PLACEHOLDER]]` until filled. Every key in `SETUP.md` §2. Lawyer review of legal pages (`LAUNCH_TODO.md`).
+`config/site.json` is filled (Kismet, kismetodds.com, kismetodds@gmail.com, Kiumars Momtaz and Marc Yamin, Indiana,
+United States, 18+, no mailing address, refund of the first charge within 7 days). Payment Link URLs and every key in
+`SETUP.md` §2 are still the owner's. Lawyer review of legal pages (`LAUNCH_TODO.md`). Deploy steps: `ops/ship.md`.
 
 ## Final audit
-Audit run 5 (`AUDIT.md`): all 11 items PASS, zero fails. Runs 1–4 found 11, 6, 5 and 2 fails; all fixed. Billing is verified against the in-app Stripe mock only; the "Owner verification" list in `AUDIT.md` covers the live checks.
+Final pass (Nov 18-19, T-252-T-262): rename to Kismet (0 hits for the old name outside git history), brand and tagline,
+owner values in `config/site.json` and the legal pages, cleanup (`CLEANUP.md`), deploy prep (`ops/ship.md`, Vercel
+team `kismet9`, project `kismet`), CI fix (extension deps). Audit run 10 (full, `AUDIT.md`) found 2 fails: a late
+checkout event could drop a paying user to Free (T-260) and the extension zip step in `ops/ship.md` (T-261). Audit run 11
+(those items, everything changed since, full unit and e2e suites, CI on PR #2): zero fails, CI green. Billing is verified
+against the in-app Stripe mock only; the "Owner verification" list in `AUDIT.md` covers the live checks. Earlier runs
+1-9 are in `AUDIT.md`.
 
 ## Launch polish
 T-220–T-231 (branch `polish`): a real-user pass at 390 and 1440 px fixed overflow, wrapping and tap targets on /m, the drawer, /, /about, /pricing, onboarding/Settings topics, alerts and the footer. Before/after shots in `docs/screenshots/polish/`. Lighthouse mobile on `/` after the pass: 97 / 97 / 97 (median 97).

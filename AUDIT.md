@@ -1944,3 +1944,505 @@ Notes, added to `docs/setup-notes/lane-l.md`:
 - In Payment Links mode, the trial is set on each link in the Stripe dashboard.
 
 Result after T-251: zero fails in scope.
+
+# Audit run 10
+
+Kismet final audit, tenth run (full audit, items 1–11).
+
+Auditor: a fresh agent that built none of this code. It checked and fixed nothing.
+Target: branch `final` at `772ac10` ("T-258: cleanup: delete stale docs/LANE_RULES.md, …"), checked out as worktree `audit10` (branch `audit10`).
+Date: 2026-11-19, 00:12–01:50 local.
+Spec: `docs/OVERNIGHT.md` §3, items 1–11, with run 8's protocols. Verified specifically: T-247 (run 8 fail 2), T-248 (chart-leak guard), T-249–T-251 (delay copy, prices), T-252 (rename), T-253 (owner values, legal pages), T-254 (`ops/ship.md`, `vercel.json`), T-255/255b (brand, badge "K"), T-256–T-258 (cleanup).
+
+Owner decisions applied, not counted as fails:
+- RT3-01 chart leak is an accepted risk. Item 6 fails on it only if `apps/web/test/chart-leak.test.ts` fails (mean attack error on live flagged rows < 1.05 pp).
+- `ADMIN_REQUIRE_MFA` stays off.
+- The site runs on the committed scan, so "data may be stale" banners are expected.
+- A test that fails once and passes on an immediate rerun is a flake. None happened.
+
+How the audit ran:
+- Everything ran in the scratch directory, outside `~/Desktop`. Only ports 5310–5352 were used. Every server was stopped at the end: no listener on 5300–5399.
+  - `audit10/` (worktree): `pnpm i --frozen-lockfile` (web and extension, exit 0), unit tests, lint, typecheck, both e2e suites twice each, extension zip.
+  - `a10/prod/` (a `git archive` copy): new venv (Python 3.13.1; there is no 3.12 on this Mac), `pip install -r requirements.txt`, `pytest -q` (45 passed), production `pnpm build` with no `DEMO_MODE`, no `.env*` except `.env.example`, no Supabase/Stripe/Upstash/Kalshi variable (`BUILD_EXIT=0`). It ran as `next start -p 5350`, with `DATA_DIR=a10/prod/output`.
+  - `a10/mock/` (a `git archive` copy): `E2E_MOCK=1` dev server on 5330 with the paid-config env and `ADMIN_EMAILS=admin-audit10@example.com`. It was restarted and reseeded (`crawl1.sh`) before each signed-in crawl.
+  - `a10/clone/` (a real `git clone` of the branch): `SETUP.md` §0 from scratch (item 11).
+- One fresh scan ran into `a10/prod/output` at 00:25:59–00:26:53: 18,075 markets, 1,807 flags, `scanned_at 1795065960`. The committed scan `1794895125` (13,971 markets, 2,778 flags, unchanged since run 8) became `*-prev.json`. The worktree's `output/` was not touched, and neither were the `* 2*` files.
+- Helpers were reused from run 8 (`a8/` to `a10/`, with ports and paths rewritten). The crawler also flags `[[`, the word "draft" and the old product name (regex `market[ _-]?edge`) on screen. New helpers: `wh10.mjs` (T-247 and a late `checkout.session.completed`) and a one-off render of the 3 email templates.
+- `git log --all` fails in this worktree because of a broken ref, `refs/remotes/origin/final 2` (an iCloud duplicate, left untouched). The secret scan therefore enumerated the valid refs with `git for-each-ref`.
+
+## Summary
+
+| # | Item | Result |
+|---|------|--------|
+| 1 | Tests | PASS |
+| 2 | Production build | PASS |
+| 3 | Every page × every state | PASS |
+| 4 | Quality | PASS |
+| 5 | Data correctness | PASS |
+| 6 | Security | PASS |
+| 7 | Multipliers and combos | PASS |
+| 8 | Trading safety | PASS |
+| 9 | Billing | **FAIL** (a late retry of an old `checkout.session.completed` rolls a paying user back to Free) |
+| 10 | Legal and wording | PASS (no placeholder, no draft banner, values match `config/site.json`) |
+| 11 | Publication readiness | **FAIL** (the extension build step in `ops/ship.md` fails as written) |
+
+Two fails.
+- T-247 fixes run 8's repro: late subscription events for an old subscription no longer change the plan. But the `checkout.session.completed` branch still applies the session's own subscription instead of the customer's current one.
+- `ops/ship.md` step 15 (and `SETUP.md` §3.5, `LAUNCH_TODO.md` #9) runs `pnpm ext:zip` from the repo root. There it fails with `Command "ext:zip" not found`.
+
+Everything else in the brief holds:
+- rename grep: 0 hits;
+- owner values on every legal page;
+- no `[[` or "draft" on any page or email;
+- emails send from `EMAIL_FROM` and set `reply_to` to support;
+- new brand assets;
+- badge "K";
+- chart-leak guard passes, with the live error above the bar.
+
+## Changes since run 8
+
+| Change | Holds? | Evidence |
+|---|---|---|
+| T-247: tier from the customer's paying subscriptions | **Partly** (item 9, fail 1) | `wh8.mjs` and `wh8b.mjs` now end on `premium`. `wh10.mjs` step 5 → `free`. |
+| T-248: chart-leak guard on live flagged rows, bar 1.05 pp | Yes | `test/chart-leak.test.ts` passed. Live 1.110 pp (committed scan) and 1.126 pp (fresh scan). |
+| T-249–T-251: delay copy, new prices, compare table from config | Yes | `/pricing` "$11.99 / month", "$19.99 / month", "Pro · $11.99", "Premium · $19.99", "7-day free trial"; `/terms` all 4 prices. `git grep -nE '\$(19\|29)\b'` (outside AUDIT.md): 0. |
+| T-252: rename | Yes | `git grep -niE "market[ _-]?edge"`: 0 lines. `git grep ME_ORIGIN` (outside `KISMET_ORIGIN`): 0. Lookup keys `kismet_pro_monthly` … `kismet_premium_yearly` (`ops/stripe-setup.mjs` dry run). The crawler found the old name on 0 of 330 views. |
+| T-253: owner values, legal pages, `reply_to` | Yes | Item 10. `lib/email/index.ts:54` `reply_to: site.support_email`. `EMAIL_FROM=Kismet <noreply@kismetodds.com>` in `SETUP.md:71`, `apps/web/.env.example:30`, `ops/ship.md` step 5. |
+| T-254: `ops/ship.md`, `apps/web/vercel.json` | **Partly** (item 11, fail 2) | One numbered list (steps 1–15), team `kismet9`, project `kismet`, `kismetodds.com`. `vercel.json`: Next.js, frozen install, `iad1`, 2 crons. Both cron routes → 401 without `CRON_SECRET`. Step 15 fails as written. |
+| T-255/255b: brand | Yes | Wordmark and tagline in the header, footer ("Kismet. Less luck, more math.") and OG image (`audit10-og.png`, 1200×630). `/icon.svg` "K" mark 200; `/apple-icon.png` 180×180 200; `/twitter-image` 200. Extension icons 16/32/48/128 PNG. Content-script badge literal `"K"` (`apps/extension/src/content.ts`, T-255b). |
+| T-256–T-258: cleanup | Yes | Item 8 reviewed the diff (exports removed, rename). All tests pass. |
+
+## 1. Tests: PASS
+
+- `pytest -q`: 45 passed (`a10/prod` and the fresh clone).
+- `apps/web`:
+  - `pnpm typecheck` exit 0.
+  - `pnpm lint` (`--max-warnings 0`) exit 0.
+  - `pnpm test`: **62 files, 389 tests passed**, plus node ops tests (27 pass, 0 fail).
+- `apps/extension`: typecheck exit 0, **6 files, 42 tests passed**.
+- **Demo e2e** (`pnpm exec playwright test`: S1–S6, S8, search, trading-paper, multipliers, headers/CSP, a11y):
+  - Run 1, `PW_PORT=5310`: **52 passed** (1.8 m).
+  - Run 2, `PW_PORT=5312`: **52 passed** (58 s).
+- **Paid e2e** (`-c playwright.paid.config.ts`: admin ×2, paywall pages, S7, account delete, keyboard search → drawer → save → upgrade):
+  - Run 1, `PW_PORT=5311`: **6 passed** (1.8 m).
+  - Run 2, `PW_PORT=5313`: **6 passed** (1.4 m).
+- No failure, retry or flake in the four runs. Paid webserver logs (1,746 and 1,724 lines): 0 `SyntaxError`, `TypeError`, `⨯` or 5xx.
+- Load during e2e was 7–20, from my own parallel work at the start. Every run still passed.
+
+## 2. Production build: PASS
+
+- `pnpm build` exit 0 (above). `next start -p 5350` served every crawled page with 200 (404 only where expected).
+- Server log contained only the Upstash in-memory warning, Node's localStorage ExperimentalWarning and the smoke test's telemetry lines.
+- `/pricing` and `/about`: "Coming soon" ×2 each. "demo mode" on `/`: 0.
+- `/api/trade/config` → `enabled:false`. POST `/api/trade/nonce` → "Trading is off.". POST `/api/auth/magic-link` → "Accounts are not set up yet".
+
+## 3. Every page × every state: PASS
+
+`crawl2.mjs`:
+- 33 routes at 390 and 1440 px with light CDP throttling (40 ms, 10 Mbit/s).
+- Checks console errors and warnings, page errors, and on-screen tokens (`NaN`, `undefined`, `null`, `[object Object]`, lorem, TODO, FIXME, `[[`, "draft", the old name).
+- Also checks the footer disclaimer, horizontal scroll and 5xx/429, then requests every internal link.
+
+| State | Server | Start (load) | Views | Problems | Links checked | `tiers` | Result |
+|---|---|---|---|---|---|---|---|
+| Logged out | prod 5350 | 00:25:59 (2.87) | 66 | 0 | 98, 0 bad | `nouser:free` ×3 | PASS |
+| Free | mock 5330 | 00:33:31 (3.97) | 66 | 0 | 125, 1 artefact | `free` ×3 | PASS |
+| Pro | mock 5330, restarted | 00:52:51 (12.4) | 66 | 0 | 276, 0 bad | `pro` ×3 | PASS |
+| Premium | mock 5330, restarted | 01:09:39 (11.0) | 66 | 0 | 276, 0 bad | `premium` ×3 | PASS |
+| Admin | mock 5330, restarted | 01:26:12 (13.3) | 66 | 0 | 113, 1 by design | `free+admin` ×3 | PASS |
+
+- Free artefact: `/m/6117522` → 404 (styled). It is a link from a page rendered on the committed scan. The link was requested after Free switched to the fresh scan at 00:41, and the fresh scan does not contain that market (it is in `1794895125`, not in `1795065960`). Not a fail.
+- Admin: the `/admin*` pages → 200 with h1 "Admin" at both widths. `/api/admin/export` → 403 by design (RT2-01 same-site guard). A real click on "Export CSV" (`exportclick2.mjs`) downloaded `kismet-users-2026-11-19.csv` (header `id,email,created_at,last_sign_in_at,tier,status,comp_tier,comp_expires_at`).
+- Mock logs (all four): 0 "restarting", 0 `auth/v1/user 401`, 0 5xx.
+- Static checks on shipped code: 0 `TODO`/`FIXME`, 0 `console.log`, 0 lorem.
+- Screenshots: `docs/screenshots/audit/audit10-{anon,free,pro,premium,admin}-{home,markets,pricing,account,admin_health,terms,privacy,refunds,disclaimer,contact,m_<id>}-{390,1440}.png` (137 files with the `audit10-` prefix).
+
+## 4. Quality: PASS
+
+**Lighthouse** (`lighthouse@12`, mobile, default throttling, 5350 production build, run right after e2e with only that server up). Scores are performance / accessibility / best practices / SEO.
+
+| Page | uptime before | Run 1 | Run 2 | Run 3 | Perf median |
+|---|---|---|---|---|---|
+| `/` | 5.81 9.37 11.32 | 92/100/100/91 | 91/100/100/91 | 95/100/100/91 | **92** |
+| `/about` | 4.92 8.61 10.93 | 93/100/100/91 | 93/100/100/91 | 93/100/100/91 | **93** |
+| `/pricing` | 3.93 7.91 10.57 | 94/100/100/91 | 94/100/100/91 | 94/100/100/91 | **94** |
+
+- SEO is 91 on all 9 runs. The only failing audit is `meta-description` (Next 15 streams it; the tag is in the HTML), as in runs 3–8.
+- TBT 120–193 ms, LCP 2.4–3.2 s.
+- **axe**: zero serious/critical (`e2e/a11y.spec.ts`, both demo runs).
+- **Keyboard-only** (`kbd.mjs`, 5350):
+  - `/` focuses search; "barcelona" ↓ Enter → `/?q=FC+Barcelona`.
+  - A row link in 24 Tabs; Enter opens "Market details" with focus inside.
+  - "Save" in 5 Tabs → "Saved".
+  - "Pricing" in 10 Tabs → `/pricing`.
+  - Signed in, `s7-upgrade.spec.ts` keyboard test passed twice.
+- **Reduced motion**: matched; longest animation and transition 0.01 ms.
+- **Design review** of the crawl screenshots: dark theme, emerald accent, rounded-xl cards and 16 px gutters hold.
+  - The new K mark and wordmark are aligned in the header at 390 and 1440.
+  - Legal pages read cleanly at 390 (`audit10-anon-contact-390.png`).
+  - Extension popup: `audit10-ext-popup.png`.
+
+## 5. Data correctness: PASS
+
+- **Free capped and banded on the server** (`probe.py`, 5350, logged out; `ps`/`page`/`page_size`/`tier` params and `x-tier` header): 7 responses, all 200, 25 rows, page 1, every row banded. The 25 rows equal the scan Free is served: 0 mismatches.
+- **Delay** (`poll.py`, `/api/meta` logged out every 20 s, 00:27–00:46): Free switched from `1794895125` to `1795065960` at 00:41:12, **15.2 min** after the scan (20 s granularity). `BAD_TOTAL 0`.
+- **Pro live, Free delayed** (`me.mjs`, mock, 01:4x): Pro → `1795065960`, `delay_min 0`; signed out → `delay_min 15`.
+- **Cards equal the API** (`cards.mjs`, 5350): 25 API rows, 12 cards matched, 0 mismatched.
+- **Fees and returns** (`fees.mjs`, Pro on the mock, 20 bets, 40 sides, fresh scan):
+  - fee and edge match on all 40 sides;
+  - `roi` differs on 1 side by 0.02 (−60.57 vs −60.55, 4-decimal rounding), as in run 8.
+- **Freshness pill**: "Updated 47 h ago · data may be stale" on the committed scan (`audit10-anon-home-1440.png`). Expected (owner note).
+- `ops/checks.py a10/prod/output`: "data checks ok".
+
+## 6. Security: PASS
+
+- **RT3-01 chart leak (accepted risk):**
+  - `test/chart-leak.test.ts` passed: "the attack's mean error stays at or above 1.05 pp", 626 ms, on the live `output/`.
+  - Independent measurement (`curve_check4.py` against 5350, flagged best sides at `all`/`cat`):
+    - committed scan `1794895125`: n=147, mean error **1.110 pp**;
+    - fresh scan `1795065960`: n=115, mean error **1.126 pp**.
+  - Both are above 1.05. Niche curves stay paid-only (`segment=soccer` → 403).
+- **Paid data as anon:** capped and banded (item 5). Paywall pages spec passed twice.
+- **Page limits:** 300 `/m/<id>` loads, 8 in parallel. curl → 60 with market data + 240 "Slow down a little" `noindex`. Spoofed Googlebot UA → 60 / 240 (no `VERCEL`, so no verified-bot pass).
+- **Rate limits** (`hammer.py`):
+  - `/api/markets` ×40 → 27 × 200 then 13 × 429 (`Retry-After: 57`);
+  - `/api/flags` ×40 → 40 × 429;
+  - `/api/suggest` ×250 → 120 × 200, 130 × 429;
+  - spoofed `X-Forwarded-For`/`X-Real-IP` → 40 × 429;
+  - `smoke-prod.sh` telemetry burst → 429.
+- **Crawlers:** GPTBot, ClaudeBot, CCBot, PerplexityBot, Google-Extended, Bytespider → 403 on `/` and `/api/*`. HeadlessChrome, python-requests, curl → 200 (BotID runs only on Vercel; owner verification).
+- **Headers** (`curl -I /`):
+  - HSTS `max-age=63072000; includeSubDomains`;
+  - `nosniff`;
+  - `Referrer-Policy: strict-origin-when-cross-origin`;
+  - `X-Frame-Options: DENY`;
+  - `Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()`;
+  - CSP with a per-request nonce and `strict-dynamic`.
+  - `e2e/headers.spec.ts` passed twice.
+- **Hidden routes:**
+  - `/admin`, `/admin/users`, `/api/admin`, `/api/admin/export`, `/e2e-mock/*`, `/api/data` → 404;
+  - `/api/admin` POST/PUT/PATCH/DELETE → 404;
+  - POST `/api/settle/run` and `/api/alerts/run` → 401.
+- **Webhooks:** forged, stale and altered → 400; replay → duplicate (item 9).
+- **Another user's rows:** `test/rls.test.ts` (part of `pnpm test`, rerun verbose) passed 17/17. Among them: "user B sees none of user A's rows", "every public table: B can't read, change or delete A's rows, or insert as A; anon sees nothing", "users can't write their own tier", and "security definer functions pin search_path". A live check with the anon key stays under owner verification.
+- **Dependencies:**
+  - `apps/web` `pnpm audit --prod`: no known vulnerabilities. Full `pnpm audit`: 1 moderate (`minimatch`, dev tooling).
+  - `apps/extension`: none.
+  - `pip-audit -r requirements.txt`: none.
+- **Secrets in history** (`secrets_scan.py` over `git log <every valid ref> -p`): 321 commits, 25 hits = run 8's 24 known fakes + 1 in `c387baa` (run 8's report quoting the fake `sk_test_FAKEFAKEFAKEFAKE`). The 14 product commits since run 8: 0 hits.
+- **Client bundles:**
+  - `pnpm check:bundle`: "128 files in .next/static, no secrets".
+  - grep for `SUPABASE_SERVICE_ROLE|STRIPE_SECRET_KEY|sk_live_|sk_test_|whsec_|UPSTASH_REDIS_REST_TOKEN|CRON_SECRET|EXT_SIGNING_SECRET|UNSUBSCRIBE_SECRET|service_role|RESEND_API_KEY|checkBotId`: 0 files.
+- **Cookies:** no `Set-Cookie` on `/` in the prod build. Auth cookie flags stay under owner verification.
+
+## 7. Multipliers and combos: PASS
+
+- `test/multipliers.test.ts` passed, including "the 10x bet with a 14% chance shows in tier edge" (fixture `9900010`). `e2e/multipliers.spec.ts` passed twice.
+- No live flag has ask ≤ 10¢, chance ≥ 14% and edge ≥ 4 pts in either scan, so the docs/18 example is proven by the fixture only. Nearest live rows: `6841253` (6¢, 10.8%, +4.5 pts, `best`) and `6771197` (3.1¢, 8.2%, +4.9 pts, `edge`).
+- **Combos** (`lib/combos.test.ts`, `lib/kalshiCombo.test.ts`, rerun verbose, 8/8):
+  - "two independent legs" and "three legs: bigger return, lower chance" match hand-computed cases;
+  - "warns on same-event legs"; the Kalshi check "refuses same-event legs";
+  - suggested combos for a leg count whose combo backtest lost money are hidden (`lib/data/combos.ts:43`, asserted in `test/multipliers.test.ts:36`).
+- Tier split: committed 1,070 best / 1,708 edge; fresh 916 / 891.
+- **Raw-count sweep:**
+  - The diff since run 8 adds no count display.
+  - A grep for `{….length|count|total|unread}` / `toLocaleString()` in `app`, `components` and `apps/extension/src` without `formatCount` finds bounded counts only: combo legs, dashboard panels, event-group flagged, inbox, chosen topics, the banner counter, `colSpan`, a chart aria-label, a date. The trade ticket uses `toLocaleString("en-US")` for an exact contract count (documented exception).
+  - The large counts use `formatCount` or `<Count>` (`MarketsScreener.tsx:71`, `BestBets.tsx:192`, `panels.tsx:98`).
+
+## 8. Trading safety: PASS
+
+- 5350: trading off without `KALSHI_TRADING_ENV` (item 2).
+- `git diff 88a24a6 HEAD -- apps/extension/src apps/web/lib/trade apps/web/components/trade` covers the rename, removed unused exports (`DASH`, `DISCLAIMER`, `norm`, `labels`, `StakeRow`), `__KISMET_ORIGIN__` and the badge literal. No change to order placement, confirmation, caps or key handling.
+- Tests passed:
+  - `no-auto-trade.test.ts` (extension, 42/42);
+  - `e2e/trading-paper.spec.ts` twice.
+- Zip manifest:
+  - `permissions` are `storage`, `sidePanel`;
+  - host permissions are `https://kismetodds.com/*` and `https://external-api.demo.kalshi.co/*`;
+  - `externally_connectable` is `https://kismetodds.com/*` only.
+
+## 9. Billing: **FAIL**
+
+- `webhook.mjs` (mock, user `webhook-audit10@example.com`):
+  - unsigned → 400; wrong secret, 1 h old and altered → 400 "Bad signature";
+  - raw unsigned `client_reference_id` → ignored; subscription with no linked user → 500 "Retry";
+  - signed `client_reference_id` (Payment Link path) → linked; `subscription.created` premium → premium;
+  - replay → `duplicate:true`;
+  - portal cancel (`cancel_at_period_end`) → still premium; `subscription.deleted` → free; replayed deletion → duplicate.
+  - Its last "older event" step ends on premium because `sub_link` is not in the mock Stripe store (fallback to the event). This is a mock artefact, as in run 8.
+- S7 (checkout → tier up) and account delete with a live subscription passed in both paid runs.
+- Prices: `ops/stripe-setup.mjs --domain kismetodds.com` dry run → $11.99/month, $99.99/year, $19.99/month, $169.99/year, lookup keys `kismet_*`, products "Kismet Pro" and "Kismet Premium". `trial_period_days: 7` per run 9.
+- **T-247, run 8's repros now hold:**
+  - `wh8.mjs` (two live subscriptions): late A events and A ending while B is active → stays **premium**, steps 5–7.
+  - `wh8b.mjs` (cancel → resubscribe → retry of an old A subscription event) → **premium**.
+- **New gap (`wh10.mjs`), fail 1:**
+  1. Checkout Pro → sub A.
+  2. A canceled → free.
+  3. Checkout Premium → sub B → premium.
+  4. Late `customer.subscription.updated` for A → premium (holds).
+  5. Stripe retries the earlier `checkout.session.completed` for A: signed `client_reference_id`, `subscription: A`, created 2 h ago, new event id → `/api/me` **`free`**, and the `subscriptions` row becomes `sub A, canceled`, while B is active and paying.
+  6. Only the next B event restores premium.
+
+## 10. Legal and wording: PASS
+
+- `/terms`, `/privacy`, `/refunds`, `/disclaimer`, `/contact`, `/status` → 200, linked from the footer.
+- Each legal page, fetched as HTML on the prod build:
+  - `[[`: 0;
+  - "draft": 0;
+  - "Last updated November 18, 2026";
+  - "Kiumars Momtaz and Marc Yamin" on all five.
+- `/terms`:
+  - "individuals (sole proprietors), in the United States";
+  - "18 or older";
+  - "governed by the laws of the State of Indiana, United States";
+  - Pro $11.99/mo or $99.99/yr, Premium $19.99/mo or $169.99/yr;
+  - 7-day free trial; cancel any time and keep the plan to the end of the period paid for;
+  - `kismetodds@gmail.com`.
+- `/refunds`:
+  - "7-day free trial: cancel during it and you aren't charged";
+  - "If you ask within 7 days of your first paid charge, we refund it in full. Renewal charges are not refunded; cancelling stops future renewals, and you keep your plan until the period you paid for ends";
+  - reply within 2 business days. Consistent with `/terms`.
+- `/contact`: email and response time. **No "Mailing address" section** (`app/contact/page.tsx:16` renders it only when set; `mailing_address` is "").
+- The crawler found 0 `[[`, 0 "draft" and 0 old name on all 330 views.
+- Footer disclaimer "Market analytics, not financial advice. Based on past results. 18+." on all 330 views and in the extension popup. The OG image also carries it.
+- `/disclaimer`: 1-800-GAMBLER and NCPG resources.
+- 18+ gate: every seeded user ticked the box (`seed.mjs`); keyless build → "Accounts are not set up yet".
+- **Emails** (alert, admin sign-in link, payment failed; rendered from `lib/email/templates.ts`, `audit10-email-*-600.png`):
+  - each has "Unsubscribe" and the disclaimer;
+  - 0 `[[`, 0 profit/guarantee wording;
+  - subjects "Alert: …", "Your Kismet sign-in link", "Your Kismet payment didn't go through".
+- Banned words (`grep -rniE "\b(picks?|locks?|guaranteed?|sure thing|can.?t lose|risk.?free|expected profit)\b"` over `app`, `components`, `lib`, `apps/extension/src`, `config`): only comments, identifiers (`Pick<…>`, `pick`), a test that asserts their absence, and the negation "We give no guarantee" on `/terms`.
+- Meta, OG and Twitter descriptions are facts only ("Contracts priced below how often similar bets have won, after fees and the spread."). OG alt: "Kismet: Less luck, more math. …".
+
+## 11. Publication readiness: **FAIL** (doc step)
+
+- `robots.txt`: 30+ AI user agents `Disallow: /`; everyone else `Allow: /` with `/api/`, `/auth/`, `/login`, `/onboarding`, `/account`, `/settings`, `/watchlist`, `/journal`, `/alerts`, `/dashboards`, `/admin` disallowed; `Sitemap:` line. `sitemap.xml`: 12 `<loc>`.
+- No test users, seed data or debug routes in prod (item 6). Styled 404 and error pages.
+- Icons: `/icon.svg`, `/apple-icon.png`, `/opengraph-image`, `/twitter-image` → 200. `/favicon.ico` → 404 (browsers use `<link rel="icon" href="/icon.svg">`; same as before).
+- **`ops/smoke-prod.sh`**: `SMOKE_EXPECT_HEALTH=503 ops/smoke-prod.sh http://localhost:5350` → **18 passed, 0 failed**.
+- **Ops dry runs** (`env -i PATH HOME`). `config/site.json` md5 unchanged (`26ba0be4…`); no tracked file changed.
+  - `secrets.mjs` plan, exit 0.
+  - `site-config.mjs --from config/site.json` "no changes", exit 0. It notes the empty `mailing_address` (CAN-SPAM, marketing mail only).
+  - `stripe-setup.mjs` plan, exit 0.
+  - `preflight.mjs` 17 blockers / 6 warnings, exit 1 by design (no keys).
+  - `supabase-setup.sh` plan, exit 0.
+  - `vercel-env.mjs` refuses without an env file (exit 2). With a test file it pushes only documented keys, sensitive and masked; `E2E_MOCK` is not pushed.
+  - `checks.py` ok.
+  - `upload.py` without credentials exit 1.
+  - `scheduler.plan` → `bootstrap, update, fit, grade, scan`.
+- **Extension**:
+  - `KISMET_ORIGIN=https://kismetodds.com pnpm ext:zip` (run in `apps/extension`) → `kismet-extension-0.1.0.zip`, 23,154 bytes (moved out of the worktree).
+  - MV3, name "Kismet for Polymarket", CSP `script-src 'self'; object-src 'self'`, 0 `eval(`/`new Function`.
+  - Loaded unpacked in a clean Chromium profile: service worker registered. Popup: "Kismet · Signed out · Can't reach kismetodds.com · Paper trading Off · … Market analytics, not financial advice. Based on past results. 18+." (`audit10-ext-popup.png`). The only console error is the connection to the not-yet-deployed domain.
+- **`SETUP.md` §0 from a fresh clone** (`git clone --branch audit10` → `a10/clone`), reaching a running app:
+  - `pip install -r requirements.txt` exit 0;
+  - `pytest -q` 45 passed;
+  - `python3 -m engine scan` → 18,075 markets, 1,806 flags, `markets-prev.json` kept;
+  - `cd apps/web && pnpm i --frozen-lockfile` exit 0;
+  - `pnpm dev -p 5340` → `/`, `/markets`, `/pricing`, `/account` 200, `/api/me` `{"tier":"premium","demo":true}`, 0 errors in the log.
+- **`ops/ship.md` (T-254), fail 2:** step 15 says `KISMET_ORIGIN=https://kismetodds.com pnpm ext:zip`, and the header says "Run them from the repo root". From the repo root this prints `× Command "ext:zip" not found`: there is no root `package.json`, and the script is in `apps/extension/package.json:10`. Step 1 also installs only `apps/web`, so `apps/extension` has no `node_modules` on a fresh machine.
+
+## Fails to fix
+
+1. **A late retry of an old `checkout.session.completed` rolls a paying user back to Free.** Severity: medium. It needs cancel → resubscribe plus a delayed or retried delivery of the first checkout's event; the user loses access until B's next event.
+   - Where: `apps/web/lib/billing/stripe.ts:162`. The `checkout.session.completed` branch calls `applySubscription(db, await stripe.subscriptions.retrieve(subId), userId)`. That writes the session's own subscription (now canceled), bypassing `currentSubscription()` (`:134`), which T-247 added for the `customer.subscription.*` events only (`:165-168`). `lib/billing/db.ts` `upsertSubscription` keeps one row per user (`onConflict: "user_id"`).
+   - Repro (`E2E_MOCK=1` dev server, `a10/wh10.mjs`):
+     1. Checkout Pro → sub A.
+     2. Cancel A, deliver A.deleted → free.
+     3. Checkout Premium → sub B → premium.
+     4. Deliver a signed `checkout.session.completed` `{client_reference_id: <valid signed ref>, customer: <A's customer>, subscription: A}` with a new event id, created 2 h ago → `/api/me` `free`, row `sub A, canceled`. The new id stands for a first delivery that returned non-2xx, so it was never recorded in the dedup table. Stripe retries exactly those deliveries for up to 3 days. Meanwhile the user still got Pro from the companion `customer.subscription.created`, so nothing looked wrong.
+   - Suggested fix: in the checkout branch, after `linkCustomer`, apply `await currentSubscription(stripe, await stripe.subscriptions.retrieve(subId))` instead of the retrieved subscription. Add a `stripe.test.ts` case: user on B (premium, active), late checkout event for canceled A → stays premium.
+
+2. **`ops/ship.md` step 15 fails as written.** Severity: low (docs; the owner runs this verbatim at launch).
+   - Where: `ops/ship.md:43` (step 15). The same command without a directory is at `SETUP.md:110` (§3, step 5) and `LAUNCH_TODO.md:25` (#9). The script lives in `apps/extension/package.json:10`. `ops/ship.md` step 1 (`:8-9`) installs only `apps/web`.
+   - Repro: from the repo root, `KISMET_ORIGIN=https://kismetodds.com pnpm ext:zip` → `× Command "ext:zip" not found`.
+   - Suggested fix: write `cd apps/extension && pnpm i --frozen-lockfile && KISMET_ORIGIN=https://kismetodds.com pnpm ext:zip && cd ../..` in all three places (or add `apps/extension` to step 1's install).
+
+## Notes
+
+- The home page `<title>` and `og:title` are "Best bets", without "· Kismet". `app/page.tsx:5` sets a plain title, and the root layout's `%s · Kismet` template does not apply to the root page. Every other page has "· Kismet". Suggest `title: { absolute: "Best bets · Kismet" }`.
+- `config/site.json` `mailing_address` is empty by owner decision and hidden on `/contact`. `ops/site-config.mjs`/`preflight.mjs` warn it is required before any *marketing* email (CAN-SPAM). Today's mails are user-requested alerts and account mail.
+- `vercel.json` schedules `/api/alerts/run` every 5 minutes. That needs Vercel Pro, which `ops/ship.md` step 2 says the team will have.
+- `git log --all` fails in this worktree because of the broken ref `refs/remotes/origin/final 2`, an iCloud duplicate (`.git/refs/remotes/origin/final 2`). It is harmless for the app but breaks `--all` tooling, e.g. a gitleaks run on the owner's machine. Deleting that duplicate ref is the owner's call.
+- No live flag matches the docs/18 "10x, 14%, +4 pts" example in either scan; the fixture test covers it.
+- Owner verification (live Supabase RLS and cookies, Stripe test mode end to end, Upstash, Vercel BotID and verified search bots, Kalshi demo order, Chrome Web Store, scan cadence) is unchanged from run 8. Add: after fix 1, cancel → resubscribe in Stripe test mode, then "Resend" the first checkout's `checkout.session.completed` and confirm the plan stays.
+
+# Audit run 11 (scoped: run 10 fails, changes since, full suites, CI)
+
+Auditor: a fresh agent that built none of this code. It checked and fixed nothing.
+Target: `c65166e` ("T-262: home page title …"), worktree `audit11`. Date: 2026-11-19, 01:55–02:12 local.
+Scope: item 9 (Billing) and item 11 (Publication readiness) of `docs/OVERNIGHT.md` §3, re-run in full with run 10's
+method; the 4 commits since run 10 (T-259 to T-262); all test suites; CI.
+
+How it ran:
+- Ports 5410–5450 only. Every server was stopped at the end: no listener on 5400–5499.
+- Scratch dir `a11/`: run 10's helpers copied with paths and ports rewritten (`seed.mjs`, `webhook.mjs`, `wh8.mjs`,
+  `wh8b.mjs`, `wh10.mjs`, `mock.sh`, `prod.sh`, `extload.mjs`).
+  - `a11/prod/` (`git archive`): Python 3.13.1 venv, production `pnpm build` with no `DEMO_MODE`, no `.env*` except
+    `.env.example`, no Supabase/Stripe/Upstash/Kalshi variable (`BUILD_EXIT=0`). Served by `next start -p 5450`.
+  - `a11/mock/` (`git archive`): `E2E_MOCK=1` dev server on 5430 with the paid-config env.
+  - `a11/clone-ship`, `a11/clone-setup`, `a11/clone-launch`: three fresh `git clone --branch audit11`.
+- The `* 2*` files were not touched. Only `AUDIT.md` changed in the worktree (this section, uncommitted).
+
+## Summary
+
+| # | Check | Result |
+|---|---|---|
+| 1 | Item 9 Billing (run 10 fail 1, wh8/wh8b, webhook suite, T-260 review) | PASS |
+| 2 | Item 11 Publication readiness (run 10 fail 2, ship/SETUP/LAUNCH_TODO zip steps, fresh clone) | PASS |
+| 3 | Home title "Best bets · Kismet"; other pages keep "%s · Kismet" | PASS |
+| 4 | Full suites (lint, typecheck, unit, build, demo e2e, paid e2e, extension, ops, pytest) | PASS (no flake) |
+| 5 | CI on `c65166e` (web, python, supply-chain) | PASS |
+
+Zero fails. Both run 10 fails are fixed.
+
+## 1. Item 9 Billing: PASS
+
+- **Run 10 fail 1** (`node a11/wh10.mjs http://localhost:5430 a11/states/wh10.json`, user `wh10-audit11@example.com`):
+  ```
+  1. Checkout Pro (sub A)                                    | /api/me tier pro     | row pro trialing sub_4062cff3
+  2. A ended (expect free)                                   | /api/me tier free    | row free canceled sub_4062cff3
+  3. Checkout Premium (sub B)                                | /api/me tier premium | row premium active sub_3d91f8e4
+  4. late retry of an old A event after B exists            | /api/me tier premium | row premium active sub_3d91f8e4
+  5. late retry of the old checkout.session.completed       | /api/me tier premium | row premium active sub_3d91f8e4
+  6. after a later B event                                   | /api/me tier premium | row premium active sub_3d91f8e4
+  ```
+  Step 5 was `free` / `sub A, canceled` in run 10. It now stays on premium with sub B.
+- **Run 8 repros**: `wh8.mjs` steps 2–7 end pro, pro, premium, premium, premium, premium (as expected at each step).
+  `wh8b.mjs` step 4 → premium, row `sub B active`.
+- **`webhook.mjs`**:
+  - unsigned → 400; wrong secret, 1 h old and altered body → 400 "Bad signature";
+  - raw unsigned `client_reference_id` → ignored (free); subscription with no linked user → 500 "Retry";
+  - signed `client_reference_id` (Payment Link path) → linked; `subscription.created` premium → premium;
+  - replay → `duplicate:true`;
+  - portal cancel (`cancel_at_period_end`) → still premium; `subscription.deleted` → free; replayed deletion → duplicate.
+  - The last "older event" step ends on premium because `sub_link` is not in the mock Stripe store. This is the same
+    mock artefact as in runs 8 and 10.
+- **Prices** (`node ops/stripe-setup.mjs --domain kismetodds.com`, dry run): $11.99/month, $99.99/year, $19.99/month,
+  $169.99/year, lookup keys `kismet_pro_monthly`, `kismet_pro_yearly`, `kismet_premium_monthly`,
+  `kismet_premium_yearly`. No pricing file changed since run 10.
+- **Paid e2e**: "S7 sign up → upgrade with Stripe → Pro unlocks …" and "account delete: type the email, everything
+  goes, signed out" passed (both paid runs below).
+- **T-260 diff review** (`git show d445111`): `apps/web/lib/billing/stripe.ts:163` now wraps the retrieved
+  subscription in `currentSubscription()`. The new unit test is in `stripe.test.ts:189-199`.
+  - Regression cases, run as a throwaway vitest file in `a11/mock` (deleted afterwards, worktree untouched),
+    7/7 passed together with the 13 existing `stripe.test.ts` tests:
+    - first-ever checkout, Stripe lists the new sub → pro, sub id set, customer linked;
+    - first-ever checkout in trial (trialing premium) → premium;
+    - Stripe lists nothing (`data: []`) → falls back to the retrieved sub → pro;
+    - `subscriptions.list` throws → 500, event not marked seen; the retry → pro;
+    - first payment `incomplete` → free;
+    - checkout without a subscription id → only links the customer;
+    - upgrade with Pro A still active and Premium B checkout → premium B.
+  - Also live on the mock: `wh10.mjs` step 1 (first-ever checkout) → pro, and S7.
+  - The re-link guard (`stripe.ts:153-156`) runs before the new code, so `currentSubscription` only lists the
+    customer just linked to this user. No regression found.
+
+## 2. Item 11 Publication readiness: PASS
+
+- **Run 10 fail 2.** In three fresh clones with no `node_modules` in `apps/extension`, each doc's command ran from the
+  repo root as written (`<domain>` = `kismetodds.com`):
+  - `ops/ship.md:43` step 15: `cd apps/extension && pnpm i --frozen-lockfile && KISMET_ORIGIN=https://kismetodds.com pnpm ext:zip` → exit 0, `[ext:zip] wrote apps/extension/kismet-extension-0.1.0.zip`, 23,154 bytes.
+  - `SETUP.md:110` (§3 step 5): same command → exit 0, same zip, 23,154 bytes.
+  - `LAUNCH_TODO.md:25` (#9): same command → exit 0, same zip, 23,154 bytes.
+- **Zip** (`clone-ship`):
+  - MV3, "Kismet for Polymarket", `permissions` `storage`, `sidePanel`;
+  - host permissions `https://kismetodds.com/*`, `https://external-api.demo.kalshi.co/*`;
+  - `externally_connectable` `https://kismetodds.com/*`; CSP `script-src 'self'; object-src 'self'`;
+  - no dev `key`; 0 `eval(` / `new Function`; 0 `localhost`.
+  - Loaded unpacked in a clean Chromium profile (`a11/extload.mjs`): service worker `background.js` registered.
+    Popup: "Kismet · Signed out · Can't reach kismetodds.com · Paper trading Off … Market analytics, not financial
+    advice. Based on past results. 18+." (`a11/audit11-ext-popup.png`). Only console error:
+    `net::ERR_CONNECTION_CLOSED` (domain not deployed yet).
+- **`ops/ship.md`**: still one numbered list, steps 1–15, ~45 lines. It names team `kismet9`, project `kismet`,
+  Root Directory `apps/web`, `kismetodds.com`. That matches `apps/web/vercel.json`: `nextjs`,
+  `pnpm install --frozen-lockfile`, `pnpm build`, region `iad1`, crons `/api/alerts/run` `*/5 * * * *` and
+  `/api/settle/run` `30 7 * * *`.
+- **`SETUP.md` §0 from a fresh clone** (`clone-setup`):
+  - `pip install -r requirements.txt` exit 0;
+  - `python3 -m pytest -q engine/tests ops/tests` 45 passed;
+  - `python3 -m engine scan` exit 0, 18,707 markets, 1,877 flags, `markets-prev.json` and `flags-prev.json` kept;
+  - `cd apps/web && pnpm i --frozen-lockfile` exit 0;
+  - `pnpm dev -p 5440` → `/`, `/markets`, `/pricing`, `/account` 200, `/api/me` `{"tier":"premium","demo":true,…}`,
+    0 errors in the log.
+- **Prod build** (5450):
+  - `SMOKE_EXPECT_HEALTH=503 ops/smoke-prod.sh http://localhost:5450` → **18 passed, 0 failed**.
+  - `robots.txt` 200: 38 `User-Agent` lines (AI bots `Disallow: /`), `Disallow: /admin`, `Sitemap:` line.
+    `sitemap.xml` 200, 12 `<loc>`.
+  - `/icon.svg`, `/apple-icon.png`, `/opengraph-image`, `/twitter-image` → 200. `/favicon.ico` → 404 (same as before).
+  - `/admin`, `/e2e-mock/supabase/_inbox`, `/api/data` → 404. `/no-such` → styled 404, h1 "This page doesn't exist",
+    title "Page not found · Kismet".
+- **Ops dry runs** (`env -i PATH HOME`, worktree): `config/site.json` md5 `26ba0be4…` before and after; no tracked file
+  changed.
+  - `secrets.mjs` plan, exit 0.
+  - `site-config.mjs --from config/site.json` "no changes", exit 0, with the `mailing_address` note.
+  - `stripe-setup.mjs --domain kismetodds.com` plan, exit 0.
+  - `preflight.mjs` 17 blockers / 6 warnings, exit 1 by design (no keys).
+  - `supabase-setup.sh` checklist, exit 0.
+  - `vercel-env.mjs` refuses with no env file, exit 2.
+  - `checks.py` "data checks ok".
+  - `upload.py` exit 1 without credentials.
+- Email templates: no change since run 10 (`git diff --stat 772ac10 HEAD` touches only the 7 files of T-259–T-262).
+  Their unit tests pass in `pnpm test`.
+
+## 3. Home title: PASS
+
+Production build on 5450, `curl` of the HTML:
+
+| Page | `<title>` | `og:title` |
+|---|---|---|
+| `/` | Best bets · Kismet | Best bets · Kismet (`twitter:title` same) |
+| `/markets` | All markets · Kismet | All markets · Kismet |
+| `/pricing` | Pricing · Kismet | Pricing · Kismet |
+| `/about` | How it works · Kismet | How it works · Kismet |
+| `/terms` | Terms of use · Kismet | Terms of use · Kismet |
+| `/track-record` | Results · Kismet | Results · Kismet |
+| `/tools` | Tools · Kismet | Tools · Kismet |
+| `/m/6841253` | Will RC Celta de Vigo win on 2026-11-21? · Kismet | — |
+| `/no-such` | Page not found · Kismet | — |
+
+No doubled suffix. The diff is `app/page.tsx:5`, `title: { absolute: "Best bets · Kismet" }`.
+
+## 4. Full suites: PASS
+
+All in the worktree `audit11` after `pnpm i --frozen-lockfile` (web and extension, exit 0) and
+`find .next -name "* 2*" -delete`. Logs are in `a11/logs/`.
+
+| Suite | Command | Result |
+|---|---|---|
+| Web lint | `pnpm lint` | exit 0 |
+| Web typecheck | `pnpm typecheck` | exit 0 |
+| Web unit | `pnpm test` | **62 files, 390 tests passed** (run 10: 389; +1 is T-260's test), plus node ops tests 27 pass / 0 fail |
+| Web build | `pnpm build` (production, `a11/prod`) | exit 0 |
+| Demo + paid e2e | `PW_PORT=5410 pnpm e2e` | **52 passed** (1.1 m), then **6 passed** (1.4 m) |
+| Paid e2e | `PW_PORT=5411 pnpm exec playwright test -c playwright.paid.config.ts` | **6 passed** (1.3 m); 0 `SyntaxError`/`TypeError`/`⨯` in the log |
+| Extension | `pnpm i --frozen-lockfile && pnpm test && pnpm build` | exit 0, **6 files, 42 tests passed**, both vite builds OK |
+| Ops | `node --test ops/tests` | 27 tests, 27 pass, 0 fail |
+| Python | `pytest -q` (venv, Python 3.13.1) | **45 passed** |
+
+No failure, retry or flake. Note: `pnpm e2e` runs both configs (`package.json:13`), so the paid suite ran twice.
+
+## 5. CI: PASS
+
+`gh pr checks 2`: PR 2 head is `final` at `c65166ea3a52…` (= `origin/final`).
+
+| Run | Event | web | python | supply-chain |
+|---|---|---|---|---|
+| 44475670108 | push | pass (10m51s) | pass (17s) | pass (29s) |
+| 44475677439 | pull_request | pass (8m19s) | pass (24s) | pass (38s) |
+
+Both runs: `headSha c65166e…`, workflow `web-ci`, conclusion `success`. The web job includes T-259's
+`pnpm i --frozen-lockfile` in `apps/extension` before e2e.
+
+## Notes (not fails)
+
+- `ops/ship.md:43` step 15 does not end with `&& cd ../..`, unlike steps 1, 8, 9 and 14. If the owner runs the second
+  half of step 15 ("`node ops/vercel-env.mjs --yes`") in the same shell, it runs from `apps/extension` and fails
+  with "module not found". The header says "Run them from the repo root". Suggest appending `&& cd ../..`.
+- `docs/setup-notes/trading-extension.md:54` (§5, linked from `SETUP.md:110`) gives the command without `pnpm i`.
+  Tested in a fourth fresh clone (`a11/clone-te`): it still exits 0 and writes the zip, because pnpm installs the
+  missing deps itself before running the script (log: "Packages: +43"). No change needed.
+- The `webhook.mjs` "older event" mock artefact is unchanged (see run 10).
+- Run 10's report is not in this file: this `AUDIT.md` ends at run 9 before this section. Run 10's report is in the
+  `audit10` scratch worktree only. The owner checks listed there still apply. Add: in Stripe test mode, cancel and resubscribe. Then "Resend" the first
+  checkout's `checkout.session.completed`. The plan must stay on the new subscription.
