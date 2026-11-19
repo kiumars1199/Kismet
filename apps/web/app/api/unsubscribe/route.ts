@@ -10,9 +10,9 @@ export const dynamic = "force-dynamic";
 
 const page = (body: string, status = 200) =>
   new Response(
-    `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Unsubscribe · MarketEdge</title></head>
+    `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Unsubscribe · Kismet</title></head>
 <body style="margin:0;background:#0b0f0d;color:#e6ece9;font-family:system-ui,sans-serif"><main style="max-width:480px;margin:0 auto;padding:48px 16px">
-<p style="color:#10b981;font-weight:600">MarketEdge</p>${body}
+<p style="color:#10b981;font-weight:600">Kismet</p>${body}
 <footer style="margin-top:48px;font-size:12px;color:#8a9a93">${DISCLAIMER}</footer></main></body></html>`,
     { status, headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store", "Referrer-Policy": "no-referrer" } },
   );

@@ -51,7 +51,9 @@ export interface Store {
 
 const github = () => ({
   token: process.env.GITHUB_DATA_TOKEN,
-  repo: process.env.GITHUB_DATA_REPO || "kiumars1199/marketedge",
+  // GITHUB_DATA_REPO, else the repo Vercel deployed from (system env vars, on by default).
+  repo: process.env.GITHUB_DATA_REPO
+    || (process.env.VERCEL_GIT_REPO_OWNER && process.env.VERCEL_GIT_REPO_SLUG ? `${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}` : ""),
   ref: process.env.GITHUB_DATA_REF || "live",
 });
 

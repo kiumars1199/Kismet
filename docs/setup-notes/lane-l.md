@@ -19,7 +19,7 @@ Until steps 1–4 are done the app runs in demo mode (`DEMO_MODE=true`): no sign
    (Or with the Supabase CLI: `supabase link` then `supabase db push`.)
 4. Optional check: run `supabase/tests/rls.test.sql` with pgTAP (`supabase test db`). It proves row-level security.
 5. Authentication → URL configuration:
-   - Site URL = your domain, e.g. `https://marketedge.example`
+   - Site URL = your domain, e.g. `https://kismetodds.example`
    - Redirect URLs: add `https://<your-domain>/auth/callback` and `http://localhost:3030/auth/callback`
 6. Authentication → Providers → Email: on. The app only sends magic links; it never uses passwords.
 7. Authentication → Sessions: leave defaults. The 3-device limit is a database trigger from the migration.
@@ -29,7 +29,7 @@ Until steps 1–4 are done the app runs in demo mode (`DEMO_MODE=true`): no sign
 
 1. console.cloud.google.com → APIs & Services → Credentials → Create OAuth client ID → Web application.
 2. Authorised redirect URI: `https://<project-ref>.supabase.co/auth/v1/callback` (shown on the Supabase Google provider page).
-3. OAuth consent screen: app name MarketEdge, support email, scopes `openid email profile` only.
+3. OAuth consent screen: app name Kismet, support email, scopes `openid email profile` only.
 4. Supabase → Authentication → Providers → Google: paste Client ID and Client secret. Enable.
 
 ## 3. Stripe

@@ -1,6 +1,6 @@
 # 16 · Placing trades on Kalshi
 
-Goal: let a user act on a MarketEdge bet without leaving the app. This doc separates what can be built
+Goal: let a user act on a Kismet bet without leaving the app. This doc separates what can be built
 now (paper trading on Kalshi's demo exchange, behind a flag) from what needs outside sign-off before real
 money flows.
 
@@ -23,7 +23,7 @@ money flows.
    signals**, or exercise discretion over routing — and only after filing a notice, giving users conflict and
    risk disclosures, following NFA marketing rules, keeping records, and signing a **joint-liability undertaking
    together with each registered partner (here: Kalshi)**.
-   MarketEdge's core product ("Bet Yes at 68¢, +24% expected") is very likely a buy signal. Combining it with
+   Kismet's core product ("Bet Yes at 68¢, +24% expected") is very likely a buy signal. Combining it with
    order submission probably falls outside the relief, which would mean IB registration (NFA membership,
    capital requirements, exams) or a structure a lawyer designs.
 2. **Kalshi's Developer Agreement** limits API use to a member's own trading and bars commercial reuse of data
@@ -47,7 +47,7 @@ bet gets an **"Open on Kalshi / Polymarket"** link (no order placement by us).
   Kalshi (extension host permission for `api.elections.kalshi.com` / `external-api.demo.kalshi.co`, so no CORS issue).
 - The web app talks to the extension with `chrome.runtime.sendMessage(EXT_ID, intent)`; `externally_connectable`
   allows only our origin; each intent carries a one-time nonce from our server so other sites can't fire orders.
-- No extension installed → the order ticket shows "Install the extension to trade from MarketEdge" + "Open on Kalshi".
+- No extension installed → the order ticket shows "Install the extension to trade from Kismet" + "Open on Kalshi".
 
 ### Market matching (Polymarket ↔ Kalshi)
 - Engine job `kalshi_match` (only in the environment that has Kalshi permission; demo uses the demo exchange's
@@ -58,17 +58,17 @@ bet gets an **"Open on Kalshi / Polymarket"** link (no order placement by us).
 
 ### Order ticket (drawer → "Trade")
 1. Side (Yes/No), **limit price** prefilled at the current ask (user can change), amount in $ or contracts.
-2. Shows: Kalshi fee estimate, max cost (`buy_max_cost`), payout if it wins, MarketEdge return at that price, the
+2. Shows: Kalshi fee estimate, max cost (`buy_max_cost`), payout if it wins, Kismet return at that price, the
    execution check for that size (docs/07), and Kalshi's own risk disclosure link.
 3. **Confirm screen every time** (no one-click), then the extension submits with a `client_order_id` (UUID) for safe retries.
 4. Live status via `read` scope: resting / partially filled / filled / cancelled; cancel button; fills land in
-   **My bets** automatically (with entry price, fee, MarketEdge numbers at entry).
+   **My bets** automatically (with entry price, fee, Kismet numbers at entry).
 5. Safety settings: max $ per order, max $ per day, require confirmation (always on), "paper mode" badge in demo.
    No auto-trading, no "trade all best bets", no copying, no AI-placed orders. Ever.
 
 ### Portfolio view
 "My Kalshi" tab (inside My bets): balance, open positions, resting orders, P&L — read through the extension.
-Display-only; MarketEdge never ranks or suggests bets from these positions (product rule).
+Display-only; Kismet never ranks or suggests bets from these positions (product rule).
 
 ## 4. Build now (flagged)
 - `KALSHI_TRADING_ENV=demo` enables the Trade button for allow-listed users and points everything at
@@ -80,7 +80,7 @@ Display-only; MarketEdge never ranks or suggests bets from these positions (prod
 ## 5. Before real money (owner to-do, not code)
 1. Email Kalshi (partnerships/developer relations): data license + partner integration for a third-party
    trading front end; ask whether they'll sign the 26-25 undertaking.
-2. A CFTC/NFA lawyer reviews whether MarketEdge's analytics + order ticket needs IB registration, and how to
+2. A CFTC/NFA lawyer reviews whether Kismet's analytics + order ticket needs IB registration, and how to
    structure it (e.g., separate entities/products, or registering).
 3. If going ahead under 26-25: file the notice, add conflict + risk disclosures with recorded acknowledgment,
    adopt NFA-style marketing policies, set up recordkeeping.

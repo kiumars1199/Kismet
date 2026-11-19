@@ -1,4 +1,4 @@
-// docs/16 §3 + docs/15: no auto-trading code paths. Every order traces to a user click on MarketEdge's confirm screen,
+// docs/16 §3 + docs/15: no auto-trading code paths. Every order traces to a user click on Kismet's confirm screen,
 // which reaches the extension as one "place" intent with a server nonce. This test fails if anything else calls placeOrder.
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";

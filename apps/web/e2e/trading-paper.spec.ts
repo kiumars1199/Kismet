@@ -85,7 +85,7 @@ test.describe.configure({ mode: "serial" });
 let ctx: BrowserContext;
 
 test.beforeAll(async () => {
-  execFileSync("pnpm", ["build"], { cwd: EXT_DIR, env: { ...process.env, ME_ORIGIN: ORIGIN, OUT_DIR: "dist-e2e" }, stdio: "ignore" });
+  execFileSync("pnpm", ["build"], { cwd: EXT_DIR, env: { ...process.env, KISMET_ORIGIN: ORIGIN, OUT_DIR: "dist-e2e" }, stdio: "ignore" });
   ctx = await chromium.launchPersistentContext("", {
     channel: "chromium", baseURL: ORIGIN, viewport: { width: 1280, height: 800 },
     args: [`--disable-extensions-except=${OUT}`, `--load-extension=${OUT}`],
@@ -210,7 +210,7 @@ async function storeShots(p: Page) {
   const frame = async (out: string, title: string, sub: string, imgs: string[]) => {
     await p.setViewportSize({ width: 1280, height: 800 });
     await p.setContent(`<body style="margin:0;width:1280px;height:800px;background:#070a09;color:#e6efe9;font:16px system-ui,sans-serif;display:flex;align-items:center;gap:56px;padding:0 80px;box-sizing:border-box">
-      <div style="flex:1"><div style="color:#10b981;font-weight:600;margin-bottom:12px">MarketEdge</div>
+      <div style="flex:1"><div style="color:#10b981;font-weight:600;margin-bottom:12px">Kismet</div>
         <h1 style="font-size:40px;line-height:1.15;margin:0 0 16px;letter-spacing:-0.02em">${title}</h1><p style="color:#a9bab1;font-size:18px;line-height:1.5;margin:0">${sub}</p></div>
       ${imgs.map((s) => `<img src="${img(s)}" style="max-height:720px;border:1px solid #1a2520;border-radius:16px;box-shadow:0 20px 60px #0008">`).join("")}</body>`);
     await p.screenshot({ path: join(STORE_DIR, out) });
@@ -223,5 +223,5 @@ async function storeShots(p: Page) {
   await copy("ticket", "1-paper-ticket.png");
   await copy("journal", "2-my-bets.png");
   await frame("3-key-vault.png", "Your Kalshi key stays in your browser", "Connect a trade-only demo key. It stays inside the extension, can't be exported, and signs only the orders you confirm.", ["panel"]);
-  await frame("4-popup.png", "Sign-in, plan and status at a glance", "Open MarketEdge or the side panel from any tab.", ["popup"]);
+  await frame("4-popup.png", "Sign-in, plan and status at a glance", "Open Kismet or the side panel from any tab.", ["popup"]);
 }

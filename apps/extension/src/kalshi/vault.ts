@@ -4,7 +4,7 @@ import type { KeyType } from "./sign";
 
 export interface StoredKey { keyId: string; key: CryptoKey; type: KeyType; scopes: string[]; verifiedAt: number }
 
-const DB = "marketedge-vault";
+const DB = "kismet-vault";
 const STORE = "keys";
 const ID = "kalshi-demo";
 

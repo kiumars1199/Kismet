@@ -1,4 +1,4 @@
-# Overnight run: take MarketEdge from demo to final product
+# Overnight run: take Kismet from demo to final product
 
 You are the lead agent. Work unattended until everything below is done. Never stop to ask; when something
 is unclear, pick the option that best fits the docs, write it in `STATUS.md` → "Decisions", and keep going.

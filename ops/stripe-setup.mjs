@@ -2,11 +2,11 @@
 // Stripe account setup for Checkout mode (ops/ship.md step 7). Idempotent: finds what exists, creates or fixes only
 // what's missing, and prints the env values to paste. Dry run unless --yes (a dry run with a key only reads).
 //
-//   node ops/stripe-setup.mjs [--env apps/web/.env.prod] [--domain marketedge.com] [--yes] [--live]
+//   node ops/stripe-setup.mjs [--env apps/web/.env.prod] [--domain kismetodds.com] [--yes] [--live]
 //
 // Creates, from the app's own config (never invented):
-//   - products "MarketEdge Pro" / "MarketEdge Premium" (found again by metadata.marketedge_tier)
-//   - 4 recurring USD prices from config/site.json prices_usd (found by lookup_key marketedge_<key>; metadata.tier set)
+//   - products "Kismet Pro" / "Kismet Premium" (found again by metadata.kismet_tier)
+//   - 4 recurring USD prices from config/site.json prices_usd (found by lookup_key kismet_<key>; metadata.tier set)
 //   - the webhook endpoint https://<domain>/api/stripe/webhook with exactly the events lib/billing/stripe.ts handles
 //   - the default Customer Portal configuration: cancel at period end, switch between the 4 prices, update card, invoices
 // Key: STRIPE_SECRET_KEY from the environment, else the env file. Needs a secret key (or a restricted key with write on
@@ -25,13 +25,13 @@ export const webhookEvents = (src = readFileSync(resolve(WEB, "lib/billing/strip
   [...src.slice(src.indexOf("export async function handleEvent")).matchAll(/case "([a-z_]+\.[a-z_.]+)":/g)].map((m) => m[1]);
 
 export const PRICE_ENV = Object.fromEntries(PRICE_KEYS.map((k) => [k, `STRIPE_PRICE_${k.toUpperCase()}`]));
-const TIERS = { pro: "MarketEdge Pro", premium: "MarketEdge Premium" };
+const TIERS = { pro: "Kismet Pro", premium: "Kismet Premium" };
 
 /** What the account should hold, from config/site.json. */
 export function desired(site, origin) {
   return {
     prices: PRICE_KEYS.map((key) => ({
-      key, tier: key.split("_")[0], lookup_key: `marketedge_${key}`, interval: key.endsWith("monthly") ? "month" : "year",
+      key, tier: key.split("_")[0], lookup_key: `kismet_${key}`, interval: key.endsWith("monthly") ? "month" : "year",
       unit_amount: Math.round(Number(site.prices_usd[key]) * 100),
     })),
     webhookUrl: `${origin}/api/stripe/webhook`,
@@ -69,10 +69,10 @@ export async function setup(stripe, { site, origin, events, apply }) {
   const existing = [];
   for await (const p of stripe.products.list({ limit: 100, active: true })) existing.push(p);
   for (const [tier, name] of Object.entries(TIERS)) {
-    const found = existing.find((p) => p.metadata?.marketedge_tier === tier);
+    const found = existing.find((p) => p.metadata?.kismet_tier === tier);
     if (found) { keep(`product ${name} (${found.id})`); products[tier] = found.id; continue; }
     step("create", `product ${name}`);
-    products[tier] = apply ? (await stripe.products.create({ name, metadata: { marketedge_tier: tier } })).id : `<new ${tier} product>`;
+    products[tier] = apply ? (await stripe.products.create({ name, metadata: { kismet_tier: tier } })).id : `<new ${tier} product>`;
   }
 
   const env = {};
@@ -103,7 +103,7 @@ export async function setup(stripe, { site, origin, events, apply }) {
     step("create", `webhook ${want.webhookUrl} for ${events.join(", ")}`);
     if (apply) {
       webhookSecret = (await stripe.webhookEndpoints.create({
-        url: want.webhookUrl, enabled_events: events, api_version: Stripe.API_VERSION, description: "MarketEdge billing (ops/stripe-setup.mjs)",
+        url: want.webhookUrl, enabled_events: events, api_version: Stripe.API_VERSION, description: "Kismet billing (ops/stripe-setup.mjs)",
       })).secret;
     }
   } else if (!sameEvents(hook.enabled_events, events) || hook.status === "disabled") {
@@ -130,7 +130,7 @@ if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
   try { loaded = loadEnv(args); } catch (e) { fail(e.message); }
   const site = JSON.parse(readFileSync(SITE_JSON, "utf8"));
   const host = typeof args.domain === "string" ? args.domain : loaded.env.NEXT_PUBLIC_SITE_URL || site.domain;
-  if (!host) fail("No domain: pass --domain marketedge.com, or set NEXT_PUBLIC_SITE_URL or config/site.json domain.");
+  if (!host) fail("No domain: pass --domain kismetodds.com, or set NEXT_PUBLIC_SITE_URL or config/site.json domain.");
   const origin = `https://${host.replace(/^https?:\/\//, "").replace(/\/.*$/, "")}`;
   const events = webhookEvents();
   if (site.stripe?.mode === "links") console.log('Note: config/site.json stripe.mode is "links": the app uses Payment Links, not these price ids.');

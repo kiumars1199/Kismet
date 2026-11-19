@@ -76,7 +76,7 @@ before(async () => { await new Promise((r) => server.listen(0, "127.0.0.1", r));
 after(() => server.close());
 
 const envFile = join(WEB, `.env.stripe-test-${process.pid}`);   // gitignored (.env*)
-const run = (...a) => promisify(execFile)("node", [join(ROOT, "ops/stripe-setup.mjs"), "--env", envFile, "--domain", "marketedge.example", ...a], {
+const run = (...a) => promisify(execFile)("node", [join(ROOT, "ops/stripe-setup.mjs"), "--env", envFile, "--domain", "kismetodds.example", ...a], {
   env: { ...process.env, STRIPE_SECRET_KEY: "sk_test_FAKEFAKEFAKEFAKE", STRIPE_API_BASE: base },
 }).then((r) => r.stdout);
 
@@ -89,15 +89,15 @@ test("dry run reads only; --yes creates everything once; a second --yes changes 
   writeFileSync(envFile, "STRIPE_PRICE_PRO_MONTHLY=\nSTRIPE_WEBHOOK_SECRET=\n");
   try {
     const dry = await run();
-    assert.match(dry, /would create: product MarketEdge Pro/);
+    assert.match(dry, /would create: product Kismet Pro/);
     assert.deepEqual(state.writes, [], "dry run made no POST");
 
     const first = await run("--yes");
     assert.equal(state.products.length, 2);
     assert.deepEqual(state.prices.map((p) => [p.lookup_key, p.unit_amount, p.recurring.interval, p.metadata.tier]), [
-      ["marketedge_pro_monthly", 1199, "month", "pro"], ["marketedge_pro_yearly", 9999, "year", "pro"],
-      ["marketedge_premium_monthly", 1999, "month", "premium"], ["marketedge_premium_yearly", 16999, "year", "premium"]]);
-    assert.equal(state.hooks[0].url, "https://marketedge.example/api/stripe/webhook");
+      ["kismet_pro_monthly", 1199, "month", "pro"], ["kismet_pro_yearly", 9999, "year", "pro"],
+      ["kismet_premium_monthly", 1999, "month", "premium"], ["kismet_premium_yearly", 16999, "year", "premium"]]);
+    assert.equal(state.hooks[0].url, "https://kismetodds.example/api/stripe/webhook");
     assert.deepEqual(state.hooks[0].enabled_events, webhookEvents());
     const portal = state.portals[0].features;
     assert.equal(portal.subscription_cancel.mode, "at_period_end");
@@ -137,7 +137,7 @@ test("a live key needs --live", async () => {
 test("the webhook secret is never printed; the env file ends up 0600", async (t) => {
   if (existsSync(PROD_ENV) || existsSync(join(WEB, ".env.local"))) return t.skip("an env file exists: the no-file path can't run here");
   state.hooks.length = 0;   // a fresh endpoint, so a new secret is issued
-  const out = await promisify(execFile)("node", [join(ROOT, "ops/stripe-setup.mjs"), "--domain", "marketedge.example", "--yes"], {
+  const out = await promisify(execFile)("node", [join(ROOT, "ops/stripe-setup.mjs"), "--domain", "kismetodds.example", "--yes"], {
     env: { ...process.env, STRIPE_SECRET_KEY: "sk_test_FAKEFAKEFAKEFAKE", STRIPE_API_BASE: base },
   }).then((r) => r.stdout);
   assert.doesNotMatch(out, /whsec_mocksecret/);

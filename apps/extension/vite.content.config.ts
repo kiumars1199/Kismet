@@ -7,6 +7,6 @@ export default defineConfig({
   build: {
     outDir: OUT_DIR,
     emptyOutDir: false,
-    lib: { entry: resolve(import.meta.dirname, "src/content.ts"), formats: ["iife"], name: "MarketEdge", fileName: () => "content.js" },
+    lib: { entry: resolve(import.meta.dirname, "src/content.ts"), formats: ["iife"], name: "Kismet", fileName: () => "content.js" },
   },
 });

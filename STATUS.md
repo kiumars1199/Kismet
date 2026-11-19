@@ -1,4 +1,4 @@
-# MarketEdge — status
+# Kismet — status
 
 Branch `final` (from `demo`), built overnight by one agent per lane, merged by the lead. `SETUP.md` covers accounts and
 deploy; `LAUNCH_TODO.md` covers owner-only steps; `AUDIT.md` holds the final audit.

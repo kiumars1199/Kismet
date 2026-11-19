@@ -13,9 +13,9 @@ const grotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-space-grot
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
-  openGraph: { siteName: "MarketEdge", type: "website", images: [{ url: "/opengraph-image", width: 1200, height: 630 }] },   // fallback; app/opengraph-image.tsx and twitter-image.tsx (and /m/[id]) win
+  openGraph: { siteName: "Kismet", type: "website", images: [{ url: "/opengraph-image", width: 1200, height: 630 }] },   // fallback; app/opengraph-image.tsx and twitter-image.tsx (and /m/[id]) win
   twitter: { card: "summary_large_image", images: ["/opengraph-image"] },
-  title: { default: "MarketEdge", template: "%s · MarketEdge" },
+  title: { default: "Kismet", template: "%s · Kismet" },
   description: "Prediction-market analytics: which contracts are priced below how often bets like them have won.",
 };
 

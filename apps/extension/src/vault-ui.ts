@@ -1,6 +1,6 @@
 // Side panel "Paper trading" tab: connect a trade-only Kalshi DEMO key, see its scopes, set spending limits.
 // The private key goes from this textarea straight into the background worker, which imports it as a
-// non-extractable WebCrypto key. It is never sent to MarketEdge's servers, logged, or shown again.
+// non-extractable WebCrypto key. It is never sent to Kismet's servers, logged, or shown again.
 import { money } from "./format";
 import { API } from "./types";
 
@@ -23,11 +23,11 @@ export async function renderTrade(el: HTMLElement) {
 }
 
 function draw(el: HTMLElement, s: Status, enabled: boolean, note?: { error?: string; ok?: string }) {
-  const off = enabled ? "" : `<section class="inner small" role="note">Paper trading is off on MarketEdge for this account right now. You can still connect a key; the Trade button appears in MarketEdge when it's on.</section>`;
+  const off = enabled ? "" : `<section class="inner small" role="note">Paper trading is off on Kismet for this account right now. You can still connect a key; the Trade button appears in Kismet when it's on.</section>`;
   const msg = note?.error ? `<p class="error" role="alert">${esc(note.error)}</p>` : note?.ok ? `<p class="ok" role="status">${esc(note.ok)}</p>` : "";
   el.innerHTML = `
     <div class="row"><h2 style="font-size:20px">Kalshi paper trading</h2><span class="chip warn">Paper mode</span></div>
-    <p class="small muted" style="margin-bottom:0">Orders go to Kalshi's <strong>demo exchange</strong> with fake money. You confirm every order on MarketEdge; nothing is ever placed on its own.</p>
+    <p class="small muted" style="margin-bottom:0">Orders go to Kalshi's <strong>demo exchange</strong> with fake money. You confirm every order on Kismet; nothing is ever placed on its own.</p>
     ${off}
     ${s.connected ? connected(s) : connectForm()}
     ${msg}
@@ -58,7 +58,7 @@ function connectForm() {
     <label class="field">Key ID<input name="keyId" autocomplete="off" spellcheck="false" required class="mono" placeholder="a952bcbe-ec3b-4b5b-…" /></label>
     <label class="field">Private key<textarea name="pem" rows="5" autocomplete="off" spellcheck="false" required class="mono" placeholder="-----BEGIN PRIVATE KEY-----"></textarea></label>
     <button class="btn primary" type="submit">Check and connect</button>
-    <p class="small muted" style="margin-bottom:0">Your key never leaves this browser. MarketEdge's servers never see it.</p>
+    <p class="small muted" style="margin-bottom:0">Your key never leaves this browser. Kismet's servers never see it.</p>
   </form>`;
 }
 

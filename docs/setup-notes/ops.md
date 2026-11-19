@@ -64,7 +64,7 @@ then drops to uid 10001 before any job runs.
 ### Alternative: Fly.io
 
 ```bash
-fly launch --no-deploy --copy-config --config fly.toml     # keeps app name marketedge-engine, region iad
+fly launch --no-deploy --copy-config --config fly.toml     # keeps app name kismet-engine, region iad
 fly volumes create engine_data --size 5 --region iad --config fly.toml
 fly secrets set SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... --config fly.toml
 fly deploy --config fly.toml
@@ -103,7 +103,7 @@ expire after 7 days unused.
    | `NEXT_PUBLIC_SUPABASE_URL` | Supabase Project URL |
    | `SUPABASE_SERVICE_ROLE_KEY` | service_role key (mark **Sensitive**) |
    | `GITHUB_DATA_TOKEN` | token from step 3.2 (Sensitive) |
-   | `GITHUB_DATA_REPO` / `GITHUB_DATA_REF` | `kiumars1199/marketedge` / `live` |
+   | `GITHUB_DATA_REPO` / `GITHUB_DATA_REF` | `<owner>/<repo>` of this GitHub repo / `live` |
    | `NEXT_PUBLIC_SITE_URL` | `https://<your domain>` |
    | `CRON_SECRET` | `openssl rand -hex 32` (Sensitive). Vercel sends it as `Authorization: Bearer …` |
    | `HEALTH_MAX_DATA_AGE_MIN` | `30` (use `150` while only the 2-hourly GitHub fallback runs) |
@@ -150,16 +150,16 @@ expire after 7 days unused.
 
 1. resend.com → Domains → Add `mail.<your domain>` (a subdomain keeps the root domain's reputation separate).
 2. Add the DNS records Resend shows, at your registrar:
-   - **SPF**: TXT on `send.mail.<domain>` `v=spf1 include:amazonses.com ~all` and the MX record it lists.
-   - **DKIM**: TXT `resend._domainkey.mail.<domain>` with the key Resend gives.
+   - **SPF**: TXT on `send.kismetodds.com` `v=spf1 include:amazonses.com ~all` and the MX record it lists.
+   - **DKIM**: TXT `resend._domainkey.kismetodds.com` with the key Resend gives.
    - **DMARC**: TXT `_dmarc.<domain>` → `v=DMARC1; p=none; rua=mailto:[[SUPPORT_EMAIL]]`.
      After two weeks of clean reports, change to `p=quarantine`.
    Wait for "Verified".
 3. API Keys → create a **Sending access** key for this domain → `RESEND_API_KEY` in Vercel.
-   `EMAIL_FROM` = `MarketEdge <alerts@mail.<domain>>`.
+   `EMAIL_FROM` = `Kismet <noreply@kismetodds.com>`.
 4. **Magic links** do not use our code: Supabase sends them. Supabase → Authentication → Emails →
    **SMTP Settings** → enable custom SMTP: host `smtp.resend.com`, port `465`, user `resend`,
-   password = a second Resend sending key, sender `MarketEdge <login@mail.<domain>>`.
+   password = a second Resend sending key, sender `Kismet <noreply@kismetodds.com>`.
    Raise Auth → Rate limits → emails per hour once custom SMTP is on.
 5. Alert emails go through `lib/email` (`sendEmail` + `alertEmail`). Every one has the
    `List-Unsubscribe` and `List-Unsubscribe-Post: List-Unsubscribe=One-Click` headers and an unsubscribe

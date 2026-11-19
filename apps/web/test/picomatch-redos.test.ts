@@ -14,7 +14,7 @@ describe("picomatch ReDoS (GHSA-fc5q-39xc-vjpf)", () => {
       expect(lock.match(/^\s+picomatch: \d/gm) ?? [], app).toEqual([]);
     }
     const vendored = JSON.parse(readFileSync(path.resolve(import.meta.dirname, "../../../vendor/picomatch/package.json"), "utf8"));
-    expect(vendored.version).toBe("4.0.8-marketedge.1");
+    expect(vendored.version).toBe("4.0.8-kismet.1");
   });
 
   it("the advisory PoC finishes fast and the patterns keep their meaning", () => {

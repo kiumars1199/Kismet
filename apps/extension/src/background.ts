@@ -1,4 +1,4 @@
-// Service worker: MarketEdge API calls (60 s cache per slug), sign-in token, side panel, and Kalshi paper trading.
+// Service worker: Kismet API calls (60 s cache per slug), sign-in token, side panel, and Kalshi paper trading.
 // Trading rules (docs/16 §3, docs/15): keys stay in the vault, orders only from our origin with a server nonce
 // that we check with our server before signing, caps checked here, nothing is ever placed on a timer.
 import * as K from "./kalshi/client";
@@ -60,7 +60,7 @@ async function eventBySlug(slug: string): Promise<EventResponse | null> {
   try {
     data = await apiGet<EventResponse>(`/api/events/by-slug/${encodeURIComponent(slug)}`);
   } catch (e) {
-    console.warn("[MarketEdge] API unreachable", slug, String(e));
+    console.warn("[Kismet] API unreachable", slug, String(e));
     return null; // not cached: retry on next navigation
   }
   await chrome.storage.session.set({ [key]: { at: Date.now(), data } });
@@ -77,13 +77,13 @@ let placing: Promise<unknown> = Promise.resolve();
 
 async function signer(): Promise<K.Signer> {
   const k = await loadKey();
-  if (!k) throw new Error("Connect a Kalshi demo key in the MarketEdge side panel first.");
+  if (!k) throw new Error("Connect a Kalshi demo key in the Kismet side panel first.");
   return { keyId: k.keyId, key: k.key };
 }
 
 /** Ask our server whether this nonce was issued for exactly this action + payload, and consume it. */
 async function checkNonce(nonce: unknown, action: "place" | "cancel", payload: unknown) {
-  if (typeof nonce !== "string" || nonce.length > 1024) throw new Error("This order has no valid confirmation. Confirm it again on MarketEdge.");
+  if (typeof nonce !== "string" || nonce.length > 1024) throw new Error("This order has no valid confirmation. Confirm it again on Kismet.");
   let ok = false;
   try {
     const res = await fetch(`${API}/api/trade/nonce/verify`, {
@@ -92,7 +92,7 @@ async function checkNonce(nonce: unknown, action: "place" | "cancel", payload: u
     });
     ok = res.ok && ((await res.json()) as { ok?: boolean }).ok === true;
   } catch { /* unreachable = not verified */ }
-  if (!ok) throw new Error("This order's confirmation expired or was already used. Confirm it again on MarketEdge.");
+  if (!ok) throw new Error("This order's confirmation expired or was already used. Confirm it again on Kismet.");
 }
 
 async function vaultStatus() {
@@ -232,7 +232,7 @@ chrome.runtime.onMessage.addListener((msg: Msg | Record<string, unknown>, sender
   if (m.type === "open") {
     // Must run before any await, or Chrome drops the user gesture.
     const tabId = sender.tab?.id;
-    if (tabId !== undefined) chrome.sidePanel.open({ tabId }).catch((e) => console.warn("[MarketEdge] side panel", String(e)));
+    if (tabId !== undefined) chrome.sidePanel.open({ tabId }).catch((e) => console.warn("[Kismet] side panel", String(e)));
     const sel: Selection = { slug: m.slug, marketId: m.marketId, at: Date.now() };
     chrome.storage.local.set({ selection: sel });
     return false;

@@ -48,14 +48,14 @@ None exist. The browser never fetches data files directly. The server reads the 
   globstar work). Fix PRs are open and unmerged: https://github.com/micromatch/picomatch/pull/194 (its own notes say
   `+(*a)` stays exponential) and #254 to #266. So option (b) from the audit brief applies: a minimal fix of our own.
 - **The fix:** `vendor/picomatch` is picomatch 4.0.7 (MIT, `LICENSE` kept) with one change in `lib/parse.js`
-  (search for "MarketEdge patch"). A `+(...)`/`*(...)` branch that holds a wildcard `*` is no longer repeated:
+  (search for "Kismet patch"). A `+(...)`/`*(...)` branch that holds a wildcard `*` is no longer repeated:
   - one plain branch (no `/`, groups, braces, escapes or negated brackets) is emitted once: `+(*a)` becomes
     `(?:[^/]*?a)` instead of `(?:[^/]*?a)+`. Such a language is closed under concatenation, so the matches are the
     same. A differential run against 4.0.7 (60 pattern/option pairs × 19,531 subjects up to 6 characters, with `/`
     and `.`) found no difference on these shapes;
   - any other branch with a `*` (several branches, braces, negated brackets) is treated like the shapes picomatch
     already refuses (`*(*|a)`): matched literally. This changes matching for those rare patterns, by design.
-  - Version `4.0.8-marketedge.1`. Tests: `node --test vendor/picomatch/test` (the PoC under a 200 ms bound; unpatched,
+  - Version `4.0.8-kismet.1`. Tests: `node --test vendor/picomatch/test` (the PoC under a 200 ms bound; unpatched,
     `+(*)` took 79 s) and `apps/web/test/picomatch-redos.test.ts` (lockfiles point at the vendored copy).
 - **Wiring:** `"picomatch@4": file:../../vendor/picomatch` under `overrides` in `apps/web/pnpm-workspace.yaml` and
   `apps/extension/pnpm-workspace.yaml`, plus `"picomatch@2"` in the web app: 2.3.2 came in through eslint-config-next >

@@ -93,7 +93,7 @@ export function validateSite(site) {
   const warn = (key, msg) => out.push({ key, level: "warn", msg });
   const L = site.legal ?? {};
   if (empty(site.domain)) block("domain", "empty (pages show [[DOMAIN]])");
-  else if (!isDomain(site.domain)) block("domain", `"${site.domain}" is not a bare domain like marketedge.com (no https://, no path)`);
+  else if (!isDomain(site.domain)) block("domain", `"${site.domain}" is not a bare domain like kismetodds.com (no https://, no path)`);
   if (empty(site.support_email)) block("support_email", "empty (pages show [[SUPPORT_EMAIL]])");
   else if (!isEmail(site.support_email)) block("support_email", `"${site.support_email}" is not an email address`);
   for (const [k, ph] of [["operator_names", "OPERATOR_NAMES"], ["governing_state", "GOVERNING_STATE"], ["response_time", "RESPONSE_TIME"], ["last_updated", "LAST_UPDATED"]]) {

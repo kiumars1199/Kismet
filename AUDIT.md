@@ -1,6 +1,6 @@
 # Audit run 3
 
-MarketEdge final audit, third run.
+Kismet final audit, third run.
 
 Auditor: an independent agent that built none of this code. It checked and fixed nothing.
 Target: branch `final` at `47e5d3a` ("T-190: picomatch 2.x (eslint dev tooling) also uses the vendored fix; full pnpm audit has no high"), checked out as `audit3`.
@@ -115,7 +115,7 @@ The routes are every public page, every account page, `/admin`, `/admin/users`, 
   - The next admin crawl finished, but `/api/me` read `nouser:free` at every check. The mock had restarted on its memory threshold again (`mock-server2.log` line 6091) and wiped the seeded admin, so I discarded that run.
   - I re-seeded the admin and crawled once more with no restart in between. The admin row above is from that run. `/api/me` read `free+admin` at all 3 checks.
   - All 5 admin pages (`/admin`, `/admin/users`, `/admin/health`, `/admin/settings`, `/admin/audit`) returned 200 at both widths, with h1 "Admin", the disclaimer, no console errors and no horizontal scroll.
-  - The one bad link is `/api/admin/export`, which returned 403 to the crawler's plain GET. That is the deliberate cross-site guard (`sameSiteRequest`, `apps/web/app/api/admin/export/route.ts:22`). I checked it by hand as the admin: no `Sec-Fetch-Site` header gave 403, `Sec-Fetch-Site: cross-site` gave 403, and `Sec-Fetch-Site: same-origin` gave 200 `text/csv` with `content-disposition: attachment; filename="marketedge-users-2026-11-18.csv"` and the expected header row. It is not a fail.
+  - The one bad link is `/api/admin/export`, which returned 403 to the crawler's plain GET. That is the deliberate cross-site guard (`sameSiteRequest`, `apps/web/app/api/admin/export/route.ts:22`). I checked it by hand as the admin: no `Sec-Fetch-Site` header gave 403, `Sec-Fetch-Site: cross-site` gave 403, and `Sec-Fetch-Site: same-origin` gave 200 `text/csv` with `content-disposition: attachment; filename="kismet-users-2026-11-18.csv"` and the expected header row. It is not a fail.
 - Screenshots: `docs/screenshots/audit/audit3-<state>-<page>-<390|1440>.png`, for example `audit3-anon-home-390.png`, `audit3-free-markets-1440.png` and `audit3-pro-m_6970277-390.png`.
 - Static checks on the shipped code:
   - `grep -rn "TODO\|FIXME"` over `apps/web/{app,components,lib}` and `apps/extension/src` finds 0.
@@ -232,7 +232,7 @@ Performance medians over all 6 runs per page:
   - `pip-audit`: none.
 - **Is the picomatch advisory really cleared?** Yes.
   - Both lockfiles override picomatch to `file:../../vendor/picomatch`.
-  - `vendor/picomatch/lib/parse.js` carries the MarketEdge patch for nested extglob quantifiers.
+  - `vendor/picomatch/lib/parse.js` carries the Kismet patch for nested extglob quantifiers.
   - My own fuzz of 17 GHSA-fc5q-39xc-vjpf shapes (`+(*)`, `+(*a)`, `*(*a)`, `+(a|aa)`, `+(+(a))` and others, against 30–5,000-character inputs) ran in 0–1 ms each.
 - **Secrets in git history:** a gitleaks-equivalent regex scan of all 250 commits (`secrets_scan.py`) had 21 hits, all obvious fakes:
   - `FAKEFAKE` keys;
@@ -261,8 +261,8 @@ Performance medians over all 6 runs per page:
   - `/api/trade/config` returns `{"enabled":false,"env":null}`.
   - `/api/trade/nonce` returns 404 "Trading is off.".
   - Nonce verification returns 404.
-- **Scratch spec with the real extension** (`e2e-audit/trade-audit.spec.ts`): demo build on PW_PORT 4241, the extension built with `ME_ORIGIN` and loaded in a clean Chromium profile, and Kalshi's demo API mocked with real Ed25519 signature checks. 1 passed (1.3 m). The first attempt failed only because my spec expected the over-cap check on the confirm screen. The ticket blocks it earlier, so I fixed the spec and re-ran it.
-  - A key that also has `write::transfer` is rejected: "This key also allows write::transfer. For safety MarketEdge only accepts trade-only keys…" (`audit3-ext-transfer-scope-rejected.png`).
+- **Scratch spec with the real extension** (`e2e-audit/trade-audit.spec.ts`): demo build on PW_PORT 4241, the extension built with `KISMET_ORIGIN` and loaded in a clean Chromium profile, and Kalshi's demo API mocked with real Ed25519 signature checks. 1 passed (1.3 m). The first attempt failed only because my spec expected the over-cap check on the confirm screen. The ticket blocks it earlier, so I fixed the spec and re-ran it.
+  - A key that also has `write::transfer` is rejected: "This key also allows write::transfer. For safety Kismet only accepts trade-only keys…" (`audit3-ext-transfer-scope-rejected.png`).
   - A $40 order at 5¢ against the default $25 per-order cap: the ticket shows "Over your $25 per-order limit." and "Review order" is disabled. 0 orders reached Kalshi (`audit3-ext-cap-refused.png`). The extension enforces the same cap in `capError` (`apps/extension/src/kalshi/trade.ts`, unit tested in `test/trade.test.ts`).
   - Every order needs a confirm: 0 orders at Kalshi on the confirm screen, 1 after "Place paper order".
   - The key never leaves the extension:
@@ -326,14 +326,14 @@ Observation, not a spec fail: there is no event-ordering check in `lib/billing/s
   - The longest title in the scan, "Will Jean-Michel Basquiat's “Untitled (Leonardo and His Five Grotesque Heads)” sell for between $40m and $50m at auction?" (121 characters), wraps and ends with a clean ellipsis (`audit3-og-longest-6766310.png`).
   - A 95% market (`audit3-og-high-6970277.png`) and a two-line title (`audit3-og-long-6742228.png`) render with nothing cut off.
 - **Extension:**
-  - `ME_ORIGIN=https://marketedge.example pnpm ext:zip` wrote `marketedge-extension-0.1.0.zip`.
+  - `KISMET_ORIGIN=https://kismetodds.example pnpm ext:zip` wrote `kismet-extension-0.1.0.zip`.
   - Unzipped manifest: MV3; permissions `storage` and `sidePanel` only; host permissions are the app origin and `external-api.demo.kalshi.co`; extension pages CSP `script-src 'self'`.
   - It contains 0 `eval(` and 0 `new Function`, and no remote code.
   - Loaded in a clean Chromium profile, the service worker registered. The popup rendered "Signed out … Paper trading Off … Market analytics, not financial advice. Based on past results. 18+." (`audit3-ext-popup.png`). Its only console error is the expected DNS failure for the placeholder domain.
 - **Owner scripts, default dry-run mode:**
   - `node ops/secrets.mjs`: "Dry run (add --yes to write)". It lists the three secrets it would generate. Exit 0.
   - `node ops/site-config.mjs --domain … --yes`-less run: shows the diff. Exit 0, and `config/site.json` is unchanged (`git status` clean).
-  - `node ops/stripe-setup.mjs --domain marketedge.example`, with no key: prints the plan (4 prices, 2 products, webhook with 5 events, portal). Exit 0.
+  - `node ops/stripe-setup.mjs --domain kismetodds.example`, with no key: prints the plan (4 prices, 2 products, webhook with 5 events, portal). Exit 0.
   - `node ops/preflight.mjs`: 24 blockers and 6 warnings, all expected on an unconfigured clone (missing env keys, `ADMIN_EMAILS`, the `site.json` fields). Exit 1, as designed.
   - `bash ops/supabase-setup.sh abcdefghijklmnopqrst`: prints the 4-step plan and the dashboard checklist. Exit 0.
   - `python ops/checks.py prod/output`: "data checks ok", exit 0.
@@ -436,7 +436,7 @@ These need live accounts. The mocks cover only the code path.
 
 # Audit run 4
 
-MarketEdge final audit, fourth run.
+Kismet final audit, fourth run.
 
 Auditor: a fresh agent that built none of this code. It checked and fixed nothing.
 Target: branch `final` at `1546929` ("Merge fix-audit3 (audit run 3 fails)"), checked out as worktree `audit4`.
@@ -626,8 +626,8 @@ Batch 2:
 ## 8. Trading safety: PASS
 
 - Prod 4420: `/api/trade/config` → `{"enabled":false,"env":null,…}`; POST `/api/trade/nonce` → 404 "Trading is off."; POST `/api/trade/nonce/verify` → 404.
-- Run 3's scratch spec with the real extension (`trade/`, demo build on 4440, extension built with `ME_ORIGIN`, loaded in a clean Chromium profile, Kalshi demo API mocked with real Ed25519 signature checks): **1 passed** (1.7 m).
-  - A key with `write::transfer` is rejected: "This key also allows write::transfer. For safety MarketEdge only accepts trade-only keys…" (`audit4-ext-transfer-scope-rejected.png`).
+- Run 3's scratch spec with the real extension (`trade/`, demo build on 4440, extension built with `KISMET_ORIGIN`, loaded in a clean Chromium profile, Kalshi demo API mocked with real Ed25519 signature checks): **1 passed** (1.7 m).
+  - A key with `write::transfer` is rejected: "This key also allows write::transfer. For safety Kismet only accepts trade-only keys…" (`audit4-ext-transfer-scope-rejected.png`).
   - Over the $25 per-order cap: "Over your $25 per-order limit." in the ticket; 0 orders reached Kalshi (`audit4-ext-cap-refused.png`).
   - Confirm required: 0 orders at Kalshi on the confirm screen, 1 after the click.
   - Keys never leave the extension: 73 requests to 3 hosts (the extension, the app, demo Kalshi); the PEM in 0 requests, the key id in 0 requests outside Kalshi; extension storage held only `{"spend":{"cents":198,…}}`; page storage held neither PEM nor key id.
@@ -660,11 +660,11 @@ Batch 2:
 - 404 is the styled not-found page inside the shell (crawl). `app/error.tsx` is the styled 500 boundary; no `app/global-error.tsx` (note, as run 3).
 - Favicon: `<link rel="icon" href="/icon.svg…">` → 200 `image/svg+xml`; `/favicon.ico` → 404 (harmless).
 - OG images: `/opengraph-image` 200 PNG (`audit4-og-site.png`); the longest title in this scan (market 4664134, 125 characters) wraps to three lines with an ellipsis and nothing cut off (`audit4-og-longest-4664134.png`).
-- Extension: `ME_ORIGIN=https://marketedge.example pnpm ext:zip` wrote `marketedge-extension-0.1.0.zip`. Manifest: MV3, permissions `storage`, `sidePanel`; hosts the app origin and `external-api.demo.kalshi.co`; extension pages CSP `script-src 'self'; object-src 'self'`; 0 files with `eval(` or `new Function`. Loaded unpacked in a clean Chromium profile: service worker registered, popup renders "Signed out … Paper trading Off … Market analytics, not financial advice. Based on past results. 18+." (`audit4-ext-popup.png`); the only console error is DNS for the placeholder domain.
+- Extension: `KISMET_ORIGIN=https://kismetodds.example pnpm ext:zip` wrote `kismet-extension-0.1.0.zip`. Manifest: MV3, permissions `storage`, `sidePanel`; hosts the app origin and `external-api.demo.kalshi.co`; extension pages CSP `script-src 'self'; object-src 'self'`; 0 files with `eval(` or `new Function`. Loaded unpacked in a clean Chromium profile: service worker registered, popup renders "Signed out … Paper trading Off … Market analytics, not financial advice. Based on past results. 18+." (`audit4-ext-popup.png`); the only console error is DNS for the placeholder domain.
 - **Owner scripts, default (dry-run) mode**, in the worktree with no env file:
   - `node ops/secrets.mjs`: "Dry run (add --yes to write)", lists the 3 secrets. Exit 0.
-  - `node ops/site-config.mjs --domain marketedge.example --support-email …`: shows what is still missing. Exit 0. `config/site.json` md5 unchanged.
-  - `node ops/stripe-setup.mjs --domain marketedge.example` (no key): prints the plan (4 prices, 2 products, webhook with 5 events, portal). Exit 0.
+  - `node ops/site-config.mjs --domain kismetodds.example --support-email …`: shows what is still missing. Exit 0. `config/site.json` md5 unchanged.
+  - `node ops/stripe-setup.mjs --domain kismetodds.example` (no key): prints the plan (4 prices, 2 products, webhook with 5 events, portal). Exit 0.
   - `node ops/preflight.mjs`: 24 blockers, 6 warnings, all expected on an unconfigured clone. Exit 1 by design.
   - `bash ops/supabase-setup.sh abcdefghijklmnopqrst`: prints the plan and the dashboard checklist. Exit 0.
   - `node ops/vercel-env.mjs`: "Refusing: no env file. Create apps/web/.env.prod … or pass --env <file>." Exit 2. With a test env file holding `PATH`, `HOME`, `FOO`, `E2E_MOCK`, a Supabase URL and a fake Stripe key, it planned only the 2 documented keys × 2 targets (the Stripe key `--sensitive` and masked), and listed "Not pushed (test-only): E2E_MOCK" and "Not pushed (not in apps/web/.env.example): FOO, HOME, PATH". Exit 0. (Run 3 fail 4 fixed.)
@@ -739,7 +739,7 @@ These need live accounts. The mocks cover only the code path. Unchanged from run
 
 # Audit run 5
 
-MarketEdge final audit, fifth run.
+Kismet final audit, fifth run.
 
 Auditor: a fresh agent that built none of this code. It checked and fixed nothing.
 Target: branch `final` at `748b70e` ("T-211: e2e mock answers HEAD count=exact, so the paid suite exercises the plan-quota fast path"), checked out as worktree `audit5`.
@@ -821,7 +821,7 @@ How the audit ran:
 
 - **Pro, `/m/6970279` at 1440: environment-only.** On instance 2 I ran the admin crawl at the same time as the pro crawl. The dev compiler raced and logged `⨯ [TypeError: __webpack_modules__[moduleId] is not a function]`. The pro page showed "Switched to client rendering because the server rendering errored", and admin `/account` at 390 returned 500 (`logs/crawl-admin-c.log`). I stopped the concurrent crawl. On instance 3, run alone, `recheck.mjs` loaded pro `/m/6970279` at 1440 and admin `/account` at 390 twice each: 200, h1 "Como 1907 vs. AEK: O/U 4.5" and "Account", no console lines, no page errors. The full admin crawl, run alone, had 0 issues. The instance 3 log has 0 `webpack_modules` lines, 0 restarts and 0 5xx. Neither the paid e2e runs nor instance 1 logged the error. The production build (4620) never showed it.
 - **Premium, 1440 pass on instance 2: environment-only.** Instance 2 restarted on the dev memory threshold at `/m/6970279` (ERR_CONNECTION_REFUSED). The rest of the pass ran signed out, so `/api/account/export` returned 401 and the last tier check read `nouser:free`. I discarded that pass and re-ran 1440 alone on instance 3, with a fresh seed: 33 views, 0 issues, 135 links, 0 bad, tier premium before and after. The 390 pass ran before the restart: 33 views, 0 issues.
-- **Admin, `/api/admin/export` → 403: expected.** The crawler's plain GET sends no `Sec-Fetch-Site`, and the route refuses it on purpose (`sameSiteRequest`, `apps/web/app/api/admin/export/route.ts:22`, as in runs 3 and 4). By hand as admin: no header → 403, `cross-site` → 403, `same-origin` → 200 `text/csv; charset=utf-8`, `attachment; filename="marketedge-users-2026-11-18.csv"`, header row `id,email,created_at,last_sign_in_at,tier,status,comp_tier,comp_expires_at`.
+- **Admin, `/api/admin/export` → 403: expected.** The crawler's plain GET sends no `Sec-Fetch-Site`, and the route refuses it on purpose (`sameSiteRequest`, `apps/web/app/api/admin/export/route.ts:22`, as in runs 3 and 4). By hand as admin: no header → 403, `cross-site` → 403, `same-origin` → 200 `text/csv; charset=utf-8`, `attachment; filename="kismet-users-2026-11-18.csv"`, header row `id,email,created_at,last_sign_in_at,tier,status,comp_tier,comp_expires_at`.
 - Admin: all 5 `/admin*` pages returned 200 at both widths, with the disclaimer, no console errors and no horizontal scroll.
 
 - For non-admins every `/admin*` page is the styled 404 ("This page doesn't exist") with the disclaimer; the only console line there is the 404 resource load itself, which the crawler counts as expected.
@@ -907,8 +907,8 @@ How the audit ran:
 ## 8. Trading safety: PASS
 
 - Prod 4620: `/api/trade/config` → `{"enabled":false,"env":null,…}`; POST `/api/trade/nonce` → 404 `{"error":"Trading is off."}`; POST `/api/trade/nonce/verify` → 404.
-- Run 3's scratch spec with the real extension (`trade/`, demo build on 4640, extension built with `ME_ORIGIN`, clean Chromium profile, Kalshi demo API mocked with real Ed25519 signature checks): **1 passed** (1.5 m).
-  - A key with `write::transfer` is rejected: "This key also allows write::transfer. For safety MarketEdge only accepts trade-only keys…" (`audit5-ext-transfer-scope-rejected.png`).
+- Run 3's scratch spec with the real extension (`trade/`, demo build on 4640, extension built with `KISMET_ORIGIN`, clean Chromium profile, Kalshi demo API mocked with real Ed25519 signature checks): **1 passed** (1.5 m).
+  - A key with `write::transfer` is rejected: "This key also allows write::transfer. For safety Kismet only accepts trade-only keys…" (`audit5-ext-transfer-scope-rejected.png`).
   - Over the $25 per-order cap: "Over your $25 per-order limit." in the ticket; 0 orders reached Kalshi (`audit5-ext-cap-refused.png`).
   - Confirm required: 0 orders at Kalshi on the confirm screen, 1 after the click.
   - Keys never leave the extension: 73 requests to 3 hosts (the extension, the app, demo Kalshi); the PEM in 0 requests, the key id in 0 requests outside Kalshi; extension storage held only `{"spend":{"cents":198,…}}`; page storage held neither.
@@ -941,11 +941,11 @@ How the audit ran:
 - 404 is the styled "This page doesn't exist" inside the shell. `app/error.tsx` is the styled error boundary.
 - Favicon: `<link rel="icon">` → 200 `image/svg+xml`; `/favicon.ico` → 404 (harmless, as run 4).
 - OG images (4650): `/opengraph-image` 200 PNG (`audit5-og-site.png`); the longest title (market 4664134, 125 characters) wraps to three lines with an ellipsis, nothing cut off, disclaimer at the bottom (`audit5-og-longest-4664134.png`).
-- Extension: `ME_ORIGIN=https://marketedge.example pnpm ext:zip` wrote `marketedge-extension-0.1.0.zip` (26 KB). Manifest: MV3, permissions `storage`, `sidePanel`; hosts the app origin and `external-api.demo.kalshi.co`; extension pages CSP `script-src 'self'; object-src 'self'`; 0 files with `eval(` or `new Function`. Unzipped and loaded in a clean Chromium profile: the service worker registered and the popup renders "Signed out … Paper trading Off … Market analytics, not financial advice. Based on past results. 18+." (`audit5-ext-popup.png`). The only console error is DNS for the placeholder domain.
+- Extension: `KISMET_ORIGIN=https://kismetodds.example pnpm ext:zip` wrote `kismet-extension-0.1.0.zip` (26 KB). Manifest: MV3, permissions `storage`, `sidePanel`; hosts the app origin and `external-api.demo.kalshi.co`; extension pages CSP `script-src 'self'; object-src 'self'`; 0 files with `eval(` or `new Function`. Unzipped and loaded in a clean Chromium profile: the service worker registered and the popup renders "Signed out … Paper trading Off … Market analytics, not financial advice. Based on past results. 18+." (`audit5-ext-popup.png`). The only console error is DNS for the placeholder domain.
 - **Owner scripts, default (dry-run) mode**, in the worktree, with a clean environment (`env -i PATH HOME`) and no env file:
   - `node ops/secrets.mjs`: "Dry run (add --yes to write)". Exit 0.
-  - `node ops/site-config.mjs --domain marketedge.example --support-email help@marketedge.example`: dry run of the two changes. Exit 0. `config/site.json` md5 unchanged.
-  - `node ops/stripe-setup.mjs --domain marketedge.example` (no key): prints the plan. Exit 0.
+  - `node ops/site-config.mjs --domain kismetodds.example --support-email help@kismetodds.example`: dry run of the two changes. Exit 0. `config/site.json` md5 unchanged.
+  - `node ops/stripe-setup.mjs --domain kismetodds.example` (no key): prints the plan. Exit 0.
   - `node ops/preflight.mjs`: 24 blockers, 6 warnings, all expected on an unconfigured clone. Exit 1 by design.
   - `bash ops/supabase-setup.sh abcdefghijklmnopqrst`: prints the plan. Exit 0.
   - `node ops/vercel-env.mjs`: "Refusing: no env file…". Exit 2. With a test env file holding `PATH`, `HOME`, `FOO`, `E2E_MOCK`, a Supabase URL and a fake Stripe key, it planned only the 2 documented keys × 2 targets (Stripe key `--sensitive` and masked) and listed "Not pushed (test-only): E2E_MOCK" and "Not pushed (not in apps/web/.env.example): FOO, HOME, PATH". Exit 0.
@@ -1006,7 +1006,7 @@ These need live accounts. The mocks cover only the code path. Unchanged from run
 
 # Audit run 6
 
-MarketEdge final audit, sixth run.
+Kismet final audit, sixth run.
 
 Auditor: a fresh agent that built none of this code. It checked and fixed nothing.
 Target: branch `final` at `4aa0400` ("T-240: pricing says Free is at least 15 minutes behind (true minimum after T-232)"), checked out as worktree `audit6`.
@@ -1086,7 +1086,7 @@ DB proofs: `ops/redteam/run3/rt3-db.test.ts`, `ops/redteam/rt2-db.test.ts` and `
 
 **RT3-02 (page rate limit, row budget, slow-down state).** Production build 4950, anonymous (off Vercel every anonymous caller shares the key `ip:local`, `lib/abuse.ts:137`).
 - `ops/redteam/run3/page_scrape.sh http://localhost:4950 markets-prev2.json 1600 8`: "API detail 30 × 200; Page /m/<id> for 1600 distinct markets: 1600 200 nocurve; elapsed 24s". The script counts HTTP codes and the curve only, and the slow-down state is HTTP 200, so I re-ran it with each page classified (`scrape2.sh`, after a restart to clear the limiter): **58 pages with market data, 1,542 "Slow down a little" + `noindex`**, 15 s. In run 3 all 1,600 pages had data.
-- **The slow-down state renders correctly.** 70 quick requests, then `/m/6117510` and `/event/1195475` at 390 and 1440 (`slowshot.mjs`): HTTP 200, title "Market · MarketEdge" / "Event · MarketEdge", `<meta name="robots" content="noindex">`, a `role="status"` card "Slow down a little · You're opening market pages faster than we allow. Wait a minute, then reload this page.", the footer disclaimer, no horizontal scroll, no console errors (`audit6-slowdown-m-390.png`, `-m-1440`, `-event-390`, `-event-1440`).
+- **The slow-down state renders correctly.** 70 quick requests, then `/m/6117510` and `/event/1195475` at 390 and 1440 (`slowshot.mjs`): HTTP 200, title "Market · Kismet" / "Event · Kismet", `<meta name="robots" content="noindex">`, a `role="status"` card "Slow down a little · You're opening market pages faster than we allow. Wait a minute, then reload this page.", the footer disclaimer, no horizontal scroll, no console errors (`audit6-slowdown-m-390.png`, `-m-1440`, `-event-390`, `-event-1440`).
 - **Normal browsing is not throttled.** `human.mjs` with a real browser: home, the screener, then 20 markets over 195 s, mixing full market pages (`/m/<id>`, 10), the drawer (`/markets?m=<id>`, 5) and event pages (5), about 6 s on each, back to the screener every third.
   - Logged out on prod 4950: **20/20 rendered**, 0 slow-down, 0 responses ≥ 400.
   - Free on the mock (4930): 20/20 rendered, 0 responses ≥ 400. The mock is a dev server and rate limits are off outside production (`lib/abuse.ts:124-129`), so this run shows only that Free shaping renders. Free's limits use the same rules with the key `u:<id>`: `test/page-limits.test.ts` (2 tests) passed.
@@ -1266,11 +1266,11 @@ Batch 2 (07:02–07:04), once the load had dropped:
 - 404 is the styled "This page doesn't exist" inside the shell.
 - Favicon `<link rel="icon" href="/icon.svg…">` → 200 `image/svg+xml`; `/favicon.ico` → 404 (harmless, as runs 4–5).
 - OG images: `/opengraph-image` 200 PNG (`audit6-og-site.png`), `/m/6117510/opengraph-image` 200 PNG (`audit6-og-market-6117510.png`).
-- Extension: `ME_ORIGIN=https://marketedge.example pnpm ext:zip` wrote `marketedge-extension-0.1.0.zip` (26,267 bytes). Manifest: MV3, permissions `storage`, `sidePanel`, hosts the app origin and `external-api.demo.kalshi.co`, CSP `script-src 'self'; object-src 'self'`; 0 files with `eval(` or `new Function`. Loaded unpacked in a clean Chromium profile: the service worker registered and the popup renders "Signed out … Paper trading Off … Market analytics, not financial advice. Based on past results. 18+." The only console error is DNS for the placeholder domain.
+- Extension: `KISMET_ORIGIN=https://kismetodds.example pnpm ext:zip` wrote `kismet-extension-0.1.0.zip` (26,267 bytes). Manifest: MV3, permissions `storage`, `sidePanel`, hosts the app origin and `external-api.demo.kalshi.co`, CSP `script-src 'self'; object-src 'self'`; 0 files with `eval(` or `new Function`. Loaded unpacked in a clean Chromium profile: the service worker registered and the popup renders "Signed out … Paper trading Off … Market analytics, not financial advice. Based on past results. 18+." The only console error is DNS for the placeholder domain.
 - **Owner scripts, dry-run mode**, in the worktree with `env -i PATH HOME` and no env file (`ops.sh`):
   - `node ops/secrets.mjs`: dry-run plan. Exit 0.
   - `node ops/site-config.mjs --domain … --support-email …`: dry run, lists the still-missing legal fields. Exit 0. `config/site.json` md5 unchanged.
-  - `node ops/stripe-setup.mjs --domain marketedge.example`: prints the plan. Exit 0.
+  - `node ops/stripe-setup.mjs --domain kismetodds.example`: prints the plan. Exit 0.
   - `node ops/preflight.mjs`: 24 blockers, 6 warnings, all expected on an unconfigured clone. Exit 1 by design.
   - `bash ops/supabase-setup.sh abcdefghijklmnopqrst`: prints the plan. Exit 0.
   - `node ops/vercel-env.mjs`: "Refusing: no env file…". Exit 2. With a test env file (`PATH`, `HOME`, `FOO`, `E2E_MOCK`, a Supabase URL, a fake Stripe key): only the 2 documented keys × 2 targets, the Stripe key `--sensitive` and masked, "Not pushed (test-only): E2E_MOCK", "Not pushed (not in apps/web/.env.example): FOO, HOME, PATH". Exit 0.
@@ -1346,7 +1346,7 @@ Unchanged from run 5, plus the new items (marked new):
 
 # Audit run 7
 
-MarketEdge final audit, seventh run.
+Kismet final audit, seventh run.
 
 Auditor: a fresh agent that built none of this code. It checked and fixed nothing.
 Target: branch `final` at `30e7362` ("T-242: Free delay copy says at least 15 minutes everywhere (audit run 6 fail 2)"), checked out as worktree `audit7` (branch `audit7`).
@@ -1478,7 +1478,7 @@ Crawler `crawl2.mjs` (as run 6): 33 routes (every page, 3 market pages, an event
 
 - Logged out and Free: every page 200 except `/admin*` and `/no-such-page` (404, styled). Pro and Premium: same; their `/watchlist`, `/journal`, `/alerts`, `/dashboards`, `/account` render (200) with the user's own data.
 - Admin: `/admin`, `/admin/users`, `/admin/health`, `/admin/settings`, `/admin/audit` → 200 with h1 "Admin" at both widths, no console error.
-- The one admin link the crawler flagged is `/api/admin/export` → 403 `{"error":"Open the export from the admin page"}`. That is the RT2-01 same-site guard (`app/api/admin/export/route.ts:20`): the crawler's request carries no `Sec-Fetch-Site`. A real click on "Export CSV" in `/admin/users` as the admin downloads `marketedge-users-2026-11-18.csv` with the header `id,email,created_at,last_sign_in_at,tier,status,comp_tier,comp_expires_at` (`exportclick.mjs`). Not a fail.
+- The one admin link the crawler flagged is `/api/admin/export` → 403 `{"error":"Open the export from the admin page"}`. That is the RT2-01 same-site guard (`app/api/admin/export/route.ts:20`): the crawler's request carries no `Sec-Fetch-Site`. A real click on "Export CSV" in `/admin/users` as the admin downloads `kismet-users-2026-11-18.csv` with the header `id,email,created_at,last_sign_in_at,tier,status,comp_tier,comp_expires_at` (`exportclick.mjs`). Not a fail.
 - Disclaimer in the footer, no horizontal scroll and no console error or warning on all 330 views.
 - **How the signed-in crawls were kept honest.** The first Pro crawl (13:34, right after Free on the same server) lost its user: the dev server logged "Server is approaching the used memory threshold, restarting..." (`mock.log:4740`), the in-memory mock users were wiped, and from the 13th view on the crawler was browsing as a signed-out visitor (`/e2e-mock/supabase/auth/v1/user` 401 from then on). I discarded that run. Each of Pro, Premium and admin then ran on a freshly started mock (`crawl1.sh`: start, warm the routes, seed the one user through the UI, crawl). Their server logs show 0 restarts, 0 `auth/v1/user` 401s, 0 `⨯`/`TypeError`/`SyntaxError`, and no 5xx. The Free crawl finished before the restart (`tiers` `free` ×3).
 - Screenshots: `audit7-{anon,free,pro,premium,admin}-{home,markets,pricing,account,admin_health,m_<id>}-{390,1440}.png`.
@@ -1577,11 +1577,11 @@ Crawler `crawl2.mjs` (as run 6): 33 routes (every page, 3 market pages, an event
 - No test users, seed data or debug routes in prod: `/e2e-mock/*`, `/api/data`, `/admin*` → 404.
 - 404 is the styled "This page doesn't exist" inside the shell (crawl, all states).
 - Favicon `/icon.svg` → 200 `image/svg+xml`; `/favicon.ico` → 404 (harmless, as runs 4–6). `/opengraph-image` → 200 `image/png`.
-- Extension: `ME_ORIGIN=https://marketedge.example pnpm ext:zip` wrote `marketedge-extension-0.1.0.zip` (26,267 bytes; moved out of the worktree). Manifest: MV3, permissions `storage`, `sidePanel`, hosts the app origin and `external-api.demo.kalshi.co`, CSP `script-src 'self'; object-src 'self'`; 0 files with `eval(` or `new Function`. Loaded unpacked in a clean Chromium profile: the service worker registered and the popup reads "MarketEdge Signed out … Paper trading Off … Market analytics, not financial advice. Based on past results. 18+." The only console error is DNS for the placeholder domain.
+- Extension: `KISMET_ORIGIN=https://kismetodds.example pnpm ext:zip` wrote `kismet-extension-0.1.0.zip` (26,267 bytes; moved out of the worktree). Manifest: MV3, permissions `storage`, `sidePanel`, hosts the app origin and `external-api.demo.kalshi.co`, CSP `script-src 'self'; object-src 'self'`; 0 files with `eval(` or `new Function`. Loaded unpacked in a clean Chromium profile: the service worker registered and the popup reads "Kismet Signed out … Paper trading Off … Market analytics, not financial advice. Based on past results. 18+." The only console error is DNS for the placeholder domain.
 - **Owner scripts, dry-run mode** (`ops.sh`, in the worktree with `env -i PATH HOME`, no env file):
   - `node ops/secrets.mjs`: dry-run plan, exit 0.
   - `node ops/site-config.mjs --domain … --support-email …`: dry run, lists the missing legal fields, exit 0. `config/site.json` md5 unchanged (`bda0c50c…`).
-  - `node ops/stripe-setup.mjs --domain marketedge.example`: prints the plan, exit 0.
+  - `node ops/stripe-setup.mjs --domain kismetodds.example`: prints the plan, exit 0.
   - `node ops/preflight.mjs`: 24 blockers, 6 warnings, all expected on an unconfigured clone. Exit 1 by design.
   - `bash ops/supabase-setup.sh abcdefghijklmnopqrst`: prints the plan, exit 0.
   - `node ops/vercel-env.mjs`: "Refusing: no env file…", exit 2. With a test env file: only the 2 documented keys × 2 targets, the Stripe key `--sensitive` and masked (`sk_t…(24 chars)`), "Not pushed (test-only): E2E_MOCK", "Not pushed (not in apps/web/.env.example): FOO, HOME, PATH", exit 0.
@@ -1651,7 +1651,7 @@ Unchanged from run 6, with run 6's "signed-in crawl" item now done:
 
 # Audit run 8
 
-MarketEdge final audit, eighth run.
+Kismet final audit, eighth run.
 
 Auditor: a fresh agent that built none of this code. It checked and fixed nothing.
 Target: branch `final` at `88a24a6` ("T-246: search engines Vercel has verified skip the market-page rate limit and row budget"), checked out as worktree `audit8` (branch `audit8`).
@@ -1796,7 +1796,7 @@ Crawler `crawl2.mjs` (as run 7): 33 routes at 390 and 1440 px with light CDP thr
 | Admin | mock 5130 (restarted, reseeded) | 19:40:12 (4.05) | 66 | 0 | 118, 1 by design | `free+admin` ×3 | PASS |
 
 - Each signed-in crawl ran on a freshly started mock (one crawl per server). Mock logs: 0 "restarting", 0 `auth/v1/user` 401, 0 5xx in all four. One `⨯ [Error: aborted]` in the Premium mock log comes from the seeding step (the browser navigated away mid-request), before the crawl.
-- Admin: `/admin`, `/admin/users`, `/admin/health`, `/admin/settings`, `/admin/audit` → 200 with h1 "Admin" at both widths. The one flagged link is `/api/admin/export` → 403 (RT2-01 same-site guard, no `Sec-Fetch-Site` on the crawler's request). A real click on "Export CSV" (`exportclick.mjs`) downloaded `marketedge-users-2026-11-19.csv` with the header `id,email,created_at,last_sign_in_at,tier,status,comp_tier,comp_expires_at`.
+- Admin: `/admin`, `/admin/users`, `/admin/health`, `/admin/settings`, `/admin/audit` → 200 with h1 "Admin" at both widths. The one flagged link is `/api/admin/export` → 403 (RT2-01 same-site guard, no `Sec-Fetch-Site` on the crawler's request). A real click on "Export CSV" (`exportclick.mjs`) downloaded `kismet-users-2026-11-19.csv` with the header `id,email,created_at,last_sign_in_at,tier,status,comp_tier,comp_expires_at`.
 - Disclaimer in the footer, no horizontal scroll and no console error or warning on all 330 views. 404 pages are the styled "This page doesn't exist".
 - Screenshots: `audit8-{anon,free,pro,premium,admin}-{home,markets,pricing,account,admin_health,m_<id>}-{390,1440}.png`.
 
@@ -1877,7 +1877,7 @@ Crawler `crawl2.mjs` (as run 7): 33 routes at 390 and 1440 px with light CDP thr
 - `robots.txt` 200: AI user agents `Disallow: /`; everyone else `Allow: /` with `/api/`, `/auth/`, `/login`, `/onboarding`, `/account`, `/settings`, `/watchlist`, `/journal`, `/alerts`, `/dashboards`, `/admin` disallowed; `Sitemap: http://localhost:5150/sitemap.xml` (12 `<loc>`).
 - No test users, seed data or debug routes in prod (`/e2e-mock/*`, `/api/data`, `/admin*` → 404).
 - Styled 404; `/icon.svg` 200 `image/svg+xml`; `/favicon.ico` 404 (harmless, as before); `/opengraph-image` 200 `image/png`.
-- Extension: `ME_ORIGIN=https://marketedge.example pnpm ext:zip` → `marketedge-extension-0.1.0.zip` (26,267 bytes, moved out of the worktree). MV3, permissions `storage`, `sidePanel`, hosts the app origin and `external-api.demo.kalshi.co`, CSP `script-src 'self'; object-src 'self'`, 0 files with `eval(`/`new Function`. Loaded unpacked in a clean Chromium profile: service worker registered; popup "MarketEdge Signed out … Paper trading Off … Market analytics, not financial advice. Based on past results. 18+." (`audit8-ext-popup.png`); only console error is DNS for the placeholder domain.
+- Extension: `KISMET_ORIGIN=https://kismetodds.example pnpm ext:zip` → `kismet-extension-0.1.0.zip` (26,267 bytes, moved out of the worktree). MV3, permissions `storage`, `sidePanel`, hosts the app origin and `external-api.demo.kalshi.co`, CSP `script-src 'self'; object-src 'self'`, 0 files with `eval(`/`new Function`. Loaded unpacked in a clean Chromium profile: service worker registered; popup "Kismet Signed out … Paper trading Off … Market analytics, not financial advice. Based on past results. 18+." (`audit8-ext-popup.png`); only console error is DNS for the placeholder domain.
 - **Ops dry runs** (`ops.sh`, `env -i PATH HOME`): `secrets.mjs` plan, exit 0; `site-config.mjs` dry run, exit 0, `config/site.json` md5 unchanged (`bda0c50c…`); `stripe-setup.mjs` plan, exit 0; `preflight.mjs` 24 blockers / 6 warnings, exit 1 by design; `supabase-setup.sh` plan, exit 0; `vercel-env.mjs` "Refusing: no env file…" exit 2, and with a test env file only the documented keys, the Stripe key `--sensitive` and masked (`sk_t…(24 chars)`), `E2E_MOCK` and non-example keys not pushed, exit 0; `checks.py a8/prod/output` "data checks ok"; `upload.py` without credentials exit 1, nothing uploaded; `scheduler.plan` → `bootstrap, backtest, update, fit, grade, scan`. `git status` after: no tracked file changed.
 - **`ops/smoke-prod.sh`**: `SMOKE_EXPECT_HEALTH=503 ops/smoke-prod.sh http://localhost:5150` → **18 passed, 0 failed**, exit 0.
 - `SETUP.md` from scratch reaches a running app (item 2).

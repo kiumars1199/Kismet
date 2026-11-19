@@ -22,7 +22,7 @@ Code can't do these. Do them in order. `SETUP.md` has the how-to for every accou
 7. **Set up Supabase backups**: Pro daily backups, or a nightly `pg_dump`.
 8. **Turn on the Vercel Firewall rules**: Bot Protection, AI Bots = deny, OWASP. Details are in
    `docs/setup-notes/security.md`.
-9. **Publish the Chrome extension**: build `ME_ORIGIN=https://<domain> pnpm ext:zip` and upload it. Then set
+9. **Publish the Chrome extension**: build `KISMET_ORIGIN=https://<domain> pnpm ext:zip` and upload it. Then set
    `NEXT_PUBLIC_EXTENSION_ID` to the store ID and redeploy.
 10. **Run a data refresh for 48 hours** before launch. Both of these must be green: the Railway/Fly engine logs, and
     `refresh.yml` as the fallback.

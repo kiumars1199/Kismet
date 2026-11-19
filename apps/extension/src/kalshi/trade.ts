@@ -74,15 +74,15 @@ export function orderBody(o: OrderIntent) {
   };
 }
 
-/** Scopes a MarketEdge key may have: read + write::trade, nothing that writes anything else (docs/15). */
+/** Scopes a Kismet key may have: read + write::trade, nothing that writes anything else (docs/15). */
 /** RT-09: an allow-list, not a deny-list. Scopes are compared trimmed and lower-cased (Kalshi's reply is untrusted
  *  input); anything other than `read`, `read::…` or `write::trade` (transfer, admin, wildcards, typos) is refused. */
 export function scopeError(raw: unknown[]): string | null {
   const scopes = raw.map((s) => String(s).trim().toLowerCase());
   const extra = scopes.filter((s) => !(s === "read" || s === "write::trade" || /^read::[a-z0-9_]+$/.test(s)));
   if (extra.length)
-    return `This key also allows ${extra.join(", ")}. For safety MarketEdge only accepts trade-only keys: create a new key with just "read" and "write::trade".`;
-  if (!scopes.includes("read")) return `This key is missing the "read" scope, so MarketEdge can't show your orders. Create a key with "read" and "write::trade".`;
+    return `This key also allows ${extra.join(", ")}. For safety Kismet only accepts trade-only keys: create a new key with just "read" and "write::trade".`;
+  if (!scopes.includes("read")) return `This key is missing the "read" scope, so Kismet can't show your orders. Create a key with "read" and "write::trade".`;
   if (!scopes.includes("write::trade")) return `This key can't place orders. Create a key with "read" and "write::trade".`;
   return null;
 }

@@ -7,7 +7,7 @@ export const site = raw;
 export const ph = (value: string | undefined | null, name: string) => (value && value.trim()) || `[[${name}]]`;
 
 export const SITE = {
-  name: site.name || "MarketEdge",
+  name: site.name || "Kismet",
   supportEmail: ph(site.support_email, "SUPPORT_EMAIL"),
   operator: ph(site.legal.operator_names, "OPERATOR_NAMES"),
   operatorType: site.legal.operator_type,

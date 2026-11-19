@@ -40,7 +40,7 @@ const PRICE_ENV = ["STRIPE_PRICE_PRO_MONTHLY", "STRIPE_PRICE_PRO_YEARLY", "STRIP
 /** [key, group, required (bool | (env, ctx) => bool), validator | null, why it matters when missing]. */
 const RULES = [
   ["DATA_SOURCE", "core", true, re(/^(supabase|github|local)$/, "must be supabase, github or local")],
-  ["NEXT_PUBLIC_SITE_URL", "core", true, (v, env, ctx) => https(v) ?? (new URL(v).pathname !== "/" || v.endsWith("/") ? "must be the bare origin, e.g. https://marketedge.com (no path, no trailing slash)"
+  ["NEXT_PUBLIC_SITE_URL", "core", true, (v, env, ctx) => https(v) ?? (new URL(v).pathname !== "/" || v.endsWith("/") ? "must be the bare origin, e.g. https://kismetodds.com (no path, no trailing slash)"
     : ctx.site.domain && ![ctx.site.domain, `www.${ctx.site.domain}`].includes(new URL(v).hostname) ? `host doesn't match config/site.json domain "${ctx.site.domain}"` : null)],
   ["HEALTH_MAX_DATA_AGE_MIN", "core", false, re(/^[1-9]\d*$/, "must be a whole number of minutes")],
   ["NEXT_PUBLIC_SUPABASE_URL", "supabase", true, (v) => https(v) ?? (/\.supabase\.co\/?$/.test(v) ? null : "expected https://<ref>.supabase.co")],
@@ -61,7 +61,7 @@ const RULES = [
   ["RESEND_API_KEY", "email", false, re(/^re_\w{8,}/, "expected re_…"), "no alert or payment-failed emails are sent"],
   ["EMAIL_FROM", "email", (env) => !!env.RESEND_API_KEY, (v) => {
     const m = /^(?:[^<>]+<([^<>]+)>|([^<>\s]+))$/.exec(v.trim());
-    return m && isEmail(m[1] ?? m[2]) ? null : 'expected "MarketEdge <alerts@mail.yourdomain.com>"';
+    return m && isEmail(m[1] ?? m[2]) ? null : 'expected "Kismet <alerts@mail.yourdomain.com>"';
   }],
   ["GITHUB_DATA_TOKEN", "data", (env) => env.DATA_SOURCE === "github", re(/^(github_pat_|ghp_)\w{20,}$/, "expected github_pat_… (fine-grained, Contents: read)"),
     "no fallback when the Supabase bucket is empty"],
@@ -130,7 +130,7 @@ export function report(problems, source) {
   }
   const b = problems.filter((p) => p.level === "block").length;
   const w = problems.length - b;
-  lines.unshift(`MarketEdge preflight — ${source} + config/site.json`);
+  lines.unshift(`Kismet preflight — ${source} + config/site.json`);
   lines.push("", b ? `${b} blocker(s), ${w} warning(s). Fix the BLOCK lines before deploying.` : `No blockers. ${w} warning(s).`);
   return lines.join("\n");
 }

@@ -12,7 +12,7 @@ import { bucketRows, foldRows, recordRows, tiles } from "@/lib/trackRecord";
 import type { BacktestRecord, LedgerSummary } from "@/lib/types";
 import { CalibrationChart, EdgeChart, FoldCharts, type CalibrationSet } from "./Charts";
 
-export const metadata = { title: "Results", description: "How MarketEdge estimates have done: walk-forward backtest, calibration and settled-bet ledger.", alternates: { canonical: "/track-record" } };
+export const metadata = { title: "Results", description: "How Kismet estimates have done: walk-forward backtest, calibration and settled-bet ledger.", alternates: { canonical: "/track-record" } };
 export const dynamic = "force-dynamic";
 
 const DATE = { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" } as const;

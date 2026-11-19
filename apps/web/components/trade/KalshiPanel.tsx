@@ -1,6 +1,6 @@
 "use client";
 // "My Kalshi" inside My bets (docs/16 §3 Portfolio view): demo balance, resting orders, open positions, read
-// through the extension. Display only: MarketEdge never ranks or suggests bets from these positions.
+// through the extension. Display only: Kismet never ranks or suggests bets from these positions.
 // On load it also brings fills of orders placed here into My bets (one pass, read-only).
 import { useEffect, useState } from "react";
 import { card } from "@/components/kit";
@@ -21,7 +21,7 @@ export function KalshiPanel() {
     (async () => {
       const r = await ext<Portfolio>(cfg.extensionId, { type: "portfolio" });
       if (!live) return;
-      setP(r.ok ? r : r.missing ? "Install the MarketEdge extension and connect a Kalshi demo key to see your paper account here." : r.error);
+      setP(r.ok ? r : r.missing ? "Install the Kismet extension and connect a Kalshi demo key to see your paper account here." : r.error);
       if (!r.ok) return;
       for (const t of trackedOrders().filter((x) => !x.final)) {
         const o = await ext<{ order: OrderView | null }>(cfg.extensionId, { type: "order", order_id: t.order_id });

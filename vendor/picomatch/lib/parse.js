@@ -343,7 +343,7 @@ const analyzeRepeatedExtglob = (body, options) => {
       : { risky: true };
   }
 
-  // MarketEdge patch for GHSA-fc5q-39xc-vjpf / CVE-2026-112366 (no upstream release yet): a branch with a
+  // Kismet patch for GHSA-fc5q-39xc-vjpf / CVE-2026-112366 (no upstream release yet): a branch with a
   // wildcard `*` inside `+(...)`/`*(...)` nests an unbounded quantifier in a repeated group, e.g. `+(*a)` ->
   // `(?:[^/]*?a)+`, which backtracks exponentially. Why and how to drop this copy: docs/setup-notes/security.md.
   if (branches.some(hasTopLevelStar)) {
@@ -597,7 +597,7 @@ const parse = (input, options) => {
       return;
     }
 
-    // MarketEdge patch (GHSA-fc5q-39xc-vjpf): see analyzeRepeatedExtglob.
+    // Kismet patch (GHSA-fc5q-39xc-vjpf): see analyzeRepeatedExtglob.
     if (analysis.collapse === true && (token.type === 'plus' || token.type === 'star')) {
       token.close = token.type === 'plus' ? ')' : ')?';
     }

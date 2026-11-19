@@ -16,7 +16,7 @@ export function Logo() {
           <path d="M3 17l6-6 4 4 8-8" />
         </svg>
       </span>
-      MarketEdge
+      Kismet
     </Link>
   );
 }

@@ -73,7 +73,7 @@ export async function middleware(req: NextRequest) {
   if (!under(path, MAINTENANCE_OPEN) && (await maintenanceOn(url))) {
     if (!admin) {
       if (path.startsWith("/api/")) {
-        return Response.json({ error: "MarketEdge is down for maintenance. Try again shortly." }, { status: 503, headers: { "Retry-After": "300" } });
+        return Response.json({ error: "Kismet is down for maintenance. Try again shortly." }, { status: 503, headers: { "Retry-After": "300" } });
       }
       const headers = new Headers(req.headers);
       headers.set("content-security-policy", policy);

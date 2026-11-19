@@ -1,5 +1,5 @@
 // Paper fills → My bets (docs/16 §3.4): one journal row per Kalshi order, updated as it fills,
-// with entry price, fee and MarketEdge numbers at entry. Orders we placed are remembered on this device.
+// with entry price, fee and Kismet numbers at entry. Orders we placed are remembered on this device.
 import type { Insert, JournalEntry, Repo } from "@/lib/repo/types";
 
 export interface OrderView {

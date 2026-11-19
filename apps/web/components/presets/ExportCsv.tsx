@@ -27,7 +27,7 @@ export function ExportCsv({ state }: { state: FilterState }) {
       const { state: s, keep } = resolveUserFilters(state, { favorites: favorite_topics, watchlistIds: new Set(watchlist.map((w) => w.market_id)) });
       const rows = (await collectRows((page) => fetchMarkets({ ...s, group_by_event: false, page_size: 200, page }))).filter((r) => keep(r.market.id));
       const url = URL.createObjectURL(new Blob(["﻿" + toCsv(rows)], { type: "text/csv;charset=utf-8" }));
-      const a = Object.assign(document.createElement("a"), { href: url, download: `marketedge-${new Date().toISOString().slice(0, 10)}.csv` });
+      const a = Object.assign(document.createElement("a"), { href: url, download: `kismet-${new Date().toISOString().slice(0, 10)}.csv` });
       a.click();
       URL.revokeObjectURL(url);
       setMsg(rows.length >= MAX_ROWS ? `First ${formatCount(MAX_ROWS)} rows exported` : `${formatCount(rows.length)} rows exported`);

@@ -1,5 +1,5 @@
 'use strict';
-// MarketEdge patch check for GHSA-fc5q-39xc-vjpf (CVE-2026-112366). Run: node --test vendor/picomatch/test
+// Kismet patch check for GHSA-fc5q-39xc-vjpf (CVE-2026-112366). Run: node --test vendor/picomatch/test
 // Usage against another copy: PICOMATCH_DIR=<dir> node --test vendor/picomatch/test
 const test = require('node:test');
 const assert = require('node:assert');

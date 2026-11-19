@@ -13,7 +13,7 @@ export default function Maintenance() {
       </span>
       <h1 className="text-[32px] font-bold leading-[1.05] tracking-[-0.02em] md:text-[40px]">Down for maintenance</h1>
       <p className="text-[15px] leading-relaxed text-muted">
-        We&apos;re updating MarketEdge. Your account, saved views and My list are safe. Check back in a few minutes.
+        We&apos;re updating Kismet. Your account, saved views and My list are safe. Check back in a few minutes.
       </p>
     </section>
   );

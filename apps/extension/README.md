@@ -1,7 +1,7 @@
-# MarketEdge for Polymarket (Chrome MV3 extension)
+# Kismet for Polymarket (Chrome MV3 extension)
 
-Shows MarketEdge analytics next to Polymarket outcomes. It reads only the page URL slug; every number
-comes from the MarketEdge API (`GET /api/events/by-slug/<slug>`). Demo mode talks to `http://localhost:3000`
+Shows Kismet analytics next to Polymarket outcomes. It reads only the page URL slug; every number
+comes from the Kismet API (`GET /api/events/by-slug/<slug>`). Demo mode talks to `http://localhost:3000`
 with no sign-in, tier Premium.
 
 ## Build and load unpacked
@@ -24,10 +24,10 @@ After a rebuild, click the reload icon on the extension's card in `chrome://exte
 
 - `pnpm typecheck`
 - `pnpm test` (vitest: matcher, Kalshi signing, order/caps/scope logic, no-auto-trade guard)
-- `pnpm ext:zip`: store build (dev `key` stripped) zipped to `marketedge-extension-<version>.zip`
+- `pnpm ext:zip`: store build (dev `key` stripped) zipped to `kismet-extension-<version>.zip`
 - End to end: `cd apps/web && PW_PORT=3150 pnpm e2e trading-paper` builds this extension for that origin and drives it.
 
-Build for another web origin with `ME_ORIGIN=https://<domain> pnpm build`. Owner setup (demo key, extension ID,
+Build for another web origin with `KISMET_ORIGIN=https://<domain> pnpm build`. Owner setup (demo key, extension ID,
 store submission): `docs/setup-notes/trading-extension.md`.
 
 ## How it works
@@ -38,7 +38,7 @@ store submission): `docs/setup-notes/trading-extension.md`.
   When nothing matches on a page that has markets, it shows a floating pill that opens the side panel list.
 - `sidepanel.html` / `src/sidepanel.ts`: one market (both sides, bars, price check, "Details for pros") or the page's list.
 - `sidepanel.html` "Paper trading" tab (`src/vault-ui.ts`): connect a trade-only Kalshi demo key, limits.
-- `popup.html` / `src/popup.ts`: sign-in state, plan, data status, paper-trading state, "Open MarketEdge", disclaimer.
+- `popup.html` / `src/popup.ts`: sign-in state, plan, data status, paper-trading state, "Open Kismet", disclaimer.
 - `src/kalshi/`: request signing (`sign.ts`), key vault in IndexedDB (`vault.ts`), demo-exchange client
   (`client.ts`), order/caps/scope logic (`trade.ts`). Orders are placed only from the web app's confirm screen,
   each with a one-time server nonce the background checks before signing.

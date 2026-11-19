@@ -25,7 +25,7 @@ function memRepo() {
 
 describe("paper fills → My bets", () => {
   it("no row until something fills", () => expect(fillRow(t, v(0))).toBeNull());
-  it("records entry price, fee per share and MarketEdge numbers at entry", () => {
+  it("records entry price, fee per share and Kismet numbers at entry", () => {
     const r = fillRow(t, v(4, 60, 8))!;
     expect(r).toMatchObject({ market_id: "m1", side_index: 0, shares: 4, price: 0.6, fee: 0.02, model_win_prob: 0.7 });
     expect(r.model_edge).toBeCloseTo(0.08);

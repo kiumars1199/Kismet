@@ -30,7 +30,7 @@ const STEPS: [string, string][] = [
 
 const FAQ: { q: string; a: React.ReactNode }[] = [
   { q: "What is estimated return?", a: <>{RETURN_HELP} A +10% estimated return means bets like it made about +$10 per $100 staked, on average, in past results. It is not a promise: any single bet can lose.</> },
-  { q: "Is this betting advice?", a: "No. It's market analytics. Everyone sees the same numbers, based on how past markets settled. MarketEdge never looks at your bets to tell you what to buy, and any single bet can lose." },
+  { q: "Is this betting advice?", a: "No. It's market analytics. Everyone sees the same numbers, based on how past markets settled. Kismet never looks at your bets to tell you what to buy, and any single bet can lose." },
   { q: "How is it tested?", a: <>Week by week, on markets the model had never seen: each week it only knows what happened before, and we check how its best bets settled. Losing weeks and limits are shown on <Link href="/track-record" className="text-accent-hover underline-offset-4 hover:underline">Results</Link>.</> },
   { q: "Which markets do you cover?", a: "Polymarket today. Kalshi later, once we have their permission to use the data." },
 ];
@@ -58,7 +58,7 @@ export default async function Page() {
           <h1 className="text-[44px] font-bold leading-[1.02] tracking-[-0.03em] md:text-[64px]">Same payout. Different odds.</h1>
           <p className="max-w-xl text-[17px] leading-relaxed text-soft">
             Every Polymarket bet pays $1 if it hits. Some cost less than how often bets like them have actually won.
-            MarketEdge finds those, after the fee and the price you&apos;d really pay.
+            Kismet finds those, after the fee and the price you&apos;d really pay.
           </p>
           <div className="flex flex-wrap items-center gap-3">
             <Link href="/markets" className="flex min-h-12 items-center rounded-input bg-accent px-6 font-semibold text-on-accent hover:bg-accent-hover">Open screener</Link>

@@ -14,7 +14,7 @@ For every flagged market this module reads the live order book and answers:
   verdict        = "worth it" | "thin" | "not worth it"
 
 So a market is only "worth it" when crossing the spread doesn't eat the edge:
-if the ask sits as far above mid as the model's edge, MarketEdge adds nothing.
+if the ask sits as far above mid as the model's edge, Kismet adds nothing.
 """
 import json
 

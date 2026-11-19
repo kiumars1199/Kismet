@@ -1,4 +1,4 @@
-# MarketEdge — instructions for coding agents
+# Kismet — instructions for coding agents
 
 Read `docs/README.md` first. It indexes the spec. Build tasks are in `docs/10-tasks.md`.
 Every task names the spec section it implements and its acceptance checks.

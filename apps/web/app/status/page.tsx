@@ -8,7 +8,7 @@ import { DASH, ago, delayWords, formatCount } from "@/lib/format";
 import { freshness } from "@/lib/freshness";
 import { delayMin } from "@/lib/settings-core";
 
-export const metadata = { title: "Status", description: "When MarketEdge data last refreshed." };
+export const metadata = { title: "Status", description: "When Kismet data last refreshed." };
 export const dynamic = "force-dynamic";
 
 const n = (x: number | null | undefined) => formatCount(x);   // docs/18 §4

@@ -1,4 +1,4 @@
-# MarketEdge setup
+# Kismet setup
 
 **Shortest path: [`ops/ship.md`](ops/ship.md), the morning runbook. Scripts do every step that has a CLI or API.**
 
@@ -61,14 +61,14 @@ check it with `cd apps/web && pnpm preflight`, then push it with `node ops/verce
 |---|---|---|
 | `DEMO_MODE` | `false` (or leave unset) in production. Only exactly `true` turns demo on | — |
 | `DATA_SOURCE` | `supabase` (`local` for development) | 2 |
-| `GITHUB_DATA_TOKEN` / `GITHUB_DATA_REPO` / `GITHUB_DATA_REF` | token / `kiumars1199/marketedge` / `live` | 1 |
+| `GITHUB_DATA_TOKEN` / `GITHUB_DATA_REPO` / `GITHUB_DATA_REF` | token / `<owner>/<repo>` of this GitHub repo / `live` | 1 |
 | `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase → Settings → API | 2 |
 | `SUPABASE_SERVICE_ROLE_KEY` | service_role key. Sensitive, server only | 2 |
 | `NEXT_PUBLIC_SITE_URL` | `https://<your domain>` | 5 |
 | `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` | Stripe → Developers / written by `node ops/stripe-setup.mjs --yes` | 4 |
 | `STRIPE_PRICE_PRO_MONTHLY` / `_PRO_YEARLY` / `_PREMIUM_MONTHLY` / `_PREMIUM_YEARLY` | price ids, written by `node ops/stripe-setup.mjs --yes`. Leave empty in Payment Links mode | 4 |
 | `STRIPE_PORTAL_URL` | optional portal login link | 4 |
-| `RESEND_API_KEY` / `EMAIL_FROM` | Resend sending key / `MarketEdge <alerts@mail.<domain>>` | 6 |
+| `RESEND_API_KEY` / `EMAIL_FROM` | Resend sending key / `Kismet <noreply@kismetodds.com>` | 6 |
 | `UNSUBSCRIBE_SECRET` | `node ops/secrets.mjs --yes` | — |
 | `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` | Upstash REST URL and token | 7 |
 | `NEXT_PUBLIC_SENTRY_DSN` | Sentry DSN | 8 |
@@ -105,9 +105,9 @@ and webhook secret into `apps/web/.env.prod`. The 7-day trial needs no setting (
 
 1. Buy the domain at any registrar.
 2. In Vercel → Domains, add the apex and `www`, and create the A/CNAME records Vercel shows. Set `NEXT_PUBLIC_SITE_URL`.
-3. Resend: add `mail.<domain>` and create the SPF, DKIM, DMARC and MX records (`ops.md` §7).
+3. Resend: add `kismetodds.com` and create the SPF, DKIM, DMARC and MX records (`ops.md` §7).
 4. Supabase Auth → Site URL = `https://<domain>`. Redirect URL = `https://<domain>/auth/callback`.
-5. Build the extension for the domain: `ME_ORIGIN=https://<domain> pnpm ext:zip` (`trading-extension.md` §4).
+5. Build the extension for the domain: `KISMET_ORIGIN=https://<domain> pnpm ext:zip` (`trading-extension.md` §4).
 
 ## 4. Deploy
 

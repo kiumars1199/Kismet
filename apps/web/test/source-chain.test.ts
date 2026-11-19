@@ -51,10 +51,12 @@ describe("data source chain", () => {
   it("falls back to the GitHub live branch when Supabase fails", async () => {
     vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://abc.supabase.co");
     vi.stubEnv("SUPABASE_SERVICE_ROLE_KEY", "svc-key");
+    vi.stubEnv("VERCEL_GIT_REPO_OWNER", "owner");   // no GITHUB_DATA_REPO: the repo Vercel deployed from
+    vi.stubEnv("VERCEL_GIT_REPO_SLUG", "repo");
     const calls = stubFetch({ supabase: 503, github: "ok" });
     const raw = await loadRaw(sourceChain("supabase"));
     expect(raw.source).toBe("github");
-    expect(calls.some((u) => u.startsWith("https://api.github.com/repos/kiumars1199/marketedge/contents/markets.json?ref=live"))).toBe(true);
+    expect(calls.some((u) => u.startsWith("https://api.github.com/repos/owner/repo/contents/markets.json?ref=live"))).toBe(true);
   });
 
   it("falls back to GitHub when Supabase is not configured", async () => {
@@ -73,7 +75,7 @@ describe("data source chain", () => {
   it("keeps serving the last good copy when a refresh fails", async () => {
     const good = await getStore();
     good.loadedAt = 0; // expired
-    vi.stubEnv("DATA_DIR", "/nonexistent-marketedge-dir");
+    vi.stubEnv("DATA_DIR", "/nonexistent-kismet-dir");
     expect(await getStore()).toBe(good);
     vi.unstubAllEnvs();
     // the retry back-off still serves the old copy without reloading

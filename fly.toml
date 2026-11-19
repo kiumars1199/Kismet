@@ -1,6 +1,6 @@
 # Engine on Fly.io (alternative to Railway; see docs/setup-notes/ops.md). One always-on machine runs
 # ops/scheduler.py. No public ports. Deploy from the repo root: fly deploy --config fly.toml
-app = "marketedge-engine"
+app = "kismet-engine"
 primary_region = "iad"
 
 [build]

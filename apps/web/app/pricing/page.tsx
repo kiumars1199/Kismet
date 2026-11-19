@@ -9,7 +9,7 @@ import { SITE } from "@/lib/site";
 
 const usd = (n: number) => `$${Number.isInteger(n) ? n : n.toFixed(2)}`;
 
-export const metadata = { title: "Pricing", description: "Free, Pro and Premium plans for MarketEdge. Start free; paid plans include a 7-day trial and cancel any time.", alternates: { canonical: "/pricing" } };
+export const metadata = { title: "Pricing", description: "Free, Pro and Premium plans for Kismet. Start free; paid plans include a 7-day trial and cancel any time.", alternates: { canonical: "/pricing" } };
 
 const rows = (delay: number): [string, string, string, string][] => [
   ["All open markets", `${behindWords(delay).replace(/^./, (c) => c.toUpperCase())}, top 25 rows`, "Live, unlimited", "Live, unlimited"],
@@ -30,10 +30,10 @@ const rows = (delay: number): [string, string, string, string][] => [
 const PRICING_FAQ: { q: string; a: React.ReactNode }[] = [
   { q: "What happens after the free trial?", a: "Pro and Premium start with 7 days free. Cancel before day 7 and you pay nothing. After that the plan renews monthly or yearly until you cancel." },
   { q: "Can I cancel any time?", a: "Yes. Cancel from your account page and you keep your plan until the end of the period you paid for." },
-  { q: "Is this betting advice?", a: "No. MarketEdge is market analytics: everyone sees the same numbers, based on how past markets settled. It never looks at your bets to tell you what to buy, and any single bet can lose." },
+  { q: "Is this betting advice?", a: "No. Kismet is market analytics: everyone sees the same numbers, based on how past markets settled. It never looks at your bets to tell you what to buy, and any single bet can lose." },
   { q: "Do you place bets for me?", a: tradingEnv()
     ? "No. Each market links to Polymarket or Kalshi, where you decide and bet yourself. Paper trading on Kalshi's demo exchange (fake money) sends an order only after you confirm it, every time."
-    : "No. MarketEdge never places orders. Each market links to Polymarket, where you decide and bet yourself." },
+    : "No. Kismet never places orders. Each market links to Polymarket, where you decide and bet yourself." },
   { q: "Who can use it?", a: "Adults 18 and over, where prediction markets are legal for them." },
 ];
 

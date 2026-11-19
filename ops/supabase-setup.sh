@@ -52,7 +52,7 @@ By hand in the Supabase dashboard (no CLI for these). Project: https://supabase.
   [ ] Authentication → Providers → Google: enabled, Client ID + Client secret from Google Cloud
       (OAuth client redirect URI: https://$REF.supabase.co/auth/v1/callback; docs/setup-notes/lane-l.md §2)
   [ ] Authentication → Emails → SMTP Settings: custom SMTP on, host smtp.resend.com, port 465, user resend,
-      password = a Resend sending key, sender MarketEdge <login@mail.$DOMAIN> (docs/setup-notes/ops.md §7)
+      password = a Resend sending key, sender Kismet <login@mail.$DOMAIN> (docs/setup-notes/ops.md §7)
   [ ] Authentication → Rate Limits: keep on; raise emails per hour once custom SMTP works
   [ ] Storage → Settings: global upload limit at least 50 MB (markets.json is about 20 MB)
   [ ] Advisors → Security Advisor: run it, fix anything marked error

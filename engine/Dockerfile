@@ -1,5 +1,5 @@
-# MarketEdge engine container (docs/14 §4). Build from the repo root:
-#   docker build -f engine/Dockerfile -t marketedge-engine .
+# Kismet engine container (docs/14 §4). Build from the repo root:
+#   docker build -f engine/Dockerfile -t kismet-engine .
 # Runs ops/scheduler.py: scan every 10 min, update+fit hourly, backtest daily, upload to Supabase Storage.
 # Mount a persistent volume at /app/data (market history + output/), or every restart re-bootstraps (~1 hour).
 #

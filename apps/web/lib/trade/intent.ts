@@ -31,7 +31,7 @@ export function feeCents(count: number, priceCents: number): number {
 export interface TicketMath {
   count: number; costCents: number; feeCents: number; maxCostCents: number;
   payoutCents: number;          // if it wins: $1 per contract
-  roiPct: number | null;        // MarketEdge estimated return at this price (model win chance vs cost incl. fee)
+  roiPct: number | null;        // Kismet estimated return at this price (model win chance vs cost incl. fee)
 }
 
 /** Contracts for $ amount at a limit, or the count given; plus what the ticket shows. */

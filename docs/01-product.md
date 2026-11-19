@@ -1,12 +1,12 @@
 # 01 · Product
 
 ## One line
-MarketEdge is a screener for Polymarket (and later Kalshi) that shows which contracts are
+Kismet is a screener for Polymarket (and later Kalshi) that shows which contracts are
 priced **below their real win chance**, after fees and after the cost of buying at the ask,
 with the evidence behind every number.
 
 ## Who it's for
-| User | Wants | What MarketEdge gives them |
+| User | Wants | What Kismet gives them |
 |---|---|---|
 | Active sports bettor on Polymarket | Better prices on games they'd bet anyway | Niche filters (league, market type), edge on each side, stake table |
 | Weather / niche trader | Fast scan of daily markets | Weather filters (city, high/low, day), live flags 6–24 h out |

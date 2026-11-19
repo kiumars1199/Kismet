@@ -33,7 +33,7 @@ Polymarket CLOB (books) ─┤  /api/book live depth (5 s)   │──► Supaba
 
 ## Data flow and caching
 1. The engine writes `markets.json` (~20 MB), `flags.json`, `model.json`, `backtest.json`, `spreads.json`.
-2. The web server fetches them from `https://api.github.com/repos/kiumars1199/marketedge/contents/<file>?ref=live`
+2. The web server fetches them from `https://api.github.com/repos/kiumars1199/kismet/contents/<file>?ref=live`
    (header `Accept: application/vnd.github.raw`, `Authorization: Bearer $GITHUB_DATA_TOKEN`),
    or from local `../../output/` when `DATA_SOURCE=local` (dev).
 3. `lib/data/store.ts` keeps one parsed copy in memory per server instance:
@@ -71,8 +71,8 @@ The scan is regenerated every 2 h and is read-only. An in-memory store is simple
 ## Environment variables
 ```
 DATA_SOURCE=supabase|github|local   # supabase: private bucket `scan` → `live` branch → last good copy (docs/14 §4)
-GITHUB_DATA_TOKEN=            # fine-grained, read-only contents on kiumars1199/marketedge
-GITHUB_DATA_REPO=kiumars1199/marketedge
+GITHUB_DATA_TOKEN=            # fine-grained, read-only contents on kiumars1199/kismet
+GITHUB_DATA_REPO=   # owner/name of this GitHub repo
 GITHUB_DATA_REF=live
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=

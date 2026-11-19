@@ -1,4 +1,4 @@
-"""MarketEdge engine: a recency-weighted, hierarchical calibration model for prediction markets.
+"""Kismet engine: a recency-weighted, hierarchical calibration model for prediction markets.
 
 One config file = one instance. Commands (run from repo root):
     python -m engine --config config/demo.json update     # pull newly resolved markets + prices

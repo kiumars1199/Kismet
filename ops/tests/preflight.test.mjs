@@ -29,8 +29,8 @@ test("dangerous production combinations are blockers", () => {
 test("formats are checked", () => {
   const bad = {
     STRIPE_SECRET_KEY: "pk_test_123456789012", STRIPE_WEBHOOK_SECRET: "secret_123", CRON_SECRET: "short",
-    NEXT_PUBLIC_SITE_URL: "http://marketedge.example", NEXT_PUBLIC_SUPABASE_URL: "not a url",
-    ADMIN_EMAILS: "a@marketedge.example, nope", STRIPE_PRICE_PRO_MONTHLY: "prod_123456",
+    NEXT_PUBLIC_SITE_URL: "http://kismetodds.example", NEXT_PUBLIC_SUPABASE_URL: "not a url",
+    ADMIN_EMAILS: "a@kismetodds.example, nope", STRIPE_PRICE_PRO_MONTHLY: "prod_123456",
     SUPABASE_SERVICE_ROLE_KEY: GOOD_ENV.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   };
   for (const [k, v] of Object.entries(bad)) assert.deepEqual(blockers({ ...GOOD_ENV, [k]: v }), [k], k);

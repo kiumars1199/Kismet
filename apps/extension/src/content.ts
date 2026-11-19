@@ -33,8 +33,8 @@ function badge(text: string, positive: boolean, marketId: string | null, tag = T
   const host = document.createElement(tag);
   const root = host.attachShadow({ mode: "closed" });
   // Static markup only; every API string goes in via textContent (never HTML from the API).
-  root.innerHTML = `<style>${BADGE_CSS}${tag === PILL ? PILL_CSS : ""}</style><button class="${positive ? "pos" : ""}" title="${locked ? "MarketEdge Premium" : "MarketEdge: open details"}"><b>${locked ? LOCK : "ME"}</b><span></span></button>`;
-  root.querySelector("span")!.textContent = locked ? "MarketEdge Premium" : text;
+  root.innerHTML = `<style>${BADGE_CSS}${tag === PILL ? PILL_CSS : ""}</style><button class="${positive ? "pos" : ""}" title="${locked ? "Kismet Premium" : "Kismet: open details"}"><b>${locked ? LOCK : "ME"}</b><span></span></button>`;
+  root.querySelector("span")!.textContent = locked ? "Kismet Premium" : text;
   // Rows and headings are clickable on Polymarket: keep our clicks to ourselves.
   for (const ev of ["pointerdown", "mousedown", "mouseup"]) host.addEventListener(ev, (e) => e.stopPropagation());
   host.addEventListener("click", (e) => {
@@ -84,7 +84,7 @@ function checkPill() {
   // Selector breakage → /api/ext/telemetry (slug + count only) so a Polymarket markup change shows up fast.
   send({ type: "telemetry", slug, markets: data.markets.length });
   const n = data.flags.length;
-  pill = badge(n ? `MarketEdge: ${n} best bet${n > 1 ? "s" : ""} on this page` : "MarketEdge: no best bets on this page", n > 0, null, PILL);
+  pill = badge(n ? `Kismet: ${n} best bet${n > 1 ? "s" : ""} on this page` : "Kismet: no best bets on this page", n > 0, null, PILL);
   document.body.append(pill);
 }
 

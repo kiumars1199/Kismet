@@ -2,7 +2,7 @@
 // Fills config/site.json (owner, legal and Stripe-link values) from flags or a JSON file, validates the result, and
 // shows the diff (ops/ship.md step 4). Dry run unless --yes. Not interactive. Re-running with the same values changes nothing.
 //
-//   node ops/site-config.mjs --domain marketedge.com --support-email help@marketedge.com \
+//   node ops/site-config.mjs --domain kismetodds.com --support-email help@kismetodds.com \
 //     --operator-names "Jane Doe and John Roe" --state Delaware --refund-policy first_charge_7_days \
 //     --response-time "2 business days" [--address "1 Main St, Dover, DE 19901"] [--last-updated today] [--yes]
 //   node ops/site-config.mjs --from owner.json --yes      (same shape as config/site.json; only existing keys)

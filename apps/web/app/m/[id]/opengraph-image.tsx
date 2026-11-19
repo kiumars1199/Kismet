@@ -6,7 +6,7 @@ import { betLine, pct, sideRet } from "@/lib/format";
 import { DISCLAIMER } from "@/components/shell/Footer";
 
 export const runtime = "nodejs";
-export const alt = "MarketEdge market";
+export const alt = "Kismet market";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -21,7 +21,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
   return new ImageResponse(
     (
       <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between", padding: 64, background: C.bg, color: C.text, fontSize: 28 }}>
-        <div style={{ display: "flex", fontSize: 30, fontWeight: 700, color: C.accent }}>MarketEdge</div>
+        <div style={{ display: "flex", fontSize: 30, fontWeight: 700, color: C.accent }}>Kismet</div>
         {m && s ? (
           <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
             {/* 3 lines at most, ellipsis after (the longest real titles are ~120 characters) */}

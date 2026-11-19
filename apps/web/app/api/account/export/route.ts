@@ -19,7 +19,7 @@ export const GET = (req: Request) =>
     return new Response(JSON.stringify(body, null, 2), {
       headers: {
         "Content-Type": "application/json",
-        "Content-Disposition": `attachment; filename="marketedge-export-${body.exported_at.slice(0, 10)}.json"`,
+        "Content-Disposition": `attachment; filename="kismet-export-${body.exported_at.slice(0, 10)}.json"`,
         "Cache-Control": "no-store",
       },
     });

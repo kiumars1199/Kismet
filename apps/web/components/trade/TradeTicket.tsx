@@ -55,12 +55,12 @@ function Ticket({ cfg, p }: { cfg: TradeConfig; p: TicketPrefill }) {
       <PaperBadge />
       <p className="-mt-1 text-[15px] font-semibold leading-snug">{p.title}</p>
       {vault === "loading" ? (
-        <p className="text-sm text-muted" aria-live="polite">Checking the MarketEdge extension…</p>
+        <p className="text-sm text-muted" aria-live="polite">Checking the Kismet extension…</p>
       ) : vault === "missing" || vault === null ? (
         <section className={`${inner} flex flex-col gap-3 p-4`}>
-          <h3 className="font-semibold">Install the extension to trade from MarketEdge</h3>
+          <h3 className="font-semibold">Install the extension to trade from Kismet</h3>
           <p className="text-sm text-soft">
-            Your Kalshi key stays inside the MarketEdge browser extension; it signs each order you confirm here. MarketEdge&apos;s servers never see it.
+            Your Kalshi key stays inside the Kismet browser extension; it signs each order you confirm here. Kismet&apos;s servers never see it.
           </p>
           <div className="flex flex-wrap gap-2">
             <Link href="/ext/connect" className={btnPrimary}>Get the extension</Link>
@@ -72,7 +72,7 @@ function Ticket({ cfg, p }: { cfg: TradeConfig; p: TicketPrefill }) {
         <section className={`${inner} flex flex-col gap-3 p-4`}>
           <h3 className="font-semibold">Connect a Kalshi demo key</h3>
           <p className="text-sm text-soft">
-            Open the MarketEdge side panel (click the extension icon, then the side panel) and add a trade-only demo key. Then come back here.
+            Open the Kismet side panel (click the extension icon, then the side panel) and add a trade-only demo key. Then come back here.
           </p>
           <button type="button" className={`${btn} self-start`} onClick={ping}>I connected it</button>
         </section>
@@ -171,7 +171,7 @@ function OrderForm({ p, cfg, vault, onReview }: { p: TicketPrefill; cfg: TradeCo
           <dt className="text-muted">Kalshi fee (estimate)</dt><dd className="m-0 text-right">{usd(m.feeCents)}</dd>
           <dt className="text-muted">Max cost</dt><dd className="m-0 text-right font-semibold">{usd(m.maxCostCents)}</dd>
           <dt className="text-muted">Pays if it wins</dt><dd className="m-0 text-right">{usd(m.payoutCents)}</dd>
-          <dt className="text-muted"><span title={RETURN_HELP} className="underline decoration-dotted underline-offset-4">MarketEdge estimated return</span></dt>
+          <dt className="text-muted"><span title={RETURN_HELP} className="underline decoration-dotted underline-offset-4">Kismet estimated return</span></dt>
           <dd className={`m-0 text-right font-semibold ${m.roiPct != null && m.roiPct >= 0 ? "text-accent" : "text-negative"}`} title={s.winProb != null ? `Won ${pct(s.winProb)} before` : undefined}>{ret(m.roiPct)}</dd>
           <dt className="text-muted">Price check</dt>
           <dd className="m-0 text-right text-soft">
@@ -197,7 +197,7 @@ function OrderForm({ p, cfg, vault, onReview }: { p: TicketPrefill; cfg: TradeCo
 async function placeOrder(cfg: TradeConfig, o: OrderIntent): Promise<{ ok: true; order_id: string } | { ok: false; error: string }> {
   const res = await fetch("/api/trade/nonce", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "place", payload: o }) });
   const j = (await res.json().catch(() => ({}))) as { nonce?: string; error?: string };
-  if (!res.ok || !j.nonce) return { ok: false, error: j.error ?? "Couldn't confirm the order with MarketEdge." };
+  if (!res.ok || !j.nonce) return { ok: false, error: j.error ?? "Couldn't confirm the order with Kismet." };
   return ext<{ order_id: string }>(cfg.extensionId, { type: "place", nonce: j.nonce, order: o });
 }
 
@@ -230,7 +230,7 @@ function Confirm({ p, cfg, o, onBack, onPlaced }: { p: TicketPrefill; cfg: Trade
         </p>
         <p className="mt-1 text-sm text-soft tabular-nums">Max cost {usd(m.maxCostCents)} including about {usd(m.feeCents)} in fees · pays {usd(m.payoutCents)} if it wins.</p>
       </div>
-      <p className="text-xs text-muted">Every order needs this confirmation. MarketEdge never places orders by itself. Unfilled contracts wait on Kalshi&apos;s book until they fill or you cancel.</p>
+      <p className="text-xs text-muted">Every order needs this confirmation. Kismet never places orders by itself. Unfilled contracts wait on Kalshi&apos;s book until they fill or you cancel.</p>
       {err && <p role="alert" className="text-sm text-negative">{err}</p>}
       <div className="flex gap-2">
         <button type="button" className={btn} onClick={onBack} disabled={busy}>Back</button>

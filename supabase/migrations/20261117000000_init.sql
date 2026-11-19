@@ -1,4 +1,4 @@
--- MarketEdge user data (docs/03-data-model.md §3, docs/08, docs/15 § Database). T-40.
+-- Kismet user data (docs/03-data-model.md §3, docs/08, docs/15 § Database). T-40.
 -- Every public table has RLS on. User tables: owner-only via user_id = (select auth.uid()).
 -- subscriptions and stripe_events are written only by the service role (Stripe webhook).
 

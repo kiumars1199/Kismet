@@ -72,7 +72,7 @@ export function AlertsView() {
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-6">
-      <PageTitle title="Alerts" sub="Rules check while MarketEdge is open in a tab, every 2 minutes. Alerts land in the bell and, if you allow it, as browser notifications.">
+      <PageTitle title="Alerts" sub="Rules check while Kismet is open in a tab, every 2 minutes. Alerts land in the bell and, if you allow it, as browser notifications.">
         {(DEV || DEMO) && <button type="button" className={btn} onClick={runNow} title="Demo and development only">Run now</button>}
         <button type="button" className={btnPrimary} onClick={() => setDraft({ ...blank(), view_id: filters ? "current" : "builtin:best" })}>New alert</button>
       </PageTitle>

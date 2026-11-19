@@ -24,7 +24,7 @@ chrome.runtime.sendMessage({ type: "session" } satisfies Msg).then((s: SessionIn
   $("tier").classList.toggle("on", s?.tier === "premium");
   $("who").replaceChildren(s?.signedIn ? dot("var(--accent)", "Signed in") : dot("var(--warning)", "Signed out"));
   ($("signin") as HTMLButtonElement).hidden = !!s?.signedIn;
-  if (s?.signedIn && s.tier !== "premium") $("hint").textContent = "Badges on Polymarket are part of Premium. Open MarketEdge to upgrade.";
+  if (s?.signedIn && s.tier !== "premium") $("hint").textContent = "Badges on Polymarket are part of Premium. Open Kismet to upgrade.";
 });
 
 chrome.runtime.sendMessage({ type: "vault.status" }).then((v: { ok: boolean; connected?: boolean }) => {

@@ -9,7 +9,7 @@
 - Server components read the session with `@supabase/ssr`; API routes verify the JWT.
 
 ## Billing (Stripe)
-Products: `MarketEdge Pro` ($11.99/mo, $99.99/yr), `MarketEdge Premium` ($19.99/mo, $169.99/yr). 7-day trial.
+Products: `Kismet Pro` ($11.99/mo, $99.99/yr), `Kismet Premium` ($19.99/mo, $169.99/yr). 7-day trial.
 ```
 Upgrade button → POST /api/stripe/checkout {price} → Stripe Checkout (customer = stripe_customer_id or new,
   client_reference_id = user_id, trial_period_days = 7 if never trialed) → success_url /settings/billing?ok=1

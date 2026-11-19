@@ -8,7 +8,7 @@ stays hidden.
 The combo tray can ask Kalshi for the price of the same combo as a real Kalshi combo contract
 (`POST /api/combos/kalshi`, see `apps/web/lib/kalshiCombo.ts`). It is off by default.
 
-1. Get written confirmation from Kalshi that MarketEdge may read and show their market data (including combo
+1. Get written confirmation from Kalshi that Kismet may read and show their market data (including combo
    lookups) to subscribers. Their public API terms cover personal use, not redistribution.
 2. Set `KALSHI_DATA_PERMISSION=true` in Vercel (Production and Preview).
 3. The check uses `api.elections.kalshi.com`, or Kalshi's demo API when `KALSHI_TRADING_ENV=demo`. It sends no

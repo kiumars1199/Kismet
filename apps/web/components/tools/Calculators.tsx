@@ -70,7 +70,7 @@ function ReturnTab() {
     <Layout
       inputs={<>
         <Field label="Price (¢ per share, pays $1 if it hits)">{(id) => <NumberInput id={id} value={p} onChange={setP} min={1} max={99} suffix="¢" />}</Field>
-        <Field label="Win chance (%)" hint="Your estimate, or MarketEdge's “Won before”.">{(id) => <NumberInput id={id} value={q} onChange={setQ} min={0} max={100} suffix="%" />}</Field>
+        <Field label="Win chance (%)" hint="Your estimate, or Kismet's “Won before”.">{(id) => <NumberInput id={id} value={q} onChange={setQ} min={0} max={100} suffix="%" />}</Field>
         <Field label="Fee (by topic)">{(id) => <FeeSelect id={id} value={fee} onChange={setFee} allowNone />}</Field>
       </>}
       result={<>

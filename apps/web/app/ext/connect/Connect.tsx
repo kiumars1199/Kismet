@@ -13,7 +13,7 @@ export function Connect({ storeUrl }: { storeUrl: string | null }) {
     setS({ at: "working" });
     const cfg = (await fetch("/api/trade/config").then((r) => r.json()).catch(() => null)) as { extensionId?: string } | null;
     const id = cfg?.extensionId;
-    if (!id) return setS({ at: "error", msg: "Couldn't reach MarketEdge. Try again." });
+    if (!id) return setS({ at: "error", msg: "Couldn't reach Kismet. Try again." });
     const ping = await ext(id, { type: "ping" }, 5000);
     if (!ping.ok) return setS(ping.missing ? { at: "missing" } : { at: "error", msg: ping.error });
     const res = await fetch("/api/ext/token", { method: "POST" });
@@ -31,7 +31,7 @@ export function Connect({ storeUrl }: { storeUrl: string | null }) {
         <>
           <h2 className="text-lg font-semibold text-accent-soft">The extension is signed in</h2>
           <p className="text-sm text-soft">
-            Plan: <span className="capitalize text-text">{s.tier}</span>. {s.tier === "premium" ? "Open any Polymarket event page to see MarketEdge next to each market." : "Badges on Polymarket are a Premium feature."}
+            Plan: <span className="capitalize text-text">{s.tier}</span>. {s.tier === "premium" ? "Open any Polymarket event page to see Kismet next to each market." : "Badges on Polymarket are a Premium feature."}
           </p>
           {s.tier !== "premium" && <Link href="/pricing" className={btnPrimary}>See Premium</Link>}
           <p className="text-xs text-muted">The sign-in lasts 30 minutes and renews itself while your browser is open. You can close this tab.</p>

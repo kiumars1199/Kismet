@@ -121,7 +121,7 @@ function Notifications() {
     if (v) setState(await askPermission());
   };
   return (
-    <Section id="s-notify" title="Notifications" sub="Alerts always land in the bell inbox. Browser notifications show while MarketEdge is open in a tab.">
+    <Section id="s-notify" title="Notifications" sub="Alerts always land in the bell inbox. Browser notifications show while Kismet is open in a tab.">
       <Row title="Browser notifications" sub={STATE_TEXT[state]}>
         <Switch label="Browser notifications" checked={on && state === "granted"} onChange={toggle} />
       </Row>
@@ -136,12 +136,12 @@ function DataSection() {
     const out: Record<string, unknown> = { exported_at: new Date().toISOString(), profile: await repo.profile.get() };
     for (const c of COLLECTIONS) out[c] = await repo[c].list();
     const url = URL.createObjectURL(new Blob([JSON.stringify(out, null, 2)], { type: "application/json" }));
-    const a = Object.assign(document.createElement("a"), { href: url, download: `marketedge-data-${new Date().toISOString().slice(0, 10)}.json` });
+    const a = Object.assign(document.createElement("a"), { href: url, download: `kismet-data-${new Date().toISOString().slice(0, 10)}.json` });
     a.click();
     URL.revokeObjectURL(url);
   };
   const clear = () => {
-    if (!confirm("Delete everything MarketEdge saved on this device: settings, saved views, My list, My bets, alerts and dashboards? This can't be undone.")) return;
+    if (!confirm("Delete everything Kismet saved on this device: settings, saved views, My list, My bets, alerts and dashboards? This can't be undone.")) return;
     try {
       for (const k of Object.keys(localStorage)) if (k.startsWith("me:v1:")) localStorage.removeItem(k);
     } catch { /* storage blocked */ }

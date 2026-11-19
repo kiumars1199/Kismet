@@ -68,7 +68,7 @@ function marketView(d: EventResponse, m: Market) {
     ${sides.map((s) => sideCard(s, s.side_index === m.best.side_index)).join("")}
     <section class="inner small">${priceCheck(x)}</section>
     ${pros(m, x)}
-    <a class="btn primary" target="_blank" href="${API}/m/${encodeURIComponent(m.id)}">Open in MarketEdge</a>
+    <a class="btn primary" target="_blank" href="${API}/m/${encodeURIComponent(m.id)}">Open in Kismet</a>
     <a class="btn" target="_blank" href="${esc(m.url.startsWith("https://polymarket.com/") ? m.url : `https://polymarket.com/event/${d.slug}`)}">Open on Polymarket</a>`;
   root.querySelector("#back")!.addEventListener("click", (e) => { e.preventDefault(); select(d.slug, null); });
 }
@@ -94,7 +94,7 @@ function select(slug: string, marketId: string | null) {
 async function render(sel?: Selection) {
   if (!sel) return;
   const d = await (chrome.runtime.sendMessage({ type: "event", slug: sel.slug } satisfies Msg) as Promise<EventResponse | null>);
-  if (!d) { root.innerHTML = `<p class="muted">MarketEdge has no data for this page, or ${esc(API.replace(/^https?:\/\//, ""))} is not reachable.</p>`; return; }
+  if (!d) { root.innerHTML = `<p class="muted">Kismet has no data for this page, or ${esc(API.replace(/^https?:\/\//, ""))} is not reachable.</p>`; return; }
   const m = sel.marketId ? d.markets.find((x) => x.id === sel.marketId) : undefined;
   if (m) marketView(d, m); else listView(d);
   window.scrollTo(0, 0);

