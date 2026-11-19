@@ -94,6 +94,7 @@ def closed_events(tag, lo, hi, order="endDate"):
             return out
     if hi - lo <= 60:  # cannot split further; keep what we have
         return out
+    out.clear()  # the halves refetch these; don't hold thousands of full events while recursing
     mid = (lo + hi) / 2
     return closed_events(tag, mid, hi, order) + closed_events(tag, lo, mid, order)
 

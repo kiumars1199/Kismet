@@ -48,7 +48,8 @@ CMDS = {
 def run(job):
     for args in CMDS[job]:
         print(f"[scheduler] {job}: python {' '.join(args)}", flush=True)
-        env = {**os.environ, "ROTATE_MIN_SEC": os.environ.get("ROTATE_MIN_SEC") or str(ROTATE_MIN_SEC)}
+        env = {**os.environ, "ROTATE_MIN_SEC": os.environ.get("ROTATE_MIN_SEC") or str(ROTATE_MIN_SEC),
+               "PYTHONUNBUFFERED": "1"}  # job output reaches the logs even if the job is killed
         if subprocess.run([sys.executable, *args], cwd=ROOT, env=env).returncode != 0:
             print(f"[scheduler] {job} failed; previous data stays live", flush=True)
             return False

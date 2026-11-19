@@ -33,7 +33,14 @@ def run(cfg, log=print):
     state = json.load(open(state_p)) if os.path.exists(state_p) else {}
     sample_p = cfg.path("data", "sample.jsonl")
     seen = _ids(sample_p)
-    last = state.get("last_update_ts") or (time.time() - 30 * 86400)
+    # First update after a bootstrap: the bootstrap already pulled every closed market, so only look back a few
+    # days from when the sample was written (a 30-day window held GBs of events in memory and got the job killed).
+    if state.get("last_update_ts"):
+        last = state["last_update_ts"]
+    elif os.path.exists(sample_p):
+        last = os.path.getmtime(sample_p) - 3 * 86400
+    else:
+        last = time.time() - 30 * 86400
     lo, now = last - cfg.update_lookback_days * 86400, time.time()
     since = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(lo))
     new = []
