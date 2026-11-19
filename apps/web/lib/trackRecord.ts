@@ -86,7 +86,7 @@ export const PAYS_READ_TEXT: Record<PaysRead, string> = {
 };
 const SHORT: Record<PaysRead, string> = {
   untested: "untested", few: "too few bets to tell", even: "about break-even", won: "made money", lost: "lost money",
-  "won?": "made money, not proven", "lost?": "lost money",
+  "won?": "made money, small sample", "lost?": "lost money, small sample",
 };
 
 /** Per payout band: both tiers' records and the read of whichever tier tested more bets in that band. */

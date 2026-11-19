@@ -31,7 +31,7 @@ describe("payout band verdicts", () => {
       "2-3x": { flags: 267, roi_pct: -2.54, t_stat: -0.29 }, "3-5x": { flags: 1186, roi_pct: 2.91, t_stat: 0.48 },
       "5-10x": { flags: 605, roi_pct: -0.79, t_stat: -0.07 }, "10x+": { flags: 111, roi_pct: -41.85, t_stat: -1.7 },
     } as never } })!;
-    expect(note).toBe("In testing: 2–3x −2.5%, 3–5x +2.9%, 5–10x −0.8%: about break-even. 10x+ −42%: lost money.");
+    expect(note).toBe("In testing: 2–3x −2.5%, 3–5x +2.9%, 5–10x −0.8%: about break-even. 10x+ −42%: lost money, small sample.");
     expect(paysFilterNote(null)).toBeNull();
   });
   it("matches the shipped backtest without throwing", () => {
