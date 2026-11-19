@@ -91,7 +91,7 @@ export function BetCard({ r, pro = false }: { r: ApiRow; pro?: boolean }) {
       {m.tier === "edge" && <TierNote s={s} />}
       <div className="mt-auto flex items-center justify-between gap-2 border-t border-border pt-3 text-[13px]">
         <span data-testid="payout" className="text-muted" title="What your default stake (Settings) pays back if this side wins, after the fee. If it loses, you lose the stake.">
-          {win !== null ? <>Bet <span className="tabular-nums text-soft">{money(stake)}</span> → get <span className="font-semibold tabular-nums text-text">{payoutMoney(win)}</span> if it wins</> : null}
+          {win !== null ? <><span className="whitespace-nowrap">Bet <span className="tabular-nums text-soft">{money(stake)}</span> →</span>{" "}<span className="whitespace-nowrap">get <span className="font-semibold tabular-nums text-text">{payoutMoney(win)}</span> if it wins</span></> : null}
         </span>
         <span className="flex items-center gap-1">
           {rec && <span title={`${recordHelp(s.model_neff)} ${basis(m, s)}`} className={`whitespace-nowrap rounded-full bg-muted-bg px-2.5 py-[3px] text-xs ${rec === "Strong record" ? "text-soft" : "text-muted"}`}>{rec}</span>}
