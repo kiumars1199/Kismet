@@ -1646,3 +1646,276 @@ Unchanged from run 6, with run 6's "signed-in crawl" item now done:
   drops below 1.2 pp. Niche curves stay paid-only, and the per-market curve is never sent to Free or signed-out users.
 - **Audits:** this item is no longer counted as a fail while the guard test passes.
 
+# Audit run 8
+
+MarketEdge final audit, eighth run.
+
+Auditor: a fresh agent that built none of this code. It checked and fixed nothing.
+Target: branch `final` at `88a24a6` ("T-246: search engines Vercel has verified skip the market-page rate limit and row budget"), checked out as worktree `audit8` (branch `audit8`).
+Date: 2026-11-18, 18:06–20:25 local.
+Spec: `docs/OVERNIGHT.md` §3, items 1–11, plus the brief: verify T-243 to T-246, two runs of each e2e suite, the Lighthouse protocol, crawls in all 5 states, ops dry runs, `smoke-prod.sh` against a local production build, `pnpm audit` and the raw-count sweep.
+
+Owner decisions applied (Nov 18), not counted as fails:
+- RT3-01 chart leak is an accepted risk ("Accepted risks" above). Item 6 fails on it only if the attack's mean error on flagged `all`/`cat` rows of the live scan is below 1.2 pp, or the guard test fails.
+- `ADMIN_REQUIRE_MFA` stays off.
+
+Since run 7 (`3eb8132`), `final` gained 4 product commits (`git diff --stat 30e7362 88a24a6 -- apps`: 13 files):
+- T-243 (`3f3b0ec`): accepted-risk record; `test/paywall.test.ts:247-269` now asserts a mean error ≥ 1.2 pp (`ACCEPTED_MEAN_ERR`, `:251`).
+- T-244 (`7efa4df`): subscription events set the tier from `stripe.subscriptions.retrieve` (`lib/billing/stripe.ts:129-139`, `:165`). Two new tests in `lib/billing/stripe.test.ts:146-171`.
+- T-245 (`6335dc5`): `/pricing`, `/about`, `Plans`, `accountsOffNote` take the delay from `free_delay_min` (`app/pricing/page.tsx:10-11,37`, `components/pricing/Plans.tsx:12,57`, `lib/auth/server.ts:21-24`). New `test/delay-setting.test.ts`.
+- T-246 (`88a24a6`): `verifiedBot()` (`lib/abuse.ts:184-194`) lets BotID-verified bots skip `pageStore`'s rate limit and `pageBudget`'s row budget (`lib/data/respond.ts:79-92`). New test in `test/page-limits.test.ts:51-66`.
+
+How the audit ran:
+- Everything ran outside `~/Desktop`, in the scratch directory:
+  - `audit8/` is a git worktree at `88a24a6`. Unit tests, lint, typecheck and both e2e suites (twice each) ran here, after `pnpm i --frozen-lockfile` (exit 0 for web and extension). The main checkout has no `output/*-prev*.json`; its 8 committed output files are byte-identical to the worktree's (`cmp`), so nothing was copied and none of the `* 2.json` iCloud duplicates were touched.
+  - `a8/prod/` and `a8/mock/` are `git archive` copies of `88a24a6`.
+- `a8/prod/` followed `SETUP.md` §0: a new venv (Python 3.13.1; there is no 3.12 on this Mac), `pip install -r requirements.txt` (exit 0), `pytest -q` (45 passed), `pnpm i --frozen-lockfile` (exit 0), and `pnpm build` with `DEMO_MODE`/`NEXT_PUBLIC_DEMO_MODE` unset, no `.env*` file except `.env.example`, no Supabase/Stripe/Upstash/cron/Kalshi variable in the environment, `NEXT_PUBLIC_SITE_URL=http://localhost:5150` (`BUILD_EXIT=0`). It ran as `next start -p 5150` with `DATA_DIR=a8/prod/output` and served item 2, the logged-out crawl, Lighthouse, the probes and `smoke-prod.sh`.
+- Two fresh scans ran into `a8/prod/output`: 18:16:52–18:17:41 (24,173 markets, 1,781 flags, `scanned_at 1795043812`; the committed scan `1794895125` became `*-prev.json`) and 20:07:27–20:08:18 (18,798 markets, 1,718 flags, `1795050448`).
+- Extra instances of the same build: 5151 (cold, a copy of the output stamped "now", no `*-prev`: the pending state) and 5152 (`VERCEL=1`, for T-246).
+- `a8/mock/` ran the `E2E_MOCK=1` dev server on 5130 with the paid-config env (as `playwright.paid.config.ts`), `ADMIN_EMAILS=admin-audit8@example.com`, `KALSHI_TRADING_ENV=demo`, `DATA_DIR=a8/prod/output`; restarted and reseeded (`crawl1.sh`) before each signed-in crawl. A second mock on 5131 used the pending copy (T-245 pending line). Users were seeded through the mock magic link and mock Stripe Checkout (`seed.mjs`).
+- Only ports 5110–5152 were used. Every server I started was stopped before the commit (no listener on 5100–5199 afterwards).
+- No Supabase, Stripe, Upstash, Vercel or Kalshi account exists. Where the in-repo mocks fully cover a check it is marked PASS; each live step is under "Owner verification".
+- I did not accept commit messages, STATUS.md, test names or run 7's text as proof.
+- 1-minute load stayed 2–7 except 15.0 at the start of the first scan (nothing else of mine ran then). `uptime` is recorded next to each e2e run, crawl and Lighthouse batch.
+- Scratch helpers stayed in the scratch directory and are not committed. Reused from run 7 with ports and paths changed: `crawl2.mjs`, `crawl1.sh`, `seed.mjs`, `probe.py`, `cards.mjs`, `fees.mjs`, `webhook.mjs`, `hammer.py`, `kbd.mjs`, `me.mjs`, `extload.mjs`, `exportclick.mjs`, `poll.py`, `scrape2.sh`/`one.sh`, `pendshot.mjs`, `pill.mjs`, `lh.sh`, `ops.sh`, `secrets_scan.py`, `curve_check4.py` (now also prints mean errors). New: `wh8.mjs` and `wh8b.mjs` (T-244 with subscriptions that exist in the mock Stripe store), `t245.mjs` (changes `free_delay_min` through the admin settings UI, then reads every delay string signed out), `stamp.py` (pending copy).
+
+## Summary
+
+| # | Item | Result |
+|---|------|--------|
+| 1 | Tests | PASS |
+| 2 | Production build | PASS |
+| 3 | Every page × every state | PASS |
+| 4 | Quality | PASS |
+| 5 | Data correctness | PASS |
+| 6 | Security | **FAIL** (RT3-01 accepted-risk bar: live mean error 1.09–1.13 pp < 1.2 pp) |
+| 7 | Multipliers and combos | PASS |
+| 8 | Trading safety | PASS |
+| 9 | Billing | **FAIL** (T-244: a late event for a user's earlier subscription still rolls the plan back) |
+| 10 | Legal and wording | PASS (placeholders listed) |
+| 11 | Publication readiness | PASS |
+
+Two fails. T-245 and T-246 hold. T-244 fixes the case it tested (an older event for the *same* subscription) but not a late event for an *earlier* subscription of the same user: after cancel → resubscribe, a Stripe retry of the old subscription's event drops a paying Premium user to Free. T-243's bar is set at the top of run 7's measured range, so the live scans sit below it; the leak is no worse than run 7 (the committed scan gives exactly run 7's 1.110 pp), but by the owner's stated rule it is a fail, and the guard test cannot see it.
+
+Fails, in short (details and repro under "Fails to fix"):
+1. **RT3-01 accepted-risk bar not met on the live scan.** Attack mean error on flagged bets modelled at `all`/`cat` (best side): 1.110 pp (committed scan `1794895125`), 1.125 pp (`1795043812`), 1.089 pp (`1795050448`); bar 1.2 pp. The guard test passes because it measures every `all`/`cat` row of the fixture scan (~2.1 pp), never live flagged rows.
+2. **T-244: out-of-order events can still roll a plan back across subscriptions.** `wh8b.mjs` on the mock: Pro (sub A) → cancel → Premium (sub B) → Stripe retries an old A event → `/api/me` tier `free`, row points at the canceled A.
+
+## Fixed since run 7
+
+| Item | Change | Holds? | Evidence |
+|---|---|---|---|
+| Run 7 fail 1 (RT3-01) | T-243: accepted risk, guard test | **No by the stated bar** (item 6, fail 1) | Below. |
+| Run 7 observation (out-of-order webhooks) | T-244: tier from the current subscription | **Partly** (item 9, fail 2) | Below. |
+| Run 7 owner item (hard-coded "15") | T-245: delay strings from `free_delay_min` | **Yes** | Below. |
+| Run 7 owner item (search crawlers on `/m/`) | T-246: BotID-verified bots skip page limits | **Yes** (spoof still limited) | Below. |
+
+**T-243, RT3-01 guard: the live scans are below the bar.**
+- `curve_check4.py`, logged out against the 5150 production build: for each flagged bet whose side is modelled at `all`/`cat`, fetch `/api/model/curve?segment=…&h=…` (200, 10 points), interpolate at the Free row's `mid`, clamp to Free's band, compare with the exact win chance. The curve depends only on `model.json`, which a scan does not change, so every scan's flags can be measured against the same server.
+
+  | Scan | Population | n | Attack within 0.5 pp | Mid-band within 0.5 pp | Attack mean error | Mid-band mean error |
+  |---|---|---|---|---|---|---|
+  | `1794895125` (committed) | flagged, best side | 147 | 46 (31.3%) | 20 (13.6%) | **1.110 pp** | 1.401 pp |
+  | | flagged, every side | 294 | 87 (29.6%) | 45 (15.3%) | 1.154 pp | 1.373 pp |
+  | `1795043812` (fresh 1) | flagged, best side | 140 | 48 (34.3%) | 25 (17.9%) | **1.125 pp** | 1.264 pp |
+  | | flagged, every side | 280 | 84 (30.0%) | 50 (17.9%) | 1.214 pp | 1.252 pp |
+  | `1795050448` (fresh 2) | flagged, best side | 125 | 44 (35.2%) | 22 (17.6%) | **1.089 pp** | 1.303 pp |
+  | | flagged, every side | 250 | 80 (32.0%) | 47 (18.8%) | 1.184 pp | 1.276 pp |
+
+- Not worse than run 7: on the committed scan the numbers equal run 7's to the digit (46/147, 1.110 pp). Run 7's two scans gave 1.11 and 1.22 pp; T-243 put the bar at 1.2, the top of that range, and the comment at `test/paywall.test.ts:251` calls 1.2 "the live scan in audit run 7". So the bar is above what the live scans normally give.
+- The guard cannot detect the leak: `vitest.config.mts:10` pins `DATA_DIR` to `test/fixtures`, and the test loops `s.markets` (`test/paywall.test.ts:256`), not flagged rows; its own comment says the fixtures measure ~2.1 pp. The test passed (`pnpm test`, verbose run: "chart leak on flagged all / cat rows: attack mean error stays >= the accepted level").
+- By the owner's rule ("below 1.2 pp on the live scan = fail") this is fail 1. The owner should decide whether the bar is 1.1 pp (what the scans give) or the rule applies to something else; see "Fails to fix".
+
+**T-244, Stripe out-of-order events: holds for one subscription, not across subscriptions.**
+- Unit tests pass (`stripe.test.ts` "an older event delivered late can't overwrite the current plan", "a deleted subscription Stripe no longer returns falls back to the event").
+- The paid e2e Checkout works with the new path: both paid runs passed S7 and account delete; the webserver log shows `GET /v1/subscriptions/<id> 200` twice per run (the mock behind `STRIPE_API_BASE`), i.e. the webhook retrieved the subscription.
+- `wh8.mjs` on the 5130 mock with subscriptions that exist in the mock Stripe store (so `retrieve` returns them; run 7's `webhook.mjs` uses ids the store does not have and now only exercises the `resource_missing` fallback):
+  1. Mock Checkout Pro → sub A, tier `pro`.
+  2. Late older event "A = premium" → tier stays `pro`. **Holds.**
+  3. Late older "A deleted" while A is active at Stripe → stays `pro`. **Holds.**
+  4. Second Checkout (Premium, via the API) → sub B, tier `premium`.
+  5. Late older event for A → tier **`pro`**, row now `sub A, trialing`.
+  6. A canceled at Stripe, A.deleted delivered → tier **`free`** while B (premium) is active.
+  7. Any later B event → `premium` again.
+- `wh8b.mjs`, the normal user path (the UI sends paying users to the portal, `components/pricing/Plans.tsx:85`, but a canceled user is Free and sees "Start trial"):
+  1. Checkout Pro → sub A, `pro`. 2. A canceled, A.deleted → `free`. 3. Checkout Premium → sub B, `premium`. 4. Stripe retries an earlier A event (created 2 h before) → **`free`**, row `sub A, canceled`, while sub B is active and paying.
+- Cause: `currentSubscription` retrieves the subscription named in the event (`lib/billing/stripe.ts:131-139`), and `upsertSubscription` writes one row per user (`lib/billing/db.ts:25-27`, `onConflict: "user_id"`), so any event for any of the user's subscriptions overwrites the row. This is item 9, fail 2.
+- `webhook.mjs` (run 7's) results are unchanged: forged/stale/altered → 400; replay → duplicate; its out-of-order step still ends on `premium` because `sub_link` is not in the mock store (fallback to the event). With real Stripe a subscription id is always retrievable, so that step is a mock artefact, not a fail.
+
+**T-245, Free delay from the setting: holds.**
+- Build: `/pricing` and `/about` are dynamic (`ƒ` in the route table), so the setting is not baked in at build time.
+- 5130 mock, admin `admin-audit8@example.com` changed "Free plan data delay" on `/admin/settings` (real UI, "Save changes" → "Saved. Live on this server now…"), then signed out:
+  - 25 → `/pricing` plan card and compare table "At least 25 minutes behind, top 25 rows"; `/about` plan card the same; `/status` "at least 25 minutes after it runs"; pill title "…On the Free plan you see prices at least 25 minutes behind."; `/api/meta` `delay_min 25` (`audit8-t245-25-{admin-settings,pricing,about,home}-1440.png`).
+  - 15 restored → every string back to 15, `delay_min 15`.
+- 5131 mock on the pending copy, admin set 25: the pending card reads "Free prices run at least 25 minutes behind; the first update is on its way. Paid plans see live prices." and `/api/meta` → 503 with the same line (`audit8-t245-pending-25-home-1440.png`).
+- `grep -rniE "minutes? behind|behind|delay|15.?min"` over `apps/web/app`, `components`, `lib`, `apps/extension/src`, `config`: no hard-coded delay claim left ("Every 15 min" is a frequency filter, "expires in 15 minutes" the sign-in link; the admin hint says "Default 15").
+- Production build (no DB, default 15): `/pricing` and `/about` "at least 15 minutes behind"; `/login` "Sign-in isn't available yet… at least 15 minutes behind…"; pill "…at least 15 minutes behind." (`audit8-anon-pill-1440.png`); pending (5151) "Free prices run at least 15 minutes behind…" on `/`, `/markets`, `/status`, `/m/6117510` at 390 and 1440 (`audit8-anon-pending-*.png`).
+- Nit: at 1 minute the copy reads "at least 1 minutes behind" (pill, `/pricing`, `/about`, `/status`); at 0, `/pricing` would say "At least 0 minutes behind". Not a fail (the default is 15).
+
+**T-246, verified search bots: holds; a spoofed Googlebot is still limited.**
+- Production build 5150 (no `VERCEL`): 300 `/m/<id>` with `Googlebot/2.1` user agent, 8 in parallel → **60 with market data, 240 "Slow down a little" with `noindex`**. Same as `curl` (60 / 240).
+- Second instance of the same build with `VERCEL=1` (so `verifiedBot()` really calls `checkBotId()`), Googlebot UA, ids from the scan Free is served → **60 / 240**: the spoof is limited. (A first attempt with ids from the newest scan gave 1 page + 59 404 + 240 slow-downs: those ids are not in Free's delayed scan; discarded.)
+- Unit test "a bot Vercel verified (search engine) skips the limits; an unverified bot doesn't" passed.
+- Note: on the `VERCEL=1` instance every `/m` load printed BotID's "Possible misconfiguration of Vercel BotId … 'POST <your protected endpoint>'" block (300 for 300 loads). `verifiedBot()` calls `checkBotId()` on page GETs that carry no BotID client token. Whether Vercel then reports `isVerifiedBot` for real Googlebot, and whether this warns on every market page in production logs, can only be checked on Vercel (Owner verification).
+
+## 1. Tests: PASS
+
+- `pytest -q` (new venv in `a8/prod`): 45 passed.
+- `apps/web` in the worktree: `pnpm typecheck` exit 0; `pnpm lint` (`eslint . --max-warnings 0`) exit 0; `pnpm test`: **61 files, 384 tests passed** (plus the node ops tests: 27 pass, 0 fail, 0 skipped).
+- `apps/extension`: typecheck exit 0, **6 files, 42 tests passed**.
+- **Demo e2e** (`playwright.config.ts`: S1–S6, S8, search, trading-paper, multipliers, headers/CSP, a11y):
+  - Run 1, PW_PORT 5110: **52 passed** (1.1 m), ended 18:12:30, load 4.57.
+  - Run 2, PW_PORT 5112: **52 passed** (52.6 s), ended 18:14:51, load 6.84.
+- **Paid e2e** (`playwright.paid.config.ts`, `E2E_MOCK=1`: admin ×2, paywall pages, S7, account delete, keyboard search → drawer → save → upgrade):
+  - Run 1, PW_PORT 5111: **6 passed** (1.5 m), ended 18:13:58, load 4.68.
+  - Run 2, PW_PORT 5113: **6 passed** (1.5 m), ended 18:16:19, load 6.89.
+  - No failure, retry or flaky test in any of the four runs.
+- **Paid webserver log** (`DEBUG=pw:webserver`, 903 and 886 lines): 0 `SyntaxError`, `Unexpected end of JSON`, `⨯` or `TypeError`; 0 responses 5xx. Every non-2xx is expected: the 6 `/admin*` pages → 404 twice each; in run 2 `GET /api/data` → 401 and `auth/v1/user` → 401 (signed-out checks).
+- DB proofs: `ops/redteam/run3/rt3-db.test.ts`, `ops/redteam/rt2-db.test.ts` and `test/rls.test.ts` run together (`--testTimeout=60000`, load 3.8): **3 files, 25 tests passed** (copies deleted afterwards).
+
+## 2. Production build: PASS
+
+- `SETUP.md` §0 in `a8/prod` (see the top): `BUILD_EXIT=0`.
+- `next start -p 5150` served every page with 200 in the logged-out crawl. Server log: only `[abuse] UPSTASH_REDIS_REST_URL/TOKEN not set` and Node's localStorage ExperimentalWarning.
+- `/pricing` and `/about`: "Coming soon" ×2 each. No demo banner (0 matches for "demo mode" on `/`).
+- `/api/trade/config` → `{"enabled":false,"env":null,"extensionId":"","riskUrl":"https://kalshi.com/regulatory"}`; POST `/api/trade/nonce` → `{"error":"Trading is off."}`; POST `/api/auth/magic-link` → `{"error":"Accounts are not set up yet"}`.
+
+## 3. Every page × every state: PASS
+
+Crawler `crawl2.mjs` (as run 7): 33 routes at 390 and 1440 px with light CDP throttling (40 ms, 10 Mbit/s); checks console errors/warnings, page errors, bad tokens, footer disclaimer, horizontal scroll, 5xx/429; then requests every internal link found. `tiers` is `/api/me` before, between and after the two widths.
+
+| State | Server | Start (load) | Views | Problems | Links checked | `tiers` | Result |
+|---|---|---|---|---|---|---|---|
+| Logged out | prod 5150 | 18:18:43 (7.83) | 66 | 0 | 99, 0 bad | `nouser:free` ×3 | PASS |
+| Free | mock 5130 (fresh) | 18:54:15 (2.72) | 66 | 0 | 112, 0 bad | `free` ×3 | PASS |
+| Pro | mock 5130 (restarted, reseeded) | 19:06:35 (4.10) | 66 | 0 | 274, 0 bad | `pro` ×3 | PASS |
+| Premium | mock 5130 (restarted, reseeded) | 19:21:11 (5.30) | 66 | 0 | 274, 0 bad | `premium` ×3 | PASS |
+| Admin | mock 5130 (restarted, reseeded) | 19:40:12 (4.05) | 66 | 0 | 118, 1 by design | `free+admin` ×3 | PASS |
+
+- Each signed-in crawl ran on a freshly started mock (one crawl per server). Mock logs: 0 "restarting", 0 `auth/v1/user` 401, 0 5xx in all four. One `⨯ [Error: aborted]` in the Premium mock log comes from the seeding step (the browser navigated away mid-request), before the crawl.
+- Admin: `/admin`, `/admin/users`, `/admin/health`, `/admin/settings`, `/admin/audit` → 200 with h1 "Admin" at both widths. The one flagged link is `/api/admin/export` → 403 (RT2-01 same-site guard, no `Sec-Fetch-Site` on the crawler's request). A real click on "Export CSV" (`exportclick.mjs`) downloaded `marketedge-users-2026-11-19.csv` with the header `id,email,created_at,last_sign_in_at,tier,status,comp_tier,comp_expires_at`.
+- Disclaimer in the footer, no horizontal scroll and no console error or warning on all 330 views. 404 pages are the styled "This page doesn't exist".
+- Screenshots: `audit8-{anon,free,pro,premium,admin}-{home,markets,pricing,account,admin_health,m_<id>}-{390,1440}.png`.
+
+## 4. Quality: PASS
+
+**Lighthouse: PASS.** `npx lighthouse@12`, `--form-factor=mobile`, default simulated throttling, Playwright Chromium headless, 5150 production build, nothing else of mine running. Performance / accessibility / best practices / SEO; `uptime` is the 1/5/15-minute load before each page.
+
+| Page | uptime | Run 1 | Run 2 | Run 3 | Perf median |
+|---|---|---|---|---|---|
+| `/` | 2.49 3.99 4.51 | 88/100/100/91 | 91/100/100/91 | 96/100/100/91 | **91** |
+| `/about` | 2.49 3.78 4.40 | 93/100/100/91 | 98/100/100/91 | 93/100/100/91 | **93** |
+| `/pricing` | 2.68 3.66 4.33 | 94/100/100/91 | 94/100/100/91 | 94/100/100/91 | **94** |
+
+- One batch at load 2.5–2.7 (below 15), none discarded. TBT 121–290 ms, LCP 2.3–3.2 s, FCP 0.76–0.91 s. `/` run 1 (88) had TBT 290 ms; the median is 91.
+- Accessibility and best practices 100 on all 9. SEO 91 on all 9, only `meta-description` (streamed by Next 15; the tag is in the HTML), as runs 3–7. Note, not a fail.
+
+**axe:** zero serious/critical (`e2e/a11y.spec.ts` passed in both demo runs).
+
+**Keyboard-only** (`kbd.mjs`, 5150, logged out): `/` focuses search; "barcelona" ↓ Enter → `/?q=FC+Barcelona`; a result link in 24 Tabs, Enter opens "Market details" with focus inside; "Save" in 5 Tabs → "Saved", focus kept; "Pricing" in 10 Tabs → `/pricing`. Signed in: `s7-upgrade.spec.ts` passed in both paid runs.
+
+**Reduced motion:** `matchMedia` matched; longest animation/transition 0.01 ms.
+
+**Design review** of the crawl and T-245 screenshots against the Chosen design: dark theme, emerald accent, rounded-xl cards, 16 px gutters hold; the Free plan card wraps "at least 15 minutes behind, top 25 rows" cleanly at 390 (`audit8-anon-pricing-390.png`); a Pro user sees "Your plan" on Pro and "Switch to Premium" (`audit8-pro-pricing-1440.png`). No new alignment, truncation or contrast problem. The Next dev-tools "N" button shows only in mock (dev) screenshots.
+
+## 5. Data correctness: PASS
+
+- **Free capped and delayed on the server** (`probe.py`, 5150, logged out, `ps`/`page`/`page_size`/`tier` params and an `x-tier` header): 7 responses, all 200, 25 rows, page 1, every row banded; the rows matched the scan they were served from (the committed scan, while the fresh one was 9.9 min old): 0 mismatches.
+- **Delay:** `poll.py` read `/api/meta` logged out every 20 s, 18:27:12–18:36: Free switched from `1794895125` to `1795043812` at 18:31:54, **15.0 min** after the scan; `BAD_TOTAL 0`.
+- **Pro and Premium live, Free delayed** (`me.mjs`, mock, 20:10, after scan `1795050448` at 20:08): signed out → `1795043812` (`delay_min 15`); Pro and Premium → `1795050448` (`delay_min 0`); the 5150 build signed out → `1795043812`.
+- **Cards equal the API** (`cards.mjs`, 5150): 16 API rows, 13 cards matched, 0 mismatched.
+- **Fees and returns** (`fees.mjs`, Pro on the mock, 20 bets, 40 sides, newest scan): fee and edge match on all 40, 0 mismatches; roi differs by 0.01 on a few sides (4-decimal rounding), as before.
+- **Freshness pill:** "Updated 23 min ago", title "…last checked 23 min ago. Prices refresh about every 10 minutes. On the Free plan you see prices at least 15 minutes behind." (`audit8-anon-pill-1440.png`).
+
+## 6. Security: **FAIL** (RT3-01 accepted-risk bar)
+
+- **Paid data as free/anon:** rows capped and banded (item 5). The chart leak is measured above ("Fixed since run 7", T-243): live mean error 1.089–1.125 pp on flagged best sides, below the owner's 1.2 pp bar. Fail 1. Niche segments are still paid-only (`segment=soccer` → 403) and the per-market `curve` is `null` for Free.
+- **Page limits (RT3-02) and T-246:** 300 `/m/` loads → 60 / 240 slow-down with `noindex`, for curl and for a spoofed Googlebot, with and without `VERCEL=1` (above).
+- **Headers** (`curl -I`, 5150): HSTS `max-age=63072000; includeSubDomains`, `nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `X-Frame-Options: DENY`, `Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()`, CSP with a per-request nonce and `strict-dynamic`. `e2e/headers.spec.ts` passed twice.
+- **Hidden routes** (5150, logged out): `/admin`, `/admin/users`, `/api/admin`, `/api/admin/export`, `/e2e-mock/supabase/_inbox`, `/e2e-mock/supabase/auth/v1/user`, `/api/data` → 404; `/api/admin` POST/PUT/PATCH/DELETE → 404; POST `/api/settle/run`, `/api/alerts/run` → 401.
+- **Another user's rows:** 25 DB tests passed (item 1). Live check under Owner verification.
+- **Rate limits** (`hammer.py`, 5150): `/api/markets` ×40 → 23 × 200 then 17 × 429 (`Retry-After: 48`); `/api/flags` ×40 → 40 × 429; `/api/suggest?q=bar` ×250 → 120 × 200, 130 × 429; `/api/markets` ×40 with a new `X-Forwarded-For`/`X-Real-IP` each → 40 × 429; `smoke-prod.sh`: 40 × POST `/api/ext/telemetry` → 429 after the burst.
+- **Crawlers:** GPTBot, ClaudeBot, CCBot, PerplexityBot, Google-Extended, Bytespider → 403 on `/` and `/api/*`. HeadlessChrome, python-requests, curl → 200 (BotID runs only on Vercel; Owner verification).
+- **Stripe webhooks:** unsigned, wrong secret, 1-hour-old timestamp, altered body → 400; replay → duplicate (item 9).
+- **Dependencies:** `apps/web` `pnpm audit --prod`: no known vulnerabilities; full `pnpm audit`: 1 moderate (`minimatch`, dev tooling). `apps/extension`: none. `pip-audit -r requirements.txt`: none.
+- **Secrets in history:** `secrets_scan.py` over `git log --all -p`, 306 commits: 24 hits = run 7's 23 known fakes + 1 in `3eb8132` (the run 7 report quoting the fake `sk_test_FAKEFAKEFAKEFAKE`). The 4 commits since run 7: 0 hits.
+- **Client bundles:** `pnpm check:bundle`: "127 files in .next/static, no secrets"; grep for `SUPABASE_SERVICE_ROLE`, `STRIPE_SECRET_KEY`, `sk_live_`, `sk_test_`, `whsec_`, `UPSTASH_REDIS_REST_TOKEN`, `CRON_SECRET`, `EXT_SIGNING_SECRET`, `UNSUBSCRIBE_SECRET`, `service_role`: 0 files. `checkBotId`/`isVerifiedBot` are server-only (0 files in `.next/static`).
+- **Cookies:** no `Set-Cookie` on `/` in the prod build. Auth-cookie flags under Owner verification.
+
+## 7. Multipliers and combos: PASS
+
+- No change since run 7 in `lib/combos.ts`, the multiplier tiers or the combo UI; `test/multipliers.test.ts` and the combo tests passed; `e2e/multipliers.spec.ts` passed twice.
+- Live (scan `1795050448`): market 6771195 (and 6841253), ask 0.06 (≥10x), win 0.1077, edge 0.0448, tier `best`. Tier split 909 best / 809 edge.
+- **Raw-count sweep:** the diff since run 7 adds no count display (`Plans.tsx` and `/pricing` add only the delay number). Grep for `{….length|count|total|unread}` and `toLocaleString()` in `apps/web/app`, `components`, `apps/extension/src` without `formatCount`: 19 hits, the same bounded set as run 7 (combo legs ≤ 6, dashboard panels, the inbox ≤ 50, chosen topics, the 280-char banner counter, `colSpan`, a chart aria-label, a date `toLocaleString()`, and two `<Count>` uses that call `formatCount`). No count that can pass 999 shows raw.
+
+## 8. Trading safety: PASS
+
+- 5150: `/api/trade/config` → `enabled:false`; POST `/api/trade/nonce` → "Trading is off.".
+- `git diff 30e7362 88a24a6 -- apps/extension apps/web/lib/trade apps/web/components/trade` is empty; `e2e/trading-paper.spec.ts` passed twice.
+
+## 9. Billing: **FAIL** (T-244 cross-subscription rollback)
+
+- `webhook.mjs` on the mock, user `webhook-audit8@example.com`: unsigned → 400 "Not configured or unsigned"; wrong secret, 1-hour-old timestamp, changed body → 400 "Bad signature"; raw unsigned `client_reference_id` → 200, not linked; subscription for that customer → 500 "Retry"; signed `client_reference_id` (Payment Link path) linked the customer; `customer.subscription.created` premium → premium; replay → `{"duplicate":true}`; portal cancel (`cancel_at_period_end`) → still premium; `customer.subscription.deleted` → free; replayed deletion → duplicate.
+- S7 (checkout → tier up) and account delete with a live subscription passed in both paid runs; the seed flow upgraded Pro and Premium users through mock Checkout 4 more times.
+- Out-of-order events: T-244 holds for one subscription and fails across two ("Fixed since run 7"). **Fail 2.**
+
+## 10. Legal and wording: PASS (placeholders listed)
+
+- Footer disclaimer "Market analytics, not financial advice. Based on past results. 18+." on all 330 crawled views, on the pending state and in the extension popup.
+- `/terms`, `/privacy`, `/refunds`, `/disclaimer`, `/contact`, `/status` → 200, linked from the footer.
+- 18+ gate: keyless build answers "Accounts are not set up yet"; on the mock every seeded user had to tick the box (`seed.mjs`), and S7 passed twice. Email templates unchanged since run 7.
+- Banned words (`grep -rniE "\b(picks?|locks?|guaranteed?|sure thing|can.?t lose|risk.?free|expected profit)\b"` over `apps/web/app`, `components`, `lib/email`, `apps/extension/src`): only comments, identifiers (`pick`, `Pick<…>`) and the negation on `/terms`.
+- Every Free delay string follows the setting (T-245).
+- TODO/FIXME and `console.log` in shipped code: 0 and 0.
+- Placeholders (listed, not failed): unchanged from run 7 (`[[GOVERNING_STATE]] [[LAST_UPDATED]] [[OPERATOR_NAMES]] [[SUPPORT_EMAIL]] [[REFUND_POLICY]] [[RESPONSE_TIME]]` on the legal pages, `[[OPERATOR_NAMES]]` in every footer); `ops/site-config.mjs` still lists them as missing.
+
+## 11. Publication readiness: PASS
+
+- `robots.txt` 200: AI user agents `Disallow: /`; everyone else `Allow: /` with `/api/`, `/auth/`, `/login`, `/onboarding`, `/account`, `/settings`, `/watchlist`, `/journal`, `/alerts`, `/dashboards`, `/admin` disallowed; `Sitemap: http://localhost:5150/sitemap.xml` (12 `<loc>`).
+- No test users, seed data or debug routes in prod (`/e2e-mock/*`, `/api/data`, `/admin*` → 404).
+- Styled 404; `/icon.svg` 200 `image/svg+xml`; `/favicon.ico` 404 (harmless, as before); `/opengraph-image` 200 `image/png`.
+- Extension: `ME_ORIGIN=https://marketedge.example pnpm ext:zip` → `marketedge-extension-0.1.0.zip` (26,267 bytes, moved out of the worktree). MV3, permissions `storage`, `sidePanel`, hosts the app origin and `external-api.demo.kalshi.co`, CSP `script-src 'self'; object-src 'self'`, 0 files with `eval(`/`new Function`. Loaded unpacked in a clean Chromium profile: service worker registered; popup "MarketEdge Signed out … Paper trading Off … Market analytics, not financial advice. Based on past results. 18+." (`audit8-ext-popup.png`); only console error is DNS for the placeholder domain.
+- **Ops dry runs** (`ops.sh`, `env -i PATH HOME`): `secrets.mjs` plan, exit 0; `site-config.mjs` dry run, exit 0, `config/site.json` md5 unchanged (`bda0c50c…`); `stripe-setup.mjs` plan, exit 0; `preflight.mjs` 24 blockers / 6 warnings, exit 1 by design; `supabase-setup.sh` plan, exit 0; `vercel-env.mjs` "Refusing: no env file…" exit 2, and with a test env file only the documented keys, the Stripe key `--sensitive` and masked (`sk_t…(24 chars)`), `E2E_MOCK` and non-example keys not pushed, exit 0; `checks.py a8/prod/output` "data checks ok"; `upload.py` without credentials exit 1, nothing uploaded; `scheduler.plan` → `bootstrap, backtest, update, fit, grade, scan`. `git status` after: no tracked file changed.
+- **`ops/smoke-prod.sh`**: `SMOKE_EXPECT_HEALTH=503 ops/smoke-prod.sh http://localhost:5150` → **18 passed, 0 failed**, exit 0.
+- `SETUP.md` from scratch reaches a running app (item 2).
+
+## Fails to fix
+
+1. **RT3-01 accepted risk: the live scan is below the owner's 1.2 pp bar, and the guard test cannot see it.** (Severity unchanged from run 7: low. The leak did not get worse.)
+   - Where:
+     - `apps/web/test/paywall.test.ts:251` `ACCEPTED_MEAN_ERR = 0.012` (comment: "the live scan in audit run 7"; run 7's live scans were 1.11 and 1.22 pp).
+     - `apps/web/test/paywall.test.ts:256` loops `s.markets` of the fixture scan (`apps/web/vitest.config.mts:10` `DATA_DIR: "test/fixtures"`), not flagged rows; the fixtures give ~2.1 pp, so the test passes whatever the live scan does.
+     - The leak itself: `lib/data/model.ts:42-55` (`coarseCurve`), `app/api/model/curve/route.ts`, `lib/data/gate.ts` (`rangeSide` keeps `mid`, `model_level`, `category`, `horizon_h`), as in run 7.
+   - Repro (any build, logged out): run 7's 4 steps (`/api/markets/<id>` → `best.mid`, band, `model_level`, `horizon_h`; `/api/model/curve?segment=<all|cat:…>&h=…`; interpolate at `mid`; clamp to the band) over the scan's flagged bets at `all`/`cat`. Result, best side: mean error 1.110 pp (`1794895125`), 1.125 pp (`1795043812`), 1.089 pp (`1795050448`).
+   - Fix direction (owner's call): either set the bar to what the scans give today (about 1.05 pp, so a worse leak still trips it) and make the test measure flagged rows (a fixture with flagged `all`/`cat` rows, or a data check over `output/flags.json` in `ops/checks.py`), or keep 1.2 and reduce the leak.
+
+2. **T-244: a late event for a user's earlier subscription overwrites the current plan.** (Medium: a paying user can lose access until their next subscription event; happens only after cancel → resubscribe plus a delayed or retried Stripe delivery, or with two live subscriptions.)
+   - Where:
+     - `apps/web/lib/billing/stripe.ts:131-139` (`currentSubscription` retrieves the subscription named by the event) and `:121-127`, `:165` (`applySubscription` upserts it as the user's plan).
+     - `apps/web/lib/billing/db.ts:25-27` (`upsertSubscription`: one row per user, `onConflict: "user_id"`, no check that the event's subscription is the user's current one).
+     - `apps/web/app/api/stripe/checkout/route.ts:22-42` (no server-side "already paying" refusal; only the UI routes paying users to the portal, `components/pricing/Plans.tsx:85`).
+   - Repro (`E2E_MOCK=1` dev server, `wh8b.mjs`):
+     1. Sign in a new user; mock Checkout `pro_monthly` → sub A; `/api/me` `pro`.
+     2. `DELETE /e2e-mock/stripe/v1/subscriptions/<A>`; deliver signed `customer.subscription.deleted` for A → `free`.
+     3. Mock Checkout `premium_monthly` → sub B; `/api/me` `premium`.
+     4. Deliver a signed `customer.subscription.updated` for A with a new event id and `created` 2 h ago (a Stripe retry of a delivery that failed earlier) → `/api/me` **`free`**; `subscriptions` row `sub A, canceled`, while B is active.
+     - With two live subscriptions (`wh8.mjs` steps 4–6): a late A event → `pro`; A ending → `free` while B (premium) is active.
+   - Fix direction: ignore (or only record) events whose subscription is not the user's current one, e.g. skip the upsert when the row already holds a different subscription that is paying and the event's subscription is not; or pick the tier from the customer's paying subscriptions (`stripe.subscriptions.list({ customer, status: "all" })`) instead of the one in the event. Add a test with two subscription ids.
+
+## Owner verification
+
+Unchanged from run 7 except where marked:
+
+- **Supabase:** run the RLS checks against the live project with the anon key; send a real magic-link email; run `ops/supabase-setup.sh <ref> --yes`; after a real sign-in confirm auth cookies carry `Secure; HttpOnly; SameSite=Lax`; confirm the `plan_quota` trigger blocks an 11th Free watchlist row. (`ADMIN_REQUIRE_MFA` stays off by owner decision.)
+- **Stripe test mode end to end:** Checkout; webhook delivery to the deployed URL; Customer Portal cancel and plan switch; a real Payment Link if `stripe.mode` is `links`. (changed) After fail 2 is fixed: cancel, resubscribe, then use "Resend" on an old subscription's event in the Stripe dashboard and confirm the plan does not change.
+- **Upstash:** set the Redis keys so the shared limiter replaces the in-memory one and `/api/health` reports ok.
+- **Vercel:** confirm BotID challenges headless browsers and scripted clients; Root Directory `apps/web`; push env with `node ops/vercel-env.mjs --env apps/web/.env.prod`; check a shared office/NAT IP is not throttled by the per-IP + JA4 page limit.
+- (changed) **Search crawlers on market pages (T-246):** on a Vercel preview, confirm `checkBotId()` reports `isVerifiedBot: true` for real Googlebot/Bingbot page loads of `/m/` and `/event/` (Search Console "URL inspection" → live test), that a spoofed Googlebot UA is still limited, and decide whether the BotID "Possible misconfiguration" warning on every market page load (seen locally with `VERCEL=1`) is acceptable log noise.
+- **Burst scans:** a cold instance after back-to-back scans shows Free the pending state until a kept copy is `free_delay_min` old.
+- (changed) **Free delay setting:** the copy now follows `free_delay_min` (T-245). If it is ever set to 1, the copy says "1 minutes"; at 0, `/pricing` says "At least 0 minutes behind".
+- (changed) **RT3-01:** decide the bar for fail 1 (1.2 pp is above today's live scans) and whether the guard should measure live flagged rows.
+- **Kalshi demo:** place one demo order from the extension with a real demo key.
+- **Domain and `config/site.json`:** fill the placeholders listed in item 10; set `NEXT_PUBLIC_SITE_URL`.
+- **Scan cadence:** run the engine container (10-minute scans); with only the `refresh.yml` fallback (every 2 h), "about every 10 minutes" is wrong.
+- **Chrome Web Store:** publish the extension and set `NEXT_PUBLIC_EXTENSION_ID`.
+- **Count rule exceptions (item 7):** confirm the exact contract quantity on the trade ticket and the exact unread count in the bell's `aria-label`.
