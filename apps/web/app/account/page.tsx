@@ -36,6 +36,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ c
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-8">
       <PageTitle title="Account">
+        <Link href="/?tour=1" className="inline-flex min-h-11 items-center rounded-input px-3 text-sm text-muted hover:text-text">Replay the tour</Link>
         {isAdminEmail(me.user, process.env.ADMIN_EMAILS, DEMO_MODE) && (
           <Link href="/admin" className="inline-flex min-h-11 items-center rounded-input border border-border bg-muted-bg px-4 text-sm font-medium hover:border-accent-border">Admin panel</Link>
         )}

@@ -3,7 +3,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
 const STATIC = [
-  "/", "/markets", "/about", "/pricing", "/login", "/onboarding", "/account", "/watchlist", "/journal", "/alerts",
+  "/", "/markets", "/about", "/pricing", "/login", "/signup", "/onboarding", "/account", "/watchlist", "/journal", "/alerts",
   "/dashboards", "/settings", "/tools", "/track-record", "/status", "/terms", "/privacy", "/refunds", "/disclaimer",
   "/contact", "/ext/connect", "/no-such-page",
 ];

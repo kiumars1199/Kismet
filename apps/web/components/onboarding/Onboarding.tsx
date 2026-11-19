@@ -10,6 +10,7 @@ import { FilterState } from "@/lib/filters/state";
 import { money } from "@/lib/format";
 import { DEMO_MODE, getRepo, repoReady } from "@/lib/repo";
 import { useProfile } from "@/lib/repo/hooks";
+import { TOUR_KEY } from "./Tour";
 
 const STAKES = [10, 25, 50, 100, 250];
 const ORDER_STYLE_KEY = "me:v1:order_style"; // "market" | "limit"; read by the drawer to lead with the limit price
@@ -50,7 +51,11 @@ export function Onboarding({ next }: { next?: string }) {
     if (started.current) return;
     started.current = true;
     setBusy(true);
-    try { localStorage.setItem(ORDER_STYLE_KEY, style); } catch { /* storage off */ }
+    // TOUR_KEY: the spotlight tour starts when setup (finished or skipped) lands on Best bets; elsewhere it waits for Replay
+    try {
+      localStorage.setItem(ORDER_STYLE_KEY, style);
+      if (!next || next === "/") localStorage.setItem(TOUR_KEY, "1");
+    } catch { /* storage off */ }
     setError(null);
     let topics: string[] | undefined;
     try {

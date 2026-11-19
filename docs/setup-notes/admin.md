@@ -7,7 +7,7 @@
 Set `ADMIN_EMAILS` in Vercel (Project → Settings → Environment Variables, Production and Preview):
 
 ```
-ADMIN_EMAILS=marcyamin10@gmail.com,kiumarsmomtaz@gmail.com
+ADMIN_EMAILS=kismetodds@gmail.com,marcyamin10@gmail.com,kiumarsmomtaz@gmail.com
 ```
 
 - Comma-separated. Compared lowercase, exact match. Not a secret, but server-only (no `NEXT_PUBLIC_`).
@@ -39,6 +39,14 @@ Run `supabase/migrations/20261118000000_admin.sql` (Supabase → SQL editor, or 
 - `admin_overview`, `admin_users`, `admin_user_detail`, `admin_revoke_sessions`: security-definer functions callable only by the service role.
 
 Until the migration runs, `/admin` pages show errors; the rest of the site keeps working with default settings.
+
+Then run `supabase/migrations/20261119000300_plan_grants.sql` (docs/19 P8, `/admin/grants`). It adds:
+
+- `plan_grants`: Pro or Premium by email with an optional expiry, RLS on, service role only.
+- `admin_grant_plan` / `admin_revoke_grant`: create/edit and revoke a grant; applied at once as the comp when the
+  email already has an account.
+- Trigger `on_auth_user_created_grant`: a pending grant becomes the comp when that email's account is created (first
+  sign-in by email link or Google). Expired grants are skipped. Every grant change is in the audit log (`grant.*`).
 
 ## 3. Site settings (`/admin/settings`)
 

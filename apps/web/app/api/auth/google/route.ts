@@ -11,6 +11,7 @@ export async function POST(req: Request) {
   const origin = new URL(req.url).origin;
   const back = (q: string) => NextResponse.redirect(`${origin}/login?${q}`, 303);
   if (!authEnabled() || !sameOrigin(req)) return back("error=unavailable");
+  if (process.env.NEXT_PUBLIC_GOOGLE_AUTH !== "1") return back("error=google");   // provider not configured yet
   // A form navigation, so BotID can't attach its header here (docs/SECURITY_EVIDENCE.md); 5/min per IP still applies.
   if (await rateLimit("auth_ip", clientKey(req))) return back("error=rate");
   const form = await req.formData().catch(() => null);

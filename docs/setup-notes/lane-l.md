@@ -31,6 +31,8 @@ Until steps 1–4 are done the app runs in demo mode (`DEMO_MODE=true`): no sign
 2. Authorised redirect URI: `https://<project-ref>.supabase.co/auth/v1/callback` (shown on the Supabase Google provider page).
 3. OAuth consent screen: app name Kismet, support email, scopes `openid email profile` only.
 4. Supabase → Authentication → Providers → Google: paste Client ID and Client secret. Enable.
+5. Vercel → Environment Variables: `NEXT_PUBLIC_GOOGLE_AUTH=1`, then redeploy. Until then the Google button is hidden
+   (it would 400 with the provider off) and sign-in is email link only.
 
 ## 3. Stripe
 

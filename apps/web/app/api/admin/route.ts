@@ -20,11 +20,16 @@ export const GET = other, HEAD = other, PUT = other, PATCH = other, DELETE = oth
 
 const uid = z.uuid();
 const confirm = z.string().max(254);
+const email = z.string().trim().toLowerCase().pipe(z.email().max(254));
+const future = z.iso.datetime({ offset: true }).nullable().refine((d) => d === null || Date.parse(d) > Date.now(), "Expiry must be in the future");
 const Body = z.discriminatedUnion("action", [
   z.object({
     action: z.literal("comp"), user_id: uid, tier: z.enum(["pro", "premium"]),
-    expires_at: z.iso.datetime({ offset: true }).nullable().refine((d) => d === null || Date.parse(d) > Date.now(), "Expiry must be in the future"),
+    expires_at: future,
   }).strict(),
+  // docs/19 P8: grant a plan to an email, account or not (a pending grant is applied when the account is created)
+  z.object({ action: z.literal("grant"), email, tier: z.enum(["pro", "premium"]), expires_at: future }).strict(),
+  z.object({ action: z.literal("ungrant"), email }).strict(),
   z.object({ action: z.literal("uncomp"), user_id: uid }).strict(),
   z.object({ action: z.literal("revoke_sessions"), user_id: uid, confirm }).strict(),
   z.object({ action: z.literal("delete_user"), user_id: uid, confirm }).strict(),
@@ -81,6 +86,21 @@ async function act(ctx: AdminCtx, b: Body): Promise<Response> {
     return Response.json({ ok: true, settings: await getSettings() });
   }
 
+  if (b.action === "grant" || b.action === "ungrant") {
+    const { data: before, error: readErr } = await db.from("plan_grants").select("tier, expires_at, applied_user_id").eq("email", b.email).maybeSingle();
+    if (readErr) throw new Error(readErr.message);
+    if (b.action === "ungrant" && !before) return fail(404, "No grant for that email");
+    const after = b.action === "grant" ? { tier: b.tier, expires_at: b.expires_at } : null;
+    const name = b.action === "grant" ? (before ? "grant.update" : "grant.create") : "grant.revoke";
+    await audit(ctx, name, b.email, before ?? null, after);
+    const { data, error } = b.action === "grant"
+      ? await db.rpc("admin_grant_plan", { e: b.email, t: b.tier, exp: b.expires_at, actor: admin.id })
+      : await db.rpc("admin_revoke_grant", { e: b.email });
+    if (error) throw new Error(error.message);
+    await done(ctx, name, b.email, data ?? null);
+    return Response.json({ ok: true, applied: !!(data as { user_id?: string | null } | null)?.user_id });
+  }
+
   const user = await target(ctx, b.user_id);
   if (!user) return fail(404, "No such user");
   const self = user.id === admin.id;
@@ -94,6 +114,11 @@ async function act(ctx: AdminCtx, b: Body): Promise<Response> {
       await audit(ctx, `user.${b.action}`, user.email, before ?? null, after);
       const { error } = await db.from("subscriptions").upsert({ user_id: user.id, ...after }, { onConflict: "user_id" });
       if (error) throw new Error(error.message);
+      // removing a comp also ends the email's plan grant (docs/19 P8), so the grants list never shows a stale one
+      if (b.action === "uncomp") {
+        const { error: gErr } = await db.from("plan_grants").delete().eq("email", user.email.toLowerCase());
+        if (gErr) throw new Error(gErr.message);
+      }
       await done(ctx, `user.${b.action}`, user.email, after);
       return Response.json({ ok: true });
     }
