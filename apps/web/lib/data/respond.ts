@@ -1,4 +1,5 @@
 // Server helpers shared by the API routes.
+import { repricePage } from "@/lib/reprice";
 import { DelayedPending, getStore, getStoreFor, type Store } from "./store";
 import { botCheck, clientIp, clientKey, noteRows, rateLimit, rowBudget, verifiedBot, type Rule } from "@/lib/abuse";
 import { getMe, type Me } from "@/lib/auth/server";
@@ -181,6 +182,10 @@ function freeFlagsPage(store: Store, f: FilterState, key: string): MarketsRespon
   return { ...page, page_size: f.page_size, total_groups: undefined, groups: undefined, rows };
 }
 
+/** Live re-pricing (lib/reprice.ts) is off for a frozen snapshot (DATA_CLOCK=scan: tests, demo fixtures), under
+ *  Vitest, and with LIVE_REPRICE=0. */
+const repriceOn = () => process.env.LIVE_REPRICE !== "0" && process.env.DATA_CLOCK !== "scan" && !process.env.VITEST;
+
 /** GET /api/markets and /api/flags. Free: first page only (top 10 rows), exact numbers as ranges (docs/08 LIMITS);
  *  Best bets are the day's sample (freeSample). Paid: a page past the last one is refused (docs/15 § pagination cap). */
 export const listRoute = (req: Request, view?: "flags") =>
@@ -197,7 +202,7 @@ export const listRoute = (req: Request, view?: "flags") =>
     }
     const page = live ? marketsPage(store, f) : f.view === "flags" ? freeFlagsPage(store, f, me.user?.id ? `u:${me.user.id}` : `ip:${clientIp(req)}`) : marketsPage(store, { ...f, page: 1 });
     if (live && f.page > Math.max(1, page.pages)) return Response.json({ error: "page is past the last page" }, { status: 400 });
-    const body = gateMarkets(page, tier);
+    const body = gateMarkets(live && f.view === "flags" && repriceOn() ? await repricePage(page) : page, tier);   // live tiers only: Free stays 15 min behind
     const over = live ? null : await rowBudget(req, me.user?.id, body.rows.map((r) => r.market.id));   // RT-03
     if (over) return over;
     await noteRows(req, me.user?.id, body.rows.length);

@@ -9,7 +9,7 @@
 import { useRef } from "react";
 import type { ApiRow } from "@/lib/api";
 import { useEntitlements } from "@/lib/entitlements";
-import { REALISTIC_HELP, RETURN_HELP, basis, cardReturn, closesLine, gameTime, money, pays, PAYS_HELP, payoutIfWins, payoutMoney, price, recordHelp, recordLabel, sideEdge, sidePts, winsAbout } from "@/lib/format";
+import { REALISTIC_HELP, RETURN_HELP, basis, cardReturn, closesLine, gameTime, money, pays, PAYS_HELP, payoutIfWins, payoutMoney, price, priceAsOf, recordHelp, recordLabel, sideEdge, sidePts, winsAbout } from "@/lib/format";
 import { useProfile } from "@/lib/repo/hooks";
 import { WatchStar } from "@/components/watch/WatchStar";
 import { VenueIconLink } from "@/components/trade/TradeButton";
@@ -79,6 +79,7 @@ export function BetCard({ r, pro = false }: { r: ApiRow; pro?: boolean }) {
           </span>
           {/* own line on every card: a wrapping "·" left some cards with a dangling separator */}
           <span className={`block ${s.ranges || s.edge > 0 ? "text-accent-softer" : "text-negative"}`}>{priceVerdict(s).toLowerCase()} <span className="tabular-nums">({sidePts(s)})</span></span>
+          {r.price_at && <span data-testid="price-as-of" className="block text-xs text-muted" title="Live Polymarket price read when this page loaded; edge, Pays and payout use it.">{priceAsOf(r.price_at)}</span>}
         </p>
         <p className="mt-0.5 flex items-center gap-1 text-[13px] text-muted">
           {pro ? "Edge per share" : ret.realistic ? "Similar past bets returned" : "Estimated return"}

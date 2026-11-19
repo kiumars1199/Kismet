@@ -44,7 +44,8 @@ export interface MetaResponse {
   delay_min?: number;                      // the plan's minimum delay in minutes (Free 15, paid 0); `meta` is the scan served, at least that old (RT3-03)
 }
 
-export interface ApiRow { market: StoreMarket; side: Side }   // side = the side chosen by FilterState.side
+// side = the side chosen by FilterState.side; price_at = when the live CLOB price was read (paid flags, lib/reprice.ts)
+export interface ApiRow { market: StoreMarket; side: Side; price_at?: number }
 export type ApiGroup = Omit<Group, "rows" | "best"> & { start: number; count: number };
 export interface MarketsResponse {
   total: number;                           // matching rows

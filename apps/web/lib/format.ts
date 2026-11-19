@@ -129,6 +129,11 @@ export function ago(unixSec: number | null | undefined, now = Date.now()): strin
   const h = m / 60;
   return h < 48 ? `${Math.round(h)} h ago` : `${Math.round(h / 24)} days ago`;
 }
+/** "Price as of 12s ago" from a ms timestamp (live re-pricing, lib/reprice.ts) */
+export function priceAsOf(atMs: number, now = Date.now()): string {
+  const sec = Math.max(0, Math.round((now - atMs) / 1000));
+  return `Price as of ${sec < 60 ? `${sec}s ago` : ago(atMs / 1000, now)}`;
+}
 /** tooltip text explaining estimated return (show once per page) */
 export const RETURN_HELP =
   "If you made this kind of bet many times, this is the average profit per dollar, based on how similar past bets resolved. Any single bet can lose.";
