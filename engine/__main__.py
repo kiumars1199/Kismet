@@ -72,6 +72,7 @@ def main():
         fit(cfg)
     if a.cmd in ("scan", "all"):
         scan_keeping_prev(cfg)
+        __import__("pipeline.fetch_kalshi").fetch_kalshi.run_if_enabled(cfg.path("output", "kalshi.json"), cfg.path("data", "kalshi_cache"))  # no-op unless KALSHI_DATA_PERMISSION=true
     if a.cmd == "grade":
         from . import ledger
         ledger.grade(cfg)

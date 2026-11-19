@@ -8,7 +8,7 @@ import type { Tier } from "@/lib/entitlements";
 import { getSettings } from "@/lib/settings";
 import { delayMin } from "@/lib/settings-core";
 import { Flag as FlagSchema, Market as MarketSchema, ScanMeta as MetaSchema } from "@/lib/schemas";
-import type { BacktestFile, EventsFile, FlagsFile, LedgerSummary, MarketsFile, ModelFile, ScanMeta, StoreMarket } from "@/lib/types";
+import type { BacktestFile, EventsFile, FlagsFile, KalshiFile, LedgerSummary, MarketsFile, ModelFile, ScanMeta, StoreMarket } from "@/lib/types";
 import { derive } from "./derive";
 import { buildSearch, type SearchIndex } from "@/lib/search/index";
 import { DELAYED_PENDING } from "@/lib/api";
@@ -291,4 +291,19 @@ export async function getStoreFor(tier: Tier): Promise<Store> {
   const late = pick();
   if (late) return late;
   throw new DelayedPending(`[store] no scan at least ${delay} min old yet: Free tier can't be served`);
+}
+
+/** output/kalshi.json (docs/03 § kalshi.json): optional, own 120 s cache, markets sorted by volume. Missing = undefined.
+ *  Callers check KALSHI_DATA_PERMISSION first (kalshiDataEnabled in lib/kalshiCombo). */
+const kalshi: { at?: number; data?: KalshiFile; inflight?: Promise<KalshiFile | undefined> } = {};
+export function getKalshi(): Promise<KalshiFile | undefined> {
+  if (kalshi.at && Date.now() - kalshi.at < TTL_MS) return Promise.resolve(kalshi.data);
+  return (kalshi.inflight ??= readSource("kalshi.json")
+    .then((text) => {
+      const f = text === undefined ? undefined : (JSON.parse(text) as KalshiFile);
+      f?.markets.sort((a, b) => b.volume - a.volume);
+      return (kalshi.data = f);
+    })
+    .catch((e) => { console.warn(`[store] kalshi.json failed: ${(e as Error).message}`); return kalshi.data; })
+    .finally(() => { kalshi.at = Date.now(); kalshi.inflight = undefined; }));
 }
