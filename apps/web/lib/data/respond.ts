@@ -1,6 +1,6 @@
 // Server helpers shared by the API routes.
 import { DelayedPending, getStore, getStoreFor, type Store } from "./store";
-import { botCheck, clientKey, noteRows, rateLimit, rowBudget, verifiedBot, type Rule } from "@/lib/abuse";
+import { botCheck, clientIp, clientKey, noteRows, rateLimit, rowBudget, verifiedBot, type Rule } from "@/lib/abuse";
 import { getMe, type Me } from "@/lib/auth/server";
 import { freeView, gateMarket, gateMarkets } from "./gate";
 import { categoryRecord, curve, segmentOf } from "./model";
@@ -195,7 +195,7 @@ export const listRoute = (req: Request, view?: "flags") =>
       const refused = await rateLimit("list_free", clientKey(req, me.user?.id));   // RT-03: 30 a minute
       if (refused) return refused;
     }
-    const page = live ? marketsPage(store, f) : f.view === "flags" ? freeFlagsPage(store, f, clientKey(req, me.user?.id)) : marketsPage(store, { ...f, page: 1 });
+    const page = live ? marketsPage(store, f) : f.view === "flags" ? freeFlagsPage(store, f, me.user?.id ? `u:${me.user.id}` : `ip:${clientIp(req)}`) : marketsPage(store, { ...f, page: 1 });
     if (live && f.page > Math.max(1, page.pages)) return Response.json({ error: "page is past the last page" }, { status: 400 });
     const body = gateMarkets(page, tier);
     const over = live ? null : await rowBudget(req, me.user?.id, body.rows.map((r) => r.market.id));   // RT-03

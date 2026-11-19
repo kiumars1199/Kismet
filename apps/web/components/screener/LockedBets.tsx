@@ -48,7 +48,10 @@ export function LockedBets({ total, shown, desktop }: { total: number; shown: nu
             {formatCount(locked)} more {locked === 1 ? "bet" : "bets"} on Pro
           </h2>
           <p className="text-[13px] leading-relaxed text-muted">
-            Free shows {shown === 0 ? "a few" : shown} of today&apos;s Best bets, chosen at random, with delayed prices. Pro shows every one, live.
+            {shown === 0
+              ? "Your free Best bets for today don't match these filters."
+              : `Free shows ${shown} of today's Best bets, chosen at random, with delayed prices.`}{" "}
+            Pro shows every one, live.
           </p>
           <Link href="/pricing" onClick={() => track("upgrade_clicked", { source: "locked_bets" })} data-testid="unlock-all"
             className="flex min-h-11 items-center justify-center rounded-input bg-accent px-5 font-semibold text-on-accent hover:bg-accent-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
