@@ -33,7 +33,7 @@ function badge(text: string, positive: boolean, marketId: string | null, tag = T
   const host = document.createElement(tag);
   const root = host.attachShadow({ mode: "closed" });
   // Static markup only; every API string goes in via textContent (never HTML from the API).
-  root.innerHTML = `<style>${BADGE_CSS}${tag === PILL ? PILL_CSS : ""}</style><button class="${positive ? "pos" : ""}" title="${locked ? "Kismet Premium" : "Kismet: open details"}"><b>${locked ? LOCK : "ME"}</b><span></span></button>`;
+  root.innerHTML = `<style>${BADGE_CSS}${tag === PILL ? PILL_CSS : ""}</style><button class="${positive ? "pos" : ""}" title="${locked ? "Kismet Premium" : "Kismet: open details"}"><b>${locked ? LOCK : "K"}</b><span></span></button>`;
   root.querySelector("span")!.textContent = locked ? "Kismet Premium" : text;
   // Rows and headings are clickable on Polymarket: keep our clicks to ourselves.
   for (const ev of ["pointerdown", "mousedown", "mouseup"]) host.addEventListener(ev, (e) => e.stopPropagation());

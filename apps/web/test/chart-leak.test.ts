@@ -40,5 +40,5 @@ describe("RT3-01 accepted risk: chart leak on live flagged rows", () => {
     }
     expect(n).toBeGreaterThan(50);
     expect(err / n).toBeGreaterThanOrEqual(ACCEPTED_MEAN_ERR);
-  });
+  }, 120_000);   // loads the ~20 MB live scan
 });
