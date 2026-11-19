@@ -126,16 +126,20 @@ async function applySubscription(db: BillingDb, sub: Stripe.Subscription, userHi
   await db.upsertSubscription(userId, row);
 }
 
-/** Stripe doesn't deliver events in order: set the tier from the subscription as Stripe holds it now, not from the event.
- *  A subscription Stripe no longer has (resource_missing) falls back to the event; any other error retries (500). */
+const TIER_RANK: Record<Tier, number> = { free: 0, pro: 1, premium: 2 };
+
+/** Stripe doesn't deliver events in order, and a user can hold more than one subscription over time (cancel Pro, buy
+ *  Premium; a late event for the old one arrives). So the tier comes from the customer's subscriptions as Stripe holds
+ *  them now, not from the event: the paying one with the highest plan (newest on a tie); if none is paying, the
+ *  event's subscription as Stripe has it (or the event, if Stripe no longer lists it). Errors retry (500). */
 async function currentSubscription(stripe: Stripe | null, fromEvent: Stripe.Subscription): Promise<Stripe.Subscription> {
   if (!stripe) return fromEvent;
-  try {
-    return await stripe.subscriptions.retrieve(fromEvent.id);
-  } catch (e) {
-    if ((e as { code?: string }).code === "resource_missing") return fromEvent;
-    throw e;
-  }
+  const customer = idOf(fromEvent.customer);
+  if (!customer) return fromEvent;
+  const { data } = await stripe.subscriptions.list({ customer, status: "all", limit: 100 });
+  const rank = (x: Stripe.Subscription) => TIER_RANK[subscriptionRow(x).tier as Tier];
+  const paying = data.filter((x) => PAYING.has(x.status)).sort((a, b) => rank(b) - rank(a) || (b.created ?? 0) - (a.created ?? 0));
+  return paying[0] ?? data.find((x) => x.id === fromEvent.id) ?? fromEvent;
 }
 
 export async function handleEvent(event: Stripe.Event, db: BillingDb, stripe: Stripe | null, secret?: string): Promise<void> {

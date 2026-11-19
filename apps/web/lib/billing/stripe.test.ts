@@ -150,22 +150,36 @@ describe("stripe webhook: tier from the current subscription", () => {
   it("an older event delivered late can't overwrite the current plan", async () => {
     const db = memDb();
     const current = sub("active", { id: "price_pro_m" }, { metadata: { user_id: U } });
-    const retrieve = vi.fn(async () => current);
-    const stripe = { subscriptions: { retrieve } } as unknown as Stripe;
+    const list = vi.fn(async () => ({ data: [current] }));
+    const stripe = { subscriptions: { list, retrieve: vi.fn(async () => current) } } as unknown as Stripe;
     const newer = ev("evt_new", "customer.subscription.updated", current);
     const older = ev("evt_old", "customer.subscription.updated", sub("active", { id: "price_prem_y" }, { metadata: { user_id: U } }));
     expect((await handleWebhook(signed(newer), db, stripe, SECRET)).status).toBe(200);
     expect((await handleWebhook(signed(older), db, stripe, SECRET)).status).toBe(200);
     expect(db.subs.get(U)?.tier).toBe("pro");
-    expect(retrieve).toHaveBeenCalledWith("sub_1");
+    expect(list).toHaveBeenCalledWith(expect.objectContaining({ customer: "cus_1" }));
   });
 
-  it("a deleted subscription Stripe no longer returns falls back to the event (ends the plan)", async () => {
+  it("a deleted subscription Stripe no longer lists falls back to the event (ends the plan)", async () => {
     const db = memDb();
-    const gone = Object.assign(new Error("No such subscription"), { code: "resource_missing" });
-    const stripe = { subscriptions: { retrieve: vi.fn(async () => { throw gone; }) } } as unknown as Stripe;
+    const stripe = { subscriptions: { list: vi.fn(async () => ({ data: [] })) } } as unknown as Stripe;
     const deleted = ev("evt_del", "customer.subscription.deleted", sub("canceled", { id: "price_pro_m" }, { metadata: { user_id: U } }));
     expect((await handleWebhook(signed(deleted), db, stripe, SECRET)).status).toBe(200);
     expect(db.subs.get(U)?.tier).toBe("free");
+  });
+
+  // Audit run 8 fail 2: the user canceled Pro (sub_1), then bought Premium (sub_2). A late event for sub_1 must not
+  // drop them to free, and with two live subscriptions the user gets the higher plan they are paying for.
+  it("a late event for the user's earlier subscription can't override the one they pay for now", async () => {
+    const db = memDb();
+    const old = sub("canceled", { id: "price_pro_m" }, { id: "sub_1", metadata: { user_id: U } });
+    const now = sub("active", { id: "price_prem_y" }, { id: "sub_2", metadata: { user_id: U } });
+    const stripe = { subscriptions: { list: vi.fn(async () => ({ data: [now, old] })) } } as unknown as Stripe;
+    expect((await handleWebhook(signed(ev("evt_b", "customer.subscription.created", now)), db, stripe, SECRET)).status).toBe(200);
+    expect((await handleWebhook(signed(ev("evt_late", "customer.subscription.updated", old)), db, stripe, SECRET)).status).toBe(200);
+    expect(db.subs.get(U)).toMatchObject({ tier: "premium", stripe_subscription_id: "sub_2" });
+    const both = { subscriptions: { list: vi.fn(async () => ({ data: [sub("active", { id: "price_pro_m" }, { id: "sub_1", metadata: { user_id: U } }), now] })) } } as unknown as Stripe;
+    expect((await handleWebhook(signed(ev("evt_c", "customer.subscription.updated", old)), db, both, SECRET)).status).toBe(200);
+    expect(db.subs.get(U)?.tier).toBe("premium");
   });
 });

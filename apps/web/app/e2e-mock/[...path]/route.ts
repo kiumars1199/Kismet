@@ -275,6 +275,10 @@ async function stripe(req: Request, path: string[]) {
     return json(session);
   }
   if (route === "v1/billing_portal/sessions" && req.method === "POST") return json({ id: "bps_test", object: "billing_portal.session", url: `${url.origin}/account` });
+  if (route === "v1/subscriptions" && req.method === "GET") {   // subscriptions.list({ customer }) (T-247)
+    const customer = url.searchParams.get("customer");
+    return json({ object: "list", has_more: false, url: "/v1/subscriptions", data: [...s.subs.values()].filter((x) => x.customer === customer) });
+  }
   if (path[0] === "v1" && path[1] === "subscriptions" && path[2]) {
     const sub = s.subs.get(path[2]);
     if (!sub) return json({ error: { type: "invalid_request_error", code: "resource_missing", message: "No such subscription" } }, 404);
