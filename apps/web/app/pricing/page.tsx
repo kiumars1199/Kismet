@@ -14,7 +14,7 @@ const rows = (delay: number): [string, string, string, string][] => [
   ["Prices", behindWords(delay).replace(/^./, (c) => c.toUpperCase()), "Live", "Live"],
   ["All open markets", "Top 10 rows", "Unlimited", "Unlimited"],
   ["Estimated return on each bet", "As a range (exact on 3 a day)", "Exact", "Exact"],
-  ["Combos", "—", "—", "Yes"],
+  ["Combos", "—", "—", "Coming soon"],
   ["Filters", "Topic, sport, price", "All", "All"],
   ["Saved views", "1", "25", "Unlimited"],
   ["Dashboards", "—", "3", "Unlimited"],
@@ -23,7 +23,7 @@ const rows = (delay: number): [string, string, string, string][] => [
   ["Price check (order book, stake table)", "First share only", "Full", "Full"],
   ["My bets: profit and closing-price tracking", "—", "Yes", "Yes"],
   ["Results and win-chance charts", "Yes", "Yes", "Yes"],
-  ["Chrome extension", "—", "—", "Yes"],
+  ["Chrome extension", "—", "—", "Coming soon"],
   ["CSV export", "—", "Yes", "Yes"],
 ];
 

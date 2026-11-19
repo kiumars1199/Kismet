@@ -14,11 +14,12 @@ import { getSettings } from "@/lib/settings";
 import { SITE } from "@/lib/site";
 import { foldRows, tiles } from "@/lib/trackRecord";
 import { Tiles } from "@/components/results/Tiles";
+import { Plans } from "@/components/pricing/Plans";
+import { DEMO_MODE } from "@/lib/config";
 import type { ApiRow } from "@/lib/api";
 import s from "./landing.module.css";
 
 const TIME = { hour: "numeric", minute: "2-digit", timeZone: "America/New_York", timeZoneName: "short" } as const;
-const usd = (n: number) => `$${n.toFixed(2)}`;
 const H2 = "font-heading text-[28px] font-semibold leading-tight tracking-[-0.02em] md:text-[36px]";
 const CTA = "inline-flex min-h-12 items-center justify-center rounded-input bg-accent px-6 font-semibold text-on-accent transition-colors hover:bg-accent-hover";
 
@@ -65,6 +66,7 @@ export async function Landing() {
           )}
           <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
             <Link href="/bets" className={CTA}>See today&apos;s bets free</Link>
+            <a href="#plans" className="min-h-11 content-center font-medium text-text underline-offset-4 hover:underline">See plans</a>
             <Link href="/about" className="min-h-11 content-center text-soft underline-offset-4 hover:text-text hover:underline">How it works in detail</Link>
           </div>
         </div>
@@ -74,6 +76,18 @@ export async function Landing() {
             <figcaption className="text-xs text-muted">Top best bet from the latest scan. Any single bet can lose.</figcaption>
           </figure>
         ) : null}
+      </section>
+
+      {/* Plans, right after the hero: what's paid and what each tier gets, with the real subscribe buttons */}
+      <section id="plans" aria-labelledby="price-h" className="flex scroll-mt-24 flex-col gap-8">
+        <div className="flex flex-col gap-2">
+          <h2 id="price-h" className={H2}>Start free. Pay for live.</h2>
+          <p className="max-w-2xl text-[15px] leading-relaxed text-muted">
+            Free shows 10 random best bets a day, {behindWords(settings.free_delay_min)}. Pro and Premium are live and start with 7 days free. Cancel any time.
+          </p>
+        </div>
+        <Plans demo={DEMO_MODE} delay={settings.free_delay_min} />
+        <Link href="/pricing#compare-h" className="min-h-11 w-fit content-center text-accent-hover underline-offset-4 hover:underline">Compare every feature</Link>
       </section>
 
       {/* How it works: price vs. record → the gap → you decide */}
@@ -122,16 +136,6 @@ export async function Landing() {
         </section>
       ) : null}
 
-      {/* Pricing preview: prices from config/site.json via SITE */}
-      <section aria-labelledby="price-h" className="flex flex-col gap-8">
-        <h2 id="price-h" className={H2}>Start free. Pay for live.</h2>
-        <ul className="grid gap-px overflow-hidden rounded-card border border-border bg-border md:grid-cols-3">
-          <Plan name="Free" price="$0" line={`Best bets, ${behindWords(settings.free_delay_min)}.`} />
-          <Plan name="Pro" price={`${usd(SITE.prices.pro_monthly)}/mo`} line="Live prices, every best bet, exact returns, alerts." />
-          <Plan name="Premium" price={`${usd(SITE.prices.premium_monthly)}/mo`} line="Everything in Pro, plus the browser extension and combos." />
-        </ul>
-        <Link href="/pricing" className="min-h-11 w-fit content-center text-accent-hover underline-offset-4 hover:underline">Compare plans</Link>
-      </section>
 
       {/* FAQ: native details, no JS */}
       <section aria-labelledby="faq-h" className="grid gap-8 lg:grid-cols-[1fr_1.6fr]">
@@ -236,15 +240,5 @@ function WeekChart({ weeks }: { weeks: ReturnType<typeof foldRows> }) {
         <span>{weeks.at(-1)?.week}</span>
       </div>
     </figure>
-  );
-}
-
-function Plan({ name, price, line }: { name: string; price: string; line: string }) {
-  return (
-    <li className="flex flex-col gap-2 bg-surface p-6">
-      <span className="text-sm text-muted">{name}</span>
-      <span className="font-heading text-[30px] font-bold leading-none tracking-[-0.02em] tabular-nums">{price}</span>
-      <span className="text-[15px] text-soft">{line}</span>
-    </li>
   );
 }
