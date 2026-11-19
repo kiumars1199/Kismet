@@ -4,7 +4,7 @@
 // (docs/13 §2), price-check chips, one card per game (docs/17 fix 2), Big payouts and Combos rows (docs/18 §6).
 import { useEffect, useState } from "react";
 import { backtestOnce, fetchFlags, type ApiGroup, type ApiRow, type BacktestResponse, type MarketsResponse } from "@/lib/api";
-import { tierOf, type FilterState } from "@/lib/filters/state";
+import { CLOSING_SOON, tierOf, type FilterState } from "@/lib/filters/state";
 import { RETURN_HELP, ago, ret, formatCount, pays, price } from "@/lib/format";
 import { savePresetFromState } from "@/lib/presets";
 import { useProfile } from "@/lib/repo/hooks";
@@ -22,6 +22,7 @@ import { AppliedPills } from "./AppliedPills";
 import { ClosingSoon, ResultsTicker, TodayCard } from "./DayStrip";
 import { EmptyState, ErrorState, StaleBanner } from "./States";
 import { useDesktop } from "./useDesktop";
+import { useNear } from "./useNear";
 import { LockedBets } from "./LockedBets";
 import { useEntitlements } from "@/lib/entitlements";
 import { useMeta, useScreener } from "./useScreener";
@@ -146,24 +147,28 @@ function Cards({ slots, desktop, pro, dim }: { slots: Slot[]; desktop: boolean; 
   );
 }
 
-/** One extra /api/flags query for a side section; refetches when the main filter changes. */
-function useSide(state: FilterState, patch: Partial<FilterState> | null) {
-  const [data, setData] = useState<MarketsResponse | null>(null);
+/** One extra /api/flags query for a side section; refetches when the main filter changes. `initial`: the server's
+ *  answer for the first key (no fetch for it). `near` false = wait (the row is still far below the fold). */
+function useSide(state: FilterState, patch: Partial<FilterState> | null, { initial, near = true }: { initial?: MarketsResponse; near?: boolean } = {}) {
   const key = patch && JSON.stringify({ ...state, ...patch });
+  const [res, setRes] = useState<{ key: string | null; data: MarketsResponse | null }>(() => ({ key: initial ? key : null, data: initial ?? null }));
   useEffect(() => {
-    if (!key) return setData(null);
+    if (!key) return setRes({ key, data: null });
+    if (!near || res.key === key) return;
     const ac = new AbortController();
-    fetchFlags(JSON.parse(key), { signal: ac.signal }).then(setData, () => {});
+    fetchFlags(JSON.parse(key), { signal: ac.signal }).then((data) => setRes({ key, data }), () => {});
     return () => ac.abort();
-  }, [key]);
-  return data;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key, near]);
+  return res.key === key ? res.data : null;
 }
 
 /** "Big payouts" row (docs/18 §6): both tiers, pays 3x or more, horizontal scroll. Hidden while a pays filter is on. */
 function BigPayouts({ state, pro }: { state: FilterState; pro: boolean }) {
   const off = state.pays_min !== undefined || state.pays_max !== undefined || state.sort.key === "pays";
-  const data = useSide(state, off ? null : { tier: "all", pays_min: 3, pays_max: undefined, page: 1, page_size: 8, group_by_event: false });
-  if (!data?.rows.length) return null;
+  const [ref, near] = useNear();
+  const data = useSide(state, off ? null : { tier: "all", pays_min: 3, pays_max: undefined, page: 1, page_size: 8, group_by_event: false }, { near });
+  if (!data?.rows.length) return <div ref={ref} aria-hidden="true" />;
   return (
     <section aria-labelledby="big-h" data-testid="big-payouts" className="flex flex-col gap-3">
       <div>
@@ -183,9 +188,10 @@ function BigPayouts({ state, pro }: { state: FilterState; pro: boolean }) {
 function MoreWithEdge({ state, desktop, pro }: { state: FilterState; desktop: boolean; pro: boolean }) {
   const [pages, setPages] = useState(1);
   const on = tierOf(state) === "best";
-  const data = useSide(state, on ? { tier: "edge", win_prob_min: state.win_prob_min ?? 0, page: 1, page_size: 12 * pages } : null);
+  const [ref, near] = useNear();
+  const data = useSide(state, on ? { tier: "edge", win_prob_min: state.win_prob_min ?? 0, page: 1, page_size: 12 * pages } : null, { near });
   useEffect(() => setPages(1), [on]);
-  if (!data?.rows.length) return null;
+  if (!data?.rows.length) return <div ref={ref} aria-hidden="true" />;
   const slots = slotsOf(data.rows, data.groups);
   const left = (data.total_groups ?? data.total) - slots.length;
   return (
@@ -208,8 +214,8 @@ function MoreWithEdge({ state, desktop, pro }: { state: FilterState; desktop: bo
 
 /** initial: the server's /api/flags page 1 for this URL, so the cards and the headline count are final on first
  *  paint (no client fetch, no LCP change). */
-export function BestBets({ initial }: { initial?: MarketsResponse }) {
-  const sc = useScreener("flags", initial);
+export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?: MarketsResponse; scanned_at?: number } }) {
+  const sc = useScreener("flags", initial?.main);
   const { state, set, reset, data, more, moreGroups, loading, error } = sc;
   const meta = useMeta();
   const total = data?.total;
@@ -218,13 +224,13 @@ export function BestBets({ initial }: { initial?: MarketsResponse }) {
   const live = useEntitlements().can("live_data");   // Free: the day's sample, then locked cards (docs/19 P3)
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState<{ ok: boolean; msg: string } | null>(null);
-  const soon = useSide(state, { closes_within_h: 3, sort: { key: "closes", dir: "asc" }, page: 1, page_size: 5, group_by_event: false });
+  const soon = useSide(state, CLOSING_SOON, { initial: initial?.soon });
 
   const rows = data ? [...data.rows, ...more] : [];
   const slots = data ? slotsOf(rows, data.groups ? [...data.groups, ...moreGroups] : undefined) : [];
   const left = data ? (data.total_groups ?? data.total) - slots.length : 0;
   const split = desktop ? 12 : 4;   // Big payouts + Combos rows sit after the first cards (docs/18 §6); 12 fills 2, 3 or 4 columns
-  const scanned = meta?.meta.scanned_at;
+  const scanned = meta?.meta.scanned_at ?? initial?.scanned_at;   // server value first: the stale banner paints with the cards
   const topic = state.topics?.length === 1 ? TAXONOMY[state.topics[0]!]?.label : state.categories?.length === 1 ? TAXONOMY[state.categories[0]!]?.label : undefined;
 
   const save = async (name: string, emoji: string | null) => {
@@ -246,7 +252,7 @@ export function BestBets({ initial }: { initial?: MarketsResponse }) {
         <div className="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2">
           <p className="max-w-[760px] text-sm leading-normal text-muted">
             Each one is priced lower than how often bets like it have actually won, after Polymarket&apos;s fee and the price you&apos;d really pay.
-            {scanned && <span className="whitespace-nowrap"> Scanned {ago(scanned)}.</span>}
+            {scanned && <span suppressHydrationWarning className="whitespace-nowrap"> Scanned {ago(scanned)}.</span>}
           </p>
           <StatTiles />
         </div>

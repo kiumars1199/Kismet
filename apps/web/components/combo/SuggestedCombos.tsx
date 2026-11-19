@@ -8,19 +8,22 @@ import { comboLabel } from "@/lib/combos";
 import type { CombosResponse, SuggestedCombo } from "@/lib/data/combos";
 import { pct, price, ret, testedLine, winsAbout } from "@/lib/format";
 import { useCombo } from "./useCombo";
+import { useNear } from "@/components/screener/useNear";
 
 const retText = (c: SuggestedCombo) =>
   c.ret_range ? (c.ret_range[1] === null ? `over ${ret(c.ret_range[0]!)}` : `${ret(c.ret_range[0] ?? 0)}–${ret(c.ret_range[1]).replace(/^\+/, "")}`) : ret(c.ret * 100);
 
 export function SuggestedCombos() {
   const [data, setData] = useState<CombosResponse | null>(null);
+  const [ref, near] = useNear();   // P6: fetched when scrolled near, not on page load
   useEffect(() => {
+    if (!near) return;
     const ac = new AbortController();
     fetchCombos({ signal: ac.signal }).then(setData, () => {});
     return () => ac.abort();
-  }, []);
+  }, [near]);
   const groups = data?.groups ?? [];
-  if (!groups.length) return null;
+  if (!groups.length) return <div ref={ref} aria-hidden="true" />;
   const combos = groups.flatMap((g) => g.combos);
 
   return (

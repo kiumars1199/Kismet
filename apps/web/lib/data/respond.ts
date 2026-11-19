@@ -10,7 +10,7 @@ import { delayMin, rowCap } from "@/lib/settings-core";
 import { apply, nowFor, openOnly } from "@/lib/filters/apply";
 import { parse } from "@/lib/filters/url";
 import { RELAX_STEPS, relax, relaxedNote, type ParsedQuery } from "@/lib/search/parse";
-import { BEST_BETS_VERDICTS, tierOf, type FilterState } from "@/lib/filters/state";
+import { BEST_BETS_VERDICTS, CLOSING_SOON, tierOf, type FilterState } from "@/lib/filters/state";
 import { DELAYED_PENDING, delayedPendingLine, type EventResponse, type MarketResponse, type MarketsResponse } from "@/lib/api";
 import type { StoreMarket } from "@/lib/types";
 import { headers } from "next/headers";
@@ -48,7 +48,7 @@ export async function withStore(fn: (store: Store) => Response | Promise<Respons
 }
 
 /** Like withStore, for tier-shaped routes: resolves the caller's plan (server-side, docs/15), runs BotID and the
- *  route's rate limit (before the store load, so a refused request costs nothing), and serves free users the
+ *  route's rate limit (in parallel with the cached store load; a refusal still answers first), and serves free users the
  *  delayed scan. `fn` must shape its body with lib/data/gate.ts. `bot: false` = no BotID (extension-facing routes). */
 export async function withTier(
   req: Request, rule: Rule,
@@ -56,9 +56,12 @@ export async function withTier(
   { headers, bot = true }: { headers?: HeadersInit; bot?: boolean } = {},
 ): Promise<Response> {
   const me = await getMe();
-  const refused = (bot ? await botCheck() : null) ?? (await rateLimit(rule, clientKey(req, me.user?.id)));
+  // P6: BotID, the rate limit and the (usually cached) store load run side by side; a refusal still wins
+  const [botRefused, limited, store] = await Promise.all([
+    bot ? botCheck() : null, rateLimit(rule, clientKey(req, me.user?.id)), loadStore(me.tier, headers),
+  ]);
+  const refused = botRefused ?? limited;
   if (refused) return noStore(refused);
-  const store = await loadStore(me.tier, headers);
   if (store instanceof Response) return store;
   return noStore(await fn(can(me.tier, "exact_edge") ? store : freeView(store), me.tier, me));   // RT-04: Free filters on what it sees
 }
@@ -80,8 +83,11 @@ export class SlowDown extends Error {
 export async function pageStore(): Promise<{ store: Store; tier: Tier; me: Me; req: Request; bot: boolean }> {
   const [me, h, bot] = await Promise.all([getMe(), headers(), verifiedBot()]);
   const req = new Request("http://page/", { headers: h });
-  if (!bot && (await rateLimit("markets", clientKey(req, me.user?.id)))) throw new SlowDown();
-  return { store: await getStoreFor(me.tier), tier: me.tier, me, req, bot };
+  const [limited, store] = await Promise.allSettled([bot ? null : rateLimit("markets", clientKey(req, me.user?.id)), getStoreFor(me.tier)]);
+  if (limited.status === "rejected") throw limited.reason;
+  if (limited.value) throw new SlowDown();
+  if (store.status === "rejected") throw store.reason;
+  return { store: store.value, tier: me.tier, me, req, bot };
 }
 
 /** RT3-02: Free / signed-out page loads count the markets they show against the RT-03 distinct-row budget
@@ -204,7 +210,7 @@ const repriceOn = () => !!repriceForced || (process.env.LIVE_REPRICE !== "0" && 
 const quoteSource = () => repriceForced ?? livePrices;
 
 /** The /api/markets and /api/flags body for one request, after rate limits. Shared with the server render of
- *  Best bets (flagsFirstPage) so the first paint and the API return the same rows and count.
+ *  Best bets (firstPage) so the first paint and the API return the same rows and count.
  *  null = a paid page past the last one. */
 export async function listBody(store: Store, f: FilterState, tier: Tier, sampleKey: string): Promise<MarketsResponse | null> {
   const live = can(tier, "live_data");
@@ -246,17 +252,27 @@ export const listRoute = (req: Request, view?: "flags") =>
  *  cards. Counts against the same `markets` rate limit and Free row budget as a page load (pageStore / pageBudget).
  *  undefined when it can't match the browser's query (fav/wl resolve on the device), when refused, or on any
  *  failure: the browser then fetches /api/flags as before. */
-export async function flagsFirstPage(params: URLSearchParams): Promise<MarketsResponse | undefined> {
+/** P6: the server-rendered first page for a screener URL (same body as /api/flags or /api/markets), so the cards ship
+ *  with the HTML and no protected fetch (BotID challenge) runs on a plain page load. Best bets also gets its
+ *  "Closing soon" strip. undefined (the client fetches as before) for "Mine" filters, which resolve in the browser,
+ *  or on any error. Free page loads count every row shown against the row budget, like the API. */
+export async function firstPage(params: URLSearchParams, view: "flags" | "markets"): Promise<{ main: MarketsResponse; soon?: MarketsResponse; scanned_at: number } | undefined> {
   if (params.has("fav") || params.has("wl")) return undefined;
   try {
     const ctx = await pageStore();
     const store = can(ctx.tier, "exact_edge") ? ctx.store : freeView(ctx.store);
     const f = parse(params);
-    const state = { ...f, view: "flags" as const, verdicts: params.has("vd") ? f.verdicts : BEST_BETS_VERDICTS, page: 1 };
-    const body = await listBody(store, state, ctx.tier, sampleKeyOf(ctx.req, ctx.me));
-    if (!body) return undefined;
-    await pageBudget(ctx, body.rows.map((r) => r.market.id));
-    return body;
+    const key = sampleKeyOf(ctx.req, ctx.me);
+    const state = view === "flags"
+      ? { ...f, view: "flags" as const, verdicts: params.has("vd") ? f.verdicts : BEST_BETS_VERDICTS, page: 1 }
+      : { ...f, page: 1 };
+    const [main, soon] = await Promise.all([
+      listBody(store, state, ctx.tier, key),
+      view === "flags" ? listBody(store, { ...state, ...CLOSING_SOON } as FilterState, ctx.tier, key) : undefined,
+    ]);
+    if (!main) return undefined;
+    await pageBudget(ctx, [...main.rows, ...(soon?.rows ?? [])].map((r) => r.market.id));
+    return { main, soon: soon ?? undefined, scanned_at: store.meta.scanned_at };   // the scan this tier sees, like /api/meta
   } catch {
     return undefined;
   }

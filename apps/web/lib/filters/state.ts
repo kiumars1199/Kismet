@@ -61,3 +61,7 @@ export const defaultState = (): FilterState => FilterState.parse({});
 
 /** Best bets = flags whose price check isn't "not worth it". */
 export const BEST_BETS_VERDICTS: z.infer<typeof Verdict>[] = ["worth it", "thin"];
+
+/** Best bets "Closing soon" strip: the same query on the server's first page (lib/data/respond.ts firstPage) and in
+ *  the browser (BestBets), so the server-rendered strip is the one the client would fetch. */
+export const CLOSING_SOON: Partial<FilterState> = { closes_within_h: 3, sort: { key: "closes", dir: "asc" }, page: 1, page_size: 5, group_by_event: false };

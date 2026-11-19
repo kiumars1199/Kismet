@@ -7,7 +7,12 @@ const LONG_SHOT = "Will Harbor City win the 2026 Island Cup?";
 test("long shot sits in 'More bets with an edge' with Lower confidence and its losing band record", async ({ page }) => {
   await page.goto("/");
   const section = page.getByTestId("more-edge");
-  await expect(section.getByRole("heading", { name: /More bets with an edge/ })).toBeVisible();
+  // P6: the rows below the fold load when scrolled near (no protected fetch on a plain page load)
+  await expect(async () => {
+    await page.mouse.wheel(0, 1500);
+    await expect(section.getByRole("heading", { name: /More bets with an edge/ })).toBeVisible({ timeout: 500 });
+  }).toPass({ timeout: 15_000 });
+  await expect(page.getByTestId("big-payouts")).toBeVisible();
   const card = section.locator("[data-tier=edge]").filter({ hasText: LONG_SHOT });
   await expect(card).toBeVisible();
   await expect(card.getByText("Lower confidence")).toBeVisible();

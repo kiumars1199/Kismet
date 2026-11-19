@@ -2,7 +2,7 @@
 
 // /markets "All markets" (F-01): grouped rows on desktop, compact cards on mobile, URL-driven.
 import { useEffect, useMemo, useState } from "react";
-import { fetchEvent, groupRows, type ApiGroup, type ApiRow } from "@/lib/api";
+import { fetchEvent, groupRows, type ApiGroup, type ApiRow, type MarketsResponse } from "@/lib/api";
 import { pickSide, sideOk } from "@/lib/filters/apply";
 import { defaultState } from "@/lib/filters/state";
 import { ago, formatCount } from "@/lib/format";
@@ -22,8 +22,9 @@ import { useMeta, useScreener } from "./useScreener";
 
 type Expanded = Record<string, { rows?: ApiRow[]; loading?: boolean }>;
 
-export function MarketsScreener() {
-  const sc = useScreener("markets");
+/** initial: the server's /api/markets page 1 for this URL (no first fetch). */
+export function MarketsScreener({ initial, scannedAt }: { initial?: MarketsResponse; scannedAt?: number } = {}) {
+  const sc = useScreener("markets", initial);
   const { state, set, reset, data, loading, error } = sc;
   const meta = useMeta();
   const desktop = useDesktop();
@@ -60,7 +61,7 @@ export function MarketsScreener() {
     });
   }, [data, expanded]);
 
-  const scanned = meta?.meta.scanned_at;
+  const scanned = meta?.meta.scanned_at ?? scannedAt;
   return (
     <div className="mx-auto flex w-full max-w-[1600px] gap-6">
       <div className="flex min-w-0 flex-1 flex-col gap-4">

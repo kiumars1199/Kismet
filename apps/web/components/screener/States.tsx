@@ -10,7 +10,7 @@ const STALE_S = 3 * 3600;
 export function StaleBanner({ scannedAt }: { scannedAt?: number }) {
   if (!scannedAt || Date.now() / 1000 - scannedAt < STALE_S) return null;
   return (
-    <p role="status" className="rounded-input border border-warning/40 bg-warning/10 px-4 py-2.5 text-sm text-warning">
+    <p role="status" suppressHydrationWarning className="rounded-input border border-warning/40 bg-warning/10 px-4 py-2.5 text-sm text-warning">
       These prices are from a scan {ago(scannedAt)}. They may have moved since; check the live price before you bet.
     </p>
   );

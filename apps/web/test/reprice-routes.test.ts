@@ -16,6 +16,7 @@ vi.mock("@/lib/auth/server", () => ({
   }),
 }));
 vi.mock("next/headers", () => ({
+  headers: async () => new Headers({ "x-forwarded-for": "203.0.113.9" }),
   cookies: async () => ({
     get: (k: string) => (h.jar.has(k) ? { value: h.jar.get(k)! } : undefined),
     set: (k: string, v: string) => void h.jar.set(k, v),
@@ -25,7 +26,9 @@ vi.mock("next/headers", () => ({
 const flags = (await import("@/app/api/flags/route")).GET;
 const markets = (await import("@/app/api/markets/route")).GET;
 const market = (await import("@/app/api/markets/[id]/route")).GET;
-const { _setReprice, listBody } = await import("@/lib/data/respond");
+const { _setReprice, firstPage, listBody } = await import("@/lib/data/respond");
+const { CLOSING_SOON } = await import("@/lib/filters/state");
+const { serialize } = await import("@/lib/filters/url");
 const { getStoreFor } = await import("@/lib/data/store");
 const { parse } = await import("@/lib/filters/url");
 
@@ -89,5 +92,28 @@ describe("live re-pricing routes", () => {
     const server = (await listBody(store, f, "pro", "u:u-pro"))!;
     expect(server.total).toBe(api.total);
     expect(server.rows.map((r) => r.market.id)).toEqual(api.rows.map((r) => r.market.id));
+  });
+
+  it("P6: the server-rendered first pages equal what the browser would fetch (Best bets, Closing soon, All markets)", async () => {
+    for (const tier of ["free", "pro"] as const) {
+      as(tier);
+      const fl = (await firstPage(new URLSearchParams(), "flags"))!;
+      const api = await get<MarketsResponse>(flags(new Request("http://t/api/flags")));
+      expect(fl.main.total, tier).toBe(api.total);
+      expect(fl.main.rows.map((r) => r.market.id), tier).toEqual(api.rows.map((r) => r.market.id));
+      const soonQ = serialize({ ...parse(new URLSearchParams()), view: "flags", verdicts: ["worth it", "thin"], ...CLOSING_SOON } as never);
+      const soon = await get<MarketsResponse>(flags(new Request(`http://t/api/flags?${soonQ}`)));
+      expect(fl.soon!.rows.map((r) => r.market.id), tier).toEqual(soon.rows.map((r) => r.market.id));
+      const mk = (await firstPage(new URLSearchParams("q=win"), "markets"))!;
+      const mApi = await get<MarketsResponse>(markets(new Request("http://t/api/markets?q=win")));
+      expect(mk.main.total, tier).toBe(mApi.total);
+      expect(mk.main.rows.map((r) => r.market.id), tier).toEqual(mApi.rows.map((r) => r.market.id));
+      expect(mk.soon).toBeUndefined();
+      expect([fl.main.rows.length, mk.main.rows.length].every((n) => n > 0), tier).toBe(true);
+    }
+  });
+  it("P6: Mine filters (fav / wl) are left to the browser", async () => {
+    as("pro");
+    expect(await firstPage(new URLSearchParams("wl=1"), "markets")).toBeUndefined();
   });
 });

@@ -52,8 +52,15 @@ so a cloud session can continue. Work on `final`; every push to `final` deploys 
    payout includes lower-confidence bets; any 2x+ band lifts the 40% chance floor (was 2.5x, which starved 2–3x);
    test: each band's dropdown count equals the list total. Still owner-run: dispatch refresh.yml `mode=backfill` (730
    days, resumable) then refit, and report the new counts.
-5. P6: send the Best bets rows with the page (`respond.ts:178` builds them and drops them), stop BotID on plain page
-   loads, cache static pages (`force-dynamic` + CSP nonce blocks it). Lighthouse mobile on `/` was 72.
+5. P6 done (except static caching): Best bets page 1 + "Closing soon" and All markets page 1 render on the server
+   (`firstPage`, parity-tested against /api/flags and /api/markets); Big payouts, Combos and More bets with an edge
+   fetch when scrolled near (`useNear`), so a plain page load makes no protected list call. BotID's challenge script
+   (c.js) only loads on the first protected fetch (`initBotId` itself just wraps fetch), so it no longer runs on plain
+   loads; Pro still starts it ~1.5 s in for live card prices. `withTier`/`pageStore` run BotID, the rate limit and
+   the store load in parallel. Lighthouse mobile, local prod build vs the P5 build: `/` 78 → 80–82, `/markets`
+   41 → 74 (LCP 6.9 s → 1.2 s). `/markets` TBT is still ~1.4 s (hydrating ~200 mobile cards). Not done: CDN caching
+   of static pages, because the per-request CSP nonce forces dynamic rendering; dropping the nonce would weaken the
+   CSP. Check on prod after deploy: the first filter change on Best bets takes the BotID challenge (one-time).
 6. P7 UI pass with Impeccable (12 patterns in the research notes), before/after shots at 390/1440 in
    `docs/screenshots/polish/`. P9: the 15 friction points in the research notes.
 7. Full audit (`docs/OVERNIGHT.md` §3) by a fresh auditor, loop to zero fails; then `ops/smoke-prod.sh https://kismetodds.com`.
