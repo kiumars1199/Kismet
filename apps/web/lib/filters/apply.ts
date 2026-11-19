@@ -99,9 +99,9 @@ export function pickSide(m: StoreMarket, side: FilterState["side"]): Side | unde
 /** Payout multiplier per $1 staked, before fee (docs/13): 1 / ask. */
 export const paysOf = (s: Pick<Side, "ask">) => (s.ask > 0 ? 1 / s.ask : null);
 
-/** Asking for long shots (pays >= 2.5x, price <= 40¢, chance <= 40%) lifts the default 40% floor (docs/13 § Matching). */
+/** Asking for long shots (pays >= 2x, price <= 40¢, chance <= 40%) lifts the default 40% floor (docs/13 § Matching). */
 export const liftsFloor = (f: FilterState) =>
-  (f.pays_min ?? 0) >= 2.5 || (f.price_max ?? 1) <= 0.4 || (f.win_prob_max ?? 1) <= 0.4;
+  (f.pays_min ?? 0) >= 2 || (f.price_max ?? 1) <= 0.4 || (f.win_prob_max ?? 1) <= 0.4;
 
 /** Side-level filters; the 40% win-chance floor applies unless win_prob_min is set (wp=0 turns it off) or lifted. */
 export function sideOk(s: Side, f: FilterState): boolean {
@@ -235,12 +235,12 @@ export function apply(store: Store, f0: FilterState, user?: UserCtx, parsed?: Pa
     if (!(mask & ~MT)) bump(facets.market_types, m.market_type);
     if (!(mask & ~PER)) bump(facets.periods, m.derived.period);
     if (!(mask & ~VD) && m.execution) bump(facets.verdicts, m.execution.verdict);
-    // Picking a 3x+ band lifts the long-shot floor, so those bands are counted the way they would show.
+    // Picking a 2x+ band lifts the long-shot floor, so those bands are counted the way they would show.
     if (!(mask & ~(PAYS | CHANCE | (f.tier === "best" ? TIER : 0))) && pays !== null) {
       const b = band(PAYS_BANDS, pays);
       const lifted = gte(s.win_prob, f.win_prob_min ?? 0) && lte(s.win_prob, f.win_prob_max);
       if (!(mask & (CHANCE | TIER))) facets.pays.any!++;
-      if (b && (PAYS_BANDS.find(([k]) => k === b)![2] >= 2.5 ? lifted : !(mask & CHANCE))) facets.pays[b]!++;
+      if (b && (PAYS_BANDS.find(([k]) => k === b)![2] >= 2 ? lifted : !(mask & CHANCE))) facets.pays[b]!++;
     }
     if (!(mask & ~CHANCE)) {
       if (gte(s.win_prob, anyFloor)) facets.chance.any!++;

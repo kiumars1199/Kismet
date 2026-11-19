@@ -47,9 +47,11 @@ so a cloud session can continue. Work on `final`; every push to `final` deploys 
    `/api/flags` (`listBody`), so the headline count matches the cards. `total` still subtracts only page 1's drops.
 3. P3 gaps: Free can still see flagged bets outside the day's 10 (banded) via `/api/markets`, `/api/events/[id]`,
    `/m/[id]` and `/api/suggest`; pass the daily seed into `eventBody`/`marketBody` and the suggest route.
-4. P5: `python pipeline/fetch_closed.py --days 730 --per-tag 4000` (resumable, ~1 h+), refit, report counts. The
-   research found 0 tier-best bets at 2–10x today and that the 2–3x Pays band keeps the 40% chance floor
-   (`apply.ts:103`); show `by_pays` 2–3x/3–5x/5–10x on /results with a plain warning on the Pays filter if they lose.
+4. P5 app side done: /track-record "By payout" table (both tiers per band, verdict calls a sign only at |t| >= 2, a big
+   unproven loss still reads "lost money"); the Pays dropdown shows each 2x+ band's tested return and says picking a
+   payout includes lower-confidence bets; any 2x+ band lifts the 40% chance floor (was 2.5x, which starved 2–3x);
+   test: each band's dropdown count equals the list total. Still owner-run: dispatch refresh.yml `mode=backfill` (730
+   days, resumable) then refit, and report the new counts.
 5. P6: send the Best bets rows with the page (`respond.ts:178` builds them and drops them), stop BotID on plain page
    loads, cache static pages (`force-dynamic` + CSP nonce blocks it). Lighthouse mobile on `/` was 72.
 6. P7 UI pass with Impeccable (12 patterns in the research notes), before/after shots at 390/1440 in

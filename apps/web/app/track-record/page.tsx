@@ -6,9 +6,9 @@ import { chosenResult, coarseCurve, curve } from "@/lib/data/model";
 import { getTier } from "@/lib/auth/server";
 import { can } from "@/lib/entitlements";
 import { getStore, readSource } from "@/lib/data/store";
-import { DASH, RETURN_HELP, edge, formatCount, pct } from "@/lib/format";
+import { DASH, RETURN_HELP, edge, exactCount, formatCount, pct, ret } from "@/lib/format";
 import { TAXONOMY } from "@/lib/taxonomy";
-import { bucketRows, foldRows, recordRows, tiles } from "@/lib/trackRecord";
+import { PAYS_READ_TEXT, bucketRows, foldRows, paysRows, recordRows, tiles } from "@/lib/trackRecord";
 import type { BacktestRecord, LedgerSummary } from "@/lib/types";
 import { CalibrationChart, EdgeChart, FoldCharts, type CalibrationSet } from "./Charts";
 
@@ -96,6 +96,11 @@ export default async function Page() {
           <RecordTable first="Placed" rows={horizons.map((x) => ({ ...x, name: H_NAME[x.key] ?? `${x.key} h` }))} />
         </Section>
       </div>
+
+      <Section id="pays" title="By payout"
+        note="Every tested bet grouped by what it paid per $1. Best bets are the main list; lower-confidence bets are the extra ones you see when you pick a payout. The verdict uses whichever group tested more bets, and calls a result only when it is too big to be luck.">
+        <PaysTable rows={paysRows(r)} />
+      </Section>
 
       <Section id="calibration" title="Are the win chances honest?"
         note="For every price, how often bets at that price actually won in past markets (the model's curve). A curve on the dashed line means the market priced it right.">
@@ -185,6 +190,23 @@ function RecordTable({ first, rows }: { first: string; rows: RecRow[] }) {
       <span key="r" className={!r.flags ? "text-muted" : (r.roi_pct ?? 0) < 0 ? "text-negative" : "text-positive"} title={r.flags ? undefined : "not available"}>
         {r.flags ? f.ret : DASH}
       </span>,
+    ])} />
+  );
+}
+
+function PaysTable({ rows }: { rows: ReturnType<typeof paysRows> }) {
+  const cell = (x: BacktestRecord | undefined) => {
+    if (!x?.flags) return <span className="text-muted" title="no bets at this payout in testing">{DASH}</span>;
+    return (
+      <span title={`${exactCount(x.flags)} bets · ${x.events !== undefined ? exactCount(x.events) : DASH} events · won ${x.win_rate !== undefined ? pct(x.win_rate) : DASH}`}>
+        <Count n={x.flags} /> · <span className={(x.roi_pct ?? 0) < 0 ? "text-negative" : "text-positive"}>{ret(x.roi_pct)}</span>
+      </span>
+    );
+  };
+  return (
+    <Table head={["Pays", "Best bets", "Lower confidence", "Verdict"]} rows={rows.map((x) => [
+      x.key.replace("-", "–"), cell(x.best), cell(x.edge),
+      <span key="v" data-testid={`pays-read-${x.key}`} className={x.read.startsWith("lost") ? "text-negative" : x.read === "won" ? "text-positive" : "text-muted"}>{PAYS_READ_TEXT[x.read]}</span>,
     ])} />
   );
 }

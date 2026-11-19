@@ -62,7 +62,7 @@ type ParsedQuery = {
   roiMin?: number; closes?: { from: number; to: number }; side?: Side; marketTypes?: MarketType[]
   periods?: Period[]; topics?: string[]; sort?: SortKey
   chips: { kind: string; label: string; remove: Partial<ParsedQuery> }[]   // for display
-  liftsLongShotFloor: boolean    // true if pays ≥ 2.5x, price < 40c, chance < 40%, or "long shot"
+  liftsLongShotFloor: boolean    // true if pays ≥ 2x, price < 40c, chance < 40%, or "long shot"
 }
 parse(q: string, ctx: { aliases, topics, cities, now, tz }): ParsedQuery
 toFilterState(p: ParsedQuery, base: FilterState): FilterState   // merges into the normal filter system

@@ -13,6 +13,8 @@ import { TAXONOMY, TAXONOMY_TREE } from "@/lib/taxonomy";
 import { FilterPanel } from "@/components/screener/FilterPanel";
 import type { Mode } from "@/components/screener/useScreener";
 import { exactCount, formatCount } from "@/lib/format";
+import { useBacktest } from "@/components/market/TierNote";
+import { paysFilterNote } from "@/lib/trackRecord";
 
 type Change = (p: Partial<FilterState>) => void;
 type Opt = { key: string; label: string; n?: number; patch: Partial<FilterState>; on: boolean };
@@ -177,6 +179,9 @@ export function FilterPills({ state: s, mode, facets, meta, onChange, onReset, c
     { key: "any", label: "Any", n: facets?.pays.any, on: s.pays_min === undefined && s.pays_max === undefined, patch: { pays_min: undefined, pays_max: undefined } },
     ...PAYS_BANDS.map(([k, label, lo, hi]) => ({ key: k, label, n: facets?.pays[k], on: paysOn(lo, hi), patch: { pays_min: lo, pays_max: hi === Infinity ? undefined : hi } })),
   ];
+  // P5: each 2x+ band's tested return, under the choices (the user sees a long shot's record before picking it)
+  const bt = useBacktest();
+  const paysNote = paysFilterNote(bt?.chosen);
   const paysValue = pays.find((o) => o.on && o.key !== "any")?.label ?? (s.pays_min !== undefined || s.pays_max !== undefined ? "Custom" : undefined);
 
   // Chance: "Any" keeps the default 40% floor
@@ -224,7 +229,17 @@ export function FilterPills({ state: s, mode, facets, meta, onChange, onReset, c
   return (
     <div role="group" aria-label="Quick filters" className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:flex-wrap md:overflow-visible md:px-0 md:pb-0 [&>*]:shrink-0">
       <TopicPill s={s} facets={facets} onChange={onChange} />
-      <Pill name="Pays" value={paysValue}>{(close) => <Options opts={pays} onChange={onChange} close={close} />}</Pill>
+      <Pill name="Pays" value={paysValue}>{(close) => (
+        <>
+          <Options opts={pays} onChange={onChange} close={close} />
+          {(paysNote || mode === "flags") && (
+            <p data-testid="pays-note" className="mt-1 max-w-64 border-t border-border px-3 pt-2 text-xs leading-relaxed text-muted">
+              {paysNote}{paysNote && mode === "flags" ? " " : ""}{mode === "flags" && "Picking a payout includes lower-confidence bets."}{" "}
+              <a href="/track-record#pays" className="text-accent-hover underline-offset-2 hover:underline">See results</a>
+            </p>
+          )}
+        </>
+      )}</Pill>
       <Pill name="Chance" value={chanceValue}>{(close) => <Options opts={chance} onChange={onChange} close={close} />}</Pill>
       <Pill name="Return" value={retValue}>{(close) => <Options opts={ret} onChange={onChange} close={close} />}</Pill>
       <Pill name="Closes" value={closesValue}>{(close) => <Options opts={closes} onChange={onChange} close={close} />}</Pill>

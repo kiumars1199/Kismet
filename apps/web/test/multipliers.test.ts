@@ -70,3 +70,29 @@ describe("flag tiers", () => {
     expect(all.rows.find((r) => r.market.id === LONG_SHOT)?.market.tier).toBe("edge");
   });
 });
+
+describe("P5: Pays dropdown counts match the list", () => {
+  const bands = [[1, 1.5], [1.5, 2], [2, 3], [3, 5], [5, 10], [10, undefined]] as const;
+  const keys = ["<1.5x", "1.5-2x", "2-3x", "3-5x", "5-10x", "10x+"];
+  for (const view of ["flags", "markets"] as const) {
+    it(`each band's count equals the rows it shows (${view}, ungrouped)`, async () => {
+      const base = await run({ view });
+      for (const [i, [lo, hi]] of bands.entries()) {
+        const p = await run({ view, pays_min: lo, pays_max: hi });
+        expect(base.facets.pays[keys[i]!] ?? 0, keys[i]).toBe(p.total);
+      }
+    });
+  }
+  it("grouped: a band's count is at least the event groups it shows", async () => {
+    const base = apply(await getStore(), FilterState.parse({ view: "flags" }));
+    for (const [i, [lo, hi]] of bands.entries()) {
+      const p = apply(await getStore(), FilterState.parse({ view: "flags", pays_min: lo, pays_max: hi }));
+      expect(base.facets.pays[keys[i]!] ?? 0).toBeGreaterThanOrEqual(p.total_groups ?? 0);
+    }
+  });
+  it("2–3x lifts the 40% chance floor (bets under 40% show)", async () => {
+    const p = await run({ view: "markets", pays_min: 2, pays_max: 3 });
+    expect(p.rows.every((r) => r.side.ask > 1 / 3 && r.side.ask <= 0.5)).toBe(true);
+    expect(p.rows.some((r) => r.side.win_prob < 0.4)).toBe(true);
+  });
+});

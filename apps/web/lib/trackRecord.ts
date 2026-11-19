@@ -68,3 +68,48 @@ export function recordRows(map: Record<string, BacktestRecord> | undefined) {
     .sort((a, b) => (b[1].flags ?? 0) - (a[1].flags ?? 0))
     .map(([key, r]) => ({ key, r, f: fmtRecord(r) }));
 }
+
+/** P5: what a payout band's walk-forward record says, in plain words. A sign is called only when |t| >= 2; a big
+ *  return with |t| < 2 still says which way it went ("lost money, too few bets to be sure"), never "break-even". */
+export type PaysRead = "untested" | "few" | "even" | "won" | "lost" | "won?" | "lost?";
+export function paysRead(r: BacktestRecord | undefined): PaysRead {
+  if (!r?.flags) return "untested";
+  if (r.flags < 30 || !ok(r.roi_pct)) return "few";
+  if (ok(r.t_stat) && Math.abs(r.t_stat) >= 2) return r.roi_pct >= 0 ? "won" : "lost";
+  if (Math.abs(r.roi_pct) < 10) return "even";
+  return r.roi_pct >= 0 ? "won?" : "lost?";
+}
+export const PAYS_READ_TEXT: Record<PaysRead, string> = {
+  untested: "No bets in testing", few: "Too few bets to tell", even: "About break-even, not enough bets to tell",
+  won: "Made money", lost: "Lost money",
+  "won?": "Made money, too few bets to be sure", "lost?": "Lost money, too few bets to be sure",
+};
+const SHORT: Record<PaysRead, string> = {
+  untested: "untested", few: "too few bets to tell", even: "about break-even", won: "made money", lost: "lost money",
+  "won?": "made money, not proven", "lost?": "lost money",
+};
+
+/** Per payout band: both tiers' records and the read of whichever tier tested more bets in that band. */
+export function paysRows(r: { by_pays?: BacktestFile["results"][string]["by_pays"] } | null | undefined) {
+  const bands = ["<1.5x", "1.5-2x", "2-3x", "3-5x", "5-10x", "10x+"] as const;
+  return bands.map((key) => {
+    const best = r?.by_pays?.best?.[key];
+    const edge = r?.by_pays?.edge?.[key];
+    const main = (edge?.flags ?? 0) > (best?.flags ?? 0) ? edge : best;
+    return { key, best, edge, main, read: paysRead(main) };
+  });
+}
+
+/** One line for the Pays filter: each 2x+ band's tested return, neighbours with the same read grouped. */
+export function paysFilterNote(r: Parameters<typeof paysRows>[0]): string | null {
+  const rows = paysRows(r).filter((x) => ["2-3x", "3-5x", "5-10x", "10x+"].includes(x.key) && x.read !== "untested");
+  if (!rows.length) return null;
+  const groups: { read: PaysRead; parts: string[] }[] = [];
+  for (const x of rows) {
+    const part = `${x.key.replace("-", "–")} ${ret(x.main!.roi_pct)}`;
+    const last = groups[groups.length - 1];
+    if (last?.read === x.read) last.parts.push(part);
+    else groups.push({ read: x.read, parts: [part] });
+  }
+  return `In testing: ${groups.map((g) => `${g.parts.join(", ")}: ${SHORT[g.read]}.`).join(" ")}`;
+}
