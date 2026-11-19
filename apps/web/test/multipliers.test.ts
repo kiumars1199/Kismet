@@ -1,6 +1,6 @@
 // docs/18 §2–3 against the fixtures: two tiers, Pays searches both, the 10x / 14% example lands in tier "edge".
 import { describe, expect, it } from "vitest";
-import { gateCombos, suggestCombos } from "@/lib/data/combos";
+import { COMBO_PAYS, browseCombos, gateCombos, suggestCombos } from "@/lib/data/combos";
 import { getStore } from "@/lib/data/store";
 import { apply } from "@/lib/filters/apply";
 import { FilterState, type FilterInput } from "@/lib/filters/state";
@@ -37,6 +37,40 @@ describe("suggested combos", () => {
     expect(suggestCombos(losing).map((g) => g.size)).toEqual([2]);
     const free = gateCombos(suggestCombos(store), "free");
     expect(free.groups[0]!.combos[0]!.ret_range).toBeDefined();
+  });
+});
+
+describe("combos page (docs/19 P5)", () => {
+  it("each payout floor: pays at least that much, legs on different events, cautious chance beats the price", async () => {
+    const store = await getStore();
+    const counts: number[] = [];
+    for (const min of COMBO_PAYS) {
+      const groups = browseCombos(store, min);
+      counts.push(groups.reduce((n, g) => n + g.combos.length, 0));
+      for (const g of groups) {
+        expect(g.combos.length).toBeLessThanOrEqual(20);
+        expect(g.record.roi_pct).toBeGreaterThan(0);
+        for (const c of g.combos) {
+          expect(c.pays).toBeGreaterThanOrEqual(min);
+          expect(new Set(c.items.map((l) => l.event_id)).size).toBe(g.size);
+          expect(c.q_low).toBeGreaterThan(c.price);
+          for (const l of c.items) expect(store.flagsById.get(l.market_id)!.hours_to_close).toBeLessThanOrEqual(24);
+        }
+        expect(g.combos.map((c) => c.ret)).toEqual([...g.combos.map((c) => c.ret)].sort((a, b) => b - a));
+        const uses = new Map<string, number>();
+        for (const l of g.combos.flatMap((c) => c.items)) uses.set(l.market_id, (uses.get(l.market_id) ?? 0) + 1);
+        expect(Math.max(...uses.values())).toBeLessThanOrEqual(3);   // no leg fills the page
+      }
+    }
+    expect(counts[0]).toBeGreaterThan(0);
+    expect([...counts]).toEqual([...counts].sort((a, b) => b - a));   // a higher floor never shows more
+  });
+  it("the top combo per leg count is the Best bets row's top combo when it pays 2x+", async () => {
+    const store = await getStore();
+    for (const g of suggestCombos(store)) {
+      const top = browseCombos(store, 2).find((b) => b.size === g.size)?.combos[0];
+      if (g.combos[0]!.pays >= 2) expect(top?.ret).toBe(g.combos[0]!.ret);
+    }
   });
 });
 

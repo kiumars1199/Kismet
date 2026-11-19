@@ -10,6 +10,7 @@ export const MAIN_TABS = [
 export const MORE_LINKS = [
   { href: "/journal", label: "My bets" },
   { href: "/track-record", label: "Results" },
+  { href: "/combos", label: "Combos" },
   { href: "/tools", label: "Tools" },
   { href: "/alerts", label: "Alerts" },
   { href: "/dashboards", label: "Dashboards" },

@@ -13,6 +13,9 @@ export interface Leg {
   q_low: number;    // cautious win chance (win_prob_low)
 }
 export const MIN_LEGS = 2;
+/** Payout floors on the Combos page (docs/19 P5): 2x+, 3x+, 5x+, 10x+. */
+export const COMBO_PAYS = [2, 3, 5, 10] as const;
+export type ComboPays = (typeof COMBO_PAYS)[number];
 export const MAX_LEGS = 6;
 
 export const legOf = (m: Pick<StoreMarket, "id" | "question" | "event_id" | "event" | "url" | "kalshi_ticker">, s: Side): Leg => ({

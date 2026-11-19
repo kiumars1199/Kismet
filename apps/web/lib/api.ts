@@ -130,7 +130,8 @@ export const fetchCurve = (segment: string, h: number, init?: RequestInit) =>
   get<Curve>(`/api/model/curve?${new URLSearchParams({ segment, h: String(h) })}`, init);
 const fetchBacktest = (init?: RequestInit) => get<BacktestResponse>("/api/backtest", init);
 /** /api/combos — suggested combos, the same for everyone (docs/18 §5.2). */
-export const fetchCombos = (init?: RequestInit) => get<import("@/lib/data/combos").CombosResponse>("/api/combos", init);
+export const fetchCombos = (init?: RequestInit, pays?: import("@/lib/combos").ComboPays) =>
+  get<import("@/lib/data/combos").CombosResponse>(pays ? `/api/combos?pays=${pays}` : "/api/combos", init);
 let backtestP: Promise<BacktestResponse> | null = null;
 /** backtest.json changes once a day at most: one request per page load, shared by every card. */
 export const backtestOnce = () => (backtestP ??= fetchBacktest().catch((e) => ((backtestP = null), Promise.reject(e))));

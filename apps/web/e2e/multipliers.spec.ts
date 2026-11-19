@@ -62,3 +62,21 @@ test("combo: two legs from one event show the same-event warning", async ({ page
   await page.getByRole("button", { name: "Clear combo" }).click();
   await expect(page.getByTestId("combo-tray")).toHaveCount(0);
 });
+
+// docs/19 P5: the Combos page browses by payout; every card pays at least the chosen floor.
+test("combos page: payout tabs, each card pays at least the floor, Build this combo opens the tray", async ({ page }) => {
+  await page.goto("/combos");
+  await page.evaluate(() => localStorage.removeItem("me-combo-v1"));
+  await expect(page.getByRole("heading", { level: 1, name: "Combos" })).toBeVisible();
+  for (const p of [2, 3, 5, 10]) {
+    await page.getByRole("button", { name: `Pays ${p}x+` }).click();
+    await expect(page).toHaveURL(new RegExp(`pays=${p}$`));
+    await expect(page.getByRole("button", { name: `Pays ${p}x+` })).toHaveAttribute("aria-pressed", "true");
+    const cards = page.getByTestId("combo-card");
+    await expect(cards.first().or(page.getByTestId("combos-empty"))).toBeVisible();
+    for (const v of await cards.evaluateAll((els) => els.map((e) => Number(e.getAttribute("data-pays"))))) expect(v).toBeGreaterThanOrEqual(p);
+  }
+  await page.getByRole("button", { name: "Pays 2x+" }).click();
+  await page.getByTestId("combo-card").first().getByRole("button", { name: /Build this combo/ }).click();
+  await expect(page.getByTestId("combo-tray")).toBeVisible();
+});

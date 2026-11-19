@@ -20,6 +20,12 @@ test("signed-out pages: no exact returns, no full price check, no model internal
     expect(ranges, `${path}: every side has ranges`).toBeGreaterThanOrEqual(sides);
   }
 
+  // docs/19 P3/P5: combos are Premium; a signed-out visitor gets the upgrade note and no combos from the API
+  expect(((await (await request.get("/api/combos?pays=2")).json()) as { groups: unknown[] }).groups).toEqual([]);
+  await page.goto("/combos");
+  await expect(page.getByTestId("combos-upgrade")).toBeVisible();
+  await expect(page.getByTestId("combo-card")).toHaveCount(0);
+
   // docs/19 P1: a signed-out visitor's / is the landing; its one card is the gated top row.
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Less luck, more math.");

@@ -5,7 +5,7 @@ import { expect, test, type Page } from "@playwright/test";
 const STATIC = [
   "/", "/markets", "/about", "/pricing", "/login", "/signup", "/onboarding", "/account", "/watchlist", "/journal", "/alerts",
   "/dashboards", "/settings", "/tools", "/track-record", "/status", "/terms", "/privacy", "/refunds", "/disclaimer",
-  "/contact", "/ext/connect", "/no-such-page",
+  "/contact", "/ext/connect", "/combos", "/no-such-page",
 ];
 
 async function serious(page: Page) {

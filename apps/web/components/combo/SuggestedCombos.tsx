@@ -9,6 +9,7 @@ import type { CombosResponse, SuggestedCombo } from "@/lib/data/combos";
 import { pct, price, ret, testedLine, winsAbout } from "@/lib/format";
 import { useCombo } from "./useCombo";
 import { useNear } from "@/components/screener/useNear";
+import Link from "next/link";
 
 const retText = (c: SuggestedCombo) =>
   c.ret_range ? (c.ret_range[1] === null ? `over ${ret(c.ret_range[0]!)}` : `${ret(c.ret_range[0] ?? 0)}–${ret(c.ret_range[1]).replace(/^\+/, "")}`) : ret(c.ret * 100);
@@ -29,7 +30,10 @@ export function SuggestedCombos() {
   return (
     <section aria-labelledby="combos-h" data-testid="suggested-combos" className="flex flex-col gap-3">
       <div>
-        <h2 id="combos-h" className="text-xl font-semibold">Combos</h2>
+        <div className="flex items-baseline justify-between gap-3">
+          <h2 id="combos-h" className="text-xl font-semibold">Combos</h2>
+          <Link href="/combos" className="text-sm font-medium text-accent hover:underline">See all combos</Link>
+        </div>
         <p className="mt-1 max-w-[760px] text-[13px] leading-relaxed text-muted">
           Two or three Best bets from different events, closing within a day, in one bet. Bigger payout, lower chance:
           every leg has to win. {groups.map((g) => testedLine(g.record, `${g.size}-leg combos`)).filter(Boolean).join(". ")}.
@@ -42,13 +46,13 @@ export function SuggestedCombos() {
   );
 }
 
-function ComboCard({ c }: { c: SuggestedCombo }) {
+export function ComboCard({ c, wide = false }: { c: SuggestedCombo; wide?: boolean }) {
   const load = () => useCombo.setState({ legs: c.items, open: true });
   return (
-    <li className="flex w-[300px] flex-none snap-start flex-col gap-3 rounded-card border border-border bg-surface p-4">
+    <li data-testid="combo-card" data-pays={c.pays.toFixed(3)} className={`flex flex-col gap-3 rounded-card border border-border bg-surface p-4 ${wide ? "" : "w-[300px] flex-none snap-start"}`}>
       <p className="text-xs text-muted">Combo · {c.legs} legs</p>
       <p className="-mt-2 font-heading text-[22px] font-bold leading-tight">
-        Pays {c.pays >= 10 ? Math.round(c.pays) : c.pays.toFixed(1)}x <span className="font-sans text-sm font-medium text-soft">· wins about {winsAbout(c.q)}</span>
+        <span title={`Price of the combo: ${price(c.price)} (each leg's price plus fee, multiplied). Wins if every leg wins: our chance ${pct(c.q)}, cautious ${pct(c.q_low)}.`}>Pays</span> {c.pays >= 10 ? Math.round(c.pays) : c.pays.toFixed(1)}x <span className="font-sans text-sm font-medium text-soft">· wins about {winsAbout(c.q)}</span>
       </p>
       <ol className="flex flex-col gap-1.5 text-[13px]">
         {c.items.map((l) => (
