@@ -71,7 +71,7 @@ export function BetCard({ r, pro = false }: { r: ApiRow; pro?: boolean }) {
           <span data-live={dir ?? undefined} key={live?.at} className={`tabular-nums text-text ${live && live.ask !== s.ask ? "price-pulse rounded px-0.5" : ""}`}>
             {price(live?.ask ?? s.ask)}
             {dir && (
-              <svg role="img" aria-label={dir === "up" ? "price up since the scan" : "price down since the scan"} width="10" height="10" viewBox="0 0 10 10"
+              <svg role="img" aria-label={`price ${dir} since ${r.price_at ? "this page loaded" : "the scan"}`} width="10" height="10" viewBox="0 0 10 10"
                 className={`ml-0.5 inline align-baseline ${dir === "up" ? "text-warning" : "text-accent"}`}>
                 <path d={dir === "up" ? "M5 1.5 9 8H1z" : "M5 8.5 1 2h8z"} fill="currentColor" />
               </svg>

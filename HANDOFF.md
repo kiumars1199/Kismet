@@ -1,33 +1,71 @@
-# Handoff: polish round (docs/19) — Nov 19, 2026
+# Handoff: polish round (docs/19), Nov 19, 2026
 
 The owner's machine shuts down at 3:30 PM EST. This file says what is done, what is in progress and what is next,
 so a cloud session can continue. Work on `final`; every push to `final` deploys kismetodds.com (Vercel project
 `kismet`), so only push green work (web: lint, typecheck, unit, build; Python: pytest).
 
 ## Done (on `final`)
-- **T-266 (79b3f7d)**: `.github/workflows/refresh.yml` scans every 30 min and uploads `output/*.json` to the Supabase
-  bucket `scan` (`ops/upload.py`); a full update + refit runs every 2 h (`17 */2`) and on manual runs. Every refresh
-  run had been failing on Gamma's `422 offset too large`; `pipeline/fetch_closed.py` now splits the window instead
-  (test: `engine/tests/test_closed_events_offset.py`). The 2 secrets the owner must add are in `LAUNCH_TODO.md` item 12.
+- **T-266**: `.github/workflows/refresh.yml` scans every 30 min and uploads `output/*.json` to the Supabase bucket
+  `scan` (`ops/upload.py`); a full update + refit runs every 2 h (`17 */2`) and on manual runs. Every refresh run had
+  been failing on Gamma's `422 offset too large`; `pipeline/fetch_closed.py` now splits the window instead (test:
+  `engine/tests/test_closed_events_offset.py`). A manual full run after the fix (actions run 44583477740) still
+  failed; its log wasn't read because the GitHub API rate limit ran out. **First thing to check.**
+- **P1** landing page for signed-out visitors at `/` (`components/landing/`); Best bets also at `/bets` (the nav tab
+  now points there). Signed-in and `DEMO_MODE` visitors still get Best bets at `/`. Research in
+  `docs/research/polish-round.md`; screenshots `docs/screenshots/polish/landing-*.png`.
+- **P2** Google button only when `NEXT_PUBLIC_GOOGLE_AUTH=1` (the API route refuses too); header "Sign up" + "Log in";
+  `/signup` and `/login` share `components/auth/AuthPage.tsx`; skippable 5-step tour (`components/onboarding/Tour.tsx`),
+  replay from `/account` (`/?tour=1`).
+- **P3** Free = 10 Best bets a day, seeded by user id (or IP) + UTC date, trimmed on the server; blurred locked cards
+  "Unlock all N bets" → /pricing; Free rows 25 → 10; combos moved to **Premium only** (owner decision: to give Pro
+  combos again add `"combos"` to the pro list in `lib/entitlements.ts`).
+- **P4** cards read "Bet $X → get $Y if it wins" (X = default stake); "Likely to hit" → "Strong record" / "Thin record".
+- **P6 (part)** the scan store serves the cached copy while it reloads (stale-while-revalidate).
+- **P8** admin plan grants by email (`/admin/grants`), pending grants applied at first sign-in, every change in
+  `admin_audit_log`; migration `supabase/migrations/20261119000300_plan_grants.sql`.
+- **Kalshi** (behind `KALSHI_DATA_PERMISSION`, default off): `pipeline/fetch_kalshi.py` → `output/kalshi.json`
+  (polite: 100/page, 1 s gap, backoff, 10-min cache), `GET /api/kalshi`, `/kalshi` page with a "Kalshi" credit on every
+  number and kalshi.com links. Kalshi's public API lists combo markets but none had a resting ask; combos show Kalshi's
+  own ask when there is one, else the legs' Kalshi asks multiplied, labelled so.
+- **Live re-pricing** (`lib/reprice.ts`): paid Best bets pages (`/api/flags`, Pro/Premium) read current CLOB prices
+  in one batched `POST /prices` (15 s cache, 1.5 s timeout falls back to the scan price), recompute edge, fee, Pays,
+  verdict and tier (best can only drop to edge), and drop bets below `MIN_EDGE`; cards show "Price as of Xs ago".
+  Free is untouched (stays 15 min behind). Off with `LIVE_REPRICE=0`, `DATA_CLOCK=scan` (tests) and under Vitest.
+  Tests: `test/reprice.test.ts`.
+- **Scheduler** (`ops/scheduler.py`): cadence from `SCAN_EVERY_SEC` (default 120 s); the upload keeps `*-prev` copies
+  at least 15 min minus one cadence apart, so Free stays 15 min behind.
+- Paid e2e S7 keyboard flow now searches a bet from the Free user's daily sample (P3 hides the others on Best bets).
+- Research notes for P2, P5, P6, P7, P9: `docs/research/polish-round-2.md` (read this before continuing).
 
-## In progress
-Lanes started at ~1:05 PM, each on its own branch (pushed to origin before shutdown; names below once known):
-- P3 + P4 (free tier 10/day seeded sample + locked cards; card copy "Bet $10 → get $13 if it wins").
-- P2 + P8 (Google button behind `NEXT_PUBLIC_GOOGLE_AUTH=1`, Sign up / Log in, admin plan grants, first-run tour).
-- P1 (landing page for signed-out visitors).
-- Kalshi markets + combo quotes behind `KALSHI_DATA_PERMISSION` (scanner, data contract, app page).
-- Research notes (P2 tour, P5, P6 baseline, P7 patterns, P9 friction) in `docs/research/`.
+## Next steps (in order)
+1. Read the failed refresh run's log (`gh run view 44583477740 --log-failed`) and fix; then confirm a scheduled
+   scan-only run (:00 / :30) passes.
+2. Re-pricing applies to `/api/flags` only; the market drawer (`/api/markets/[id]`) and `/api/markets` still show the
+   scan price (the drawer polls `/api/book` live on Pro). Extend if wanted. Known gaps: `flagsTotal()` (first-paint
+   headline) isn't re-priced, so it can read N while the page returns N−k; `total` subtracts only this page's drops;
+   `sideAt` leaves `side.mid` stale and doesn't re-check the engine's price band. Neither e2e suite exercises re-pricing
+   (`DATA_CLOCK=scan` turns it off); check it on prod with a Pro account after deploy.
+3. P3 gaps: Free can still see flagged bets outside the day's 10 (banded) via `/api/markets`, `/api/events/[id]`,
+   `/m/[id]` and `/api/suggest`; pass the daily seed into `eventBody`/`marketBody` and the suggest route.
+4. P5: `python pipeline/fetch_closed.py --days 730 --per-tag 4000` (resumable, ~1 h+), refit, report counts. The
+   research found 0 tier-best bets at 2–10x today and that the 2–3x Pays band keeps the 40% chance floor
+   (`apply.ts:103`); show `by_pays` 2–3x/3–5x/5–10x on /results with a plain warning on the Pays filter if they lose.
+5. P6: send the Best bets rows with the page (`respond.ts:178` builds them and drops them), stop BotID on plain page
+   loads, cache static pages (`force-dynamic` + CSP nonce blocks it). Lighthouse mobile on `/` was 72.
+6. P7 UI pass with Impeccable (12 patterns in the research notes), before/after shots at 390/1440 in
+   `docs/screenshots/polish/`. P9: the 15 friction points in the research notes.
+7. Full audit (`docs/OVERNIGHT.md` §3) by a fresh auditor, loop to zero fails; then `ops/smoke-prod.sh https://kismetodds.com`.
 
-## Next steps
-1. Finish and merge any lane branch not yet in `final` (see list above).
-2. P5: run `python pipeline/fetch_closed.py --days 730 --per-tag 4000` (resumable), refit, report counts; show
-   `by_pays` 2–3x/3–5x/5–10x on /results; plain warning on the Pays filter if those bands lose; combos page per docs/18.
-3. P6 speed, P7 UI pass (Impeccable, before/after screenshots at 390/1440 in `docs/screenshots/polish/`), P9 friction fixes.
-4. Full audit (`docs/OVERNIGHT.md` §3) by a fresh auditor, loop to zero fails; then `ops/smoke-prod.sh https://kismetodds.com`.
+## Owner actions
+- Add GitHub Actions secrets `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` (LAUNCH_TODO item 12).
+- Vercel: `ADMIN_EMAILS` including `kismetodds@gmail.com`; check the Stripe env vars (live `/pricing` says "Coming soon"
+  because `/api/me` reports `billing: false`).
+- Apply migration `20261119000300_plan_grants.sql` in Supabase (`/admin/grants` errors until then).
+- `NEXT_PUBLIC_GOOGLE_AUTH=1` only after Google OAuth is set up in Supabase.
+- Kalshi: written data permission before `KALSHI_DATA_PERMISSION=true` (Vercel and the scan step env in refresh.yml);
+  check that `https://kalshi.com/markets/<series>` links resolve.
 
 ## Environment notes
-- `git fetch` fails with `bad object refs/remotes/origin/final 2` (an iCloud duplicate ref on the owner's Mac).
-  Use `GIT_REF_PARANOIA=0 git fetch`. A cloud clone doesn't have this ref.
+- On the owner's Mac `git fetch` fails with `bad object refs/remotes/origin/final 2` (an iCloud duplicate ref). Use
+  `GIT_REF_PARANOIA=0 git fetch`. A cloud clone doesn't have this ref.
 - The GitHub repo is now `kiumars1199/Kismet` (old name redirects).
-- Owner actions: the 2 Actions secrets (LAUNCH_TODO item 12); `ADMIN_EMAILS=kismetodds@gmail.com` in Vercel;
-  `NEXT_PUBLIC_GOOGLE_AUTH=1` only after Google OAuth is set up in Supabase.
