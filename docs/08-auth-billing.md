@@ -30,7 +30,7 @@ Payment risk: Stripe restricts some gambling-related businesses. Describe the pr
 ## Entitlements
 ```ts
 const LIMITS = {
-  free:    { live: false, delayMin: 15, rows: 25, exactEdge: false, flagsPerDay: 3, presets: 1,
+  free:    { live: false, delayMin: 15, rows: 10, exactEdge: false, flagsPerDay: 3, presets: 1,
              dashboards: 0, watchlist: 10, alerts: 0, channels: [], execution: "verdict", journal: false,
              csv: false, extension: false, filters: "basic" },
   pro:     { live: true, delayMin: 0, rows: 200, exactEdge: true, flagsPerDay: Infinity, presets: 25,
