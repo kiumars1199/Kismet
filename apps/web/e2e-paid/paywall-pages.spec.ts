@@ -7,7 +7,7 @@ const PAID_ONLY = ["capacity_usd", "limit_price", "limit_edge", "retention", "\"
 
 test("signed-out pages: no exact returns, no full price check, no model internals", async ({ page, request }) => {
   const flags = (await (await request.get("/api/flags?ps=200")).json()) as MarketsResponse;
-  expect(flags.rows.length).toBeLessThanOrEqual(25);
+  expect(flags.rows.length).toBeLessThanOrEqual(10);
   for (const r of flags.rows) expect(r.side.ranges).toBeDefined();
   const m = flags.rows[0]!.market;
 
@@ -23,7 +23,7 @@ test("signed-out pages: no exact returns, no full price check, no model internal
   // Best bets (/) is client-rendered: its HTML has no market rows; the rows come from /api/flags (checked above).
   await page.goto("/");
   await expect(page.locator("[data-row]").first()).toBeVisible({ timeout: 30_000 });
-  expect(await page.locator("[data-row]").count()).toBeLessThanOrEqual(25);
+  expect(await page.locator("[data-row]").count()).toBeLessThanOrEqual(10);
   await expect(page.locator("[data-row]").first()).toContainText(/–|under|over/);   // a band, not an exact figure
 
   await page.goto("/about");

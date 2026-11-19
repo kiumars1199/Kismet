@@ -10,9 +10,11 @@ import { SITE } from "@/lib/site";
 export const metadata = { title: "Pricing", description: "Free, Pro and Premium plans for Kismet. Start free; paid plans include a 7-day trial and cancel any time.", alternates: { canonical: "/pricing" } };
 
 const rows = (delay: number): [string, string, string, string][] => [
-  ["All open markets", `${behindWords(delay).replace(/^./, (c) => c.toUpperCase())}, top 25 rows`, "Live, unlimited", "Live, unlimited"],
-  ["Estimated return on each bet", "As a range", "Exact", "Exact"],
-  ["Best bets", "3 a day", "All", "All"],
+  ["Best bets", "10 a day, chosen at random", "All", "All"],
+  ["Prices", behindWords(delay).replace(/^./, (c) => c.toUpperCase()), "Live", "Live"],
+  ["All open markets", "Top 10 rows", "Unlimited", "Unlimited"],
+  ["Estimated return on each bet", "As a range (exact on 3 a day)", "Exact", "Exact"],
+  ["Combos", "—", "—", "Yes"],
   ["Filters", "Topic, sport, price", "All", "All"],
   ["Saved views", "1", "25", "Unlimited"],
   ["Dashboards", "—", "3", "Unlimited"],

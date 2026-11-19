@@ -57,9 +57,9 @@ describe("adminUser() / requireAdmin()", () => {
 describe("site settings", () => {
   afterEach(() => setSettingsSnapshot(undefined));
 
-  it("defaults are today's behavior (Free 25 rows, 15 min delay, sign-ups open, alerts on)", () => {
+  it("defaults are today's behavior (Free 10 rows, 15 min delay, sign-ups open, alerts on)", () => {
     expect(parseSettings([])).toEqual(DEFAULT_SETTINGS);
-    expect(DEFAULT_SETTINGS).toMatchObject({ free_rows: 25, free_delay_min: 15, signups_open: true, alerts_enabled: true, maintenance: false, banner_on: false });
+    expect(DEFAULT_SETTINGS).toMatchObject({ free_rows: 10, free_delay_min: 15, signups_open: true, alerts_enabled: true, maintenance: false, banner_on: false });
     expect(parseSettings(null)).toEqual(DEFAULT_SETTINGS);
   });
 
@@ -71,7 +71,7 @@ describe("site settings", () => {
     ]);
     expect(s.banner_on).toBe(true);
     expect(s.banner_text).toBe("Scheduled upgrade tonight");
-    expect(s.free_rows).toBe(25);
+    expect(s.free_rows).toBe(10);
     expect(s.free_delay_min).toBe(15);
     expect(s.maintenance).toBe(false);
     expect(s.trading_allowlist).toEqual([]);
@@ -88,7 +88,7 @@ describe("site settings", () => {
   });
 
   it("Free row cap and delay follow the snapshot; paid tiers don't", () => {
-    expect([rowCap("free"), delayMin("free")]).toEqual([25, 15]);
+    expect([rowCap("free"), delayMin("free")]).toEqual([10, 15]);
     setSettingsSnapshot({ ...DEFAULT_SETTINGS, free_rows: 10, free_delay_min: 30 });
     expect([rowCap("free"), delayMin("free")]).toEqual([10, 30]);
     expect([rowCap("pro"), delayMin("pro"), rowCap("premium"), delayMin("premium")]).toEqual([Infinity, 0, Infinity, 0]);

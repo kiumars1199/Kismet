@@ -32,7 +32,7 @@ test("S7 sign up → upgrade with Stripe → Pro unlocks live data and exact num
   await signIn(page, email);
 
   const free = await rows(page);
-  expect(free.rows).toHaveLength(25);
+  expect(free.rows).toHaveLength(10);
   expect(free.rows[0].side.ranges).toBeDefined();
   expect((await (await page.request.get("/api/me")).json()).tier).toBe("free");
 

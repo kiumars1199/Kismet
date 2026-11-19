@@ -122,7 +122,7 @@ export function marketsPage(store: Store, f: FilterState): MarketsResponse {
 
 const byRoi = (a: StoreMarket, b: StoreMarket) => b.best.roi_pct - a.best.roi_pct || a.closes_at - b.closes_at;
 
-/** First `rowCap(tier)` items (Free: 25 rows per request by default, docs/08; site settings can change it). */
+/** First `rowCap(tier)` items (Free: 10 rows per request by default, docs/08; site settings can change it). */
 const capRows = <T,>(list: T[], tier: Tier) => list.slice(0, rowCap(tier));
 
 /** Open markets of one event; null once every one has closed (routes answer 404). */
@@ -149,8 +149,40 @@ export function marketBody(store: Store, m: StoreMarket, tier: Tier, shown: Tier
   };
 }
 
-/** GET /api/markets and /api/flags. Free: first page only (top 25 rows), exact numbers as ranges (docs/08 LIMITS).
- *  Paid: a page past the last one is refused (docs/15 § pagination cap) instead of answered empty. */
+/** 32-bit FNV-1a: a cheap, stable hash for the Free daily sample (not a secret, only a shuffle). */
+function fnv(s: string): number {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 0x01000193);
+  return h >>> 0;
+}
+
+/** docs/19 P3: Free sees `rowCap("free")` Best bets a day, a random sample per user (or IP) per UTC day, so a refresh
+ *  doesn't change it. Consistent sampling: each open best-tier bet ranks by hash(key + day + id) and the lowest N win,
+ *  so a new scan only swaps the bets that closed or appeared. */
+export function freeSample(store: Store, key: string, now = Date.now()): Set<string> {
+  const seed = `${key}|${new Date(now).toISOString().slice(0, 10)}|`;
+  const t = nowFor(store);
+  return new Set(
+    store.flags
+      .filter((m) => m.closes_at > t && (m.tier ?? "best") === "best" && !!m.execution && BEST_BETS_VERDICTS.includes(m.execution.verdict))
+      .map((m) => [fnv(seed + m.id), m.id] as const)
+      .sort((a, b) => a[0] - b[0])
+      .slice(0, rowCap("free"))
+      .map(([, id]) => id),
+  );
+}
+
+/** Free Best bets: every match is counted (`total` is the real N for "Unlock all N bets"), but only the day's sample
+ *  leaves the server, ungrouped (a game group would carry the other bets in it). */
+function freeFlagsPage(store: Store, f: FilterState, key: string): MarketsResponse {
+  const page = marketsPage(store, { ...f, page: 1, page_size: Number.MAX_SAFE_INTEGER, group_by_event: false });
+  const keep = freeSample(store, key);
+  const rows = page.rows.filter((r) => keep.has(r.market.id));
+  return { ...page, page_size: f.page_size, total_groups: undefined, groups: undefined, rows };
+}
+
+/** GET /api/markets and /api/flags. Free: first page only (top 10 rows), exact numbers as ranges (docs/08 LIMITS);
+ *  Best bets are the day's sample (freeSample). Paid: a page past the last one is refused (docs/15 § pagination cap). */
 export const listRoute = (req: Request, view?: "flags") =>
   withTier(req, "markets", async (store, tier, me) => {
     const f = { ...parse(new URL(req.url).searchParams), ...(view ? { view } : {}) };
@@ -163,7 +195,7 @@ export const listRoute = (req: Request, view?: "flags") =>
       const refused = await rateLimit("list_free", clientKey(req, me.user?.id));   // RT-03: 30 a minute
       if (refused) return refused;
     }
-    const page = marketsPage(store, live ? f : { ...f, page: 1 });
+    const page = live ? marketsPage(store, f) : f.view === "flags" ? freeFlagsPage(store, f, clientKey(req, me.user?.id)) : marketsPage(store, { ...f, page: 1 });
     if (live && f.page > Math.max(1, page.pages)) return Response.json({ error: "page is past the last page" }, { status: 400 });
     const body = gateMarkets(page, tier);
     const over = live ? null : await rowBudget(req, me.user?.id, body.rows.map((r) => r.market.id));   // RT-03

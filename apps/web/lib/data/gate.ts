@@ -1,5 +1,5 @@
 // Server-side tier shaping (docs/08 LIMITS, docs/15 § Paywall): the client never receives what the tier
-// doesn't allow. Free = top 25 rows, page 1 only, estimated return / edge / win chance as ranges, price check
+// doesn't allow. Free = 10 rows (Best bets: the day's sample, lib/data/respond.ts), page 1 only, estimated return / edge / win chance as ranges, price check
 // limited to the first share. Pro and Premium get the data untouched.
 import type { MarketsResponse } from "@/lib/api";
 import { can, type Tier } from "@/lib/entitlements";
@@ -77,7 +77,7 @@ export function freeView(store: Store): Store {
 
 export function gateMarkets(r: MarketsResponse, tier: Tier): MarketsResponse {
   if (can(tier, "exact_edge")) return r;
-  const max = rowCap(tier);   // Free cap from site settings (default 25)
+  const max = rowCap(tier);   // Free cap from site settings (default 10)
   const rows = r.rows.slice(0, max).map(({ market, side }) => {
     const g = gateMarket(market, tier);
     return { market: g, side: g.sides.find((s) => s.side_index === side.side_index) ?? rangeSide(side) };

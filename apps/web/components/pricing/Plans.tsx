@@ -11,11 +11,11 @@ import { SITE } from "@/lib/site";
 
 const PLANS = [
   { id: "free", name: "Free", monthly: 0, yearly: 0, line: "See how it works.",
-    points: ["All open markets, {delay}, top 25 rows", "Estimated return shown as a range", "3 best bets a day", "Topic, sport and price filters", "1 saved view · 10 bets in My list", "Results and win-chance charts"] },
+    points: ["10 Best bets a day, chosen at random", "Prices {delay}", "Estimated return shown as a range", "Exact numbers on 3 bets a day", "1 saved view · 10 bets in My list", "Results and win-chance charts"] },
   { id: "pro", name: "Pro", monthly: SITE.prices.pro_monthly, yearly: SITE.prices.pro_yearly, line: "For people who bet every week.",
-    points: ["Live prices, every market, no row limit", "Exact estimated return on every bet", "Every best bet, every filter", "Full price check: order book, stake table, how much you can bet", "Alerts by email and browser, 20 rules", "My bets with profit and closing-price tracking", "25 saved views · 3 dashboards · CSV export"] },
+    points: ["Every Best bet, live prices, no row limit", "Exact estimated return on every bet", "Every best bet, every filter", "Full price check: order book, stake table, how much you can bet", "Alerts by email and browser, 20 rules", "My bets with profit and closing-price tracking", "25 saved views · 3 dashboards · CSV export"] },
   { id: "premium", name: "Premium", monthly: SITE.prices.premium_monthly, yearly: SITE.prices.premium_yearly, line: "Everything, plus the browser extension.",
-    points: ["Everything in Pro", "Chrome extension: estimated return right on Polymarket", "Telegram and Discord alerts, 100 rules", "Unlimited saved views and dashboards"] },
+    points: ["Everything in Pro", "Chrome extension: estimated return right on Polymarket", "Combos: 2- and 3-leg bets built from Best bets", "Telegram and Discord alerts, 100 rules", "Unlimited saved views and dashboards"] },
 ] as const;
 
 /** The yearly saving shown on the toggle: the smallest across paid plans, in whole percent (never overstated). */
