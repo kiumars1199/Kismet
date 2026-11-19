@@ -39,6 +39,9 @@ Use **test mode** first; repeat with live keys when you launch.
 1. dashboard.stripe.com → Products → add **Pro** and **Premium**, each with a monthly and a yearly recurring price
    matching `config/site.json` → `prices_usd` (11.99 / 99.99 / 19.99 / 169.99). Copy the four price ids into
    `STRIPE_PRICE_PRO_MONTHLY`, `STRIPE_PRICE_PRO_YEARLY`, `STRIPE_PRICE_PREMIUM_MONTHLY`, `STRIPE_PRICE_PREMIUM_YEARLY`.
+   **Changing a price later:** `node ops/stripe-setup.mjs --yes` creates the new price but never overwrites a price id
+   already in your env file (it prints "replace it by hand"). Paste the new ids into `.env.prod` and Vercel, or
+   Checkout keeps selling the old price. Payment Links mode: set the 7-day trial on each link in the dashboard.
 2. Developers → API keys → `STRIPE_SECRET_KEY` (secret key; restricted key with Checkout, Customers, Subscriptions, Billing Portal write is fine).
 3. Developers → Webhooks → Add endpoint `https://<your-domain>/api/stripe/webhook`, events:
    `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`,

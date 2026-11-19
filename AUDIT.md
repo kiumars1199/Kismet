@@ -1922,3 +1922,25 @@ Unchanged from run 7 except where marked:
 - **Scan cadence:** run the engine container (10-minute scans); with only the `refresh.yml` fallback (every 2 h), "about every 10 minutes" is wrong.
 - **Chrome Web Store:** publish the extension and set `NEXT_PUBLIC_EXTENSION_ID`.
 - **Count rule exceptions (item 7):** confirm the exact contract quantity on the trade ticket and the exact unread count in the bell's `aria-label`.
+
+# Audit run 9 (billing and pricing only, owner decision Nov 18)
+
+Scope set by the owner: after the price change (Pro $11.99/mo or $99.99/yr, Premium $19.99/mo or $169.99/yr, 7-day
+trial on both), re-run only the billing and pricing checks (items 9 and 10 as they touch pricing). Fresh auditor, read-only,
+worktree `audit9b` at `8a9beda`.
+
+| Check | Result | Evidence |
+|---|---|---|
+| A. Prices everywhere | FAIL, then fixed (T-251) | site.json, /pricing cards (monthly, yearly, "save 29%"), /terms, /refunds and docs matched. The /pricing compare-table headers were hard-coded "Pro · $19" / "Premium · $29". They now read from `config/site.json`, and `e2e/s6.spec.ts` asserts "Pro · $11.99" and "Premium · $19.99" (4/4 pass on a production build). |
+| Tier feature split unchanged | PASS | `lib/entitlements.ts` has no diff since `3008332`. Plan points differ only in the Free delay wording (T-249). |
+| B. ops/stripe-setup.mjs | PASS | The dry run prints $11.99/month, $99.99/year, $19.99/month, $169.99/year. `node --test ops/tests/`: 27/27. |
+| C. Webhook tier mapping | PASS | `tierFromPrice` compares cents. 1199 and 9999 map to pro, 1999 and 16999 to premium, and 1900 to null (`lib/billing/stripe.test.ts`). |
+| D. Trial | PASS (read) | `app/api/stripe/checkout/route.ts:39` sends `trial_period_days: 7` for every plan unless `trialed_at` is set. |
+| E. e2e | PASS | s6 4/4. Paid suite 6/6. The first run had one admin-spec cold-compile flake, outside billing scope; the rerun was clean. |
+| F. Wording | PASS | The disclaimer footer is on /pricing, /terms and /refunds, and those pages contain no banned words. |
+
+Notes, added to `docs/setup-notes/lane-l.md`:
+- A price change needs the new `STRIPE_PRICE_*` ids pasted by hand, because stripe-setup never overwrites a set id.
+- In Payment Links mode, the trial is set on each link in the Stripe dashboard.
+
+Result after T-251: zero fails in scope.

@@ -5,6 +5,9 @@ import { DEMO_MODE } from "@/lib/config";
 import { getSettings } from "@/lib/settings";
 import { tradingEnv } from "@/lib/trade/server";
 import { behindWords } from "@/lib/format";
+import { SITE } from "@/lib/site";
+
+const usd = (n: number) => `$${Number.isInteger(n) ? n : n.toFixed(2)}`;
 
 export const metadata = { title: "Pricing", description: "Free, Pro and Premium plans for MarketEdge. Start free; paid plans include a 7-day trial and cancel any time.", alternates: { canonical: "/pricing" } };
 
@@ -56,8 +59,8 @@ export default async function Page() {
               <tr className="text-left text-xs text-muted">
                 <th scope="col" className="sticky left-0 bg-surface px-4 py-3 font-medium max-sm:w-32 max-sm:px-3 max-sm:shadow-[1px_0_0_var(--border)]">Feature</th>
                 <th scope="col" className="px-4 py-3 font-medium">Free</th>
-                <th scope="col" className="px-4 py-3 font-medium text-accent-softer">Pro · $19</th>
-                <th scope="col" className="px-4 py-3 font-medium">Premium · $29</th>
+                <th scope="col" className="px-4 py-3 font-medium text-accent-softer">Pro · {usd(SITE.prices.pro_monthly)}</th>
+                <th scope="col" className="px-4 py-3 font-medium">Premium · {usd(SITE.prices.premium_monthly)}</th>
               </tr>
             </thead>
             <tbody>
