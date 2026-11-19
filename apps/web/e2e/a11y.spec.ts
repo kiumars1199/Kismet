@@ -15,9 +15,17 @@ async function serious(page: Page) {
     .map((v) => `${v.id} (${v.impact}): ${v.nodes.slice(0, 3).map((n) => n.target.join(" ")).join(" | ")}`);
 }
 
-async function check(page: Page, path: string) {
+// `live`: the page polls the order book every 5 s (MarketDetail useLiveBook), so the network never goes idle; wait
+// instead until the market and its book have rendered (loaded or failed), with nothing still busy.
+async function check(page: Page, path: string, live = false) {
   await page.goto(path);
-  await page.waitForLoadState("networkidle");
+  if (live) {
+    await page.waitForLoadState("load");
+    const detail = path.includes("?m=") ? page.getByRole("dialog") : page.locator("main");
+    await expect(detail.getByTestId("one-bet").first()).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByText("Loading the live order book…")).toHaveCount(0, { timeout: 30_000 });
+    await expect(page.locator('[aria-busy="true"]')).toHaveCount(0);
+  } else await page.waitForLoadState("networkidle");
   // the page's own footer disclaimer is on every page (CLAUDE.md rule 5)
   await expect(page.getByRole("contentinfo")).toContainText("Market analytics, not financial advice. Based on past results. 18+.");
   expect(await serious(page), path).toEqual([]);
@@ -31,8 +39,8 @@ test("axe /event, /m and the open drawer", async ({ page, request }) => {
   const { rows } = await (await request.get("/api/flags?ps=1")).json();
   const m = rows[0].market;
   await check(page, `/event/${m.event_id}`);
-  await check(page, `/m/${m.id}`);
-  await check(page, `/?m=${m.id}&side=${rows[0].side.side_index}`);
+  await check(page, `/m/${m.id}`, true);
+  await check(page, `/?m=${m.id}&side=${rows[0].side.side_index}`, true);
   await expect(page.getByRole("dialog")).toBeVisible();
 });
 
