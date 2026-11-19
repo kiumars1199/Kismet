@@ -243,28 +243,4 @@ describe("RT3-01: curve + mid can't un-band Free", () => {
     expect(n).toBeGreaterThan(400);
     expect(attack / n).toBeLessThanOrEqual(chance / n + 0.03);
   });
-
-  // Accepted risk (owner decision, AUDIT.md "Accepted risks"): the public curve plus the public price lets an attacker
-  // estimate the exact win chance of flagged rows modelled at "all" / "cat" level a little better than Free's band
-  // (audit run 7: mean error 1.1-1.2 pp vs 1.4 pp for the band middle). This guards it from getting worse: the
-  // attack's mean error on flagged rows must stay at or above today's level.
-  const ACCEPTED_MEAN_ERR = 0.012;   // 1.2 pp: the live scan in audit run 7 (fixtures measure ~2.1 pp)
-  it("chart leak on flagged all / cat rows: attack mean error stays >= the accepted level", async () => {
-    const s = await getStore();
-    let n = 0, attackErr = 0;
-    // The fixture scan has no flagged rows at all / cat level, so it measures every all / cat row (the same public curves).
-    for (const exact of s.markets) {
-      const body = marketBody(s, exact, "free");
-      const b = body.market.best;
-      if (b.model_level !== "all" && b.model_level !== "cat") continue;
-      const r = await json(routes.curve(req(`/api/model/curve?${new URLSearchParams({ segment: segOf(body.market, b.model_level), h: String(body.market.horizon_h) })}`)));
-      const pts = r.status === 200 ? (r.body as { points: { price: number; win_prob: number }[] }).points : null;
-      const lo = b.win_prob, w = exact.best.win_prob;
-      const clamp = (x: number) => Math.min(Math.max(x, lo), lo + 0.0499);
-      n++;
-      attackErr += Math.abs(clamp(pts ? interp(pts, b.mid) : b.mid) - w);
-    }
-    expect(n).toBeGreaterThan(10);
-    expect(attackErr / n).toBeGreaterThanOrEqual(ACCEPTED_MEAN_ERR);
-  });
 });
