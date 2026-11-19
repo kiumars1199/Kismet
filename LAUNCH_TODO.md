@@ -31,6 +31,11 @@ Code can't do these. Do them in order. `SETUP.md` has the how-to for every accou
     screen, enroll both admins, then set `ADMIN_REQUIRE_MFA=true` in Vercel and redeploy
     (`docs/setup-notes/admin.md` § MFA). Don't set the flag before the screen exists: it locks admins out.
 
+12. **Add 2 GitHub Actions secrets** (repo Settings → Secrets and variables → Actions) so the 30-minute refresh
+    (`.github/workflows/refresh.yml`) uploads each scan to the Supabase bucket `scan`: `SUPABASE_URL` (the project URL,
+    `https://<ref>.supabase.co`) and `SUPABASE_SERVICE_ROLE_KEY`. Until both are set the upload step is skipped with a
+    warning and the site reads the GitHub `live` branch instead.
+
 ## Before real-money trading (docs/16 §5) — trading stays paper-only until all of these are done
 
 1. Email Kalshi partnerships about a data license and a partner integration for a third-party trading front end.

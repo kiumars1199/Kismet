@@ -81,9 +81,14 @@ def closed_events(tag, lo, hi, order="endDate"):
     limit; a window with more events than that is split in half and each half fetched."""
     out = []
     for off in range(0, MAX_OFFSET + 1, 100):
-        evs = http("GET", f"{GAMMA}/events", params=dict(
-            limit=100, offset=off, closed="true", order=order, ascending="false",
-            end_date_min=_iso(lo), end_date_max=_iso(hi), tag_slug=tag))
+        try:
+            evs = http("GET", f"{GAMMA}/events", params=dict(
+                limit=100, offset=off, closed="true", order=order, ascending="false",
+                end_date_min=_iso(lo), end_date_max=_iso(hi), tag_slug=tag))
+        except RuntimeError as e:
+            if "offset too large" not in str(e):
+                raise
+            break  # Gamma's offset cap is lower than MAX_OFFSET today: split the window instead
         out += evs or []
         if len(evs or []) < 100:
             return out
