@@ -4,8 +4,9 @@
 // pointing at /api/unsubscribe?t=<signed token>, plus the same link in the body.
 import "server-only";
 import { createHmac, timingSafeEqual } from "node:crypto";
+import { site } from "@/lib/site";
 
-export const siteUrl = () => (process.env.NEXT_PUBLIC_SITE_URL || "https://[[DOMAIN]]").replace(/\/+$/, "");
+export const siteUrl = () => (process.env.NEXT_PUBLIC_SITE_URL || `https://${site.domain}`).replace(/\/+$/, "");
 
 const UNSUB_DAYS = 365;
 const b64 = (s: string) => Buffer.from(s).toString("base64url");
@@ -50,6 +51,7 @@ export async function sendEmail(e: Email): Promise<{ sent: boolean; id?: string 
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
     body: JSON.stringify({
       from, to: [e.to], subject: e.subject, html: e.html, text: e.text,
+      ...(site.support_email ? { reply_to: site.support_email } : {}),   // replies go to support (config/site.json)
       headers: { "List-Unsubscribe": `<${e.unsubscribeUrl}>`, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" },
     }),
     signal: AbortSignal.timeout(10_000),

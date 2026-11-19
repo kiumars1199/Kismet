@@ -17,7 +17,7 @@ export default function Page() {
         <p>
           {SITE.name} is analytics software. It shows prediction-market prices next to win chances estimated from how
           similar past markets settled, after fees and the cost of crossing the spread. It is operated by {SITE.operator},
-          {" "}{SITE.operatorType}, in {SITE.countries} (&ldquo;we&rdquo;).
+          {" "}{SITE.operatorType}, in the {SITE.countries} (&ldquo;we&rdquo;).
         </p>
         <p>
           We are <strong>not a broker, exchange or adviser</strong>. Nothing on the site is financial, investment or betting
@@ -114,7 +114,7 @@ export default function Page() {
     },
     {
       id: "law", title: "Governing law",
-      body: <p>These terms are governed by the laws of {SITE.state}, {SITE.countries}.</p>,
+      body: <p>These terms are governed by the laws of the State of {SITE.state}, {SITE.countries}.</p>,
     },
     {
       id: "changes", title: "Changes",

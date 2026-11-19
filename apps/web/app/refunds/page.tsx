@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: "Refunds and cancellation", descripti
 
 const POLICIES: Record<string, string> = {
   none: "Payments are not refunded. Cancelling stops future renewals, and you keep your plan until the period you paid for ends.",
-  first_charge_7_days: "If you ask within 7 days of your first paid charge, we refund it in full. Later charges are not refunded; cancelling stops future renewals.",
+  first_charge_7_days: "If you ask within 7 days of your first paid charge, we refund it in full. Renewal charges are not refunded; cancelling stops future renewals, and you keep your plan until the period you paid for ends.",
   prorated: "If you cancel mid-period, we refund the unused part of that period, worked out by the day.",
 };
 

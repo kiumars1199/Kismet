@@ -1,14 +1,20 @@
 // Runs on a temp copy of config/site.json; the repo's copy is never written.
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { copyFileSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import { apply, today } from "../site-config.mjs";
 import { ROOT } from "../lib.mjs";
 
-const repoSite = () => JSON.parse(readFileSync(join(ROOT, "config/site.json"), "utf8"));
+// The repo's site.json, with the owner values emptied (the tests fill them in).
+const repoSite = () => {
+  const s = JSON.parse(readFileSync(join(ROOT, "config/site.json"), "utf8"));
+  Object.assign(s, { domain: "", support_email: "" });
+  for (const k of ["operator_names", "governing_state", "mailing_address", "refund_policy", "response_time", "last_updated"]) s.legal[k] = "";
+  return s;
+};
 
 test("apply: sets known leaves, stamps last_updated, rejects unknown keys and wrong types", () => {
   const now = new Date(2026, 10, 18);
@@ -26,13 +32,13 @@ test("apply: sets known leaves, stamps last_updated, rejects unknown keys and wr
 test("CLI: dry run by default, --yes writes, invalid values refused, second run is a no-op", () => {
   const dir = mkdtempSync(join(tmpdir(), "me-site-"));
   const file = join(dir, "site.json");
-  copyFileSync(join(ROOT, "config/site.json"), file);
+  writeFileSync(file, JSON.stringify(repoSite(), null, 2) + "\n");
   const original = readFileSync(file, "utf8");
-  const flags = ["--domain", "marketedge.example", "--support-email", "help@marketedge.example", "--operator-names", "A and B",
+  const flags = ["--domain", "kismetodds.example", "--support-email", "help@kismetodds.example", "--operator-names", "A and B",
     "--state", "Delaware", "--refund-policy", "first_charge_7_days", "--response-time", "2 business days", "--address", "1 Main St"];
   const run = (...a) => execFileSync("node", [join(ROOT, "ops/site-config.mjs"), "--file", file, ...a], { encoding: "utf8", stdio: "pipe" });
 
-  assert.match(run(...flags), /Dry run[\s\S]*domain: "" → "marketedge.example"/);
+  assert.match(run(...flags), /Dry run[\s\S]*domain: "" → "kismetodds.example"/);
   assert.equal(readFileSync(file, "utf8"), original);
 
   assert.throws(() => run("--domain", "https://bad.example/x", "--yes"), (e) => e.status === 1 && /INVALID {2}domain/.test(e.stdout));

@@ -1,5 +1,5 @@
-// Legal pages (docs/14 §3, T-49): plain-English drafts generated from config/site.json. Read mode: one narrow
-// column, quiet type, a contents list, and the owner placeholders ([[...]]) visible until filled.
+// Legal pages (docs/14 §3, T-49): plain English, owner values from config/site.json. Read mode: one narrow
+// column, quiet type, a contents list. An empty owner value would show as [[...]] (none are empty).
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { SITE } from "@/lib/site";
@@ -20,11 +20,6 @@ export type Section = { id: string; title: string; body: ReactNode };
 export function LegalPage({ title, intro, sections }: { title: string; intro: ReactNode; sections: Section[] }) {
   return (
     <article className="mx-auto flex w-full max-w-[600px] flex-col gap-8 pb-10 text-pretty">
-      {process.env.NODE_ENV !== "production" && (
-        <p role="note" className="rounded-xl border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-warning">
-          Draft — have a lawyer review before relying on this.
-        </p>
-      )}
       <header className="flex flex-col gap-3">
         <h1 className="text-[32px] font-bold leading-[1.05] tracking-[-0.02em] md:text-[40px]">{title}</h1>
         <p className="text-sm text-muted">Last updated {SITE.lastUpdated}</p>

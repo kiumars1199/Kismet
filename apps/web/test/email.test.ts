@@ -18,7 +18,7 @@ afterEach(() => {
 /** Every template, rendered with fixture data. Add new templates here so the checks below cover them. */
 async function renderAll(): Promise<Email[]> {
   vi.stubEnv("UNSUBSCRIBE_SECRET", SECRET);
-  vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://marketedge.test");
+  vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://kismet.test");
   const store = await getStore();
   const unsub = unsubscribeUrl("user-1", "rule-1");
   // Neutral question/outcome text so the wording check tests our template, not Polymarket's titles.
@@ -26,7 +26,7 @@ async function renderAll(): Promise<Email[]> {
     ...store.flags.slice(0, 20).map((m) =>
       alertEmail({ to: "a@b.test", ruleName: "NFL <favorites>", market: { ...m, question: "Test market" },
         side: { ...m.best!, outcome: "Yes" }, timeZone: "America/New_York", unsubscribeUrl: unsub })),
-    signInEmail("a@b.test", "https://marketedge.test/auth/confirm?x=1", unsub),
+    signInEmail("a@b.test", "https://kismet.test/auth/confirm?x=1", unsub),
     paymentFailedEmail("a@b.test", unsub),
   ];
 }
@@ -38,7 +38,7 @@ describe("email templates", () => {
     for (const e of all) {
       expect(e.subject.length).toBeGreaterThan(0);
       for (const body of [e.html, e.text]) {
-        expect(body).toContain("https://marketedge.test/api/unsubscribe?t=");
+        expect(body).toContain("https://kismet.test/api/unsubscribe?t=");
         expect(body).toContain(DISCLAIMER);
         expect(body).not.toMatch(BANNED);
         expect(body).not.toMatch(PROFIT_CLAIM);
@@ -54,16 +54,16 @@ describe("email templates", () => {
 
   it("the Stripe payment-failed webhook mails an unsubscribe link and the disclaimer in the body (audit fail 9)", async () => {
     vi.stubEnv("UNSUBSCRIBE_SECRET", SECRET);
-    vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://marketedge.test");
+    vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://kismet.test");
     vi.stubEnv("RESEND_API_KEY", "re_test");
-    vi.stubEnv("EMAIL_FROM", "MarketEdge <alerts@marketedge.test>");
+    vi.stubEnv("EMAIL_FROM", "Kismet <alerts@kismet.test>");
     const fetchMock = vi.fn(async () => Response.json({ id: "em_1" }));
     vi.stubGlobal("fetch", fetchMock);
     const db = { userForCustomer: async () => "user-1", emailFor: async () => "a@b.test" } as unknown as BillingDb;
     await handleEvent({ type: "invoice.payment_failed", data: { object: { customer: "cus_1" } } } as unknown as Stripe.Event, db, null);
     const body = JSON.parse(String((fetchMock.mock.calls[0] as unknown as [string, RequestInit])[1].body));
     for (const part of [body.html, body.text]) {
-      expect(part).toContain("https://marketedge.test/api/unsubscribe?t=");
+      expect(part).toContain("https://kismet.test/api/unsubscribe?t=");
       expect(part).toContain(DISCLAIMER);
       expect(part).not.toMatch(PROFIT_CLAIM);
     }
@@ -73,7 +73,7 @@ describe("email templates", () => {
     const [e] = await renderAll();
     expect(await sendEmail(e!)).toEqual({ sent: false });
     vi.stubEnv("RESEND_API_KEY", "re_test");
-    vi.stubEnv("EMAIL_FROM", "MarketEdge <alerts@marketedge.test>");
+    vi.stubEnv("EMAIL_FROM", "Kismet <alerts@kismet.test>");
     const fetchMock = vi.fn(async () => Response.json({ id: "em_1" }));
     vi.stubGlobal("fetch", fetchMock);
     expect(await sendEmail(e!)).toEqual({ sent: true, id: "em_1" });
@@ -82,6 +82,7 @@ describe("email templates", () => {
     const body = JSON.parse(String(init.body));
     expect(body.headers["List-Unsubscribe"]).toBe(`<${e!.unsubscribeUrl}>`);
     expect(body.headers["List-Unsubscribe-Post"]).toBe("List-Unsubscribe=One-Click");
+    expect(body.reply_to).toBe("kismetodds@gmail.com");   // replies go to support (config/site.json)
   });
 });
 
