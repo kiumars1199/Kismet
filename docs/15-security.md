@@ -31,7 +31,7 @@
 - [ ] Terms forbid scraping, automated access and reselling (enforceable basis for bans).
 
 ### Auth
-- [ ] Supabase: email confirmations on, magic-link OTP expiry 15 min, rate limits on, leaked-password N/A (no passwords),
+- [ ] Supabase: email confirmations on, magic-link OTP expiry 15 min, rate limits on, leaked-password protection on (email + password, T-275), min length 8,
       redirect URL allow-list = production domain + localhost only.
 - [ ] Google OAuth client limited to the production origin; only `openid email profile` scopes.
 - [ ] Cookies HttpOnly, Secure, SameSite=Lax; session refresh in middleware.

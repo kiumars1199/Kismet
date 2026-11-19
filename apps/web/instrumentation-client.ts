@@ -25,6 +25,9 @@ if (process.env.NEXT_PUBLIC_BOTID === "1") {
       { path: "/api/combos", method: "GET" },
       { path: "/api/book", method: "GET" },
       { path: "/api/auth/magic-link", method: "POST" },
+      { path: "/api/auth/password", method: "POST" },
+      { path: "/api/auth/password/update", method: "POST" },
+      { path: "/api/auth/reset", method: "POST" },
       { path: "/api/stripe/checkout", method: "POST" },
     ],
   });

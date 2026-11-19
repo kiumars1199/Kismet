@@ -7,10 +7,10 @@ import { SITE } from "@/lib/site";
 export const metadata: Metadata = { title: "Privacy policy", description: `What ${SITE.name} collects, why, who processes it, and how to export or delete it.`, alternates: { canonical: "/privacy" } };
 
 const PROCESSORS: [string, string][] = [
-  ["Supabase", "sign-in and the database that stores your account and saved items"],
+  ["Supabase", "sign-in (including your password, stored only as a one-way hash) and the database that stores your account and saved items"],
   ["Vercel", "hosting the site and its server code"],
   ["Stripe", "payments, invoices and the billing portal"],
-  ["Resend", "sending sign-in links, alerts and account emails"],
+  ["Resend", "sending sign-in, confirmation and password-reset links, alerts and account emails"],
   ["PostHog", "product analytics, in cookieless mode"],
   ["Sentry", "error reports so we can fix bugs"],
 ];
@@ -20,7 +20,7 @@ export default function Page() {
     {
       id: "collect", title: "What we collect",
       body: <ul>
-        <li><strong>Account:</strong> your email address, when you accepted the terms, and your Google name if you sign in with Google.</li>
+        <li><strong>Account:</strong> your email address, your password if you set one (Supabase stores only a one-way hash; we never see it), when you accepted the terms, and your Google name if you sign in with Google.</li>
         <li><strong>Settings and saved items:</strong> display settings, saved views, dashboards, your list, alert rules and where alerts go.</li>
         <li><strong>Bet journal:</strong> only the entries you type in yourself.</li>
         <li><strong>Payment status:</strong> your plan, trial and renewal dates from Stripe.</li>

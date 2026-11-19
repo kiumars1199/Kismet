@@ -1,7 +1,20 @@
 # 08 · Auth & billing
 
 ## Auth (Supabase)
-- Providers: email magic link, Google OAuth. No passwords.
+- Providers: Google OAuth, email + password (T-275), email magic link. `/login` and `/signup` show Google first, then
+  tabs "Password" (default) and "Email link".
+- Email + password (`app/api/auth/password`, `lib/auth/password.ts`): 8–72 characters (bcrypt reads 72 bytes);
+  sign-in tries limited per address (`auth_password`, 5 / 15 min) and per IP; sign-up and reset emails share the
+  magic-link budget (`auth_email`). Answers never reveal whether an address has an account: sign-up always says
+  "check your email", "Forgot password?" always says "If that email has an account, we sent a reset link", a wrong
+  password or unknown email both read "Wrong email or password".
+- Sign-up requires **Supabase Auth → "Confirm email" ON**. If Supabase ever returns a session from sign-up (confirm
+  off), the route deletes that user and answers 503, so nobody can claim an address they can't read.
+- Reset: the email link lands on `/auth/callback`, which (only for a recovery flow requested in the same browser)
+  sets a signed, account-bound, 15-minute `me_reset` cookie, then `/reset-password`. `POST /api/auth/password/update`
+  needs a session and that cookie.
+- Session length: the `sb-*` cookies last 400 days (`@supabase/ssr` default); how long a session stays valid is the
+  refresh-token lifetime / inactivity timeout in the Supabase dashboard (Auth → Sessions), not app code.
 - On first sign-in: create `profiles` and `subscriptions(tier='free')` rows (DB trigger on `auth.users` insert).
 - Signup screen requires checking "I'm 18 or older and agree to the Terms" (store `accepted_terms_at`).
 - Local → account migration: if `localStorage` has presets/watchlist/favorites/journal, show

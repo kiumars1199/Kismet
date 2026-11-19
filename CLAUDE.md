@@ -23,7 +23,7 @@ docs/          the spec
 
 ## Stack (do not swap without a reason in the PR)
 - Next.js 15 App Router, TypeScript strict, Tailwind, shadcn/ui, TanStack Table + Virtual, Zustand, zod
-- Supabase: Auth (email magic link + Google), Postgres for user data, row-level security on
+- Supabase: Auth (Google, email + password, email magic link), Postgres for user data, row-level security on
 - Stripe Checkout + Customer Portal + webhooks
 - Vercel hosting
 - Charts: Recharts

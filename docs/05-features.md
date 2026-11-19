@@ -193,7 +193,7 @@ flags now, track record tiles), 2 screenshots, FAQ (what is edge, is this advice
 tested, which venues), pricing table (`01`), footer disclaimer. Pricing page with monthly/annual toggle.
 
 ## F-21 Auth & account [P]
-Supabase magic link + Google. Settings: profile, display (F-17), bankroll & Kelly (F-13), favorite
+Supabase Google, email + password, magic link. Settings: profile, display (F-17), bankroll & Kelly (F-13), favorite
 topics, notifications (channels, quiet hours, digest), connected webhooks, data export/delete account.
 
 ## F-22 Billing & gates [P]

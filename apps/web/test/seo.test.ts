@@ -11,12 +11,12 @@ describe("robots.txt and sitemap.xml (T-76)", () => {
     for (const bot of ["ClaudeBot", "CCBot", "PerplexityBot", "Google-Extended", "Bytespider"]) expect([ai.userAgent].flat()).toContain(bot);
     expect(ai.disallow).toBe("/");
     const all = rules.find((r) => r.userAgent === "*")!;
-    expect(all.disallow).toEqual(expect.arrayContaining(["/api/", "/account", "/login"]));
+    expect(all.disallow).toEqual(expect.arrayContaining(["/api/", "/account", "/login", "/reset-password"]));
   });
   it("lists public pages only", () => {
     const urls = sitemap().map((e) => new URL(e.url).pathname);
     expect(urls).toEqual(expect.arrayContaining(["/", "/pricing", "/terms", "/privacy", "/refunds", "/disclaimer", "/contact"]));
-    for (const u of urls) expect(["/api", "/account", "/login", "/settings", "/journal"].some((p) => u.startsWith(p))).toBe(false);
+    for (const u of urls) expect(["/api", "/account", "/login", "/reset-password", "/settings", "/journal"].some((p) => u.startsWith(p))).toBe(false);
   });
   it("lists every static public page in app/ (audit fail 10)", () => {
     const disallow = [rules.find((r) => r.userAgent === "*")!.disallow ?? []].flat();

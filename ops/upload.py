@@ -1,4 +1,5 @@
-"""Upload output/*.json and *.jsonl to the private Supabase Storage bucket `scan` (docs/14 §4).
+"""Upload output/*.json and *.jsonl to the private Supabase Storage bucket `scan` (docs/14 §4), gzip-compressed
+under the same object names (T-277; readers sniff the gzip magic bytes, so plain objects still read).
 
     SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... python ops/upload.py [output_dir]
 
@@ -6,6 +7,7 @@ Runs the docs/12 data checks first (scanned_at must be newer than the copy in th
 Any failure uploads nothing, so the web app keeps serving the previous scan. Exit 1 on failure.
 """
 import glob
+import gzip
 import json
 import os
 import sys
@@ -16,6 +18,20 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from checks import check_dir  # noqa: E402
 
 BUCKET = "scan"
+GZIP_MAGIC = b"\x1f\x8b"
+
+
+def gz(body):
+    """T-277: objects are stored gzip-compressed under their usual names (markets.json is ~20 MB plain, ~2 MB
+    gzipped). No Content-Encoding header: readers (this file's get_json, apps/web lib/data/store.ts) sniff the gzip
+    magic bytes 1f 8b and inflate themselves, so plain objects from before the rollout still read, and an HTTP layer
+    that does decode transparently can't break them either."""
+    return gzip.compress(body, compresslevel=6, mtime=0)
+
+
+def ungz(body):
+    """Bytes as stored: gzip (sniffed by magic bytes) or plain."""
+    return gzip.decompress(body) if body[:2] == GZIP_MAGIC else body
 
 
 class Storage:
@@ -29,11 +45,12 @@ class Storage:
         if r.status_code in (400, 404):  # Storage answers 400 for a missing object
             return None
         r.raise_for_status()
-        return r.json()
+        return json.loads(ungz(r.content))
 
     def put(self, name, body):
-        r = self.http.post(f"{self.base}/{BUCKET}/{name}", data=body, timeout=300,
-                           headers={**self.headers, "Content-Type": "application/json", "x-upsert": "true",
+        """Upload `body` (plain bytes) gzip-compressed under `name` (see gz)."""
+        r = self.http.post(f"{self.base}/{BUCKET}/{name}", data=gz(body), timeout=300,
+                           headers={**self.headers, "Content-Type": "application/gzip", "x-upsert": "true",
                                     "Cache-Control": "no-cache"})
         r.raise_for_status()
 

@@ -29,6 +29,11 @@ to sit next to Vercel `iad1`.
 2. Add **no** storage policies for it. Only the service role key (server and engine) can read or write;
    the browser never sees this bucket.
 3. Storage → Settings: file size limit at least 50 MB (`markets.json` is about 20 MB).
+   Objects are stored **gzip-compressed under their usual names** (`markets.json`, `flags-prev.json`, ...;
+   T-277, `ops/upload.py`), Content-Type `application/gzip`, no Content-Encoding. Readers sniff the gzip magic
+   bytes `1f 8b` (`lib/data/store.ts` `decodeBody`, `upload.py` `get_json`), so plain objects from an older
+   uploader still read. To inspect one: download it and `gunzip -c markets.json | head` (or `zcat`).
+   Rollout order: the web loader must be live before the new uploader runs (an old web build can't read gzip).
 4. Copy **Project URL** and the **service_role** key (Project Settings → API). They go to Vercel (step 4)
    and the engine (step 2). The service key bypasses row-level security: server-side only, never
    `NEXT_PUBLIC_`.
