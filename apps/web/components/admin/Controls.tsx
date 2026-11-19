@@ -62,8 +62,9 @@ export function SignupsChart({ rows }: { rows: SignupDay[] }) {
   return <LazySignupsChart rows={rows} />;
 }
 
-/** Comp a tier (optional expiry), remove the comp, send a sign-in link. */
-export function CompAndLink({ userId, comp }: { userId: string; comp: string | null }) {
+/** Comp a tier (optional expiry), remove the comp, send a sign-in link. A comp is a plan grant on the user's email
+ *  (docs/19 P8), so it is listed on /admin/grants and removing it here also ends the grant. */
+export function CompAndLink({ userId, email, comp }: { userId: string; email: string; comp: string | null }) {
   const { busy, msg, run } = useAction();
   const [tier, setTier] = useState<"pro" | "premium">("pro");
   const [until, setUntil] = useState("");
@@ -82,7 +83,7 @@ export function CompAndLink({ userId, comp }: { userId: string; comp: string | n
           {(id) => <input id={id} type="date" value={until} onChange={(e) => setUntil(e.target.value)} className={`${input} w-44`} />}
         </Field>
         <button type="button" className={btnPrimary} disabled={busy}
-          onClick={() => run({ action: "comp", user_id: userId, tier, expires_at: expires }, `Comped ${tier === "pro" ? "Pro" : "Premium"}${until ? ` until ${until}` : ""}.`)}>
+          onClick={() => run({ action: "grant", email, tier, expires_at: expires },`Comped ${tier === "pro" ? "Pro" : "Premium"}${until ? ` until ${until}` : ""}.`)}>
           Grant comp
         </button>
         {comp && <button type="button" className={btn} disabled={busy} onClick={() => run({ action: "uncomp", user_id: userId }, "Comp removed.")}>Remove comp</button>}

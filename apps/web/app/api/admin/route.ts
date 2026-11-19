@@ -114,6 +114,11 @@ async function act(ctx: AdminCtx, b: Body): Promise<Response> {
       await audit(ctx, `user.${b.action}`, user.email, before ?? null, after);
       const { error } = await db.from("subscriptions").upsert({ user_id: user.id, ...after }, { onConflict: "user_id" });
       if (error) throw new Error(error.message);
+      // removing a comp also ends the email's plan grant (docs/19 P8), so the grants list never shows a stale one
+      if (b.action === "uncomp") {
+        const { error: gErr } = await db.from("plan_grants").delete().eq("email", user.email.toLowerCase());
+        if (gErr) throw new Error(gErr.message);
+      }
       await done(ctx, `user.${b.action}`, user.email, after);
       return Response.json({ ok: true });
     }

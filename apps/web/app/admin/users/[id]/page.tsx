@@ -96,7 +96,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
       <section aria-labelledby="act-h" className="flex flex-col gap-2.5">
         <h3 id="act-h" className="text-sm font-medium text-muted">Support actions</h3>
         <div className="flex flex-col gap-5 rounded-card border border-border bg-surface p-4 md:p-5">
-          <CompAndLink userId={u.id} comp={u.comp_tier} />
+          <CompAndLink userId={u.id} email={u.email} comp={u.comp_tier} />
           <div className="flex flex-col gap-3 border-t border-border pt-5">
             {self ? (
               <p className="text-sm text-muted">This is your account. Sign out everywhere and delete live on your Account page, not here.</p>
