@@ -10,7 +10,13 @@ on:
   schedule:
     - cron: "17 */2 * * *"   # full: update + fit + scan (public repo: Actions minutes are free)
     - cron: "*/30 * * * *"   # scan only, with the model the last full run published
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "full = update + refit + scan; scan = scan only (what the :00/:30 cron runs); backfill = extend history to 730 days (resumable, rerun to continue), then refit + backtest"
+        type: choice
+        options: [full, scan, backfill]
+        default: full
 
 permissions:
   contents: write
@@ -23,9 +29,11 @@ concurrency:
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    timeout-minutes: 150
+    timeout-minutes: ${{ inputs.mode == 'backfill' && 340 || 150 }}
     env:
-      FULL: ${{ github.event_name != 'schedule' || github.event.schedule == '17 */2 * * *' }}
+      # Cron runs come from the DEFAULT branch's copy of this file: a fix here reaches the schedule only once it is on main.
+      FULL: ${{ (github.event_name == 'workflow_dispatch' && inputs.mode != 'scan') || github.event.schedule == '17 */2 * * *' }}
+      BACKFILL: ${{ inputs.mode == 'backfill' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -53,6 +61,24 @@ jobs:
             rm -f data/markets.jsonl
           fi
 
+      # docs/19 P5: 2 years of history, sampled evenly per 30-day window (about 4,800 events per tag at most).
+      # Resumable: finished windows are checkpointed in data/, and the cache is saved even if the run times out.
+      - name: Backfill history to 730 days (mode=backfill)
+        if: env.BACKFILL == 'true'
+        id: backfill
+        run: |
+          python pipeline/fetch_closed.py --days 730 --window-days 30 --per-window 200
+          python pipeline/fetch_prices.py --extend --threads 8
+          rm -f data/markets.jsonl
+          python -c "import json; print('history:', sum(1 for _ in open('data/sample.jsonl')), 'markets')"
+
+      - name: Save backfill progress
+        if: always() && env.BACKFILL == 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: data
+          key: kismet-data-${{ github.run_id }}-backfill
+
       - name: Pull newly resolved markets
         if: env.FULL == 'true'
         id: update
@@ -69,7 +95,7 @@ jobs:
       - name: Daily walk-forward test (re-tunes how fast old data fades)
         if: env.FULL == 'true'
         run: |
-          if [ "$(date -u +%H)" = "06" ] || [ ! -f output/backtest.json ]; then
+          if [ "$(date -u +%H)" = "06" ] || [ ! -f output/backtest.json ] || [ "$BACKFILL" = "true" ]; then
             python -m engine backtest
           fi
 
