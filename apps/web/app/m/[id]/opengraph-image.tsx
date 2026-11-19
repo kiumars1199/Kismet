@@ -4,13 +4,12 @@ import { getStoreFor } from "@/lib/data/store";
 import { gateMarket } from "@/lib/data/gate";
 import { betLine, pct, sideRet } from "@/lib/format";
 import { DISCLAIMER } from "@/components/shell/Footer";
+import { C, Wordmark, brandFonts } from "../../_brand";
 
 export const runtime = "nodejs";
 export const alt = "Kismet market";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
-
-const C = { bg: "#070a09", surface: "#0c120f", border: "#1a2520", text: "#e6efe9", muted: "#a9bab1", accent: "#10b981", soft: "#d1fae5" };
 
 export default async function Image({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -21,7 +20,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
   return new ImageResponse(
     (
       <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between", padding: 64, background: C.bg, color: C.text, fontSize: 28 }}>
-        <div style={{ display: "flex", fontSize: 30, fontWeight: 700, color: C.accent }}>Kismet</div>
+        <Wordmark size={30} />
         {m && s ? (
           <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
             {/* 3 lines at most, ellipsis after (the longest real titles are ~120 characters) */}
@@ -44,6 +43,6 @@ export default async function Image({ params }: { params: Promise<{ id: string }
         <div style={{ display: "flex", borderTop: `1px solid ${C.border}`, paddingTop: 24, color: C.muted, fontSize: 24 }}>{DISCLAIMER}</div>
       </div>
     ),
-    size,
+    { ...size, fonts: await brandFonts({ withDefault: true }) },
   );
 }

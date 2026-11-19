@@ -10,12 +10,12 @@ import { AccountLink } from "@/components/auth/AccountLink";
 
 export function Logo() {
   return (
-    <Link href="/" className="flex items-center gap-2.5 font-heading text-[19px] font-bold">
-      <span className="flex size-[30px] items-center justify-center rounded-[9px] bg-accent">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--on-accent)" strokeWidth="2.6" aria-hidden="true">
-          <path d="M3 17l6-6 4 4 8-8" />
-        </svg>
-      </span>
+    <Link href="/" className="flex items-center gap-2.5 font-heading text-[19px] font-bold tracking-[-0.01em]">
+      {/* Mark: the Space Grotesk Bold "K" of the wordmark as a path, so it matches app/icon.svg at every size */}
+      <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true" className="shrink-0">
+        <rect width="32" height="32" rx="9" fill="var(--accent)" />
+        <path fill="var(--on-accent)" d="M9.15 25V7H12.55V14.15H13.01L18.85 7H23.19L15.68 15.87L23.45 25H18.97L13.01 17.7H12.55V25Z" />
+      </svg>
       Kismet
     </Link>
   );

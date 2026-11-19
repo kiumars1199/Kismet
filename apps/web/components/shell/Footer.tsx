@@ -9,6 +9,7 @@ export function Footer() {
   return (
     <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-4 pb-24 pt-5 text-xs text-muted md:px-8 md:pb-5">
       <div className="flex flex-col gap-1">
+        <p className="font-heading text-sm font-bold tracking-[-0.01em] text-text">Kismet. Less luck, more math.</p>
         <p>{DISCLAIMER}</p>
         <p>© {new Date().getFullYear()} {SITE.operator}</p>
       </div>
