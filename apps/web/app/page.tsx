@@ -2,7 +2,7 @@ import { OnboardingNudge } from "@/components/onboarding/OnboardingNudge";
 import { BestBets } from "@/components/screener/BestBets";
 import { flagsTotal } from "@/lib/data/respond";
 
-export const metadata = { title: "Best bets", description: "Contracts priced below how often similar bets have won, after fees and the spread." };
+export const metadata = { title: { absolute: "Best bets · Kismet" }, description: "Contracts priced below how often similar bets have won, after fees and the spread." };
 
 type Search = Record<string, string | string[] | undefined>;
 
