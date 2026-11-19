@@ -4,10 +4,8 @@ import { Faq, Plans } from "@/components/pricing/Plans";
 import { DEMO_MODE } from "@/lib/config";
 import { getSettings } from "@/lib/settings";
 import { tradingEnv } from "@/lib/trade/server";
-import { behindWords } from "@/lib/format";
+import { behindWords, usd } from "@/lib/format";
 import { SITE } from "@/lib/site";
-
-const usd = (n: number) => `$${Number.isInteger(n) ? n : n.toFixed(2)}`;
 
 export const metadata = { title: "Pricing", description: "Free, Pro and Premium plans for Kismet. Start free; paid plans include a 7-day trial and cancel any time.", alternates: { canonical: "/pricing" } };
 

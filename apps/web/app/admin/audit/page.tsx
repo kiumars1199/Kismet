@@ -2,12 +2,12 @@
 import Link from "next/link";
 import { btn } from "@/components/kit";
 import { requireAdmin } from "@/lib/admin/server";
+import { utcWhen as when } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
 const PER = 50;
 interface Entry { id: number; at: string; actor_email: string; action: string; target: string | null; before: unknown; after: unknown }
-const when = (iso: string) => new Date(iso).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" }) + " UTC";
 const show = (v: unknown) => (v === null || v === undefined ? "—" : JSON.stringify(v));
 
 export default async function Page({ searchParams }: { searchParams: Promise<{ page?: string }> }) {

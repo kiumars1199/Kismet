@@ -8,7 +8,7 @@ import { requireAdmin } from "@/lib/admin/server";
 import { DATA_SOURCE, DEMO_MODE } from "@/lib/config";
 import { chosenResult } from "@/lib/data/model";
 import { getStore } from "@/lib/data/store";
-import { ago, exactCount } from "@/lib/format";
+import { ago, exactCount, utcWhen as when } from "@/lib/format";
 import { fmtRecord } from "@/lib/trackRecord";
 
 export const dynamic = "force-dynamic";
@@ -17,7 +17,6 @@ interface Health { ok: boolean; db: string; stripe: string; ratelimit: string; d
 interface AlertRun { at: string; ran: boolean; users?: number; rules?: number; events?: number; emails?: number; webhooks?: number; errors?: number; error?: string; reason?: string }
 
 const yes = (v: unknown) => (v ? "Configured" : "Not configured");
-const when = (iso: string) => new Date(iso).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" }) + " UTC";
 
 function Panel({ title, children }: { title: string; children: React.ReactNode }) {
   return (

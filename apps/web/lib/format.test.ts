@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ago, basis, chance, closesIn, edge, exactCount, expectedProfit, formatCount, money, pays, pct, price, realisticReturn, ret, sidePts, testedLine, winsAbout } from "./format";
+import { ago, basis, chance, closesIn, edge, exactCount, expectedProfit, formatCount, money, pays, pct, price, realisticReturn, ret, sidePts, testedLine, usd, utcWhen, winsAbout } from "./format";
 
 describe("docs/18 numbers", () => {
   it("formatCount rounds down, never up", () => {
@@ -48,5 +48,15 @@ describe("basis (audit fail 7: counts go through formatCount)", () => {
     expect(line).toContain("9.6K events");
     expect(line).not.toMatch(/1,313|1,314|9,666/);
     expect(basis({ niche: "nfl", market_type: "moneyline", horizon_h: 24 }, { model_neff: 42.4, model_events: 57, model_level: "all" })).toContain("42 eff. samples · 57 events");
+  });
+});
+
+describe("shared helpers merged from page-local copies (CLEANUP.md)", () => {
+  it("usd lists a plan price exactly, unlike money()", () => {
+    expect([0, 12, 11.99, 99.99, 169.99, 19.5].map(usd)).toEqual(["$0", "$12", "$11.99", "$99.99", "$169.99", "$19.50"]);
+    expect(money(169.99)).toBe("$170");
+  });
+  it("utcWhen shows an ISO time in UTC", () => {
+    expect(utcWhen("2026-11-18T15:04:00Z")).toBe("Nov 18, 2026, 3:04 PM UTC");
   });
 });

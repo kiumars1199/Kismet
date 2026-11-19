@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useMe } from "@/lib/me";
 import { track } from "@/lib/telemetry";
-import { behindWords } from "@/lib/format";
+import { behindWords, usd } from "@/lib/format";
 import { SITE } from "@/lib/site";
 
 const PLANS = [
@@ -18,7 +18,6 @@ const PLANS = [
     points: ["Everything in Pro", "Chrome extension: estimated return right on Polymarket", "Telegram and Discord alerts, 100 rules", "Unlimited saved views and dashboards"] },
 ] as const;
 
-const usd = (x: number) => `$${Number.isInteger(x) ? x : x.toFixed(2)}`;
 /** The yearly saving shown on the toggle: the smallest across paid plans, in whole percent (never overstated). */
 const SAVE_PCT = Math.min(...PLANS.filter((p) => p.monthly > 0).map((p) => Math.floor((1 - p.yearly / (12 * p.monthly)) * 100)));
 

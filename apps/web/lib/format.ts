@@ -63,6 +63,10 @@ export function money(usd: number | null | undefined, signed = false): string {
   const s = a >= 100 ? Math.round(a).toLocaleString("en-US") : a.toFixed(2).replace(/\.00$/, "");
   return `${signed ? (usd < 0 ? "−" : "+") : usd < 0 ? "−" : ""}$${s}`;
 }
+/** A plan price as listed (pricing, terms): 12 → "$12", 169.99 → "$169.99". Never rounded, unlike money(). */
+export const usd = (n: number) => `$${Number.isInteger(n) ? n : n.toFixed(2)}`;
+/** An ISO timestamp in UTC for the admin pages: "Nov 18, 2026, 3:04 PM UTC". */
+export const utcWhen = (iso: string) => new Date(iso).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" }) + " UTC";
 /** average profit on a stake from roi_pct (past results, not a promise) */
 export function expectedProfit(roiPct: number | null | undefined, stake = 100): number | null {
   return ok(roiPct) ? (roiPct / 100) * stake : null;
