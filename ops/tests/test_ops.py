@@ -1,4 +1,5 @@
 import calendar
+import gzip
 import json
 import os
 import sys
@@ -47,6 +48,11 @@ class Resp:
 
     def json(self):
         return self.body
+
+    @property
+    def content(self):
+        """Raw bytes as Storage returns them: bytes bodies as is (e.g. gzip), anything else as plain JSON."""
+        return self.body if isinstance(self.body, bytes) else json.dumps(self.body).encode()
 
     def raise_for_status(self):
         if self.status_code >= 400:
@@ -115,6 +121,36 @@ def test_upload_tolerates_no_prev_yet(tmp_path):
     post = http.post
     http.post = lambda url, data, headers, timeout: (
         Resp(404) if url.endswith("/copy") and "-prev.json\"" in data.split("destinationKey")[0] else post(url, data, headers, timeout))
+    assert upload.publish(out, upload.Storage("https://x.supabase.co", "svc", http), log=lambda *_: None)
+
+
+def test_upload_gzips_every_object_under_its_usual_name(tmp_path):
+    """T-277: bodies are gzip (magic 1f 8b) and inflate to the exact local file; names don't change."""
+    out = write(tmp_path, *good())
+    http = FakeHttp(prev=None)
+    assert upload.publish(out, upload.Storage("https://x.supabase.co", "svc", http), log=lambda *_: None)
+    posts = [c for c in http.calls if c[0] == "POST" and "/object/scan/" in c[1]]
+    assert len(posts) == 4
+    for _, url, headers, body in posts:
+        assert body[:2] == b"\x1f\x8b"
+        assert gzip.decompress(body) == (tmp_path / url.rsplit("/", 1)[1]).read_bytes()
+        assert headers["Content-Type"] == "application/gzip" and "Content-Encoding" not in headers
+
+
+def test_get_json_reads_gzip_and_plain_objects():
+    """During the rollout the bucket holds plain objects (old uploader) and gzip ones (new): both read."""
+    doc = {"meta": {"scanned_at": 100}}
+    for body in (gzip.compress(json.dumps(doc).encode()), json.dumps(doc).encode()):
+        http = FakeHttp(prev=body)
+        assert upload.Storage("https://x.supabase.co", "svc", http).get_json("flags.json") == doc
+
+
+def test_upload_compares_against_a_gzipped_previous_scan(tmp_path):
+    """The next run reads the gzipped flags.json it uploaded last time (scanned_at check + rotation)."""
+    out = write(tmp_path, *good(scanned_at=100))
+    http = FakeHttp(prev=gzip.compress(json.dumps({"meta": {"scanned_at": 100}}).encode()))
+    assert not upload.publish(out, upload.Storage("https://x.supabase.co", "svc", http), log=lambda *_: None)
+    http = FakeHttp(prev=gzip.compress(json.dumps({"meta": {"scanned_at": 50}}).encode()))
     assert upload.publish(out, upload.Storage("https://x.supabase.co", "svc", http), log=lambda *_: None)
 
 
