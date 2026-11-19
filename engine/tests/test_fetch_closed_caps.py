@@ -125,3 +125,21 @@ def test_backfill_writes_each_page_before_the_window_finishes(tmp_path, monkeypa
     monkeypatch.setattr(fetch_closed, "http", gamma(ends)[0])
     fetch_closed.backfill(7, 7, 0, "endDate", out=out, state_p=st, log=lambda *a: None)
     assert len(set(ids(out))) == len(ids(out)) == 350
+
+
+def test_backfill_resumes_after_a_kill_mid_row(tmp_path, monkeypatch):
+    """A kill (OOM, timeout) can leave markets.jsonl ending in half a row. The rerun drops the partial row (cut inside
+    the id or after it) instead of crashing on it or gluing the next row onto it, and refetches that market."""
+    ends = [NOW - i * 600 for i in range(150)]
+    monkeypatch.setattr(fetch_closed, "SAMPLE_TAGS", ["nba"])
+    for cut in ('{"id": "m12', '{"id": "m123", "question": "Q'):
+        out, st = str(tmp_path / f"m{len(cut)}.jsonl"), str(tmp_path / f"s{len(cut)}.json")
+        monkeypatch.setattr(fetch_closed, "http", gamma(ends[:50])[0])
+        json.dump({"anchor": NOW}, open(st, "w"))
+        fetch_closed.backfill(7, 7, 50, "endDate", out=out, state_p=st, log=lambda *a: None)
+        with open(out, "a") as f:
+            f.write(cut)                                # killed while writing the next row
+        monkeypatch.setattr(fetch_closed, "http", gamma(ends)[0])
+        fetch_closed.backfill(7, 7, 0, "endDate", out=out, state_p=st, log=lambda *a: None)
+        got = ids(out)
+        assert len(got) == len(set(got)) == 150

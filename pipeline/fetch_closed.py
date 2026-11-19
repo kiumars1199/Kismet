@@ -170,6 +170,25 @@ def windows(anchor, days, window_days):
     return out
 
 
+def _trim_partial(path):
+    """Cut a trailing partial line (no newline yet) off `path`, reading only its tail."""
+    if not os.path.exists(path):
+        return
+    with open(path, "rb+") as f:
+        end = f.seek(0, os.SEEK_END)
+        pos = end
+        while pos > 0:
+            step = min(65536, pos)
+            f.seek(pos - step)
+            i = f.read(step).rfind(b"\n")
+            if i >= 0:
+                pos = pos - step + i + 1
+                break
+            pos -= step
+        if pos < end:
+            f.truncate(pos)
+
+
 # Windows checkpointed before T-278 have no cap recorded; refresh.yml always fetched them at --per-window 200.
 LEGACY_CAP = 200
 
@@ -184,6 +203,7 @@ def backfill(days, window_days, per_window, order, out=OUT, state_p=STATE, log=p
     done = set(st.get("done", []))
     caps = st.setdefault("caps", {})
     seen = set()
+    _trim_partial(out)  # a killed run can leave half a row at the end
     if os.path.exists(out):  # ids already stored: resume without duplicates
         with open(out) as f:
             for line in f:
