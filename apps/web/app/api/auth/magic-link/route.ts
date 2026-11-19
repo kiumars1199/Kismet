@@ -23,8 +23,14 @@ export async function POST(req: Request) {
   const parsed = Body.safeParse(raw);
   if (!parsed.success) return Response.json({ error: "Enter a valid email and tick the box" }, { status: 400 });
   const { email, next } = parsed.data;
-  const perEmail = await rateLimit("auth_email", `email:${email.trim().toLowerCase()}`);   // 5/hour per address
-  if (perEmail) return perEmail;
+  const perEmail = await rateLimit("auth_email", `email:${email.trim().toLowerCase()}`);   // 5 per 15 min per address
+  if (perEmail) {
+    const mins = Math.max(1, Math.ceil(Number(perEmail.headers.get("Retry-After") || 60) / 60));
+    return Response.json(
+      { error: `Too many sign-in links for this email. Check your inbox for the last one, or try again in ${mins} min.` },
+      { status: 429, headers: { "Retry-After": perEmail.headers.get("Retry-After") || "60" } },
+    );
+  }
   const origin = new URL(req.url).origin;
   // Sign-ups closed (admin setting, T-142): existing accounts still get a link; GoTrue refuses new emails.
   const open = (await getSettings()).signups_open || isAdminEmail({ email, verified: true }, process.env.ADMIN_EMAILS, DEMO_MODE);

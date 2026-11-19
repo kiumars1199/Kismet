@@ -16,7 +16,7 @@ export const RULES = {
   curve: { limit: 60, window: "1 m" },       // /api/model/curve (RT3-01)
   book: { limit: 30, window: "1 m" },
   auth_ip: { limit: 5, window: "1 m" },      // /api/auth/*, per IP
-  auth_email: { limit: 5, window: "1 h" },   // magic links, per address
+  auth_email: { limit: 5, window: "15 m" },  // magic links, per address
   checkout: { limit: 10, window: "1 h" },
   admin: { limit: 30, window: "1 m" },       // /api/admin mutations and exports, per admin
 } as const satisfies Record<string, { limit: number; window: Window }>;
