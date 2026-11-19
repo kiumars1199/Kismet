@@ -15,8 +15,8 @@ export function AccountLink() {
     )
     : (
       <>
-        <Link href="/login" className="flex min-h-11 flex-none items-center whitespace-nowrap rounded-input px-2.5 text-sm font-medium text-muted hover:text-text">Log in</Link>
-        <Link href="/signup" className="flex min-h-11 flex-none items-center whitespace-nowrap rounded-input bg-accent px-3.5 text-sm font-semibold text-on-accent hover:bg-accent-hover">Sign up</Link>
+        <Link href="/login" className="flex min-h-11 flex-none items-center whitespace-nowrap rounded-input px-2 text-sm font-medium text-muted hover:text-text sm:px-2.5">Log in</Link>
+        <Link href="/signup" className="flex min-h-11 flex-none items-center whitespace-nowrap rounded-input bg-accent px-3 text-sm sm:px-3.5 font-semibold text-on-accent hover:bg-accent-hover">Sign up</Link>
       </>
     );
 }
