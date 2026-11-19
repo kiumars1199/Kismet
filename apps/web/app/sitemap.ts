@@ -2,7 +2,7 @@
 import type { MetadataRoute } from "next";
 import { siteUrl } from "@/lib/site";
 
-const PUBLIC_PAGES = ["/", "/about", "/markets", "/tools", "/pricing", "/track-record", "/status", "/terms", "/privacy", "/refunds", "/disclaimer", "/contact"];
+const PUBLIC_PAGES = ["/", "/about", "/markets", "/tools", "/pricing", "/track-record", "/status", "/terms", "/privacy", "/refunds", "/disclaimer", "/contact", "/signup"];
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = siteUrl();
