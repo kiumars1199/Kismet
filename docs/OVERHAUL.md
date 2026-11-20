@@ -85,6 +85,28 @@ Live ledger: 1,117 settled best bets at −2.2%. Walk-forward backtest: +17%. Th
   to "Bets we rated higher did better" if the data still says so.
 - Check: the research file exists with numbers; /track-record screenshots in the report.
 
+## F. Holes found by review (do these too)
+1. **US users and Polymarket US.** Kismet scans international Polymarket (gamma/clob.polymarket.com).
+   Most of our customers are in the US, where people trade on the separate CFTC-regulated Polymarket US
+   app (its own markets, prices and fees, KYC, not available in every state). Check: which venue a US
+   user can actually use; whether Polymarket US has a public market/book API; how its prices and fees
+   differ. Write `docs/research/polymarket-us.md`. If US users can't act on our bets, propose and build
+   the fix: scan Polymarket US too and send US users there with its prices and fees, or at minimum say
+   clearly which venue each bet is on and where it's available. "Bet on Polymarket" must never send a
+   US user to a site they can't use.
+2. **Stale-data alarm.** The site showed a 10-hour-old scan overnight and nobody knew. Add a check every
+   15 min (GitHub Action or Railway job) that reads `/api/meta` and emails kismetodds@gmail.com through
+   Resend when the live scan is older than 45 min or the site errors. One email per incident, plus an
+   all-clear. Check: forcing a stale timestamp in a test triggers exactly one email.
+3. **Funnel tracking.** PostHog is installed. Define and fire these events: landing view, signup start,
+   signup done, first Best bets view, first "Bet on Polymarket" click, upgrade view, checkout start,
+   trial start, paid. Add an admin page with daily counts and conversion between steps. Check: e2e walks
+   the funnel and each event fires once.
+4. **Lifecycle emails (Resend):** welcome (how to read a card, 3 lines), trial day 5 "your trial ends
+   in 2 days, here's how to cancel", receipt on first charge, and a cancel confirmation. Trial-ending
+   reminders are expected by card networks and some state auto-renewal laws. Check: each email
+   rendered in a test, links work, unsubscribe where required.
+
 ## Rules
 - Use parallel subagents, one lane per agent, each on its own branch, merged into `final` when green.
   Lanes A, B and D touch the same components: give B the card and filter components, A only the landing
