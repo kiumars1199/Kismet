@@ -131,7 +131,10 @@ export function useScreener(mode: Mode, initial?: MarketsResponse) {
   const fresh = res.key === fetchKey;
   return {
     state, set, reset, mode,
-    data: res.data,
+    // T-291 #11: only this URL's own answer. While a filter change loads (or after it failed) the list shows its
+    // skeleton or error, never the previous filter's rows. The facet counts keep the last answer so the pills don't jump.
+    data: fresh && !res.error ? res.data : undefined,
+    facets: res.data?.facets,
     more: fresh ? (res.more ?? []) : [],
     moreGroups: fresh ? (res.moreGroups ?? []) : [],
     loading: !fresh,

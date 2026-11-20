@@ -24,6 +24,11 @@ test("landing (/about): headline, counters, preview cards, Open screener", async
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Same payout. Different odds.");
   await expect(page.getByText("past bets tested")).toBeVisible();
   await expect(page.getByTestId("preview-card").first()).toBeVisible();
+  // T-291 #13: top 3 sorted by the return each card shows, priced at the Best bets default stake ($100)
+  const rets = (await page.getByTestId("preview-card").getByTestId("return").allTextContents()).map((t) => Number(t.replace(/[^0-9.+-]/g, "")));
+  expect(rets.length).toBeGreaterThan(0);
+  expect([...rets].sort((x, y) => y - x)).toEqual(rets);
+  for (const t of await page.getByTestId("preview-card").getByTestId("payout").allTextContents()) expect(t).toMatch(/^Bet \$100 →/);
   await expect(page.getByTestId("freshness")).toBeVisible();
   await page.getByRole("link", { name: "Open screener", exact: true }).click();
   await expect(page).toHaveURL(/\/markets/);
@@ -36,6 +41,8 @@ test("pricing: yearly toggle shows the yearly price", async ({ page }) => {
   await expect(page.getByRole("columnheader", { name: "Premium · $19.99" })).toBeVisible();
   await page.getByRole("radio", { name: /Yearly/ }).click();
   await expect(page.getByText("$99.99 billed yearly")).toBeVisible();
+  await expect(page.getByTestId("save-pro")).toContainText("save 30%");   // T-291 #15: per plan, from the prices
+  await expect(page.getByTestId("save-premium")).toContainText("save 29%");
   await expect(page.getByTestId("price-premium")).toHaveText("$14.17");   // $169.99 / 12
   await expect(page.getByText("Demo: every feature is unlocked", { exact: false })).toBeVisible();
   await expect(page.getByRole("link", { name: "Start trial" }).first()).toHaveAttribute("href", "/");
@@ -44,4 +51,7 @@ test("pricing: yearly toggle shows the yearly price", async ({ page }) => {
 test("status page lists scan, fit and backtest times", async ({ page }) => {
   await page.goto("/status");
   for (const name of ["Last market scan", "Last model fit", "Last backtest"]) await expect(page.getByText(name)).toBeVisible();
+  // T-291 #16: the data source names the product engine, never the config instance ("engine instance demo")
+  await expect(page.getByText("Kismet engine", { exact: false })).toBeVisible();
+  await expect(page.getByText(/engine instance|instance demo/)).toHaveCount(0);
 });

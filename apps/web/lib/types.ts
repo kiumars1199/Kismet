@@ -7,7 +7,7 @@ export interface MarketsFile { meta: ScanMeta; markets: Market[] }
 export interface FlagsFile { meta: ScanMeta; flags: Flag[] }
 
 export interface ScanMeta {
-  instance: string;               // "demo"
+  instance: string;               // "kismet" (config/demo.json; display name on /status is fixed: "Kismet engine")
   platform: "polymarket" | "kalshi";
   scanned_at: number;             // unix seconds
   model_half_life_days: number | null;   // null = no decay

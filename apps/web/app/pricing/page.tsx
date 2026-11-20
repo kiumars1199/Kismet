@@ -1,10 +1,10 @@
 // Pricing (T-28, F-20): tier cards, feature table (docs/01 § Tiers, in display language), FAQ.
 import Link from "next/link";
 import { Faq, Plans } from "@/components/pricing/Plans";
-import { DEMO_MODE } from "@/lib/config";
 import { ProofLine } from "@/components/results/ProofLine";
 import { getStore } from "@/lib/data/store";
 import { HIT_RATE_VS_PROFIT, siteProof } from "@/lib/proof";
+import { planCtx } from "@/lib/billing/planCtx";
 import { getSettings } from "@/lib/settings";
 import { tradingEnv } from "@/lib/trade/server";
 import { behindWords, usd } from "@/lib/format";
@@ -44,7 +44,7 @@ const PRICING_FAQ: { q: string; a: React.ReactNode }[] = [
 ];
 
 export default async function Page() {
-  const delay = (await getSettings()).free_delay_min;   // Free delay from site settings, the one place it is set
+  const [delay, ctx] = await Promise.all([getSettings().then((s) => s.free_delay_min), planCtx()]);   // Free delay from site settings, the one place it is set
   // T-290: the test result never stands alone; no engine output yet → no line (the page still sells the plans)
   const proof = await getStore().then((s) => siteProof({ backtest: s.backtest, ledger: s.ledgerSummary, since: s.ledgerSince }), () => null);
   return (
@@ -58,7 +58,7 @@ export default async function Page() {
         {proof?.test ? <ProofLine p={proof} className="text-[15px] leading-relaxed text-soft" /> : null}
       </header>
 
-      <Plans demo={DEMO_MODE} delay={delay} />
+      <Plans delay={delay} ctx={ctx} />
 
       <section aria-labelledby="compare-h" className="flex flex-col gap-4">
         <h2 id="compare-h" className="text-2xl font-semibold">Compare plans</h2>

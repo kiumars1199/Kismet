@@ -19,7 +19,7 @@ import { ProofLine } from "@/components/results/ProofLine";
 import { HIT_RATE_VS_PROFIT, siteProof } from "@/lib/proof";
 import { Plans } from "@/components/pricing/Plans";
 import { DISCLAIMER } from "@/components/shell/Footer";
-import { DEMO_MODE } from "@/lib/config";
+import { planCtx } from "@/lib/billing/planCtx";
 import type { ApiRow } from "@/lib/api";
 import { REFRESH_WORDS } from "@/lib/freshness";
 import { zonedTime } from "@/lib/zone";
@@ -166,7 +166,7 @@ export async function Landing() {
             Free shows {FREE_ROWS} random best bets a day, {behindWords(settings.free_delay_min)}. Pro and Premium are live and start with 7 days free. Cancel any time.
           </p>
         </div>
-        <Plans demo={DEMO_MODE} delay={settings.free_delay_min} />
+        <Plans delay={settings.free_delay_min} ctx={await planCtx({ user: null, tier: "free" })} />  {/* only signed-out visitors get the landing (app/page.tsx) */}
         <Link href="/pricing#compare-h" className="min-h-11 w-fit content-center text-accent-hover underline-offset-4 hover:underline">Compare every feature</Link>
       </section>
 

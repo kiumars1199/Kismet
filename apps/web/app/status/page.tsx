@@ -11,6 +11,7 @@ import { PendingState } from "@/components/screener/States";
 import { DASH, ago, delayWords, formatCount } from "@/lib/format";
 import { REFRESH_WORDS, freshness } from "@/lib/freshness";
 import { delayMin } from "@/lib/settings-core";
+import { SITE } from "@/lib/site";
 
 export const metadata = { title: "Status", description: "When Kismet data last refreshed." };
 export const dynamic = "force-dynamic";
@@ -95,7 +96,7 @@ export default async function Page() {
       <section aria-labelledby="source-h" className="flex flex-col gap-2 text-sm text-soft">
         <h2 id="source-h" className="text-xl font-semibold text-text">Data source</h2>
         <p>
-          Venue: {meta.platform === "polymarket" ? "Polymarket" : "Kalshi"} public market data · engine instance {meta.instance} ·
+          Venue: {meta.platform === "polymarket" ? "Polymarket" : "Kalshi"} public market data · {SITE.name} engine ·
           read from {DATA_SOURCE === "local" ? "local files" : "the published scan data"}.
         </p>
       </section>

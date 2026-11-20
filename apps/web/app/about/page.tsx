@@ -6,20 +6,18 @@ import { Faq, Plans } from "@/components/pricing/Plans";
 import { Tiles } from "@/components/results/Tiles";
 import { ProofLine } from "@/components/results/ProofLine";
 import { HIT_RATE_VS_PROFIT, siteProof } from "@/lib/proof";
-import { DEMO_MODE } from "@/lib/config";
+import { planCtx } from "@/lib/billing/planCtx";
 import { getSettings } from "@/lib/settings";
 import { chosenResult } from "@/lib/data/model";
-import { getTier } from "@/lib/auth/server";
-import { gateMarket } from "@/lib/data/gate";
+import { getMe } from "@/lib/auth/server";
 import { getStoreFor, type Store } from "@/lib/data/store";
 import { pendingLine } from "@/lib/data/respond";
 import { PendingState } from "@/components/screener/States";
-import { apply } from "@/lib/filters/apply";
-import { FilterState } from "@/lib/filters/state";
 import { DASH, RETURN_HELP, closesLine, formatCount, pct, price, recordHelp } from "@/lib/format";
 import { betFigures, RETURN_HELP_ONE, RETURN_LABEL } from "@/lib/betFigures";
 import { VERDICT_TONE, topicLabel } from "@/components/market/labels";
 import { tiles } from "@/lib/trackRecord";
+import { allRows, topByReturn } from "@/lib/topBets";
 import type { Side, StoreMarket } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -47,18 +45,16 @@ const FAQ: { q: string; a: React.ReactNode; id?: string; open?: boolean }[] = [
 ];
 
 export default async function Page() {
-  const tier = await getTier();   // landing preview: same tier shaping and Free delay as the API (docs/15)
+  const me = await getMe();
+  const tier = me.tier;   // landing preview: same tier shaping and Free delay as the API (docs/15)
   let store: Store;
   try {
     store = await getStoreFor(tier);
   } catch (e) {
     return <div className="mx-auto w-full max-w-[720px] pt-4 md:pt-10"><PendingState line={pendingLine(e)} /></div>;
   }
-  const page = apply(store, FilterState.parse({ view: "flags", verdicts: ["worth it"], page_size: 3 }));
-  const top = (page.groups ?? []).map((g) => g.best).map(({ market, side }) => {
-    const m = gateMarket(market, tier);
-    return { market: m, side: m.sides.find((x) => x.side_index === side.side_index) ?? m.best };
-  });
+  // T-291 #13: the top 3 by the return each card shows (the shared cardReturn), across every matching bet
+  const top = topByReturn(allRows(store, { view: "flags", verdicts: ["worth it"] }), 3, tier);
   const bestCount = bestBetsCount(store).total;   // T-288: the one Best bets count (lib/data/counts.ts)
   const tested = chosenResult(store.backtest)?.taker;
 
@@ -127,7 +123,7 @@ export default async function Page() {
 
       <section aria-labelledby="plans-h" className="flex flex-col gap-6">
         <h2 id="plans-h" className="text-[28px] font-semibold tracking-[-0.01em]">Plans</h2>
-        <Plans demo={DEMO_MODE} delay={(await getSettings()).free_delay_min} />
+        <Plans delay={(await getSettings()).free_delay_min} ctx={await planCtx(me)} />
         <Link href="/pricing" className="flex min-h-11 w-fit items-center text-accent-hover hover:underline">Compare every feature</Link>
       </section>
 
@@ -167,7 +163,7 @@ function PreviewCard({ m, s }: { m: StoreMarket; s: Side }) {
         </p>
         <p className="mt-2 text-[13px] text-soft">Bet <strong className="font-semibold text-text">{s.outcome}</strong> at {price(s.ask)} <span className={VERDICT_TONE[f.verdict.tone]}>({f.pts})</span></p>
         <p className="mt-0.5 text-[13px] text-muted" title={RETURN_HELP_ONE}>
-          {RETURN_LABEL} <span className="font-semibold text-accent">{f.ret.text}</span>
+          {RETURN_LABEL} <span className="font-semibold text-accent" data-testid="return">{f.ret.text}</span>
         </p>
       </div>
       <div className="flex flex-col gap-1.5 text-xs">
@@ -175,7 +171,7 @@ function PreviewCard({ m, s }: { m: StoreMarket; s: Side }) {
         <BarRow label="Won before" value={pct(s.win_prob)} width={bar(s.win_prob)} fill="bg-accent" strong />
       </div>
       <div className="mt-auto flex items-center justify-between border-t border-border pt-3 text-[13px]">
-        <span className="text-muted" title={f.feeHelp}>Bet {f.stakeText} → get <span className="font-semibold tabular-nums text-text">{f.payoutText}</span> after fees if it wins</span>
+        <span className="text-muted" data-testid="payout" title={f.feeHelp}>Bet {f.stakeText} → get <span className="font-semibold tabular-nums text-text">{f.payoutText}</span> after fees if it wins</span>
         <span className="rounded-full bg-muted-bg px-2.5 py-[3px] text-xs text-soft" title={recordHelp(s.model_neff)}>{f.record ?? DASH}</span>
       </div>
     </Link>
