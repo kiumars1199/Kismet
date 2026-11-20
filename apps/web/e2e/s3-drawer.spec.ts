@@ -31,3 +31,22 @@ test("S3 drawer: price check, stake table, curve, custom stake", async ({ page }
   await expect(stakes.locator("tbody tr")).toHaveCount(5);
   await expect(stakes.locator("tbody tr", { hasText: "$250" })).toContainText("+$75");
 });
+
+// T-289: one return figure per bet, and the same fee-inclusive payout, on the card and in the drawer headline.
+test("card and drawer show the same return, points, wins-about and payout", async ({ page }) => {
+  await page.route("**/api/book*", (r) => r.fulfill({ json: book() }));
+  await page.goto("/");
+  const card = page.locator("article[data-row]").first();
+  const ret = (await card.getByTestId("bet-return").innerText()).trim();
+  const payout = (await card.getByTestId("payout").innerText()).replace(/\s+/g, " ").trim();
+  const oneBet = (await card.getByTestId("one-bet").innerText()).replace(/\s+/g, " ");
+  const pts = (await card.getByTestId("verdict").innerText()).match(/\(([^)]+)\)/)![1];
+  expect(payout).toMatch(/^Bet \$[\d,.]+ → get \$[\d,.]+ after fees if it wins$/);
+  expect(oneBet).toMatch(/before fees/);
+  await card.locator("h3 a").click();
+  const drawer = page.getByRole("dialog", { name: "Market details" });
+  await expect(drawer.getByTestId("bet-return")).toHaveText(ret);
+  await expect(drawer.getByTestId("payout")).toHaveText(payout);
+  await expect(drawer.getByTestId("verdict")).toContainText(`(${pts})`);
+  await expect(drawer.getByTestId("one-bet")).toContainText(oneBet.match(/wins about .+$/)![0].trim());
+});

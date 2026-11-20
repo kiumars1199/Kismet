@@ -5,13 +5,14 @@
 // The question link covers the card (opens the drawer); star and alert sit above it.
 import type { ApiRow } from "@/lib/api";
 import { useWhen } from "./When";
-import { basis, cardReturn, money, pays, PAYS_HELP, payoutIfWins, payoutMoney, price, priceAsOf, sideEdge, sidePts, winsAbout } from "@/lib/format";
+import { basis, price, priceAsOf, sideEdge } from "@/lib/format";
+import { betFigures, RETURN_HELP_ONE } from "@/lib/betFigures";
 import { useProfile } from "@/lib/repo/hooks";
 import { WatchStar } from "@/components/watch/WatchStar";
 import { VenueIconLink } from "@/components/trade/TradeButton";
 import { drawerHref, useOpenDrawer } from "./drawer";
 import { AlertLink, Notes } from "./bits";
-import { PTS_HELP, priceVerdict, returnTone, rowNotes, topicLabel } from "./labels";
+import { PTS_HELP, VERDICT_TONE, returnTone, rowNotes, topicLabel } from "./labels";
 import { LowerConfidence, TierNote } from "./TierNote";
 
 export function MarketCard({ r, pro = false, notes = true }: { r: ApiRow; pro?: boolean; notes?: boolean }) {
@@ -19,9 +20,8 @@ export function MarketCard({ r, pro = false, notes = true }: { r: ApiRow; pro?: 
   const { market: m, side: s } = r;
   const when = useWhen(m.closes_at);
   const edgeTier = m.tier === "edge";
-  const ret = cardReturn(s);
-  const stake = useProfile().default_stake_usd;
-  const win = payoutIfWins(stake, s);   // docs/19 P4, as on BetCard
+  const f = betFigures(s, { stake: useProfile().default_stake_usd });   // T-289: the same figures as BetCard and the drawer
+  const ret = f.ret;
   return (
     <div data-row data-market-id={m.id} data-tier={m.tier ?? undefined} className="relative flex gap-3 rounded-inner border border-border bg-surface p-3.5 hover:border-soft/30 focus-within:border-soft/30">
       <div className="min-w-0 flex-1">
@@ -42,17 +42,18 @@ export function MarketCard({ r, pro = false, notes = true }: { r: ApiRow; pro?: 
         </a>
         {/* no "·" separators: on a 390 px card they wrapped to the start or end of a line */}
         <p data-testid="one-bet" className="mt-1.5 flex flex-wrap items-baseline gap-x-1.5 text-sm" title={basis(m, s)}>
-          <span className="font-heading font-bold" title={PAYS_HELP}>Pays {pays(s.ask)}</span>
-          <span className="whitespace-nowrap text-soft">wins about {winsAbout(s.win_prob)}</span>
+          <span className="whitespace-nowrap" title={f.feeHelp}><span className="font-heading font-bold">Pays {f.pays}</span> <span className="text-soft">before fees</span></span>
+          <span className="whitespace-nowrap text-soft" title={`Won ${f.winPct} of the time in similar past bets`}>wins about {f.wins}</span>
         </p>
         <div className="mt-0.5 text-xs text-muted">
           Bet {s.outcome} at {price(s.ask)}
-          <span className={`block ${s.ranges || s.edge > 0 ? "text-soft" : "text-negative"}`}>{priceVerdict(s).toLowerCase()} <span className="whitespace-nowrap" title={PTS_HELP}>({sidePts(s)})</span></span>
+          <span data-testid="verdict" className={`block ${VERDICT_TONE[f.verdict.tone]}`}>{f.verdict.text.toLowerCase()} <span className="whitespace-nowrap" title={PTS_HELP}>({f.pts})</span></span>
           {r.price_at && <span data-testid="price-as-of" className="block" title="Live Polymarket price read when this page loaded; edge, Pays and payout use it.">{priceAsOf(r.price_at)}</span>}
-          {win !== null && (
-            <span data-testid="payout" className="block" title="What your default stake (Settings) pays back if this side wins, after the fee. If it loses, you lose the stake.">
-              <span className="whitespace-nowrap">Bet <span className="tabular-nums text-soft">{money(stake)}</span> →</span>{" "}
-              <span className="whitespace-nowrap">get <span className="font-semibold tabular-nums text-text">{payoutMoney(win)}</span> if it wins</span>
+          {f.payout !== null && (
+            <span data-testid="payout" className="block" title={`Your default stake (Settings). ${f.feeHelp}`}>
+              <span className="whitespace-nowrap">Bet <span className="tabular-nums text-soft">{f.stakeText}</span> →</span>{" "}
+              <span className="whitespace-nowrap">get <span className="font-semibold tabular-nums text-text">{f.payoutText}</span> after fees</span>{" "}
+              <span className="whitespace-nowrap">if it wins</span>
             </span>
           )}
         </div>
@@ -61,8 +62,8 @@ export function MarketCard({ r, pro = false, notes = true }: { r: ApiRow; pro?: 
       </div>
       <div className="flex flex-none flex-col items-end justify-between gap-1">
         <div className="text-right">
-          <div className={`font-heading text-lg leading-tight ${returnTone(pro ? s.roi_pct : ret.roi)}`} title={ret.realistic ? "What similar past bets returned" : undefined}>{pro ? sideEdge(s) : ret.text}</div>
-          <div className="text-[11px] text-muted">{pro ? "edge" : ret.realistic ? "similar bets" : "estimated"}</div>
+          <div data-testid="bet-return" className={`font-heading text-lg leading-tight ${returnTone(pro ? s.roi_pct : ret.roi)}`} title={pro ? undefined : RETURN_HELP_ONE}>{pro ? sideEdge(s) : ret.text}</div>
+          <div className="text-[11px] text-muted">{pro ? "edge" : "estimated"}</div>
         </div>
         <div className="relative z-10 -mb-2 -mr-2 flex">
           <WatchStar marketId={m.id} side={s.side_index} market={m} />
