@@ -26,7 +26,6 @@ import { EmptyState, ErrorState, StaleBanner } from "./States";
 import { useDesktop } from "./useDesktop";
 import { useNear } from "./useNear";
 import { LockedBets } from "./LockedBets";
-import { useEntitlements } from "@/lib/entitlements";
 import { useMeta, useScreener } from "./useScreener";
 
 const nf = formatCount;   // docs/18 §4: counts short, rounded down
@@ -227,7 +226,10 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
   const total = data?.total;
   const desktop = useDesktop();
   const pro = useProfile().numbers_mode === "pro";
-  const live = useEntitlements().can("live_data");   // Free: the day's sample, then locked cards (docs/19 P3)
+  // Free: the day's sample, then locked cards (docs/19 P3). Read from the server's answer (free_daily), never from the
+  // client's tier: that is "free" until /api/me answers, which painted a paid page as "Free shows 89 …" (T-288).
+  const daily = data?.free_daily;
+  const sample = daily !== undefined;
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState<{ ok: boolean; msg: string } | null>(null);
   const soon = useSide(state, CLOSING_SOON, { initial: initial?.soon });
@@ -255,7 +257,7 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
         <h1 className="text-[28px] font-bold leading-[1.1] tracking-[-0.02em] md:text-[34px]">
           {/* P9: Free sees the day's sample, so the headline says "10 of 1K", not a count it can't open */}
           {total !== undefined
-            ? <>{!live && data && rows.length < total ? <>{rows.length} of </> : null}<Count n={total} /> {total === 1 ? "bet" : "bets"} where the odds lean your way</>
+            ? <>{sample && rows.length < total ? <>{rows.length} of </> : null}<Count n={total} /> {total === 1 ? "bet" : "bets"} where the odds lean your way</>
             : "Bets where the odds lean your way"}
         </h1>
         <div className="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2">
@@ -311,8 +313,8 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
           <BigPayouts state={state} pro={pro} />
           {tierOf(state) === "best" && <SuggestedCombos />}
           {slots.length > split && <Cards slots={slots.slice(split)} desktop={desktop} pro={pro} dim={loading} />}
-          {!live && <LockedBets total={data.total} shown={rows.length} desktop={desktop} />}
-          {live && left > 0 && (
+          {sample && <LockedBets total={data.total} shown={rows.length} daily={daily} desktop={desktop} />}
+          {!sample && left > 0 && (
             <button
               type="button"
               onClick={sc.loadMore}

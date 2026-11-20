@@ -80,7 +80,8 @@ export default function Page() {
         <ul>
           <li>sign-in session cookies (secure, not readable by scripts);</li>
           <li>a short-lived cookie that carries your terms acceptance through sign-in;</li>
-          <li>on the Free plan, a cookie that counts how many details you&apos;ve opened today.</li>
+          <li>on the Free plan, a cookie that counts how many details you&apos;ve opened today;</li>
+          <li>a cookie with your time zone (for example America/New_York), so times show in your zone from the first load.</li>
         </ul>
         <p>When you&apos;re signed out, your settings and saved items stay in your browser&apos;s local storage. Analytics run without cookies. We don&apos;t use advertising cookies.</p>
       </>,

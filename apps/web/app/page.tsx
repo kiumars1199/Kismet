@@ -7,6 +7,7 @@ import { Landing } from "@/components/landing/Landing";
 import { authEnabled, getMe } from "@/lib/auth/server";
 import { TRACKING } from "@/lib/auth/public-paths";
 import { DEMO_MODE } from "@/lib/config";
+import { FREE_BEST_BETS_A_DAY } from "@/lib/entitlements";
 import BestBetsPage, { metadata as bets } from "./bets/page";
 
 type Search = Record<string, string | string[] | undefined>;
@@ -18,7 +19,7 @@ const landing = async (sp: Search) =>
 
 export async function generateMetadata({ searchParams }: Props) {
   return (await landing(await searchParams))
-    ? { title: { absolute: "Kismet · Less luck, more math." }, description: "Prediction-market bets priced below how often bets like them have won, after fees and the spread. Sign up free for 10 best bets a day." }
+    ? { title: { absolute: "Kismet · Less luck, more math." }, description: `Prediction-market bets priced below how often bets like them have won, after fees and the spread. Sign up free for ${FREE_BEST_BETS_A_DAY} best bets a day.` }
     : bets;
 }
 

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { accountsOffNote, authEnabled, getUser, safeNext } from "@/lib/auth/server";
-import { quota } from "@/lib/entitlements";
+import { FREE_BEST_BETS_A_DAY } from "@/lib/entitlements";
 
 const ERRORS: Record<string, string> = {
   terms: "Tick the box to confirm you're 18 or older and agree to the Terms.",
@@ -23,7 +23,7 @@ const COPY = {
   },
   signup: {
     title: "Create your free account",
-    lede: `${quota("free", "rows")} best bets a day free, no card. Save views and keep My list on every device.`,
+    lede: `${FREE_BEST_BETS_A_DAY} best bets a day free, no card. Save views and keep My list on every device.`,
     other: { q: "Already have an account?", label: "Log in", href: "/login" },
   },
 } as const;

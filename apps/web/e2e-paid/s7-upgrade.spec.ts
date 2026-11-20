@@ -39,6 +39,9 @@ test("S7 sign up → upgrade with Stripe → Pro unlocks live data and exact num
   expect(free.rows).toHaveLength(10);
   expect(free.rows[0].side.ranges).toBeDefined();
   expect((await (await page.request.get("/api/me")).json()).tier).toBe("free");
+  // T-288: Free is exactly 10 Best bets a day, and says so (never "Free shows 89 …")
+  await page.goto("/bets");
+  await expect(page.getByTestId("locked-bets")).toContainText("Free shows 10 Best bets a day");
 
   await page.goto("/pricing");
   await page.getByTestId("checkout-pro").click();
@@ -49,6 +52,13 @@ test("S7 sign up → upgrade with Stripe → Pro unlocks live data and exact num
   const pro = await rows(page);
   expect(pro.rows.length).toBeGreaterThan(25);
   expect(pro.rows.every((r) => r.side.ranges === undefined)).toBe(true);
+  // T-288: a paid page never shows the Free allowance, not even before /api/me answers (first-paint HTML and after)
+  for (const path of ["/", "/bets"]) {
+    expect(await (await page.request.get(path)).text(), path).not.toContain("locked-bets");
+    await page.goto(path);
+    await expect(page.getByTestId("one-bet").nth(10)).toBeVisible();   // more than Free's 10 rendered
+    await expect(page.getByTestId("locked-bets")).toHaveCount(0);
+  }
   await page.goto("/pricing");
   await expect(page.getByTestId("checkout-pro")).toHaveCount(0);   // "Your plan" instead of a second checkout
 

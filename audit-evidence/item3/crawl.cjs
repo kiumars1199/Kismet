@@ -1,11 +1,11 @@
 // usage: node crawl.cjs <base> <state> <storageState|-> <out.json> [shotsDir]
-const { chromium } = require("/home/user/wt-audit3/apps/web/node_modules/@playwright/test");
+const { chromium } = require("/tmp/claude-0/-home-user-MarketEdge/2e8d356b-d1b5-5401-91e6-9f451833b42c/scratchpad/clean6/apps/web/node_modules/@playwright/test");
 const fs = require("fs");
 const [base, state, ss, out, shots] = process.argv.slice(2);
 const DISC = "Market analytics, not financial advice. Based on past results. 18+.";
 const BAD = /\bNaN\b|\bundefined\b|\[object Object\]|(?<![\w-])null(?![\w-])|lorem ipsum|TODO|FIXME/i;
-const BANNED = /\b(guaranteed?|risk[- ]free|sure thing|can'?t lose|lock of the|locks?\b|free money|easy money|tips?\b|picks?\b)/gi;
-const ROUTES = (process.env.ROUTES || "/ /about /account /admin /admin/audit /admin/grants /admin/health /admin/settings /admin/users /alerts /bets /combos /contact /dashboards /disclaimer /ext/connect /journal /kalshi /login /maintenance /markets /onboarding /pricing /privacy /refunds /reset-password /settings /signup /status /terms /tools /track-record /watchlist /oauth/consent /no-such-page").split(" ");
+const BANNED = /\b(guarantee[ds]?|risk[- ]free|sure[- ]thing|can.?t lose|cannot lose|lock of the|un?lock(s|ed|ing)?\b|free money|easy money|tips?\b|pick(s|ed|ing)?\b)/gi;
+const ROUTES = (process.env.ROUTES || "/ /about /account /admin /admin/audit /admin/grants /admin/health /admin/settings /admin/users /alerts /bets /combos /contact /dashboards /disclaimer /ext/connect /journal /kalshi /login /maintenance /markets /onboarding /pricing /privacy /refunds /reset-password /settings /signup /status /terms /tools /track-record /watchlist /oauth/consent /no-such-page /a/b/c").split(" ");
 (async () => {
   const browser = await chromium.launch();
   const results = [];
@@ -35,7 +35,7 @@ const ROUTES = (process.env.ROUTES || "/ /about /account /admin /admin/audit /ad
       try {
         const resp = await page.goto(base + route, { waitUntil: "load", timeout: 90000 });
         rec.status = resp?.status();
-        await page.waitForLoadState("networkidle", { timeout: 15000 }).catch(() => {});
+        await page.waitForLoadState("networkidle", { timeout: 8000 }).catch(() => {});
         await page.waitForTimeout(1200);
         rec.finalUrl = page.url().slice(base.length);
         const text = await page.evaluate(() => document.body.innerText);

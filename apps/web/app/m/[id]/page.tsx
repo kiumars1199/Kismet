@@ -9,6 +9,7 @@ import { SlowDownState } from "@/components/screener/SlowDownState";
 import { betLine, sideRet } from "@/lib/format";
 import { MarketDetail } from "@/components/market/MarketDetail";
 import { TeaserView } from "@/components/market/Teaser";
+import { requestZone } from "@/lib/zone-server";
 import { Breadcrumbs } from "@/components/shell/Breadcrumbs";
 import { topicCrumb } from "@/components/market/labels";
 import { authEnabled, getUser } from "@/lib/auth/server";
@@ -57,7 +58,7 @@ export default async function Page({ params, searchParams }: Props) {
       return <div className="mx-auto w-full max-w-[720px]"><PendingState line={pendingLine(e)} /></div>;   // no store yet is not a missing page
     }
     if (!t) notFound();
-    return <TeaserView t={t} path={`/m/${encodeURIComponent(id)}`} />;
+    return <TeaserView t={t} path={`/m/${encodeURIComponent(id)}`} zone={await requestZone()} />;
   }
   let data: MarketResponse | null;
   try {

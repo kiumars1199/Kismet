@@ -6,6 +6,8 @@ import { MobileNav } from "@/components/shell/MobileNav";
 import { LazyHosts } from "@/components/shell/LazyHosts";
 import { siteUrl } from "@/lib/site";
 import { getSettings } from "@/lib/settings";
+import { requestClock } from "@/lib/zone-server";
+import { ClockProvider } from "@/components/clock";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
@@ -24,11 +26,13 @@ export const viewport: Viewport = { themeColor: "#070a09" };
 export const dynamic = "force-dynamic";
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const settings = await getSettings();   // site-wide banner (admin settings, T-142); read on the server, cached 60 s
+  const [settings, clock] = await Promise.all([getSettings(), requestClock()]);   // banner (T-142, cached 60 s); the visitor's zone (T-288)
+  const now = Date.now();   // one clock for the server render and the hydration render (components/clock.tsx)
   const banner = settings.banner_on && settings.banner_text ? settings.banner_text : null;
   return (
     <html lang="en" className={`${inter.variable} ${grotesk.variable}`}>
       <body className="flex min-h-dvh flex-col bg-background text-text">
+        <ClockProvider zone={clock.zone} saved={clock.saved} now={now}>
         <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:rounded-input focus:bg-accent focus:px-3 focus:py-2 focus:text-on-accent">
           Skip to content
         </a>
@@ -44,6 +48,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <Footer />
         <MobileNav />
         <LazyHosts />
+        </ClockProvider>
       </body>
     </html>
   );

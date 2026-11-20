@@ -8,10 +8,11 @@ import { useMe } from "@/lib/me";
 import { track } from "@/lib/telemetry";
 import { behindWords, usd } from "@/lib/format";
 import { SITE } from "@/lib/site";
+import { FREE_BEST_BETS_A_DAY } from "@/lib/entitlements";
 
 const PLANS = [
   { id: "free", name: "Free", monthly: 0, yearly: 0, line: "See how it works.",
-    points: ["10 Best bets a day, chosen at random", "Prices {delay}", "Estimated return shown as a range", "Exact numbers on 3 bets a day", "1 saved view · 10 bets in My list", "Results and win-chance charts"] },
+    points: [`${FREE_BEST_BETS_A_DAY} Best bets a day, chosen at random`, "Prices {delay}", "Estimated return shown as a range", "Exact numbers on 3 bets a day", "1 saved view · 10 bets in My list", "Results and win-chance charts"] },
   { id: "pro", name: "Pro", monthly: SITE.prices.pro_monthly, yearly: SITE.prices.pro_yearly, line: "For people who bet every week.",
     points: ["Every Best bet, live prices, no row limit", "Exact estimated return on every bet", "Every best bet, every filter", "Full price check: order book, stake table, how much you can bet", "Alerts by email and browser, 20 rules", "My bets with profit and closing-price tracking", "25 saved views · 3 dashboards · CSV export"] },
   { id: "premium", name: "Premium", monthly: SITE.prices.premium_monthly, yearly: SITE.prices.premium_yearly, line: "Everything in Pro, plus new features first.",

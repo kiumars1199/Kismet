@@ -9,7 +9,9 @@ describe("formatCount (kept in sync with apps/web/lib/format.ts)", () => {
     expect(formatCount(999)).toBe("999");
     expect(formatCount(1313.7)).toBe("1.3K");
     expect(formatCount(9666)).toBe("9.6K");
-    expect(formatCount(12_340)).toBe("12K");
+    expect(formatCount(12_340)).toBe("12.3K");   // T-288: one decimal (was "12K")
+    expect(formatCount(16_896)).toBe("16.8K");
+    expect(formatCount(1_000)).toBe("1K");
     expect(formatCount(1_333_014)).toBe("1.3M");
     expect(formatCount(null)).toBe("—");
   });

@@ -56,6 +56,7 @@ export interface MarketsResponse {
   groups?: ApiGroup[];
   facets: Facets;                          // counts for the current filter minus that facet
   search?: { chips: Chip[]; relaxed?: string };   // how q was understood; relaxed = "No bets match … Showing …"
+  free_daily?: number;                     // Free Best bets only: the page is the day's sample of this many (docs/19 P3)
 }
 
 export interface MarketResponse {

@@ -29,8 +29,9 @@ function GhostCard({ w }: { w: number[] }) {
   );
 }
 
-/** `total`: every Best bet matching the filters (the real N); `shown`: how many the Free sample put on the page. */
-export function LockedBets({ total, shown, desktop }: { total: number; shown: number; desktop: boolean }) {
+/** `total`: every Best bet matching the filters (the real N, lib/data/counts.ts); `shown`: how many of the day's
+ *  sample match them and are on the page; `daily`: the Free allowance the server sampled (FREE_BEST_BETS_A_DAY). */
+export function LockedBets({ total, shown, daily, desktop }: { total: number; shown: number; daily: number; desktop: boolean }) {
   const locked = total - shown;
   if (locked <= 0) return null;
   const ghosts = SHAPES.slice(0, Math.min(locked, desktop ? 8 : 3));
@@ -50,7 +51,7 @@ export function LockedBets({ total, shown, desktop }: { total: number; shown: nu
           <p className="text-[13px] leading-relaxed text-muted">
             {shown === 0
               ? "Your free Best bets for today don't match these filters."
-              : `Free shows ${shown} of today's Best bets, chosen at random, with delayed prices.`}{" "}
+              : `Free shows ${daily} Best bets a day, chosen at random, with delayed prices.`}{" "}
             Pro shows every one, live.
           </p>
           <Link href="/pricing" onClick={() => track("upgrade_clicked", { source: "locked_bets" })} data-testid="unlock-all"

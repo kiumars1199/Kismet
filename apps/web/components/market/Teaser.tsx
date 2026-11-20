@@ -1,13 +1,16 @@
 // Signed-out view of /m/[id] and /event/[id] (T-276): title, category and closing time, then a sign-up prompt that
 // returns here. Rendered on the server from lib/teaser.ts only, so the HTML carries no verdict or number from the model.
 import Link from "next/link";
+import { zonedTime } from "@/lib/zone";
 import { TEASER_LINE, type Teaser } from "@/lib/teaser";
 import { Breadcrumbs } from "@/components/shell/Breadcrumbs";
 import { formatCount } from "@/lib/format";
+import { FREE_BEST_BETS_A_DAY } from "@/lib/entitlements";
 
-const WHEN = { dateStyle: "medium", timeStyle: "short", timeZone: "America/New_York" } as const;
+const WHEN = { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" } as const;
 
-export function TeaserView({ t, path }: { t: Teaser; path: string }) {
+/** `zone`: the visitor's (lib/zone-server.ts requestZone), null = unknown: Eastern time, labeled. */
+export function TeaserView({ t, path, zone = null }: { t: Teaser; path: string; zone?: string | null }) {
   const closes = t.closes_at ? new Date(t.closes_at * 1000) : null;
   const closed = closes ? closes.getTime() <= Date.now() : false;
   const next = encodeURIComponent(path);
@@ -22,7 +25,7 @@ export function TeaserView({ t, path }: { t: Teaser; path: string }) {
         {t.event ? <p className="text-sm text-soft">{t.event}</p> : null}
         {closes ? (
           <p className="text-sm text-muted">
-            {closed ? "Closed" : "Closes"} <time dateTime={closes.toISOString()}>{closes.toLocaleString("en-US", WHEN)} ET</time>
+            {closed ? "Closed" : "Closes"} <time dateTime={closes.toISOString()}>{zonedTime(t.closes_at!, zone, WHEN)}</time>
           </p>
         ) : null}
       </header>
@@ -30,7 +33,7 @@ export function TeaserView({ t, path }: { t: Teaser; path: string }) {
         <p className="text-[17px] font-medium text-accent-soft">{TEASER_LINE}</p>
         <p className="text-sm leading-relaxed text-accent-softer">
           We compare the price with how often bets like this one have won, after the fee and the spread. Free accounts get
-          10 best bets a day, no card needed.
+          {FREE_BEST_BETS_A_DAY} best bets a day, no card needed.
         </p>
         <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
           <Link href={`/signup?next=${next}`} className="inline-flex min-h-12 items-center justify-center rounded-input bg-accent px-6 font-semibold text-on-accent hover:bg-accent-hover">

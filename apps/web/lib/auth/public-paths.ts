@@ -35,6 +35,7 @@ export const PUBLIC_API: readonly string[] = [
   "/api/trade/nonce/verify",  // extension, consumes a signed nonce
   "/api/events/by-slug",      // extension (no cookies): the route itself needs a session or an extension token
   "/api/mcp",                 // MCP server: OAuth bearer tokens, checked by the route
+  "/api/tz",                  // T-288: same-origin POST of the browser's time zone, sets one cookie, returns nothing
 ];
 
 /** Signed-out visitors here go to /login (an existing account is expected), not /signup. */

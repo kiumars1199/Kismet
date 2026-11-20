@@ -1,5 +1,6 @@
 // System health (T-141): data freshness and source, engine headline, /api/health, Stripe webhooks, the last
 // alert run, and env-driven flags. Shows only "configured / not configured", never a key or URL.
+import { bestBetsCount } from "@/lib/data/counts";
 import { day } from "@/components/admin/Stats";
 import { Count } from "@/components/kit";
 import { adminEmails } from "@/lib/admin/core";
@@ -54,7 +55,7 @@ export default async function Page() {
           <Item k="Last scan" v={store ? `${ago(store.meta.scanned_at)}` : "No data loaded"} tone={!store || h.data.stale ? "warn" : undefined} />
           <Item k="Source in use" v={store?.source ?? DATA_SOURCE} />
           <Item k="Markets scanned" v={<Count n={store?.meta.markets_scanned} />} />
-          <Item k="Best bets" v={<Count n={store?.meta.flags} />} />
+          <Item k="Best bets" v={<Count n={store ? bestBetsCount(store).total : undefined} />} />
           <Item k="Events" v={<Count n={store?.byEvent.size} />} />
         </Panel>
         <Panel title="Engine (chosen backtest)">

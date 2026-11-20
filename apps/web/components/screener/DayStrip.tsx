@@ -3,7 +3,7 @@
 // ClosingSoon (next 5 best bets closing within 3 h, live countdowns), ResultsTicker (live ledger, hidden until
 // 20 bets have settled) and TodayCard (signed-in: the user's own saved bets, alerts and My bets P&L, never picks).
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useNow } from "@/components/clock";   // T-288: the shared clock (request time while hydrating)
 import type { ApiRow, MetaResponse } from "@/lib/api";
 import { countdown, edge, formatCount, money, pays, pct, price } from "@/lib/format";
 import { summarize } from "@/lib/journal";
@@ -12,15 +12,6 @@ import { DEMO_MODE } from "@/lib/repo";
 import { useCollection } from "@/lib/repo/hooks";
 import { drawerHref, useOpenDrawer } from "@/components/market/drawer";
 import type { WatchSnapshot } from "@/components/watch/WatchStar";
-
-function useNow(ms: number) {
-  const [now, setNow] = useState(() => Date.now());
-  useEffect(() => {
-    const t = setInterval(() => setNow(Date.now()), ms);
-    return () => clearInterval(t);
-  }, [ms]);
-  return now;
-}
 
 /** Closing-soon strip: up to 5 rows, soonest first. Renders nothing when none close within 3 h. */
 export function ClosingSoon({ rows }: { rows: ApiRow[] | undefined }) {

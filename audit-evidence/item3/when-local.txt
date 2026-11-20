@@ -1,3 +1,0 @@
-UTC market 7080504 server HTML: Sun 12:00 AM | after hydration: Sun 12:00 AM · closes in 43h
-America/New_York market 7080504 server HTML: Sun 12:00 AM | after hydration: Sat 7:00 PM · closes in 43h
-Asia/Tokyo market 7080504 server HTML: Sun 12:00 AM | after hydration: Sun 9:00 AM · closes in 43h
