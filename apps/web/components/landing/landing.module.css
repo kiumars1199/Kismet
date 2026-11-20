@@ -1,32 +1,13 @@
-/* Landing motion (docs/19 P1). The resting state is the final state: browsers without scroll-driven animations,
-   and anyone who asks for reduced motion, see the finished graphic. Zero JS. */
-.fill { transform-origin: left center; }
-.gap { transform-origin: left center; }
-.up { transform-box: fill-box; transform-origin: bottom; }
-.down { transform-box: fill-box; transform-origin: top; }
-
-@media (prefers-reduced-motion: no-preference) {
-  @supports (animation-timeline: view()) {
-    .fill {
-      animation: grow linear both;
-      animation-timeline: view();
-      animation-range: entry 10% cover 40%;
-    }
-    .gap {
-      animation: reveal linear both;
-      animation-timeline: view();
-      animation-range: entry 40% cover 50%;
-    }
-    .bar {
-      animation: rise linear both;
-      animation-timeline: view();
-      animation-range: entry 0% cover 30%;
-    }
-  }
-  .pulse { animation: pulse 2.4s cubic-bezier(0.22, 1, 0.36, 1) infinite; }
+/* Landing first screen (T-301): a soft emerald glow behind the hero. Decoration only, no motion. */
+.hero { position: relative; isolation: isolate; }
+.hero::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: -10%;
+  right: -10%;
+  width: min(640px, 90vw);
+  aspect-ratio: 1;
+  background: radial-gradient(closest-side, color-mix(in oklab, var(--accent) 16%, transparent), transparent);
+  pointer-events: none;
 }
-
-@keyframes grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-@keyframes reveal { from { opacity: 0; transform: scaleX(0.2); } to { opacity: 1; transform: scaleX(1); } }
-@keyframes rise { from { transform: scaleY(0); } to { transform: scaleY(1); } }
-@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }

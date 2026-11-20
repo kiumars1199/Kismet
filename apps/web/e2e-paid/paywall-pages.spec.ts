@@ -40,14 +40,14 @@ test("signed out: data APIs are 401, app pages redirect with next, public pages 
     for (const k of ["side_index", "win_prob", "\\\"ask\\\"", "\\\"edge\\\"", "Pays "]) expect(html, `${path} carries ${k}`).not.toContain(k);
   }
 
-  // docs/19 P1 + T-276: the landing. Up to 3 real cards (the gated top rows), then blurred placeholders.
+  // docs/19 P1 + T-301: the landing. Up to 1 + 3 real cards (the Free gate's rows), no blurred placeholders.
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Less luck, more math.");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Which Polymarket bets are worth it today?");
   const cards = page.locator("[data-row]");
-  expect(await cards.count()).toBeLessThanOrEqual(3);
+  expect(await cards.count()).toBeLessThanOrEqual(4);
   if (await cards.count()) await expect(cards.first()).toContainText(/–|under|over/);   // a band, not an exact figure
-  await expect(page.getByTestId("placeholder")).toHaveCount(6);
-  await expect(page.getByTestId("teaser-cta")).toHaveText(/^Sign up free to see (all .+ bets|10 of all .+ bets|the list)$/);
+  await expect(page.getByTestId("placeholder")).toHaveCount(0);
+  await expect(page.getByTestId("landing-cta")).toHaveAttribute("href", "/signup");
 
   await page.goto("/about");
   const card = page.getByTestId("preview-card").first();

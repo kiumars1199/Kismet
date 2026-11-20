@@ -1,6 +1,6 @@
 // T-276: what a signed-out visitor's HTML carries. /m/* and /event/* are teasers (title, category, closing time,
-// sign-up), with no verdict or model number in the page or its metadata. The landing shows 3 real best bets through
-// the Free gate; its 6 blurred placeholders are empty shapes with no market text at all.
+// sign-up), with no verdict or model number in the page or its metadata. The landing (T-301) shows 1 + 3 real bets
+// through the Free gate and no performance numbers.
 import type { ReactElement } from "react";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -13,7 +13,11 @@ vi.mock("@/lib/auth/server", async (orig) => ({
   getUser: async () => null,
   getMe: async () => ({ user: null, tier: "free", status: null, current_period_end: null, cancel_at_period_end: false, beta: false }),
 }));
-vi.mock("next/headers", () => ({ headers: async () => new Headers(), cookies: async () => ({ get: () => undefined, getAll: () => [] }) }));
+const reads = vi.hoisted(() => ({ n: 0 }));   // calls to headers()/cookies(): the landing must make none (static, lane C)
+vi.mock("next/headers", () => ({
+  headers: async () => (reads.n++, new Headers()),
+  cookies: async () => (reads.n++, { get: () => undefined, getAll: () => [] }),
+}));
 // Client components: the landing test only needs which rows reach them.
 vi.mock("@/components/market/BetCard", () => ({
   BetCard: ({ r }: { r: ApiRow }) => createElement("article", { "data-row": "", "data-market-id": r.market.id }, r.market.question),
@@ -28,7 +32,8 @@ const { TEASER_DESCRIPTION, TEASER_LINE } = await import("@/lib/teaser");
 const { price, pct } = await import("@/lib/format");
 const market = await import("@/app/m/[id]/page");
 const event = await import("@/app/event/[id]/page");
-const { Landing, LANDING_PLACEHOLDERS, LANDING_REAL, LANDING_SAMPLE, ctaLine } = await import("@/components/landing/Landing");
+const { HEADLINE, Landing, LANDING_HERO, LANDING_MORE, LANDING_SAMPLE, landingBets } = await import("@/components/landing/Landing");
+const { bannedHits } = await import("@/lib/banned");
 const { freeSample } = await import("@/lib/data/respond");
 
 const html = async (el: Promise<unknown>) => renderToStaticMarkup((await el) as ReactElement);
@@ -70,44 +75,51 @@ describe("signed-out market and event pages are teasers", async () => {
   });
 });
 
-describe("signed-out landing", () => {
-  it(`shows ${LANDING_REAL} real best bets (Free gate) and ${LANDING_PLACEHOLDERS} placeholders that carry no market text`, async () => {
+describe("signed-out landing (T-301)", () => {
+  it(`shows ${LANDING_HERO} + ${LANDING_MORE} real bets from the Free daily sample, one per game, clean titles`, async () => {
     const out = await html(Landing());
     const real = [...out.matchAll(/data-market-id="([^"]+)"/g)].map((x) => x[1]!);
     expect(real.length).toBeGreaterThan(0);
-    expect(real.length).toBeLessThanOrEqual(LANDING_REAL);
+    expect(real.length).toBeLessThanOrEqual(LANDING_HERO + LANDING_MORE);
     const free = await getStoreFor("free");
     const sample = freeSample(free, LANDING_SAMPLE);   // the Free daily sample, like a Free account's /api/flags
     for (const id of real) expect(sample.has(id), id).toBe(true);
-
-    const placeholders = [...out.matchAll(/<li aria-hidden="true" data-testid="placeholder"[\s\S]*?<\/li>/g)].map((x) => x[0]);
-    expect(placeholders).toHaveLength(LANDING_PLACEHOLDERS);
-    const titles = [...(await getStore()).byId.values()].map((m) => m.question);
-    for (const p of placeholders) {
-      expect(p.replace(/<[^>]+>/g, "").trim(), "placeholder has no text").toBe("");
-      for (const t of titles) expect(p).not.toContain(t);
-    }
-    expect(out).toMatch(/Sign up free to see (all [\d,.]+[KkMm]?|10 of all [\d,.]+[KkMm]?) bets/);
-    expect(ctaLine(4)).toBe("Sign up free to see all 4 bets");
-    expect(ctaLine(250)).toBe("Sign up free to see 10 of all 250 bets");   // Free sees 10 a day; never promise all
+    const byId = (await getStore()).byId;
+    const games = real.map((id) => byId.get(id)?.event_id || id);
+    expect(new Set(games).size, "one bet per game").toBe(games.length);
+    for (const id of real) expect(bannedHits(byId.get(id)!.question, { counts: true }), id).toEqual([]);
+    expect(out).not.toContain('data-testid="placeholder"');   // no blurred stand-ins (§B: they look like a glitch)
     expect(out).not.toContain('href="/bets"');   // every CTA leads to sign-up, not to a page that redirects
   });
 
-  it("proof is read from backtest.json, in plain words, with its basis on hover", async () => {
-    const out = await html(Landing());
-    const bt = (await getStore()).backtest;
-    const taker = bt.results[String(bt.chosen_half_life_days ?? "None")]!.taker;
-    expect(out).toContain(`won ${pct(taker.win_rate)} of the time vs ${pct(taker.avg_price)} the price implied`);
-    expect(out).toMatch(/title="[\d,]+ best bets/);
+  it("landingBets: Polymarket US first, then list order; skips banned titles and repeat games", () => {
+    const row = (id: string, ev: string, q: string, us = false) =>
+      ({ market: { id, event_id: ev, question: q, us: us ? { url: `https://polymarket.us/market/${id}` } : null }, side: { side_index: 0 } }) as unknown as ApiRow;
+    const rows = [row("a", "e1", "Will Arsenal win?"), row("b", "e2", "Spread: Brazil (-3.5)", true), row("c", "e3", "Will Leeds win?", true),
+      row("d", "e3", "Will Leeds draw?", true), row("e", "e4", "Will Spurs win?"), row("f", "e5", "Will BTC hit 120,000?"), row("g", "e6", "Will Celtic win?")];
+    expect(landingBets(rows).map((r) => r.market.id)).toEqual(["c", "a", "e", "g"]);
+    expect(landingBets(rows, 2).map((r) => r.market.id)).toEqual(["c", "a"]);
   });
 
-  it("order: hero, teaser, proof, plans, FAQ (with the three questions), disclaimer", async () => {
+  it("order: hero, 3 steps, bets, plans, FAQ (5 questions), results link; no proof, counts or banned words", async () => {
     const out = await html(Landing());
     const at = (s: string) => { const i = out.indexOf(s); expect(i, s).toBeGreaterThan(-1); return i; };
-    const order = [at('id="hero-h"'), at('id="teaser-h"'), at('id="proof-h"'), at('id="price-h"'), at('id="faq-h"'), at('data-testid="landing-disclaimer"')];
+    const order = [at('id="hero-h"'), at('data-testid="landing-cta"'), at('data-testid="landing-hero-bet"'), at('id="steps-h"'), at('id="bets-h"'),
+      at('id="price-h"'), at('id="faq-h"'), at('href="/track-record"')];
     expect([...order].sort((a, b) => a - b)).toEqual(order);
-    for (const q of ["Is it free?", "Do you place bets?", "Is this advice?"]) at(q);
-    at("Market analytics, not financial advice. Based on past results. 18+.");
+    expect(out).toContain(HEADLINE);
+    expect(out.match(/<details/g)).toHaveLength(5);
+    expect(out.match(/<li class="flex flex-col gap-3 rounded-card/g)).toHaveLength(3);   // the 3 steps
+    expect(out.match(/<a [^>]*>Sign up free<\/a>/g)).toHaveLength(1);   // one primary button (R1-3)
+    for (const gone of ['data-testid="proof-line"', "Market says", "Won before", "Bars use", "data-best-bets", "Less luck"]) expect(out).not.toContain(gone);
+    const text = out.replace(/<[^>]+>/g, " ").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, "&").replace(/\s+/g, " ");
+    expect(bannedHits(text, { counts: true })).toEqual([]);   // BetCard and Plans are mocked: the landing's own words
+  });
+
+  it("reads no cookies or headers (static rendering, lane C)", async () => {
+    reads.n = 0;
+    await html(Landing());
+    expect(reads.n).toBe(0);
   });
 });
 
@@ -136,8 +148,8 @@ describe("the test return never stands alone (T-290)", async () => {
   const store = await getStore();
   const p = siteProof({ backtest: store.backtest, ledger: store.ledgerSummary, since: store.ledgerSince });
   const text = (h: string) => h.replace(/<[^>]+>/g, "").replace(/&#x27;|&apos;/g, "'").replace(/&amp;/g, "&").replace(/\s+/g, " ");
+  // The landing shows no test or live numbers at all since T-301 (docs/OVERHAUL.md §E), so it isn't in this list.
   const pages: [string, () => Promise<unknown>][] = [
-    ["landing", () => Landing()],
     ["/about", async () => (await import("@/app/about/page")).default()],
     ["/track-record", async () => (await import("@/app/track-record/page")).default()],
     ["/pricing", async () => (await import("@/app/pricing/page")).default()],
@@ -151,7 +163,7 @@ describe("the test return never stands alone (T-290)", async () => {
       expect(out).toMatch(/data-testid="proof-line"[^>]*title="Testing: /);
     });
   }
-  it("landing, /about and /pricing FAQs use the hit-rate vs profit sentence verbatim; no 'many best bets do' lose", async () => {
+  it("/about and /pricing FAQs use the hit-rate vs profit sentence verbatim; no 'many best bets do' lose", async () => {
     for (const [name, el] of pages.filter(([n]) => n !== "/track-record")) {
       const t = text(await html(el()));
       expect(t, name).toContain(HIT_RATE_VS_PROFIT);

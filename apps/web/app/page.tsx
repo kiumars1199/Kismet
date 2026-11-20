@@ -19,7 +19,7 @@ const landing = async (sp: Search) =>
 
 export async function generateMetadata({ searchParams }: Props) {
   return (await landing(await searchParams))
-    ? { title: { absolute: "Kismet · Less luck, more math." }, description: `Prediction-market bets priced below how often bets like them have won, after fees and the spread. Sign up free for ${FREE_BEST_BETS_A_DAY} best bets a day.` }
+    ? { title: { absolute: "Kismet · Which Polymarket bets are worth it today?" }, description: `Placing a bet or two? See which Polymarket bets look like good value today, how often bets like them win, and what $10 pays. ${FREE_BEST_BETS_A_DAY} bets a day, free. No card.` }
     : bets;
 }
 

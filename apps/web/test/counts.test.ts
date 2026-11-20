@@ -1,5 +1,5 @@
 // T-288: one Best bets count. On one frozen scan (DATA_CLOCK=scan, the fixtures), /status, Best bets (the server's
-// first page and /api/flags), the landing page and "N more on Pro" all report the same number, every time, and the
+// first page and /api/flags) and "N more on Pro" (the landing shows no count since T-301) all report the same number, every time, and the
 // price-check sections add up to it. Also: Free sees exactly FREE_BEST_BETS_A_DAY of them, never an admin setting.
 import type { ReactElement } from "react";
 import { createElement } from "react";
@@ -29,7 +29,6 @@ const { serialize } = await import("@/lib/filters/url");
 const { freeView } = await import("@/lib/data/gate");
 const { FREE_BEST_BETS_A_DAY } = await import("@/lib/entitlements");
 const { DEFAULT_SETTINGS, setSettingsSnapshot } = await import("@/lib/settings-core");
-const { Landing } = await import("@/components/landing/Landing");
 const StatusPage = (await import("@/app/status/page")).default;
 const { LockedBets } = await import("@/components/screener/LockedBets");
 
@@ -53,14 +52,12 @@ async function surfaces(tier: "free" | "pro") {
 }
 
 describe("one Best bets count (T-288)", () => {
-  it("Free: /status, Best bets (first paint and /api/flags), the landing and 'N more on Pro' report the same number", async () => {
+  it("Free: /status, Best bets (first paint and /api/flags) and 'N more on Pro' report the same number", async () => {
     const s = await surfaces("free");
     expect(s.shared).toBeGreaterThan(FREE_BEST_BETS_A_DAY);   // the fixture has more best bets than Free sees
     expect(s.status).toBe(s.shared);
     expect(s.first.total).toBe(s.shared);
     expect(s.api.total).toBe(s.shared);
-    const landing = await html(Landing());
-    expect(Number(landing.match(/data-best-bets="(\d+)"/)![1])).toBe(s.shared);
     // the Free page is the day's sample: exactly FREE_BEST_BETS_A_DAY rows, marked as such, and the rest "on Pro"
     expect(s.first.free_daily).toBe(FREE_BEST_BETS_A_DAY);
     expect(s.first.rows).toHaveLength(FREE_BEST_BETS_A_DAY);
