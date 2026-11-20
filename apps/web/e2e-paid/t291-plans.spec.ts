@@ -6,7 +6,9 @@ test("plan buttons in the server HTML: Start trial / Start free, never a disable
   for (const path of ["/pricing", "/about", "/"]) {
     const html = await (await request.get(path)).text();
     expect(html, path).not.toMatch(/<button[^>]*disabled[^>]*>Coming soon/);
-    expect(html, path).toMatch(/<a[^>]*href="\/signup\?next=\/pricing"[^>]*>Start trial</);
+    // #32: the trial link keeps the plan through sign-up (/signup?next=/pricing?start=<plan>_monthly, URL-encoded)
+    expect(html, path).toMatch(/<a[^>]*href="\/signup\?next=%2Fpricing%3Fstart%3Dpro_monthly"[^>]*>Start trial</);
+    expect(html, path).toMatch(/<a[^>]*href="\/signup\?next=%2Fpricing%3Fstart%3Dpremium_monthly"[^>]*>Start trial</);
     expect(html, path).toMatch(/<a[^>]*href="\/signup"[^>]*>Start free</);
   }
   // and nothing flips to it after hydration
