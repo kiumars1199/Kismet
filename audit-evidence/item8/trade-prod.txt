@@ -1,8 +1,15 @@
-# trading config on the wired production build (KALSHI_TRADING_ENV=demo, TRADING_ALLOWLIST=audit3-premium@example.com)
-anon: {"enabled":false,"env":"demo","extensionId":"","riskUrl":"https://kalshi.com/regulatory"} HTTP 200
-free (not allowlisted): {"enabled":false,"env":"demo","extensionId":"","riskUrl":"https://kalshi.com/regulatory"} HTTP 200
-premium (not allowlisted): {"enabled":false,"env":"demo","extensionId":"","riskUrl":"https://kalshi.com/regulatory"} HTTP 200
-allowlisted premium: {"enabled":false,"env":"demo","extensionId":"","riskUrl":"https://kalshi.com/regulatory"} HTTP 200
-nonce, foreign Origin: {"error":"Bad origin."} HTTP 403
-nonce, no Origin: {"error":"Bad origin."} HTTP 403
-MCP tool list contains no order tool: 5 registerTool calls; names: registerTool("best_bets" registerTool("search_markets" registerTool("get_market" registerTool("track_record" registerTool("my_list" 
+## trade config/nonce on wired a6ebb65 (KALSHI_TRADING_ENV=demo, TRADING_ALLOWLIST=audit4-premium@, no NEXT_PUBLIC_EXTENSION_ID)
+premium /api/trade/config -> {"enabled":false,"env":"demo","extensionId":"","riskUrl":"https://kalshi.com/regulatory"}
+pro /api/trade/config -> {"enabled":false,"env":"demo","extensionId":"","riskUrl":"https://kalshi.com/regulatory"}
+free /api/trade/config -> {"enabled":false,"env":"demo","extensionId":"","riskUrl":"https://kalshi.com/regulatory"}
+premium POST /api/trade/nonce Origin=http://localhost:3161 -> 403 {"error":"Trading isn't enabled for this account."}
+premium POST /api/trade/nonce Origin=http://evil.example -> 403 {"error":"Bad origin."}
+premium POST /api/trade/nonce Origin=chrome-extension://abcdefghijklmnopabcdefghijklmnop -> 403 {"error":"Bad origin."}
+anon POST /api/trade/nonce -> 401 {"error":"Sign in to use this.","signin":"/login"}
+
+## MCP tools are read-only (tools/list annotations)
+  best_bets {'title': 'Best bets', 'readOnlyHint': True, 'destructiveHint': False, 'idempotentHint': True, 'openWorldHint': False} limit.max= 9007199254740991
+  search_markets {'title': 'Search markets', 'readOnlyHint': True, 'destructiveHint': False, 'idempotentHint': True, 'openWorldHint': False} limit.max= 9007199254740991
+  get_market {'title': 'Market details', 'readOnlyHint': True, 'destructiveHint': False, 'idempotentHint': True, 'openWorldHint': False} limit.max= None
+  track_record {'title': 'Track record', 'readOnlyHint': True, 'destructiveHint': False, 'idempotentHint': True, 'openWorldHint': False} limit.max= None
+  my_list {'title': 'My saved markets', 'readOnlyHint': True, 'destructiveHint': False, 'idempotentHint': True, 'openWorldHint': False} limit.max= 9007199254740991

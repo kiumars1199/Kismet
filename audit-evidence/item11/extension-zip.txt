@@ -1,36 +1,58 @@
-# pnpm build && pnpm ext:zip (default origin)
-computing gzip size...
-dist/content.js  5.43 kB │ gzip: 2.82 kB
-
-✓ built in 20ms
-
-✓ built in 21ms
+## pnpm ext:zip (default origin)
+> kismet-extension@0.1.0 ext:zip /tmp/claude-0/-home-user-MarketEdge/2e8d356b-d1b5-5401-91e6-9f451833b42c/scratchpad/clean6/apps/extension
+[ext:zip] KISMET_ORIGIN is http://localhost:3000: fine for loading unpacked, not for the store.
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
 [ext:zip] wrote apps/extension/kismet-extension-0.1.0.zip
-# KISMET_ORIGIN=https://kismetodds.com pnpm build && pnpm ext:zip
-
-✓ built in 19ms
-
-✓ built in 21ms
+## KISMET_ORIGIN=https://kismetodds.com pnpm ext:zip
+> kismet-extension@0.1.0 ext:zip /tmp/claude-0/-home-user-MarketEdge/2e8d356b-d1b5-5401-91e6-9f451833b42c/scratchpad/clean6/apps/extension
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
 [ext:zip] wrote apps/extension/kismet-extension-0.1.0.zip
--rw-r--r-- 1 root root 23154 Nov 20 05:23 kismet-extension-0.1.0.zip
-Archive:  kismet-extension-0.1.0.zip
-  Length      Date    Time    Name
----------  ---------- -----   ----
-     1376  2026-11-20 05:23   popup.html
-    10428  2026-11-20 05:23   sidepanel.js
-     5436  2026-11-20 05:23   content.js
-     1447  2026-11-20 05:23   popup.js
-       46  2026-11-20 05:23   types.js
-     1193  2026-11-20 05:23   manifest.json
-        0  2026-11-20 05:23   icons/
-      627  2026-11-20 05:23   icons/32.png
-      381  2026-11-20 05:23   icons/16.png
-     2432  2026-11-20 05:23   icons/128.png
-      897  2026-11-20 05:23   icons/48.png
-      894  2026-11-20 05:23   sidepanel.html
-     3883  2026-11-20 05:23   format.css
-    13196  2026-11-20 05:23   background.js
-     1377  2026-11-20 05:23   format.js
----------                     -------
-    43613                     15 files
-manifest_version 3 permissions ['storage', 'sidePanel'] host_permissions ['https://kismetodds.com/*', 'https://external-api.demo.kalshi.co/*'] csp {'extension_pages': "script-src 'self'; object-src 'self'"} background {'service_worker': 'background.js', 'type': 'module'}
+-rw-r--r-- 1 root root 23154 Nov 20 07:11 kismet-extension-0.1.0.zip
+background.js content.js format.css format.js icons manifest.json popup.html popup.js sidepanel.html sidepanel.js types.js 
+{
+"manifest_version": 3,
+"name": "Kismet for Polymarket",
+"version": "0.1.0",
+"permissions": [
+"storage",
+"sidePanel"
+],
+"host_permissions": [
+"https://kismetodds.com/*",
+"https://external-api.demo.kalshi.co/*"
+],
+"content_security_policy": {
+"extension_pages": "script-src 'self'; object-src 'self'"
+},
+"externally_connectable": {
+"matches": [
+"https://kismetodds.com/*"
+]
+},
+"content_scripts": [
+{
+"matches": [
+"https://polymarket.com/event/*",
+"https://polymarket.com/sports/*"
+],
+"js": [
+"content.js"
+],
+"run_at": "document_idle"
+}
+],
+"background": {
+"service_worker": "background.js",
+"type": "module"
+},
+"minimum_chrome_version": null
+}
+disclaimer in popup.html: 1  sidepanel.html: 1
+remote code / eval: 
+banned words in zip text: 
+service worker: chrome-extension://noekmadakflejbeajgganefpciknlhmf/background.js
+popup.html: disclaimer=true text="Kismet Signed out Account Signed out Data Can't reach kismetodds.com Last scan — Paper trading Off Open Kismet Sign in Open side panel Open a Polymarket event page to see Kismet next to each market. M"
+sidepanel.html: disclaimer=true text="This page Paper trading Click a Kismet badge on a Polymarket page. Market analytics, not financial advice. Based on past results. 18+."
+page errors / console errors: 1 Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED

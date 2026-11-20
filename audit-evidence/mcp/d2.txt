@@ -1,8 +1,0 @@
-premium best_bets default: mcp 25 rows, /api/flags?ps=25&g=0 25 rows, same ids in same order: true; mcp total line: 1K bets match; showing 1–25 (page 1 of 43). | api total 1069
-premium best_bets tier all, sports: mcp 25 rows, /api/flags?ps=25&g=0&tier=all&c=sports 25 rows, same ids in same order: true; mcp total line: 2.2K bets match; showing 1–25 (page 1 of 92). | api total 2282
-premium search bitcoin: mcp 25 rows, /api/markets?q=bitcoin&ps=25&g=0 25 rows, same ids in same order: true; mcp total line: 166 markets match; showing 1–25 (page 1 of 7). | api total 166
-execution.best_ask 0.72 best.ask 0.7
-pro best_bets default: mcp 25 rows, /api/flags?ps=25&g=0 25 rows, same ids in same order: true; mcp total line: 1K bets match; showing 1–25 (page 1 of 43). | api total 1069
-pro best_bets tier all, sports: mcp 25 rows, /api/flags?ps=25&g=0&tier=all&c=sports 25 rows, same ids in same order: true; mcp total line: 2.2K bets match; showing 1–25 (page 1 of 92). | api total 2282
-pro search bitcoin: mcp 25 rows, /api/markets?q=bitcoin&ps=25&g=0 25 rows, same ids in same order: true; mcp total line: 166 markets match; showing 1–25 (page 1 of 7). | api total 166
-execution.best_ask 0.72 best.ask 0.7
