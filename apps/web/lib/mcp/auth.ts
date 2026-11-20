@@ -6,6 +6,7 @@ import { createClient } from "@supabase/supabase-js";
 import { OAuthError, OAuthErrorCode, bearerAuthChallengeResponse, requireBearerAuth, type AuthInfo, type OAuthTokenVerifier } from "@modelcontextprotocol/server";
 import { authEnabled, type SessionUser } from "@/lib/auth/server";
 import { siteUrl } from "@/lib/site";
+import { clientKey, rateLimit, tooMany } from "@/lib/abuse";
 
 /** The resource identifier: exactly the URL people paste into "Add custom connector". */
 export const mcpResource = () => `${siteUrl()}/api/mcp`;
@@ -41,10 +42,13 @@ export const supabaseVerifier: OAuthTokenVerifier = {
   async verifyAccessToken(token) {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "", anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
     const sb = createClient(url, anon, { auth: { persistSession: false, autoRefreshToken: false } });
-    const { data, error } = await sb.auth.getUser(token);
+    const down = () => new OAuthError(OAuthErrorCode.ServerError, "Sign-in service unavailable");
+    const { data, error } = await sb.auth.getUser(token).catch(() => { throw down(); });
     if (error || !data.user) {
-      const status = (error as { status?: number } | null)?.status;
-      if (error && status !== undefined && status >= 500) throw new OAuthError(OAuthErrorCode.ServerError, "Sign-in service unavailable");
+      // Only a 4xx from Supabase means the token is bad. Unreachable (supabase-js reports status 0) or 5xx is an
+      // outage: answering invalid_token would make every connected assistant drop its token and redo OAuth.
+      const status = (error as { status?: number } | null)?.status ?? 0;
+      if (error && !(status >= 400 && status < 500)) throw down();
       throw invalid("Invalid or expired token");
     }
     const claims = b64json(token.split(".")[1] ?? "");
@@ -66,7 +70,22 @@ export const _setVerifier = (v: OAuthTokenVerifier | null) => void (forced = v);
 export async function authenticate(req: Request): Promise<AuthInfo | Response> {
   const resourceMetadataUrl = mcpMetadataUrl();
   if (!forced && !authEnabled()) return bearerAuthChallengeResponse(invalid("Sign-in is not configured"), { resourceMetadataUrl });
-  return requireBearerAuth({ verifier: forced ?? supabaseVerifier, resourceMetadataUrl })(req);
+  // Failed-token budget per client key, checked before Supabase is asked. Only rejected tokens count (a flat per-IP
+  // cap would throttle every user of an assistant that calls from shared egress IPs); outages (5xx) don't count.
+  const key = clientKey(req), now = Date.now();
+  const until = blockedUntil.get(key) ?? 0;
+  if (until > now) return tooMany(until);
+  const out = await requireBearerAuth({ verifier: forced ?? supabaseVerifier, resourceMetadataUrl })(req);
+  if (out instanceof Response && out.status === 401 && req.headers.has("authorization")) {
+    const over = await rateLimit("mcp_bad_token", key);
+    if (over) {
+      blockedUntil.set(key, now + 1000 * Number(over.headers.get("Retry-After") ?? 60));
+      if (blockedUntil.size > 10_000) blockedUntil.clear();   // per instance, bounded
+    }
+  }
+  return out;
 }
+const blockedUntil = new Map<string, number>();
+export const _resetBadTokenBlocks = () => blockedUntil.clear();
 
 export const userOf = (auth: AuthInfo | undefined): SessionUser | null => (auth?.extra?.user as SessionUser | undefined) ?? null;

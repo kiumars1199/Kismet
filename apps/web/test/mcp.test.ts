@@ -46,7 +46,7 @@ vi.mock("@/lib/auth/server", async (orig) => {
 });
 
 const { POST, GET } = await import("@/app/api/mcp/route");
-const { _setVerifier, resourceMetadata, mcpMetadataUrl } = await import("@/lib/mcp/auth");
+const { _setVerifier, _resetBadTokenBlocks, resourceMetadata, mcpMetadataUrl } = await import("@/lib/mcp/auth");
 const { FREE_REFUSAL, PRO_USED_UP, MAX_LIMIT } = await import("@/lib/mcp/server");
 const { memoryLimiter, setLimiter } = await import("@/lib/abuse");
 const { getStore } = await import("@/lib/data/store");
@@ -65,6 +65,7 @@ const verifier = {
 
 beforeEach(() => {
   _setVerifier(verifier);
+  _resetBadTokenBlocks();
   setLimiter(memoryLimiter());
   Object.assign(h, { tier: "premium", beta: false, planFails: false, list: [], queries: [] });
 });
@@ -107,6 +108,30 @@ describe("auth (T-280)", () => {
       expect(res.headers.get("cache-control")).toContain("no-store");
     }
     expect((await GET(new Request(`${ORIGIN}/api/mcp`))).status).toBe(401);
+  });
+
+  it("SDK-written results (bad arguments, unknown tool) also end with the disclaimer", async () => {
+    for (const params of [{ name: "best_bets", arguments: { limit: "lots", tier: 7 } }, { name: "place_bet", arguments: {} }]) {
+      const { json } = await rpc("tools/call", params);
+      const r = (json.result ?? null) as ToolResult | null;
+      if (r) expect(text(r).endsWith(DISCLAIMER), params.name).toBe(true);
+      else expect(json.error, params.name).toBeTruthy();   // a protocol error, not a result: nothing to append to
+    }
+  });
+
+  it("rejected tokens: 30 a minute per client, then 429 without asking Supabase; good tokens and no-token don't count", async () => {
+    const seen = vi.fn();
+    _setVerifier({ async verifyAccessToken(t: string) { seen(t); return verifier.verifyAccessToken(t); } });
+    const req = (t: string | null) => POST(rpcReq({ jsonrpc: "2.0", id: 1, method: "tools/list", params: {} }, t));
+    for (let i = 0; i < 40; i++) expect((await req("good")).status).toBe(200);
+    for (let i = 0; i < 5; i++) expect((await req(null)).status).toBe(401);
+    for (let i = 0; i < 30; i++) expect((await req(`junk${i}`)).status).toBe(401);
+    expect((await req("junk-over")).status).toBe(401);   // the 31st failure trips the block
+    seen.mockClear();
+    const blocked = await req("junk-more");
+    expect(blocked.status).toBe(429);
+    expect(blocked.headers.get("retry-after")).toMatch(/^\d+$/);
+    expect(seen).not.toHaveBeenCalled();
   });
 
   it("refuses everything when accounts are off and no verifier is forced (demo mode never opens the endpoint)", async () => {
@@ -155,6 +180,15 @@ describe("auth (T-280)", () => {
     await expect(supabaseVerifier.verifyAccessToken(jwt({ sub: "someone-else", client_id: "c1", exp }))).rejects.toThrow(/subject/);
     getUser.mockResolvedValueOnce({ data: { user: null }, error: { status: 403, message: "bad jwt" } } as never);
     await expect(supabaseVerifier.verifyAccessToken(jwt({ sub: USER.id, client_id: "c1", exp }))).rejects.toMatchObject({ code: "invalid_token" });
+    // Supabase down (supabase-js: AuthRetryableFetchError, status 0), 5xx, or a throw: an outage, not a bad token.
+    for (const fail of [
+      () => getUser.mockResolvedValueOnce({ data: { user: null }, error: { name: "AuthRetryableFetchError", status: 0, message: "fetch failed" } } as never),
+      () => getUser.mockResolvedValueOnce({ data: { user: null }, error: { status: 503, message: "down" } } as never),
+      () => getUser.mockRejectedValueOnce(new TypeError("fetch failed")),
+    ]) {
+      fail();
+      await expect(supabaseVerifier.verifyAccessToken(jwt({ sub: USER.id, client_id: "c1", exp }))).rejects.toMatchObject({ code: "server_error" });
+    }
     vi.doUnmock("@supabase/supabase-js");
     vi.resetModules();
   });

@@ -22,6 +22,7 @@ export const RULES = {
   admin: { limit: 30, window: "1 m" },       // /api/admin mutations and exports, per admin
   mcp_premium: { limit: 60, window: "1 m" }, // /api/mcp tool calls, Premium, per user (lib/mcp)
   mcp_pro_daily: { limit: 3, window: "1 d" },// /api/mcp tool calls, Pro: 3 a day, per user (lib/mcp)
+  mcp_bad_token: { limit: 30, window: "1 m" },// /api/mcp tokens Supabase rejected, per IP (+JA4): junk can't make us hammer auth
 } as const satisfies Record<string, { limit: number; window: Window }>;
 export type Rule = keyof typeof RULES;
 
