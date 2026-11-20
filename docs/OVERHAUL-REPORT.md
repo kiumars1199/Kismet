@@ -119,3 +119,21 @@ e2e: `e2e-paid/overhaul-funnel.spec.ts` walks the funnel with repeats (reloads, 
 
 ## F4. Lifecycle emails — PASS
 Welcome (3-line card explainer, unsubscribe + List-Unsubscribe), trial ends in 2 days with how to cancel (daily cron), receipt on first paid invoice, cancel confirmation. Sent once each via a claim row (`lifecycle_emails` PK user/kind/ref). `lib/email/lifecycle.test.ts` (15 tests) renders each, checks every link resolves to a real app route, and checks unsubscribe on the optional mail only (receipt, cancel and the trial notice are transactional/required). No real email sent; Resend mocked.
+
+## C. Speed — local PASS; prod numbers below after deploy
+Lane notes: `docs/overhaul-evidence/C/NOTES.md`. Prod before (Nov 20 16:58 UTC, `docs/overhaul-evidence/before/hdr_*.txt`): `/` TTFB 2.35 s, `/pricing` 0.59 s, `/track-record` 0.36 s, `/about` 0.51 s; every page `cache-control: private, no-cache, no-store`, `x-vercel-cache: MISS`.
+
+What changed: engine writes `top.json` + `counts.json` (+ per-category tops) each scan; signed-out pages `/`, `/pricing`, `/about`, `/track-record`, legal are static + ISR (`s-maxage=300, stale-while-revalidate`), revalidated by `ops/upload.py` via `/api/revalidate` (401 without the bearer, 200 with it); charts lazy-loaded; header no longer pops in (CLS 0.018 → 0); signed-in routes get skeletons.
+
+Local, real-size data (prod build, 4-core sandbox):
+| | Before | After |
+|---|---|---|
+| `/` TTFB cold / warm | 2095 / 35 ms | 738 / 9 ms (`x-nextjs-cache: HIT`) |
+| `/track-record` cold / warm | 1864 / 36 ms | 1022 / 11 ms |
+| `/` first-load JS (gzip) | 203.7 kB | 145.1 kB on the merged tree (budget 150 kB, `pnpm check:js` OK) |
+| `/track-record` JS | 286.6 kB | 145.8 kB |
+| Lighthouse mobile `/` perf / LCP / TBT | 79–80 / 3.15 s / ~550 ms | 92 / 2.74 s / 238 ms |
+| `/bets` perf / LCP | 71–73 / 3.7 s | 85 / 3.2 s |
+| INP `/bets` | 112–144 ms | 96–104 ms |
+| Landing render from `top.json` vs `markets.json` | 1549–1681 ms | 394–403 ms |
+| Signed-in tab tap → first paint | 326–639 ms | 72–181 ms |
