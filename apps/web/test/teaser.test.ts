@@ -158,8 +158,9 @@ describe("the test return never stands alone (T-290)", async () => {
   for (const [name, el] of pages) {
     it(`${name}: test line and live line together, with the basis on hover`, async () => {
       const out = await html(el());
-      expect(p.test).toBeTruthy();
-      expect(text(out), name).toContain(p.line);
+      const want = p;
+      expect(want.test).toBeTruthy();
+      expect(text(out), name).toContain(want.line);
       expect(out).toContain('data-testid="proof-line"');
       expect(out).toMatch(/data-testid="proof-line"[^>]*title="Testing: /);
     });

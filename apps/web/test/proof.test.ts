@@ -1,6 +1,7 @@
 // T-290 (outside tester, Nov 20): wherever the backtest return appears, the live record sits beside it, every figure
 // computed from backtest.json / ledger_summary.json / ledger.jsonl, with a "needs ~N" threshold from a documented rule.
-// Checks the helper (betsNeeded, liveReturn, testSpan, proofLine), the ledger start date read through the gzip-aware
+// T-296: the span comes from folds[] and the threshold is in events, judged on the Polymarket US record.
+// Checks the helper (eventsNeeded, liveReturn, testSpan, proofLine), the ledger start date read through the gzip-aware
 // loader, and that every surface showing the test return prints the same line.
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -15,30 +16,37 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push() {}, replace() {}, prefetch() {} }),
 }));
 
-const { betsNeeded, HIT_RATE_VS_PROFIT, JUDGE_T, liveReturn, proofLine, siteProof, sinceDay, testSpan } = await import("@/lib/proof");
+const { eventsNeeded, HIT_RATE_VS_PROFIT, JUDGE_T, liveReturn, proofLine, siteProof, sinceDay, testSpan } = await import("@/lib/proof");
 const { ret } = await import("@/lib/format");
 const { chosenResult } = await import("@/lib/data/model");
 
 const rec = (x: Partial<BacktestRecord>): BacktestRecord => ({ flags: 10027, roi_pct: 8.41, t_stat: 16.77, events: 1500, win_rate: 0.83, ...x } as BacktestRecord);
 const stats = (x: Partial<LedgerStats>): LedgerStats => ({ entries: 0, graded: 0, wins: 0, losses: 0, avg_pnl: null, avg_clv: null, ...x });
 const ledger = (x: Partial<LedgerSummary>): LedgerSummary => ({ ...stats({}), by_category: {}, updated_at: 1794877967, ...x });
-const BT = { test_days: 7, folds_run: 52 };
+const day = (m: number, d: number) => Date.UTC(2026, m, d) / 1000;
+// 12 weekly folds, only the last three with best bets: the old wording called this "1 year" (folds_run × days)
+const BT = { test_days: 7, folds_run: 52, chosen_half_life_days: null, results: { None: { folds: [
+  ...Array.from({ length: 9 }, (_, i) => ({ start: day(7, 22 + 7 * i), flags: 0 })),
+  { start: day(9, 24), flags: 10 }, { start: day(9, 31), flags: 40 }, { start: day(10, 7), flags: 50 }] } } };
+const SPAN = "past markets from Oct 24 to Nov 13, 90% of bets in the last 2 weeks";
 const NOV17 = Date.UTC(2026, 10, 17, 1, 0) / 1000;
 
-describe("betsNeeded: settled bets for a return the size of the test's to stand out from zero", () => {
-  it("n = n_test × (2 ÷ t_test)², rounded up: 10,027 test bets at t = 16.77 → 143", () => {
+describe("eventsNeeded: settled events for a return the size of the test's to stand out from zero", () => {
+  it("e = e_test × (2 ÷ t_test)², rounded up: 1,500 test events at t = 16.77 → 22", () => {
     expect(JUDGE_T).toBe(2);
-    expect(betsNeeded(rec({}))).toBe(143);
-    expect(betsNeeded(rec({ flags: 400, t_stat: 2 }))).toBe(400);   // a test that only just cleared the bar needs as many again
-    expect(betsNeeded(rec({ flags: 100, t_stat: 40 }))).toBe(1);
+    expect(eventsNeeded(rec({}))).toBe(Math.ceil(1500 * (2 / 16.77) ** 2));
+    expect(eventsNeeded(rec({}))).toBe(22);
+    expect(eventsNeeded(rec({ events: 400, t_stat: 2 }))).toBe(400);   // a test that only just cleared the bar needs as many again
+    expect(eventsNeeded(rec({ events: 100, t_stat: 40 }))).toBe(1);
   });
   it("no threshold when there is no positive tested result to confirm", () => {
-    expect(betsNeeded(null)).toBeNull();
-    expect(betsNeeded(rec({ roi_pct: -2 }))).toBeNull();
-    expect(betsNeeded(rec({ roi_pct: 0 }))).toBeNull();
-    expect(betsNeeded(rec({ t_stat: -1 }))).toBeNull();
-    expect(betsNeeded(rec({ t_stat: undefined }))).toBeNull();
-    expect(betsNeeded(rec({ flags: 29 }))).toBeNull();
+    expect(eventsNeeded(null)).toBeNull();
+    expect(eventsNeeded(rec({ roi_pct: -2 }))).toBeNull();
+    expect(eventsNeeded(rec({ roi_pct: 0 }))).toBeNull();
+    expect(eventsNeeded(rec({ t_stat: -1 }))).toBeNull();
+    expect(eventsNeeded(rec({ t_stat: undefined }))).toBeNull();
+    expect(eventsNeeded(rec({ events: 29 }))).toBeNull();
+    expect(eventsNeeded(rec({ events: undefined }))).toBeNull();
   });
 });
 
@@ -61,40 +69,62 @@ describe("liveReturn: total profit ÷ total staked, as the backtest's roi_pct", 
   });
 });
 
-describe("testSpan: folds × days per fold, in words", () => {
-  it.each([
-    [{ test_days: 7, folds_run: 52 }, "1 year"], [{ test_days: 7, folds_run: 104 }, "2 years"], [{ test_days: 7, folds_run: 78 }, "18 months"],
-    [{ test_days: 7, folds: 12 }, "12 weeks"], [{ test_days: 1, folds_run: 9 }, "9 days"], [{ folds_run: 9 }, null], [null, null],
-  ])("%j → %s", (b, want) => expect(testSpan(b)).toBe(want));
+describe("testSpan: the weeks that actually had best bets (folds[]), never folds × days", () => {
+  it("first to last week with bets, and the share in the last two weeks", () => {
+    expect(testSpan(BT)).toBe(SPAN);
+    expect(testSpan(BT)).not.toMatch(/year/);
+  });
+  it("no folds, or no week with a bet → null", () => {
+    expect(testSpan({ test_days: 7, folds_run: 52 })).toBeNull();
+    expect(testSpan(null)).toBeNull();
+    expect(testSpan({ ...BT, results: { None: { folds: [{ start: day(9, 24), flags: 0 }] } } })).toBeNull();
+  });
+  it("an even spread drops the last-two-weeks clause", () => {
+    const even = { test_days: 7, results: { None: { folds: [10, 10, 10, 10, 10, 10].map((n, i) => ({ start: day(9, 3 + 7 * i), flags: n })) } } };
+    expect(testSpan(even)).toBe("past markets from Oct 3 to Nov 13");
+  });
 });
 
 describe("proofLine: the test result, then the live record beside it", () => {
   const record = rec({});
+  const us = (x: Partial<LedgerStats>) => stats({ ...x });
   it("no ledger yet", () => {
     const p = proofLine({ record, backtest: BT, live: null, since: null });
-    expect(p.test).toBe(`Testing on 1 year of past markets: ${ret(8.41)} per bet.`);
+    expect(p.test).toBe(`In testing on ${SPAN}: ${ret(8.41)} per bet.`);
     expect(p.live).toBe("Live record: starts with the first logged best bet.");
     expect(p.line).toBe(`${p.test} ${p.live}`);
   });
-  it("logged, none settled: names the start date and the threshold", () => {
+  it("no folds in the file: no span, still the return", () => {
+    expect(proofLine({ record, backtest: { test_days: 7, folds_run: 52 }, live: null, since: null }).test).toBe(`In testing: ${ret(8.41)} per bet.`);
+  });
+  it("logged, none settled: names the start date and the threshold in events", () => {
     const p = proofLine({ record, backtest: BT, live: stats({ entries: 704 }), since: NOV17, who: "best bets" });
     expect(sinceDay(NOV17)).toBe("Nov 17");
-    expect(p.test).toBe(`Testing on 1 year of past markets: best bets, ${ret(8.41)} per bet.`);
-    expect(p.live).toBe("Live since Nov 17: 704 logged, none settled yet (needs ~143 to judge).");
-    expect(p.help).toMatch(/10,027 test bets × \(2 ÷ t-stat 16\.8\)²/);
+    expect(p.test).toBe(`In testing on ${SPAN}: best bets, ${ret(8.41)} per bet.`);
+    expect(p.live).toBe("Live since Nov 17: 704 logged, none settled yet (needs ~22 settled events to judge).");
+    expect(p.help).toMatch(/^Testing: 10,027 past best bets in 1,500 events/);
+    expect(p.help).toMatch(/1,500 test events × \(2 ÷ t-stat 16\.8\)²/);
     expect(p.enough).toBe(false);
   });
-  it("some settled, too few: the live return and still the threshold", () => {
-    const l = stats({ entries: 80, graded: 35, wins: 27, losses: 8, avg_pnl: -0.013 });
+  it("settled but no US record: the return, no call either way (events aren't recorded)", () => {
+    const l = stats({ entries: 500, graded: 200, wins: 170, losses: 30, avg_pnl: 0.05, events: 199 });
     const p = proofLine({ record, backtest: BT, live: l, since: NOV17 });
-    expect(p.live).toBe(`Live since Nov 17: 35 settled bets, ${ret(liveReturn(l))}, still too few to judge (needs ~143).`);
+    expect(p.live).toBe(`Live since Nov 17: 200 settled bets, ${ret(liveReturn(l))}.`);
+    expect(p.enough).toBe(false);
+  });
+  it("US record too few events: still too few, however many bets", () => {
+    const l = stats({ entries: 80, graded: 60, wins: 50, losses: 10, avg_pnl: -0.013 });
+    const u = us({ entries: 40, graded: 35, wins: 27, losses: 8, avg_pnl: 0.01, events: 9 });
+    const p = proofLine({ record, backtest: BT, live: l, us: u, since: NOV17 });
+    expect(p.live).toBe(`Live since Nov 17: 60 settled bets, ${ret(liveReturn(l))}; on Polymarket US 35 settled bets in 9 events, ${ret(liveReturn(u))}, still too few to judge (needs ~22 events).`);
     expect(p.liveRoi).toBeCloseTo(liveReturn(l)!, 9);
   });
-  it("enough settled to compare", () => {
+  it("US record with enough events to compare", () => {
     const l = stats({ entries: 500, graded: 200, wins: 170, losses: 30, avg_pnl: 0.05 });
-    const p = proofLine({ record, backtest: BT, live: l, since: NOV17 });
+    const u = us({ entries: 90, graded: 80, wins: 70, losses: 10, avg_pnl: 0.04, events: 22 });
+    const p = proofLine({ record, backtest: BT, live: l, us: u, since: NOV17 });
     expect(p.enough).toBe(true);
-    expect(p.live).toBe(`Live since Nov 17: 200 settled bets, ${ret(liveReturn(l))}, enough to compare with testing.`);
+    expect(p.live).toMatch(/in 22 events, [+−][\d.]+%, enough to compare with testing\.$/);
   });
   it("a losing test says so and sets no threshold", () => {
     const p = proofLine({ record: rec({ roi_pct: -3.2 }), backtest: BT, live: stats({ entries: 5, graded: 3, wins: 2, losses: 1, avg_pnl: 0.02 }), since: null });
@@ -139,7 +169,7 @@ describe("every surface that shows the test return prints the proof line beside 
   it("the site line uses the chosen result's taker record and the whole ledger", () => {
     const t = chosenResult(store.backtest)!.taker;
     expect(p.test).toContain(`${ret(t.roi_pct)} per bet`);
-    expect(p.live).toBe(`Live since Nov 17: 704 logged, none settled yet (needs ~${betsNeeded(t)!.toLocaleString("en-US")} to judge).`);
+    expect(p.live).toBe(`Live since Nov 17: 704 logged, none settled yet (needs ~${eventsNeeded(t)!.toLocaleString("en-US")} settled events to judge).`);
   });
 
   it("/api/backtest carries it", async () => {
