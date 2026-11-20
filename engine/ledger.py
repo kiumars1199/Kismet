@@ -16,6 +16,8 @@ clv = closing_price - ask (positive = the market moved toward the flag).
 Polymarket US (docs/research/polymarket-us.md): a flag also listed on Polymarket US logs its US price
 (us_slug, us_side, us_ask, us_fee, us_edge). The grader settles it from US's own settlement when US has
 published one, else from the international result, and books us_pnl = (won ? 1 : 0) - us_ask - us_fee.
+US-native rows (`venue: "us"`, engine/us_native.py) exist only on Polymarket US: their ask/fee are US prices and
+they're graded from US settlement alone, so they land in the `us` block below.
 The summary keeps the original numbers and adds:
   first    one row per market and side (the first time it was flagged): re-flags at a better ask are
            extra rows for the same bet and would count it twice
@@ -85,7 +87,9 @@ def append(cfg, flags, now, rows=None, rng=None):
             category=r["category"], niche=r["niche"], ask=s["ask"], fee=s["fee"],
             win_prob=s["win_prob"], edge=s["edge"], verdict=r["execution"]["verdict"],
             flagged_at=int(now), closes_at=r["closes_at"],
-            token=toks[s["side_index"]] if len(toks) == 2 else None, event_id=r.get("event_id"))
+            token=(toks[s["side_index"]] or None) if len(toks) == 2 else None, event_id=r.get("event_id"))
+        if r.get("venue") == "us":
+            row["venue"] = "us"  # US-native: priced and graded on Polymarket US only
         u = r.get("us")
         if u and u.get("ask") is not None:
             row.update(us_slug=u["slug"], us_side=u.get("side"), us_ask=u["ask"], us_fee=u["fee"],
@@ -95,6 +99,16 @@ def append(cfg, flags, now, rows=None, rng=None):
     if rows is not None and first:
         append_control(cfg, first, rows, flags, now, rng, logged={k[0] for k in best_ask})
     return len(new)
+
+
+def held_by_event(cfg):
+    """{event_id: {(market id, side_index)}} of bets already in the ledger (rows logged with an event_id).
+    scan.cap_per_event lets these keep their slots so the record stays capped per game across scans."""
+    out = {}
+    for e in jl_read(_path(cfg)):
+        if e.get("event_id"):
+            out.setdefault(e["event_id"], set()).add((e["id"], e["side_index"]))
+    return out
 
 
 def append_control(cfg, picks, rows, flags, now, rng=None, logged=()):
@@ -107,7 +121,7 @@ def append_control(cfg, picks, rows, flags, now, rng=None, logged=()):
     flagged = {r["id"] for r in flags} | set(logged)
     pool = {}
     for r in rows:
-        if r["id"] in flagged:
+        if r["id"] in flagged or r.get("venue") == "us":  # comparison bets are international, graded by Gamma
             continue
         for sd in r.get("sides") or []:
             b = pay_band(sd.get("ask"))
@@ -267,6 +281,16 @@ def _grade_file(p, markets, get_market, get_history, now, log, get_us_settlement
         if "result" in e:
             if e.get("us_ask") is not None and "us_result" not in e:
                 _grade_us(e, e["result"] == "won", get_us_settlement)
+            continue
+        if e.get("venue") == "us":  # US-native: no international market; US's own settlement only
+            st = get_us_settlement(e["us_slug"]) if e.get("us_slug") else None
+            if st is None:
+                continue
+            won = (st == 1.0) if e["side_index"] == 0 else (st == 0.0)
+            e.update(result="won" if won else "lost", pnl=round(int(won) - e["ask"] - e["fee"], 4),
+                     closing_price=None, clv=None, graded_at=int(now))
+            _grade_us(e, won, lambda slug: st)
+            graded += 1
             continue
         if e["id"] not in markets:
             try:

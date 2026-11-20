@@ -9,7 +9,7 @@ const store = await getStore();
 
 describe("us quote gate", () => {
   const base = store.flags[0] ?? store.markets[0];
-  const m = { ...base, us: { slug: "aec-x", url: "https://polymarket.us/market/aec-x", side: 0, ask: 0.52, fee: 0.0237,
+  const m = { ...base, us: { slug: "aec-x", url: "https://polymarket.us/event/x", side: 0, ask: 0.52, fee: 0.0237,
     edge: 0.031, roi_pct: 5.7 } } as StoreMarket;
 
   it("free: link and price kept, edge and return hidden", () => {

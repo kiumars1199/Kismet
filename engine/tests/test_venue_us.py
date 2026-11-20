@@ -90,7 +90,7 @@ def test_quote_uses_us_fee():
     assert q["ask"] == pytest.approx(0.50) and q["side"] == 1
     assert q["fee"] == pytest.approx(round(0.095 * 0.5 * 0.5, 4))
     assert q["edge"] == pytest.approx(0.55 - 0.5 - 0.095 * 0.25, abs=1e-4)
-    assert q["url"].endswith("tsc-nfl-mia-buf-2026-11-22-total-44pt5")
+    assert q["url"] == "https://polymarket.us/event/nfl-mia-buf-2026-11-22"  # the game's event page (G6)
 
 
 def test_fetch_open_pages_and_filters():

@@ -42,6 +42,23 @@ def flag_mask(cfg, b, q, lo, maker=False, tight=False):
     return ok & (q - cost >= cfg.flag_min_edge) & (lo - cost > 0), cost
 
 
+def cap_mask(mask, ev, h, score, k):
+    """At most k flags per (event, horizon), the best `score` first: the backtest twin of scan.cap_per_event
+    (docs/OVERHAUL.md §G5). A test row is one market at one time-to-close, i.e. one scan's view of it, so the cap
+    is per game per scan time. k None/0 = no cap."""
+    if not k or not mask.any():
+        return mask
+    idx = np.where(mask)[0]
+    order = idx[np.lexsort((-score[idx], h[idx], ev[idx]))]
+    g = np.stack([ev[order], h[order]], 1)
+    new = np.ones(len(order), bool)
+    new[1:] = (g[1:] != g[:-1]).any(1)
+    start = np.maximum.accumulate(np.where(new, np.arange(len(order)), 0))
+    out = np.zeros_like(mask)
+    out[order[np.arange(len(order)) - start < k]] = True
+    return out
+
+
 def clustered_t(pnl, ev):
     if len(pnl) < 2:
         return 0.0
@@ -168,6 +185,8 @@ def run(cfg, b, half_lives=None, log=print):
             fm, cost = flag_mask(cfg, tb, q, lo)
             mm, mcost = flag_mask(cfg, tb, q, lo, maker=True)
             tm, tcost = flag_mask(cfg, tb, q, lo, tight=True)
+            k = cfg.get("max_best_per_event", 2)  # Best bets per game, as the live scan picks them
+            fm, mm, tm = (cap_mask(m_, tb.ev, tb.h, q - c_, k) for m_, c_ in ((fm, cost), (mm, mcost), (tm, tcost)))
             allt.append(tm); alltc.append(tcost); allq.append(q)
             alle.append(edge_mask(cfg, tb, q, node_neff(m, tb), cost, fm))
             fold_rows.append(dict(start=int(s), **score(tb, fm, cost)))
