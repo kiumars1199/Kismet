@@ -17,7 +17,8 @@ export interface ScanMeta {
   tiers?: { best: number; edge: number };   // docs/18 §2: flag count per tier (flags = best + edge)
   rule: { min_edge: number; confidence_z: number; price_range: [number, number] };
   // Polymarket US coverage of this scan (absent before the US venue shipped; ok=false when the US fetch failed)
-  us?: { ok: boolean; markets: number; matched: number; best_on_us: number; best_us_edge: number };
+  // native = US-only markets scored directly (engine/us_native.py, behind US_NATIVE_SCAN; 0 when off)
+  us?: { ok: boolean; markets: number; matched: number; best_on_us: number; best_us_edge: number; native?: number };
 }
 
 export type Category = "sports" | "crypto" | "politics" | "finance" | "culture"
@@ -69,11 +70,16 @@ export interface Market {
   kalshi_match_conf?: number;
   market_slug?: string;     // Gamma market slug (event slug is `slug`)
   us?: UsQuote | null;      // Polymarket US twin; absent on scans before it shipped
+  // "us" = a US-only market scored at US prices (engine/us_native.py): id "us-<US id>", event_id "us:<US event id>",
+  // slug = US event slug, market_slug = US market slug, url = its polymarket.us/event page, tokens ["", ""]
+  // (no CLOB book; the US book is read server-side). Absent = a Polymarket (international) market.
+  venue?: "us";
 }
 // Polymarket US (docs/research/polymarket-us.md): the best side priced on the CFTC-regulated US venue, the only
 // Polymarket US users can trade. null = not listed on Polymarket US. ask/fee/edge null = listed, no live book.
 export interface UsQuote {
-  slug: string; url: string;
+  slug: string;             // US market slug
+  url: string;              // https://polymarket.us/event/<US event slug> (/market/<slug> redirects to the home page)
   side: 0 | 1;              // US side bought: 0 = the US market's first outcome (long), 1 = the other (short)
   ask: number | null; fee: number | null;   // US ask for this side; fee = feeCoefficient (0.095) * ask * (1 - ask)
   edge: number | null;      // best.win_prob - ask - fee at US prices
@@ -170,6 +176,7 @@ export interface LedgerEntry {
   // Polymarket US price when the bet was listed there (pipeline/venue_us.py); graded at US price and fee
   us_slug?: string; us_side?: 0 | 1; us_ask?: number; us_fee?: number; us_edge?: number | null;
   us_result?: "won" | "lost"; us_pnl?: number; us_settled_by?: "us" | "intl";
+  venue?: "us";                  // US-only market (token null): graded from US settlement only, result/pnl = us_result/us_pnl
 }
 export interface LedgerStats { entries: number; graded: number; wins: number; losses: number;
   avg_pnl: number | null; avg_clv: number | null;
