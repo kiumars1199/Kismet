@@ -78,6 +78,8 @@ def attach_us(rows, log=print, fetch=None):
         b = r["best"]
         r["us"] = venue_us.quote(hit, b["side_index"], b["win_prob"])
         matched += 1
+    for r in rows:
+        r.pop("outcomes", None)  # matching input only; sides[].outcome carries the names in the output files
     log(f"polymarket us: {matched} of {len(rows)} scanned markets are on Polymarket US")
     return dict(ok=True, markets=len(us), matched=matched)
 

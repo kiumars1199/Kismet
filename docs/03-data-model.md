@@ -73,7 +73,6 @@ export interface Market {
   kalshi_ticker?: string | null;  // e.g. "KXHIGHCHI-26NOV17-B56.5"; drives "Open on Kalshi" + paper Trade ticket
   kalshi_match_conf?: number;     // 0..1
   market_slug?: string;     // Gamma market slug (event slug is `slug`)
-  outcomes?: [string, string];   // outcome names, index = side_index
   us?: UsQuote | null;      // Polymarket US twin; absent on scans before it shipped
 }
 // Polymarket US (docs/research/polymarket-us.md): the best side priced on the CFTC-regulated US venue, the only
