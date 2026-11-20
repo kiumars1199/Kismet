@@ -29,6 +29,7 @@ export const PUBLIC_API: readonly string[] = [
   "/api/unsubscribe",         // signed token from the email
   "/api/alerts/run",          // CRON_SECRET
   "/api/settle/run",          // CRON_SECRET
+  "/api/lifecycle/run",       // CRON_SECRET
   "/api/ext/token/refresh",   // extension bearer token
   "/api/ext/telemetry",       // extension, no user data
   "/api/trade/config",        // extension vault page: whether the paper ticket shows (false signed out)
