@@ -15,6 +15,8 @@ Before screenshots and prod headers (taken 16:58 UTC, before any change): `docs/
 8. **"$10 wins $5.60" means profit after fees** (the spec's wording), used consistently on every card. The old card said "get $X back" (total); mixing the two was confusing.
 9. **Research rule IDs.** Lanes cite rules by their research IDs (R1-n, R2-n); `docs/research/overhaul.md` lists the final 15 under those same IDs, so citations made before consolidation stay valid.
 10. **Lane B started before R1 finished.** Cards and filters rest on R2's rules (data display, usability), which were ready. Lane A (landing copy) waits for R1's value proposition.
+12. **Payout wording vs Polymarket.** Polymarket's trade sheet says "To win $19.89" for the *total* payout. The card keeps the spec's "$10 wins $X" (profit); the first line of "Why this bet?" states the total ("If it wins you get $X back"), and the card never says "To win".
+13. **Banned-count regex fix.** R1 found `BIG_COUNT` matched "Unlock 14 more" (the M of "more"). Fixed with a no-letter lookahead; tests cover it.
 11. **Lane E's live-filter result (`flag_max_edge`, default off) ships as a flag, not on.** Its held-out gain is noise-sized and the candidates weren't pre-registered.
 
 ## Waiting for Q
@@ -24,3 +26,10 @@ Before screenshots and prod headers (taken 16:58 UTC, before any change): `docs/
 
 ## Merged
 - PR #3 `claude/us-venue` (kiumars1199/Kismet): merged via `overhaul` (3 commits: 29282c9, d40090f, ddf9cfd).
+
+## 0. Research — PASS
+- `docs/research/overhaul.md`: 15 rules (IDs R1-1…R1-8, R2-1…R2-6, R2-8; R2-7 merged into R2-5), each with source links and an example to copy; chosen value proposition; 5 pages to imitate with screenshots in `docs/research/screens/` (polymarket-trade, polymarket-sports, polymarket-game, robinhood-event, actionnetwork-projections). Lane files: `overhaul-r1.md` (256 lines), `overhaul-r2.md` (238 lines, with a "Removed claims" table).
+- Sources: every source was downloaded and read on Nov 20 (curl + text extraction). The first R2 pass ran before the hosts were opened and used search snippets; it was redone after the network change and unverifiable claims were deleted.
+- Not reachable even after allowlisting: kalshi.com (bot wall, HTTP 429), news.kalshi.com (403), pmc.ncbi.nlm.nih.gov (reCAPTCHA), sportsbook.fanduel.com (403). No rule rests on them.
+- Chosen headline "Which Polymarket bets are worth it today?" and sentence "Placing a bet or two? Kismet shows which Polymarket bets look like good value today, how often bets like them win, and what $10 pays." Scoring is judgment against stated 5-second criteria, not a user test.
+- Citation check: see the `git log` grep under §A, §B, §D below.
