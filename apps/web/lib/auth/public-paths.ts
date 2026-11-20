@@ -29,6 +29,7 @@ export const PUBLIC_API: readonly string[] = [
   "/api/unsubscribe",         // signed token from the email
   "/api/alerts/run",          // CRON_SECRET
   "/api/settle/run",          // CRON_SECRET
+  "/api/lifecycle/run",       // CRON_SECRET
   "/api/ext/token/refresh",   // extension bearer token
   "/api/ext/telemetry",       // extension, no user data
   "/api/trade/config",        // extension vault page: whether the paper ticket shows (false signed out)
@@ -36,6 +37,7 @@ export const PUBLIC_API: readonly string[] = [
   "/api/events/by-slug",      // extension (no cookies): the route itself needs a session or an extension token
   "/api/mcp",                 // MCP server: OAuth bearer tokens, checked by the route
   "/api/tz",                  // T-288: same-origin POST of the browser's time zone, sets one cookie, returns nothing
+  "/api/funnel",              // T-299: same-origin POST of a funnel step; signed-out steps count too
 ];
 
 /** Signed-out visitors here go to /login (an existing account is expected), not /signup. */

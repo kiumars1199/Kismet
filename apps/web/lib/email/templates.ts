@@ -1,5 +1,5 @@
-// Email templates. Each returns subject + html + text and always includes the unsubscribe link and
-// the disclaimer. Wording follows docs/06: plain facts, never "bet this".
+// Email templates. Each returns subject + html + text and always includes the disclaimer; optional mail (alerts,
+// support links) also carries the unsubscribe link (T-300 notices have none). Wording follows docs/06: plain facts, never "bet this".
 import { message, title } from "@/lib/alerts";
 import type { Market, Side } from "@/lib/types";
 import { siteUrl, type Email } from "./index";
@@ -9,7 +9,8 @@ export const DISCLAIMER = "Market analytics, not financial advice. Based on past
 const esc = (s: string) =>
   s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 
-function layout(heading: string, lines: string[], cta: { href: string; label: string }, unsub: string, why: string, unsubLabel = "Unsubscribe") {
+/** unsub null = a required notice with no unsubscribe link (T-300 transactional mail); the reason line stays. */
+export function layout(heading: string, lines: string[], cta: { href: string; label: string }, unsub: string | null, why: string, unsubLabel = "Unsubscribe") {
   const html = `<!doctype html><html><body style="margin:0;background:#0b0f0d;color:#e6ece9;font-family:system-ui,-apple-system,Segoe UI,sans-serif">
 <div style="max-width:560px;margin:0 auto;padding:24px">
 <p style="margin:0 0 4px;color:#10b981;font-weight:600">Kismet</p>
@@ -17,10 +18,10 @@ function layout(heading: string, lines: string[], cta: { href: string; label: st
 ${lines.map((l) => `<p style="margin:0 0 8px">${esc(l)}</p>`).join("\n")}
 <p style="margin:20px 0"><a href="${esc(cta.href)}" style="background:#10b981;color:#000;padding:10px 16px;border-radius:12px;text-decoration:none;font-weight:600">${esc(cta.label)}</a></p>
 <hr style="border:0;border-top:1px solid #1a2520;margin:24px 0">
-<p style="margin:0 0 8px;font-size:12px;color:#8a9a93">${esc(why)} <a href="${esc(unsub)}" style="color:#8a9a93">${esc(unsubLabel)}</a></p>
+<p style="margin:0 0 8px;font-size:12px;color:#8a9a93">${esc(why)}${unsub ? ` <a href="${esc(unsub)}" style="color:#8a9a93">${esc(unsubLabel)}</a>` : ""}</p>
 <p style="margin:0;font-size:12px;color:#8a9a93">${esc(DISCLAIMER)}</p>
 </div></body></html>`;
-  const text = [heading, "", ...lines, "", `${cta.label}: ${cta.href}`, "", `${why} ${unsubLabel}: ${unsub}`, DISCLAIMER].join("\n");
+  const text = [heading, "", ...lines, "", `${cta.label}: ${cta.href}`, "", unsub ? `${why} ${unsubLabel}: ${unsub}` : why, DISCLAIMER].join("\n");
   return { html, text };
 }
 

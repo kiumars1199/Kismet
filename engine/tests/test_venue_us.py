@@ -167,3 +167,50 @@ def test_us_grading_backfills_rows_graded_before(tmp_path):
                      log=lambda *a: None, get_us_settlement=lambda slug: 0.0)
     r = jl_read(cfg.path("output", "ledger.jsonl"))[0]
     assert r["us_result"] == "won" and r["us_pnl"] == pytest.approx(0.43) and s["us"]["graded"] == 1
+
+
+# ---- same-payout comparison group (control.jsonl) ----
+
+def mkt(mid_, cat, asks, ev="ev"):
+    sides = [dict(side_index=i, outcome=f"o{i}", ask=a, fee=0.01, win_prob=0.5, edge=0.0)
+             for i, a in enumerate(asks)]
+    return dict(id=mid_, question="q", category=cat, niche=cat, tokens=["a", "b"], closes_at=1, event_id=ev,
+                sides=sides, best=sides[0], execution=dict(verdict="worth it"))
+
+
+def test_control_samples_same_band_and_category_once_per_new_pick(tmp_path):
+    import random
+    cfg = Config(output_dir=str(tmp_path))
+    pick = mkt("p", "sports", [0.80, 0.22])                   # pays 1.25x -> "<1.5x"
+    rows = [pick,
+            mkt("a", "sports", [0.78, 0.25]),                 # same band, same category
+            mkt("b", "weather", [0.79, 0.24]),                # same band, other category
+            mkt("c", "sports", [0.40, 0.62])]                 # other band (2.5x), and 0.62 -> 1.6x
+    ledger.append(cfg, [pick], now=1, rows=rows, rng=random.Random(0))
+    ctl = jl_read(cfg.path("output", "control.jsonl"))
+    assert len(ctl) == 1 and ctl[0]["id"] == "a" and ctl[0]["band"] == "<1.5x" and ctl[0]["pick_id"] == "p"
+    # a re-flag of the same pick at a better ask is not a new pick: no new comparison bet
+    better = dict(pick, best=dict(pick["best"], ask=0.79))
+    ledger.append(cfg, [better], now=2, rows=rows, rng=random.Random(0))
+    assert len(jl_read(cfg.path("output", "control.jsonl"))) == 1
+    # a new pick in the same band takes another market (never the same one twice), falling back across categories
+    pick2 = mkt("p2", "sports", [0.81, 0.21])
+    ledger.append(cfg, [pick2], now=3, rows=rows + [pick2], rng=random.Random(0))
+    ids = [e["id"] for e in jl_read(cfg.path("output", "control.jsonl"))]
+    assert ids == ["a", "b"]
+
+
+def test_grade_reports_picks_vs_same_payout(tmp_path):
+    import random
+    cfg = Config(output_dir=str(tmp_path))
+    pick = mkt("p", "sports", [0.80, 0.22])
+    rows = [pick, mkt("a", "sports", [0.78, 0.25], ev="e2")]
+    ledger.append(cfg, [pick], now=1, rows=rows, rng=random.Random(0))
+    markets = {"p": dict(closed=True, outcomePrices='["1","0"]'), "a": dict(closed=True, outcomePrices='["0","1"]')}
+    s = ledger.grade(cfg, get_market=markets.__getitem__, get_history=lambda t: [], now=9, log=lambda *a: None,
+                     get_us_settlement=lambda slug: None)
+    v = s["vs_same_payout"]
+    assert v["<1.5x"]["picks"]["wins"] == 1 and v["<1.5x"]["others"]["wins"] == 0
+    assert v["all"]["picks"]["avg_pnl"] == pytest.approx(1 - 0.80 - 0.01)
+    assert v["all"]["others"]["avg_pnl"] == pytest.approx(0 - 0.78 - 0.01)
+    assert s["entries"] == 1   # the comparison bets never enter the track record itself

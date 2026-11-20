@@ -84,7 +84,7 @@ won't survive on US. The new `us.edge` field shows that bet by bet.
   - orients outcomes by team or Over/Under
   - checks that a US spread's subject team matches
   - rejects any match whose prices differ by more than 12¢
-- `engine/scan.py`: every scanned market gets `market_slug`, `outcomes` and `us` (US slug, link, side, ask, fee,
+- `engine/scan.py`: every scanned market gets `market_slug` and `us` (US slug, link, side, ask, fee,
   edge, roi at US prices, or null). `meta.us` reports coverage: `markets`, `matched`, `best_on_us`, and
   `best_us_edge` (Best bets still ≥ 2¢ at US prices). A US outage leaves `us` null and the scan runs on.
 - `engine/ledger.py`: new rows store `event_id` and the US price. The grader settles US rows from Polymarket US's
@@ -96,6 +96,10 @@ won't survive on US. The new `us.edge` field shows that bet by bet.
 - Web: `types.ts` and `docs/03` updated. Free users see the US link and price, but not the exact US edge or return
   (`lib/data/gate.ts`).
 - Tests: `engine/tests/test_venue_us.py` (16 tests), `apps/web/test/us-gate.test.ts`.
+
+- Same-payout comparison: every new pick also logs one random other bet at the same payout band (same category
+  when possible) to `output/control.jsonl`. It's graded the same way, and `ledger_summary.vs_same_payout` shows
+  picks vs others per band. This measures the honest pitch ("the best pick at the multiplier you already want").
 
 The US record starts the first scan after deploy. Earlier rows have no US price and stay in `intl_only`.
 

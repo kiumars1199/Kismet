@@ -23,9 +23,16 @@ The summary keeps the original numbers and adds:
   intl_only the rest (not available to US users)
   events   distinct events, and avg_pnl_by_event: each event's bets averaged, then events averaged
            equally, so one game with 20 lines can't outweigh 19 other games
+
+Same-payout comparison (output/control.jsonl): every time a bet becomes a best bet for the first time, the
+scan also logs one random other bet paying the same (payout band, same category when possible) at its own
+asking price. The grader settles both alike, and `vs_same_payout` puts them side by side per band:
+"do Kismet's picks beat another bet at the multiplier you wanted anyway?" That is the claim the product can
+honestly make, so it needs its own live evidence (owners' pitch, Nov 20).
 """
 import json
 import os
+import random
 import time
 
 from pipeline.common import CLOB, GAMMA, http, jl_read, jl_write, parse_ts
@@ -37,19 +44,40 @@ def _path(cfg):
     return cfg.path("output", "ledger.jsonl")
 
 
-def append(cfg, flags, now):
-    """Append new flags and re-flags at a better ask. Returns rows added."""
+def _control_path(cfg):
+    return cfg.path("output", "control.jsonl")
+
+
+# payout bands as Results shows them (pays = 1 / ask)
+PAY_BANDS = [(1.0, 1.5, "<1.5x"), (1.5, 2.0, "1.5-2x"), (2.0, 3.0, "2-3x"), (3.0, 5.0, "3-5x"),
+             (5.0, 10.0, "5-10x"), (10.0, float("inf"), "10x+")]
+
+
+def pay_band(ask):
+    if not ask or ask <= 0:
+        return None
+    pays = 1 / ask
+    return next((b for lo, hi, b in PAY_BANDS if lo <= pays < hi), None)
+
+
+def append(cfg, flags, now, rows=None, rng=None):
+    """Append new flags and re-flags at a better ask. Returns rows added.
+
+    With `rows` (every scanned market), also logs one same-payout comparison bet per bet that is a best
+    bet for the first time (append_control)."""
     p = _path(cfg)
     best_ask = {}
     for e in jl_read(p):
         k = (e["id"], e["side_index"])
         best_ask[k] = min(best_ask.get(k, 2.0), e["ask"])
-    new = []
+    new, first = [], []
     for r in flags:
         s = r["best"]
         k = (r["id"], s["side_index"])
         if s["ask"] >= best_ask.get(k, 2.0):
             continue
+        if k not in best_ask:
+            first.append(r)
         best_ask[k] = s["ask"]
         toks = r.get("tokens") or []
         row = dict(
@@ -64,7 +92,47 @@ def append(cfg, flags, now):
                        us_edge=u["edge"])
         new.append(row)
     jl_write(p, new)
+    if rows is not None and first:
+        append_control(cfg, first, rows, flags, now, rng, logged={k[0] for k in best_ask})
     return len(new)
+
+
+def append_control(cfg, picks, rows, flags, now, rng=None, logged=()):
+    """One random other bet per new pick: same payout band, same category when there is one, never a market that
+    is or was a best bet (`logged` = ids in the track record), never one already in the comparison log. Priced at
+    its own ask plus fee, like the picks."""
+    rng = rng or random.Random(int(now))
+    p = _control_path(cfg)
+    taken = {(e["id"], e["side_index"]) for e in jl_read(p)}
+    flagged = {r["id"] for r in flags} | set(logged)
+    pool = {}
+    for r in rows:
+        if r["id"] in flagged:
+            continue
+        for sd in r.get("sides") or []:
+            b = pay_band(sd.get("ask"))
+            if b is None or (r["id"], sd["side_index"]) in taken:
+                continue
+            pool.setdefault((b, r["category"]), []).append((r, sd))
+            pool.setdefault((b, None), []).append((r, sd))
+    out = []
+    for pk in picks:
+        b = pay_band(pk["best"]["ask"])
+        cands = pool.get((b, pk["category"])) or pool.get((b, None)) or []
+        cands = [c for c in cands if (c[0]["id"], c[1]["side_index"]) not in taken]
+        if not cands:
+            continue
+        r, sd = rng.choice(cands)
+        taken.add((r["id"], sd["side_index"]))
+        toks = r.get("tokens") or []
+        out.append(dict(
+            id=r["id"], side_index=sd["side_index"], outcome=sd.get("outcome"), question=r.get("question"),
+            category=r["category"], niche=r.get("niche"), ask=sd["ask"], fee=sd["fee"],
+            win_prob=sd.get("win_prob"), edge=sd.get("edge"), flagged_at=int(now), closes_at=r.get("closes_at"),
+            token=toks[sd["side_index"]] if len(toks) == 2 else None, event_id=r.get("event_id"),
+            band=b, pick_id=pk["id"]))
+    jl_write(p, out)
+    return len(out)
 
 
 def closing_price(m, pts):
@@ -109,6 +177,30 @@ def first_rows(entries):
             seen.add(k)
             out.append(e)
     return out
+
+
+def same_payout(entries, control):
+    """Kismet's picks (each bet once) vs the random same-payout bets, per payout band and overall."""
+    picks = first_rows(entries)
+    out = {}
+    for b in [b for _, _, b in PAY_BANDS] + [None]:
+        pk = [e for e in picks if b is None or pay_band(e["ask"]) == b]
+        ot = [e for e in control if b is None or e.get("band") == b]
+        if pk or ot:
+            out[b or "all"] = dict(picks=_agg(pk), others=_agg(ot))
+    return out
+
+
+def _agg(es, pnl="pnl", res="result"):
+    g = [e for e in es if e.get(res) in ("won", "lost") and e.get(pnl) is not None]
+    cost = sum(e[pnl.replace("pnl", "ask")] + e[pnl.replace("pnl", "fee")] for e in g)
+    ev = {}
+    for e in g:
+        ev.setdefault(e.get("event_id") or e["id"], []).append(e[pnl])
+    return dict(entries=len(es), graded=len(g), wins=sum(e[res] == "won" for e in g),
+                avg_pnl=round(sum(e[pnl] for e in g) / len(g), 4) if g else None,
+                roi_pct=round(sum(e[pnl] for e in g) / cost * 100, 2) if cost else None,
+                events=len(ev))
 
 
 def summarize(entries, now):
@@ -156,9 +248,21 @@ def _grade_us(e, intl_won, get_us_settlement):
 def grade(cfg, get_market=get_market, get_history=get_history, now=None, log=print,
           get_us_settlement=get_us_settlement):
     now = time.time() if now is None else now
-    p = _path(cfg)
+    markets = {}
+    entries, graded = _grade_file(_path(cfg), markets, get_market, get_history, now, log, get_us_settlement)
+    control, _ = _grade_file(_control_path(cfg), markets, get_market, get_history, now, log, get_us_settlement)
+    s = summarize(entries, now)
+    s["vs_same_payout"] = same_payout(entries, control)
+    json.dump(s, open(cfg.path("output", "ledger_summary.json"), "w"), indent=1)
+    log(f"ledger: graded {graded} now, {s['graded']}/{s['entries']} graded in total")
+    return s
+
+
+def _grade_file(p, markets, get_market, get_history, now, log, get_us_settlement):
+    if not os.path.exists(p):
+        return [], 0
     entries = jl_read(p)
-    markets, graded = {}, 0
+    graded = 0
     for e in entries:
         if "result" in e:
             if e.get("us_ask") is not None and "us_result" not in e:
@@ -193,7 +297,4 @@ def grade(cfg, get_market=get_market, get_history=get_history, now=None, log=pri
         for e in entries:
             f.write(json.dumps(e) + "\n")
     os.replace(tmp, p)
-    s = summarize(entries, now)
-    json.dump(s, open(cfg.path("output", "ledger_summary.json"), "w"), indent=1)
-    log(f"ledger: graded {graded} now, {s['graded']}/{s['entries']} graded in total")
-    return s
+    return entries, graded

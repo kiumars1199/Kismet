@@ -73,7 +73,6 @@ export interface Market {
   kalshi_ticker?: string | null;  // e.g. "KXHIGHCHI-26NOV17-B56.5"; drives "Open on Kalshi" + paper Trade ticket
   kalshi_match_conf?: number;     // 0..1
   market_slug?: string;     // Gamma market slug (event slug is `slug`)
-  outcomes?: [string, string];   // outcome names, index = side_index
   us?: UsQuote | null;      // Polymarket US twin; absent on scans before it shipped
 }
 // Polymarket US (docs/research/polymarket-us.md): the best side priced on the CFTC-regulated US venue, the only
@@ -143,7 +142,13 @@ export interface LedgerSummary extends LedgerStats {
   first?: LedgerStats;      // one row per market and side (re-flags at a better ask not counted twice)
   us?: LedgerStats & { by_category: Record<string, LedgerStats> };   // US-listed bets, at US price and fee
   intl_only?: LedgerStats;  // bets US users could not place
+  // Picks (each bet once) vs one random other bet logged per new pick at the same payout (output/control.jsonl),
+  // keyed by band ("<1.5x", "1.5-2x", "2-3x", "3-5x", "5-10x", "10x+") and "all". The honest claim:
+  // "beats another bet at the multiplier you wanted anyway".
+  vs_same_payout?: Record<string, { picks: PayoutStats; others: PayoutStats }>;
 }
+export interface PayoutStats { entries: number; graded: number; wins: number; avg_pnl: number | null;
+  roi_pct: number | null; events: number }
 ```
 
 `model.json` (curves for charts): `nodes[]` with `level, horizon_h, key, market_type, n, neff, events,
