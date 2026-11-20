@@ -8,7 +8,7 @@ import { softNav } from "@/lib/softNav";
 import { useEffect, useRef, useState } from "react";
 import { fetchBook, fetchMarket, type BookResponse, type MarketResponse } from "@/lib/api";
 import { useWhen } from "./When";
-import { ago, basis, cardReturn, edge, money, pays, pct, price, ret, sideRet, sideEdge, formatCount, LONG_SHOT_LINE } from "@/lib/format";
+import { ago, basis, cardReturn, edge, pastReturnLine, money, pays, pct, price, ret, sideEdge, formatCount, LONG_SHOT_LINE } from "@/lib/format";
 import { betFigures, edgeAbove0, PTS_HELP, RETURN_HELP_ONE, RETURN_LABEL_LONG, RETURNS_FAQ } from "@/lib/betFigures";
 import { useProfile } from "@/lib/repo/hooks";
 import { useEntitlements } from "@/lib/entitlements";
@@ -238,7 +238,7 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
             ["Ask", price(x?.best_ask ?? s.ask)], ["Mid", price(x?.book_mid ?? s.mid)],
             ["Spread", price(x?.spread ?? m.spread)], ["Fee", price(x?.fee_at_ask ?? s.fee)],
             ["Edge", edge(x?.net_edge ?? s.edge)], ["Cautious edge", edge(s.edge_low)],
-            ["Model's own return estimate", sideRet(s)],
+            ["Similar past bets returned", pastReturnLine(s) ?? "—"],
             ["Edge kept after spread", pct(x?.retention)], ["Win chance range", `${pct(s.win_prob_low)}–${pct(s.win_prob)}`],
             ["Model level", LEVEL[s.model_level] ?? s.model_level], ["Samples", `${formatCount(s.model_neff)} eff. · ${formatCount(s.model_events)} events`],
           ] as const).map(([k, v]) => (

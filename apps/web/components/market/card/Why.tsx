@@ -7,7 +7,7 @@ import type { ReactNode } from "react";
 import type { ApiRow } from "@/lib/api";
 import { backLine, cardVenue, INTL_ONLY, NOT_FOR_US, priceText, stars, starsHelp, type CardVenue } from "@/lib/card";
 import { paysBand } from "@/lib/filters/apply";
-import { cardReturn, money, pct, ret, testedLine } from "@/lib/format";
+import { cardReturn, ESTIMATE_HELP, money, PAST_RETURN_HELP, pastReturnLine, pct, ret, testedLine } from "@/lib/format";
 import { noLiveRecord } from "@/lib/proof";
 import type { Execution, Market, Side } from "@/lib/types";
 import { WatchStar } from "@/components/watch/WatchStar";
@@ -76,6 +76,8 @@ export function Why({ r, livePrice }: { r: ApiRow; livePrice?: ReactNode }) {
   const intl = venueOf(m);
   const notes = priceNotes(m.execution);
   const usRet = v.kind === "us" ? usReturnText(v, banded) : null;
+  // the past-bets figure is priced at the international ask; beside a US price it would compare two different prices
+  const past = v.kind === "us" ? null : pastReturnLine(s);
   return (
     <details data-testid="why" className="group relative z-10 rounded-xl border border-border/70 bg-background/40 open:bg-background/60"
       onClick={(e) => e.stopPropagation()}>
@@ -98,8 +100,14 @@ export function Why({ r, livePrice }: { r: ApiRow; livePrice?: ReactNode }) {
           </Line>
           <Line label="Estimated return">
             <span data-testid="why-return">{v.kind === "us" ? (usRet ?? "No Polymarket US price right now") : cardReturn(s).text}</span>
-            <span className="block text-xs text-muted">Per bet, on average, at today&apos;s price after the fee. Any single bet can lose.</span>
+            <span className="block text-xs text-muted">{ESTIMATE_HELP}</span>
           </Line>
+          {past && (
+            <Line label="Similar past bets" testid="why-past">
+              <span data-testid="why-past-return">{past}</span>
+              <span className="block text-xs text-muted">{PAST_RETURN_HELP}</span>
+            </Line>
+          )}
           <Line label="How sure we are" testid="why-basis">
             {s.model_neff >= 100 ? "Plenty of history" : "Little history"}: based on {pastBets(s.model_neff)} in {basisWords(m, s)}
           </Line>

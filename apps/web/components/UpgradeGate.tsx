@@ -6,8 +6,10 @@ import { track } from "@/lib/telemetry";
 
 /** Renders children when the tier has `feature`; otherwise a blurred, inert preview with an upgrade link. */
 export function UpgradeGate({ feature, children }: { feature: Feature; children: ReactNode }) {
-  const { can } = useEntitlements();
+  const { can, known } = useEntitlements();
   if (can(feature)) return <>{children}</>;
+  // #40: plan not known yet (a paid user's first second on the page): a quiet placeholder, no upgrade pitch
+  if (!known) return <div aria-busy="true" inert className="pointer-events-none select-none opacity-40">{children}</div>;
   return (
     <div className="relative">
       <div aria-hidden="true" inert className="pointer-events-none select-none blur-sm">

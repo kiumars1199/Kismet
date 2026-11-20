@@ -20,7 +20,9 @@ describe("Plans first paint", () => {
     const h = html();
     expect(h).not.toContain("Coming soon");
     expect(h).not.toMatch(/<button[^>]*disabled/);
-    expect(h.match(/href="\/signup\?next=\/pricing"/g)).toHaveLength(2);
+    // #32: the chosen plan and period ride through sign-up and back to that plan's checkout
+    expect(h).toContain(`href="/signup?next=${encodeURIComponent("/pricing?start=pro_monthly")}"`);
+    expect(h).toContain(`href="/signup?next=${encodeURIComponent("/pricing?start=premium_monthly")}"`);
   });
 
   it("billing not configured: Coming soon is the real state", () => {

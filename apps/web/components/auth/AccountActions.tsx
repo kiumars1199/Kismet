@@ -31,15 +31,22 @@ export function AccountActions({ kind, tier, billing, hasCustomer }: { kind: "bi
     <div className="flex flex-col items-start gap-2 sm:items-end">
       <div className="flex flex-wrap gap-2">
         {hasCustomer && (
-          <button type="button" className={btn} disabled={busy}
+          <button type="button" className={btn} disabled={busy} data-testid="manage-billing"
             onClick={async () => { setBusy(true); await goTo("/api/stripe/portal", setError); setBusy(false); }}>
-            Manage billing
+            {busy ? "Opening…" : "Manage billing or cancel"}
           </button>
         )}
         {tier !== "premium" && (billing
           ? <Link href="/pricing" className={btnPrimary}>{tier === "free" ? "Upgrade" : "Get Premium"}</Link>
           : <span className="text-sm text-muted">Paid plans: coming soon</span>)}
       </div>
+      {/* #18: Terms and FAQ say "cancel from your account page"; say where, and when there is nothing to cancel */}
+      <p data-testid="billing-note" className="max-w-xs text-xs text-muted sm:text-right">
+        {hasCustomer
+          ? "Change plan, update your card, see receipts or cancel. Cancelling keeps your plan until the end of the period you paid for."
+          : tier === "free" ? "No subscription, so nothing to cancel or bill."
+          : "Your plan was given to you by Kismet: there's no subscription, so nothing to cancel or bill."}
+      </p>
       {error && <p role="alert" className="text-sm text-warning">{error}</p>}
     </div>
   );

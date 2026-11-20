@@ -73,6 +73,8 @@ export function useEntitlements() {
   const beta = DEMO_MODE || !!me?.beta;
   return {
     tier, beta,
+    /** #40: false until /api/me answers. Until then `tier` reads "free"; never show an upsell on that guess. */
+    known: DEMO_MODE || me !== null,
     can: (f: Feature) => can(tier, f),
     /** Beta-gated features (lib/beta.ts): display only, the server checks again. */
     canBeta: (f: Gated) => canBeta({ tier, beta }, f),

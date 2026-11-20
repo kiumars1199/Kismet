@@ -185,16 +185,23 @@ export function testedLine(r: { flags?: number; combos?: number; win_rate?: numb
 /** Under 25% chance the drawer says plainly what usually happens (docs/18 §6). */
 export const LONG_SHOT_LINE = "Most of the time this loses. The edge means you're getting a better price than usual, not that it will hit.";
 
-/** docs/17 fix 1: the return a card shows. What similar past bets returned when we know it (the model's own
- *  estimate overshoots at large edges and lives in the drawer), else the model's estimated return. Free-tier
- *  bands pass through unchanged. */
+/** The estimated return every surface shows (card, "Why this bet?", drawer, table, landing): the one that follows from
+ *  the win chance printed next to it (win chance × payout − stake, after the fee), so the numbers on a screen multiply
+ *  out. #55/#20 (Mark, Nov 20): cards used to show what similar past bets returned instead, which disagreed with the
+ *  win chance beside it and with the table (+28% vs +47%). That figure now has its own labelled line (pastReturnLine).
+ *  Free-tier bands pass through unchanged. `realistic` stays in the shape for older callers and is always false. */
 export function cardReturn(s: Pick<Side, "roi_pct" | "ranges" | "realistic_edge" | "ask" | "fee">): { roi: number | null; text: string; profit: string; realistic: boolean } {
-  const real = s.ranges ? null : realisticReturn(s);
-  if (real === null) return { roi: ok(s.roi_pct) ? s.roi_pct : null, text: sideRet(s), profit: sideProfit(s), realistic: false };
-  return { roi: real, text: ret(real), profit: money(Math.round(real), true), realistic: true };
+  return { roi: ok(s.roi_pct) ? s.roi_pct : null, text: sideRet(s), profit: sideProfit(s), realistic: false };
 }
-export const REALISTIC_HELP =
-  "What similar past bets actually returned on average, after the fee and the price you'd really pay. The model's own estimate is in the details. Any single bet can lose.";
+/** "Similar past bets returned +28% on average", or null when unknown or on a Free band. Shown as its own line under the
+ *  estimate, never in its place (#20: each figure says what it is). */
+export function pastReturnLine(s: Pick<Side, "realistic_edge" | "ask" | "fee" | "ranges">): string | null {
+  const real = s.ranges ? null : realisticReturn(s);
+  return real === null ? null : `${ret(real)} on average`;
+}
+export const ESTIMATE_HELP = "Win chance × payout, minus the stake, at today's price after the fee. Per bet, on average; any single bet can lose.";
+export const PAST_RETURN_HELP =
+  "What past bets with a similar estimate actually returned, after the fee and the price you'd really pay. It is usually lower than the estimate above, because big estimates tend to run high.";
 
 /** Game or close time, docs/17 fix 14: "Tue 2:45 PM" within the next 6 days, else "Nov 28". In `timeZone` (the
  *  user's, components/clock.tsx), local when undefined. A narrow no-break space before AM/PM (newer ICU, Node or

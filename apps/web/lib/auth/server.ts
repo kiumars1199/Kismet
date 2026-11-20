@@ -92,10 +92,13 @@ export async function getMe(): Promise<Me> {
   const user = await getUser();
   if (!user) return { user: null, tier: "free", ...NO_SUB, beta: false };
   // "*" so a deploy that runs before the T-140 migration (comp columns) still reads the paid tier.
-  const { data } = await (await supabaseServer())
-    .from("subscriptions").select("*")
-    .eq("user_id", user.id).maybeSingle();
-  return meOf(user, data);
+  // #40 (Nov 20): a failed read used to come back as "no subscription", so a paying user saw the Free view until the
+  // next load. Retry once; if it still fails, throw rather than quietly downgrade (pages show their error state).
+  const sb = await supabaseServer();
+  let res = await sb.from("subscriptions").select("*").eq("user_id", user.id).maybeSingle();
+  if (res.error) res = await sb.from("subscriptions").select("*").eq("user_id", user.id).maybeSingle();
+  if (res.error && !isAdminEmail(user, process.env.ADMIN_EMAILS, DEMO_MODE)) throw new Error(`subscriptions read failed: ${res.error.message}`);
+  return meOf(user, res.error ? null : res.data);
 }
 
 type SubRow = { tier?: unknown; comp_tier?: unknown; comp_expires_at?: string | null; status?: string | null; current_period_end?: string | null; cancel_at_period_end?: boolean | null };

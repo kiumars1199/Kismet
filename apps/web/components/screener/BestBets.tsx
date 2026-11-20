@@ -289,8 +289,10 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
             : { href: "/markets", label: "Look in All markets" }}
         />
       ) : (
-        <div data-testid="bets-list" aria-busy={busy} className={`flex flex-col gap-4 transition-opacity duration-200 ease-out ${busy ? "pointer-events-none opacity-60" : ""}`}>
-          {busy && <p role="status" className="sr-only">Updating best bets</p>}
+        <>
+        {/* #45: the old list stays only as a dim backdrop that can't be used; a visible label says it is being replaced */}
+        {busy && <p role="status" data-testid="bets-updating" className="sticky top-16 z-20 mx-auto -mb-2 rounded-full border border-border bg-surface px-4 py-1.5 text-sm font-medium text-text shadow">Updating bets…</p>}
+        <div data-testid="bets-list" aria-busy={busy} inert={busy || undefined} className={`flex flex-col gap-4 transition-opacity duration-200 ease-out ${busy ? "pointer-events-none opacity-40" : ""}`}>
           {error && <ErrorState onRetry={sc.retry} what="best bets" error={error} />}
           <h2 id="top-h" className="text-xl font-semibold">Today&apos;s top {Math.min(TOP, slots.length)}</h2>
           <Cards slots={slots.slice(0, TOP)} desktop={desktop} label="top-h" />
@@ -312,6 +314,7 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
             </button>
           )}
         </div>
+        </>
       )}
     </div>
   );

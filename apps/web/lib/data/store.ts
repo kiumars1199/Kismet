@@ -151,11 +151,24 @@ export async function decodeBody(bytes: Uint8Array): Promise<string> {
   return text.charCodeAt(0) === 0xfeff ? text.slice(1) : text;   // drop a BOM, as Response.text() did
 }
 
+/** #46 (Nov 20): one slow Storage response used to hold a load for 30 s and then hand the instance to the stale
+ *  fallback. Two tries with shorter timeouts: a stuck connection is dropped and retried on a fresh one. */
+const TRIES_MS = [15_000, 20_000];
+
 async function fetchText(url: string, headers: Record<string, string>, missing: number[]) {
-  const res = await fetch(url, { headers, cache: "no-store", signal: AbortSignal.timeout(30_000) });
-  if (missing.includes(res.status)) return undefined;
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return decodeBody(new Uint8Array(await res.arrayBuffer()));
+  let err: unknown;
+  for (const ms of TRIES_MS) {
+    try {
+      const res = await fetch(url, { headers, cache: "no-store", signal: AbortSignal.timeout(ms) });
+      if (missing.includes(res.status)) return undefined;
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await decodeBody(new Uint8Array(await res.arrayBuffer()));
+    } catch (e) {
+      err = e;
+      if (/^HTTP 4\d\d/.test((e as Error).message)) break;   // a 4xx won't change on retry
+    }
+  }
+  throw err;
 }
 
 /** One file from one source; undefined = the source has no such file. */
@@ -233,12 +246,19 @@ export async function firstFlaggedAt(source: DataSource): Promise<number | null>
   return min;
 }
 
-/** Every file from one source (never mix two scans); on any failure the next source. */
-export async function loadRaw(chain = sourceChain()): Promise<RawData> {
+/** #46 (Nov 20): a fallback source is only used while it is this fresh. The GitHub `live` branch stopped updating when
+ *  the engine moved to Railway, and instances that fell back to it served a day-old scan beside fresh ones. */
+export const FALLBACK_MAX_AGE_S = 2 * 3600;
+
+/** Every file from one source (never mix two scans); on any failure the next source, if its scan is recent. */
+export async function loadRaw(chain = sourceChain(), now = Date.now() / 1000): Promise<RawData> {
   let err: unknown;
-  for (const source of chain) {
+  for (const [i, source] of chain.entries()) {
     try {
-      return await loadFrom(source);
+      const raw = await loadFrom(source);
+      const age = now - raw.markets.meta.scanned_at;
+      if (i > 0 && age > FALLBACK_MAX_AGE_S) throw new Error(`fallback scan is ${Math.round(age / 3600)} h old, not used`);
+      return raw;
     } catch (e) {
       err = e;
       console.warn(`[store] ${source} load failed: ${(e as Error).message}`);
@@ -263,6 +283,11 @@ export function getStore(): Promise<Store> {
   state.inflight = loadRaw()
     .then((raw) => {
       state.failedAt = undefined;
+      // #46: never swap the copy in hand for an older scan (a lagging source or a stale object)
+      if (state.cache && raw.markets.meta.scanned_at < state.cache.meta.scanned_at) {
+        state.cache.loadedAt = Date.now();
+        return state.cache;
+      }
       const next = buildStore(raw);
       if (state.cache && state.cache.meta.scanned_at !== next.meta.scanned_at) [state.prev2, state.prev] = [state.prev, state.cache];
       return (state.cache = next);
