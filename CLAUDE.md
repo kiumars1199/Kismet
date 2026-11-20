@@ -44,7 +44,7 @@ docs/          the spec
 8. Tests: Vitest for logic (filters, sizing, serialization), Playwright for the 6 smoke flows in
    `docs/12-test-plan.md`. A task is done only when its acceptance checks pass.
 9. Keep PRs small: one task per PR, named `T-xx: title`.
-10. Pushing to `final` does not deploy production; an owner deploys by hand. End runs with "ready to deploy: <sha>".
+10. Every push to `final` deploys kismetodds.com to production. Push only green work (lint, typecheck, unit, e2e).
 
 ## Commands
 ```bash
