@@ -6,10 +6,11 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { drawerHref } from "@/components/market/drawer";
 import { fetchMarket, type StoreMarket } from "@/lib/api";
-import { DASH, betLine, formatCount, chance, closesLine, pct, price, ret } from "@/lib/format";
+import { DASH, betLine, formatCount, closesLine, pct, price, ret } from "@/lib/format";
 import { getRepo, type WatchlistItem } from "@/lib/repo";
 import { useCollection } from "@/lib/repo/hooks";
 import { WatchStar, type WatchSnapshot } from "./WatchStar";
+import { sideChance } from "@/lib/betFigures";
 
 type Live = StoreMarket | "gone" | undefined; // undefined = loading
 const SOON_H = 24;
@@ -51,7 +52,7 @@ function Row({ item, live, selected, onSelect }: { item: WatchlistItem; live: Li
   const s = m ? m.sides[sideIndex] ?? m.best : null;
   const question = m?.question ?? snap?.question ?? "Market no longer listed";
   const st = status(live, snap);
-  const label = chance(s?.win_prob);
+  const label = s ? sideChance(s) : null;
   const [note, setNote] = useState(item.note ?? "");
   const [target, setTargetText] = useState(item.target_price === null ? "" : String(Math.round(item.target_price * 100)));
 
