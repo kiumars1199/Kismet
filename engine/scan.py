@@ -54,6 +54,34 @@ def is_edge(cfg, r):
             and s["edge"] >= cfg.flag_min_edge and s["model_neff"] >= et.get("min_neff", 40))
 
 
+def attach_us(rows, log=print, fetch=None):
+    """Polymarket US twin of each row (docs/research/polymarket-us.md): `us` = the best side priced on US with
+    US's taker fee, or None when the market isn't listed there. US users can only trade these. A US outage
+    leaves every `us` None and the scan goes on."""
+    from pipeline import venue_us
+    for r in rows:
+        r["us"] = None
+    try:
+        us = (fetch or venue_us.fetch_open)(log=log)
+    except Exception as err:  # noqa: BLE001  the US venue is extra data; never fail the scan on it
+        log(f"polymarket us: skipped ({err})")
+        return dict(ok=False, markets=0, matched=0)
+    idx = venue_us.index(us)
+    matched = 0
+    for r in rows:
+        side0 = next((s for s in r["sides"] if s["side_index"] == 0), None)
+        mid0 = side0["mid"] if side0 else 1 - r["best"]["mid"]
+        hit = venue_us.match(dict(market_slug=r.get("market_slug"), question=r.get("question"),
+                                  outcomes=r.get("outcomes"), mid0=mid0), idx)
+        if hit is None:
+            continue
+        b = r["best"]
+        r["us"] = venue_us.quote(hit, b["side_index"], b["win_prob"])
+        matched += 1
+    log(f"polymarket us: {matched} of {len(rows)} scanned markets are on Polymarket US")
+    return dict(ok=True, markets=len(us), matched=matched)
+
+
 def run(cfg, log=print):
     d = json.load(open(cfg.path("output", "model.json")))
     model = Model.from_json(cfg, d)
@@ -113,7 +141,8 @@ def run(cfg, log=print):
         best = max(sides, key=lambda s: s["edge"])
         rows.append(dict(
             id=m["id"], question=m.get("question"), event=e.get("title"), event_id=e.get("id"),
-            tokens=json.loads(m.get("clobTokenIds") or "[]"), slug=e.get("slug"),
+            tokens=json.loads(m.get("clobTokenIds") or "[]"), slug=e.get("slug"), market_slug=m.get("slug"),
+            outcomes=outs,
             image=e.get("icon") or e.get("image"),
             url=f"https://polymarket.com/event/{e.get('slug')}", category=cat, niche=niche,
             market_type=mt, tags=tags, hours_to_close=round(hours, 2), horizon_h=h,
@@ -137,6 +166,7 @@ def run(cfg, log=print):
                 and s["edge"] >= cfg.flag_min_edge and s["edge_low"] > 0
                 and (r["validated"] or not record))
 
+    us_meta = attach_us(rows, log)
     flags = [r for r in rows if is_flag(r)]
     edge = [r for r in rows if not is_flag(r) and is_edge(cfg, r)]
     # check every flag against the live order book (ask vs mid, depth, capacity)
@@ -174,7 +204,11 @@ def run(cfg, log=print):
                 verdicts={v: sum(1 for r in flags if r["execution"]["verdict"] == v)
                           for v in ("worth it", "thin", "not worth it", "no sellers", "no book")},
                 rule=dict(min_edge=cfg.flag_min_edge, confidence_z=cfg.flag_confidence_z,
-                          price_range=[cfg.price_min, cfg.price_max]))
+                          price_range=[cfg.price_min, cfg.price_max]),
+                us=dict(us_meta, best_on_us=sum(1 for r in best_flags if r.get("us")),
+                        best_us_edge=sum(1 for r in best_flags
+                                         if (r.get("us") or {}).get("edge") is not None
+                                         and r["us"]["edge"] >= cfg.flag_min_edge)))
     json.dump(dict(meta=meta, markets=rows), open(cfg.path("output", "markets.json"), "w"))
     json.dump(dict(meta=meta, flags=flags), open(cfg.path("output", "flags.json"), "w"), indent=1)
     from . import ledger

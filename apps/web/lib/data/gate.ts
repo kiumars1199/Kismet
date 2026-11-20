@@ -56,6 +56,8 @@ export function gateMarket<M extends StoreMarket>(m: M, tier: Tier): M {
     sides: m.sides.map((s) => (s.side_index === m.best.side_index ? best : rangeSide(s))),
     best,
     ...(m.execution ? { execution: freeExecution(m.execution) } : {}),
+    // Polymarket US quote: where to bet and its price stay; the exact US edge and return are Pro numbers
+    ...(m.us ? { us: { ...m.us, edge: null, roi_pct: null } } : {}),
   };
 }
 
