@@ -7,12 +7,26 @@ Be ambitious: fix the whole experience, not the smallest change that satisfies e
 Every item has a check. An item is done only when its check passes and the evidence (command output,
 numbers, or screenshot path) is pasted under it in `docs/OVERHAUL-REPORT.md`.
 
-## 0. Research first (one subagent, ~30 min, before lanes A, B, D start)
-- Study 8–10 consumer landing pages and apps people like (Robinhood, Kalshi, Polymarket, Action Network,
-  Duolingo, Cash App, Linear, Stripe) and current landing-page / copywriting guidance (5-second test,
-  one idea per screen, plain words, mobile first).
-- Output: `docs/research/overhaul.md` with 10 rules we follow, each with an example we copy.
-- Check: file exists; lanes A, B and D cite its rules in their commits.
+## 0. Research first (2–3 subagents in parallel, ~45 min, before lanes A, B, D start)
+Use web search and real pages, not memory. Cover:
+- **Conversion and landing pages:** what high-converting SaaS and consumer landing pages do above the
+  fold, CTA wording and placement, social proof, objection handling, pricing-page layout, free-to-paid
+  upgrade prompts, signup friction (Google first, fields, steps). Prefer sources with data
+  (A/B tests, CRO case studies, Nielsen Norman Group, Baymard).
+- **Value proposition and copy:** how to state what Kismet does in one sentence a casual bettor gets
+  instantly (jobs-to-be-done, before/after framing, benefit over feature). Write 3 value propositions
+  and test them against the 5-second rule.
+- **Showing data to non-experts:** how betting and finance consumer apps (Robinhood, Kalshi,
+  Polymarket, Action Network, DraftKings, FanDuel, Rithmm, Cash App) show odds, probabilities, payouts
+  and track records simply. Natural frequencies ("7 in 10") vs percentages, star/grade ratings, what
+  goes behind a tap.
+- **Usability:** Nielsen's heuristics, mobile-first patterns, filter/search patterns for casual users,
+  loading states, perceived speed.
+- **Trust and compliance:** how gambling-adjacent products present results honestly without leading
+  with them.
+- Output: `docs/research/overhaul.md` with the 15 rules we follow (each with source links and an
+  example to copy), the chosen value proposition, and screenshots of 5 pages to imitate.
+- Check: file exists with sources; lanes A, B and D cite its rules in their commits.
 
 ## A. First screen and landing page (`/`, signed out)
 - First screen at 390×844 and 1440×900 answers in 5 seconds: what it is, who it's for, what to do next.
