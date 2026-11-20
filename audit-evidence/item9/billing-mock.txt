@@ -1,0 +1,27 @@
+# billing.cjs against E2E mock (:3160, STRIPE_WEBHOOK_SECRET=whsec_e2e); script copied as billing.cjs
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+A0 before checkout: free
+A1 after mock checkout + signed webhooks: tier pro status trialing period_end 2026-11-27T02:37:40.000Z
+   subscriptions row: {"user_id":"943da1f5-4c72-4370-952b-96d07d9f35c4","tier":"pro","stripe_customer_id":"cus_dba1589f","stripe_subscription_id":"sub_02a1afc2","status":"trialing","current_period_end":"2026-11-27T02:37:40.000Z","cancel_at_period_end":false,"trialed_at":"2026-11-20T02:37:40.000Z","updated_at":"2026-11-20T02:37:52.748Z"}
+B1 forged (wrong secret) subscription.updated → premium: 400 {"error":"Bad signature"} tier now pro
+B2 unsigned: 400 {"error":"Not configured or unsigned"} tier now pro
+B3 garbage signature: 400 {"error":"Bad signature"} tier now pro
+B4 valid HMAC, timestamp 10 min old: 400 {"error":"Bad signature"} tier now pro
+B5 valid signature but event body claims premium (tier re-read from Stripe, not the event): 200 {"received":true} tier now pro
+C1 first delivery: 200 {"received":true}
+C2 replay same event id: 200 {"received":true,"duplicate":true} tier pro
+D1 subscription.updated cancel_at_period_end=true: 200 {"received":true} tier pro (mock Stripe keeps status active; period end 2026-11-27T02:37:40.000Z )
+D2 period ends: Stripe status canceled → subscription.deleted: 200 {"received":true} tier free status canceled
+E1 Payment Link checkout with RAW user id as client_reference_id (unsigned): 502 {"error":"webhook customer.subscription.created → 500"} tier free
+E2 Payment Link checkout with signed client_reference_id: 303  tier pro
+F1 DELETE /api/account: 200 {"deleted":true} → Stripe sub sub_41ed5afa status canceled canceled_at 1795142308 ; /api/me user null
+
+# server log lines
+[stripe] checkout with an unsigned or expired client_reference_id ignored cs_test_21973fb6
+ POST /e2e-mock/supabase/rest/v1/stripe_events?on_conflict=id 201 in 15ms
+ POST /api/stripe/webhook 200 in 82ms
+ GET /e2e-mock/supabase/rest/v1/stripe_events?select=id&id=eq.evt_20229454 200 in 15ms
+ GET /v1/subscriptions?customer=cus_link392049&status=all&limit=100 200 in 34ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=user_id&stripe_customer_id=eq.cus_link392049 200 in 15ms
+[stripe] webhook failed customer.subscription.created evt_20229454 no user for customer cus_link392049
+ POST /api/stripe/webhook 500 in 122ms

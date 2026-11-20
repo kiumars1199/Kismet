@@ -1,0 +1,181 @@
+# hyd.cjs: Playwright Chromium, light throttling, timezoneId America/New_York vs default (UTC = server TZ). Server process TZ is UTC.
+
+## PRODUCTION build :3161 (logged out), timezoneId America/New_York
+=== run 1 http://localhost:3161/bets @1440 state=-: 1 hydration messages
+[pageerror] Minified React error #418; visit https://react.dev/errors/418?args[]=text&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+Error: Minified React error #418; visit https://react.dev/errors/418?args[]=text&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at rD (http://localhost:3161/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:35061)
+    at http://localhost:3161/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:119650
+    at ix (http://localhost:3161/_next/static/
+
+=== run 1 http://localhost:3161/m/6654466 @1440 state=-: 1 hydration messages
+[pageerror] Minified React error #418; visit https://react.dev/errors/418?args[]=text&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+Error: Minified React error #418; visit https://react.dev/errors/418?args[]=text&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at rD (http://localhost:3161/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:35061)
+    at rO (http://localhost:3161/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:36094)
+    at http://localhost:3161/_next/st
+
+=== run 1 http://localhost:3161/ @1440 state=-: 1 hydration messages
+[pageerror] Minified React error #418; visit https://react.dev/errors/418?args[]=text&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+Error: Minified React error #418; visit https://react.dev/errors/418?args[]=text&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at rD (http://localhost:3161/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:35061)
+    at http://localhost:3161/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:119650
+    at ix (http://localhost:3161/_next/static/chun
+
+=== run 1 http://localhost:3161/markets @1440 state=-: 0 hydration messages
+-- all errors/warnings:
+
+## PRODUCTION build :3161, default timezone (UTC, same as server)
+=== run 1 http://localhost:3161/bets @1440 state=-: 0 hydration messages
+=== run 2 http://localhost:3161/bets @1440 state=-: 0 hydration messages
+=== run 1 http://localhost:3161/m/6654466 @1440 state=-: 0 hydration messages
+=== run 2 http://localhost:3161/m/6654466 @1440 state=-: 0 hydration messages
+=== run 1 http://localhost:3161/ @1440 state=-: 0 hydration messages
+=== run 2 http://localhost:3161/ @1440 state=-: 0 hydration messages
+
+## DEV (E2E mock :3160), timezoneId America/New_York: full React message
+### free user /bets
+=== run 1 http://localhost:3160/bets @1440 state=free: 1 hydration messages
+[pageerror] Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <InnerLayoutRouter url="/bets" tree={[...]} cacheNode={{lazyData:null, ...}} segmentPath={[...]}>
+      <SegmentViewNode type="page" pagePath="bets/page.tsx">
+        <SegmentTrieNode>
+        <Page>
+          <div className="mx-auto fl...">
+            <OnboardingNudge>
+            <BestBets initial={{...}}>
+              <div className="mx-auto fl...">
+                <section>
+                <TodayCard>
+                <ClosingSoon>
+                <ResultsTicker>
+                <FilterPills>
+                <div>
+                <SaveViewDialog>
+                <SearchChips>
+                <AppliedPills>
+                <StaleBanner>
+                <Cards slots={[...]} desktop={true} pro={false} dim={false}>
+                  <ul className={"grid gap..."}>
+                    <li className="row-span-2...">
+                      <BetCard r={{...}} pro={false}>
+                        <article ref={{current:null}} data-row={true} data-market-id="6823885" data-tier="best" ...>
+                          <div>
+                          <div className="-mt-1">
+                            <h3>
+                            <p className="mt-1 text-..." title="Closes in 41h">
++                             Sat 3:30 PM
+-                             Sat 8:30 PM
+                              ...
+                          ...
+                      ...
+                    ...
+                ...
+      ...
+
+Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+### logged out /
+=== run 1 http://localhost:3160/ @1440 state=-: 1 hydration messages
+[pageerror] Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <RedirectErrorBoundary router={{...}}>
+      <InnerLayoutRouter url="/" tree={[...]} cacheNode={{lazyData:null, ...}} segmentPath={[...]}>
+        <SegmentViewNode type="page" pagePath="page.tsx">
+          <SegmentTrieNode>
+          <Page>
+            <Landing>
+              <article className="mx-auto fl...">
+                <section>
+                <section aria-labelledby="teaser-h" className="flex flex-...">
+                  <div>
+                  <div className="relative">
+                    <ul className="grid gap-4..." data-testid="landing-te...">
+                      <li className="flex">
+                        <BetCard r={{...}}>
+                          <article ref={{current:null}} data-row={true} data-market-id="6577559" data-tier="best" ...>
+                            <div>
+                            <div className="-mt-1">
+                              <h3>
+                              <p className="mt-1 text-..." title="Closes in ...">
++                               Sun 1:00 PM
+-                               Sun 6:00 PM
+                                ...
+                            ...
+                      ...
+                      ...
+                    ...
+                ...
+        ...
+      ...
+
+Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+
+## DEV crawl (UTC), free /bets @390: intermittent mismatch (no TZ difference) — full message as captured by crawl.cjs pageerror:
+Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <RedirectErrorBoundary router={{...}}>
+      <InnerLayoutRouter url="/bets" tree={[...]} cacheNode={{lazyData:null, ...}} segmentPath={[...]}>
+        <SegmentViewNode type="page" pagePath="bets/page.tsx">
+          <SegmentTrieNode>
+          <Page>
+            <div className="mx-auto fl...">
+              <OnboardingNudge>
+              <BestBets initial={{...}}>
+                <div className="mx-auto fl...">
+                  <section>
+                  <TodayCard>
+                  <ClosingSoon>
+                  <ResultsTicker>
+                  <FilterPills>
+                  <div>
+                  <SaveViewDialog>
+                  <SearchChips>
+                  <AppliedPills>
+                  <StaleBanner>
+                  <Cards slots={[...]} desktop={true} pro={false} dim={false}>
+                    <ul className={"grid gap..."}>
+                      <li>
+                      <li>
+                      <li>
+                      <li>
+                      <li>
+                      <li className="row-span-2...">
+                        <BetCard r={{...}} pro={false}>
+                          <article ref={{current:null}} data-row={true} data-market-id="6823580" data-tier="best" ...>
+                            <div>
+                            <div className="-mt-1">
+(4 re-runs of free /bets @390 in UTC: 0 mismatches -> timing race: closesLine()/gameTime() call Date.now() during render, lib/format.ts:119,201)

@@ -1,0 +1,4 @@
+$ grep -roE "SUPABASE_SERVICE_ROLE_KEY|STRIPE_SECRET_KEY|...|service_role|sk_live_|sk_test_|whsec_|rk_live_|eyJhbGciOi" .next/static  (prod build, empty keys)
+0
+$ node scripts/check-bundle.mjs
+check-bundle: 140 files in .next/static, no secrets

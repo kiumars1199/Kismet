@@ -1,0 +1,27 @@
+# Rendered every email template (lib/email/templates.ts via a throwaway vitest file in the scratch clone; auth templates == supabase/templates/*.html except trailing newline)
+alert.html: disclaimer=1 unsubscribe_link=1 banned_words=
+auth_confirmation.html: disclaimer=1 unsubscribe_link=0 banned_words=
+auth_email_change.html: disclaimer=1 unsubscribe_link=0 banned_words=
+auth_magic_link.html: disclaimer=1 unsubscribe_link=0 banned_words=
+auth_recovery.html: disclaimer=1 unsubscribe_link=0 banned_words=
+payment_failed.html: disclaimer=1 unsubscribe_link=1 banned_words=
+signin.html: disclaimer=1 unsubscribe_link=1 banned_words=
+
+# auth template footer (magic_link):
+<hr style="border:0;border-top:1px solid #1a2520;margin:24px 0">
+<hr style="border:0;border-top:1px solid #1a2520;margin:24px 0">
+<p style="margin:0 0 8px;font-size:12px;color:#8a9a93">You get this because someone asked for it with this address on Kismet. <a href="{{ .SiteURL }}/account" style="color:#8a9a93">Manage your account</a></p>
+<p style="margin:0;font-size:12px;color:#8a9a93">Market analytics, not financial advice. Based on past results. 18+.</p>
+</div></body></html>
+
+# alert.txt
+Alert: SOCCER · Denmark vs. Norway: Both Teams to Score
+
+SOCCER · Denmark vs. Norway: Both Teams to Score
+
+Yes at 68¢ · won 92% before · estimated return +33% · closes Tue 2:45 PM (closed)
+
+Open in Kismet: https://kismetodds.com/m/6674492?side=0
+
+You get this because you set the alert "Soccer 3x+". Unsubscribe: https://kismetodds.com/api/unsubscribe?t=abc
+Market analytics, not financial advice. Based on past results. 18+.

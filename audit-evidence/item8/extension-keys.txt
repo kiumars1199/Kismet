@@ -1,0 +1,25 @@
+# keyinspect.cjs: extension built with KISMET_ORIGIN=http://localhost:3160 OUT_DIR=dist-audit, loaded in a fresh Chromium profile; Kalshi demo API mocked via ctx.route; every context + service-worker request recorded
+== trade-only key: scopes=["read","write::trade"]
+   connected=true privateKeyFieldStillShown=0
+   panel says: Demo key connected Key ID a0d1…0002 Type Ed25519 Permissio
+   requests: 9, hosts: cgoaaiaghbckpalppklocajbdpoelmbd, localhost:3160, external-api.demo.kalshi.co
+   requests containing key material: 0
+   PEM in chrome.storage.local: false, session: false, page local/sessionStorage: false
+   chrome.storage.local keys: (none); session keys: (none)
+   IndexedDB kismet-vault/keys: [{"type":"object","keys":["keyId","key","type","scopes","verifiedAt"],"cryptoKey":[{"extractable":false,"usages":["sign"],"alg":"Ed25519"}]}]
+== key with transfer scope: scopes=["read","write::trade","write::transfer"]
+   connected=false privateKeyFieldStillShown=1
+   panel says: This key also allows write::transfer. For safety Kismet only accepts trade-only keys: create a new key with just "read" and "write::trade".
+   requests: 7, hosts: cgoaaiaghbckpalppklocajbdpoelmbd, localhost:3160, external-api.demo.kalshi.co
+   requests containing key material: 0
+   PEM in chrome.storage.local: false, session: false, page local/sessionStorage: false
+   chrome.storage.local keys: (none); session keys: (none)
+   IndexedDB kismet-vault/keys: []
+== key with wildcard: scopes=["read","write::*"]
+   connected=false privateKeyFieldStillShown=1
+   panel says: This key also allows write::*. For safety Kismet only accepts trade-only keys: create a new key with just "read" and "write::trade".
+   requests: 7, hosts: cgoaaiaghbckpalppklocajbdpoelmbd, localhost:3160, external-api.demo.kalshi.co
+   requests containing key material: 0
+   PEM in chrome.storage.local: false, session: false, page local/sessionStorage: false
+   chrome.storage.local keys: (none); session keys: (none)
+   IndexedDB kismet-vault/keys: []

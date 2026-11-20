@@ -1,0 +1,81 @@
+anon    401  /api/markets?ps=200                        {"error":"Sign in to use this.","signin":"/login"}
+anon    401  /api/markets?ps=200&p=2                    {"error":"Sign in to use this.","signin":"/login"}
+anon    401  /api/markets?ps=1000                       {"error":"Sign in to use this.","signin":"/login"}
+anon    401  /api/flags?ps=200                          {"error":"Sign in to use this.","signin":"/login"}
+anon    401  /api/markets/6671884                       {"error":"Sign in to use this.","signin":"/login"}
+anon    401  /api/events/1313133                        {"error":"Sign in to use this.","signin":"/login"}
+anon    401  /api/model/curve?market=6671884            {"error":"Sign in to use this.","signin":"/login"}
+anon    401  /api/combos                                {"error":"Sign in to use this.","signin":"/login"}
+anon    401  /api/kalshi                                {"error":"Sign in to use this.","signin":"/login"}
+anon    401  /api/account/export                        {"error":"Sign in to use this.","signin":"/login"}
+anon    401  /api/data/watchlist                        {"error":"Sign in to use this.","signin":"/login"}
+anon    200  /api/backtest                              {"test_days":7,"folds":52,"folds_run":52,"results":{"21":{"half_life_days":21,"taker":{"flags":10027,"events":2113,"win_rate":0.8509,"avg_price":0.761,"pnl_cent
+anon    200  /api/meta                                  {"meta":{"instance":"demo","platform":"polymarket","scanned_at":1794895125,"model_half_life_days":90,"markets_scanned":13971,"flags":2778,"tiers":{"best":1070,"
+anon    404  /api/admin/export                          {"error":"Not found"}
+free    200  /api/markets?ps=200                        rows=10 total=12598 page=1 ps=50 ranges=10 sampleEdge=0.1 stakes=false capacity=false
+free    200  /api/markets?ps=200&p=2                    rows=10 total=12598 page=1 ps=50 ranges=10 sampleEdge=0.1 stakes=false capacity=false
+free    200  /api/markets?ps=1000                       rows=10 total=12598 page=1 ps=50 ranges=10 sampleEdge=0.1 stakes=false capacity=false
+free    200  /api/flags?ps=200                          rows=10 total=1069 page=1 ps=200 ranges=10 sampleEdge=0.05 stakes=false capacity=false
+free    200  /api/markets/6671884                       {"market":{"id":"6671884","question":"Niger vs. Morocco: Both Teams to Score","event":"Niger vs. Morocco - More Markets","event_id":"1313133","tokens":["5708346
+free    200  /api/events/1313133                        {"event_id":"1313133","event":"Niger vs. Morocco - More Markets","slug":"afcq-nige-mor-2026-11-17-more-markets","markets":[{"id":"6671856","question":"Spread: M
+free    400  /api/model/curve?market=6671884            {"error":"bad query"}
+free    200  /api/combos                                {"groups":[]}
+free    404  /api/kalshi                                {"error":"Not available"}
+free    200  /api/account/export                        {"exported_at":"2026-11-20T02:33:11.062Z","account":{"id":"08fd4994-13b9-46fd-94fb-6d3c50ab4335","email":"audit2-free@example.com","created_at":"2026-11-20T02:3
+free    405  /api/data/watchlist                        
+free    200  /api/backtest                              {"test_days":7,"folds":52,"folds_run":52,"results":{"21":{"half_life_days":21,"taker":{"flags":10027,"events":2113,"win_rate":0.8509,"avg_price":0.761,"pnl_cent
+free    200  /api/meta                                  {"meta":{"instance":"demo","platform":"polymarket","scanned_at":1794895125,"model_half_life_days":90,"markets_scanned":13971,"flags":2778,"tiers":{"best":1070,"
+free    404  /api/admin/export                          {"error":"Not found"}
+pro     200  /api/markets?ps=200                        rows=168 total=12598 page=1 ps=50 ranges=0 sampleEdge=0.215 stakes=false capacity=false
+pro     200  /api/markets?ps=200&p=2                    rows=168 total=12598 page=1 ps=50 ranges=0 sampleEdge=0.215 stakes=false capacity=false
+pro     200  /api/markets?ps=1000                       rows=168 total=12598 page=1 ps=50 ranges=0 sampleEdge=0.215 stakes=false capacity=false
+pro     200  /api/flags?ps=200                          rows=151 total=1069 page=1 ps=50 ranges=0 sampleEdge=0.215 stakes=false capacity=false
+pro     200  /api/markets/6671884                       {"market":{"id":"6671884","question":"Niger vs. Morocco: Both Teams to Score","event":"Niger vs. Morocco - More Markets","event_id":"1313133","tokens":["5708346
+pro     200  /api/events/1313133                        {"event_id":"1313133","event":"Niger vs. Morocco - More Markets","slug":"afcq-nige-mor-2026-11-17-more-markets","markets":[{"id":"6671884","question":"Niger vs.
+pro     400  /api/model/curve?market=6671884            {"error":"bad query"}
+pro     200  /api/combos                                {"groups":[]}
+pro     404  /api/kalshi                                {"error":"Not available"}
+pro     200  /api/account/export                        {"exported_at":"2026-11-20T02:33:13.564Z","account":{"id":"6b9a9a60-83d0-4156-8e86-e0e80d8f6a3b","email":"audit2-pro@example.com","created_at":"2026-11-20T02:32
+pro     405  /api/data/watchlist                        
+pro     200  /api/backtest                              {"test_days":7,"folds":52,"folds_run":52,"results":{"21":{"half_life_days":21,"taker":{"flags":10027,"events":2113,"win_rate":0.8509,"avg_price":0.761,"pnl_cent
+pro     200  /api/meta                                  {"meta":{"instance":"demo","platform":"polymarket","scanned_at":1794895125,"model_half_life_days":90,"markets_scanned":13971,"flags":2778,"tiers":{"best":1070,"
+pro     404  /api/admin/export                          {"error":"Not found"}
+premium 200  /api/markets?ps=200                        rows=168 total=12598 page=1 ps=50 ranges=0 sampleEdge=0.215 stakes=false capacity=false
+premium 200  /api/markets?ps=200&p=2                    rows=168 total=12598 page=1 ps=50 ranges=0 sampleEdge=0.215 stakes=false capacity=false
+premium 200  /api/markets?ps=1000                       rows=168 total=12598 page=1 ps=50 ranges=0 sampleEdge=0.215 stakes=false capacity=false
+premium 200  /api/flags?ps=200                          rows=151 total=1069 page=1 ps=50 ranges=0 sampleEdge=0.215 stakes=false capacity=false
+premium 200  /api/markets/6671884                       {"market":{"id":"6671884","question":"Niger vs. Morocco: Both Teams to Score","event":"Niger vs. Morocco - More Markets","event_id":"1313133","tokens":["5708346
+premium 200  /api/events/1313133                        {"event_id":"1313133","event":"Niger vs. Morocco - More Markets","slug":"afcq-nige-mor-2026-11-17-more-markets","markets":[{"id":"6671884","question":"Niger vs.
+premium 400  /api/model/curve?market=6671884            {"error":"bad query"}
+premium 200  /api/combos                                {"groups":[]}
+premium 404  /api/kalshi                                {"error":"Not available"}
+premium 200  /api/account/export                        {"exported_at":"2026-11-20T02:33:16.205Z","account":{"id":"f428c2c2-804f-4fbf-b34c-157313addfcc","email":"audit2-premium@example.com","created_at":"2026-11-20T0
+premium 405  /api/data/watchlist                        
+premium 200  /api/backtest                              {"test_days":7,"folds":52,"folds_run":52,"results":{"21":{"half_life_days":21,"taker":{"flags":10027,"events":2113,"win_rate":0.8509,"avg_price":0.761,"pnl_cent
+premium 200  /api/meta                                  {"meta":{"instance":"demo","platform":"polymarket","scanned_at":1794895125,"model_half_life_days":90,"markets_scanned":13971,"flags":2778,"tiers":{"best":1070,"
+premium 404  /api/admin/export                          {"error":"Not found"}
+free 200 /api/markets?ps=200&pg=2&g=0 rows=10 page=1 ps=200 total=12598 pages=1
+free 200 /api/markets?ps=200&pg=99999&g=0 rows=10 page=1 ps=200 total=12598 pages=1
+free 200 /api/markets?ps=201&g=0 rows=10 page=1 ps=50 total=12598 pages=1
+free 200 /api/markets?ps=200&g=0 rows=10 page=1 ps=200 total=12598 pages=1
+free 200 /api/model/curve?segment=all {"segment":"all","horizon_h":24,"level":"all","n":540658,"neff":8892.2,"events":68324,"points":[{"price":0.05,"win_prob":0},{"price":0.15,"win_prob":0.1},{"price":0.25,"win_prob":0.2},{"price":0.35,"w
+free 200 /api/model/curve?segment=cat:sports {"segment":"cat:sports","horizon_h":24,"level":"category","n":304114,"neff":3913.2,"events":42453,"points":[{"price":0.05,"win_prob":0},{"price":0.15,"win_prob":0.1},{"price":0.25,"win_prob":0.2},{"pr
+free 403 /api/model/curve?segment=nmt:sports:soccer:props {"error":"Niche curves are part of Pro"}
+free reveal 1 6654466 200 shown=  ranges? true keys market,segment,curve,backtest,event_markets
+free reveal 2 6674167 200 shown=  ranges? true keys market,segment,curve,backtest,event_markets
+free reveal 3 6674176 200 shown=  ranges? true keys market,segment,curve,backtest,event_markets
+free reveal 4 6674197 200 shown=  ranges? true keys market,segment,curve,backtest,event_markets
+free reveal 5 6674202 200 shown=  ranges? true keys market,segment,curve,backtest,event_markets
+pro 200 /api/markets?ps=200&pg=2&g=0 rows=200 page=2 ps=200 total=12598 pages=63
+pro 400 /api/markets?ps=200&pg=99999&g=0 {"error":"page is past the last page"}
+pro 200 /api/markets?ps=201&g=0 rows=50 page=1 ps=50 total=12598 pages=252
+pro 200 /api/markets?ps=200&g=0 rows=200 page=1 ps=200 total=12598 pages=63
+pro 200 /api/model/curve?segment=all {"segment":"all","horizon_h":24,"level":"all","n":540658,"neff":8892.2,"events":68324,"points":[{"price":0.05,"win_prob":0.0295},{"price":0.1,"win_prob":0.0609},{"price":0.15,"win_prob":0.094},{"price
+pro 200 /api/model/curve?segment=cat:sports {"segment":"cat:sports","horizon_h":24,"level":"category","n":304114,"neff":3913.2,"events":42453,"points":[{"price":0.05,"win_prob":0.0358},{"price":0.1,"win_prob":0.0675},{"price":0.15,"win_prob":0.
+pro 404 /api/model/curve?segment=nmt:sports:soccer:props {"error":"Curve not found"}
+pro reveal 1 6117754 200 shown=  ranges? false keys market,segment,curve,backtest,event_markets
+pro reveal 2 6117752 200 shown=  ranges? false keys market,segment,curve,backtest,event_markets
+pro reveal 3 6654466 200 shown=  ranges? false keys market,segment,curve,backtest,event_markets
+pro reveal 4 6674167 200 shown=  ranges? false keys market,segment,curve,backtest,event_markets
+pro reveal 5 6577560 200 shown=  ranges? false keys market,segment,curve,backtest,event_markets
+pro: 59 list pages (pg>=2) in a burst: {"200":59} first 429 at request null Retry-After null

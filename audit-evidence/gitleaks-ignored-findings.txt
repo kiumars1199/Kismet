@@ -1,0 +1,20 @@
+gitleaks 8.24.3, fresh clone with .gitleaksignore removed, --log-opts=--all: 18 findings; all 18 listed in .gitleaksignore: True
+listed fingerprints not produced by the scan: []
+b7740346cd520f9d3496662bcd92efead0592acf:AUDIT.md:stripe-access-token:2132 | value='sk_test_[redacted]'
+c387baa28f9f87c6abe69afa34bb2f24e0eb08a1:AUDIT.md:stripe-access-token:1841 | value='sk_test_[redacted]'
+3eb8132c72cee5ed4b0fe844930aa6daf59481a5:AUDIT.md:stripe-access-token:1538 | value='sk_test_[redacted]'
+bb2cb59626db303d7965382463da848861b696a5:AUDIT.md:stripe-access-token:1217 | value='sk_test_[redacted]'
+7df1a927d1b3eebb66061457bc1630dc972de637:ops/tests/stripe-setup.test.mjs:stripe-access-token:141 | value='sk_test_[redacted]'
+889fe3db3149267aed796b7b6669208b05e5811f:ops/tests/supabase-setup.test.mjs:jwt:11 | JWT header={"alg":"HS256"} payload={"role":"service_role"} sig='signaturesrk' (no project ref, signature is ascii text)
+7a909693c17540945236935a94879ee3338486ce:ops/tests/vercel-env.test.mjs:stripe-access-token:17 | value='sk_test_[redacted]'
+d1724a5d52a29f47a10fc1b611d5278b60c7fd3f:ops/tests/stripe-setup.test.mjs:stripe-access-token:80 | value='sk_test_[redacted]'
+d1724a5d52a29f47a10fc1b611d5278b60c7fd3f:ops/tests/stripe-setup.test.mjs:stripe-access-token:128 | value='sk_live_[redacted]'
+7a909693c17540945236935a94879ee3338486ce:ops/tests/fixtures.mjs:stripe-access-token:7 | value='sk_test_[redacted]'
+7a909693c17540945236935a94879ee3338486ce:ops/tests/fixtures.mjs:jwt:5 | JWT header={"alg":"HS256"} payload={"role":"anon"} sig='signatureanon' (no project ref, signature is ascii text)
+7a909693c17540945236935a94879ee3338486ce:ops/tests/fixtures.mjs:jwt:6 | JWT header={"alg":"HS256"} payload={"role":"service_role"} sig='signaturesrk' (no project ref, signature is ascii text)
+aaf1c720647144ac4e82c04912ee09fb48353f91:ops/tests/preflight.test.mjs:jwt:14 | JWT header={"alg":"HS256"} payload={"role":"anon"} sig='signatureanon' (no project ref, signature is ascii text)
+aaf1c720647144ac4e82c04912ee09fb48353f91:ops/tests/preflight.test.mjs:jwt:15 | JWT header={"alg":"HS256"} payload={"role":"service_role"} sig='signaturesrk' (no project ref, signature is ascii text)
+aaf1c720647144ac4e82c04912ee09fb48353f91:ops/tests/preflight.test.mjs:generic-api-key:52 | value='pk_test_[redacted]'
+aaf1c720647144ac4e82c04912ee09fb48353f91:ops/tests/preflight.test.mjs:stripe-access-token:16 | value='sk_test_[redacted]'
+aaf1c720647144ac4e82c04912ee09fb48353f91:ops/tests/preflight.test.mjs:stripe-access-token:45 | value='sk_live_[redacted]'
+aaf1c720647144ac4e82c04912ee09fb48353f91:ops/tests/preflight.test.mjs:stripe-access-token:59 | value='rk_test_[redacted]'

@@ -1,0 +1,3 @@
+mock-premium pages 32 errors 0 serious/critical 0
+  minor/moderate: landmark-unique moderate; heading-order moderate
+Re-run after the first premium pass lost its session in a mock restart. 32/32 pages loaded signed in (final URL not /signup); /api/me tier = premium after the run (h/me.cjs).
