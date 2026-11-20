@@ -123,15 +123,27 @@ test("chip row: sports, Today / This week, Safer / Balanced / Bigger payouts lan
   await expect(page).toHaveURL(/t=sports\.soccer/);
   await expect(row.getByRole("button", { name: "Soccer", exact: true })).toHaveAttribute("aria-pressed", "true");
   await row.getByRole("button", { name: "Safer", exact: true }).click();
-  await expect(page).toHaveURL(/wp=0\.55/);
+  await expect(page).toHaveURL(/wp=0\.85/);
   await expect(row.getByRole("button", { name: "Safer", exact: true })).toHaveAttribute("aria-pressed", "true");
   await row.getByRole("button", { name: "Bigger payouts", exact: true }).click();
-  await expect(page).toHaveURL(/wp=0(&|$)/);
-  await expect(page).toHaveURL(/wp1=0\.4/);
+  await expect(page).toHaveURL(/wp1=0\.7/);
+  await expect(page).not.toHaveURL(/[?&]wp=/);
   await row.getByRole("button", { name: "This week", exact: true }).click();
   await expect(page).toHaveURL(/cw=/);
+  // a pressed chip hides its own pill; it stays pressed after a reload (the window is matched with a tolerance)
+  await expect(page.getByLabel("Applied filters").getByRole("button", { name: /Closes|Chance|Soccer/ })).toHaveCount(0);
+  await page.reload();
+  await expect(row.getByRole("button", { name: "This week", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(row.getByRole("button", { name: "Bigger payouts", exact: true })).toHaveAttribute("aria-pressed", "true");
   await row.getByRole("button", { name: "More sports" }).click();
   await expect(page.getByRole("dialog", { name: "Filters" })).toBeVisible();
+});
+
+test("a filter set outside the chips keeps its removable pill", async ({ page }) => {
+  await page.goto("/?wp=0.6");
+  const row = page.getByRole("group", { name: "Quick filters" });
+  for (const name of ["Safer", "Balanced", "Bigger payouts"]) await expect(row.getByRole("button", { name, exact: true })).toHaveAttribute("aria-pressed", "false");
+  await expect(page.getByRole("button", { name: /^Remove filter: Chance ≥ 60/ })).toBeVisible();
 });
 
 for (const [w, h] of [[390, 844], [1440, 900]] as const) {

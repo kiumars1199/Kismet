@@ -16,6 +16,10 @@ from Nov 16 and the screenshot clock is real time.
   stars all come from the same set (`us.edge ≥ meta.rule.min_edge`), ranked by US return. Fixture: 34 of 151.
 - One chip row: the top 6 sports with bets + "More sports", Today / This week, Safer / Balanced / Bigger payouts,
   "On Polymarket US", "More filters (n)", "+ Save this view". Everything else is in the sheet.
+- Risk bands follow where Best bets actually sit (real scan: 740 of 1,070 win 85%+, 268 win 70–85%, 62 under 70%,
+  1 at 40% or less): Safer = 85%+, Balanced = 70–85%, Bigger payouts = under 70% (the 40% floor stays on).
+- A pressed chip hides its own applied-filter pill; a filter set in the sheet or a shared link keeps its pill. Time
+  chips match the window's end within 15 minutes, so Today / This week stay pressed after a reload.
 - "Today's top 5", then "More bets". Removed: stat tiles, price-check chips, Pays chips, "Show every bet", Big
   payouts, More bets with an edge, Combos row, closing-soon strip and results ticker.
 - Free: one solid card with a lock and "Unlock N more bets" where the free list ends (no blur or fade).
@@ -27,6 +31,6 @@ from Nov 16 and the screenshot clock is real time.
 ## Checks
 - `pnpm lint && pnpm typecheck && pnpm test`: 98 files and 1027 tests pass.
 - e2e (chromium, `--workers=1`, port 3250): overhaul-cards, s1, s2, s3, s4, s5, multipliers, proof, t291-ui, search,
-  a11y and timezone all pass.
+  a11y and timezone: 68 passed.
 - `test/card-render.test.tsx` renders the card for all 151 fixture best bets, both exact and Free-banded. It checks
   for no banned words, at most 7 slots, the $10 line and the payout line, and the venue rule.

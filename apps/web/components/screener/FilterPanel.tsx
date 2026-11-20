@@ -130,7 +130,7 @@ function PanelBody({ state: s, mode, facets, meta, onChange, onReset }: Props) {
               <Chip key={label} label={label} on={s.sort.key === sort.key && s.sort.dir === sort.dir} onClick={() => onChange({ sort })} />
             ))}
           </div>
-          <Check label="On Polymarket US only" on={s.us} onChange={(on) => onChange({ us: on })} />
+          {meta?.meta.us?.ok === true && <Check label="On Polymarket US only" on={s.us} onChange={(on) => onChange({ us: on })} />}
         </Section>
       )}
 

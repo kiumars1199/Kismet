@@ -5,12 +5,13 @@
 //   On Polymarket US, More filters) · "Today's top 5" · "More bets" · on Free, one locked card where the free list ends.
 // No tier or section jargon, no stat tiles: every number's basis is inside each card's "Why this bet?" and on
 // /track-record (one link here). R2-6: a filter change keeps the current list on screen, dimmed and marked busy,
-// until the new one arrives (no skeleton flash). The old Big payouts / More bets with an edge / Combos rows are gone:
-// "Bigger payouts" is a chip, lower-confidence bets come in through it or More filters, Combos has its own page.
+// until the new one arrives (no skeleton flash). The old Big payouts / More bets with an edge / Combos rows, closing-soon
+// strip and results ticker are gone: "Bigger payouts" is a chip (best bets that win less often), lower-confidence
+// bets come in through a payout filter (tierOf), Combos has its own page, results are one link away.
 import Link from "next/link";
 import { useRef, useState } from "react";
 import type { ApiGroup, ApiRow, MarketsResponse } from "@/lib/api";
-import { plainTitle, priceText, sideLabel } from "@/lib/card";
+import { cardVenue, plainTitle, priceText, sideLabel } from "@/lib/card";
 import type { FilterState } from "@/lib/filters/state";
 import { ago, formatCount } from "@/lib/format";
 import { REFRESH_WORDS, freshness } from "@/lib/freshness";
@@ -72,7 +73,7 @@ function MoreInGame({ slot }: { slot: Slot }) {
               <a href={drawerHref(m.id, s.side_index)} onClick={(e) => { if (e.metaKey || e.ctrlKey) return; e.preventDefault(); openDrawer(m.id, s.side_index); }}
                 className="flex min-h-11 flex-col justify-center py-2 hover:text-accent-hover">
                 <span className="line-clamp-2">{plainTitle(m, s)}</span>
-                <span className="text-xs text-muted">{sideLabel(s)} at {priceText(s.ask)}</span>
+                <span className="text-xs text-muted">{sideLabel(s)} at {priceText(cardVenue(m, s).ask ?? s.ask)}</span>
               </a>
             </li>
           ))}
@@ -114,23 +115,33 @@ function windowFor(kind: "today" | "week", scannedAt: number | undefined) {
   return { closes_after_h: after > 0.05 ? r2(after) : undefined, closes_within_h: r2((w.to - scan) / H) };
 }
 
-/** Win-chance bands, in plain words. "Bigger payouts" lifts the 40% floor (lib/filters/apply.ts liftsFloor). */
+/** Win-chance bands, in plain words, cut where Best bets actually sit: nearly all win 60%+ of the time (real scan,
+ *  Nov 20: 740 of 1,070 at 85%+, 268 at 70–85%, 62 under 70%). The default 40% floor stays on. */
 const RISK: { key: string; label: string; patch: Pick<FilterState, "win_prob_min" | "win_prob_max">; help: string }[] = [
-  { key: "safer", label: "Safer", patch: { win_prob_min: 0.55, win_prob_max: undefined }, help: "Wins more often than not: 55% or more" },
-  { key: "balanced", label: "Balanced", patch: { win_prob_min: 0.4, win_prob_max: 0.55 }, help: "Close to a coin flip: 40–55%" },
-  { key: "bigger", label: "Bigger payouts", patch: { win_prob_min: 0, win_prob_max: 0.4 }, help: "Pays more, loses more often: under 40%" },
+  { key: "safer", label: "Safer", patch: { win_prob_min: 0.85, win_prob_max: undefined }, help: "Won 85% of the time or more" },
+  { key: "balanced", label: "Balanced", patch: { win_prob_min: 0.7, win_prob_max: 0.85 }, help: "Won 70–85% of the time" },
+  { key: "bigger", label: "Bigger payouts", patch: { win_prob_min: undefined, win_prob_max: 0.7 }, help: "Pays more, loses more often: won under 70% of the time" },
 ];
 
-function ChipRow({ state: s, facets, scannedAt, usOn, onChange, children }: {
-  state: FilterState; facets?: MarketsResponse["facets"]; scannedAt?: number; usOn: boolean; onChange: Change; children?: React.ReactNode;
-}) {
+/** Which chips are pressed. A time chip matches on the window's end, within 15 minutes: the window is measured from
+ *  the scan and recomputed from the clock, so an exact match would un-press it a minute later. */
+function chipsFor(s: FilterState, facets: MarketsResponse["facets"] | undefined, scannedAt: number | undefined) {
   const chosen = s.topics ?? [];
   const sports = [...new Set([...chosen.filter((id) => SPORTS.includes(id)), ...SPORTS.filter((id) => (facets?.topics[id] ?? 0) > 0)
     .sort((a, b) => (facets?.topics[b] ?? 0) - (facets?.topics[a] ?? 0))])].slice(0, 6);
   const today = windowFor("today", scannedAt);
   const week = windowFor("week", scannedAt);
-  const timeOn = (w: typeof today) => s.closes_after_h === w.closes_after_h && s.closes_within_h === w.closes_within_h;
-  const riskOn = (p: (typeof RISK)[number]["patch"]) => s.win_prob_min === p.win_prob_min && s.win_prob_max === p.win_prob_max;
+  const near = (w: typeof today) => s.closes_within_h !== undefined && Math.abs(s.closes_within_h - w.closes_within_h) <= 0.25;
+  const time = { today: near(today), week: !near(today) && near(week) };
+  const risk = RISK.find((r) => s.win_prob_min === r.patch.win_prob_min && s.win_prob_max === r.patch.win_prob_max)?.key;
+  return { chosen, sports, today, week, time, risk };
+}
+
+function ChipRow({ state: s, facets, scannedAt, usOn, onChange, children }: {
+  state: FilterState; facets?: MarketsResponse["facets"]; scannedAt?: number; usOn: boolean; onChange: Change; children?: React.ReactNode;
+}) {
+  const c = chipsFor(s, facets, scannedAt);
+  const { chosen, sports } = c;
   return (
     <div role="group" aria-label="Quick filters" className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] md:mx-0 md:flex-wrap md:overflow-visible md:px-0">
       {sports.map((id) => {
@@ -147,18 +158,18 @@ function ChipRow({ state: s, facets, scannedAt, usOn, onChange, children }: {
         More sports
       </button>
       <span aria-hidden="true" className="mx-1 h-6 w-px flex-none bg-border" />
-      {([["Today", today], ["This week", week]] as const).map(([label, w]) => {
-        const on = timeOn(w);
+      {([["Today", "today"], ["This week", "week"]] as const).map(([label, k]) => {
+        const on = c.time[k];
         return (
-          <button key={label} type="button" aria-pressed={on} className={chip(on)}
-            onClick={() => onChange(on ? { closes_after_h: undefined, closes_within_h: undefined } : w)}>
+          <button key={label} type="button" aria-pressed={on} className={chip(on)} suppressHydrationWarning
+            onClick={() => onChange(on ? { closes_after_h: undefined, closes_within_h: undefined } : c[k])}>
             {label}
           </button>
         );
       })}
       <span aria-hidden="true" className="mx-1 h-6 w-px flex-none bg-border" />
       {RISK.map((r) => {
-        const on = riskOn(r.patch);
+        const on = c.risk === r.key;
         return (
           <button key={r.key} type="button" aria-pressed={on} title={r.help} className={chip(on)}
             onClick={() => onChange(on ? { win_prob_min: undefined, win_prob_max: undefined } : r.patch)}>
@@ -182,8 +193,16 @@ function ChipRow({ state: s, facets, scannedAt, usOn, onChange, children }: {
   );
 }
 
-// filters the chip row already shows: AppliedPills leaves them out (lib keys: components/screener/AppliedPills.tsx)
-const CHIP_PILLS = (key: string) => key.startsWith("topics:") || ["wp", "wp1", "cw", "ca"].includes(key);
+/** AppliedPills leaves out a filter only while a pressed chip already shows it (keys: components/screener/AppliedPills.tsx).
+ *  Anything set in the sheet, a saved view or a shared link with no pressed chip keeps its removable pill. */
+function chipPills(s: FilterState, facets: MarketsResponse["facets"] | undefined, scannedAt: number | undefined) {
+  const c = chipsFor(s, facets, scannedAt);
+  const shownTopics = new Set(c.sports.filter((id) => c.chosen.includes(id)));
+  return (key: string) =>
+    (key.startsWith("topics:") && shownTopics.has(key.slice(7))) ||
+    (!!c.risk && (key === "wp" || key === "wp1")) ||
+    ((c.time.today || c.time.week) && (key === "cw" || key === "ca"));
+}
 
 /** initial: the server's /api/flags page 1 for this URL, so the cards and the headline count are final on first
  *  paint (no client fetch, no LCP change). */
@@ -251,7 +270,7 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
       </ChipRow>
       <SaveViewDialog open={saving} title="Save this view" error={saved && !saved.ok ? saved.msg : null} onSubmit={save} onClose={() => setSaving(false)} />
       <SearchChips q={state.q} search={data?.search} onChange={set} />
-      <AppliedPills state={state} mode="flags" onChange={set} onReset={reset} omit={CHIP_PILLS} />
+      <AppliedPills state={state} mode="flags" onChange={set} onReset={reset} omit={chipPills(state, sc.facets, scanned)} />
       <StaleBanner scannedAt={scanned} />
 
       {error && !data ? (
