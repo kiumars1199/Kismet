@@ -10,7 +10,7 @@ import { resolveUserFilters } from "@/lib/filters/user";
 import { useCollection, useProfile } from "@/lib/repo/hooks";
 import { formatCount } from "@/lib/format";
 
-const btn = "inline-flex min-h-9 items-center gap-2 rounded-input border border-border bg-input px-3.5 py-2 text-[13px] text-soft hover:border-accent-border hover:text-text disabled:opacity-60";
+const btn = "inline-flex min-h-11 items-center gap-2 rounded-input border border-border bg-input px-3.5 py-2 text-[13px] text-soft hover:border-accent-border hover:text-text disabled:opacity-60";
 
 export function ExportCsv({ state }: { state: FilterState }) {
   const { can } = useEntitlements();

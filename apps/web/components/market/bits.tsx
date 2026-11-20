@@ -55,7 +55,7 @@ export function Notes({ notes, className = "" }: { notes: Note[]; className?: st
 export function InfoTip({ text, className = "" }: { text: string; className?: string }) {
   return (
     <button type="button" title={text} aria-label={text} onClick={(e) => (e.preventDefault(), e.stopPropagation())}
-      className={`relative z-10 -my-1 inline-flex size-6 items-center justify-center rounded-full align-middle text-muted hover:text-text ${className}`}>
+      className={`relative z-10 -my-2.5 -mx-1.5 inline-flex size-11 items-center justify-center rounded-full align-middle text-muted hover:text-text ${className}`}>
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
         <circle cx="12" cy="12" r="9.5" /><path d="M12 11v5.5" /><path d="M12 7.6v.1" />
       </svg>

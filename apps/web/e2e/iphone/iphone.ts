@@ -45,7 +45,10 @@ export async function smallTargets(page: Page): Promise<Problem[]> {
       if (inlineText) continue;
       // a control wrapped by a label that is itself big enough counts as the label's size
       const label = el.closest("label");
-      const box = label && (el.tagName === "INPUT") ? label.getBoundingClientRect() : r;
+      // a "stretched link" (an absolutely placed ::after over its card) is tapped anywhere on the card
+      const after = getComputedStyle(el, "::after");
+      const stretched = after.content !== "none" && after.position === "absolute" && after.inset !== "auto" ? el.parentElement?.closest("article, li, div.relative, [class*='relative']") : null;
+      const box = label && (el.tagName === "INPUT") ? label.getBoundingClientRect() : stretched ? stretched.getBoundingClientRect() : r;
       if (box.width < 44 - 0.5 || box.height < 44 - 0.5) {
         const name = (el.getAttribute("aria-label") || el.textContent || el.getAttribute("name") || el.tagName).trim().replace(/\s+/g, " ").slice(0, 40);
         out.push(`${el.tagName.toLowerCase()} "${name}" ${Math.round(box.width)}×${Math.round(box.height)}`);

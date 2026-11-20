@@ -232,7 +232,7 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
       <Warnings m={m} s={s} x={x} />
 
       <details className={`${card} text-[13px] text-soft`}>
-        <summary className="cursor-pointer font-semibold text-text">Details for pros</summary>
+        <summary className="flex min-h-11 cursor-pointer items-center font-semibold text-text">Details for pros</summary>
         <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1.5 font-mono text-xs">
           {([
             ["Ask", price(x?.best_ask ?? s.ask)], ["Mid", price(x?.book_mid ?? s.mid)],
@@ -393,7 +393,7 @@ function StakeSection({ x, live, fetchedAt, error, bookState, scanAt, stake, onS
               className="min-h-10 w-full bg-transparent px-2 tabular-nums text-text placeholder:text-muted focus:outline-none" />
           </span>
         </label>
-        <button type="submit" className="min-h-10 rounded-input border border-accent-border bg-accent-bg px-4 text-accent-soft hover:border-accent">Check</button>
+        <button type="submit" className="min-h-11 rounded-input border border-accent-border bg-accent-bg px-4 text-accent-soft hover:border-accent">Check</button>
       </form>
       {x && x.capacity_usd != null && x.capacity_usd > 0 && (
         <p className="mt-2.5 text-xs text-muted">The good price holds for bets up to about {money(Math.round(x.capacity_usd))}.</p>

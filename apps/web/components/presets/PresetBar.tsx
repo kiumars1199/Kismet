@@ -166,7 +166,7 @@ export function PresetBar({ state, onChange }: { state: FilterState; onChange: (
                     setMenuPos(menu ? null : { left: Math.max(16, Math.min(r.left, window.innerWidth - 224)), top: r.bottom + 8 });
                     setConfirmDelete(false);
                   }}
-                  className="flex min-h-9 items-center rounded-r-full border border-l-0 border-accent-border bg-accent-bg pl-1.5 pr-3 text-accent-soft hover:text-text">
+                  className="flex min-h-11 items-center rounded-r-full border border-l-0 border-accent-border bg-accent-bg pl-1.5 pr-3 text-accent-soft hover:text-text">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="19" cy="12" r="2" /></svg>
                 </button>
               )}

@@ -143,7 +143,7 @@ function LogBet({ market, side }: { market: Market; side: 0 | 1 }) {
             <label className="flex flex-col gap-1.5 text-xs font-medium text-muted">
               <span className="flex items-center justify-between">
                 Amount
-                <select aria-label="Amount in" value={mode} onChange={(e) => setMode(e.target.value as "usd" | "shares")} className="rounded-md bg-transparent text-xs text-accent-hover">
+                <select aria-label="Amount in" value={mode} onChange={(e) => setMode(e.target.value as "usd" | "shares")} className="min-h-11 rounded-md bg-transparent text-xs text-accent-hover">
                   <option value="usd">in $</option><option value="shares">in shares</option>
                 </select>
               </span>

@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 
 export const chipClass = (active: boolean) =>
-  `inline-flex min-h-9 items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 py-2 text-[13px] leading-none ${
+  `inline-flex min-h-11 items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 py-2 text-[13px] leading-none ${
     active ? "border-accent-border bg-accent-bg text-accent-soft" : "border-border bg-input text-soft hover:border-accent-border hover:text-text"
   }`;
 

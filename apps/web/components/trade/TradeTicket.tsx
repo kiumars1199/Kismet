@@ -158,7 +158,7 @@ function OrderForm({ p, cfg, vault, onReview }: { p: TicketPrefill; cfg: TradeCo
         <label className="flex flex-col gap-1.5 text-xs font-medium text-muted">
           <span className="flex items-center justify-between">
             Amount
-            <select aria-label="Amount in" value={mode} onChange={(e) => setMode(e.target.value as "usd" | "contracts")} className="rounded-md bg-transparent text-xs text-accent-hover">
+            <select aria-label="Amount in" value={mode} onChange={(e) => setMode(e.target.value as "usd" | "contracts")} className="min-h-11 rounded-md bg-transparent text-xs text-accent-hover">
               <option value="usd">in $</option><option value="contracts">in contracts</option>
             </select>
           </span>

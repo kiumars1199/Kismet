@@ -59,7 +59,7 @@ function Pill({ name, value, wide, right, children }: { name: string; value?: st
         aria-controls={id}
         aria-haspopup="dialog"
         onClick={() => setOpen((o) => !o)}
-        className={`flex min-h-10 items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 text-[13px] ${on ? "border-accent-border bg-accent-bg text-accent-softer" : "border-border bg-surface text-soft hover:border-accent-border hover:text-text"}`}
+        className={`flex min-h-11 items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 text-[13px] ${on ? "border-accent-border bg-accent-bg text-accent-softer" : "border-border bg-surface text-soft hover:border-accent-border hover:text-text"}`}
       >
         {on ? <><span className="text-muted">{name}:</span> {value}</> : name}
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true" className={open ? "rotate-180" : ""}><path d="M6 9l6 6 6-6" /></svg>
@@ -152,7 +152,7 @@ function TopicPill({ s, facets, onChange }: { s: FilterState; facets?: Facets; o
             onChange={(e) => setQ(e.target.value)}
             placeholder="Find a topic"
             aria-label="Find a topic"
-            className="mx-1 mb-1 min-h-10 rounded-[10px] border border-border bg-input px-2.5 text-sm text-text placeholder:text-muted focus:border-accent focus:outline-none"
+            className="mx-1 mb-1 min-h-11 rounded-[10px] border border-border bg-input px-2.5 text-sm text-text placeholder:text-muted focus:border-accent focus:outline-none"
           />
           {favs.length > 0 && !needle && (
             <>
@@ -163,8 +163,8 @@ function TopicPill({ s, facets, onChange }: { s: FilterState; facets?: Facets; o
           <ul className="flex flex-col">{list.map(row)}</ul>
           {!list.length && <p className="px-3 py-2 text-sm text-muted">No topic called “{q}”.</p>}
           <div className="mt-1 flex justify-between border-t border-border px-1 pt-2">
-            <button type="button" disabled={!chosen.length} onClick={() => onChange({ topics: undefined, categories: undefined })} className="min-h-10 px-2 text-[13px] text-muted hover:text-text disabled:opacity-40">Clear</button>
-            <button type="button" onClick={close} className="min-h-10 rounded-input bg-accent px-4 text-[13px] font-semibold text-on-accent">Done</button>
+            <button type="button" disabled={!chosen.length} onClick={() => onChange({ topics: undefined, categories: undefined })} className="min-h-11 px-2 text-[13px] text-muted hover:text-text disabled:opacity-40">Clear</button>
+            <button type="button" onClick={close} className="min-h-11 rounded-input bg-accent px-4 text-[13px] font-semibold text-on-accent">Done</button>
           </div>
         </>
       )}
@@ -247,7 +247,7 @@ export function FilterPills({ state: s, mode, facets, meta, onChange, onReset, c
       <Pill name="Closes" value={closesValue}>{(close) => <Options opts={closes} onChange={onChange} close={close} />}</Pill>
       <FilterPanel state={s} mode={mode} facets={facets} meta={meta} onChange={onChange} onReset={onReset} />
       {floorOn && (
-        <button type="button" onClick={() => onChange({ win_prob_min: 0 })} title="Bets under a 40% chance are hidden by default" className="min-h-10 whitespace-nowrap px-2 text-[13px] text-muted hover:text-text">
+        <button type="button" onClick={() => onChange({ win_prob_min: 0 })} title="Bets under a 40% chance are hidden by default" className="min-h-11 whitespace-nowrap px-2 text-[13px] text-muted hover:text-text">
           Hiding long shots · <span className="text-accent-hover">Show</span>
         </button>
       )}

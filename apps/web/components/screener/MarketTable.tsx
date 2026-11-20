@@ -83,7 +83,7 @@ function MarketCell({ r }: { r: ApiRow }) {
           if (e.metaKey || e.ctrlKey) window.open(r.market.url, "_blank", "noopener,noreferrer");
           else open(r.market.id, r.side.side_index);
         }}
-        className="line-clamp-2 font-medium leading-snug text-text hover:text-accent-hover"
+        className="line-clamp-2 min-h-11 font-medium leading-snug text-text hover:text-accent-hover"
       >
         {r.market.question}
       </a>
@@ -201,7 +201,7 @@ export function MarketTable({ items, sort, onSort, onToggleGroup, pro = false, l
               return (
                 <tr key={vi.key} data-index={vi.index} ref={v.measureElement}>
                   <td colSpan={visible.length} className="px-3 py-1">
-                    <button type="button" onClick={() => onToggleGroup?.(it.g)} aria-expanded={it.expanded} className="min-h-9 text-xs text-accent-hover hover:text-accent-soft">
+                    <button type="button" onClick={() => onToggleGroup?.(it.g)} aria-expanded={it.expanded} className="min-h-11 text-xs text-accent-hover hover:text-accent-soft">
                       {it.loading ? "Loading…" : it.expanded ? "Show fewer" : `+${formatCount(it.hidden)} more in this event`}
                     </button>
                   </td>
