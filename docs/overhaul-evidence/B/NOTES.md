@@ -30,7 +30,8 @@ from Nov 16 and the screenshot clock is real time.
 
 ## Checks
 - `pnpm lint && pnpm typecheck && pnpm test`: 98 files and 1027 tests pass.
-- e2e (chromium, `--workers=1`, port 3250): overhaul-cards, s1, s2, s3, s4, s5, multipliers, proof, t291-ui, search,
-  a11y and timezone: 68 passed.
+- e2e (chromium, `--workers=1`, port 3257 because 3250 was taken by another process): overhaul-cards, s1, s2, s3, s4, s5, multipliers, proof, t291-ui, search,
+  a11y and timezone: 68 passed. trading-paper, headers, alerts, s6 and s6-tools: 9 passed. Together that is every
+  chromium spec. overhaul-iphone (another lane's spec) and the paid suite were not run.
 - `test/card-render.test.tsx` renders the card for all 151 fixture best bets, both exact and Free-banded. It checks
   for no banned words, at most 7 slots, the $10 line and the payout line, and the venue rule.
