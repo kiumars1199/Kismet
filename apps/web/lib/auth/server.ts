@@ -9,6 +9,7 @@ import { compLive, effectiveTier, type Tier } from "@/lib/entitlements";
 import { isAdminEmail } from "@/lib/admin/core";
 import { delayMin } from "@/lib/settings-core";
 import { behindWords } from "@/lib/format";
+import { isAppToken } from "./app-token";
 
 const env = () => ({
   url: process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
@@ -64,8 +65,10 @@ export interface SessionUser { id: string; email: string; verified: boolean }
 export async function getUser(): Promise<SessionUser | null> {
   if (!authEnabled()) return null;
   try {
-    const { data } = await (await supabaseServer()).auth.getUser();
-    return data.user ? { id: data.user.id, email: data.user.email ?? "", verified: !!data.user.email_confirmed_at } : null;
+    const sb = await supabaseServer();
+    const { data } = await sb.auth.getUser();
+    if (!data.user || isAppToken((await sb.auth.getSession()).data.session?.access_token)) return null;   // T-280: app tokens are /api/mcp only
+    return { id: data.user.id, email: data.user.email ?? "", verified: !!data.user.email_confirmed_at };
   } catch {
     return null;
   }

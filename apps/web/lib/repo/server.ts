@@ -3,6 +3,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { authEnabled, getTier, sameOrigin, supabaseServer } from "@/lib/auth/server";
 import { readJson } from "@/lib/body";
+import { isAppToken } from "@/lib/auth/app-token";
 import { can, quota, type QuotaKey } from "@/lib/entitlements";
 import { PROFILE_PATCH, ROW, isCollection } from "./schemas";
 import { DEFAULT_PROFILE, type CollectionName, type Profile } from "./types";
@@ -21,7 +22,7 @@ export async function withUser(req: Request, fn: (ctx: Ctx) => Promise<Response>
   if (req.method !== "GET" && !sameOrigin(req)) return err(403, "Bad origin");
   const db = await supabaseServer();
   const { data } = await db.auth.getUser();
-  if (!data.user) return err(401, "Sign in first");
+  if (!data.user || isAppToken((await db.auth.getSession()).data.session?.access_token)) return err(401, "Sign in first");   // T-280
   return fn({ db, userId: data.user.id });
 }
 

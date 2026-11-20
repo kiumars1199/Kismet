@@ -20,7 +20,7 @@ async function mw(level: string, flag: string) {
   vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://sb.test");
   vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "anon");
   vi.stubEnv("DEMO_MODE", "false");
-  vi.doMock("@supabase/ssr", () => ({ createServerClient: () => ({ auth: { getUser: async () => ({ data: { user: { email: owner.email, email_confirmed_at: "x" } } }), ...aal(level).auth } }) }));
+  vi.doMock("@supabase/ssr", () => ({ createServerClient: () => ({ auth: { getUser: async () => ({ data: { user: { email: owner.email, email_confirmed_at: "x" } } }), getSession: async () => ({ data: { session: null } }), ...aal(level).auth } }) }));
   vi.doMock("@/lib/maintenance", () => ({ maintenanceOn: async () => false }));
   const { NextRequest } = await import("next/server");
   const { middleware } = await import("@/middleware");

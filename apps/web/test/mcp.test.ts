@@ -116,7 +116,9 @@ describe("auth (T-280)", () => {
   });
 
   it("protected resource metadata: resource = the exact connector URL, Supabase as the only authorization server", async () => {
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://proj.supabase.co");
     const m = resourceMetadata();
+    expect(m.authorization_servers).toEqual(["https://proj.supabase.co/auth/v1"]);
     expect(m.resource).toMatch(/\/api\/mcp$/);
     expect(m.resource).toBe(mcpMetadataUrl().replace("/.well-known/oauth-protected-resource", ""));
     expect(m.authorization_servers).toHaveLength(1);
@@ -129,6 +131,15 @@ describe("auth (T-280)", () => {
       expect(res.headers.get("access-control-allow-origin")).toBe("*");
       expect(await res.json()).toEqual(m);
     }
+    vi.unstubAllEnvs();
+  });
+
+  it("protected resource metadata is 404 when no Supabase project is configured (no authorization server)", async () => {
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "");
+    try {
+      const res = (await import("@/app/.well-known/oauth-protected-resource/api/mcp/route")).GET() as Response;
+      expect(res.status).toBe(404);
+    } finally { vi.unstubAllEnvs(); }
   });
 
   it("the real verifier accepts only OAuth-client tokens whose subject is the verified user", async () => {
@@ -174,6 +185,28 @@ describe("protocol", () => {
     const r = (await client.callTool({ name: "track_record", arguments: {} })) as ToolResult;
     expect(r.isError).toBeFalsy();
     expect(text(r).endsWith(DISCLAIMER)).toBe(true);
+    await client.close();
+  });
+
+  it("the modern protocol era (2026-07-28 pinned) also gets the bearer user into tool calls", async () => {
+    const fetchRoute = async (url: string | URL, init?: RequestInit) => {
+      const req = new Request(url, init);
+      return req.method === "POST" ? POST(req) : GET(req);
+    };
+    const client = new Client({ name: "vitest-modern", version: "1" }, { versionNegotiation: { mode: { pin: "2026-07-28" } } });
+    const transport = new StreamableHTTPClientTransport(new URL(`${ORIGIN}/api/mcp`), {
+      fetch: fetchRoute as typeof fetch, requestInit: { headers: { authorization: "Bearer good" } },
+    });
+    await client.connect(transport);
+    expect(client.getNegotiatedProtocolVersion()).toBe("2026-07-28");
+    expect((await client.listTools()).tools).toHaveLength(5);
+    h.tier = "free";   // proves the plan gate (and so authInfo) runs on this leg too
+    const r = (await client.callTool({ name: "track_record", arguments: {} })) as ToolResult;
+    expect(r.isError).toBe(true);
+    expect(text(r)).toContain(FREE_REFUSAL());
+    h.tier = "premium";
+    const ok = (await client.callTool({ name: "track_record", arguments: {} })) as ToolResult;
+    expect(ok.isError).toBeFalsy();
     await client.close();
   });
 

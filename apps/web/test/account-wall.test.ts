@@ -55,7 +55,7 @@ describe("middleware account wall", () => {
     }
     vi.stubEnv("DEMO_MODE", demo ? "true" : "false");
     vi.stubEnv("NEXT_PUBLIC_DEMO_MODE", demo ? "true" : "false");
-    vi.doMock("@supabase/ssr", () => ({ createServerClient: () => ({ auth: { getUser: async () => ({ data: { user } }) } }) }));
+    vi.doMock("@supabase/ssr", () => ({ createServerClient: () => ({ auth: { getUser: async () => ({ data: { user } }), getSession: async () => ({ data: { session: null } }) } }) }));
     vi.doMock("@/lib/maintenance", () => ({ maintenanceOn: async () => false }));
     const { NextRequest } = await import("next/server");
     const { middleware } = await import("@/middleware");

@@ -53,7 +53,7 @@ describe("middleware: /api/admin* is 404 before routing for non-admins", () => {
       vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "anon");
     }
     vi.stubEnv("DEMO_MODE", "false");
-    vi.doMock("@supabase/ssr", () => ({ createServerClient: () => ({ auth: { getUser: async () => ({ data: { user } }) } }) }));
+    vi.doMock("@supabase/ssr", () => ({ createServerClient: () => ({ auth: { getUser: async () => ({ data: { user } }), getSession: async () => ({ data: { session: null } }) } }) }));
     vi.doMock("@/lib/maintenance", () => ({ maintenanceOn: async () => false }));
     const { NextRequest } = await import("next/server");
     const { middleware } = await import("@/middleware");

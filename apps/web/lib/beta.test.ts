@@ -46,7 +46,7 @@ describe("getMe beta flag", () => {
     vi.doMock("@/lib/config", async (o) => ({ ...(await o<object>()), DEMO_MODE: false }));
     vi.doMock("@supabase/ssr", () => ({
       createServerClient: () => ({
-        auth: { getUser: async () => ({ data: { user: user(email) } }) },
+        auth: { getUser: async () => ({ data: { user: user(email) } }), getSession: async () => ({ data: { session: null } }) },
         from: () => ({ select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: row }) }) }) }),
       }),
     }));

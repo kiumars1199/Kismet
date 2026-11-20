@@ -33,7 +33,7 @@ export const FREE_REFUSAL = () =>
   `Using Kismet in Claude, ChatGPT or Cursor is part of Premium (Pro gets ${PRO_DAILY} calls a day to try it). ` +
   `Your account is on the Free plan. Upgrade at ${pricing()} and then ask again.`;
 export const PRO_USED_UP = () =>
-  `That was your last call for now: Pro includes ${PRO_DAILY} Kismet calls a day in AI assistants (a rolling 24 hours). ` +
+  `You've used today's Kismet calls: Pro includes ${PRO_DAILY} a day in AI assistants (a rolling 24 hours). ` +
   `Premium has no daily cap. Upgrade at ${pricing()}, or use the site in the meantime: ${siteUrl()}.`;
 
 /** Every tool answer ends with the site disclaimer (CLAUDE.md rule 5). */

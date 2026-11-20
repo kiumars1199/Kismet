@@ -6,6 +6,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { isAdminEmail, mfaRequired } from "@/lib/admin/core";
 import { maintenanceOn } from "@/lib/maintenance";
 import { agentAllowed } from "@/lib/bots";
+import { isAppToken } from "@/lib/auth/app-token";
 import { DEMO_MODE } from "@/lib/config";
 import { signedOutAccess } from "@/lib/auth/public-paths";
 
@@ -67,7 +68,9 @@ export async function middleware(req: NextRequest) {
       },
     },
   });
-  const { data } = await supabase.auth.getUser();   // refreshes an expired access token; revoked session → null
+  const { data: got } = await supabase.auth.getUser();   // refreshes an expired access token; revoked session → null
+  // T-280: an OAuth app's token in a cookie is signed out here (lib/auth/app-token.ts): those tokens are /api/mcp only.
+  const data = got.user && isAppToken((await supabase.auth.getSession()).data.session?.access_token) ? { user: null } : got;
 
   const path = req.nextUrl.pathname;
   const admin = isAdminEmail(data.user && { email: data.user.email, verified: !!data.user.email_confirmed_at }, process.env.ADMIN_EMAILS, DEMO_MODE) &&
