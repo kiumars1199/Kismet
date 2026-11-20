@@ -18,6 +18,7 @@
   "price_min": 0.05,
   "price_max": 0.95,
   "edge_tier": { "price_min": 0.03, "min_neff": 40 },
+  "max_best_per_event": 2,
   "us_native_scan": false,
 
   "scan_events_per_tag": 500,

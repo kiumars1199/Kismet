@@ -101,6 +101,16 @@ def append(cfg, flags, now, rows=None, rng=None):
     return len(new)
 
 
+def held_by_event(cfg):
+    """{event_id: {(market id, side_index)}} of bets already in the ledger (rows logged with an event_id).
+    scan.cap_per_event lets these keep their slots so the record stays capped per game across scans."""
+    out = {}
+    for e in jl_read(_path(cfg)):
+        if e.get("event_id"):
+            out.setdefault(e["event_id"], set()).add((e["id"], e["side_index"]))
+    return out
+
+
 def append_control(cfg, picks, rows, flags, now, rng=None, logged=()):
     """One random other bet per new pick: same payout band, same category when there is one, never a market that
     is or was a best bet (`logged` = ids in the track record), never one already in the comparison log. Priced at

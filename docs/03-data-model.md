@@ -24,6 +24,7 @@ export interface ScanMeta {
   // Polymarket US coverage of this scan (absent before the US venue shipped; ok=false when the US fetch failed)
   // native = US-only markets scored directly (engine/us_native.py, behind US_NATIVE_SCAN; 0 when off)
   us?: { ok: boolean; markets: number; matched: number; best_on_us: number; best_us_edge: number; native?: number };
+  capped?: number;               // Best bets moved to Edge by max_best_per_event (engine/scan.cap_per_event)
 }
 
 export type Category = "sports" | "crypto" | "politics" | "finance" | "culture"

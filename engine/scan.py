@@ -81,6 +81,37 @@ def is_validated(record, hrecord, cat, h):
                for rec in (record.get(cat), hrecord.get(h)))
 
 
+VERDICT_RANK = {"worth it": 0, "thin": 1}
+
+
+def rank_key(r):
+    """How the scan orders bets: verdict first, then net edge at the live book."""
+    ex = r.get("execution") or {}
+    return VERDICT_RANK.get(ex.get("verdict"), 2), -(ex.get("net_edge") if ex.get("net_edge") is not None else -1)
+
+
+def cap_per_event(flags, k, held=None):
+    """At most k Best bets per event (game), so one game's 20 lines can't flood the list or the live record
+    (docs/OVERHAUL.md §G5). Ranked by rank_key. `held` = {event_id: {(market id, side_index)}} already in the
+    ledger: those lines keep their slots, so the record stays capped across scans, not just within one.
+    Returns (kept, capped_out). k None/0 = no cap."""
+    if not k:
+        return list(flags), []
+    held = held or {}
+    by_ev = {}
+    for r in flags:
+        by_ev.setdefault(r.get("event_id") or r["id"], []).append(r)
+    keep_ids = set()
+    for ev, rs in by_ev.items():
+        mine = held.get(ev) or set()
+        old = [r for r in rs if (r["id"], r["best"]["side_index"]) in mine]
+        new = sorted((r for r in rs if (r["id"], r["best"]["side_index"]) not in mine), key=rank_key)
+        free = max(0, k - len(mine))
+        keep_ids.update(id(r) for r in old + new[:free])
+    kept = [r for r in flags if id(r) in keep_ids]
+    return kept, [r for r in flags if id(r) not in keep_ids]
+
+
 def attach_us(rows, log=print, fetch=None):
     """Polymarket US twin of each row (docs/research/polymarket-us.md): `us` = the best side priced on US with
     US's taker fee, or None when the market isn't listed there. US users can only trade these. A US outage
@@ -203,7 +234,10 @@ def run(cfg, log=print):
     us_native.enrich(cfg, [r for r in flags + edge if r.get("venue") == "us"], log)
     # tier "edge" also needs a live book; flags stay a superset-free list: each row has one tier
     edge = [r for r in edge if r["execution"].get("book_ok")]
+    # at most max_best_per_event Best bets per game (ledger-aware); a capped line can still be tier "edge"
     from . import ledger
+    flags, capped = cap_per_event(flags, cfg.get("max_best_per_event", 2), held=ledger.held_by_event(cfg))
+    edge += [r for r in capped if is_edge(cfg, r) and r["execution"].get("book_ok")]
     for r in flags:
         r["tier"] = "best"
     for r in edge:
@@ -230,6 +264,7 @@ def run(cfg, log=print):
     meta = dict(instance=cfg.instance, platform=cfg.platform, scanned_at=int(now),
                 model_half_life_days=model.hl, markets_scanned=len(rows), flags=len(flags),
                 tiers=dict(best=len(best_flags), edge=len(edge)),
+                capped=len(capped),
                 verdicts={v: sum(1 for r in flags if r["execution"]["verdict"] == v)
                           for v in ("worth it", "thin", "not worth it", "no sellers", "no book")},
                 rule=dict(min_edge=cfg.flag_min_edge, confidence_z=cfg.flag_confidence_z,
