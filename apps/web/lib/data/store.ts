@@ -5,6 +5,7 @@ import path from "node:path";
 import { promisify } from "node:util";
 import { gunzip } from "node:zlib";
 import "server-only";
+import { after } from "next/server";
 import { DATA_SOURCE, dataDirSetting, type DataSource } from "@/lib/config";
 import type { Tier } from "@/lib/entitlements";
 import { getSettings } from "@/lib/settings";
@@ -269,6 +270,14 @@ export async function loadRaw(chain = sourceChain(), now = Date.now() / 1000): P
 
 const RETRY_MS = 30_000;
 
+/** Nov 20: the background refresh above ran after the response was sent, and Vercel freezes a function once its response
+ *  is out, so the ~20 MB download stalled mid-stream and died as "aborted due to timeout" / "terminated" (about half
+ *  of all loads in the logs). after() keeps the function running until the refresh settles. Outside a request (tests,
+ *  scripts) after() throws; there nothing freezes, so the promise just runs. */
+function keepAlive(p: Promise<unknown>) {
+  try { after(() => p.then(() => {}, () => {})); } catch { /* no request scope */ }
+}
+
 // Kept on globalThis so dev hot reloads don't re-parse 20 MB each time.
 const g = globalThis as unknown as {
   __meStore?: { cache?: Store; inflight?: Promise<Store>; failedAt?: number; prev?: Store; prev2?: Store; delayed?: { for: number; load: Promise<void> } };
@@ -296,7 +305,7 @@ export function getStore(): Promise<Store> {
     .finally(() => (state.inflight = undefined));
   // Stale-while-revalidate (docs/19 P6): with a copy in hand, answer now and let the ~20 MB reload finish in the
   // background, so no request waits on it. A failed refresh keeps serving the previous copy.
-  if (state.cache) { state.inflight.catch(() => {}); return Promise.resolve(state.cache); }
+  if (state.cache) { state.inflight.catch(() => {}); keepAlive(state.inflight); return Promise.resolve(state.cache); }
   return state.inflight;
 }
 
