@@ -21,6 +21,8 @@ export interface ScanMeta {
   verdicts?: Record<Verdict, number>;
   tiers?: { best: number; edge: number };   // docs/18 §2: flag count per tier; `flags` = best + edge
   rule: { min_edge: number; confidence_z: number; price_range: [number, number] };
+  // Polymarket US coverage of this scan (absent before the US venue shipped; ok=false when the US fetch failed)
+  us?: { ok: boolean; markets: number; matched: number; best_on_us: number; best_us_edge: number };
 }
 
 export type Category = "sports" | "crypto" | "politics" | "finance" | "culture"
@@ -70,6 +72,18 @@ export interface Market {
   // docs/16 §3 market matching (engine job kalshi_match, not built yet). Set only when confidence >= 0.9.
   kalshi_ticker?: string | null;  // e.g. "KXHIGHCHI-26NOV17-B56.5"; drives "Open on Kalshi" + paper Trade ticket
   kalshi_match_conf?: number;     // 0..1
+  market_slug?: string;     // Gamma market slug (event slug is `slug`)
+  outcomes?: [string, string];   // outcome names, index = side_index
+  us?: UsQuote | null;      // Polymarket US twin; absent on scans before it shipped
+}
+// Polymarket US (docs/research/polymarket-us.md): the best side priced on the CFTC-regulated US venue, the only
+// Polymarket US users can trade. null = not listed on Polymarket US. ask/fee/edge null = listed, no live book.
+export interface UsQuote {
+  slug: string; url: string;
+  side: 0 | 1;              // US side bought: 0 = the US market's first outcome (long), 1 = the other (short)
+  ask: number | null; fee: number | null;   // US ask for this side; fee = feeCoefficient (0.095) * ask * (1 - ask)
+  edge: number | null;      // best.win_prob - ask - fee at US prices
+  roi_pct: number | null;
 }
 
 export type Verdict = "worth it" | "thin" | "not worth it" | "no sellers" | "no book";
@@ -113,11 +127,23 @@ export interface LedgerEntry {
                                   // close = min(closedTime, endDate, gameStartTime); null if no history
   clv?: number | null;            // closing_price - ask
   graded_at?: number;
+  event_id?: string;              // rows logged after the US venue shipped
+  // Polymarket US price when the bet was listed there (pipeline/venue_us.py); graded at US price and fee
+  us_slug?: string; us_side?: 0 | 1; us_ask?: number; us_fee?: number; us_edge?: number | null;
+  us_result?: "won" | "lost"; us_pnl?: number; us_settled_by?: "us" | "intl";
 }
 // output/ledger_summary.json  (written by the grader)
 export interface LedgerStats { entries: number; graded: number; wins: number; losses: number;
-  avg_pnl: number | null; avg_clv: number | null }
-export interface LedgerSummary extends LedgerStats { by_category: Record<string, LedgerStats>; updated_at: number }
+  avg_pnl: number | null; avg_clv: number | null;
+  roi_pct?: number | null;            // total profit / total staked (ask + fee), %
+  events?: number;                    // distinct events among graded bets (the honest sample size)
+  avg_pnl_by_event?: number | null }  // each event's bets averaged, then events averaged equally
+export interface LedgerSummary extends LedgerStats {
+  by_category: Record<string, LedgerStats>; updated_at: number;
+  first?: LedgerStats;      // one row per market and side (re-flags at a better ask not counted twice)
+  us?: LedgerStats & { by_category: Record<string, LedgerStats> };   // US-listed bets, at US price and fee
+  intl_only?: LedgerStats;  // bets US users could not place
+}
 ```
 
 `model.json` (curves for charts): `nodes[]` with `level, horizon_h, key, market_type, n, neff, events,
