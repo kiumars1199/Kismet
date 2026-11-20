@@ -4,6 +4,7 @@
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { isAdminEmail } from "@/lib/admin/core";
 import { adminEnabled, supabaseAdmin } from "@/lib/auth/server";
+import { onFirstSignIn } from "@/lib/email/lifecycle";
 import { DEMO_MODE } from "@/lib/config";
 import { getSettings } from "@/lib/settings";
 
@@ -29,6 +30,7 @@ export async function finishSignIn(supabase: SupabaseClient, user: User, next: s
     if (!adminEnabled()) return out("unavailable");
     const { error: saveErr } = await supabaseAdmin().from("profiles").update({ accepted_terms_at: at }).eq("user_id", user.id);
     if (saveErr) return out("unavailable");
+    await onFirstSignIn(user);   // T-299/T-300: funnel "signup_done" (+ welcome email); awaited, never throws
   }
   return profile?.onboarded_at ? next : `/onboarding?next=${encodeURIComponent(next)}`;
 }

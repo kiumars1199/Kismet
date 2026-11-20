@@ -6,6 +6,7 @@
   "regions": ["iad1"],
   "crons": [
     { "path": "/api/alerts/run", "schedule": "0 13 * * *" },
-    { "path": "/api/settle/run", "schedule": "30 7 * * *" }
+    { "path": "/api/settle/run", "schedule": "30 7 * * *" },
+    { "path": "/api/lifecycle/run", "schedule": "41 15 * * *" }
   ]
 }

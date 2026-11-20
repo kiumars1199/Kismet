@@ -8,6 +8,7 @@ import { site } from "@/lib/site";
 import type { Tier } from "@/lib/entitlements";
 import { sendEmail, unsubscribeUrl } from "@/lib/email";
 import { paymentFailedEmail } from "@/lib/email/templates";
+import { afterBillingEvent } from "@/lib/email/lifecycle";
 
 export const PRICE_KEYS = ["pro_monthly", "pro_yearly", "premium_monthly", "premium_yearly"] as const;
 export type PriceKey = (typeof PRICE_KEYS)[number];
@@ -174,6 +175,13 @@ export async function handleEvent(event: Stripe.Event, db: BillingDb, stripe: St
       if (email) await sendEmail(paymentFailedEmail(email, unsubscribeUrl(userId)));
       return;
     }
+    case "invoice.paid": {   // T-299/T-300: funnel "paid" + receipt in afterBillingEvent; listed so ops/stripe-setup.mjs subscribes
+      const inv = event.data.object;
+      const customer = idOf(inv.customer);
+      // A charge can beat the event that links the customer (no-trial checkout, Payment Links): 500 → Stripe retries.
+      if (inv.amount_paid > 0 && customer && !(await db.userForCustomer(customer))) throw new RetryLater(`no user for customer ${customer}`);
+      return;
+    }
     default:
       return;
   }
@@ -197,6 +205,7 @@ export async function handleWebhook(req: Request, db: BillingDb, stripe: Stripe 
     console.error("[stripe] webhook failed", event.type, event.id, e instanceof Error ? e.message : e);
     return Response.json({ error: "Retry" }, { status: 500 });
   }
+  await afterBillingEvent(event, db);   // T-299/T-300: funnel steps and lifecycle emails; never throws
   await db.markSeen(event.id, event.type);   // after success, so a failed event is retried
   return Response.json({ received: true });
 }

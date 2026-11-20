@@ -82,7 +82,7 @@ const run = (...a) => promisify(execFile)("node", [join(ROOT, "ops/stripe-setup.
 
 test("events come from the webhook handler", () => {
   assert.deepEqual(webhookEvents(), ["checkout.session.completed", "customer.subscription.created",
-    "customer.subscription.updated", "customer.subscription.deleted", "invoice.payment_failed"]);
+    "customer.subscription.updated", "customer.subscription.deleted", "invoice.payment_failed", "invoice.paid"]);
 });
 
 test("dry run reads only; --yes creates everything once; a second --yes changes nothing", async () => {
