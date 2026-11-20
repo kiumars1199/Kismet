@@ -5,11 +5,31 @@ import type { Side } from "@/lib/types";
 const ok = (x: number | null | undefined): x is number => typeof x === "number" && Number.isFinite(x);
 export const DASH = "—";
 
-/** 0.68 → "68¢" (one decimal under 10¢ or when not whole: 0.055 → "5.5¢") */
+/** 0.68 → "68%" (one decimal when not whole: 0.055 → "5.5%") */
 export function price(p: number | null | undefined): string {
   if (!ok(p)) return DASH;
+  // Q, Nov 20: no cents anywhere a user looks. A price reads as the market's chance: 0.68 → "68%", 0.004 → "0.4%".
   const c = p * 100;
-  return `${Math.abs(c - Math.round(c)) < 0.05 ? Math.round(c) : c.toFixed(1)}¢`;
+  return `${Math.abs(c - Math.round(c)) < 0.05 ? Math.round(c) : c.toFixed(1)}%`;
+}
+/** A price as the multiplier bettors read (Q, Nov 20: "people know by multiplier, not by dollar or cent"):
+ *  0.63 → "1.59x", 0.08 → "12.5x", 0.004 → "250x". What $1 returns if it wins, before the fee. */
+export function odds(p: number | null | undefined): string {
+  if (!ok(p) || p <= 0 || p >= 1) return DASH;
+  const x = 1 / p;
+  return `${x >= 100 ? Math.round(x) : x >= 10 ? x.toFixed(1).replace(/\.0$/, "") : x.toFixed(2)}x`;
+}
+/** A fee or other per-share cost as a share of what you pay: fee 0.011 on a 0.70 ask → "1.6%". */
+export function costPct(cost: number | null | undefined, ask: number | null | undefined): string {
+  if (!ok(cost) || !ok(ask) || ask <= 0) return DASH;
+  const v = (cost / ask) * 100;
+  return `${v >= 10 ? Math.round(v) : v.toFixed(1).replace(/\.0$/, "")}%`;
+}
+/** A gap between two prices in percentage points: 0.05 → "5 points". */
+export function points(d: number | null | undefined): string {
+  if (!ok(d)) return DASH;
+  const v = Math.abs(d) * 100;
+  return `${v >= 10 ? Math.round(v) : v.toFixed(1).replace(/\.0$/, "")} ${v === 1 ? "point" : "points"}`;
 }
 /** payout per $1 from the ask (docs/13 §3): 0.33 → "3.0x", 0.08 → "13x"; no ask → "—" */
 export function pays(ask: number | null | undefined): string {
@@ -29,10 +49,10 @@ export function ret(roiPct: number | null | undefined): string {
   const n = a >= 10 ? Math.round(a).toString() : a.toFixed(1).replace(/\.0$/, "");
   return `${roiPct < 0 ? "−" : "+"}${n}%`;
 }
-/** cents edge for Pro mode: 0.051 → "+5.1¢" */
+/** edge for Pro mode in percentage points: 0.051 → "+5.1 pts" */
 export function edge(e: number | null | undefined): string {
   if (!ok(e)) return DASH;
-  return `${e < 0 ? "−" : "+"}${Math.abs(e * 100).toFixed(1)}¢`;
+  return `${e < 0 ? "−" : "+"}${Math.abs(e * 100).toFixed(1)} pts`;
 }
 /** Free tier (T-44): the API sends `ranges` instead of exact numbers. "+5–10%", "under 0%", "over +50%". */
 type Band = [number | null, number | null];
@@ -44,7 +64,7 @@ export function sideRet(s: Pick<Side, "roi_pct" | "ranges">): string {
 }
 /** Edge per share for a side: exact, or its band on the Free tier. */
 export function sideEdge(s: Pick<Side, "edge" | "ranges">): string {
-  return s.ranges ? span(s.ranges.edge, (e) => edge(e).replace(".0¢", "¢"), "¢") : edge(s.edge);
+  return s.ranges ? span(s.ranges.edge, (e) => edge(e).replace(".0 pts", " pts"), " pts") : edge(s.edge);
 }
 /** "Past results: +$33 per $100 bet": exact, or its band on the Free tier ("+$5–$10"), so a band's low end never reads as exact. */
 export function sideProfit(s: Pick<Side, "roi_pct" | "ranges">): string {
@@ -97,9 +117,9 @@ export function recordLabel(neff: number | null | undefined): RecordLabel | null
 }
 export const recordHelp = (neff: number) =>
   `About ${formatCount(neff)} similar past bets (effective sample) behind this estimate. More past bets means a firmer estimate, not a surer win.`;
-/** "Bet Yes at 68¢" */
+/** "Bet Yes · pays 1.47x" */
 export function betLine(s: Pick<Side, "outcome" | "ask">): string {
-  return `Bet ${s.outcome} at ${price(s.ask)}`;
+  return `Bet ${s.outcome} · pays ${odds(s.ask)}`;
 }
 /** "similar past bets returned": realistic_edge / (ask + fee), as roi % */
 export function realisticReturn(s: Pick<Side, "realistic_edge" | "ask" | "fee">): number | null {

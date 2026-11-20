@@ -20,10 +20,10 @@ describe("odds", () => {
     expect(fromDecimal(1)).toBeNull();
   });
   it("formats per profile setting", () => {
-    expect(formatOdds(0.68, "cents")).toBe("68¢");
+    expect(formatOdds(0.68, "cents")).toBe("68%");
     expect(formatOdds(0.68, "percent")).toBe("68%");
     expect(formatOdds(0.055, "percent")).toBe("5.5%");
-    expect(formatOdds(0.68, "decimal")).toBe("1.47");
+    expect(formatOdds(0.68, "decimal")).toBe("1.47x");
     expect(formatOdds(0.68, "american")).toBe("−213");
     expect(formatOdds(0.25, "american")).toBe("+300");
     expect(formatOdds(null, "decimal")).toBe("—");

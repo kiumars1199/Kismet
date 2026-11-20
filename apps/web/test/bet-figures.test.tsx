@@ -20,7 +20,7 @@ const { rangeSide } = await import("@/lib/data/gate");
 const { getStore } = await import("@/lib/data/store");
 const { sideLines } = await import("@/lib/mcp/server");
 const { BetCard } = await import("@/components/market/BetCard");
-const { backLine, cardVenue, stars, winsInTen, winsLine } = await import("@/lib/card");
+const { backLine, cardVenue, chanceLine, paysLine, stars } = await import("@/lib/card");
 const { MarketCard } = await import("@/components/market/MarketCard");
 const { MarketDetail } = await import("@/components/market/MarketDetail");
 
@@ -58,7 +58,7 @@ describe("betFigures on real-shaped sides", () => {
   it("the fee is in the payout: stake ÷ (price + fee), and named in the hover", () => {
     const f = betFigures(side({ ask: 0.5, fee: 0.02 }), { stake: 100 });
     expect(f.payout).toBeCloseTo(100 / 0.52, 6);
-    expect(f.feeHelp).toContain("2¢ per share");
+    expect(f.feeHelp).toContain("4% of what you pay");
   });
 
   it("a live price moves Pays, the payout, the points and the edge together", () => {
@@ -150,8 +150,8 @@ describe("card, compact card, drawer and MCP print the same figures", async () =
 
       const card = text(renderToStaticMarkup(createElement(BetCard, { r })));
       const v = cardVenue(m, s);
-      expect(card, "card wins").toContain(`Wins ${winsInTen(s.win_prob)}`);
-      if (winsLine(v)) expect(card, "card $10").toContain(winsLine(v)!);
+      expect(card, "card chance").toContain(chanceLine(s.win_prob));
+      if (paysLine(v)) expect(card, "card pays").toContain(paysLine(v)!);
       if (backLine(v)) expect(card, "why back").toContain(backLine(v)!);
       if (v.kind !== "us") expect(card, "card return").toContain(f.ret.text);
       const st = stars({ roi_pct: v.roi_pct, model_neff: s.model_neff });

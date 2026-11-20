@@ -230,7 +230,7 @@ function RuleEditor({ draft, filters, onClose }: { draft: Draft | null; filters:
         {d.kind === "market_price" && (
           <label className="flex flex-col gap-1.5 text-xs font-medium text-muted">
             Price at or below
-            <NumberInput ariaLabel="Target price in cents" value={d.threshold === null ? null : +(d.threshold * 100).toFixed(1)} onChange={(v) => set({ threshold: v === null ? null : Math.min(0.99, Math.max(0.01, v / 100)) })} suffix="¢" min={1} max={99} />
+            <NumberInput ariaLabel="Target price, as a percent" value={d.threshold === null ? null : +(d.threshold * 100).toFixed(1)} onChange={(v) => set({ threshold: v === null ? null : Math.min(0.99, Math.max(0.01, v / 100)) })} suffix="%" min={1} max={99} />
           </label>
         )}
         {d.kind === "edge_change" && (

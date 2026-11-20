@@ -1,4 +1,4 @@
-// Odds conversions (docs/05 F-15, F-17): price ¢ ↔ implied % ↔ decimal ↔ American.
+// Odds conversions (docs/05 F-15, F-17): implied % ↔ multiplier ↔ decimal ↔ American.
 // A Polymarket price p (0–1) pays $1, so implied chance = p and decimal odds = 1/p.
 import { useCallback } from "react";
 import { DASH, price } from "@/lib/format";
@@ -19,13 +19,15 @@ export function formatOdds(p: number | null | undefined, fmt: OddsFormat): strin
   if (fmt === "cents") return price(p);
   if (typeof p !== "number" || !inRange(p)) return DASH;
   if (fmt === "percent") return `${+(p * 100).toFixed(p < 0.1 ? 1 : 0)}%`;
-  if (fmt === "decimal") return (1 / p).toFixed(2);
+  if (fmt === "decimal") return `${(1 / p).toFixed(2)}x`;
   const a = Math.round(toAmerican(p)!);
   return a > 0 ? `+${a}` : `−${Math.abs(a)}`;
 }
 
+export const ODDS_CHOICES: OddsFormat[] = ["percent", "decimal", "american"];
 export const ODDS_LABEL: Record<OddsFormat, string> = {
-  cents: "Cents · 68¢", percent: "Percent · 68%", decimal: "Decimal · 1.47", american: "American · −213",
+  // "cents" stays a stored value (DB check constraint) but now shows as a percent and isn't offered (Q, Nov 20)
+  cents: "Percent · 68%", percent: "Percent · 68%", decimal: "Multiplier · 1.47x", american: "American · −213",
 };
 
 /** Format a price in the user's odds format: `const odds = useOdds(); odds(0.68)`. Cents = format.price(). */

@@ -62,7 +62,7 @@ describe("alerts", () => {
     expect(inQuietHours(rule({ quiet_hours: [22, 8] }), new Date("2026-11-16T04:00:00Z"), "America/New_York")).toBe(true);
     expect(inQuietHours(rule({ quiet_hours: [22, 8] }), new Date("2026-11-16T17:00:00Z"), "America/New_York")).toBe(false);
     const msg = message(market("m"), side(0), "America/New_York");
-    expect(msg).toMatch(/^Jaguars at 72¢ · won 79% before · estimated return \+7\.2% · closes Sun /);
+    expect(msg).toMatch(/^Jaguars · pays 1\.39x · won 79% before · estimated return \+7\.2% · closes Sun /);
     expect(msg.toLowerCase()).not.toMatch(/bet this|pick|lock/);
   });
 });

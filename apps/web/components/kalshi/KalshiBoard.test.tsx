@@ -35,7 +35,7 @@ describe("KalshiBoard", () => {
     const combos = within(screen.getByRole("region", { name: "Kalshi Combos" }));
     expect(combos.getByText("Legs' Kalshi asks multiplied")).toBeTruthy();
     expect(combos.getByText("Kalshi's combo ask")).toBeTruthy();
-    expect(combos.getByText("18.9¢")).toBeTruthy();
+    expect(combos.getByText("18.9%")).toBeTruthy();
     expect(combos.getByText(/same event/)).toBeTruthy();
   });
 });

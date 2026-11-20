@@ -35,11 +35,11 @@ function closesAt(unixSec: number, timeZone: string): string {
   catch { return d.toLocaleString("en-US", { weekday: "short", hour: "numeric", minute: "2-digit" }); }
 }
 
-/** "Jaguars at 72¢ · won 79% before · estimated return +7% · closes Sun 1:00 PM" */
-export function message(m: Market, s: Side, timeZone: string, live?: { ask: number; roi: number } | null, odds: OddsFormat = "cents"): string {
+/** "Jaguars · pays 1.39x · won 79% before · estimated return +7% · closes Sun 1:00 PM" */
+export function message(m: Market, s: Side, timeZone: string, live?: { ask: number; roi: number } | null, odds: OddsFormat = "percent"): string {
   const ask = live?.ask ?? s.ask;
   const roi = live?.roi ?? s.roi_pct;
-  return [`${s.outcome} at ${formatOdds(ask, odds)}`, `won ${pct(s.win_prob)} before`, `estimated return ${ret(roi)}`,
+  return [`${s.outcome} · pays ${odds === "american" ? formatOdds(ask, odds) : formatOdds(ask, "decimal")}`, `won ${pct(s.win_prob)} before`, `estimated return ${ret(roi)}`,
     m.closes_at ? `closes ${closesAt(m.closes_at, timeZone)} (${closesIn(m.closes_at)})` : null].filter(Boolean).join(" · ");
 }
 export const title = (m: Market) => `${m.niche.toUpperCase()} · ${m.question}`;

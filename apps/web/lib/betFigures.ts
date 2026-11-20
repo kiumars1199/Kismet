@@ -1,7 +1,7 @@
 // T-289: every figure and label a bet shows, in one place. BetCard, MarketCard, the drawer headline, the /about preview
 // card, the screener table, My list, CSV and the MCP text all read from here, so a card can't say one number while the
 // drawer says another, and a label can't contradict its number (outside tester, Nov 20).
-import { cardReturn, chance, money, pays, payoutIfWins, pct, price, recordLabel, winsAbout, type Chance, type RecordLabel } from "@/lib/format";
+import { cardReturn, chance, costPct, money, odds, pays, payoutIfWins, pct, recordLabel, winsAbout, type Chance, type RecordLabel } from "@/lib/format";
 import type { Side } from "@/lib/types";
 
 const ok = (x: number | null | undefined): x is number => typeof x === "number" && Number.isFinite(x);
@@ -9,7 +9,7 @@ const ok = (x: number | null | undefined): x is number => typeof x === "number" 
 type S = Pick<Side, "ask" | "fee" | "edge" | "win_prob" | "ranges">;
 
 /** Is the edge after the fee above zero? Free sides carry a band (numeric `edge` is only its low end), so the band
- *  decides: "under 0" is not positive, "0–2¢" and up are. */
+ *  decides: "under 0" is not positive, "0–2 pts" and up are. */
 export function edgeAbove0(s: Pick<Side, "edge" | "ranges">): boolean {
   return s.ranges ? s.ranges.edge[0] !== null : ok(s.edge) && s.edge > 0;
 }
@@ -39,7 +39,7 @@ export function gapPts(s: S): string {
 
 /** Hover for the points: what they measure, and that the fee comes out of them. */
 export const PTS_HELP =
-  "Points of win chance: how often bets like this have won, minus the price. 70¢ implies 70%; if bets like it won 80%, that's +10 pts. The fee comes out of this gap.";
+  "Points of win chance: how often bets like this have won, minus the price. A 70% price implies 70%; if bets like it won 80%, that's +10 pts. The fee comes out of this gap.";
 
 export type VerdictTone = "up" | "thin" | "down";
 /** The price verdict, from the same quantities as the points beside it: the gap (pts) and the edge after the fee. */
@@ -98,7 +98,7 @@ export function betFigures(s: Side, opts: { ask?: number; stake?: number } = {})
   const payout = payoutIfWins(stake, at);
   const payoutText = money(payout);
   const r = cardReturn(s);
-  const feeHelp = `Pays = $1 ÷ ${price(ask)} price. Polymarket's fee here is ${price(s.fee)} per share, so ${money(stake)} buys ${payout === null ? "—" : (payout).toFixed(1)} shares at ${price(ask + (ok(s.fee) ? s.fee : 0))} each; each pays $1 if it wins. If it loses, you lose the stake.`;
+  const feeHelp = `Pays ${odds(ask)} before the fee. Polymarket's fee here is ${costPct(s.fee, ask)} of what you pay, so ${money(stake)} buys ${payout === null ? "—" : (payout).toFixed(1)} shares; each pays $1 if it wins. If it loses, you lose the stake.`;
   return {
     ask,
     pays: pays(ask),

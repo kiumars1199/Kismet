@@ -5,7 +5,7 @@
 // The question link covers the card (opens the drawer); star and alert sit above it.
 import type { ApiRow } from "@/lib/api";
 import { useWhen } from "./When";
-import { basis, price, priceAsOf, sideEdge } from "@/lib/format";
+import { basis, odds, priceAsOf, sideEdge } from "@/lib/format";
 import { betFigures, RETURN_HELP_ONE } from "@/lib/betFigures";
 import { useProfile } from "@/lib/repo/hooks";
 import { WatchStar } from "@/components/watch/WatchStar";
@@ -46,7 +46,7 @@ export function MarketCard({ r, pro = false, notes = true }: { r: ApiRow; pro?: 
           <span className="whitespace-nowrap text-soft" title={`Won ${f.winPct} of the time in similar past bets`}>wins about {f.wins}</span>
         </p>
         <div className="mt-0.5 text-xs text-muted">
-          Bet {s.outcome} at {price(s.ask)}
+          Bet {s.outcome} · pays {odds(s.ask)}
           <span data-testid="verdict" className={`block ${VERDICT_TONE[f.verdict.tone]}`}>{f.verdict.text.toLowerCase()} <span className="whitespace-nowrap" title={PTS_HELP}>({f.pts})</span></span>
           {r.price_at && <span data-testid="price-as-of" className="block" title="Live Polymarket price read when this page loaded; edge, Pays and payout use it.">{priceAsOf(r.price_at)}</span>}
           {f.payout !== null && (

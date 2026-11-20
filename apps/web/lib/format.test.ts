@@ -23,9 +23,9 @@ describe("docs/18 numbers", () => {
 
 describe("format", () => {
   it("formats numbers per docs/06", () => {
-    expect([price(0.68), price(0.055), price(null)]).toEqual(["68¢", "5.5¢", "—"]);
+    expect([price(0.68), price(0.055), price(null)]).toEqual(["68%", "5.5%", "—"]);
     expect([pct(0.792), ret(33.2), ret(4.62), ret(-2), ret(NaN)]).toEqual(["79%", "+33%", "+4.6%", "−2%", "—"]);
-    expect([edge(0.051), edge(-0.02)]).toEqual(["+5.1¢", "−2.0¢"]);
+    expect([edge(0.051), edge(-0.02)]).toEqual(["+5.1 pts", "−2.0 pts"]);
     expect([money(2400), money(32.58, true), money(-8, true), money(25)]).toEqual(["$2,400", "+$32.58", "−$8", "$25"]);
     expect(expectedProfit(33, 100)).toBe(33);
     expect([pays(1 / 3), pays(0.5), pays(0.08), pays(0.99), pays(0), pays(null)]).toEqual(["3.0x", "2.0x", "13x", "1.0x", "—", "—"]);

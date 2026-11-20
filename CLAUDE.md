@@ -39,7 +39,7 @@ docs/          the spec
    Never rank or recommend bets from a user's own positions (`docs/01-product.md`, Compliance).
 5. **Disclaimer in the footer of every page and in the extension popup:**
    "Market analytics, not financial advice. Based on past results. 18+."
-6. Money values: store cents as integers or numeric; display `$1,234.56`; prices as `68¢`.
+6. Money values: store cents as integers or numeric; display `$1,234.56`. Users never see cents: payouts as multipliers (`1.47x`), chances and prices as percentages (`68%`), gaps as points (Q, Nov 2026).
 7. Dark theme first, emerald accent (`#10b981`), rounded-xl cards, subtle shadows.
 8. Tests: Vitest for logic (filters, sizing, serialization), Playwright for the 6 smoke flows in
    `docs/12-test-plan.md`. A task is done only when its acceptance checks pass.

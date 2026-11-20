@@ -50,7 +50,7 @@ export function FoldCharts({ rows }: { rows: ReturnType<typeof foldRows> }) {
 }
 
 export function EdgeChart({ rows }: { rows: ReturnType<typeof bucketRows> }) {
-  const cents = (v: unknown) => `${Number(v).toFixed(1)}¢`;
+  const cents = (v: unknown) => `${Number(v).toFixed(1)} pts`;
   return (
     <>
       <Legend items={[["var(--market-bar)", "Predicted"], ["var(--accent)", "Actually earned"]]} />
@@ -58,7 +58,7 @@ export function EdgeChart({ rows }: { rows: ReturnType<typeof bucketRows> }) {
         <BarChart data={rows} margin={{ top: 20, right: 8, left: 0, bottom: 0 }} barGap={2}>
           {GRID}
           <XAxis dataKey="bucket" {...AXIS} />
-          <YAxis {...AXIS} width={40} tickFormatter={(v: number) => `${v}¢`} />
+          <YAxis {...AXIS} width={40} tickFormatter={(v: number) => `${v} pts`} />
           <Tooltip {...TIP} formatter={(v, n) => [cents(v), n === "predicted" ? "Predicted" : "Actually earned"]}
             labelFormatter={(l) => `Predicted edge ${l} per $1 share`} />
           <Bar dataKey="predicted" fill="var(--market-bar)" radius={[4, 4, 0, 0]} maxBarSize={36}>
@@ -104,9 +104,9 @@ export function CalibrationChart({ sets }: { sets: Record<string, CalibrationSet
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 4 }}>
               <CartesianGrid stroke="var(--border)" />
-              <XAxis dataKey="price" type="number" domain={[0, 100]} ticks={[0, 25, 50, 75, 100]} {...AXIS} tickFormatter={(v: number) => `${v}¢`} />
+              <XAxis dataKey="price" type="number" domain={[0, 100]} ticks={[0, 25, 50, 75, 100]} {...AXIS} tickFormatter={(v: number) => `${v}%`} />
               <YAxis type="number" domain={[0, 100]} ticks={[0, 25, 50, 75, 100]} {...AXIS} width={44} tickFormatter={(v: number) => `${v}%`} />
-              <Tooltip {...TIP} cursor={{ stroke: "var(--muted)" }} labelFormatter={(l) => `Priced at ${l}¢`}
+              <Tooltip {...TIP} cursor={{ stroke: "var(--muted)" }} labelFormatter={(l) => `Priced at ${l}%`}
                 formatter={(v, n) => [`${v}%`, n === "won" ? "Won" : "Fair"]} />
               <Line dataKey="fair" stroke="var(--market-bar)" strokeWidth={2} strokeDasharray="5 4" dot={false} isAnimationActive={false} />
               <Line dataKey="won" stroke="var(--accent)" strokeWidth={2} dot={{ r: 3, fill: "var(--accent)" }} isAnimationActive={false} />

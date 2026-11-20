@@ -1,5 +1,5 @@
 // Side panel: one market (drawer content) or the page's list. Data comes from the background cache.
-import { chance, edge, formatCount, money, pct, price, ret, RETURN_HELP } from "./format";
+import { chance, edge, formatCount, money, odds, pct, price, ret, RETURN_HELP } from "./format";
 import { renderTrade } from "./vault-ui";
 import { API, type EventResponse, type Execution, type Market, type Msg, type Selection, type Side } from "./types";
 
@@ -19,7 +19,7 @@ function sideCard(s: Side, isBest: boolean) {
   const pos = s.roi_pct > 0;
   const profit = (s.roi_pct / 100) * 100;
   return `<section class="inner stack ${isBest && pos ? "accent" : ""}">
-    <div class="row"><strong>Bet ${esc(s.outcome)} at ${price(s.ask)}</strong><span class="small" style="color:var(--accent-softer)">${chance(s.win_prob)}</span></div>
+    <div class="row"><strong>Bet ${esc(s.outcome)} · pays ${odds(s.ask)}</strong><span class="small" style="color:var(--accent-softer)">${chance(s.win_prob)}</span></div>
     ${pos
       ? `<div><div class="num" style="font-size:42px;font-weight:700;color:var(--accent)" title="${esc(RETURN_HELP)}">${ret(s.roi_pct)}</div>
          <div class="small muted" title="${esc(RETURN_HELP)}">estimated return · past results: ${money(profit, true)} per $100 bet</div></div>`

@@ -181,7 +181,7 @@ export default async function Page() {
           <h2 id="method-h" className="text-xl font-semibold">How it works</h2>
           <div className="mt-3 flex flex-col gap-2 text-sm leading-relaxed text-soft">
             <p>For thousands of settled markets we record the price some hours before close and whether it won. Grouped by sport,
-              topic, bet type and time before close, that gives a curve: at 70¢, how often did bets like this win?</p>
+              topic, bet type and time before close, that gives a curve: priced at 70%, how often did bets like this win?</p>
             <p>When a group is small, its curve leans toward its broader parent (a niche leans on its category, a category on all
               markets), so a few lucky results can&apos;t drive it alone.</p>
             <p>Older results count less than recent ones, and bets from one game or one weather day are treated as one piece of

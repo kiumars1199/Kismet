@@ -73,7 +73,7 @@ function MoreInGame({ slot }: { slot: Slot }) {
               <a href={drawerHref(m.id, s.side_index)} onClick={(e) => { if (e.metaKey || e.ctrlKey) return; e.preventDefault(); openDrawer(m.id, s.side_index); }}
                 className="flex min-h-11 flex-col justify-center py-2 hover:text-accent-hover">
                 <span className="line-clamp-2">{plainTitle(m, s)}</span>
-                <span className="text-xs text-muted">{sideLabel(s)} at {priceText(cardVenue(m, s).ask ?? s.ask)}</span>
+                <span className="text-xs text-muted">{sideLabel(s)} · pays {priceText(cardVenue(m, s).ask ?? s.ask)}</span>
               </a>
             </li>
           ))}

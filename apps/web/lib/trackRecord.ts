@@ -71,11 +71,11 @@ export function foldRows(b: BacktestFile) {
  *  not up. The one count every page uses (landing, Results). */
 export const weeksUp = (rows: { dir: WeekDir }[]) => rows.filter((x) => x.dir === "up").length;
 
-/** Predicted vs realized edge per bucket, in ¢ per $1 share. */
+/** Predicted vs realized edge per bucket, in points per $1 share. */
 export function bucketRows(b: BacktestFile) {
   const rows = (chosenResult(b)?.edge_buckets ?? []) as EdgeBucket[];
   return rows.map((e) => ({
-    bucket: e.predicted_hi >= 1 ? `${Math.round(e.predicted_lo * 100)}¢+` : `${Math.round(e.predicted_lo * 100)}–${Math.round(e.predicted_hi * 100)}¢`,
+    bucket: e.predicted_hi >= 1 ? `${Math.round(e.predicted_lo * 100)}+ pts` : `${Math.round(e.predicted_lo * 100)}–${Math.round(e.predicted_hi * 100)} pts`,
     bets: e.flags,
     predicted: +(e.predicted_edge * 100).toFixed(2),
     realized: +(e.realized_edge * 100).toFixed(2),

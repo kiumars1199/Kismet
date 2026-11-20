@@ -7,7 +7,7 @@ import type { ReactNode } from "react";
 import type { ApiRow } from "@/lib/api";
 import { backLine, cardVenue, INTL_ONLY, NOT_FOR_US, priceText, stars, starsHelp, type CardVenue } from "@/lib/card";
 import { paysBand } from "@/lib/filters/bands";   // not ./apply: zod on the landing (T-295)
-import { cardReturn, ESTIMATE_HELP, money, PAST_RETURN_HELP, pastReturnLine, pct, ret, testedLine } from "@/lib/format";
+import { cardReturn, costPct, ESTIMATE_HELP, money, PAST_RETURN_HELP, pastReturnLine, pct, ret, testedLine } from "@/lib/format";
 import { noLiveRecord } from "@/lib/proof";
 import type { Execution, Market, Side } from "@/lib/types";
 import dynamic from "next/dynamic";
@@ -105,10 +105,10 @@ export function Why({ r, livePrice }: { r: ApiRow; livePrice?: ReactNode }) {
         <dl>
           <Line label="Value" testid="why-value">{st ? st.label : "No value at today's price"}<span className="block text-xs text-muted">{starsHelp(st)}</span></Line>
           <Line label="Our estimate">Wins {pct(s.win_prob)} of the time{banded ? " (rounded down)" : ""}</Line>
-          <Line label="Price">
+          <Line label="Pays">
             {v.kind === "us"
-              ? <>{v.ask == null ? "No Polymarket US price right now" : <>{priceText(v.ask)} on Polymarket US, fee {priceText(v.fee)}</>}</>
-              : <>{priceText(s.ask)} on Polymarket, fee {priceText(s.fee)}</>}
+              ? <>{v.ask == null ? "No Polymarket US price right now" : <>{priceText(v.ask)} on Polymarket US, before its {costPct(v.fee, v.ask)} fee</>}</>
+              : <>{priceText(s.ask)} on Polymarket, before its {costPct(s.fee, s.ask)} fee</>}
             {livePrice}
           </Line>
           <Line label="Estimated return">

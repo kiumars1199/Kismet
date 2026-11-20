@@ -138,7 +138,7 @@ function LogBet({ market, side }: { market: Market; side: 0 | 1 }) {
           <div className="grid grid-cols-2 gap-3">
             <label className="flex flex-col gap-1.5 text-xs font-medium text-muted">
               Price you paid
-              <NumberInput ariaLabel="Price you paid in cents" value={cents} onChange={setCents} suffix="¢" min={0.1} max={99.9} />
+              <NumberInput ariaLabel="Price you paid, as a percent" value={cents} onChange={setCents} suffix="%" min={0.1} max={99.9} />
             </label>
             <label className="flex flex-col gap-1.5 text-xs font-medium text-muted">
               <span className="flex items-center justify-between">
@@ -151,7 +151,7 @@ function LogBet({ market, side }: { market: Market; side: 0 | 1 }) {
             </label>
           </div>
           <p className="text-sm text-soft tabular-nums">
-            {valid ? <>{shares.toFixed(1)} shares · {money(stake)} incl. {price(fee)} fee per share · pays {money(shares)} if it hits</> : "Enter a price between 0.1¢ and 99.9¢ and an amount."}
+            {valid ? <>{shares.toFixed(1)} shares · {money(stake)} incl. {price(fee)} fee per share · pays {money(shares)} if it hits</> : "Enter a price between 0.1% and 99.9% and an amount."}
           </p>
           <button type="button" className={btnPrimary} onClick={save} disabled={!valid}>Log this bet</button>
         </>

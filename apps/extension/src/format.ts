@@ -14,11 +14,13 @@ export function formatCount(n: number | null | undefined): string {
   return `${sign}${Math.floor(tenths / 10)}${tenths % 10 ? `.${tenths % 10}` : ""}${u}`;
 }
 
-/** 0.68 → "68¢" (one decimal when not whole: 0.055 → "5.5¢") */
+/** 0.68 → "68%" (one decimal when not whole: 0.055 → "5.5%"). Users never see cents. */
+/** 0.68 → "1.47x": what $1 returns if it wins, before the fee */
+export const odds = (p: number | null | undefined) => (ok(p) && p > 0 && p < 1 ? `${1 / p >= 10 ? (1 / p).toFixed(1) : (1 / p).toFixed(2)}x` : DASH);
 export function price(p: number | null | undefined): string {
   if (!ok(p)) return DASH;
   const c = p * 100;
-  return `${Math.abs(c - Math.round(c)) < 0.05 ? Math.round(c) : c.toFixed(1)}¢`;
+  return `${Math.abs(c - Math.round(c)) < 0.05 ? Math.round(c) : c.toFixed(1)}%`;
 }
 /** Gross payout per $1 at this price (docs/13): 0.61 → "1.6x", 0.08 → "12x". */
 export function pays(ask: number | null | undefined): string {
@@ -35,8 +37,8 @@ export function ret(roiPct: number | null | undefined): string {
   const n = a >= 10 ? Math.round(a).toString() : a.toFixed(1).replace(/\.0$/, "");
   return `${roiPct < 0 ? "−" : "+"}${n}%`;
 }
-/** cents edge: 0.051 → "+5.1¢" */
-export const edge = (e: number | null | undefined) => (ok(e) ? `${e < 0 ? "−" : "+"}${Math.abs(e * 100).toFixed(1)}¢` : DASH);
+/** edge in points: 0.051 → "+5.1 pts" */
+export const edge = (e: number | null | undefined) => (ok(e) ? `${e < 0 ? "−" : "+"}${Math.abs(e * 100).toFixed(1)} pts` : DASH);
 /** $1,234 (whole dollars ≥ $100, cents below); signed adds +/− */
 export function money(usd: number | null | undefined, signed = false): string {
   if (!ok(usd)) return DASH;

@@ -117,7 +117,7 @@ export interface Repo {
 
 export const DEFAULT_PROFILE: Profile = {
   display_name: null, timezone: "America/New_York", bankroll_usd: null,
-  kelly_fraction: 0.25, default_stake_usd: 100, odds_format: "cents",
+  kelly_fraction: 0.25, default_stake_usd: 100, odds_format: "percent",
   favorite_topics: [], onboarded_at: null,
   density: "comfortable", theme: "dark", numbers_mode: "simple",
 };
