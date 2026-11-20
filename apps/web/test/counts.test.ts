@@ -86,7 +86,7 @@ describe("one Best bets count (T-288)", () => {
       const s = await surfaces("pro");
       expect(s.first.rows.length).toBeLessThan(s.first.page_size);   // live prices really dropped rows
       expect([s.status, s.first.total, s.api.total]).toEqual([s.shared, s.shared, s.shared]);
-      const p2 = (await (await listRoute(new Request(`http://x/api/flags?${serialize(bestBetsQuery({ page: 2 }))}`), "flags")).json()) as MarketsResponse;
+      const p2 = (await (await listRoute(new Request(`http://x/api/flags?${serialize(bestBetsQuery({ page: 2, page_size: 10 }))}`), "flags")).json()) as MarketsResponse;
       expect(p2.total).toBe(s.shared);
     } finally {
       _setReprice(null);

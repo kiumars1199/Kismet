@@ -34,6 +34,9 @@ export const FilterState = z.object({
   roi_min: z.number().optional(),
   validated_only: z.boolean().optional(),
   verdicts: z.array(Verdict).optional(),             // flags view
+  // flags view: only bets you can place on Polymarket US at a price still worth it there (docs/OVERHAUL.md §G2).
+  // On by default for every tier; a no-op on a scan without US coverage (lib/filters/us.ts usActive).
+  us: z.boolean().default(true),
   retention_min: z.number().optional(), capacity_min_usd: z.number().optional(),
   min_events: z.number().int().optional(),           // evidence size
   closes_within_h: z.number().optional(), closes_after_h: z.number().optional(),

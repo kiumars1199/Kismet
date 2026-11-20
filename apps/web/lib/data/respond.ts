@@ -194,7 +194,7 @@ function fnv(s: string): number {
 export function freeSample(store: Store, key: string, now = Date.now()): Set<string> {
   const seed = `${key}|${new Date(now).toISOString().slice(0, 10)}|`;
   return new Set(
-    bestBetsRows(store)
+    bestBetsRows(store, { us: freeUsOn(store) })
       .map((r) => [fnv(seed + r.market.id), r.market.id] as const)
       .sort((a, b) => a[0] - b[0])
       .slice(0, FREE_BEST_BETS_A_DAY)
@@ -202,11 +202,20 @@ export function freeSample(store: Store, key: string, now = Date.now()): Set<str
   );
 }
 
+const usEnough = new WeakMap<Store, boolean>();
+/** T-302 (docs/OVERHAUL.md §G2): Free's daily 10 come from the "On Polymarket US" set when it holds at least 10 bets;
+ *  with fewer, the sample (and the Free list it filters) falls back to every Best bet so Free still gets 10. */
+export function freeUsOn(store: Store): boolean {
+  let v = usEnough.get(store);
+  if (v === undefined) usEnough.set(store, (v = bestBetsRows(store).length >= FREE_BEST_BETS_A_DAY));
+  return v;
+}
+
 /** Free Best bets: every match is counted (`total` is the real N for "Unlock all N bets"), but only the day's sample
  *  leaves the server, ungrouped (a game group would carry the other bets in it). `free_daily` marks the page as the
  *  Free sample, so the client draws the locked cards from the server's answer, never from its own guess of the tier. */
 function freeFlagsPage(store: Store, f: FilterState, key: string): MarketsResponse {
-  const page = marketsPage(store, { ...f, page: 1, page_size: Number.MAX_SAFE_INTEGER, group_by_event: false });
+  const page = marketsPage(store, { ...f, us: f.us && freeUsOn(store), page: 1, page_size: Number.MAX_SAFE_INTEGER, group_by_event: false });
   const keep = freeSample(store, key);
   const rows = page.rows.filter((r) => keep.has(r.market.id));
   return { ...page, page_size: f.page_size, total_groups: undefined, groups: undefined, rows, free_daily: FREE_BEST_BETS_A_DAY };

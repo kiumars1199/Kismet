@@ -6,6 +6,7 @@ import { parse, toFilterState, type Chip, type ParsedQuery } from "@/lib/search/
 import { TAXONOMY, topicsOf } from "@/lib/taxonomy";
 import type { Execution, PaysBand, Side, StoreMarket } from "@/lib/types";
 import { tierOf, type FilterState, type SortKey } from "./state";
+import { onUs, usActive, usRoi } from "./us";
 
 export const GROUP_ROWS = 4;
 export interface UserCtx { watchlist: Set<string>; favoriteTopics: string[] }
@@ -138,9 +139,10 @@ const SORT_VALUE: Record<SortKey, (r: Row) => number | null | undefined> = {
   pays: (r) => paysOf(r.side),
 };
 
-/** Missing values last in either direction; ties by closes_at asc, then id. */
-export function comparator(sort: FilterState["sort"]): (a: Row, b: Row) => number {
-  const get = SORT_VALUE[sort.key];
+/** Missing values last in either direction; ties by closes_at asc, then id. `us`: the "On Polymarket US" filter is on,
+ *  so "Best estimated return" ranks by the US return (docs/OVERHAUL.md §G2). */
+export function comparator(sort: FilterState["sort"], us = false): (a: Row, b: Row) => number {
+  const get = us && sort.key === "roi" ? (r: Row) => usRoi(r.market, r.side.roi_pct) : SORT_VALUE[sort.key];
   const sign = sort.dir === "asc" ? 1 : -1;
   return (a, b) => {
     const x = get(a), y = get(b);
@@ -178,6 +180,8 @@ export function apply(store: Store, f0: FilterState, user?: UserCtx, parsed?: Pa
   const tier = f.view === "flags" ? tierOf(f) : "all";
   const fav = f.favorites_only ? (user?.favoriteTopics ?? []) : null;
   const fNoVerdicts = { ...f, verdicts: undefined }; // verdicts are a facet (VD bit)
+  const us = usActive(store.meta, f);                // "On Polymarket US": a plain filter, not a facet
+  const minEdge = store.meta.rule.min_edge;
 
   const facets: Facets = {
     categories: Object.fromEntries(["sports", "crypto", "politics", "finance", "culture", "weather", "tech", "geopolitics", "other"].map((k) => [k, 0])),
@@ -227,6 +231,7 @@ export function apply(store: Store, f0: FilterState, user?: UserCtx, parsed?: Pa
       (f.watchlisted_only && !user?.watchlist.has(m.id)) ||
       (fav && !fav.some((id) => topics.has(id))) ||
       (hits && !hits.has(m.id)) ||
+      (us && !onUs(m, minEdge)) ||
       !executionOk(m.execution, fNoVerdicts);
     if (other) continue;   // fails a non-facet filter: counts nowhere
 
@@ -252,7 +257,7 @@ export function apply(store: Store, f0: FilterState, user?: UserCtx, parsed?: Pa
     if (mask === 0) rows.push({ market: m, side: s });
   }
 
-  const cmp = comparator(f.sort);
+  const cmp = comparator(f.sort, us);
   if (plan?.relevance && hits) {
     // text score × (1 + 0.5 × estimated return, 0–50% scaled to 0–1) + 10% if it closes within 24 h
     const score = new Map(rows.map((r) => {

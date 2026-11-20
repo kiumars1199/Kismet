@@ -10,9 +10,10 @@ import type { Store } from "./store";
 export const bestBetsQuery = (patch: Partial<FilterState> = {}): FilterState =>
   FilterState.parse({ view: "flags", verdicts: BEST_BETS_VERDICTS, ...patch });
 
-/** Every row of the unfiltered Best bets list, in page order (flat, one page holding them all). */
-export const bestBetsRows = (store: Store): Row[] =>
-  apply(store, { ...bestBetsQuery({ group_by_event: false }), page: 1, page_size: Number.MAX_SAFE_INTEGER }).rows;
+/** Every row of the unfiltered Best bets list, in page order (flat, one page holding them all). With US coverage in
+ *  the scan that is the "On Polymarket US" set (FilterState.us defaults on, lib/filters/us.ts). */
+export const bestBetsRows = (store: Store, patch: Partial<FilterState> = {}): Row[] =>
+  apply(store, { ...bestBetsQuery({ group_by_event: false, ...patch }), page: 1, page_size: Number.MAX_SAFE_INTEGER }).rows;
 
 export type BestBetsSection = (typeof BEST_BETS_VERDICTS)[number];
 export interface BestBetsCount {

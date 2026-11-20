@@ -67,8 +67,9 @@ describe("apply() on the fixture", async () => {
     ["wp=0 turns the floor off", { win_prob_min: 0 }, 501],
     ["sports", { categories: ["sports"] }, 305],
     ["hide sports", { exclude_categories: ["sports"] }, 171],
-    ["flags view", { view: "flags" }, 150],
-    ["most likely to win (flags, wp 0.8)", { view: "flags", win_prob_min: 0.8 }, 114],
+    // flags-view counts over every flag: "On Polymarket US" (on by default, T-302) off; test/us-filter.test.ts covers it
+    ["flags view", { view: "flags", us: false }, 150],
+    ["most likely to win (flags, wp 0.8)", { view: "flags", us: false, win_prob_min: 0.8 }, 114],
     ["topic sports.nfl", { topics: ["sports.nfl"] }, 34],
     ["spreads+totals, edge >= 3¢", { market_types: ["spreads", "totals"], edge_min: 0.03 }, 53],
     ["confident only", { edge_low_positive: true }, 180],
@@ -77,7 +78,7 @@ describe("apply() on the fixture", async () => {
     ["first-half markets (1H + \"1st Half\")", { periods: ["1H"] }, 18],
     ["weekly", { frequency: ["weekly"] }, 23],
     ["validated", { validated_only: true }, 233],
-    ["big capacity (flags)", { view: "flags", capacity_min_usd: 1000 }, 100],
+    ["big capacity (flags)", { view: "flags", us: false, capacity_min_usd: 1000 }, 100],
     ["missing volume_24h excluded by a min filter", { volume_24h_min: 1 }, 0],
   ] as [string, FilterInput, number][])("%s", (_name, patch, n) => {
     expect(total(patch)).toBe(n);
