@@ -81,9 +81,14 @@ function Combobox() {
   useEffect(() => setText(urlQ), [urlQ]);
   useEffect(() => setRecent(readRecent()), []);
 
-  // "/" focuses the search (Shortcuts.tsx leaves it to us)
+  // "/" and Cmd/Ctrl+K focus the search (Shortcuts.tsx leaves both to us); Cmd/Ctrl+K works even from another field
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && !e.altKey && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        input.current?.focus();
+        return;
+      }
       if (e.key !== "/" || e.metaKey || e.ctrlKey || e.altKey) return;
       const t = e.target as HTMLElement | null;
       if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;

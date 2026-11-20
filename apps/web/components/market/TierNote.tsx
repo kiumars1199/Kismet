@@ -32,7 +32,7 @@ const LOWER_CONFIDENCE_HELP =
 
 export function LowerConfidence({ className = "" }: { className?: string }) {
   return (
-    <span title={LOWER_CONFIDENCE_HELP} className={`whitespace-nowrap rounded-full border border-border px-2.5 py-[3px] text-xs text-muted ${className}`}>
+    <span title={LOWER_CONFIDENCE_HELP} className={`whitespace-nowrap rounded-full border border-border px-2 py-px text-xs text-muted ${className}`}>
       Lower confidence
     </span>
   );

@@ -234,8 +234,8 @@ function Placeholder({ i }: { i: number }) {
 
 function Step({ n, title, text, children }: { n: number; title: string; text: string; children: React.ReactNode }) {
   return (
-    <li className="flex flex-col gap-5 bg-surface p-6 md:p-7">
-      <div className="flex min-h-[76px] flex-col justify-center gap-2.5">{children}</div>
+    <li className="flex flex-col gap-4 bg-surface p-5 md:gap-5 md:p-7">
+      <div className="flex flex-col justify-center gap-2.5 md:min-h-[76px]">{children}</div>
       <h3 className="flex items-baseline gap-2.5 text-lg font-semibold">
         <span className="font-heading text-sm text-accent tabular-nums">{n}</span>{title}
       </h3>

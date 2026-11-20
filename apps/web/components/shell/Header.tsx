@@ -13,9 +13,9 @@ import { AccountLink } from "@/components/auth/AccountLink";
 
 export function Logo() {
   return (
-    <Link href="/" className="flex items-center gap-2.5 font-heading text-[19px] font-bold tracking-[-0.01em]">
+    <Link href="/" className="flex flex-none items-center gap-2 font-heading text-lg font-bold tracking-[-0.01em]">
       {/* Mark: the Space Grotesk Bold "K" of the wordmark as a path, so it matches app/icon.svg at every size */}
-      <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true" className="shrink-0">
+      <svg width="28" height="28" viewBox="0 0 32 32" aria-hidden="true" className="shrink-0">
         <rect width="32" height="32" rx="9" fill="var(--accent)" />
         <path fill="var(--on-accent)" d="M9.15 25V7H12.55V14.15H13.01L18.85 7H23.19L15.68 15.87L23.45 25H18.97L13.01 17.7H12.55V25Z" />
       </svg>
@@ -24,6 +24,13 @@ export function Logo() {
   );
 }
 
+const navItem = (active: boolean) =>
+  `relative flex min-h-9 items-center gap-1.5 whitespace-nowrap rounded-input px-3 text-sm transition-colors ${active
+    ? "bg-nav-active font-medium text-text"
+    : "text-muted hover:bg-muted-bg hover:text-text"}`;
+
+// P7: one row from lg up, sticky there (persistent nav, clear current page: filled tab + aria-current); phones keep
+// the bottom tab bar (MobileNav) and a non-sticky top row so the list gets the height.
 export function Header() {
   const pathname = usePathname();
   const { canBeta } = useEntitlements();
@@ -32,37 +39,28 @@ export function Header() {
   const signedOut = !!me?.auth && !me.user;
   const tabs = signedOut ? SALES_TABS : MAIN_TABS;
   return (
-    <header className="flex flex-wrap items-center gap-x-7 gap-y-3 border-b border-border px-4 py-3 md:px-8 md:py-4">
+    <header className="flex flex-wrap items-center gap-x-6 gap-y-3 border-b border-border bg-background px-4 py-3 md:px-8 lg:sticky lg:top-0 lg:z-30 lg:h-16 lg:flex-nowrap lg:py-0">
       <Logo />
-      <nav aria-label="Main" className="hidden gap-1 md:flex md:flex-wrap">
+      <nav aria-label="Main" className="hidden min-w-0 items-center gap-1 md:flex lg:overflow-x-auto lg:[scrollbar-width:none]">
         {tabs.map((t) => {
           const active = signedOut ? pathname === t.href : isActive(pathname, t.href);
           return (
-            <Link
-              key={t.href}
-              href={t.href}
-              aria-current={active ? "page" : undefined}
-              className={`rounded-[10px] px-3.5 py-2 transition-colors duration-200 ease-out ${active ? "bg-nav-active text-text" : "text-muted hover:bg-muted-bg hover:text-text"}`}
-            >
+            <Link key={t.href} href={t.href} aria-current={active ? "page" : undefined} className={navItem(active)}>
               {t.label}
             </Link>
           );
         })}
         {BETA_LINKS.filter((l) => canBeta(l.feature)).map((l) => (
-          <Link
-            key={l.href}
-            href={l.href}
-            aria-current={isActive(pathname, l.href) ? "page" : undefined}
-            className={`flex items-center gap-1.5 rounded-[10px] px-3.5 py-2 transition-colors duration-200 ease-out ${isActive(pathname, l.href) ? "bg-nav-active text-text" : "text-muted hover:bg-muted-bg hover:text-text"}`}
-          >
+          <Link key={l.href} href={l.href} aria-current={isActive(pathname, l.href) ? "page" : undefined} className={navItem(isActive(pathname, l.href))}>
             {l.label} <BetaBadge variant="pill" />
           </Link>
         ))}
       </nav>
-      <div className="flex flex-[1_1_260px] items-center justify-end gap-2 sm:gap-3">
+      {/* Signed out there is no search, so the right side fits next to the logo on a phone: no 260 px basis, and the
+          freshness dot waits for sm+ (the landing hero states the scan time itself). */}
+      <div className={`flex items-center justify-end gap-2 lg:flex-1 ${signedOut ? "flex-1" : "flex-[1_1_260px]"}`}>
         {!signedOut && <SearchCombobox />}
-        {!signedOut && <Link href="/about" aria-current={pathname === "/about" ? "page" : undefined} className="hidden whitespace-nowrap text-sm text-muted hover:text-text lg:block">How it works</Link>}
-        <FreshnessPill />
+        {signedOut ? <span className="contents max-sm:hidden"><FreshnessPill /></span> : <FreshnessPill />}
         {!signedOut && <Bell />}
         <AccountLink />
       </div>

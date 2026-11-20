@@ -8,6 +8,7 @@ import { useEffect, useRef } from "react";
 
 const HELP: [keys: string[], what: string][] = [
   [["/"], "Search"],
+  [["Ctrl+K"], "Search (⌘K on a Mac)"],
   [["j"], "Next result"],
   [["k"], "Previous result"],
   [["Enter"], "Open the focused result"],

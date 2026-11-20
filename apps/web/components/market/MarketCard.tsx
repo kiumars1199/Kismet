@@ -21,7 +21,7 @@ export function MarketCard({ r, pro = false, notes = true }: { r: ApiRow; pro?: 
   const stake = useProfile().default_stake_usd;
   const win = payoutIfWins(stake, s);   // docs/19 P4, as on BetCard
   return (
-    <div data-row data-market-id={m.id} data-tier={m.tier ?? undefined} className="relative flex gap-3 rounded-inner border border-border bg-surface p-3.5 hover:border-accent-border focus-within:border-accent-border">
+    <div data-row data-market-id={m.id} data-tier={m.tier ?? undefined} className="relative flex gap-3 rounded-inner border border-border bg-surface p-3.5 hover:border-soft/30 focus-within:border-soft/30">
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted">
           <span title={closesLine(m.closes_at, undefined, true)}>{topicLabel(m)} · <span className="whitespace-nowrap">{gameTime(m.closes_at)}</span></span>
@@ -45,7 +45,7 @@ export function MarketCard({ r, pro = false, notes = true }: { r: ApiRow; pro?: 
         </p>
         <div className="mt-0.5 text-xs text-muted">
           Bet {s.outcome} at {price(s.ask)}
-          <span className={`block ${s.ranges || s.edge > 0 ? "text-accent-softer" : "text-negative"}`}>{priceVerdict(s).toLowerCase()} ({sidePts(s)})</span>
+          <span className={`block ${s.ranges || s.edge > 0 ? "text-soft" : "text-negative"}`}>{priceVerdict(s).toLowerCase()} <span className="whitespace-nowrap">({sidePts(s)})</span></span>
           {r.price_at && <span data-testid="price-as-of" className="block" title="Live Polymarket price read when this page loaded; edge, Pays and payout use it.">{priceAsOf(r.price_at)}</span>}
           {win !== null && (
             <span data-testid="payout" className="block" title="What your default stake (Settings) pays back if this side wins, after the fee. If it loses, you lose the stake.">

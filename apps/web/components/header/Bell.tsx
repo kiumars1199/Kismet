@@ -24,7 +24,7 @@ export function Bell() {
       <button
         type="button" aria-expanded={open} aria-haspopup="dialog" onClick={() => setOpen((o) => !o)}
         aria-label={unread ? `Alerts, ${unread} unread` : "Alerts"}
-        className="relative flex size-11 items-center justify-center rounded-input border border-border bg-input text-muted hover:text-text"
+        className="relative flex size-11 items-center justify-center rounded-input text-muted hover:bg-muted-bg hover:text-text"
       >
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />

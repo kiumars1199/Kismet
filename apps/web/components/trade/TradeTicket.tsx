@@ -2,6 +2,7 @@
 // Kalshi paper-trading ticket (docs/16 §3 "Order ticket"). Form → Confirm (every time) → live status.
 // Orders go web → extension (signs with the user's key) → Kalshi DEMO. The only order call is in the confirm handler
 // (test: lib/trade/no-auto-trade.test.ts). Mounted once by <TicketHost/>; opened with openTicket().
+import { ExternalLink } from "@/components/kit/icons";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { Dialog, NumberInput, Segmented, btn, btnDanger, btnGhost, btnPrimary, input, inner } from "@/components/kit";
@@ -64,7 +65,7 @@ function Ticket({ cfg, p }: { cfg: TradeConfig; p: TicketPrefill }) {
           </p>
           <div className="flex flex-wrap gap-2">
             <Link href="/ext/connect" className={btnPrimary}>Get the extension</Link>
-            {venue && <a href={venue} target="_blank" rel="noopener noreferrer" className={btn}>Open on Kalshi ↗</a>}
+            {venue && <a href={venue} target="_blank" rel="noopener noreferrer" className={btn}>Open on Kalshi <ExternalLink size={15} /></a>}
             <button type="button" className={btnGhost} onClick={ping}>I installed it</button>
           </div>
         </section>
@@ -84,7 +85,7 @@ function Ticket({ cfg, p }: { cfg: TradeConfig; p: TicketPrefill }) {
         <Status cfg={cfg} t={step.t} />
       )}
       <p className="text-xs text-muted">
-        Prediction markets carry risk of loss. <a href={cfg.riskUrl} target="_blank" rel="noopener noreferrer" className="text-accent-hover underline-offset-2 hover:underline">Kalshi&apos;s risk disclosures ↗</a>
+        Prediction markets carry risk of loss. <a href={cfg.riskUrl} target="_blank" rel="noopener noreferrer" className="text-accent-hover underline-offset-2 hover:underline">Kalshi&apos;s risk disclosures <ExternalLink size={13} className="inline-block align-[-2px]" /></a>
       </p>
     </div>
   );

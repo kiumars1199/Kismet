@@ -137,9 +137,10 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
       onClose={onClose}
       title={
         <div>
-          <div className="text-xs text-muted">{topicLabel(m)} · <span title={new Date(m.closes_at * 1000).toLocaleString()}>{gameTime(m.closes_at)}</span> · {closesLine(m.closes_at)}</div>
+          {/* page mode (no onClose): the breadcrumbs above already name the topic and the game */}
+          <div className="text-xs text-muted">{onClose && <>{topicLabel(m)} · </>}<span title={new Date(m.closes_at * 1000).toLocaleString()}>{gameTime(m.closes_at)}</span> · {closesLine(m.closes_at)}</div>
           <H className="mt-1.5 text-[22px] font-semibold leading-tight">{m.question}</H>
-          {m.event !== m.question && <Link href={`/event/${m.event_id}`} className="mt-1 inline-block text-[13px] text-accent-hover hover:text-accent-soft">{m.event}</Link>}
+          {onClose && m.event !== m.question && <Link href={`/event/${m.event_id}`} className="mt-1 inline-block text-[13px] text-accent-hover hover:text-accent-soft">{m.event}</Link>}
         </div>
       }
     >
@@ -288,18 +289,19 @@ function Actions({ m, s }: { m: StoreMarket; s: Side }) {
   };
   // docs/17 fix 10: the venue button gets its own full-width row; the rest sit under it as one even row
   const box = "items-center justify-center rounded-input border border-border bg-muted-bg text-text hover:border-accent-border";
-  const btn = `flex min-h-11 flex-1 gap-1.5 whitespace-nowrap px-3 text-[13px] ${box}`;
+  const btn = `flex min-h-11 flex-1 gap-1.5 whitespace-nowrap px-2.5 text-[13px] sm:px-3 ${box}`;   // px-2.5 on phones keeps the row on one line at 390 px
   const icon = `flex size-11 flex-none ${box}`;   // no px-3: conflicting padding classes made the star box 70 px
   return (
     <div className="flex flex-col gap-2">
-      <VenueLink m={m} className="flex min-h-11 w-full items-center justify-center whitespace-nowrap rounded-input bg-accent px-4 font-semibold text-on-accent hover:bg-accent-hover" />
-      <div className="flex flex-wrap gap-2">
+      <VenueLink m={m} className="flex min-h-11 w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-input bg-accent px-4 font-semibold text-on-accent hover:bg-accent-hover" />
+      <div className="flex flex-wrap gap-1.5 sm:gap-2">
         <TradeButton m={m} s={s} className={btn} />
         <AddToCombo m={m} s={s} className={btn} />
         <div className={`flex flex-none ${box}`}><WatchStar marketId={m.id} side={s.side_index} market={m} /></div>
         <Link href={`/alerts?market=${m.id}&side=${s.side_index}`} className={btn}>
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg>
-          Alert me
+          {/* "me" drops visually under 400 px so the four controls stay on one row; the name stays "Alert me" */}
+          Alert<span className="max-[399px]:sr-only"> me</span>
         </Link>
         <button type="button" onClick={share} className={icon} aria-label={copied ? "Link copied" : "Copy a link to share"} title={copied ? "Link copied" : "Copy a link to share"}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

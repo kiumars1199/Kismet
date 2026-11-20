@@ -28,7 +28,7 @@ import { useEntitlements } from "@/lib/entitlements";
 import { useMeta, useScreener } from "./useScreener";
 
 const nf = formatCount;   // docs/18 §4: counts short, rounded down
-const GRID = "grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
+const GRID = "grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
 
 /** docs/17 fix 6: the price check as three quiet chips instead of a sentence (the full text is in the hover). */
 function PriceChips({ f }: { f: MarketsResponse["facets"] }) {
@@ -40,9 +40,9 @@ function PriceChips({ f }: { f: MarketsResponse["facets"] }) {
   ].filter((c) => c !== null);
   if (!chips.length) return null;
   return (
-    <ul aria-label="Price check" className="flex flex-wrap gap-2 text-xs text-muted md:ml-2">
+    <ul aria-label="Price check" className="flex flex-wrap gap-x-4 gap-y-1 px-1 text-xs text-muted md:ml-2">
       {chips.map((c) => (
-        <li key={c.text} title={c.help} className="flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1">
+        <li key={c.text} title={c.help} className="flex min-h-8 items-center gap-1.5">
           <span aria-hidden="true" className={`size-1.5 rounded-full ${c.dot}`} />
           <span className="tabular-nums text-soft">{nf(c.n)}</span> {c.text}
         </li>
@@ -131,7 +131,7 @@ function MoreInGame({ slot }: { slot: Slot }) {
 
 function Cards({ slots, desktop, pro, dim }: { slots: Slot[]; desktop: boolean; pro: boolean; dim?: boolean }) {
   return (
-    <ul className={`${desktop ? GRID : "flex flex-col gap-2.5"} transition-opacity duration-200 ease-out ${dim ? "opacity-60" : ""}`}>
+    <ul className={`${desktop ? GRID : "flex flex-col gap-3"} transition-opacity duration-200 ease-out ${dim ? "opacity-60" : ""}`}>
       {slots.map((s) => {
         const r = s.rows[0]!;
         return (
@@ -282,7 +282,7 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
       {error && !data ? (
         <ErrorState onRetry={sc.retry} what="best bets" error={error} />
       ) : !data ? (
-        <ul className={desktop ? GRID : "flex flex-col gap-2.5"} aria-busy="true" aria-label="Loading best bets">
+        <ul className={desktop ? GRID : "flex flex-col gap-3"} aria-busy="true" aria-label="Loading best bets">
           {Array.from({ length: desktop ? 8 : 4 }, (_, i) => <li key={i} className="flex"><CardSkeleton /></li>)}
         </ul>
       ) : data.total === 0 ? (
@@ -290,6 +290,7 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
           title={topic ? `Nothing in ${topic} right now` : "No best bets match these filters"}
           line={`Nothing with these filters is priced below how often similar bets have won. Prices refresh about every 10 minutes.`}
           onReset={reset}
+          link={{ href: "/markets", label: "Look in All markets" }}
         />
       ) : (
         <>

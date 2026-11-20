@@ -50,7 +50,7 @@ function columns(pro: boolean): Col[] {
       cell: ({ row: { original: r } }) => { const c = chance(r.side.win_prob); return <span className={`whitespace-nowrap ${chanceTone(c)}`}>{c ?? <Val v={DASH} />}</span>; },
     }),
     h.display({ id: "closes", header: "Closes", meta: { label: "Closes", sort: "closes", right: true }, cell: ({ row: { original: r } }) => <span className="whitespace-nowrap">{closesIn(r.market.closes_at)}</span> }),
-    h.display({ id: "topic", header: "Topic", meta: { label: "Topic" }, cell: ({ row: { original: r } }) => <span className="whitespace-nowrap rounded-full bg-muted-bg px-2.5 py-0.5 text-xs text-soft">{topicLabel(r.market)}</span> }),
+    h.display({ id: "topic", header: "Topic", meta: { label: "Topic" }, cell: ({ row: { original: r } }) => <span className="whitespace-nowrap text-xs text-muted">{topicLabel(r.market)}</span> }),
     // optional Pro columns (hidden by default)
     h.display({ id: "mid", header: "Mid", meta: { label: "Mid", pro: true, right: true }, cell: ({ row: { original: r } }) => <Val v={price(r.side.mid)} /> }),
     h.display({ id: "spread", header: "Spread", meta: { label: "Spread", pro: true, sort: "spread", right: true }, cell: ({ row: { original: r } }) => <Val v={price(r.market.spread)} /> }),
@@ -152,7 +152,7 @@ export function MarketTable({ items, sort, onSort, onToggleGroup, pro = false, l
   return (
     <div className="rounded-card border border-border bg-surface">
       <table className={`w-full border-collapse text-sm ${loading ? "opacity-60" : ""}`} aria-busy={loading}>
-        <thead className="sticky top-0 z-10 bg-surface">
+        <thead className="sticky top-0 z-10 bg-surface lg:top-16">
           <tr className="border-b border-border text-left text-xs text-muted">
             {table.getHeaderGroups()[0]!.headers.map((hd) => {
               const meta = (hd.column.columnDef as Col).meta;
@@ -223,7 +223,7 @@ export function MarketTable({ items, sort, onSort, onToggleGroup, pro = false, l
                 {row.getVisibleCells().map((c) => {
                   const meta = (c.column.columnDef as Col).meta;
                   return (
-                    <td key={c.id} className={`px-3 py-2.5 align-middle tabular-nums ${meta?.right ? "text-right" : ""}`}>
+                    <td key={c.id} className={`px-3 py-1 align-middle tabular-nums ${meta?.right ? "text-right" : ""}`}>
                       {flexRender(c.column.columnDef.cell, c.getContext())}
                     </td>
                   );

@@ -14,7 +14,7 @@ import { useProfile } from "@/lib/repo/hooks";
 import { WatchStar } from "@/components/watch/WatchStar";
 import { VenueIconLink } from "@/components/trade/TradeButton";
 import { drawerHref, useOpenDrawer } from "./drawer";
-import { AlertLink, InfoTip, Notes, OddsBars } from "./bits";
+import { AlertLink, InfoTip, Notes } from "./bits";
 import { priceVerdict, returnTone, rowNotes, topicLabel } from "./labels";
 import { useLastVisit, useLiveAsk } from "./live";
 import { LowerConfidence, TierNote } from "./TierNote";
@@ -33,12 +33,12 @@ export function BetCard({ r, pro = false }: { r: ApiRow; pro?: boolean }) {
   const dir = live && Math.abs(live.ask - s.ask) >= 0.005 ? (live.ask > s.ask ? "up" : "down") : null;
   return (
     <article ref={ref} data-row data-market-id={m.id} data-tier={m.tier ?? undefined}
-      className="relative flex w-full flex-1 flex-col gap-3 rounded-card border border-border bg-surface p-4 transition-colors duration-200 ease-out hover:border-accent-border">
+      className="relative flex w-full flex-1 flex-col gap-3 rounded-card border border-border bg-surface p-4 transition-colors duration-200 ease-out hover:border-soft/30 hover:bg-raised">
+      {/* P7: the topic is plain text and the card carries one state tag at most (lower confidence wins over New) */}
       <div className="-mr-2 -mt-2 flex items-center justify-between gap-2 text-xs text-muted">
-        <span className="flex min-w-0 flex-wrap items-center gap-1.5">
-          <span className="max-w-full truncate rounded-full bg-muted-bg px-2.5 py-[3px]">{topicLabel(m)}</span>
-          {isNew && <span data-testid="new-badge" title="Listed since your last visit" className="whitespace-nowrap rounded-full border border-accent-border px-2 py-[2px] text-accent-softer">New</span>}
-          {m.tier === "edge" && <LowerConfidence />}
+        <span className="flex min-w-0 items-center gap-2">
+          <span className="min-w-0 truncate">{topicLabel(m)}</span>
+          {m.tier === "edge" ? <LowerConfidence /> : isNew && <span data-testid="new-badge" title="Listed since your last visit" className="whitespace-nowrap rounded-full border border-accent-border px-2 py-px text-accent-softer">New</span>}
         </span>
         <span className="relative z-10 flex flex-none items-center">
           <WatchStar marketId={m.id} side={s.side_index} market={m} />
@@ -63,7 +63,7 @@ export function BetCard({ r, pro = false }: { r: ApiRow; pro?: boolean }) {
       </div>
       <div>
         <p data-testid="one-bet" className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5" title={basis(m, s)}>
-          <span className="whitespace-nowrap font-heading text-[32px] font-bold leading-none tracking-[-0.02em]" title={PAYS_HELP}>Pays {pays(s.ask)}</span>
+          <span className="whitespace-nowrap font-heading text-[28px] font-bold leading-none tracking-[-0.02em]" title={PAYS_HELP}>Pays {pays(s.ask)}</span>
           <span className="text-[15px] font-medium text-soft">wins about {winsAbout(s.win_prob)}</span>
         </p>
         <p className="mt-2 text-[13px] text-soft">
@@ -78,7 +78,7 @@ export function BetCard({ r, pro = false }: { r: ApiRow; pro?: boolean }) {
             )}
           </span>
           {/* own line on every card: a wrapping "·" left some cards with a dangling separator */}
-          <span className={`block ${s.ranges || s.edge > 0 ? "text-accent-softer" : "text-negative"}`}>{priceVerdict(s).toLowerCase()} <span className="tabular-nums">({sidePts(s)})</span></span>
+          <span className={`block ${s.ranges || s.edge > 0 ? "text-soft" : "text-negative"}`}>{priceVerdict(s).toLowerCase()} <span className="whitespace-nowrap">({sidePts(s)})</span></span>
           {r.price_at && <span data-testid="price-as-of" className="block text-xs text-muted" title="Live Polymarket price read when this page loaded; edge, Pays and payout use it.">{priceAsOf(r.price_at)}</span>}
         </p>
         <p className="mt-0.5 flex items-center gap-1 text-[13px] text-muted">
@@ -87,15 +87,16 @@ export function BetCard({ r, pro = false }: { r: ApiRow; pro?: boolean }) {
           <InfoTip text={ret.realistic && !pro ? REALISTIC_HELP : RETURN_HELP} />
         </p>
       </div>
-      <OddsBars market={s.ask} won={s.win_prob} basis={basis(m, s)} />
+      {/* P7: "Market says / Won before" bars live in the drawer ("Why it's a good price"); on the card they repeated
+          "wins about" and the price line. The basis stays on hover over the bet line and the record. */}
       <Notes notes={rowNotes(m.execution)} />
       {m.tier === "edge" && <TierNote s={s} />}
-      <div className="mt-auto flex items-center justify-between gap-2 border-t border-border pt-3 text-[13px]">
+      <div className="mt-auto flex items-center justify-between gap-2 pt-1 text-[13px]">
         <span data-testid="payout" className="text-muted" title="What your default stake (Settings) pays back if this side wins, after the fee. If it loses, you lose the stake.">
           {win !== null ? <><span className="whitespace-nowrap">Bet <span className="tabular-nums text-soft">{money(stake)}</span> →</span>{" "}<span className="whitespace-nowrap">get <span className="font-semibold tabular-nums text-text">{payoutMoney(win)}</span> if it wins</span></> : null}
         </span>
         <span className="flex items-center gap-1">
-          {rec && <span title={`${recordHelp(s.model_neff)} ${basis(m, s)}`} className={`whitespace-nowrap rounded-full bg-muted-bg px-2.5 py-[3px] text-xs ${rec === "Strong record" ? "text-soft" : "text-muted"}`}>{rec}</span>}
+          {rec && <span title={`${recordHelp(s.model_neff)} ${basis(m, s)}`} className={`whitespace-nowrap text-xs ${rec === "Strong record" ? "text-soft" : "text-muted"}`}>{rec}</span>}
           <VenueIconLink m={m} className="-my-2 -mr-2" />
         </span>
       </div>

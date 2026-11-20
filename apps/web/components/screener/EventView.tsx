@@ -1,6 +1,9 @@
 "use client";
 
 // /event/[id] (T-25): every market in one event, same table as /markets; weather events add a bucket chart.
+import { ExternalLink } from "@/components/kit/icons";
+import { Breadcrumbs } from "@/components/shell/Breadcrumbs";
+import { topicCrumb } from "@/components/market/labels";
 import { useState } from "react";
 import { Bar, CartesianGrid, ComposedChart, Line, Tooltip, XAxis, YAxis } from "recharts";
 import type { EventResponse } from "@/lib/api";
@@ -59,6 +62,7 @@ export function EventView({ ev }: { ev: EventResponse }) {
   return (
     <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-5">
       <header>
+        <Breadcrumbs className="mb-3" items={[{ label: "Best bets", href: "/bets" }, ...(first ? [topicCrumb(first)] : []), { label: ev.event }]} />
         {first && <p className="text-xs text-muted">{closesLine(first.closes_at, undefined, true)}</p>}
         <h1 className="mt-1 text-[28px] font-bold leading-tight tracking-tight md:text-[34px]">{ev.event}</h1>
         <p className="mt-1.5 text-sm text-muted">
@@ -66,7 +70,7 @@ export function EventView({ ev }: { ev: EventResponse }) {
             ? `${formatCount(flagged.size)} of ${formatCount(ev.markets.length)} ${ev.markets.length === 1 ? "market is a" : "markets are"} best ${flagged.size === 1 ? "bet" : "bets"}.`
             : `${formatCount(ev.markets.length)} open ${ev.markets.length === 1 ? "market" : "markets"}; none is priced below how often similar bets won.`}
           {ev.slug && (
-            <> <a href={`https://polymarket.com/event/${ev.slug}`} target="_blank" rel="noopener noreferrer" className="text-accent-hover hover:text-accent-soft">Open on Polymarket ↗</a></>
+            <> <a href={`https://polymarket.com/event/${ev.slug}`} target="_blank" rel="noopener noreferrer" className="whitespace-nowrap text-accent-hover hover:text-accent-soft">Open on Polymarket <ExternalLink size={14} className="inline-block align-[-2px]" /></a></>
           )}
         </p>
       </header>

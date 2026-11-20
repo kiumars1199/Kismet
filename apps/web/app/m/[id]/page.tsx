@@ -9,6 +9,8 @@ import { SlowDownState } from "@/components/screener/SlowDownState";
 import { betLine, sideRet } from "@/lib/format";
 import { MarketDetail } from "@/components/market/MarketDetail";
 import { TeaserView } from "@/components/market/Teaser";
+import { Breadcrumbs } from "@/components/shell/Breadcrumbs";
+import { topicCrumb } from "@/components/market/labels";
 import { authEnabled, getUser } from "@/lib/auth/server";
 import { TEASER_DESCRIPTION, marketTeaser } from "@/lib/teaser";
 
@@ -65,8 +67,10 @@ export default async function Page({ params, searchParams }: Props) {
     return <div className="mx-auto w-full max-w-[720px]"><PendingState line={pendingLine(e)} /></div>;   // a missing store is not a missing market
   }
   if (!data) notFound();
+  const m = data.market;
   return (
     <div className="mx-auto w-full max-w-[720px]">
+      <Breadcrumbs className="mb-3" items={[{ label: "Best bets", href: "/bets" }, topicCrumb(m), ...(m.event && m.event !== m.question ? [{ label: m.event, href: `/event/${encodeURIComponent(m.event_id)}` }] : []), { label: m.question }]} />
       <Suspense>
         <MarketDetail id={id} side={side === "0" ? 0 : side === "1" ? 1 : undefined} initial={data} />
       </Suspense>

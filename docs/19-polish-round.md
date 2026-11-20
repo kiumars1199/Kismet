@@ -61,6 +61,45 @@ what you found in `docs/research/polish-round.md` (sources linked).
   current page, breadcrumbs on market pages, better empty/loading states, subtle motion only where it helps.
 - Before/after screenshots at 390 and 1440 for every page into `docs/screenshots/polish/`.
 
+### P7 done (T-282): the 10 patterns and where they landed
+Done by hand: the Impeccable skill was not available in this environment. Sources are first-party pages from
+Robinhood, Kalshi, Polymarket, Linear and Stripe (full notes in `docs/research/polish-round-2.md`). Arc is left out:
+no first-party design source could be found. No icon dependency was added.
+
+1. **One accent, used sparingly** (Robinhood's single accent in "purposeful pops", [newsroom](https://robinhood.com/us/en/newsroom/a-new-visual-identity);
+   Linear keeps brand color out of the chrome, [redesign](https://linear.app/now/how-we-redesigned-the-linear-ui)).
+   Green now means action or a positive number. The card verdict line is `text-soft`, card hover is a neutral border
+   and a raised surface, the active nav tab is a neutral fill (desktop) or a thin bar over the label (phone), not green text.
+2. **Tabular numbers** ([MDN `font-variant-numeric`](https://developer.mozilla.org/en-US/docs/Web/CSS/font-variant-numeric)).
+   `table, [data-num], dd, kbd` get `tabular-nums` globally; the freshness pill too. Body-wide tabular figures were tried
+   and reverted: they widened "1K" and wrapped "wins about" on phone cards.
+3. **A small type scale** (Linear: a display face for headings only). Page titles are one step (28 phone, 34 desktop);
+   the card's one big number is 28 px.
+4. **Fewer pills: one state tag per card** ([polymarket.com](https://polymarket.com) cards carry at most one tag).
+   Topic is plain muted text on cards and in the table; a card shows New *or* Lower confidence, never both; the
+   "fair fill / spread eats it" counts are plain text, not bordered chips.
+5. **Fewer borders** (Refactoring UI, "use fewer borders"; Linear's surface levels). The card footer rule is gone, the
+   bell is a borderless icon button, the price chips lost their outline.
+6. **8-pt spacing** ([Material spacing](https://material.io/design/layout/spacing-methods.html)). Header gap 24, card grid
+   gap 16, phone list gap 12, table rows 4 px tighter so more rows fit.
+7. **Real icons, one set** (Stripe Apps icons: fixed sizes, `currentColor`, [docs](https://docs.stripe.com/stripe-apps/components/icon.md?app-sdk-version=9)).
+   `components/kit/icons.tsx`: 24-grid, 2 px stroke, `currentColor`, `aria-hidden`. The "↗" glyphs on venue links, the
+   trade ticket, the combo tray and the extension connect page are now the ExternalLink icon.
+8. **One big number per card** ([Ström-Awn, UI density](https://mattstromawn.com/writing/ui-density/)). The card keeps
+   Pays + wins + price + record; the "Market says / Won before" bars live in the drawer and on the market page. The
+   basis stays one hover away (the record title and the "similar past bets" info icon).
+9. **Persistent nav with a clear current page, and breadcrumbs** (Stripe full-page apps: a detail page breadcrumbs back
+   to its list, [docs](https://docs.stripe.com/stripe-apps/patterns/full-page-apps); Linear's [2024 UI](https://linear.app/changelog/2024-03-20-new-linear-ui)).
+   The desktop header is one sticky 64 px row with `aria-current` on the filled tab; table headers stick under it.
+   `/m/[id]` reads Best bets › topic › event › market, `/event/[id]` Best bets › topic › event, the signed-out teaser
+   Home › market. On phones the middle crumbs collapse. The topic crumb opens All markets filtered to that topic.
+10. **Keyboard first** (Linear: Cmd/Ctrl+K and a `?` sheet, [guide](https://linear.app/enablement/guide/navigating-linear)).
+    Cmd/Ctrl+K focuses search from anywhere (alias of `/`), listed in the `?` sheet with j/k/Enter/w/a/f.
+
+States and motion: empty states are one dashed card with an icon, one line of help, a primary reset and a way out
+("Look in All markets"); skeletons match the new card height. The only motion is a 160 ms fade-up on empty states,
+off under `prefers-reduced-motion`. Screenshots: `docs/screenshots/polish/p7/before-*` and `after-*`, 390 and 1440 px.
+
 ## P8. Admin
 - `kismetodds@gmail.com` is admin (ADMIN_EMAILS) — confirm it works after sign-in.
 - "Grant plan" by email: Pro or Premium, optional expiry, works even if the person hasn't signed up yet

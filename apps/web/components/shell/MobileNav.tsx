@@ -16,14 +16,16 @@ export function MobileNav() {
   const { canBeta } = useEntitlements();
   const beta = BETA_LINKS.filter((l) => canBeta(l.feature));
   const moreActive = [...MORE_LINKS, ...beta].some((l) => isActive(pathname, l.href));
-  const tab = "flex min-h-11 items-center justify-center py-2.5";
+  const tab = "relative flex min-h-11 items-center justify-center py-2.5";
+  // P7: the current tab is bright text plus a short accent bar on top, so it reads at a glance
+  const on = "font-medium text-text before:absolute before:inset-x-5 before:-top-1 before:h-0.5 before:rounded-full before:bg-accent";
   const me = useMe();
   if (me?.auth && !me.user) {
     // T-276: signed out, the app tabs only lead to the sign-up wall; show the sales pages and sign-up instead.
     return (
       <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-border bg-background pb-[max(env(safe-area-inset-bottom),8px)] pt-1 text-[13px] md:hidden">
         {SALES_TABS.map((t) => (
-          <Link key={t.href} href={t.href} aria-current={pathname === t.href ? "page" : undefined} className={`${tab} ${pathname === t.href ? "text-accent" : "text-muted"}`}>
+          <Link key={t.href} href={t.href} aria-current={pathname === t.href ? "page" : undefined} className={`${tab} ${pathname === t.href ? on : "text-muted"}`}>
             {t.label}
           </Link>
         ))}
@@ -38,12 +40,12 @@ export function MobileNav() {
         {MAIN_TABS.slice(0, 3).map((t) => {
           const active = isActive(pathname, t.href);
           return (
-            <Link key={t.href} href={t.href} aria-current={active ? "page" : undefined} className={`${tab} ${active ? "text-accent" : "text-muted"}`}>
+            <Link key={t.href} href={t.href} aria-current={active ? "page" : undefined} className={`${tab} ${active ? on : "text-muted"}`}>
               {t.label}
             </Link>
           );
         })}
-        <button type="button" aria-haspopup="dialog" onClick={() => dialog.current?.showModal()} className={`${tab} ${moreActive ? "text-accent" : "text-muted"}`}>
+        <button type="button" aria-haspopup="dialog" onClick={() => dialog.current?.showModal()} className={`${tab} ${moreActive ? on : "text-muted"}`}>
           More
         </button>
       </nav>

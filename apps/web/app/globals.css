@@ -89,10 +89,16 @@
   body {
     @apply font-sans antialiased;
   }
+  /* the header is sticky from lg up: anchors, j/k and the tour scroll clear it */
+  @media (min-width: 64rem) {
+    html { scroll-padding-top: 5rem; }
+  }
   h1, h2, h3 {
     @apply font-heading;
   }
-  table {
+  /* P7: tabular figures where numbers update or line up (tables, data-num, price/return spans use tabular-nums);
+     prose and headlines keep proportional figures, which read better ("1K bets" doesn't gap after the 1) */
+  table, [data-num], dd, kbd {
     font-variant-numeric: tabular-nums;
   }
   /* Lane D2 display setting "Compact": everything sized in rem shrinks ~6%. */
@@ -131,6 +137,16 @@
 }
 .price-pulse {
   animation: price-pulse 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* P7: one entrance for content that arrives after a fetch (drawer body, loaded cards): 160 ms fade + 4 px rise.
+   Turned off with everything else under prefers-reduced-motion. */
+@keyframes enter {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+.enter {
+  animation: enter 160ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @media (prefers-reduced-motion: reduce) {

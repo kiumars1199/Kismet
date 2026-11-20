@@ -26,8 +26,8 @@ export function PageTitle({ title, sub, children }: { title: string; sub?: React
   return (
     <div className="flex flex-wrap items-end justify-between gap-4">
       <div className="max-w-2xl">
-        <h1 className="text-[32px] font-bold leading-[1.05] tracking-[-0.02em] md:text-[40px]">{title}</h1>
-        {sub && <p className="mt-2.5 text-[15px] leading-relaxed text-muted">{sub}</p>}
+        <h1 className="text-[28px] font-bold leading-[1.1] tracking-[-0.02em] md:text-[34px]">{title}</h1>
+        {sub && <p className="mt-2 text-[15px] leading-relaxed text-muted">{sub}</p>}
       </div>
       {children && <div className="flex flex-wrap gap-2">{children}</div>}
     </div>

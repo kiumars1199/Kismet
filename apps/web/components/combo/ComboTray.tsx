@@ -3,6 +3,7 @@
 // added. Shows combo chance, Pays Nx, return, the cautious check and a same-event warning. Venue actions:
 // Polymarket has no combo contract, so each leg opens its own page; Kalshi (behind its data-permission flag) can
 // quote a real combo, and in paper mode that combo can go to the demo order ticket. No "safe" combos, ever.
+import { ExternalLink } from "@/components/kit/icons";
 import { useEffect, useState } from "react";
 import { btn, btnGhost, btnPrimary } from "@/components/kit";
 import { useBacktest } from "@/components/market/TierNote";
@@ -133,7 +134,7 @@ function Body({ id, legs, onRemove, onClear }: { id: string; legs: Leg[]; onRemo
               <p className="text-xs text-muted">Bet {l.outcome} at {price(l.ask)} · won {pct(l.q)} before</p>
             </div>
             <a href={l.url} target="_blank" rel="noopener noreferrer" className="flex min-h-11 flex-none items-center px-2 text-[13px] text-accent-hover hover:text-accent-soft">
-              Open<span className="sr-only"> {l.question} on Polymarket</span> ↗
+              Open<span className="sr-only"> {l.question} on Polymarket</span> <ExternalLink size={13} className="inline-block align-[-2px]" />
             </a>
             <button type="button" onClick={() => onRemove(l.market_id)} aria-label={`Remove ${l.question}`} className="flex size-11 flex-none items-center justify-center rounded-input text-muted hover:bg-raised hover:text-negative">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>

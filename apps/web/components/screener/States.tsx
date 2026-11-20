@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { PENDING_PREFIX } from "@/lib/api";
 import { ago } from "@/lib/format";
+import { Inbox } from "@/components/kit/icons";
 
 const STALE_S = 3 * 3600;
 
@@ -47,15 +48,24 @@ export function ErrorState({ onRetry, what = "markets", error }: { onRetry: () =
   );
 }
 
-export function EmptyState({ title, line, onReset, resetLabel = "Reset filters" }: { title: string; line: string; onReset?: () => void; resetLabel?: string }) {
+/** P7: one empty state everywhere: an icon, what happened in one line, and a way out (reset, or a link elsewhere). */
+export function EmptyState({ title, line, onReset, resetLabel = "Reset filters", link }: {
+  title: string; line: string; onReset?: () => void; resetLabel?: string; link?: { href: string; label: string };
+}) {
   return (
-    <div className="flex flex-col items-start gap-3 rounded-card border border-border bg-surface p-6">
+    <div className="enter flex flex-col items-start gap-3 rounded-card border border-dashed border-border px-6 py-8">
+      <span aria-hidden="true" className="flex size-10 items-center justify-center rounded-full bg-muted-bg text-muted"><Inbox size={20} /></span>
       <p className="font-semibold">{title}</p>
       <p className="max-w-prose text-sm text-muted">{line}</p>
-      {onReset && (
-        <button type="button" onClick={onReset} className="min-h-11 rounded-input border border-accent-border bg-accent-bg px-4 text-accent-soft hover:border-accent">
-          {resetLabel}
-        </button>
+      {(onReset || link) && (
+        <div className="flex flex-wrap items-center gap-2">
+          {onReset && (
+            <button type="button" onClick={onReset} className="min-h-11 rounded-input bg-accent px-4 text-sm font-semibold text-on-accent hover:bg-accent-hover">
+              {resetLabel}
+            </button>
+          )}
+          {link && <Link href={link.href} className="flex min-h-11 items-center rounded-input px-3 text-sm text-soft hover:bg-muted-bg hover:text-text">{link.label}</Link>}
+        </div>
       )}
     </div>
   );

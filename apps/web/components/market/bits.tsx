@@ -67,13 +67,12 @@ export function InfoTip({ text, className = "" }: { text: string; className?: st
 export function CardSkeleton() {
   return (
     <div aria-hidden="true" className="flex w-full flex-col gap-3 rounded-card border border-border bg-surface p-4">
-      <div className="flex items-center justify-between"><Skeleton className="h-6 w-24 rounded-full" /><Skeleton className="h-8 w-20" /></div>
+      <div className="flex items-center justify-between"><Skeleton className="h-4 w-24" /><Skeleton className="h-8 w-20" /></div>
       <Skeleton className="h-[42px]" />
       <Skeleton className="h-4 w-32" />
       <Skeleton className="h-8 w-48" />
       <Skeleton className="h-4 w-56" />
       <Skeleton className="h-4 w-40" />
-      <Skeleton className="h-10" />
       <Skeleton className="mt-1 h-8" />
     </div>
   );

@@ -1,4 +1,5 @@
 "use client";
+import { ExternalLink } from "@/components/kit/icons";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { btn, btnPrimary, card } from "@/components/kit";
@@ -42,7 +43,7 @@ export function Connect({ storeUrl }: { storeUrl: string | null }) {
           <h2 className="text-lg font-semibold">Install the extension first</h2>
           <p className="text-sm text-soft">It isn&apos;t installed in this browser yet (Chrome, Edge, Brave or Arc on a computer).</p>
           {storeUrl ? (
-            <a href={storeUrl} target="_blank" rel="noopener noreferrer" className={btnPrimary}>Add to Chrome ↗</a>
+            <a href={storeUrl} target="_blank" rel="noopener noreferrer" className={btnPrimary}>Add to Chrome <ExternalLink size={15} /></a>
           ) : (
             <p className="text-sm text-muted">Coming soon to the Chrome Web Store.</p>
           )}

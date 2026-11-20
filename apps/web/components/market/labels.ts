@@ -13,6 +13,17 @@ export const chanceTone = (c: Chance | null) =>
   c === "Leans your way" ? "text-soft" : c === "Long shot" ? "text-warning" : "text-muted";
 
 /** Short topic label for a market: the sports league, else the category ("Weather & Climate" → "Weather"). */
+/** The topic a market sits under, as a breadcrumb: label as on the cards, linking to All markets filtered to it. */
+export function topicCrumb(m: Pick<Market, "category" | "niche" | "tags" | "market_type">): { label: string; href: string } {
+  const ids = topicsOf(m as Market);
+  let id: string = m.category;
+  if (m.category === "sports") {
+    const named = [...ids].filter((x) => !x.endsWith(".other"));
+    id = named.find((x) => x.split(".").length === 3) ?? named.find((x) => x.split(".").length === 2) ?? id;
+  }
+  return { label: topicLabel(m), href: `/markets?${id.includes(".") ? "t" : "c"}=${encodeURIComponent(id)}` };
+}
+
 export function topicLabel(m: Pick<Market, "category" | "niche" | "tags" | "market_type">): string {
   const ids = topicsOf(m as Market);
   if (m.category === "sports") {
