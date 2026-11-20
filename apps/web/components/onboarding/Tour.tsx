@@ -10,14 +10,14 @@ export const TOUR_KEY = "me:v1:tour";
 const STEPS = [
   { sel: ["article[data-row]"], title: "A best bet",
     body: "Each card is a bet priced below how often bets like it have won. It shows the price, what it pays and the past record behind it. Tap a card for the details. Any single bet can lose." },
-  { sel: ['[role="group"][aria-label="Payout"]'], title: "Pick how much it pays",
+  { sel: ['[role="group"][aria-label="Payout"]'], title: "Choose how much it pays",
     body: "Pays 2x+ or 5x+ narrows the list to bigger payouts. Bigger payouts win less often." },
   { sel: ['header [role="combobox"]', '[role="combobox"]'], title: "Search any market",
     body: "Find a team, an election or a ticker and see whether it's priced well today." },
   { sel: ['article[data-row] button[aria-label="Save"]', 'a[href="/watchlist"]'], title: "Save and get alerts",
     body: "Star a market to follow it on My list. Alerts tell you when a saved market's price moves." },
   { sel: ['header nav a[href="/track-record"]', 'a[href="/track-record"]'], title: "Check the results",
-    body: "Results shows how past picks actually did, wins and losses, so you can judge the numbers yourself." },
+    body: "Results shows how past flagged bets actually did, wins and losses, so you can judge the numbers yourself." },
 ] as const;
 
 const visible = (el: Element) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0; };
