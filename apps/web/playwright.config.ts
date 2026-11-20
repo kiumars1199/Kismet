@@ -5,7 +5,8 @@ import { defineConfig } from "@playwright/test";
 const PORT = Number(process.env.PW_PORT ?? 3100);   // lanes running in parallel each pick their own
 export default defineConfig({
   testDir: "e2e",
-  use: { baseURL: `http://localhost:${PORT}` },
+  // PW_CHROMIUM_PATH: use a preinstalled Chromium when the pinned Playwright's own build isn't downloaded.
+  use: { baseURL: `http://localhost:${PORT}`, launchOptions: { executablePath: process.env.PW_CHROMIUM_PATH || undefined } },
   webServer: {
     // Production build, not `next dev`: on-demand route compiles made parallel runs time out at random.
     // PW_DEV=1 switches back to dev for quick local iteration.

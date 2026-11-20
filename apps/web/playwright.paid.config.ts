@@ -8,7 +8,8 @@ export default defineConfig({
   testDir: "e2e-paid",
   workers: 1,
   timeout: 120_000,   // a cold .next compiles every route on first hit
-  use: { baseURL: ORIGIN },
+  // PW_CHROMIUM_PATH: use a preinstalled Chromium when the pinned Playwright's own build isn't downloaded.
+  use: { baseURL: ORIGIN, launchOptions: { executablePath: process.env.PW_CHROMIUM_PATH || undefined } },
   webServer: {
     command: `pnpm exec next dev -p ${PORT}`,
     port: PORT,
