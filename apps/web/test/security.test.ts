@@ -27,9 +27,40 @@ describe("AI crawlers (docs/14 §6, docs/15 § Bots)", () => {
   });
 
   it("robots.txt disallows every blocked crawler (same list as the middleware)", async () => {
-    const { AI_BOTS } = await import("@/lib/bots");
+    const { TRAINING_BOTS } = await import("@/lib/bots");
     const rules = [(await import("@/app/robots")).default().rules].flat();
-    expect(rules.find((r) => r.disallow === "/")?.userAgent).toEqual(AI_BOTS);
+    const blocked = rules.find((r) => r.disallow === "/" && !r.allow);
+    expect(blocked?.userAgent).toEqual(TRAINING_BOTS);
+    for (const b of ["GPTBot", "ClaudeBot", "CCBot", "Google-Extended"]) expect(TRAINING_BOTS).toContain(b);
+  });
+
+  it("T-281: robots.txt lets ChatGPT-User, Claude-User and Perplexity-User read the public pages only", async () => {
+    const rules = [(await import("@/app/robots")).default().rules].flat();
+    const users = rules.find((r) => [r.userAgent].flat().includes("Claude-User"))!;
+    expect([users.userAgent].flat().sort()).toEqual(["ChatGPT-User", "Claude-User", "Perplexity-User"]);
+    expect(users.disallow).toBe("/");
+    expect([users.allow].flat()).toEqual(expect.arrayContaining(["/$", "/pricing", "/about", "/track-record", "/terms", "/privacy", "/llms.txt"]));
+    for (const p of [users.allow].flat()) expect(p).not.toMatch(/^\/(api|account|bets|markets|m|watchlist|oauth)\b/);
+    // no *-User agent sits in the training group, and no training crawler in the user group
+    const training = rules.find((r) => r.disallow === "/" && !r.allow)!;
+    for (const u of ["ChatGPT-User", "Claude-User", "Perplexity-User"]) expect([training.userAgent].flat()).not.toContain(u);
+  });
+
+  it("T-281: middleware lets user-triggered fetchers read public pages, blocks them elsewhere, blocks crawlers everywhere", async () => {
+    const { NextRequest } = await import("next/server");
+    const { middleware } = await import("@/middleware");
+    const hit = async (p: string, ua: string) => (await middleware(new NextRequest(`http://t${p}`, { headers: { "user-agent": ua } }))).status;
+    const user = "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko); compatible; Claude-User/1.0; +Claude-User@anthropic.com";
+    for (const ua of [user, "ChatGPT-User/1.0", "Perplexity-User/1.0"]) {
+      for (const p of ["/", "/pricing", "/about", "/track-record", "/terms", "/llms.txt"]) expect(await hit(p, ua), `${ua} ${p}`).not.toBe(403);
+      for (const p of ["/api/markets", "/api/flags", "/bets", "/m/1", "/account", "/watchlist"]) expect(await hit(p, ua), `${ua} ${p}`).toBe(403);
+    }
+    for (const ua of ["GPTBot/1.2", "ClaudeBot/1.0", "CCBot/2.0", "Google-Extended"]) {
+      for (const p of ["/", "/pricing", "/track-record", "/llms.txt", "/api/markets"]) expect(await hit(p, ua), `${ua} ${p}`).toBe(403);
+    }
+    // the MCP endpoint and OAuth discovery are not refused by user agent (bearer token / public metadata)
+    for (const p of ["/api/mcp", "/.well-known/oauth-protected-resource", "/.well-known/oauth-protected-resource/api/mcp"])
+      expect(await hit(p, "ClaudeBot/1.0"), p).not.toBe(403);
   });
 });
 
@@ -65,6 +96,7 @@ describe("web hardening greps", () => {
       "app/api/trade/nonce/verify/route.ts": "the nonce is the credential",
       "app/api/alerts/run/route.ts": "CRON_SECRET",
       "app/api/settle/run/route.ts": "CRON_SECRET",
+      "app/api/mcp/route.ts": "OAuth bearer token only (lib/mcp/auth.ts), never cookies; read-only tools",
       "app/e2e-mock/[...path]/route.ts": "404 unless E2E_MOCK=1 outside production",
       "app/api/admin/export/route.ts": "GET only (sameSiteRequest); its POST/PUT/PATCH/DELETE are adminOnly405: 404 or 405, no state change",
     };
@@ -130,5 +162,17 @@ describe("Origin checks", () => {
     expect(siteOrExtension(post("https://evil.example"))).toBe(false);
     const { POST } = await import("@/app/api/ext/token/route");
     expect((await POST(post("https://evil.example"))).status).toBe(403);
+  });
+});
+
+describe("AI readers (T-281)", () => {
+  it("/llms.txt is served as Markdown with the connector URL and the disclaimer", async () => {
+    const res = (await import("@/app/llms.txt/route")).GET();
+    expect(res.status).toBe(200);
+    expect(res.headers.get("content-type")).toMatch(/text\/markdown/);
+    const body = await res.text();
+    expect(body).toMatch(/^# Kismet/);
+    expect(body).toContain("/api/mcp");
+    expect(body).toContain("Market analytics, not financial advice. Based on past results. 18+.");
   });
 });

@@ -5,7 +5,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { isAdminEmail, mfaRequired } from "@/lib/admin/core";
 import { maintenanceOn } from "@/lib/maintenance";
-import { isAiBot } from "@/lib/bots";
+import { agentAllowed } from "@/lib/bots";
 import { DEMO_MODE } from "@/lib/config";
 import { signedOutAccess } from "@/lib/auth/public-paths";
 
@@ -36,8 +36,10 @@ export function csp(nonce: string, dev = process.env.NODE_ENV !== "production") 
 }
 
 export async function middleware(req: NextRequest) {
-  // AI crawlers get nothing, demo mode included (robots.txt itself stays reachable: not matched below).
-  if (isAiBot(req.headers.get("user-agent"))) return new NextResponse("Automated access is not allowed.", { status: 403 });
+  // AI crawlers get nothing, demo mode included (robots.txt itself stays reachable: not matched below). Assistants
+  // fetching for a person (ChatGPT-User, Claude-User, Perplexity-User) may read the public pages; any agent may reach
+  // /api/mcp and OAuth discovery (lib/bots.ts agentAllowed).
+  if (!agentAllowed(req.headers.get("user-agent"), req.nextUrl.pathname)) return new NextResponse("Automated access is not allowed.", { status: 403 });
   const policy = csp(btoa(crypto.randomUUID()));
   // Next reads the nonce from the request's CSP header; the browser enforces the response's.
   const next = () => {
