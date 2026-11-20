@@ -1,6 +1,6 @@
 // The Best bets card in plain language (docs/OVERHAUL.md §B, docs/overhaul-contract.md § Card, rules R2-1, R2-4).
 // Pure functions, unit-tested in test/card.test.ts: the card component only lays these out.
-import { STRONG_RECORD_NEFF, money, price } from "@/lib/format";
+import { STRONG_RECORD_NEFF, money, odds } from "@/lib/format";
 import type { Market, Side } from "@/lib/types";
 
 const ok = (x: number | null | undefined): x is number => typeof x === "number" && Number.isFinite(x);
@@ -278,6 +278,20 @@ export function on10(q: { ask: number | null; fee: number | null }): { back: num
   const back = STAKE / cost;
   return { back, profit: back - STAKE };
 }
+/** The card's money line as the multiplier bettors read (Q, Nov 20): "Pays 1.53x", after the fee. */
+export function paysLine(q: { ask: number | null; fee: number | null }): string | null {
+  const r = on10(q);
+  if (!r) return null;
+  const x = r.back / STAKE;
+  return `Pays ${x >= 100 ? Math.round(x) : x >= 10 ? x.toFixed(1).replace(/\.0$/, "") : x.toFixed(2)}x`;
+}
+/** Win chance as a plain percentage: 0.876 → "88% chance to win". */
+export function chanceLine(p: number | null | undefined): string {
+  if (!ok(p) || p <= 0) return "—";
+  if (p < 0.01) return "Under 1% chance to win";
+  if (p > 0.99) return "Over 99% chance to win";
+  return `${Math.round(p * 100)}% chance to win`;
+}
 const cents = (x: number) => `$${x.toFixed(2)}`;
 const dollars = (x: number) => (x >= 1000 ? money(x) : cents(x));
 /** "$10 wins $5.60": profit after fees on a $10 stake (the card's one money line). */
@@ -334,4 +348,4 @@ export function cardVenue(m: Pick<Market, "us" | "best">, s: Pick<Side, "side_in
 export const US_SMALL_PRINT = "Polymarket US price, incl. its fee";
 export const INTL_ONLY = "International only, not on Polymarket US";
 export const NOT_FOR_US = "Not available to US residents";
-export const priceText = (ask: number | null) => (ok(ask) ? price(ask) : "—");
+export const priceText = (ask: number | null) => (ok(ask) ? odds(ask) : "—");

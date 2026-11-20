@@ -154,8 +154,8 @@ function PanelBody({ state: s, mode, facets, meta, onChange, onReset }: Props) {
         <Select label="Which side" value={s.side} onChange={(v) => onChange({ side: v as FilterState["side"] })}
           options={[["best", "Better-priced side"], ["yes", "Yes / first side"], ["no", "No / second side"], ["favorite", "Favorite"], ["underdog", "Underdog"]]} />
         <div className="grid grid-cols-2 gap-2">
-          <Num label="Price from" unit="¢" value={s.price_min === undefined ? undefined : Math.round(s.price_min * 100)} min={0} max={100} onCommit={(v) => onChange({ price_min: v === undefined ? undefined : v / 100 })} />
-          <Num label="to" unit="¢" value={s.price_max === undefined ? undefined : Math.round(s.price_max * 100)} min={0} max={100} onCommit={(v) => onChange({ price_max: v === undefined ? undefined : v / 100 })} />
+          <Num label="Price from" unit="%" value={s.price_min === undefined ? undefined : Math.round(s.price_min * 100)} min={0} max={100} onCommit={(v) => onChange({ price_min: v === undefined ? undefined : v / 100 })} />
+          <Num label="to" unit="%" value={s.price_max === undefined ? undefined : Math.round(s.price_max * 100)} min={0} max={100} onCommit={(v) => onChange({ price_max: v === undefined ? undefined : v / 100 })} />
         </div>
         <Select label="Min win chance" value={s.win_prob_min === undefined ? "" : String(s.win_prob_min)} onChange={(v) => onChange({ win_prob_min: v === "" ? undefined : Number(v) })}
           options={[["0", "Any (show long shots)"], ["", "40% (default)"], ["0.55", "55%"], ["0.7", "70%"], ["0.8", "80% · likely to hit"], ["0.9", "90%"]]} />
@@ -163,7 +163,7 @@ function PanelBody({ state: s, mode, facets, meta, onChange, onReset }: Props) {
 
       <UpgradeGate feature="all_filters">
         <Section title="Value">
-          <Num label="Min price gap" unit="¢" step={0.5} value={s.edge_min === undefined ? undefined : Math.round(s.edge_min * 1000) / 10} onCommit={(v) => onChange({ edge_min: v === undefined ? undefined : v / 100 })} />
+          <Num label="Min price gap" unit="pts" step={0.5} value={s.edge_min === undefined ? undefined : Math.round(s.edge_min * 1000) / 10} onCommit={(v) => onChange({ edge_min: v === undefined ? undefined : v / 100 })} />
           <Num label="Min estimated return" unit="%" value={s.roi_min} onCommit={(v) => onChange({ roi_min: v })} />
           <Num label="Min past events behind it" value={s.min_events} min={0} step={10} onCommit={(v) => onChange({ min_events: v === undefined ? undefined : Math.round(v) })} />
           <Check label="Confident only (still good on the cautious estimate)" on={!!s.edge_low_positive} onChange={(on) => onChange({ edge_low_positive: on || undefined })} />
@@ -201,7 +201,7 @@ function PanelBody({ state: s, mode, facets, meta, onChange, onReset }: Props) {
           <Num label="Min volume" unit="$" min={0} step={1000} value={s.volume_min} onCommit={(v) => onChange({ volume_min: v })} />
           <Num label="Min 24h volume" unit="$" min={0} step={100} value={s.volume_24h_min} onCommit={(v) => onChange({ volume_24h_min: v })} />
           <Num label="Min liquidity" unit="$" min={0} step={1000} value={s.liquidity_min} onCommit={(v) => onChange({ liquidity_min: v })} />
-          <Num label="Max gap between buy and sell price" unit="¢" min={0} step={0.5} value={s.spread_max === undefined ? undefined : Math.round(s.spread_max * 1000) / 10} onCommit={(v) => onChange({ spread_max: v === undefined ? undefined : v / 100 })} />
+          <Num label="Max gap between buy and sell price" unit="pts" min={0} step={0.5} value={s.spread_max === undefined ? undefined : Math.round(s.spread_max * 1000) / 10} onCommit={(v) => onChange({ spread_max: v === undefined ? undefined : v / 100 })} />
         </Section>
 
         <Section title="Mine">

@@ -88,7 +88,7 @@ export async function runServerAlerts(db: SupabaseClient, src: Source, now = new
       },
     } as unknown as Repo;
     const deps: Deps = {
-      ...src, repo, now, timeZone, odds: prof?.odds_format ?? "cents", memory,
+      ...src, repo, now, timeZone, odds: prof?.odds_format ?? "percent", memory,
       fetchBook: async (token, q, cat) => {
         const x = await src.fetchBook(token, q, cat);
         if (x) live.set(token, { ask: x.best_ask, roi: liveRoi(x) });

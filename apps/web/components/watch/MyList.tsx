@@ -23,11 +23,11 @@ function status(m: Live, snap: WatchSnapshot | null): { label: string; tone: str
   return { label: "Open", tone: "text-accent-soft bg-accent-bg" };
 }
 
-/** "price 68→71¢, estimated return +33%→+24%" */
+/** "price 68→71%, estimated return +33%→+24%" */
 function since(snap: WatchSnapshot, ask: number, roi: number): string {
   const p0 = price(snap.ask), p1 = price(ask), r0 = ret(snap.roi_pct), r1 = ret(roi);
   if (p0 === p1 && r0 === r1) return "No change since saved";
-  return `Since saved: price ${p0.replace("¢", "")}→${p1}, estimated return ${r0}→${r1}`;
+  return `Since saved: price ${p0.replace("%", "")}→${p1}, estimated return ${r0}→${r1}`;
 }
 
 async function setTarget(item: WatchlistItem, cents: number | null, question: string, sideIndex: 0 | 1) {
@@ -112,7 +112,7 @@ function Row({ item, live, selected, onSelect }: { item: WatchlistItem; live: Li
                   onBlur={saveTarget} onKeyDown={(e) => e.key === "Enter" && (e.target as HTMLInputElement).blur()}
                   placeholder="—" aria-describedby={`t-${item.id}`}
                   className="w-12 bg-transparent px-3 py-2 text-right text-text tabular-nums placeholder:text-muted focus:outline-none" />
-                <span aria-hidden="true">¢</span>
+                <span aria-hidden="true">%</span>
               </span>
               <span id={`t-${item.id}`} className="sr-only">Target price in cents, 1 to 99. We alert you when the price drops to it.</span>
               {item.target_price !== null && <span className="text-xs text-accent-softer" aria-live="polite">Alert on</span>}

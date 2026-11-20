@@ -5,10 +5,10 @@ import { NumberInput, Segmented, Switch, btn, btnDanger, card, input } from "@/c
 import { TopicsPicker } from "@/components/settings/TopicsPicker";
 import { money } from "@/lib/format";
 import { askPermission, browserAlertsOn, notifyState, setBrowserAlerts, type NotifyState } from "@/lib/notify";
-import { ODDS_LABEL, formatOdds } from "@/lib/odds";
+import { ODDS_CHOICES, ODDS_LABEL, formatOdds } from "@/lib/odds";
 import { getRepo } from "@/lib/repo";
 import { useProfile } from "@/lib/repo/hooks";
-import type { CollectionName, OddsFormat, Profile } from "@/lib/repo/types";
+import type { CollectionName, Profile } from "@/lib/repo/types";
 
 const patch = (p: Partial<Profile>) => void getRepo().profile.patch(p);
 const COLLECTIONS: CollectionName[] = ["presets", "dashboards", "watchlist", "alert_rules", "alert_events", "journal"];
@@ -48,13 +48,13 @@ export function SettingsForm() {
       <Section id="s-display" title="Display">
         <Row title="Odds format" sub={`How prices show where pages support it. Example: ${formatOdds(0.68, profile.odds_format)}`}>
           <Segmented
-            label="Odds format" value={profile.odds_format} onChange={(v) => patch({ odds_format: v })}
-            options={(Object.keys(ODDS_LABEL) as OddsFormat[]).map((v) => ({ value: v, label: ODDS_LABEL[v] }))}
+            label="Odds format" value={profile.odds_format === "cents" ? "percent" : profile.odds_format} onChange={(v) => patch({ odds_format: v })}
+            options={ODDS_CHOICES.map((v) => ({ value: v, label: ODDS_LABEL[v] }))}
           />
         </Row>
-        <Row title="Show numbers as" sub="Simple shows estimated return. Pro adds edge in cents per share.">
+        <Row title="Show numbers as" sub="Simple shows estimated return. Pro adds edge in percentage points.">
           <Segmented label="Show numbers as" value={profile.numbers_mode} onChange={(v) => patch({ numbers_mode: v })}
-            options={[{ value: "simple", label: "Simple" }, { value: "pro", label: "Pro (¢ edge)" }]} />
+            options={[{ value: "simple", label: "Simple" }, { value: "pro", label: "Pro (edge in points)" }]} />
         </Row>
         <Row title="Theme">
           <Segmented label="Theme" value={profile.theme} onChange={(v) => patch({ theme: v })}

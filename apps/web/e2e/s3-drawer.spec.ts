@@ -44,7 +44,7 @@ test("card's 'Why this bet?' and the drawer show the same return and win chance"
   const back = (await card.getByTestId("why-back").innerText()).trim();
   expect(back).toMatch(/^If it wins you get \$[\d,.]+ back \(\$10 \+ \$[\d,.]+\)$/);
   const chance = (await card.getByTestId("card-chance").innerText()).trim();
-  expect(chance).toMatch(/^Wins (about \d+ in 10|less than 1 in 10|more than 9 in 10)$/);
+  expect(chance).toMatch(/^(\d+% chance to win|Under 1% chance to win|Over 99% chance to win)$/);
   await card.locator("h3 a").click();
   const drawer = page.getByRole("dialog", { name: "Market details" });
   await expect(drawer.getByTestId("bet-return")).toHaveText(ret);

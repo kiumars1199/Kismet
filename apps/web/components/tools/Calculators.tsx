@@ -69,12 +69,12 @@ function ReturnTab() {
   return (
     <Layout
       inputs={<>
-        <Field label="Price (¢ per share, pays $1 if it hits)">{(id) => <NumberInput id={id} value={p} onChange={setP} min={1} max={99} suffix="¢" />}</Field>
+        <Field label="Price (% per share, pays $1 if it hits)">{(id) => <NumberInput id={id} value={p} onChange={setP} min={1} max={99} suffix="%" />}</Field>
         <Field label="Win chance (%)" hint="Your estimate, or Kismet's “Won before”.">{(id) => <NumberInput id={id} value={q} onChange={setQ} min={0} max={100} suffix="%" />}</Field>
         <Field label="Fee (by topic)">{(id) => <FeeSelect id={id} value={fee} onChange={setFee} allowNone />}</Field>
       </>}
       result={<>
-        <Headline label="Return at this win chance (calculation)" value={r ? ret(r.roi_pct) : DASH} sub={r ? <>By this math, $100 bets average {money(r.profit_100, true)} each. Any single bet can lose.</> : "Enter a price between 1¢ and 99¢."} />
+        <Headline label="Return at this win chance (calculation)" value={r ? ret(r.roi_pct) : DASH} sub={r ? <>By this math, $100 bets average {money(r.profit_100, true)} each. Any single bet can lose.</> : "Enter a price between 1% and 99%."} />
         <Lines rows={[
           ["Break-even win chance", r ? `${(r.break_even * 100).toFixed(1)}%` : DASH],
           ["Fee per share", r ? price(r.fee) : DASH],
@@ -96,9 +96,9 @@ function PayoutTab() {
     <Layout
       inputs={<>
         <Segmented label="Enter as" value={mode} onChange={(m) => { setMode(m); setV(m === "cents" ? 40 : m === "decimal" ? 2.5 : 150); }}
-          options={[{ value: "cents", label: "Price ¢" }, { value: "decimal", label: "Decimal odds" }, { value: "american", label: "American odds" }]} />
-        <Field label={mode === "cents" ? "Price (¢)" : mode === "decimal" ? "Decimal odds (e.g. 2.50)" : "American odds (e.g. +150 or −200)"}>
-          {(id) => <NumberInput id={id} value={v} onChange={setV} suffix={mode === "cents" ? "¢" : undefined} />}
+          options={[{ value: "cents", label: "Price %" }, { value: "decimal", label: "Decimal odds" }, { value: "american", label: "American odds" }]} />
+        <Field label={mode === "cents" ? "Price (%)" : mode === "decimal" ? "Decimal odds (e.g. 2.50)" : "American odds (e.g. +150 or −200)"}>
+          {(id) => <NumberInput id={id} value={v} onChange={setV} suffix={mode === "cents" ? "%" : undefined} />}
         </Field>
       </>}
       result={<>
@@ -126,18 +126,18 @@ function FeeTab() {
   return (
     <Layout
       inputs={<>
-        <Field label="Price (¢)">{(id) => <NumberInput id={id} value={p} onChange={setP} min={1} max={99} suffix="¢" />}</Field>
+        <Field label="Price (%)">{(id) => <NumberInput id={id} value={p} onChange={setP} min={1} max={99} suffix="%" />}</Field>
         <Field label="Shares">{(id) => <NumberInput id={id} value={shares} onChange={setShares} min={0} step="1" />}</Field>
         <Field label="Topic" hint="Polymarket's taker fee rate depends on the topic. Limit orders that rest on the book pay no fee.">{(id) => <FeeSelect id={id} value={fee} onChange={setFee} />}</Field>
       </>}
       result={<>
-        <Headline label="Total fee" value={per !== null && shares !== null ? money(per * shares) : DASH} sub={per !== null ? <>{price(per)} per share · rate × price × (1 − price)</> : "Enter a price between 1¢ and 99¢."} />
+        <Headline label="Total fee" value={per !== null && shares !== null ? money(per * shares) : DASH} sub={per !== null ? <>{price(per)} per share · rate × price × (1 − price)</> : "Enter a price between 1% and 99%."} />
         <Lines rows={[
           ["Fee rate", `${+(rate * 100).toFixed(1)}%`],
           ["Cost of the shares", valid && shares !== null ? money(pp * shares) : DASH],
           ["Total with fee", per !== null && shares !== null ? money((pp + per) * shares) : DASH],
         ]} />
-        <p className="text-xs text-muted">The fee is largest at 50¢ and shrinks toward 1¢ and 99¢.</p>
+        <p className="text-xs text-muted">The fee is largest at 50% and shrinks toward 1% and 99%.</p>
       </>}
     />
   );
@@ -158,7 +158,7 @@ function KellyTab() {
     <Layout
       inputs={<>
         <Field label="Win chance (%)">{(id) => <NumberInput id={id} value={q} onChange={setQ} min={0} max={100} suffix="%" />}</Field>
-        <Field label="Price (¢)">{(id) => <NumberInput id={id} value={p} onChange={setP} min={1} max={99} suffix="¢" />}</Field>
+        <Field label="Price (%)">{(id) => <NumberInput id={id} value={p} onChange={setP} min={1} max={99} suffix="%" />}</Field>
         <Field label="Fee">{(id) => <FeeSelect id={id} value={fee} onChange={setFee} allowNone />}</Field>
         <Field label="Bankroll">{(id) => <NumberInput id={id} value={bank} onChange={setBank} min={0} step="1" prefix="$" />}</Field>
         <div className="flex flex-col gap-1.5">
@@ -169,7 +169,7 @@ function KellyTab() {
       </>}
       result={<>
         <Headline label="Full Kelly (share of bankroll)" testId="full-kelly" value={k ? pct(Math.max(0, k.f_star)) : DASH}
-          sub={k ? (k.f_star > 0 ? <>{name} stakes {money(k.stake)} ({k.shares.toFixed(1)} shares)</> : "No edge at this price, so Kelly stakes nothing.") : "Enter a win chance, a price between 1¢ and 99¢ and a bankroll."} />
+          sub={k ? (k.f_star > 0 ? <>{name} stakes {money(k.stake)} ({k.shares.toFixed(1)} shares)</> : "No edge at this price, so Kelly stakes nothing.") : "Enter a win chance, a price between 1% and 99% and a bankroll."} />
         <Lines rows={[
           ["Formula", "(win chance − price) ÷ (1 − price)"],
           ["Price incl. fee", Number.isFinite(cost) && pp > 0 && pp < 1 ? price(cost) : DASH],
@@ -194,7 +194,7 @@ function MultiTab() {
           {bets.map((b, i) => (
             <li key={b.key} className="grid grid-cols-[1fr_1fr_1fr_auto] items-end gap-2">
               <Field label={`Bet ${i + 1} stake`}>{(id) => <NumberInput id={id} value={Number.isFinite(b.stake) ? b.stake : null} onChange={(v) => set(i, { stake: v ?? NaN })} prefix="$" min={0} />}</Field>
-              <Field label="Price">{(id) => <NumberInput id={id} value={Number.isFinite(b.price) ? +(b.price * 100).toFixed(2) : null} onChange={(v) => set(i, { price: c2p(v) })} suffix="¢" />}</Field>
+              <Field label="Price">{(id) => <NumberInput id={id} value={Number.isFinite(b.price) ? +(b.price * 100).toFixed(2) : null} onChange={(v) => set(i, { price: c2p(v) })} suffix="%" />}</Field>
               <Field label="Win chance">{(id) => <NumberInput id={id} value={Number.isFinite(b.winProb) ? +(b.winProb * 100).toFixed(2) : null} onChange={(v) => set(i, { winProb: c2p(v) })} suffix="%" />}</Field>
               <button type="button" className={btnGhost} aria-label={`Remove bet ${i + 1}`} onClick={() => setBets((x) => x.filter((_, j) => j !== i))} disabled={bets.length < 2}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>

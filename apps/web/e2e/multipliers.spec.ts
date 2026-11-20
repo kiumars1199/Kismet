@@ -12,7 +12,7 @@ test("long shot: a 10x+ payout filter with international bets brings it in, with
   const card = page.locator("article[data-tier=edge]").filter({ hasText: "Harbor City" }).first();
   await expect(card).toBeVisible();
   await expect(card).toHaveAttribute("data-venue", "intl-only");
-  await expect(card.getByTestId("card-chance")).toHaveText("Wins about 1 in 10");
+  await expect(card.getByTestId("card-chance")).toHaveText("14% chance to win");
   await card.getByText("Why this bet?").click();
   await expect(card.getByText(/^Lower:/)).toBeVisible();
   await expect(card.getByTestId("band-record")).toContainText("lost money in testing");

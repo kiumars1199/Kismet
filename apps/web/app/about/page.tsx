@@ -28,7 +28,7 @@ export const metadata = { title: "How it works" };
 const n = (x: number | undefined) => formatCount(x);   // docs/18 §4
 
 const STEPS: [string, string][] = [
-  ["Read the price", `A Yes at 68¢ means the market says 68%. We check every open Polymarket market, ${REFRESH_WORDS}.`],
+  ["Read the price", `A Yes priced at 68% means the market gives it a 68% chance, and it pays about 1.47x. We check every open Polymarket market, ${REFRESH_WORDS}.`],
   ["Check the history", "How often did bets like this one win? Same sport or topic, same kind of bet, same time before close, across thousands of settled markets."],
   ["Show the gap", "When bets like it won more often than the price says, after the fee and what you'd really pay, it's a best bet. You decide what to do with it."],
 ];

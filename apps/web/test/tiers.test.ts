@@ -148,10 +148,10 @@ describe("gate helpers", () => {
   it("formats ranges for display", () => {
     const s = { roi_pct: 5, edge: 0.02 };
     expect(sideRet({ ...s, ranges: { roi_pct: [5, 10], edge: [0.02, 0.05] } })).toBe("+5–10%");
-    expect(sideEdge({ ...s, ranges: { roi_pct: [5, 10], edge: [0.02, 0.05] } })).toBe("+2–5¢");
+    expect(sideEdge({ ...s, ranges: { roi_pct: [5, 10], edge: [0.02, 0.05] } })).toBe("+2–5 pts");
     expect(sideRet({ ...s, ranges: { roi_pct: [null, 0], edge: [null, 0] } })).toBe("under 0%");
     expect(sideRet({ ...s, ranges: { roi_pct: [50, null], edge: [0.2, null] } })).toBe("over +50%");
-    expect(sideEdge({ ...s, ranges: { roi_pct: [50, null], edge: [0.2, null] } })).toBe("over +20¢");
+    expect(sideEdge({ ...s, ranges: { roi_pct: [50, null], edge: [0.2, null] } })).toBe("over +20 pts");
     expect(sideRet(s)).toBe("+5%");
   });
 });

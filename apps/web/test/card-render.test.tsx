@@ -15,7 +15,7 @@ vi.mock("next/navigation", () => ({
 }));
 
 const { BetCard } = await import("@/components/market/BetCard");
-const { backLine, cardVenue, INTL_ONLY, US_SMALL_PRINT, winsLine } = await import("@/lib/card");
+const { backLine, cardVenue, INTL_ONLY, paysLine, US_SMALL_PRINT } = await import("@/lib/card");
 const { bannedHits, readableText } = await import("@/lib/banned");
 const { gateMarket } = await import("@/lib/data/gate");
 const { getStore } = await import("@/lib/data/store");
@@ -42,7 +42,7 @@ describe("BetCard on every fixture best bet", () => {
       expect(slots(html).size).toBeLessThanOrEqual(7);
       const v = cardVenue(m, m.best);
       const face = html.slice(0, html.indexOf('data-testid="why"'));
-      if (winsLine(v)) expect(readableText(face)).toContain(winsLine(v)!);
+      if (paysLine(v)) expect(readableText(face)).toContain(paysLine(v)!);
       if (backLine(v)) expect(readableText(why(html)).indexOf(backLine(v)!)).toBeGreaterThan(-1);
       if (v.kind === "us") {
         expect(face).toContain(`href="${m.us!.url}"`);

@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import { btn, btnGhost, btnPrimary } from "@/components/kit";
 import { useBacktest } from "@/components/market/TierNote";
 import { combo, kalshiComboEdge, MIN_LEGS, type Leg } from "@/lib/combos";
-import { LONG_SHOT_LINE, pct, price, ret, testedLine, winsAbout } from "@/lib/format";
+import { LONG_SHOT_LINE, odds, pct, ret, testedLine, winsAbout } from "@/lib/format";
 import { noLiveRecord } from "@/lib/proof";
 import { openTicket, useTradeConfig } from "@/lib/trade/ext";
 import { useCombo } from "./useCombo";
@@ -132,7 +132,7 @@ function Body({ id, legs, onRemove, onClear }: { id: string; legs: Leg[]; onRemo
             <span className="flex size-6 flex-none items-center justify-center rounded-full bg-muted-bg text-xs tabular-nums text-muted">{i + 1}</span>
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium">{l.question}</p>
-              <p className="text-xs text-muted">Bet {l.outcome} at {price(l.ask)} · won {pct(l.q)} before</p>
+              <p className="text-xs text-muted">Bet {l.outcome} · pays {odds(l.ask)} · won {pct(l.q)} before</p>
             </div>
             <a href={l.url} target="_blank" rel="noopener noreferrer" className="flex min-h-11 flex-none items-center px-2 text-[13px] text-accent-hover hover:text-accent-soft">
               Open<span className="sr-only"> {l.question} on Polymarket</span> <ExternalLink size={13} className="inline-block align-[-2px]" />
@@ -148,7 +148,7 @@ function Body({ id, legs, onRemove, onClear }: { id: string; legs: Leg[]; onRemo
         <>
           <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm sm:grid-cols-4">
             <div><dt className="text-xs text-muted">Wins about</dt><dd className="font-semibold">{winsAbout(c.q)} <span className="font-normal text-muted">({pct(c.q)})</span></dd></div>
-            <div><dt className="text-xs text-muted">Pays</dt><dd className="font-semibold">{paysX(c.pays)} <span className="font-normal text-muted">at {price(c.price)}</span></dd></div>
+            <div><dt className="text-xs text-muted">Pays</dt><dd className="font-semibold">{paysX(c.pays)}</dd></div>
             <div><dt className="text-xs text-muted">Estimated return</dt><dd className={`font-semibold ${c.ret >= 0 ? "text-accent" : "text-negative"}`}>{ret(c.ret * 100)}</dd></div>
             <div title="Our cautious chance for every leg, multiplied. The combo only counts as a better price than usual if this still beats the price.">
               <dt className="text-xs text-muted">Cautious chance</dt>
@@ -162,7 +162,7 @@ function Body({ id, legs, onRemove, onClear }: { id: string; legs: Leg[]; onRemo
           </p>
           {k && quote?.ok && (
             <p data-testid="kalshi-quote" className="rounded-input border border-border bg-raised px-3 py-2 text-[13px] text-soft">
-              Kalshi combo <span className="font-mono text-xs">{quote.ticker}</span> at {quote.ask_cents}¢ (pays {paysX(100 / quote.ask_cents)}):{" "}
+              Kalshi combo <span className="font-mono text-xs">{quote.ticker}</span> pays {paysX(100 / quote.ask_cents)}:{" "}
               {k.edge > 0 ? <span className="text-accent">better than our price by {Math.round(k.edge * 100)} pts after Kalshi&apos;s fee ({ret(k.ret * 100)})</span>
                 : <span className="text-warning">no edge after Kalshi&apos;s fee ({ret(k.ret * 100)})</span>}
             </p>

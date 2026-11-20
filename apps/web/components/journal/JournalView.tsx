@@ -247,7 +247,7 @@ function EditDialog({ row, onClose }: { row: JournalEntry | null; onClose: () =>
         <>
           <p className="text-sm text-muted">{row.question} · {row.outcome}</p>
           <div className="grid grid-cols-2 gap-3">
-            <label className="flex flex-col gap-1.5 text-xs font-medium text-muted">Price paid<NumberInput value={cents} onChange={setCents} suffix="¢" ariaLabel="Price paid in cents" /></label>
+            <label className="flex flex-col gap-1.5 text-xs font-medium text-muted">Price paid<NumberInput value={cents} onChange={setCents} suffix="%" ariaLabel="Price paid, as a percent" /></label>
             <label className="flex flex-col gap-1.5 text-xs font-medium text-muted">Shares<NumberInput value={shares} onChange={setShares} ariaLabel="Shares" /></label>
           </div>
           <div className="flex flex-col gap-1.5">

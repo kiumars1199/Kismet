@@ -8,7 +8,7 @@ import { softNav } from "@/lib/softNav";
 import { useEffect, useRef, useState } from "react";
 import { fetchBook, fetchMarket, type BookResponse, type MarketResponse } from "@/lib/api";
 import { useWhen } from "./When";
-import { ago, basis, cardReturn, edge, pastReturnLine, money, pays, pct, price, ret, sideEdge, formatCount, LONG_SHOT_LINE } from "@/lib/format";
+import { ago, basis, cardReturn, edge, pastReturnLine, money, odds, pct, points, price, ret, sideEdge, formatCount, LONG_SHOT_LINE } from "@/lib/format";
 import { betFigures, edgeAbove0, PTS_HELP, RETURN_HELP_ONE, RETURN_LABEL_LONG, RETURNS_FAQ } from "@/lib/betFigures";
 import { useProfile } from "@/lib/repo/hooks";
 import { useEntitlements } from "@/lib/entitlements";
@@ -200,7 +200,7 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
                 className={`flex min-h-11 flex-col rounded-input border p-3 text-left ${on ? "border-accent-border bg-accent-bg/60" : "border-border bg-raised hover:border-accent-border"}`}>
                 <div className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-2">
                   <span className="min-w-0 break-words font-semibold leading-snug sm:truncate">{x.outcome}</span>
-                  <span className="shrink-0 whitespace-nowrap tabular-nums">{price(x.ask)} <span className="text-xs text-muted">· {pays(x.ask)}</span></span>
+                  <span className="shrink-0 whitespace-nowrap tabular-nums">pays {odds(x.ask)}</span>
                 </div>
                 <div className="mt-1 flex flex-wrap justify-between gap-x-2 whitespace-nowrap text-xs text-muted">
                   <span title={basis(m, x)}>won {pct(x.win_prob)} before</span>
@@ -220,7 +220,7 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
         <OddsBars big market={s.ask} won={s.win_prob} labels={["Market's odds", "How often similar bets won"]} basis={basis(m, s)} />
         <p className="mt-3 text-[13px] leading-relaxed text-soft">
           Based on <Count n={s.model_events} /> past {topicLabel(m)} events ({m.market_type}, about {m.horizon_h} h before close
-          {s.model_level === "all" || s.model_level === "cat" ? `, using all ${LEVEL[s.model_level]}` : ""}). Bets like this at {price(s.ask)} won {pct(s.win_prob)} of the time
+          {s.model_level === "all" || s.model_level === "cat" ? `, using all ${LEVEL[s.model_level]}` : ""}). Bets like this priced at {price(s.ask)} won {pct(s.win_prob)} of the time
           {s.win_prob_low > 0 ? `; a cautious estimate is ${pct(s.win_prob_low)}` : ""}.
         </p>
         {data.curve && <div className="mt-3"><CurveChart curve={data.curve} ask={s.ask} winProb={s.win_prob} /></div>}
@@ -274,7 +274,7 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
   );
 }
 
-/** "Bet Yes at 70¢" with the live price; the number briefly highlights when the live book moves it (docs/17). */
+/** "Bet Yes · pays 1.43x" with the live price; the number briefly highlights when the live book moves it (docs/17). */
 function LiveBet({ s, ask }: { s: Side; ask?: number }) {
   const prev = useRef(ask);
   const [pulse, setPulse] = useState(0);
@@ -284,8 +284,8 @@ function LiveBet({ s, ask }: { s: Side; ask?: number }) {
   }, [ask]);
   return (
     <div className="text-[13px] text-accent-softer">
-      Bet <strong className="font-semibold text-accent-soft">{s.outcome}</strong> at{" "}
-      <span key={pulse} data-testid="live-price" className={`rounded px-0.5 tabular-nums text-accent-soft ${pulse ? "price-pulse" : ""}`}>{price(ask ?? s.ask)}</span>
+      Bet <strong className="font-semibold text-accent-soft">{s.outcome}</strong> · pays{" "}
+      <span key={pulse} data-testid="live-price" className={`rounded px-0.5 tabular-nums text-accent-soft ${pulse ? "price-pulse" : ""}`}>{odds(ask ?? s.ask)}</span>
       {ask !== undefined && <span className="text-accent-softer"> live</span>}
     </div>
   );
@@ -313,7 +313,7 @@ function Actions({ m, s }: { m: StoreMarket; s: Side }) {
         : primaryVenue(m, s)
           ? <div className="flex flex-col gap-1">
               <VenueButton m={m} s={s} className="w-full" />
-              {m.us && m.us.ask != null && <p data-testid="us-price" className="text-center text-xs text-muted">{price(m.us.ask)} on Polymarket US · {US_SMALL_PRINT}</p>}
+              {m.us && m.us.ask != null && <p data-testid="us-price" className="text-center text-xs text-muted">Pays {odds(m.us.ask)} on Polymarket US · {US_SMALL_PRINT}</p>}
             </div>
           : <div className="flex flex-col gap-1">
               <p data-testid="intl-only" className="flex min-h-11 items-center justify-center rounded-input border border-border bg-raised/60 px-3 text-center text-xs text-muted">{INTL_ONLY}</p>
@@ -445,9 +445,9 @@ function TrackRecord({ data, pro }: { data: MarketResponse; pro: boolean }) {
 
 function Warnings({ m, s, x }: { m: StoreMarket; s: Side; x?: Execution }) {
   const w: string[] = [];
-  if (x && x.spread >= 0.05) w.push(`Wide spread: buyers and sellers are ${price(x.spread)} apart, so the price can move against you.`);
+  if (x && x.spread >= 0.05) w.push(`Wide spread: buyers and sellers are ${points(x.spread)} apart, so the price can move against you.`);
   if (x && x.verdict !== "not worth it" && x.capacity_usd != null && x.capacity_usd < 100) w.push(`Thin order book: only about ${money(Math.round(x.capacity_usd))} can be bought at a good price.`);
-  if (s.edge >= 0.15) w.push("Unusually high: in testing, bets that looked this good earned far less than predicted.");
+  if (s.edge >= 0.15) w.push("Higher risk: estimates this high have usually been too optimistic. In testing, bets that looked this good earned far less than shown. Bet small.");
   if (s.model_events < 50) w.push(`Small evidence: only ${formatCount(s.model_events)} past events like this.`);
   if (s.model_level === "all" || s.model_level === "cat")
     w.push(`Few markets like this one, so the estimate leans on ${s.model_level === "all" ? "all markets" : `all ${m.category} markets`}.`);

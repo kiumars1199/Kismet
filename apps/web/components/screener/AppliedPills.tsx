@@ -10,7 +10,7 @@ import { VERDICT_LABEL } from "@/components/market/labels";
 import { BEST_BETS_VERDICTS, type Mode } from "./useScreener";
 
 type Pill = { key: string; label: string; patch: Partial<FilterState> };
-const c = (x: number) => `${Math.round(x * 1000) / 10}¢`;
+const c = (x: number) => `${Math.round(x * 1000) / 10}%`;
 const p = (x: number) => `${Math.round(x * 100)}%`;
 const catLabel = (id: string) => (TAXONOMY[id]?.label ?? id).split(" & ")[0]!;
 const hours = (h: number) => (h >= 48 && h % 24 === 0 ? `${h / 24} days` : `${h}h`);

@@ -137,9 +137,9 @@ const RULES: Rule[] = [
     return { kind: "chance", label: `Chance ${Math.round(v * 100)}%+` };
   }],
   // price in cents
-  [re(String.raw`(?:under|below|less than|max|cheaper than|<)\s*${NUM}\s*(?:c|¢|cents?)`), (m, p) => ((p.price = [0, Math.min(1, +m[1] / 100)]), { kind: "price", label: `Price under ${+m[1]}¢` })],
-  [re(String.raw`(?:over|above|more than|min|>)\s*${NUM}\s*(?:c|¢|cents?)`), (m, p) => ((p.price = [Math.min(1, +m[1] / 100), 1]), { kind: "price", label: `Price over ${+m[1]}¢` })],
-  [re(String.raw`${NUM}\s*(?:c|¢|cents?)`), (m, p) => ((p.price = [Math.max(0, (+m[1] - 3) / 100), Math.min(1, (+m[1] + 3) / 100)]), { kind: "price", label: `Price ~${+m[1]}¢` })],
+  [re(String.raw`(?:under|below|less than|max|cheaper than|<)\s*${NUM}\s*(?:c|¢|cents?)`), (m, p) => ((p.price = [0, Math.min(1, +m[1] / 100)]), { kind: "price", label: `Price under ${+m[1]}%` })],
+  [re(String.raw`(?:over|above|more than|min|>)\s*${NUM}\s*(?:c|¢|cents?)`), (m, p) => ((p.price = [Math.min(1, +m[1] / 100), 1]), { kind: "price", label: `Price over ${+m[1]}%` })],
+  [re(String.raw`${NUM}\s*(?:c|¢|cents?)`), (m, p) => ((p.price = [Math.max(0, (+m[1] - 3) / 100), Math.min(1, (+m[1] + 3) / 100)]), { kind: "price", label: `Price ~${+m[1]}%` })],
   // multipliers
   [re(String.raw`(?:under|below|less than|<)\s*${NUM}\s?x`), (m, p) => pays(p, [1, +m[1]], `Pays under ${xs(+m[1])}`)],
   [re(String.raw`${NUM}\s?x?\s*(?:-|–|to)\s*${NUM}\s?x`), (m, p) => pays(p, [+m[1], +m[2]], `Pays ${r2(+m[1])}–${xs(+m[2])}`)],
