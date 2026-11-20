@@ -4,8 +4,8 @@ Read `docs/README.md` first. It indexes the spec. Build tasks are in `docs/10-ta
 Every task names the spec section it implements and its acceptance checks.
 
 ## What this is
-A subscription web app (and later a Chrome extension) that shows prediction-market traders
-which contracts are priced below their true win chance, after fees and after the cost of
+A subscription web app (and later a Chrome extension) for casual bettors placing 1–2 bets, mostly on
+their phone (not traders). It shows which prediction-market bets are priced below their true win chance, after fees and after the cost of
 crossing the spread. The Python engine (`engine/`, `pipeline/`) already exists and produces
 the data. Your job is mostly the product around it: `apps/web` and `apps/extension`.
 
@@ -33,7 +33,8 @@ docs/          the spec
    If the engine output changes, update both in the same PR.
 2. **The browser never downloads `markets.json` whole** (about 20 MB). The server loads it,
    caches it for 120 s, and filters and paginates (`docs/02-architecture.md`).
-3. **Every number shown has its basis one hover away**: sample size, model level, backtest record.
+3. **Every number shown has its basis one tap away** (sample size, model level, backtest record), inside
+   "Why this bet?" or a Details expand. Default views stay plain-language: see `docs/OVERHAUL.md`.
 4. **No personalized picks.** Flags are the same for everyone. Filters and presets are the user's own.
    Never rank or recommend bets from a user's own positions (`docs/01-product.md`, Compliance).
 5. **Disclaimer in the footer of every page and in the extension popup:**
@@ -43,6 +44,7 @@ docs/          the spec
 8. Tests: Vitest for logic (filters, sizing, serialization), Playwright for the 6 smoke flows in
    `docs/12-test-plan.md`. A task is done only when its acceptance checks pass.
 9. Keep PRs small: one task per PR, named `T-xx: title`.
+10. Pushing to `final` does not deploy production; an owner deploys by hand. End runs with "ready to deploy: <sha>".
 
 ## Commands
 ```bash
