@@ -77,7 +77,7 @@ export function MarketsScreener({ initial, scannedAt }: { initial?: MarketsRespo
             <ExportCsv state={state} />
           </div>
         </header>
-        <FilterPills state={state} mode="markets" facets={data?.facets} meta={meta} onChange={set} onReset={reset} />
+        <FilterPills state={state} mode="markets" facets={sc.facets} meta={meta} onChange={set} onReset={reset} />
         <PresetBar state={state} onChange={set} />
         <QuickChips state={state} onChange={set} />
         <SearchChips q={state.q} search={data?.search} onChange={set} />

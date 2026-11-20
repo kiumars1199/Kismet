@@ -2,9 +2,13 @@
 // Tier cards with a monthly/annual toggle (docs/01 § Tiers). Prices come from config/site.json prices_usd (owner, Nov 18:
 // Pro $11.99/mo or $99.99/yr, Premium $19.99/mo or $169.99/yr; 7-day trial on both). In demo mode every button opens Best bets, since everything is already unlocked.
 // Paid mode: Start trial → /api/stripe/checkout (sign in first); "Coming soon" until Stripe is configured.
+// T-291 #12: the server passes what it knows (`ctx`: billing, accounts, signed in, plan), so the first HTML has the
+// right button; /api/me takes over once it answers. Before T-291 the buttons read "Coming soon" until /api/me came back.
 import Link from "next/link";
 import { useState } from "react";
+import type { Tier } from "@/lib/entitlements";
 import { useMe } from "@/lib/me";
+import { yearlySavings } from "@/lib/billing/plans";
 import { track } from "@/lib/telemetry";
 import { behindWords, usd } from "@/lib/format";
 import { SITE } from "@/lib/site";
@@ -18,20 +22,30 @@ const PLANS = [
     points: ["Everything in Pro", "Use Kismet in Claude, ChatGPT and Cursor (read-only connector)", "Chrome extension: estimated return right on Polymarket (coming soon)", "Combos: 2- and 3-leg bets built from Best bets (coming soon)", "Telegram and Discord alerts, 100 rules", "Unlimited saved views and dashboards"] },
 ] as const;
 
-/** The yearly saving shown on the toggle: the smallest across paid plans, in whole percent (never overstated). */
-const SAVE_PCT = Math.min(...PLANS.filter((p) => p.monthly > 0).map((p) => Math.floor((1 - p.yearly / (12 * p.monthly)) * 100)));
+/** Yearly savings from the prices (T-291 #15): per plan on its card, the largest on the toggle as "up to". */
+const SAVE = yearlySavings(SITE.prices);
+const savePct = (id: string) => (id === "pro" ? SAVE.pro : id === "premium" ? SAVE.premium : 0);
 
-/** `delay`: the Free plan delay in minutes, from site settings (free_delay_min). */
-export function Plans({ demo, delay }: { demo: boolean; delay: number }) {
-  const [annual, setAnnual] = useState(false);
+/** What the plan buttons need to know; the server's answer first, then /api/me's. */
+export interface PlanCtx { demo: boolean; auth: boolean; billing: boolean; signedIn: boolean; tier: Tier }
+
+function useCtx(initial: PlanCtx): PlanCtx {
   const me = useMe();
+  return me ? { demo: me.demo, auth: me.auth, billing: me.billing, signedIn: !!me.user, tier: me.tier } : initial;
+}
+
+/** `delay`: the Free plan delay in minutes, from site settings (free_delay_min). `ctx`: lib/billing/planCtx.ts. */
+export function Plans({ delay, ctx: initial }: { delay: number; ctx: PlanCtx }) {
+  const [annual, setAnnual] = useState(false);
+  const ctx = useCtx(initial);
+  const demo = ctx.demo;
   return (
     <div className="flex flex-col gap-5">
       <div role="radiogroup" aria-label="Billing period" className="flex w-fit gap-1 rounded-full border border-border bg-input p-1 text-sm">
         {[false, true].map((a) => (
           <button key={String(a)} type="button" role="radio" aria-checked={annual === a} onClick={() => setAnnual(a)}
             className={`min-h-11 rounded-full px-4 ${annual === a ? "bg-accent-bg text-accent-soft" : "text-soft hover:text-text"}`}>
-            {a ? <>Yearly <span className="text-accent-softer">· save {SAVE_PCT}%</span></> : "Monthly"}
+            {a ? <>Yearly{SAVE.max > 0 && <span className="text-accent-softer"> · save up to {SAVE.max}%</span>}</> : "Monthly"}
           </button>
         ))}
       </div>
@@ -51,7 +65,7 @@ export function Plans({ demo, delay }: { demo: boolean; delay: number }) {
                 <span className={`text-sm ${featured ? "text-accent-softer" : "text-muted"}`}>/ month</span>
               </p>
               <p className={`-mt-2 min-h-5 text-xs ${featured ? "text-accent-softer" : "text-muted"}`}>
-                {p.monthly === 0 ? "Free forever" : annual ? `${usd(p.yearly)} billed yearly` : "7-day free trial"}
+                {p.monthly === 0 ? "Free forever" : annual ? <>{usd(p.yearly)} billed yearly{savePct(p.id) > 0 && <span data-testid={`save-${p.id}`}> · save {savePct(p.id)}%</span>}</> : "7-day free trial"}
               </p>
               <ul className={`flex flex-1 flex-col gap-2 text-sm ${featured ? "text-accent-soft" : "text-soft"}`}>
                 {p.points.map((x) => (
@@ -61,7 +75,7 @@ export function Plans({ demo, delay }: { demo: boolean; delay: number }) {
                   </li>
                 ))}
               </ul>
-              <PlanButton id={p.id} annual={annual} demo={demo} me={me} featured={featured} />
+              <PlanButton id={p.id} annual={annual} ctx={ctx} featured={featured} />
             </section>
           );
         })}
@@ -71,25 +85,26 @@ export function Plans({ demo, delay }: { demo: boolean; delay: number }) {
   );
 }
 
-function PlanButton({ id, annual, demo, me, featured }: { id: string; annual: boolean; demo: boolean; me: ReturnType<typeof useMe>; featured: boolean }) {
+function PlanButton({ id, annual, ctx, featured }: { id: string; annual: boolean; ctx: PlanCtx; featured: boolean }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const cls = `flex min-h-11 items-center justify-center rounded-input px-4 font-semibold disabled:cursor-not-allowed disabled:opacity-60 ${featured ? "bg-accent text-on-accent hover:bg-accent-hover" : "border border-border bg-muted-bg hover:border-accent-border"}`;
-  // P9: a signed-in Free user saw "Start free" on the plan they already have
-  if (id === "free") return me?.user && me.tier === "free"
+  // P9: a signed-in Free user saw "Start free" on the plan they already have. T-291 #14: everyone else signs up.
+  if (id === "free") return ctx.signedIn && ctx.tier === "free"
     ? <Link href="/account" className={cls}>Your plan</Link>
-    : <Link href={me?.auth && !me.user ? "/signup" : "/"} className={cls}>Start free</Link>;
-  if (demo || me?.demo) return <Link href="/" className={cls}>Start trial</Link>;
-  if (!me?.billing) return <button type="button" disabled className={cls}>Coming soon</button>;
-  if (!me.user) return <Link href="/signup?next=/pricing" className={cls}>Start trial</Link>;
-  if (me.tier === id) return <Link href="/account" className={cls}>Your plan</Link>;
+    : <Link href="/signup" className={cls} data-testid="start-free">Start free</Link>;
+  if (ctx.demo) return <Link href="/" className={cls}>Start trial</Link>;
+  if (!ctx.billing) return <button type="button" disabled className={cls}>Coming soon</button>;
+  if (!ctx.signedIn) return <Link href="/signup?next=/pricing" className={cls}>Start trial</Link>;
+  if (ctx.tier === id) return <Link href="/account" className={cls}>Your plan</Link>;
+  const tier = ctx.tier;
 
   async function start() {
     setBusy(true);
     setError("");
-    if (me!.tier === "free") track("checkout_started");
+    if (tier === "free") track("checkout_started");
     // Already paying: plan changes go through the Stripe portal, never a second subscription.
-    const res = await (me!.tier === "free"
+    const res = await (tier === "free"
       ? fetch("/api/stripe/checkout", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ price: `${id}_${annual ? "yearly" : "monthly"}` }),
@@ -103,7 +118,7 @@ function PlanButton({ id, annual, demo, me, featured }: { id: string; annual: bo
   return (
     <div className="flex flex-col gap-1.5">
       <button type="button" className={cls} disabled={busy} onClick={start} data-testid={`checkout-${id}`}>
-        {busy ? "Opening checkout…" : me.tier === "free" ? "Start trial" : `Switch to ${id === "pro" ? "Pro" : "Premium"}`}
+        {busy ? "Opening checkout…" : tier === "free" ? "Start trial" : `Switch to ${id === "pro" ? "Pro" : "Premium"}`}
       </button>
       {error && <p role="alert" className="text-xs text-warning">{error}</p>}
     </div>

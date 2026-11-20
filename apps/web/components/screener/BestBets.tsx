@@ -185,16 +185,44 @@ function BigPayouts({ state, pro }: { state: FilterState; pro: boolean }) {
   );
 }
 
-/** "More bets with an edge" (docs/18 §2): tier "edge", lower confidence, same filters. Only under plain Best bets. */
+/** "More bets with an edge" (docs/18 §2): tier "edge", lower confidence, same filters. Only under plain Best bets.
+ *  T-291 #10: "Show more" fetches the next page and appends it. It used to grow page_size, which changed the
+ *  section's query key, so the section emptied while it refetched and the page jumped. */
+type Extra = { key: string | null; rows: ApiRow[]; groups: ApiGroup[]; page: number };
+const NO_EXTRA: Extra = { key: null, rows: [], groups: [], page: 1 };
+const EDGE_PAGE = 12;
 function MoreWithEdge({ state, desktop, pro }: { state: FilterState; desktop: boolean; pro: boolean }) {
-  const [pages, setPages] = useState(1);
   const on = tierOf(state) === "best";
   const [ref, near] = useNear();
-  const data = useSide(state, on ? { tier: "edge", win_prob_min: state.win_prob_min ?? 0, page: 1, page_size: 12 * pages } : null, { near });
-  useEffect(() => setPages(1), [on]);
+  const patch: Partial<FilterState> | null = on ? { tier: "edge", win_prob_min: state.win_prob_min ?? 0, page: 1, page_size: EDGE_PAGE } : null;
+  const key = patch && JSON.stringify({ ...state, ...patch });
+  const data = useSide(state, patch, { near });
+  const [extra, setExtra] = useState<Extra>(NO_EXTRA);
+  const [busy, setBusy] = useState(false);
+  const mine = extra.key === key ? extra : NO_EXTRA;   // a filter change starts over from page 1
   if (!data?.rows.length) return <div ref={ref} aria-hidden="true" />;
-  const slots = slotsOf(data.rows, data.groups);
+  const rows = [...data.rows, ...mine.rows];
+  const slots = slotsOf(rows, data.groups ? [...data.groups, ...mine.groups] : undefined);
   const left = (data.total_groups ?? data.total) - slots.length;
+
+  const more = async () => {
+    if (busy || !key) return;
+    const k = key;
+    setBusy(true);
+    try {
+      const next = await fetchFlags({ ...(JSON.parse(k) as FilterState), page: mine.page + 1 });
+      setExtra((e) => {
+        const base = e.key === k ? e : { ...NO_EXTRA, key: k };
+        const offset = data.rows.length + base.rows.length;   // the next page's group starts shift past the rows held
+        return { key: k, rows: [...base.rows, ...next.rows], groups: [...base.groups, ...(next.groups ?? []).map((g) => ({ ...g, start: g.start + offset }))], page: base.page + 1 };
+      });
+    } catch {
+      // keep what is shown; the button stays for another try
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
     <section aria-labelledby="edge-h" data-testid="more-edge" className="mt-6 flex flex-col gap-3">
       <div>
@@ -205,8 +233,8 @@ function MoreWithEdge({ state, desktop, pro }: { state: FilterState; desktop: bo
       </div>
       <Cards slots={slots} desktop={desktop} pro={pro} />
       {left > 0 && (
-        <button type="button" onClick={() => setPages((p) => p + 1)} className="mx-auto min-h-11 rounded-input border border-border bg-surface px-5 text-sm hover:border-accent-border">
-          Show more ({nf(left)} left)
+        <button type="button" onClick={more} disabled={busy} aria-busy={busy} className="mx-auto min-h-11 rounded-input border border-border bg-surface px-5 text-sm hover:border-accent-border">
+          {busy ? "Loading…" : `Show more (${nf(left)} left)`}
         </button>
       )}
     </section>
@@ -217,7 +245,7 @@ function MoreWithEdge({ state, desktop, pro }: { state: FilterState; desktop: bo
  *  paint (no client fetch, no LCP change). */
 export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?: MarketsResponse; scanned_at?: number } }) {
   const sc = useScreener("flags", initial?.main);
-  const { state, set, reset, data, more, moreGroups, loading, error } = sc;
+  const { state, set, reset, data, more, moreGroups, error } = sc;
   const meta = useMeta();
   const total = data?.total;
   const desktop = useDesktop();
@@ -267,7 +295,7 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
       <ClosingSoon rows={soon?.rows} />
       <ResultsTicker results={meta?.results} />
 
-      <FilterPills state={state} mode="flags" facets={data?.facets} meta={meta} onChange={set} onReset={reset}>
+      <FilterPills state={state} mode="flags" facets={sc.facets} meta={meta} onChange={set} onReset={reset}>
         <button type="button" onClick={() => (setSaved(null), setSaving(true))} className="min-h-10 whitespace-nowrap px-2 text-[13px] text-muted hover:text-text">+ Save this view</button>
         <span role="status" className="text-[13px] text-accent-softer empty:hidden">{saved?.ok ? saved.msg : ""}</span>
       </FilterPills>
@@ -302,10 +330,10 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
       ) : (
         <>
           {error && <ErrorState onRetry={sc.retry} what="best bets" error={error} />}
-          <Cards slots={slots.slice(0, split)} desktop={desktop} pro={pro} dim={loading} />
+          <Cards slots={slots.slice(0, split)} desktop={desktop} pro={pro} />
           <BigPayouts state={state} pro={pro} />
           {tierOf(state) === "best" && <SuggestedCombos />}
-          {slots.length > split && <Cards slots={slots.slice(split)} desktop={desktop} pro={pro} dim={loading} />}
+          {slots.length > split && <Cards slots={slots.slice(split)} desktop={desktop} pro={pro} />}
           {!live && <LockedBets total={data.total} shown={rows.length} desktop={desktop} />}
           {live && left > 0 && (
             <button

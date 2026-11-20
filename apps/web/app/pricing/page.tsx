@@ -1,7 +1,7 @@
 // Pricing (T-28, F-20): tier cards, feature table (docs/01 § Tiers, in display language), FAQ.
 import Link from "next/link";
 import { Faq, Plans } from "@/components/pricing/Plans";
-import { DEMO_MODE } from "@/lib/config";
+import { planCtx } from "@/lib/billing/planCtx";
 import { getSettings } from "@/lib/settings";
 import { tradingEnv } from "@/lib/trade/server";
 import { behindWords, usd } from "@/lib/format";
@@ -39,7 +39,7 @@ const PRICING_FAQ: { q: string; a: React.ReactNode }[] = [
 ];
 
 export default async function Page() {
-  const delay = (await getSettings()).free_delay_min;   // Free delay from site settings, the one place it is set
+  const [delay, ctx] = await Promise.all([getSettings().then((s) => s.free_delay_min), planCtx()]);   // Free delay from site settings, the one place it is set
   return (
     <article className="mx-auto flex max-w-6xl flex-col gap-14 pb-8">
       <header className="flex max-w-2xl flex-col gap-3">
@@ -50,7 +50,7 @@ export default async function Page() {
         </p>
       </header>
 
-      <Plans demo={DEMO_MODE} delay={delay} />
+      <Plans delay={delay} ctx={ctx} />
 
       <section aria-labelledby="compare-h" className="flex flex-col gap-4">
         <h2 id="compare-h" className="text-2xl font-semibold">Compare plans</h2>

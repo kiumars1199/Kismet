@@ -40,6 +40,22 @@ test("S7 sign up → upgrade with Stripe → Pro unlocks live data and exact num
   expect(free.rows[0].side.ranges).toBeDefined();
   expect((await (await page.request.get("/api/me")).json()).tier).toBe("free");
 
+  // T-291 #11: Free Best bets end in the "N more bets on Pro" panel: it closes on Esc and with its close button,
+  // focus goes to the button that brings it back, and back to Close when it reopens.
+  await page.goto("/");
+  const panel = page.getByTestId("locked-bets");
+  await panel.scrollIntoViewIfNeeded();
+  await expect(panel.getByRole("link", { name: /^Unlock all/ })).toBeVisible();
+  await expect(async () => {   // hydration: Esc is handled once the page is interactive
+    await page.keyboard.press("Escape");
+    await expect(page.getByTestId("locked-reopen")).toBeVisible({ timeout: 1_000 });
+  }).toPass({ timeout: 30_000 });
+  await expect(page.getByTestId("locked-reopen")).toBeFocused();
+  await page.getByTestId("locked-reopen").click();
+  await expect(page.getByTestId("locked-close")).toBeFocused();
+  await page.getByTestId("locked-close").click();
+  await expect(page.getByTestId("locked-reopen")).toBeFocused();
+
   await page.goto("/pricing");
   await page.getByTestId("checkout-pro").click();
   await expect(page).toHaveURL(/\/account\?checkout=success/, { timeout: 45_000 });   // checkout → mock Stripe → signed webhooks
@@ -97,7 +113,9 @@ test("keyboard only: search → drawer → save → upgrade reaches /pricing", a
   await page.keyboard.press("Enter");   // search → results
   await expect.poll(() => new URL(page.url()).searchParams.get("q")).toBe(q);
   const card = page.locator('main a[href*="m="]').first();
-  await expect(card).toBeVisible();
+  // T-291 #11: the results replace a loading state (the old list no longer stays up meanwhile), and on next dev the
+  // first search request compiles the route, so wait for the real results rather than 5 s.
+  await expect(card).toBeVisible({ timeout: 30_000 });
   await tabTo(card);
   await page.keyboard.press("Enter");   // card → drawer
 
