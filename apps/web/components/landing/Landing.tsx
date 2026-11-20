@@ -9,7 +9,7 @@ import { BetCard } from "@/components/market/BetCard";
 import { Faq, Plans } from "@/components/pricing/Plans";
 import { freeView } from "@/lib/data/gate";
 import { listBody } from "@/lib/data/respond";
-import { getStoreFor } from "@/lib/data/store";
+import { topOrStore } from "@/lib/data/top";
 import { bestBetsQuery } from "@/lib/data/counts";
 import { bannedHits } from "@/lib/banned";
 import { behindWords } from "@/lib/format";
@@ -54,7 +54,7 @@ export function landingBets(rows: ApiRow[], n = LANDING_HERO + LANDING_MORE): Ap
 async function bets(): Promise<ApiRow[]> {
   try {
     // A signed-out visitor is Free: the same delayed store, Best bets query, daily sample and gate as a Free account.
-    const store = freeView(await getStoreFor("free"));
+    const store = freeView(await topOrStore("free"));   // T-295: top.json when it can serve Free, else the full store
     const page = await listBody(store, bestBetsQuery({ page_size: FREE_BEST_BETS_A_DAY }), "free", LANDING_SAMPLE);
     return page ? landingBets(page.rows as ApiRow[]) : [];
   } catch {

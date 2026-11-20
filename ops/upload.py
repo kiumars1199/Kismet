@@ -5,6 +5,10 @@ under the same object names (T-277; readers sniff the gzip magic bytes, so plain
 
 Runs the docs/12 data checks first (scanned_at must be newer than the copy in the bucket).
 Any failure uploads nothing, so the web app keeps serving the previous scan. Exit 1 on failure.
+
+After a good upload (T-295) it asks the site to regenerate its prerendered pages (POST /api/revalidate) and requests
+each one once so the edge cache holds the new scan. Optional, log-only, never changes the exit code:
+    REVALIDATE_URL (or SITE_URL + /api/revalidate)   REVALIDATE_SECRET (or CRON_SECRET)
 """
 import glob
 import gzip
@@ -74,6 +78,9 @@ class Storage:
 # scan that is old enough. Two copies (RT3-03): at a 10-minute cadence the replaced scan is only ~10 min old.
 # Same shift as engine scan_keeping_prev and refresh.yml.
 DELAYED = ("markets.json", "flags.json")
+# T-295: the precomputed files (engine/precompute.py) rotate with them, so Free's top.json is as old as its markets.
+# A bucket from before T-295 has no top.json / counts.json yet: their copies may 404.
+PRECOMPUTED = ("top.json", "counts.json")
 # At a fast scan cadence (ops/scheduler.py, SCAN_EVERY_SEC=120) two copies taken every scan would be only 2 and 4
 # minutes old, and Free would get nothing. So the scheduler sets ROTATE_MIN_SEC (15 min minus the cadence): the live
 # scan only becomes *-prev.json once it is that much newer than the current *-prev.json, which keeps *-prev2.json at
@@ -113,13 +120,15 @@ def publish(out_dir, storage, log=print, rotate_min_sec=None):
         return False
     gap = ROTATE_MIN_SEC if rotate_min_sec is None else rotate_min_sec
     if prev is not None and _rotate(storage, prev_at, gap, log):
-        for name in DELAYED:
+        for name in DELAYED + PRECOMPUTED:
             if storage.copy(prev_name(name), prev2_name(name), missing_ok=True):
                 log(f"kept {prev_name(name)} as {prev2_name(name)}")
-            storage.copy(name, prev_name(name))
-            log(f"kept {name} as {prev_name(name)}")
+            if storage.copy(name, prev_name(name), missing_ok=name in PRECOMPUTED):
+                log(f"kept {name} as {prev_name(name)}")
     files = sorted(glob.glob(os.path.join(out_dir, "*.json")) + glob.glob(os.path.join(out_dir, "*.jsonl")))
-    files = [p for p in files if not p.endswith("-prev.json")]
+    # Local *-prev / *-prev2 copies (engine scan_keeping_prev rotates every scan) are never uploaded: the bucket's own
+    # copies, rotated above, are the ones kept far enough apart for the Free delay (T-295: -prev2 was uploaded before).
+    files = [p for p in files if not p.endswith(("-prev.json", "-prev2.json"))]
     # flags.json last: it carries the scanned_at that the next run compares against.
     files.sort(key=lambda p: os.path.basename(p) == "flags.json")
     for p in files:
@@ -129,8 +138,45 @@ def publish(out_dir, storage, log=print, rotate_min_sec=None):
     return True
 
 
+# Mirrors apps/web lib/static-routes.ts STATIC_PAGES (ops/tests/test_ops.py checks they match).
+STATIC_PAGES = ("/", "/pricing", "/about", "/track-record", "/terms", "/privacy", "/refunds", "/disclaimer", "/contact")
+
+
+def revalidate(env=None, http=None, log=print):
+    """T-295: POST /api/revalidate so the prerendered pages show this scan, then GET each once to refill the edge
+    cache. Skipped when no URL or secret is set; any failure is logged and ignored (the pages still regenerate within
+    their 300 s window). Returns True when the site accepted the call."""
+    env = os.environ if env is None else env
+    url = env.get("REVALIDATE_URL") or (env.get("SITE_URL") and env["SITE_URL"].rstrip("/") + "/api/revalidate")
+    secret = env.get("REVALIDATE_SECRET") or env.get("CRON_SECRET")
+    if not url or not secret:
+        log("revalidate skipped: REVALIDATE_URL (or SITE_URL) and REVALIDATE_SECRET (or CRON_SECRET) not both set")
+        return False
+    http = http or requests.Session()
+    try:
+        r = http.post(url, headers={"Authorization": f"Bearer {secret}"}, timeout=30)
+        if r.status_code != 200:
+            log(f"revalidate failed: HTTP {r.status_code}")
+            return False
+    except requests.RequestException as e:
+        log(f"revalidate failed: {type(e).__name__}")
+        return False
+    base = url.rsplit("/api/", 1)[0]
+    warm = 0
+    for path in STATIC_PAGES:
+        try:
+            warm += http.get(base + path, timeout=30).status_code == 200
+        except requests.RequestException:
+            pass
+    log(f"revalidated {len(STATIC_PAGES)} pages, warmed {warm}")
+    return True
+
+
 def main(argv=None):
     argv = sys.argv[1:] if argv is None else argv
+    if argv[:1] == ["--revalidate-only"]:  # refresh.yml without a bucket: the live branch was just published
+        revalidate()
+        return 0
     url = os.environ.get("SUPABASE_URL") or os.environ.get("NEXT_PUBLIC_SUPABASE_URL")
     key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
     if not url or not key:
@@ -141,6 +187,8 @@ def main(argv=None):
     except (requests.RequestException, OSError, json.JSONDecodeError) as e:
         print(f"upload failed: {type(e).__name__}: {e}", file=sys.stderr)
         return 1
+    if ok:
+        revalidate()
     return 0 if ok else 1
 
 

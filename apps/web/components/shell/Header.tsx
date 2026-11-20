@@ -6,9 +6,8 @@ import { BETA_LINKS, MAIN_TABS, SALES_TABS, isActive } from "./nav";
 import { useMe } from "@/lib/me";
 import { BetaBadge } from "@/components/beta/BetaBadge";
 import { useEntitlements } from "@/lib/entitlements";
-import { SearchCombobox } from "@/components/search/SearchCombobox";
+import dynamic from "next/dynamic";
 import { FreshnessPill } from "@/components/header/FreshnessPill";
-import { Bell } from "@/components/header/Bell";
 import { AccountLink } from "@/components/auth/AccountLink";
 
 export function Logo() {
@@ -24,6 +23,19 @@ export function Logo() {
   );
 }
 
+// T-295: own chunks, loaded only where they render (never on the signed-out pages: the landing stays light).
+// ssr: false, because a server-rendered next/dynamic adds a <link rel=preload> without the CSP nonce, which
+// 'strict-dynamic' blocks (a console violation on every signed-in page). The placeholders are the same size as the
+// real thing (the search box's own Suspense fallback; the bell's 44 px button), so the header does not move.
+const SearchCombobox = dynamic(() => import("@/components/search/SearchCombobox").then((m) => m.SearchCombobox), {
+  ssr: false,
+  loading: () => <div className="h-[42px] w-full max-w-[340px] rounded-input border border-border bg-input" />,
+});
+const Bell = dynamic(() => import("@/components/header/Bell").then((m) => m.Bell), {
+  ssr: false,
+  loading: () => <div aria-hidden="true" className="size-11" />,
+});
+
 const navItem = (active: boolean) =>
   `relative flex min-h-9 items-center gap-1.5 whitespace-nowrap rounded-input px-3 text-sm transition-colors ${active
     ? "bg-nav-active font-medium text-text"
@@ -31,12 +43,13 @@ const navItem = (active: boolean) =>
 
 // P7: one row from lg up, sticky there (persistent nav, clear current page: filled tab + aria-current); phones keep
 // the bottom tab bar (MobileNav) and a non-sticky top row so the list gets the height.
-export function Header() {
+export function Header({ signedOutHint = false }: { signedOutHint?: boolean }) {
   const pathname = usePathname();
   const { canBeta } = useEntitlements();
   const me = useMe();
   // T-276: signed out, the app tabs, search and alerts all lead to the sign-up wall, so show the sales pages.
-  const signedOut = !!me?.auth && !me.user;
+  // Until /api/me answers, the layout's hint (accounts on, no session cookie: T-295) decides.
+  const signedOut = me ? !!me.auth && !me.user : signedOutHint;
   const tabs = signedOut ? SALES_TABS : MAIN_TABS;
   return (
     <header className="flex flex-wrap items-center gap-x-6 gap-y-3 border-b border-border bg-background px-4 py-3 md:px-8 lg:sticky lg:top-0 lg:z-30 lg:h-16 lg:flex-nowrap lg:py-0">
@@ -62,7 +75,7 @@ export function Header() {
         {!signedOut && <SearchCombobox />}
         {signedOut ? <span className="contents max-sm:hidden"><FreshnessPill /></span> : <FreshnessPill />}
         {!signedOut && <Bell />}
-        <AccountLink />
+        <AccountLink signedOutHint={signedOutHint} />
       </div>
     </header>
   );

@@ -1,9 +1,10 @@
 import argparse
 import json
+import os
 import sys
 import time
 
-from . import backtest, config, dataset, scan, update
+from . import backtest, config, dataset, precompute, scan, update
 from .model import Model
 
 
@@ -35,7 +36,7 @@ def run_backtest(cfg, log=print):
     log(f"chosen half-life: {bt['chosen_half_life_days']}")
 
 
-DELAYED = ("markets.json", "flags.json")
+DELAYED = ("markets.json", "flags.json") + precompute.FILES  # T-295: top.json / counts.json rotate with the scan
 
 
 def scan_keeping_prev(cfg, run=None):
@@ -53,6 +54,7 @@ def scan_keeping_prev(cfg, run=None):
             except FileNotFoundError:
                 pass
     (run or scan.run)(cfg)  # a failed scan raises: nothing rotated, the old files stay as they were
+    precompute.write(os.path.dirname(cfg.path("output", "flags.json")))  # T-295: top.json, top-<category>.json, counts.json
     for src, data in old.items():
         with open(cfg.path("output", src.replace(".json", "-prev.json").replace("-prev-prev", "-prev2")), "wb") as f:
             f.write(data)

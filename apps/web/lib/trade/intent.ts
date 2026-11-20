@@ -4,7 +4,7 @@ import "@/lib/zod-jitless";
 import { z } from "zod";
 
 export const KALSHI_RISK_URL = "https://kalshi.com/regulatory";
-export const kalshiMarketUrl = (ticker: string) => `https://kalshi.com/markets/${encodeURIComponent(ticker.toLowerCase())}`;
+export { kalshiMarketUrl } from "./urls";
 
 export const Ticker = z.string().regex(/^[A-Z0-9][A-Z0-9._-]{1,99}$/i, "Bad market ticker");
 export const OrderIntent = z.object({

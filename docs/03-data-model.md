@@ -178,6 +178,35 @@ Also top-level `tested_bets` (every bet scored out of sample across all folds) a
 A zod schema mirrors these types; the data layer validates `meta` and a 1% sample of rows on load
 and logs (does not crash) on mismatch.
 
+### Precomputed files: `top.json`, `top-<category>.json`, `counts.json` (T-295, docs/OVERHAUL.md §C)
+Written by `engine/precompute.py` after every scan, next to `markets.json` (additive; the full files stay the source of
+truth). `scan_keeping_prev`, `ops/upload.py` and `refresh.yml` keep `top-prev.json` / `top-prev2.json` and
+`counts-prev.json` / `counts-prev2.json` like `flags.json`, so the Free delay holds on these too. The web reads them
+first for the landing page and /about (`apps/web/lib/data/top.ts`) and falls back to `markets.json` + `flags.json` when
+a file is missing, unreadable, or its scan is over an hour old (an older publisher that doesn't write them).
+
+- `top.json`: the Best bets list at scan time: `flags.json` rows with tier `best`, price check `worth it` or `thin`,
+  best side `win_prob >= 0.4`, `closes_at > scanned_at`; sorted by `best.roi_pct` desc, then `closes_at` asc, then `id`.
+  Rows are ApiRow-shaped with exact numbers (the server gates them for Free exactly as for the full store, and re-runs
+  the page's own query on them, so the file only needs to be a superset of what a Best bets view built from it shows).
+- `top-<category>.json`: the same rows for one category; written only for categories with rows (not rotated).
+- `counts.json`: counts at scan time. Pages that list bets count from `top.json` rows at the request clock instead
+  (`lib/data/counts.ts`), so one page never mixes the two.
+
+```ts
+export interface TopRow { market: Flag; side: Side }   // side = market.best
+export interface TopQuery { view: "flags"; tier: "best"; verdicts: Verdict[]; win_prob_min: number; sort: "roi desc"; category?: Category }
+export interface TopFile { meta: ScanMeta; query: TopQuery; total: number; rows: TopRow[] }
+export interface CountsFile {
+  scanned_at: number; markets_scanned: number;
+  meta: ScanMeta;                                       // flags.json meta (rule, instance, verdicts): /track-record reads the rule
+  flags: number;                                        // flags.json rows, both tiers
+  tiers: Record<FlagTier, number>;
+  verdicts: Partial<Record<Verdict, number>>;
+  best_bets: { total: number; sections: Record<"worth it" | "thin", number>; by_category: Partial<Record<Category, number>> };
+}
+```
+
 ### `kalshi.json` (optional; only when `KALSHI_DATA_PERMISSION=true`, docs/16 §2, docs/18 §5)
 Written by the scan step (`pipeline/fetch_kalshi.py`) from Kalshi's public market-data API. Missing file = feature off.
 Every row is Kalshi's data and is shown with a "Kalshi" credit and a link to kalshi.com. Prices are whole cents

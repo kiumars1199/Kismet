@@ -4,8 +4,10 @@
 import type { Store } from "@/lib/data/store";
 import { parse, toFilterState, type Chip, type ParsedQuery } from "@/lib/search/parse";
 import { TAXONOMY, topicsOf } from "@/lib/taxonomy";
-import type { Execution, PaysBand, Side, StoreMarket } from "@/lib/types";
+import type { Execution, Side, StoreMarket } from "@/lib/types";
 import { tierOf, type FilterState, type SortKey } from "./state";
+import { PAYS_BANDS, band, paysBand } from "./bands";
+export { PAYS_BANDS, paysBand };   // T-295: moved to ./bands (light, for the bet cards)
 
 export const GROUP_ROWS = 4;
 export interface UserCtx { watchlist: Set<string>; favoriteTopics: string[] }
@@ -28,19 +30,12 @@ export interface Facets {
   closes_h: number[];       // rows by whole hours to close: [i] = ceil(hours) == i (0..168), [169] = later
 }
 
-/** docs/18 §3 payout bands: [key, label, min, max]. */
-export const PAYS_BANDS: [string, string, number, number][] = [
-  ["<1.5x", "Under 1.5x", 1, 1.5], ["1.5-2x", "1.5–2x", 1.5, 2], ["2-3x", "2–3x", 2, 3],
-  ["3-5x", "3–5x", 3, 5], ["5-10x", "5–10x", 5, 10], ["10x+", "10x+", 10, Infinity],
-];
 /** docs/13 §2 chance choices: [key, label, min, max]. */
 export const CHANCE_BANDS: [string, string, number, number][] = [
   ["likely", "Likely (80%+)", 0.8, 1], ["leans", "Leans your way (55–80%)", 0.55, 0.8],
   ["coin", "Coin flip (40–55%)", 0.4, 0.55], ["long", "Long shot (under 40%)", 0, 0.4],
 ];
-const band = (bands: [string, string, number, number][], x: number) => bands.find(([, , lo, hi]) => x >= lo && x < hi)?.[0] ?? (x >= 1 ? bands[0]![0] : undefined);
 /** backtest.json by_pays key for a side: ask 0.10 → "10x+". */
-export const paysBand = (s: Pick<Side, "ask">) => (s.ask > 0 ? (band(PAYS_BANDS, 1 / s.ask) as PaysBand | undefined) : undefined);
 export interface Page {
   total: number;            // matching rows
   total_groups?: number;    // matching event groups (when grouped)

@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run && pnpm test:ops",
     "check:bundle": "node scripts/check-bundle.mjs",
+    "check:js": "node scripts/perf/landing-js.mjs --route / --budget-kb 150",
     "e2e": "playwright test && playwright test -c playwright.paid.config.ts",
     "test:ops": "node --test \"../../ops/tests/*.test.mjs\"",
     "preflight": "node ../../ops/preflight.mjs"

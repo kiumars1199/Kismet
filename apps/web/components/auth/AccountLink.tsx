@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { useMe } from "@/lib/me";
 
-export function AccountLink() {
+// signedOutHint (T-295): accounts on and no session cookie, so the buttons render with the page instead of popping in
+// when /api/me answers (that moved the whole page down: CLS on every prerendered page).
+export function AccountLink({ signedOutHint = false }: { signedOutHint?: boolean }) {
   const me = useMe();
-  if (!me?.auth) return null;
-  return me.user
+  if (!me ? !signedOutHint : !me.auth) return null;
+  return me?.user
     ? (
       <>
         {me.admin && <Link href="/admin" className="hidden min-h-11 sm:flex items-center rounded-input px-3 text-sm text-muted hover:text-text">Admin</Link>}

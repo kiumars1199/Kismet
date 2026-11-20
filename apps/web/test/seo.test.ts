@@ -20,7 +20,7 @@ describe("robots.txt and sitemap.xml (T-76)", () => {
   });
   it("lists every static public page in app/ (audit fail 10)", () => {
     const disallow = [rules.find((r) => r.userAgent === "*")!.disallow ?? []].flat();
-    const NOT_FOR_SEARCH = ["/maintenance", "/ext/connect", "/e2e-mock"];   // noindex, extension handshake, test mock
+    const NOT_FOR_SEARCH = ["/maintenance", "/ext/connect", "/e2e-mock", "/signed-in"];   // noindex, extension handshake, test mock, T-295 rewrite targets (404 direct)
     const app = path.resolve(import.meta.dirname, "../app");
     const pages = (readdirSync(app, { recursive: true }) as string[])
       .filter((f) => /(^|\/)page\.tsx$/.test(f) && !f.includes("["))

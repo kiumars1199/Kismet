@@ -3,7 +3,7 @@
 // Fetches /api/meta itself (mounted in the header with no props); renders nothing until it knows.
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { fetchMeta } from "@/lib/api";
+import { fetchMeta } from "@/lib/api-core";   // not @/lib/api: zod on every page (T-295)
 import { ago, behindWords } from "@/lib/format";
 import { REFRESH_WORDS, freshness } from "@/lib/freshness";
 
