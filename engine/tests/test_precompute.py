@@ -73,3 +73,20 @@ def test_scan_rotates_top_and_counts(tmp_path):
     at = lambda n: json.load(open(os.path.join(d, n)))["meta"]["scanned_at"]  # noqa: E731
     assert (at("top.json"), at("top-prev.json"), at("top-prev2.json")) == (300, 200, 100)
     assert json.load(open(os.path.join(d, "counts-prev.json")))["scanned_at"] == 200
+
+
+def test_counts_use_the_us_set_when_the_scan_priced_us():
+    """§G2: with meta.us.ok the one Best bets count is the "On Polymarket US" set; top.json stays the full list."""
+    from engine import precompute
+    base = dict(tier="best", execution=dict(verdict="worth it"), closes_at=200, category="sports")
+    flags = [dict(base, id="a", best=dict(win_prob=0.8, roi_pct=5), us=dict(ask=0.7, edge=0.05, roi_pct=9)),
+             dict(base, id="b", best=dict(win_prob=0.8, roi_pct=8), us=dict(ask=0.7, edge=0.01, roi_pct=1)),
+             dict(base, id="c", best=dict(win_prob=0.8, roi_pct=7), us=None)]
+    ff = dict(meta=dict(scanned_at=100, rule=dict(min_edge=0.02), us=dict(ok=True)), flags=flags)
+    rows = precompute.top_rows(ff)
+    assert [r["market"]["id"] for r in rows] == ["a", "c", "b"]   # US return ranks US rows (a 9 > c 7 > b 1)
+    assert precompute.counts(ff, rows)["best_bets"]["total"] == 1
+    ff["meta"]["us"]["ok"] = False
+    rows = precompute.top_rows(ff)
+    assert [r["market"]["id"] for r in rows] == ["b", "c", "a"]
+    assert precompute.counts(ff, rows)["best_bets"]["total"] == 3

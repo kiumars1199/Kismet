@@ -53,9 +53,13 @@ describe("API contract (fixture store)", () => {
   });
 
   it("/api/flags forces the flags view", async () => {
-    const b = await json<MarketsResponse>(flags(req("/api/flags?view=markets&g=0")));
+    const b = await json<MarketsResponse>(flags(req("/api/flags?view=markets&g=0&us=0")));
     expect(b.total).toBe(150);
     expect(b.rows.every((r) => r.market.execution)).toBe(true);
+    // T-302: "On Polymarket US" is on unless us=0: only bets placeable on Polymarket US above min_edge
+    const us = await json<MarketsResponse>(flags(req("/api/flags?view=markets&g=0")));
+    expect(us.total).toBe(34);
+    expect(us.rows.every((r) => r.market.us?.ask != null && r.market.us.edge! >= 0.02)).toBe(true);
   });
 
   it("/api/markets/[id] returns market, curve, backtest record and event siblings", async () => {

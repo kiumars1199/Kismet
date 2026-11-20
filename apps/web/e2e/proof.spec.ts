@@ -15,10 +15,13 @@ for (const path of ["/track-record", "/about", "/pricing"]) {
   });
 }
 
-test("Best bets: the 'avg return in testing' tile has the live record beside it", async ({ page }) => {
+// T-302: Best bets has no stat tiles now (plain page, docs/OVERHAUL.md §B); the test return never shows there without
+// the live record, and the page links to the full record.
+test("Best bets: no test return without its live record; one link to the track record", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByText("avg return in testing")).toBeVisible();
-  await expect(page.getByTestId("tiles-live")).toContainText(/^Live/);
+  await expect(page.getByText("avg return in testing")).toHaveCount(0);
+  await page.getByRole("link", { name: "See how we track results" }).click();
+  await expect(page).toHaveURL(/\/track-record$/);
 });
 
 test("drawer: the category's test record has its live record beside it", async ({ page }) => {
@@ -30,9 +33,9 @@ test("drawer: the category's test record has its live record beside it", async (
 });
 
 test("group records with no live counterpart say so: lower-confidence band and combos", async ({ page }) => {
-  await page.goto("/");
-  await page.getByRole("group", { name: "Payout" }).getByRole("button", { name: "Pays 10x+" }).click();
-  const card = page.locator("[data-tier=edge]").filter({ hasText: "Will Harbor City win the 2026 Island Cup?" }).first();
+  await page.goto("/?x0=10&us=0");
+  const card = page.locator("[data-tier=edge]").filter({ hasText: "Harbor City" }).first();
+  await card.getByText("Why this bet?").click();
   await expect(card.getByTestId("band-record")).toBeVisible();
   await expect(card.getByTestId("band-live")).toHaveAttribute("title", "No live record for lower-confidence bets yet: the live record tracks single best bets only.");
   await page.goto("/combos");

@@ -20,6 +20,7 @@ const { rangeSide } = await import("@/lib/data/gate");
 const { getStore } = await import("@/lib/data/store");
 const { sideLines } = await import("@/lib/mcp/server");
 const { BetCard } = await import("@/components/market/BetCard");
+const { backLine, cardVenue, stars, winsInTen, winsLine } = await import("@/lib/card");
 const { MarketCard } = await import("@/components/market/MarketCard");
 const { MarketDetail } = await import("@/components/market/MarketDetail");
 
@@ -105,6 +106,9 @@ describe("on the fixture scan", async () => {
   });
 });
 
+// T-302: the Best bets card is plain-language (docs/OVERHAUL.md §B): it prints "Wins about N in 10", "$10 wins $X" and
+// stars, and its "Why this bet?" carries the return the drawer headlines. Its own figures are checked against
+// lib/card.ts; the compact card, the drawer and the MCP text keep the T-289 figures.
 describe("card, compact card, drawer and MCP print the same figures", async () => {
   const store = await getStore();
   const flags = store.flags.filter((m) => m.best.realistic_edge != null).slice(0, 3);
@@ -125,7 +129,6 @@ describe("card, compact card, drawer and MCP print the same figures", async () =
       const r: ApiRow = { market: m, side: s } as ApiRow;
       const body: MarketResponse = { market: m, segment: "", curve: null, backtest: null, event_markets: [] };
       const out = {
-        card: text(renderToStaticMarkup(createElement(BetCard, { r }))),
         compact: text(renderToStaticMarkup(createElement(MarketCard, { r }))),
         drawer: text(renderToStaticMarkup(createElement(MarketDetail, { id: m.id, side: s.side_index, initial: body }))),
         mcp: sideLines(m, s, Date.now()).join("\n"),
@@ -143,6 +146,19 @@ describe("card, compact card, drawer and MCP print the same figures", async () =
         }
       }
       expect(out.mcp).toContain(f.feeLine);
+
+      const card = text(renderToStaticMarkup(createElement(BetCard, { r })));
+      const v = cardVenue(m, s);
+      expect(card, "card wins").toContain(`Wins ${winsInTen(s.win_prob)}`);
+      if (winsLine(v)) expect(card, "card $10").toContain(winsLine(v)!);
+      if (backLine(v)) expect(card, "why back").toContain(backLine(v)!);
+      if (v.kind !== "us") expect(card, "card return").toContain(f.ret.text);
+      const st = stars({ roi_pct: v.roi_pct, model_neff: s.model_neff });
+      expect(card, "card stars").toContain(st ? st.label : "No value at today's price");
+      if (!edgeAbove0(s)) {
+        expect(card, "card stars on a losing side").not.toMatch(/Great value|Good value/);
+        expect(card, "card record").not.toContain("Strong record");
+      }
       // the model's own estimate appears once, labelled, in "Details for pros"; never as a second headline or side figure
       const model = sideRet(s);
       if (model !== f.ret.text) expect(out.drawer.split(model).length - 1, "model estimate shown once").toBe(1);

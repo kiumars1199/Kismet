@@ -7,7 +7,8 @@ import { FilterState, type FilterInput } from "@/lib/filters/state";
 import { parse, serialize } from "@/lib/filters/url";
 
 const LONG_SHOT = "9900010";   // fixture: 10¢, our chance 14%, edge +4 pts, tier "edge"
-const run = async (f: FilterInput) => apply(await getStore(), FilterState.parse({ view: "flags", group_by_event: false, page_size: 200, ...f }));
+// us: false: these check tiers and pay bands over every flag; the fixture's edge-tier bets carry no Polymarket US quote
+const run = async (f: FilterInput) => apply(await getStore(), FilterState.parse({ view: "flags", us: false, group_by_event: false, page_size: 200, ...f }));
 const ids = (p: Awaited<ReturnType<typeof run>>) => p.rows.map((r) => r.market.id);
 
 describe("suggested combos", () => {

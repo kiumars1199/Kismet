@@ -38,15 +38,35 @@ def on_list(r, now):
             and _num(r.get("closes_at")) and r["closes_at"] > now)
 
 
-def _order(r):
+def us_active(meta):
+    """Mirrors apps/web lib/filters/us.ts usActive: the "On Polymarket US" default bites only when the scan priced US."""
+    return (meta.get("us") or {}).get("ok") is True
+
+
+def on_us(r, min_edge):
+    """Mirrors lib/filters/us.ts onUs: listed on Polymarket US, priced, edge after the US fee >= min_edge (§G2)."""
+    us = r.get("us") or {}
+    return _num(us.get("ask")) and _num(us.get("edge")) and us["edge"] >= min_edge
+
+
+def _order(r, us=False):
     roi = r["best"].get("roi_pct")
+    if us and _num((r.get("us") or {}).get("roi_pct")):
+        roi = r["us"]["roi_pct"]   # lib/filters/apply.ts comparator: rank by the US return when the US filter is on
     return (-(roi if _num(roi) else float("-inf")), r.get("closes_at") or 0, str(r.get("id")))
 
 
+def _min_edge(meta):
+    return (meta.get("rule") or {}).get("min_edge") or 0
+
+
 def top_rows(flags_file):
+    """Every row on the international Best bets list (a superset: the web applies the US filter itself, and Free
+    falls back to the whole list when the US set is short). Ordered as the page orders them."""
     meta = flags_file.get("meta") or {}
     now = meta.get("scanned_at") or 0
-    rows = sorted((r for r in flags_file.get("flags") or [] if on_list(r, now)), key=_order)
+    us = us_active(meta)
+    rows = sorted((r for r in flags_file.get("flags") or [] if on_list(r, now)), key=lambda r: _order(r, us))
     return [{"market": r, "side": r["best"]} for r in rows]
 
 
@@ -62,6 +82,8 @@ def counts(flags_file, rows, markets_meta=None):
     flags = flags_file.get("flags") or []
     sections = {v: 0 for v in BEST_BETS_VERDICTS}
     by_cat = {}
+    if us_active(meta):   # the one Best bets count is the "On Polymarket US" set (lib/data/counts.ts bestBetsRows)
+        rows = [row for row in rows if on_us(row["market"], _min_edge(meta))]
     for row in rows:
         m = row["market"]
         sections[m["execution"]["verdict"]] += 1

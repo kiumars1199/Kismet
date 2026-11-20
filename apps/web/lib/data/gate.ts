@@ -5,7 +5,7 @@ import type { MarketsResponse } from "@/lib/api";
 import { can, type Tier } from "@/lib/entitlements";
 import { rowCap } from "@/lib/settings-core";
 import type { CheckResult } from "@/lib/execution";
-import type { Execution, Side, SideRanges, StoreMarket } from "@/lib/types";
+import type { Execution, Side, SideRanges, StoreMarket, UsQuote } from "@/lib/types";
 import type { Store } from "./store";
 
 const ROI = [0, 5, 10, 20, 50];           // % bands: <0, 0–5, 5–10, 10–20, 20–50, 50+
@@ -36,6 +36,15 @@ export function rangeSide(s: Side): Side {
   };
 }
 
+/** Free US quote: edge and return as their band's low end; null (listed, no live book) stays null. */
+export function usBanded(q: UsQuote): UsQuote {
+  return {
+    ...q,
+    edge: q.edge == null ? null : low(band(q.edge, EDGE), -0.01),
+    roi_pct: q.roi_pct == null ? null : low(band(q.roi_pct, ROI), -1),
+  };
+}
+
 /** Free price check: verdict and the first share only (no stake table, capacity or limit price). */
 export function freeExecution<X extends CheckResult>(x: X): X {
   if (!("net_edge" in x)) return x;   // no sellers: nothing to hide
@@ -56,8 +65,9 @@ export function gateMarket<M extends StoreMarket>(m: M, tier: Tier): M {
     sides: m.sides.map((s) => (s.side_index === m.best.side_index ? best : rangeSide(s))),
     best,
     ...(m.execution ? { execution: freeExecution(m.execution) } : {}),
-    // Polymarket US quote: where to bet and its price stay; the exact US edge and return are Pro numbers
-    ...(m.us ? { us: { ...m.us, edge: null, roi_pct: null } } : {}),
+    // Polymarket US quote: where to bet and its price stay; the US edge and return are banded like the side's
+    // (T-302), so Free's "On Polymarket US" set, count and star rating match Pro's (min_edge is a band cut)
+    ...(m.us ? { us: usBanded(m.us) } : {}),
   };
 }
 

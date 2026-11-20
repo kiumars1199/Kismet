@@ -2,36 +2,20 @@
 // and building a 2-leg combo from one event (same-event warning).
 import { expect, test } from "@playwright/test";
 
-const LONG_SHOT = "Will Harbor City win the 2026 Island Cup?";
-
-test("long shot sits in 'More bets with an edge' with Lower confidence and its losing band record", async ({ page }) => {
+// T-302: Best bets no longer has "Big payouts" / "More bets with an edge" rows or Pays chips (one chip row, docs/OVERHAUL.md
+// §B). The long shot is lower confidence and not on Polymarket US, so it shows only with a payout filter (which widens
+// to both tiers, tierOf) and international bets included; its record sits inside "Why this bet?".
+test("long shot: a 10x+ payout filter with international bets brings it in, with its losing band record", async ({ page }) => {
   await page.goto("/");
-  const section = page.getByTestId("more-edge");
-  // P6: the rows below the fold load when scrolled near (no protected fetch on a plain page load)
-  await expect(async () => {
-    await page.mouse.wheel(0, 1500);
-    await expect(section.getByRole("heading", { name: /More bets with an edge/ })).toBeVisible({ timeout: 500 });
-  }).toPass({ timeout: 15_000 });
-  await expect(page.getByTestId("big-payouts")).toBeVisible();
-  const card = section.locator("[data-tier=edge]").filter({ hasText: LONG_SHOT });
+  await expect(page.locator("main [data-tier=edge]").filter({ hasText: "Harbor City" })).toHaveCount(0);
+  await page.goto("/?x0=10&us=0");
+  const card = page.locator("article[data-tier=edge]").filter({ hasText: "Harbor City" }).first();
   await expect(card).toBeVisible();
-  await expect(card.getByText("Lower confidence")).toBeVisible();
-  await expect(card.getByTestId("one-bet")).toContainText("Pays 10x");
-  await expect(card.getByTestId("one-bet")).toContainText("wins about 1 in 7");
-  await expect(card.getByText("+4 pts")).toBeVisible();
+  await expect(card).toHaveAttribute("data-venue", "intl-only");
+  await expect(card.getByTestId("card-chance")).toHaveText("Wins about 1 in 10");
+  await card.getByText("Why this bet?").click();
+  await expect(card.getByText(/^Lower:/)).toBeVisible();
   await expect(card.getByTestId("band-record")).toContainText("lost money in testing");
-  // Also in Big payouts (both tiers, 3x+); nowhere else, so not in the main Best bets list.
-  await expect(page.getByTestId("big-payouts").getByText(LONG_SHOT)).toBeVisible();
-  await expect(page.locator("[data-tier=edge]").filter({ hasText: LONG_SHOT })).toHaveCount(2);
-});
-
-test("10x+ chip brings the long shot into the main list", async ({ page }) => {
-  await page.goto("/");
-  await page.getByRole("group", { name: "Payout" }).getByRole("button", { name: "Pays 10x+" }).click();
-  await expect(page).toHaveURL(/[?&]x0=10/);
-  await expect(page.getByRole("group", { name: "Payout" }).getByRole("button", { name: "Pays 10x+" })).toHaveAttribute("aria-pressed", "true");
-  await expect(page.getByTestId("more-edge")).toHaveCount(0);
-  await expect(page.locator("[data-tier=edge]").filter({ hasText: LONG_SHOT }).first()).toBeVisible();
 });
 
 test("drawer: long-shot line under 25% chance", async ({ page }) => {
@@ -67,15 +51,8 @@ test("combo: two legs from one event show the same-event warning", async ({ page
 });
 
 // docs/19 P5: the Combos page browses by payout; every card pays at least the chosen floor.
+// T-302: the Combos row left Best bets (one list for casual bettors); Combos keeps its own page and Beta tags.
 test("combos page: payout tabs, each card pays at least the floor, Build this combo opens the tray", async ({ page }) => {
-  // the Combos row on Best bets (a live page) carries the Beta tag; it loads when scrolled near
-  await page.goto("/");
-  const row = page.getByTestId("suggested-combos");
-  await expect(async () => {
-    await page.mouse.wheel(0, 1500);
-    await expect(row).toBeVisible({ timeout: 1000 });
-  }).toPass({ timeout: 30_000 });
-  await expect(row.getByRole("heading", { name: /Combos/ }).getByTestId("beta-badge")).toBeVisible();
   await page.goto("/combos");
   await page.evaluate(() => localStorage.removeItem("me-combo-v1"));
   await expect(page.getByRole("heading", { level: 1, name: "Combos" })).toBeVisible();

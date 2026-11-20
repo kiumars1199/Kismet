@@ -1,60 +1,43 @@
 // @vitest-environment jsdom
-// docs/19 P3: Free sees the day's sample, then blurred locked cards and one "Unlock all N bets" link to /pricing.
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+// docs/19 P3, T-302: Free sees the day's sample, then one solid card with a lock and "Unlock N more bets" to /pricing.
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("@/lib/telemetry", () => ({ track: vi.fn() }));
+const track = vi.fn();
+vi.mock("@/lib/telemetry", () => ({ track }));
 const { LockedBets } = await import("./LockedBets");
 afterEach(cleanup);
 
 describe("LockedBets", () => {
-  it("links every locked bet to pricing, with the real total and no market rows", () => {
+  it("one link to pricing naming the locked count, with no market rows and no fake cards", () => {
     const { container } = render(<LockedBets total={2778} shown={10} daily={10} desktop />);
-    const link = screen.getByRole("link", { name: "Unlock all 2.7K bets" });
+    const link = screen.getByRole("link", { name: "Unlock 2.7K more bets" });
     expect(link.getAttribute("href")).toBe("/pricing");
-    expect(screen.getByRole("heading").textContent).toBe("2.7K more bets on Pro");
-    expect(container.querySelectorAll("[data-row], [data-market-id]")).toHaveLength(0);
-    expect(container.querySelector("ul")!.getAttribute("aria-hidden")).toBe("true");
-    expect(container.querySelectorAll("ul > li")).toHaveLength(8);
+    expect(container.querySelectorAll("[data-row], [data-market-id], ul, [inert]")).toHaveLength(0);
+    expect(container.innerHTML).not.toMatch(/blur|gradient/);
+    fireEvent.click(link);
+    expect(track).toHaveBeenCalledWith("upgrade_clicked", { source: "locked_bets" });
   });
 
   it("renders nothing when every bet is already shown", () => {
-    const { container } = render(<LockedBets total={10} shown={10} daily={10} desktop={false} />);
+    const { container } = render(<LockedBets total={10} shown={10} daily={10} />);
     expect(container.innerHTML).toBe("");
   });
 
-  // T-291 #11: the panel over the cards closes (button or Esc) and comes back; focus follows it
-  it("closes with the close button, focus moves to the button that brings it back, and back again", () => {
-    render(<LockedBets total={50} shown={10} daily={10} desktop />);
-    const close = screen.getByRole("button", { name: "Close" });
-    fireEvent.click(close);
-    expect(screen.queryByRole("link", { name: /Unlock all/ })).toBeNull();
-    const reopen = screen.getByRole("button", { name: "40 more bets on Pro" });
-    expect(document.activeElement).toBe(reopen);
-    expect(reopen.getAttribute("aria-expanded")).toBe("false");
-    fireEvent.click(reopen);
-    expect(screen.getByRole("link", { name: /Unlock all/ })).toBeTruthy();
-    expect(document.activeElement).toBe(screen.getByRole("button", { name: "Close" }));
-  });
-
-  it("closes on Esc, but leaves Esc to an open modal (drawer, dialog)", () => {
-    render(<LockedBets total={50} shown={10} daily={10} desktop />);
-    const modal = document.createElement("div");
-    modal.setAttribute("aria-modal", "true");
-    document.body.appendChild(modal);
-    screen.getByRole("link", { name: /Unlock all/ }).focus();   // jsdom has no layout: Esc applies with focus in the panel
-    act(() => void document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true })));
-    expect(screen.getByRole("button", { name: "Close" })).toBeTruthy();
-    modal.remove();
-    act(() => void document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true })));
-    expect(screen.queryByRole("button", { name: "Close" })).toBeNull();
-    expect(document.activeElement).toBe(screen.getByTestId("locked-reopen"));
+  it("one locked bet reads in the singular", () => {
+    render(<LockedBets total={11} shown={10} daily={10} />);
+    expect(screen.getByRole("link").textContent).toBe("Unlock 1 more bet");
   });
 
   it("T-288: states the daily allowance, never the number of rows on the page", () => {
     const { container } = render(<LockedBets total={1070} shown={4} daily={10} desktop />);
     expect(container.textContent).toContain("Free shows 10 Best bets a day, chosen at random");
-    expect(container.querySelector("h2")!.textContent).toBe("1K more bets on Pro");
+    expect(screen.getByRole("link").textContent).toBe("Unlock 1K more bets");
     expect(container.textContent).not.toMatch(/Free shows 4\b/);
+  });
+
+  it("says when the free bets don't match the filters", () => {
+    const { container } = render(<LockedBets total={30} shown={0} daily={10} />);
+    expect(container.textContent).toContain("Your free bets for today don't match these filters.");
   });
 });

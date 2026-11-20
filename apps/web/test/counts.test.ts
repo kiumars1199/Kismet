@@ -62,7 +62,7 @@ describe("one Best bets count (T-288)", () => {
     expect(s.first.free_daily).toBe(FREE_BEST_BETS_A_DAY);
     expect(s.first.rows).toHaveLength(FREE_BEST_BETS_A_DAY);
     const locked = await html(createElement(LockedBets, { total: s.first.total, shown: s.first.rows.length, daily: s.first.free_daily!, desktop: true }));
-    expect(locked).toContain(`${s.shared - FREE_BEST_BETS_A_DAY} more bets on Pro`);   // under 1,000: formatCount is exact
+    expect(locked).toContain(`Unlock ${s.shared - FREE_BEST_BETS_A_DAY} more bets`);   // under 1,000: formatCount is exact
     expect(locked).toContain(`Free shows ${FREE_BEST_BETS_A_DAY} Best bets a day`);
   });
 
@@ -83,7 +83,7 @@ describe("one Best bets count (T-288)", () => {
       const s = await surfaces("pro");
       expect(s.first.rows.length).toBeLessThan(s.first.page_size);   // live prices really dropped rows
       expect([s.status, s.first.total, s.api.total]).toEqual([s.shared, s.shared, s.shared]);
-      const p2 = (await (await listRoute(new Request(`http://x/api/flags?${serialize(bestBetsQuery({ page: 2 }))}`), "flags")).json()) as MarketsResponse;
+      const p2 = (await (await listRoute(new Request(`http://x/api/flags?${serialize(bestBetsQuery({ page: 2, page_size: 10 }))}`), "flags")).json()) as MarketsResponse;
       expect(p2.total).toBe(s.shared);
     } finally {
       _setReprice(null);
