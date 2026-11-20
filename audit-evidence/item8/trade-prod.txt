@@ -1,0 +1,8 @@
+# trading config on the wired production build (KALSHI_TRADING_ENV=demo, TRADING_ALLOWLIST=audit3-premium@example.com)
+anon: {"enabled":false,"env":"demo","extensionId":"","riskUrl":"https://kalshi.com/regulatory"} HTTP 200
+free (not allowlisted): {"enabled":false,"env":"demo","extensionId":"","riskUrl":"https://kalshi.com/regulatory"} HTTP 200
+premium (not allowlisted): {"enabled":false,"env":"demo","extensionId":"","riskUrl":"https://kalshi.com/regulatory"} HTTP 200
+allowlisted premium: {"enabled":false,"env":"demo","extensionId":"","riskUrl":"https://kalshi.com/regulatory"} HTTP 200
+nonce, foreign Origin: {"error":"Bad origin."} HTTP 403
+nonce, no Origin: {"error":"Bad origin."} HTTP 403
+MCP tool list contains no order tool: 5 registerTool calls; names: registerTool("best_bets" registerTool("search_markets" registerTool("get_market" registerTool("track_record" registerTool("my_list" 

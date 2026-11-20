@@ -1,625 +1,318 @@
-# Audit: OVERNIGHT §3, run 2
+# Audit: OVERNIGHT §3, run 3
 
-Final audit of Kismet, run 2 of this series.
+Final audit of Kismet, run 3.
 
 - **Auditor:** a fresh agent that built none of this code. It changed no product code; it only checked and reported.
-- **Target:** `origin/final` at `cb2f21e` ("T-284: audit run 1 fixes"), checked out as branch `agent/audit2`.
+- **Target:** `final` at `c151ac7` ("Merge branch 'agent/audit2' into final"), checked out as branch `agent/audit3`. That commit includes T-285 (the run 2 fixes) and the MCP server work (T-280 `cdded64`, T-281 `3af67b7`, T-280 `301c83f`).
 - **Date:** 2026-11-20.
-- **Spec:** `docs/OVERNIGHT.md` §3, items 1–11. Also used: `docs/README.md`, `docs/12-test-plan.md`, `docs/15-security.md`, `docs/01-product.md` (Compliance), `CLAUDE.md`.
+- **Spec:** `docs/OVERNIGHT.md` §3, items 1–11. Also used: `docs/README.md`, `docs/12-test-plan.md`, `docs/15-security.md`, `docs/01-product.md` (Compliance), `CLAUDE.md`, and the MCP brief (endpoint, tools, plan gates, robots, "try to break it").
 
 **Verdicts:**
 - **PASS:** checked and met.
-- **FAIL:** not met. Each one gives the file and line.
-- **BLOCKED:** needs something this environment cannot provide (a live Supabase, Stripe, Vercel or Upstash account, or network access to Polymarket). Each one says what would unblock it.
+- **FAIL:** not met. Each one gives file:line, a repro and the evidence.
+- **BLOCKED:** needs something this environment can't provide (a live Supabase, Stripe, Vercel or Upstash account, or network access to Polymarket). Each one says what would unblock it.
 
-When in-repo mocks or unit tests cover a check and only the live part is blocked, the check is PASS for what was tested and BLOCKED for the live remainder. Both parts are listed.
+When a mock or unit test covers a check and only the live part is blocked, the check is PASS for what was tested and BLOCKED for the live part. Both are listed.
 
 ## Setup
 
-**Clean clone.** `$S/clean2` is a `git clone` at `cb2f21e`:
-- a new Python venv (Python 3.13.18; CLAUDE.md says 3.12 and SETUP.md says 3.12+);
-- Node v22.23.5 and pnpm 10.28.0;
-- `pnpm i --frozen-lockfile`.
+- **Clean clone** `$S/clean4`: `git clone` at `c151ac7`, a new Python venv, `pnpm i --frozen-lockfile` for web and extension. Node 22; pnpm 12.21.0 for web (its `packageManager`) and 10.28.0 for the extension (`item1/pnpm_i.txt`, `item1/ext_i.txt`).
+- **Keyless production build** (item 2, the anonymous crawls, Lighthouse, axe): `pnpm build` and `next start -p 3161` under `env -i`, with `DEMO_MODE` off and no keys at all.
+- **Wired production build** `$S/clean5` on `:3161`: a second `pnpm build` with `NODE_ENV=production` and the in-repo Supabase and Stripe mock as the backend (`NEXT_PUBLIC_SUPABASE_URL=http://localhost:3160/e2e-mock/supabase`, fake keys, `KALSHI_TRADING_ENV=demo`, `TRADING_ALLOWLIST=audit3-premium@example.com`, `ADMIN_EMAILS=audit3-admin@example.com`). This is a real production server (rate limiter on, per-instance memory store), so signed-in plans, the MCP server and the limits could be tested on a production build for the first time. The env is in `audit-evidence/setup/wired-env.sh` with the fake key bodies redacted.
+- **E2E mock** on `:3160`: `E2E_MOCK=1 next dev` from the clean clone (`audit-evidence/setup/mock3160.sh`). It stands in for Supabase (auth, REST, and as the OAuth server for MCP tokens) and Stripe.
+- **Seeded users:** created through the mock's magic link, then given a plan by PATCHing `subscriptions` with the mock's service key: Free, Pro, Premium, a beta tester (live comp grant) and the admin. Storage states are not committed (they hold session tokens).
+- **MCP tokens:** the mock accepts any JWT whose `sub` is a known user, so "an OAuth access token" here is a JWT carrying a `client_id` claim, minted by the probe. Real issuance (DCR, PKCE, consent, token, revoke) needs Supabase's OAuth server and is BLOCKED.
+- Ports 3160 and 3161 only. All browser checks use Playwright Chromium. `$S` is the session scratchpad, not committed.
 
-**Production server** on `:3161`:
-- `pnpm build` and then `next start`, run under `env -i`;
-- `DEMO_MODE` unset and no keys at all (env: `NODE_ENV=production DATA_SOURCE=local DATA_CLOCK=scan LIVE_REPRICE=0`);
-- the data is the committed `output/`;
-- the server process timezone is UTC.
-
-**E2E mock server** on `:3160`:
-- `E2E_MOCK=1 next dev`, run from the worktree;
-- the in-repo Supabase and Stripe mock (`app/e2e-mock/[...path]/route.ts`) with the paid-config env (`STRIPE_WEBHOOK_SECRET=whsec_e2e`);
-- `KALSHI_TRADING_ENV=demo`, `TRADING_ALLOWLIST=audit2-premium@example.com`, `ADMIN_EMAILS=audit2-admin@example.com`.
-
-**Seeded users.** `audit2-{free,pro,premium}@example.com` were created through the mock magic link and the mock Stripe checkout (which sends signed webhooks), then saved as Playwright storage states.
-
-**Ports and browser.** Only ports 3160 and 3161 were used. All browser checks used Playwright Chromium.
-
-**Restarts.** The mock keeps its users in memory, and the dev server restarted at least four times:
-- Most restarts were at Next's "approaching the used memory threshold", during long crawls.
-- One was when a background job hit its time limit (`item3/mock-run1-restart.txt`).
-
-Each time, I seeded the users again and re-ran the affected signed-in crawls and axe passes. Only runs whose sessions were confirmed valid are reported. "Valid" means:
-- `/api/me` shows the right email and tier after the run;
-- no page was redirected to `/signup`.
-
-The Premium crawl was finally run alone on a freshly restarted mock.
-
-**Evidence.** Everything is under `audit-evidence/`, with one folder per item. Helper scripts needed to reproduce a result are copied next to their output. `$S` is the session scratchpad, which is not committed.
+**Evidence:** everything is under `audit-evidence/`, replaced wholesale for this run (no run 2 files remain; they are in commit `e1b9740`). Helper scripts sit next to their output. Token-like strings are redacted.
 
 ## Summary
 
 | # | Item | Verdict |
 |---|------|---------|
-| 1 | Tests on a clean clone | PASS |
+| 1 | Tests on a clean clone | PASS (one load flake noted) |
 | 2 | Production build, no keys | PASS |
-| 3 | Every page × every state | **FAIL** (1) |
-| 4 | Quality: Lighthouse, axe, keyboard, reduced motion, design | PASS (observations) |
+| 3 | Every page × every state | **FAIL** (2: 3-b, 3-c). Run 2's 3-a is **fixed** |
+| 4 | Quality | PASS (observations) |
 | 5 | Data correctness | PASS |
-| 6 | Security | **FAIL** (1); the rest PASS; live parts BLOCKED |
+| 6 | Security | PASS for everything testable here (run 2's 6-a is **fixed**); live parts BLOCKED |
 | 7 | Multipliers and combos | PASS |
 | 8 | Trading safety | PASS |
 | 9 | Billing | PASS on the mock; Stripe test mode BLOCKED |
-| 10 | Legal and wording | **FAIL** (1); the rest PASS |
-| 11 | Publication readiness | PASS; the engine scan and Chrome Web Store review are BLOCKED |
+| 10 | Legal and wording | **FAIL** (1: 10-b). Run 2's 10-a is **fixed** |
+| 11 | Publication readiness | PASS; engine scan and Chrome Web Store BLOCKED |
+| MCP | MCP server (T-280/281) | **FAIL** (2: MCP-a, MCP-b); everything else PASS; real OAuth BLOCKED |
+
+**FAILs:** 3-b, 3-c, 10-b, MCP-a, MCP-b. Details in the FAIL list at the end.
 
 ---
 
+## Run 2 FAILs, re-verified
+
+| Run 2 FAIL | Now | Evidence |
+|---|---|---|
+| **3-a** hydration #418 for visitors outside UTC | **Fixed.** `components/market/When.tsx` renders UTC on the server and local time after hydration. 0 hydration messages on `/`, `/bets`, `/markets`, `/m/:id` in New York and Tokyo, signed out (keyless prod, 2 runs each) and signed in as Free, Pro, Premium, beta and admin (wired prod; also `/account`, `/watchlist`, `/alerts`, `/journal`, `/dashboards`, `/tools`, `/settings`, `/track-record`, admin pages): 148 page loads. After hydration the card shows local time (UTC "Sun 12:00 AM", New York "Sat 7:00 PM", Tokyo "Sun 9:00 AM"). | `item3/hyd-prod-anon.txt`, `item3/hyd-wired.txt`, `item3/hyd-wired2.txt`, `item3/when-local.txt` |
+| **6-a** auth email limit vs `docs/15` | **Fixed.** `docs/15-security.md:27` now says 5 per 15 min per email, matching `lib/abuse.ts:19`; `test/ratelimit.test.ts` asserts the window. | `item6/ratelimit-doc.txt` |
+| **10-a** unsubscribe missing in auth emails | **Fixed.** All four `supabase/templates/*.html` carry "Unsubscribe from Kismet emails" (to `/alerts`) and the disclaimer; `test/auth-email-templates.test.ts` keeps them in sync with `lib/email/templates.ts:authEmailHtml`. App mail has `List-Unsubscribe` + one-click (`lib/email/index.ts:55`). | `item10/email-checks.txt` |
+
+Note on 3-a: the hydration runs on the wired build also found a different, intermittent #418, on the signed-in 404 page only. It is time-zone independent (seen in UTC) and is filed as **3-b**.
+
 ## 1. Tests: PASS
 
-**How checked:** I ran every command on the clean clone `$S/clean2` at `cb2f21e`. Logs are in `audit-evidence/item1/`, and `summary.txt` lists every exit code.
+On the clean clone `$S/clean4` at `c151ac7` (`item1/`):
 
-| Check | Result | Evidence |
-|---|---|---|
-| `pip install -r requirements.txt` | exit 0 | `item1/pip.txt` |
-| `pytest -q` | `66 passed` | `item1/pytest.txt` |
-| `pnpm i --frozen-lockfile` (web) | exit 0 | `item1/pnpm_i.txt`, `item1/clean-web-install.txt` |
-| `pnpm typecheck` | exit 0 | `item1/typecheck.txt` |
-| `pnpm lint` (`--max-warnings 0`) | exit 0, no warnings | `item1/lint.txt` |
-| `pnpm test` | vitest `Test Files 79 passed (79)`, `Tests 509 passed (509)`, plus the ops node tests 27/27 | `item1/unit.txt` |
-| Extension: `pnpm i --frozen-lockfile`, typecheck, test | exit 0; 42 tests passed | `item1/ext_i.txt`, `item1/ext_tc.txt`, `item1/ext_test.txt` |
-| `pnpm e2e` (demo config) | `56 passed (1.7m)` | `item1/e2e_demo.txt` |
-| `pnpm e2e`, paid config (`PW_PORT=3160`) | `10 passed (3.8m)` | `item1/e2e_paid.txt` |
-| Earlier full `pnpm e2e` run (both configs) | `56 passed`, `10 passed`, `EXIT 0` | `item1/e2e.txt` |
+| Check | Result |
+|---|---|
+| `pip install -r requirements.txt`, `pytest -q` | `66 passed` |
+| `pnpm i --frozen-lockfile` (web, extension) | exit 0 |
+| `pnpm typecheck` | exit 0 |
+| `pnpm lint` (`--max-warnings 0`) | exit 0, no warnings |
+| `pnpm test` | vitest 82 files, 541 tests passed (including `test/mcp.test.ts`, `test/app-token.test.ts`); ops node tests 27/27 |
+| Extension typecheck + test | exit 0, 42 tests |
+| `pnpm e2e` demo config | `56 passed` |
+| `pnpm e2e` paid config (`PW_PORT=3160`) | `10 passed` (solo run) |
 
-**What the demo e2e covers:**
-- S1 to S6: `s1-landing`, `s2-filters`, `s3-drawer`, `s4-presets`, `s5-mylist`, `s6`, `s6-tools`;
-- S8, alerts: `alerts.spec.ts`;
-- search (7 tests), trading-paper, headers and multipliers;
-- `a11y.spec.ts`: axe on 24 pages, plus the drawer focus trap and Escape.
-
-**What the paid e2e covers:**
-- S7, sign up, upgrade through the Stripe mock, Pro unlocks: `e2e-paid/s7-upgrade.spec.ts`;
-- account delete;
-- the keyboard-only path search → drawer → save → upgrade;
-- password (2 tests), paywall pages (3 tests) and admin (2 tests).
-
-`admin.spec.ts:69` and `:124`, which failed in an earlier series, now pass. A grep for `.skip`, `.only` and `.fixme` in the e2e and test folders found nothing.
+**Flake (observation, not a fail):** the paid suite ran twice while other heavy jobs shared the machine, and each time one different test failed with `ECONNRESET` from Playwright's `apiRequestContext.get` (`paywall-pages.spec.ts:90` at `/api/flags`; `admin.spec.ts:69` at `/api/kalshi`). The dev server logged no error. Run alone, the suite passed 10/10 (`item1/e2e_paid_rerun2.txt`). Worth a `retries: 1` on the paid config or running it alone in CI.
 
 ## 2. Production build, DEMO_MODE off, empty keys: PASS
 
-**How checked:**
-- The build ran under `env -i`. The only environment variables were HOME, PATH, PWD, SHLVL, NODE_ENV, the proxy variables and NODE_EXTRA_CA_CERTS.
-- There are no `.env*` files except `.env.example`.
-- `pnpm build` exited 0. The only warnings were webpack cache-string warnings (`item1/prod-build.txt`).
-- The build was served with `next start` on `:3161`, and every page was crawled (item 3).
+- `pnpm build` under `env -i` with no keys: exit 0 (`item2/prod-build.txt`).
+- Every page serves; `/pricing` shows "Coming soon" for paid plans; no dev banner; no 5xx (item 3 crawl).
+- MCP with no keys: `/api/mcp` answers 401 "Sign-in is not configured", and both `/.well-known/oauth-protected-resource*` routes answer 404 (`item2/keyless-mcp.txt`).
+- `/api/health` is 503 by design without Upstash (as in run 2).
 
-**Results:**
-- `/pricing` shows "Start free" and two "Coming soon" buttons where the paid plans would be. There is no demo or dev banner (`item2/prod-pricing-1440.jpg`).
-- `/account` says "Sign-in isn't available yet…".
-- The Free tier works: delayed and capped data is served (item 5).
-- No crashes, and no 5xx on any page.
+## 3. Every page × every state: FAIL (2)
 
-**Observation (not a fail):** `/api/health` answers `503 {"ok":false}`. This is by design: `lib/health.ts:31-33` marks a production deploy without Upstash as degraded (`rlDown`). It turns green once `UPSTASH_*` is set.
+**How checked:** `item3/crawl.cjs` (Playwright, 390 and 1440 px, CDP throttling 40 ms / 1.25 MB/s). Per page: console errors and warnings, page errors, failed requests, `NaN`/`undefined`/`null`/`[object Object]`/lorem/TODO/FIXME in visible text, banned words, footer disclaimer, horizontal scroll; then every internal link is fetched (paced). `item3/hyd.cjs` loads a page N times and counts hydration errors. `item3/summ.py` prints the summaries.
 
-## 3. Every page × every state: FAIL (1)
+| State | Server | TZ | Page loads | Links | Broken | Evidence |
+|---|---|---|---|---|---|---|
+| Signed out | keyless prod | UTC / New York / Tokyo | 74 each | 66 | 0 | `item3/prod-anon-{utc,ny,tokyo}-summary.txt` |
+| Free | wired prod | New York | 74 | 63 | 0 | `item3/wired-free-ny-summary.txt` |
+| Pro | wired prod | New York | 74 | 274 | 0 | `item3/wired-pro-ny-summary.txt` |
+| Premium | wired prod | New York | 74 | 274 | 0 | `item3/wired-premium-ny-summary.txt` |
+| Beta (Premium + live comp) | wired prod | New York | 74 | 276 | **1** (`/kalshi`, see 3-c) | `item3/wired-beta-ny-summary.txt` |
 
-**How checked:** `item3/crawl.cjs`, a Playwright crawler, ran at 390×844 and at 1440×900, with CDP throttling (40 ms latency, 1.25 MB/s down). For each page it records:
-- console errors and warnings, page errors and failed requests;
-- `NaN`, `undefined`, `null`, `[object Object]`, lorem, TODO and FIXME in the visible text;
-- banned words;
-- whether the footer has the disclaimer;
-- horizontal scroll.
+Sessions were confirmed with `/api/me` after the runs (right email and tier, no redirect to `/signup`).
 
-It collects every internal `<a href>` and fetches each one. The pages are 36 static routes plus a market page, an event page, an unknown dashboard id and `/no-such-page`. `item3/summ.py` prints the summaries.
+**In every state:** disclaimer in every footer; no `NaN`/`undefined`/`null`/`[object Object]`/lorem in visible text; no horizontal scroll at 390 px; 0 broken links except the beta tester's `/kalshi` (3-c). The only console errors are expected:
+- 404s by design: `/admin*` for non-admins, `/combos` and `/kalshi` for non-beta users, `/no-such-page`.
+- `/m/*`: `/api/book` 502, because the proxy blocks `clob.polymarket.com` (environment). The page shows "The live order book didn't answer".
+- Banned-word hits that are not the banned meaning: `/terms` "We give no guarantee that any estimate is right"; `/track-record` "when you pick a payout" (verb). Listed for the owner because the rule is literal.
 
-| State | Server | Page loads | Links checked | Broken | Evidence |
-|---|---|---|---|---|---|
-| Logged out | production | 76 | 51 + 42 | 0 | `item3/crawl-prod-anon-summary.txt` |
-| Logged out | mock (auth on) | 74 | 40 | 0 | `item3/crawl-mock-anon-summary.txt` |
-| Free | mock | 76 | 74 | 0 | `item3/crawl-mock-free-summary.txt` |
-| Pro | mock | 76 | 274 | 0 | `item3/crawl-mock-pro-summary.txt` |
-| Premium (app routes) | mock (fresh restart) | 46 | 270 | 0 | `item3/crawl-mock-premium-summary.txt` |
+**Source:** 0 `TODO`/`FIXME` and 0 `console.log` in `app`, `components`, `lib`, `middleware.ts` (tests excluded) and the extension `src`, including the new MCP files (`item3/todo-grep.txt`).
 
-**Notes on the Premium run:**
-- **Earlier attempts don't count.** Two earlier Premium crawls lost their session partway through when the dev mock restarted (Next's "approaching the used memory threshold"), and are not reported.
-- **The reported run:** I stopped and restarted the mock to get a fresh heap, then seeded the users again and crawled Premium on its own.
-- **Session checks:** `/api/me` showed `audit2-premium@example.com` / `premium` before and after the run. No page redirected to `/signup`, and the server log shows 0 restarts during the run (the end of the evidence file).
-- **Results:** the only non-ok rows are the by-design 404s (`/admin`, `/combos`, `/kalshi`, `/no-such-page`), the `/m/*` `/api/book` 502 (Polymarket is blocked), and the benign "pick" on `/track-record`.
+### FAIL 3-b: intermittent hydration error #418 on the signed-in 404 page
 
-**Results in every state:**
-- The disclaimer is in the footer of every page.
-- There is no `NaN`, `undefined`, `null`, `[object Object]` or lorem in the visible text.
-- There is no horizontal scroll at 390 px.
-- The only console errors that are not the hydration error below are expected:
-  - 404s by design: `/admin*` for non-admins, `/no-such-page`, and `/combos` and `/kalshi` for everyone who isn't a beta tester, Premium included. Both are on the beta list (`lib/beta-list.ts`, `BETA_FEATURES = ["combos", "kalshi"]`), so only admins or users with a live comp grant can see them (`lib/beta.ts:18` `canBeta`; `app/combos/page.tsx:14`, `app/kalshi/page.tsx:14`). This is by design, but my crawls never rendered either page signed in, because I had no admin or comp-grant state. Where they were rendered: the demo e2e (`e2e/multipliers.spec.ts:79` and axe in `e2e/a11y.spec.ts:8`, since demo mode gives everyone `beta: true`) and the admin e2e (`e2e-paid/admin.spec.ts:76`), all passing in item 1. The `/combos` row in the Premium axe pass is the 404 page.
-  - `/m/*` calls to `/api/book` return 502. This is an environment block: the proxy refuses `clob.polymarket.com` with `403 CONNECT`. The page handles it and shows "The live order book didn't answer".
-- The banned-word hits are benign:
-  - `/terms`: "We give no guarantee that any estimate is right".
-  - `/track-record`: the verb "pick" in "when you pick a payout".
+- **What:** `Minified React error #418` (`args[]=HTML`, "server rendered HTML didn't match the client") as a page error on the 404 page, signed in only.
+- **Repro:** wired prod, any signed-in plan, `/no-such-page` (or any unknown path) with light throttling (40 ms, 1.25 MB/s). `node item3/hyd.cjs http://localhost:3161 premium /no-such-page 1280 10 out.txt`.
+- **Rate** (`item3/hyd-404-rate.txt`): throttled signed in 2/10; unthrottled signed in 0/10; signed out throttled 0/10; `/m/999999999` (a dead market id, which also renders the not-found UI) signed in 0/10. Earlier runs hit it with Free, Pro, Premium and beta, in UTC, New York and Tokyo (`item3/hyd-wired.txt`, `hyd-wired2.txt`, `hyd-saved.txt`, `hyd-404-prem.txt`). Not seen on the dev server (8/8 clean, `hyd-dev-404.txt`), so the message is minified only.
+- **What it is not:** the server HTML is deterministic. 10 signed-in fetches are byte-identical once nonces are removed (`item3/h404-determinism.txt`). Not time-zone related.
+- **Where:** `apps/web/app/not-found.tsx` rendered in the shell `apps/web/app/layout.tsx:40-46` (`Header`, `Footer`, `MobileNav`, `LazyHosts`). Root cause not isolated. Since it needs a session and slow loading, the likely cause is a client component in the shell whose first render reads auth/session state that `AuthBoot` (`components/shell/LazyHosts.tsx`) can set before the not-found segment finishes hydrating.
+- **Fix:** reproduce with a non-minified production build (`next build --no-mangling` or React's dev build) to get the mismatching node; make any shell component that reads client auth/store state render the server value on its first pass (`useSyncExternalStore` with a server snapshot, as `When.tsx` now does). Then re-run `hyd.cjs` 20× signed in.
+- **Severity:** low (an unknown URL, signed in, slow network), but §3 item 3 says "no console errors".
 
-**Static checks:** a grep over `apps/web/{app,components,lib}` and `apps/extension/src` found:
-- no `TODO` or `FIXME` in shipped code;
-- no `console.log` outside tests (the only hit is `lib/execution.test.ts`);
-- no lorem ipsum.
+### FAIL 3-c: beta testers get a nav link to `/kalshi`, which is a 404
 
-**Dev-only noise (not counted):**
-- `[Fast Refresh] performing full reload` warnings.
-- In the first mock run, one `TypeError: __webpack_modules__[moduleId] is not a function` and a 500 on `/about`. This is a dev-compiler race that happened while two crawlers compiled routes at the same time (`item3/mock-run1-restart.txt`). `/about` is 200 everywhere else, including on the production build.
-
-### FAIL 3-a: React hydration error #418 on `/`, `/bets` and `/m/:id` for any visitor whose timezone isn't the server's
-
-**What happens:** bet cards are client components that are rendered on the server. They print the game time with `toLocaleString` and no `timeZone`, so the server (UTC) and the browser format different times. React throws #418, discards the server HTML for that tree and renders it again on the client.
-
-**Where:**
-- `apps/web/lib/format.ts:201-207` `gameTime()`: `d.toLocaleString("en-US", { weekday: "short", hour: "numeric", minute: "2-digit" })`, with no `timeZone`;
-- called during SSR from `apps/web/components/market/BetCard.tsx:62`, which is used on the landing teaser, `/bets` and the "Other markets" list on `/m/:id`;
-- also called from `components/market/MarketCard.tsx:27` and `components/market/MarketDetail.tsx:145` (which also has `title={new Date(...).toLocaleString()}`).
-
-**Evidence:** `item3/hydration.txt`, script `item3/hyd.cjs`.
-- **Production build, `timezoneId: America/New_York`:**
-  - `/bets` logs `Minified React error #418; visit https://react.dev/errors/418?args[]=text&args[]=`;
-  - `/m/6654466` and `/` log #418 as well;
-  - `/markets` is clean.
-- **Production build, default timezone (UTC, the same as the server):** 0 errors on the same pages in 2 runs each. That is why the UTC crawl, the e2e suite and Lighthouse all missed it.
-- **Dev server, full React message** (the free user's `/bets`, and the logged-out `/`):
-
-```
-Hydration failed because the server rendered text didn't match the client. ...
-  <Cards slots={[...]} desktop={true} pro={false} dim={false}>
-    <li className="row-span-2...">
-      <BetCard r={{...}} pro={false}>
-        <article ... data-market-id="6823885" data-tier="best" ...>
-          <div className="-mt-1">
-            <p className="mt-1 text-..." title="Closes in 41h">
-+             Sat 3:30 PM
--             Sat 8:30 PM
-```
-
-**A possible second cause (unconfirmed):** `closesLine()` (`lib/format.ts:119`) and `gameTime()` (`:201`) both default `now = Date.now()`, so they read the clock during render. The UTC dev crawl as the free user hit one hydration mismatch on `/bets` at 390 px with no timezone difference (full message in `item3/hydration.txt`; the captured diff is cut off before the differing text). Four re-runs didn't reproduce it, and it wasn't checked on a production build. A render-time clock race, such as `closesLine` rounding to a different hour or minute between server render and hydration, is the likely explanation, but I didn't confirm it.
-
-**Why it matters:**
-- It breaks the item 3 rule "no console errors or warnings" for nearly every real visitor, since US users are not on UTC.
-- The client re-render is expected to cost LCP and CLS on the main pages (not measured; Lighthouse ran in UTC).
-
-**Fix:** format game times in a fixed zone, as `Teaser.tsx` and `Landing.tsx` already do with `timeZone: "America/New_York"`, or render times only after mount. Pass a `now` snapshot from the server for the relative times.
-
-**Observation (not a fail):** with auth on, a signed-out visitor to an unknown URL (`/no-such-page`, `/dashboards/does-not-exist`) is sent to `/signup?next=…` instead of the styled 404. This comes from `middleware.ts:112` (T-276: "app pages go to sign-up"). Signed-in users and the production build with no auth get the styled 404 for unknown routes. An unknown dashboard id (`/dashboards/does-not-exist`) returns 200 with an in-app "Dashboard not found" page (`components/dashboards/Dashboards.tsx:88`). For crawlers, this is a soft 404 on mistyped URLs.
+- **What:** a beta tester (live comp grant) sees "Kalshi" in the header and the mobile "More" menu. The link answers 404, because `output/` has no `kalshi.json`.
+- **Repro:** wired prod, sign in as the beta tester, open `/` at 390 px, open the menu, click "Kalshi": 404 page. The crawl found it: `BROKEN {'link': '/kalshi', 'from': '/@390', 'status': 404}` (`item3/wired-beta-ny-summary.txt:100-101`; the direct loads at `:25` and `:74` are 404 too). `ls output/` has no `kalshi.json`.
+- **Where:** `apps/web/components/shell/nav.ts:31` (`BETA_LINKS` includes `/kalshi`), shown when `canBeta` at `apps/web/components/shell/Header.tsx:53` and `apps/web/components/shell/MobileNav.tsx:17`. Then `apps/web/app/kalshi/page.tsx:14-15` calls `notFound()` when `getKalshi()` (`lib/data/store.ts:310-321`) finds no file.
+- **When it happens:** `kalshi.json` is written only by `engine/__main__.py:75` (`pipeline/fetch_kalshi.py`, "no-op unless KALSHI_DATA_PERMISSION=true"). The page comment says testers see Kalshi "even with KALSHI_DATA_PERMISSION off", so for testers the link is broken whenever that permission is off, which is the current state.
+- **Fix:** show the link only when the Kalshi data is there (pass a server flag such as `hasKalshi` into the shell), or have `/kalshi` render an empty "no Kalshi data yet" state for testers instead of a 404.
+- **Severity:** low (beta testers only), but it is a broken link in §3 item 3.
 
 ## 4. Quality: PASS (with observations)
 
-### Lighthouse: PASS
+| Check | Result | Evidence |
+|---|---|---|
+| Lighthouse mobile, median of 3, `TZ=America/New_York` | `/` 94/98/100/91, `/about` 95/100/100/91, `/pricing` 94/100/100/91 (perf/a11y/BP/SEO) | `item4/lighthouse-median.txt`, `item4/lighthouse-runs.txt` (summary of the raw JSON, which was 11 MB and is not committed) |
+| axe, signed out, keyless prod: 27 routes × 2 widths (adds `/oauth/consent`, `/m/6654466`) | 0 serious/critical | `item4/axe-prod-anon.txt` |
+| axe signed in, wired prod, Free and Premium, 27 routes × 2 widths each | 0 serious/critical | `item4/axe-wired-{free,premium}.txt` |
+| Keyboard-only search → drawer → save → upgrade | PASS: `e2e-paid` keyboard spec, in the 10/10 run (item 1) | `item1/e2e_paid_rerun2.txt` |
+| Drawer focus trap and Escape | PASS: `e2e/a11y.spec.ts` (item 1) | `item1/e2e_demo.txt` |
+| `prefers-reduced-motion` | PASS in code: `app/globals.css:152` turns off animation; not re-run in a browser this time (code unchanged since run 2's browser check, `e1b9740:audit-evidence/item4/reduced-motion.txt`) | |
 
-Lighthouse 12.8.2, mobile preset with simulated throttling, on the production build, 5 runs per page. The table shows medians (`lighthouse-median.txt`).
-
-| Page | Performance | Accessibility | Best practices | SEO |
-|---|---|---|---|---|
-| `/` | 92 | 98 | 100 | 91 |
-| `/about` | 95 | 100 | 100 | 91 |
-| `/pricing` | 95 | 100 | 100 | 91 |
-
-All scores are at least 90.
-
-Observations:
-- SEO is 91 on all three because of the `meta-description` audit. The tag exists, but for browser user agents Next 15 streams metadata into `<body>`; crawler user agents get it in `<head>`.
-- On `/`, accessibility loses points for `heading-order`, which is moderate.
-- Lighthouse ran in UTC, so it didn't see the FAIL 3-a client re-render.
-
-### axe: PASS
-
-axe ran through `@axe-core/playwright` on new `browser.newContext()` pages, with the wcag2a/aa, wcag21a/aa and best-practice rules.
-- **Production build, logged out:** 26 routes at 2 widths, 0 serious or critical (`item4/axe-prod-anon.txt`).
-- **Mock server:** Free, Pro and Premium, 16 app routes at 2 widths each (32 page loads per tier): 0 serious or critical in every tier (`item4/axe-mock-{free,pro,premium}.txt`). Every session was checked as still valid after its run. The first premium pass lost its session in a mock restart and was re-run.
-- **Moderate findings only:**
-  - `heading-order` on `/`, `/bets`, and the "Why" section of the drawer;
-  - `landmark-unique` on the `/pricing` compare region.
-- The run-1 `color-contrast` serious finding on the landing "Market says" bar is fixed.
-
-### Keyboard-only walkthrough (search → drawer → save → upgrade): PASS
-
-- `e2e-paid/s7-upgrade.spec.ts:82` drives the whole path with the keyboard only (no `.click()`). It passed in item 1.
-- `e2e/a11y.spec.ts:49` "keyboard: the drawer traps focus and Escape returns it to the opener" also passed.
-
-### prefers-reduced-motion: PASS
-
-**How checked:** pages were loaded with `reducedMotion: "reduce"` and with `"no-preference"`, sampling `document.getAnimations()` on every DOM change (`item4/reduced-motion.txt`).
-
-**Results:**
-- The landing pulse (2400 ms) runs only under no-preference.
-- Under reduce, no animation longer than 1 ms ran on these pages:
-  - production: `/`, `/about`, `/pricing`, `/track-record`, `/markets`;
-  - Pro: `/bets`, `/m/:id`, `/dashboards`, `/journal`.
-
-**How the code handles it:**
-- `app/globals.css:152` has a global reduce rule.
-- Recharts 3.10.1 bars default to `isAnimationActive: 'auto'`, which follows the media query.
-- `Tour.tsx` uses `motion-reduce:`.
-- The admin Edit scroll checks the media query.
-
-### Screenshots against the chosen design: PASS (with observations)
-
-**Reviewed:** `shots/` (production, logged out, at 390 and 1440: `/`, `/markets`, `/pricing`, `/m/:id` and the 404), the crawl screenshots and the email and extension renders.
-
-**What matches:**
-- dark theme, emerald accent, rounded-xl cards;
-- consistent spacing and borders;
-- no truncation that hides values;
-- no overlap and no horizontal scroll at 390 px.
-
-**Observations:**
-- On `/m/:id`, "Price check ✓ fair fill" is shown next to "The live order book didn't answer". The check is from the last scan, but next to that sentence it reads as contradictory.
-- The free-tier range for a losing side reads "under 0%" in red. That is correct, but terse.
+**Observations:** moderate axe rules only (`heading-order` on `/`, `/bets`, `/m`; `landmark-unique` on `/pricing`). SEO 91 is the `meta-description` audit. A design review against the Chosen design was not repeated (only the MCP UI changed visually: `/account` "Use Kismet in Claude" card and one `/pricing` row, both checked as text in the MCP section).
 
 ## 5. Data correctness: PASS
 
-### Fees and returns on 20 sampled bets: PASS
+| Check | Result | Evidence |
+|---|---|---|
+| Fees and returns, 20 sampled flags (new seed 31337) | recomputed with `pipeline.common.taker_fee`: fee, edge, edge_low, ROI match, 0 mismatches | `item5/formulas.txt` |
+| API vs `output/*.json`, Pro, wired prod | `/api/markets?ps=50`: 168 rows, 2,352 side fields (ask, fee, win_prob, win_prob_low, edge, edge_low, roi_pct) and `execution`, 0 mismatches | `item5/apicmp.txt`, `item5/apicmp.cjs` |
+| Card vs API | `/m/6674492` as Pro shows +30% estimated return, "similar past bets returned +24%", record 95% / +20% / 7.5K: same numbers as `/api/markets/6674492` (roi_pct 30.26, realistic return) and as MCP `get_market` | `mcp/pro-get-market.txt` |
+| Free capped in the server response | Free: `/api/flags?ps=1000` → 10 rows, page_size 50; `pg=2` → page 1, the same 10 rows; `/api/markets?pg=99999` → page 1. Pro: `pg=2` → page 2, `pg=99999` → 400. Free `/api/markets/:id` gets ranges (`edge [0.2, null]`, `roi_pct [20, 50]`), no capacity. | `item6/paywall-prod.txt`, `item5/caps.txt` |
+| Free delayed in the server response | Fixture `DATA_DIR`: newest scan (every question prefixed `NEWSCAN`) plus `*-prev.json` 20 min older; server clock moved to 5 min after the newest scan (`item5/clock.cjs`). Free: `/api/flags`, `/api/markets`, `/api/markets/:id`, `/`, `/markets`, `/m/:id` contain 0 `NEWSCAN`, `/api/meta` `scanned_at` = the previous scan. Pro and Premium: the same URLs contain `NEWSCAN` (32–201 hits) and the newest `scanned_at`. Signed out: APIs 401, pages show the previous scan. | `item5/free-delay.txt` |
 
-**How checked:** 20 flags were drawn from `output/flags.json` with seed 20261120. For each, I recomputed:
-- `fee = pipeline.common.taker_fee(category, ask)`;
-- `edge = q − (ask + fee)`;
-- `edge_low = q_low − (ask + fee)`;
-- `roi = (q − cost) / cost × 100`.
-
-**Result:** 0 mismatches. Every difference is at most 0.0001, or 0.01 percentage points, from rounding (`item5-engine-formulas.txt`).
-
-### Numbers on cards match `/api` and `output/*.json`: PASS
-
-- **API against the output files:** for Pro, `/api/markets?ps=50` returned 168 rows. For each side, ask, fee, win_prob, win_prob_low, edge, edge_low and roi_pct match `output/flags.json` (157 rows) or `output/markets.json` (11 rows). That is 2,352 fields with 0 mismatches. The `execution` blocks match byte for byte.
-- **Page against the API:** `/m/6674492`, rendered for Pro, shows the API values rounded:
-  - 70¢, pays 1.4x, +22 pts, +30%;
-  - won 93%, cautious 89%;
-  - No at 31¢, 8%;
-  - stake table `$100 → $137 +$26.77`, which equals `execution.stakes`;
-  - capacity `$24,282`.
-- Evidence: `item5/cards-vs-api.txt` and `item5/apicmp.cjs`.
-
-### Freshness pill correct; the Free tier is really delayed and capped in the server response: PASS
-
-The run-3 fail is fixed.
-
-**Delay test setup:** a production server ran on a copy of `output/` (`DATA_DIR`):
-- the newest questions were tagged `NEWSCAN`;
-- `*-prev.json` held a scan 20 minutes older;
-- the clock was moved with a `Date.now` preload.
-
-**Free results:**
-- These responses contained 0 `NEWSCAN` rows:
-  - API: `/api/markets`, `/api/flags`, `?p=2`, `/api/suggest`, `/api/markets/:id`, `/api/events/:id`;
-  - page HTML: `/`, `/markets`, `/m/:id`, `/event/:id`, `/status`, `/track-record`.
-- `/api/meta` and the `/markets` HTML carry the older `scanned_at`.
-- `/status` shows the 5:38 scan as "25 min ago".
-- The FreshnessPill reads `/api/meta`, so it shows the delayed age.
-
-**Pro:** gets the newest `scanned_at` (`1794895125`) (`item5/cards-vs-api.txt`).
-
-Evidence for the delay test: `item5/free-delay.txt`.
-
-**Caps** (enforced server-side in `lib/data/gate.ts`; evidence `item6/paywall-mock.txt`):
-- 10 rows;
-- page 1 only;
-- `ps` is clamped;
-- ranges instead of exact numbers, with `win_prob` floored to 5%;
-- no stakes and no capacity.
-
-**Spec note:** `docs/12` has the data check "every flag edge_low > 0", but `flags.json` has 1,708 tier-`edge` flags with `edge_low < 0`. `docs/18` §2 defines them that way. The docs disagree with each other; the code follows `docs/18`.
-
-## 6. Security: FAIL (1); live parts BLOCKED
+## 6. Security: PASS for everything testable here; live parts BLOCKED
 
 | Sub-check | Verdict | Evidence |
 |---|---|---|
-| Paid data as anonymous or Free, through the API | **PASS** | `item6/paywall-mock.txt` (details below) |
-| Another user's rows through Supabase with the anon key | **BLOCKED** | details below |
-| Forged webhook | **PASS** | `item9/billing-mock.txt` B1–B5 (details below) |
-| Replayed webhook | **PASS** | `item9/billing-mock.txt` C1–C2 (details below) |
-| Rate limits under a hammer | **PASS** anonymous on the production build; signed-in **unit-tested**; live **BLOCKED** | `item6/hammer-prod.txt` (details below) |
-| Known AI crawler user agent | **PASS** | `item6/bots-prod.txt` (details below) |
-| Headless bot user agent | **BLOCKED** | `item6/bots-prod.txt` (details below) |
-| Headers with `curl -I` | **PASS** | `item6/headers-prod.txt` (details below) |
-| `pnpm audit` | **PASS** | `pnpm-audit-web-prod.txt`, `pnpm-audit-ext-prod.txt`, `pnpm-audit-web-all.txt` (details below) |
-| `pip-audit` | **PASS** | `pip-audit.txt` |
-| gitleaks over the full history | **PASS** | `gitleaks-with-ignore.txt`, `gitleaks-ignored-findings.txt`, `gitleaks-run-log.txt` (details below) |
-| Client bundles grepped for secrets | **PASS** | `item6/bundle-grep.txt`, `item10/meta-og.txt` (details below) |
-| Cookies HttpOnly, Secure, SameSite | **PASS** in code; live **BLOCKED** | details below |
-| Rate-limit values match `docs/15` | **FAIL** | FAIL 6-a below |
-
-**Paid data as anonymous or Free:**
-- Anonymous callers get 401 on `/api/markets`, `/api/flags`, `/api/markets/:id`, `/api/events/:id`, `/api/model/curve`, `/api/combos`, `/api/kalshi`, `/api/account/export` and `/api/data/*`.
-- Free gets 10 rows on page 1. `ps=1000` and `p=2` return the same 10 rows. Free gets ranges only, with no stakes or capacity; the niche curve is 403 and `/api/kalshi` is 404.
-- Pro: `p=99999` gives 400, and `ps=201` is clamped to 50.
-- `/api/admin/export` is 404 for everyone.
-- No theta or covariance appears anywhere.
-- Unit tests: `test/redteam-paywall.test.ts`, `test/account-wall.test.ts`.
-
-**Another user's rows (BLOCKED):** this needs a live Supabase project. What the repo has:
-- RLS policies in `supabase/migrations/*`;
-- `test/rls.test.ts`, which runs on PGlite and passed in item 1, including "keeps at most 3 sessions";
-- `supabase/tests/rls.test.sql`, a pgTAP test that I did not run (no Postgres or Supabase CLI here).
-
-To unblock: run `supabase db test`, then call REST with the anon key and user A's JWT, asking for user B's rows.
-
-**Forged webhook** (on the mock):
-- B1, wrong secret: `400 {"error":"Bad signature"}`.
-- B2, unsigned: 400.
-- B3, garbage `v1`: 400.
-- B4, a valid HMAC with a timestamp 10 minutes old: 400 (300 s tolerance).
-- B5, a valid signature whose body claims premium: 200, but the tier stays `pro`, because the tier is re-read from Stripe and not taken from the event.
-
-**Replayed webhook:** the same signed `evt_` id was sent twice. The second reply is `200 {"received":true,"duplicate":true}` and nothing changes; events are deduplicated by id in `stripe_events`.
-
-**Rate limits** (production build, anonymous):
-- `/api/markets` returns 429 from request 31 (the `list_free` 30/min rule).
-- `/api/suggest` returns 429 from request 121.
-- `/api/book` returns 429 from request 31.
-- `Retry-After` is present in every case.
-- The auth limit (5/min/IP) was **not** hammered live: on the keyless build `POST /api/auth/magic-link` answers 503 (sign-in is off), so there is nothing to limit. It is covered only by `test/ratelimit.test.ts`; the live check is BLOCKED (needs Supabase auth on a deploy).
-
-Signed-in limits can't be hammered here:
-- the dev mock turns limits off outside production (`lib/abuse.ts:120-131`);
-- the production build has no users.
-
-`test/ratelimit.test.ts`, which passed, covers them. Live per-user and per-IP limits need Upstash and a deploy with Supabase, so they are BLOCKED.
-
-**AI crawlers:** GPTBot, ClaudeBot, CCBot, PerplexityBot, Google-Extended and Bytespider get 403 on `/` and on `/api/markets`. `middleware.ts` does this with `isAiBot`. `robots.txt` still answers 200 and disallows them.
-
-**Headless bots (BLOCKED):** HeadlessChrome, `python-requests` and `curl` user agents get 200. The defense is Vercel BotID (`checkBotId()` in `lib/abuse.ts`), which only runs when `process.env.VERCEL` is set. To unblock: deploy to Vercel with BotID and Firewall Bot Protection on, then repeat the requests.
-
-**Headers** (checked on `/`, `/markets` and `/api/meta`):
-- CSP with a per-request nonce and `strict-dynamic`, no `unsafe-eval`, `frame-ancestors 'none'`, `object-src 'none'`, `base-uri 'self'`;
-- `Strict-Transport-Security: max-age=63072000; includeSubDomains`;
-- `X-Frame-Options: DENY`;
-- `X-Content-Type-Options: nosniff`;
-- `Referrer-Policy: strict-origin-when-cross-origin`;
-- `Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()`.
-
-**`pnpm audit`:**
-- `pnpm audit --prod`: "No known vulnerabilities found" for both web and the extension.
-- The full web audit, dev dependencies included: 1 moderate (minimatch, through eslint), no high or critical.
-
-**gitleaks** (8.24.3, full history):
-- With `.gitleaksignore`: 331 commits, "no leaks found".
-- In a fresh clone with `.gitleaksignore` deleted: 18 findings, exactly the 18 ignored fingerprints. I inspected each one, and all are fake:
-  - Stripe-shaped strings whose bodies are `FAKE…`, `SECRETVALUE` or `123456789012` (values redacted in `gitleaks-ignored-findings.txt` so this commit doesn't add new findings);
-  - JWTs whose payload is `{"role":"anon"}` or `{"role":"service_role"}`, with signatures that are plain ASCII text.
-
-**Client bundles:**
-- A grep of the production `.next/static` for service-key and secret names and shapes (`SUPABASE_SERVICE_ROLE_KEY`, `STRIPE_SECRET_KEY`, `service_role`, `sk_live_`, `sk_test_`, `whsec_`, `rk_live_`, the JWT prefix `eyJhbGciOi`) found 0 hits.
-- `scripts/check-bundle.mjs` reports "140 files in .next/static, no secrets".
-- A grep for seed or test identities found only input placeholders such as `you@example.com`.
-
-**Cookies:**
-- Supabase SSR cookies use `COOKIE_OPTIONS`: `httpOnly: true`, `secure` in production, `sameSite: "lax"`. These are set in `middleware.ts:12` and `lib/auth/server.ts:30-35`.
-- The other auth cookies (terms, password, reveals) reuse the same options.
-- The mock is HTTP in dev, so `secure` is off there, as designed.
-- The live check on HTTPS is BLOCKED: it needs a deploy with Supabase.
-
-### FAIL 6-a: the auth email rate limit is 5 per 15 minutes; the spec says 5 per hour
-
-- **The spec:** `docs/15-security.md:26` says "auth 5/min/IP and **5/hour/email**".
-- **The code:** `apps/web/lib/abuse.ts:19` has `auth_email: { limit: 5, window: "15 m" }`. That allows 20 sign-in, sign-up or reset emails per hour to one address, four times the spec.
-- **Where it came from:** commit `230c31d` ("Sign-in links: 5 per 15 min per email (was 1 h)") changed it without updating `docs/15`.
-- **The test:** `apps/web/test/ratelimit.test.ts:64` is named "magic link: 5 a minute per IP and 5 an hour per email", but it only counts to 5 and never checks the window.
-- **Fix:** either set the window back to `"1 h"`, or change `docs/15:26` to "5/15 min/email". In both cases, rename the test or make it assert the window.
+| Paid data as anon/Free through the API (wired prod, paced) | **PASS.** Anon: 401 on every data route, `/api/admin/export` 404. Free: 10 rows, paging ignored, ranges only, `/api/kalshi` 404, curve 400. No theta/covariance anywhere. | `item6/paywall-prod.txt`, `paywall.mjs` |
+| Another user's rows with the anon key | **BLOCKED** (live Supabase). PGlite `test/rls.test.ts` passed, now including the restrictive "no oauth clients" policy and the 3-session cap. | item 1 |
+| Forged webhook | **PASS** (mock): wrong secret, unsigned, garbage, 10-min-old timestamp all 400; a validly signed body claiming premium leaves the tier at pro (tier re-read from Stripe) | `item9/billing-mock.txt` B1–B5 |
+| Replayed webhook | **PASS**: second delivery `{"duplicate":true}` | `item9/billing-mock.txt` C1–C2 |
+| Rate limits | **PASS** on prod builds. Anonymous: `/api/markets` 429 at 31, `/api/suggest` at 121. Signed in (new this run): Premium `/api/markets` 429 at 61; `POST /api/auth/magic-link` 429 at 6 (5/min/IP); MCP Premium refused at call 61, Pro at call 4. Live Upstash (cross-instance) **BLOCKED**. | `item6/hammer-prod.txt`, `item6/hammer-signedin-prod.txt`, `mcp/mcp-probe.txt` C2–C4 |
+| AI crawler / user-agent matrix | **PASS**: training bots 403 everywhere but `robots.txt`; `*-User` agents 200 on public pages and `/llms.txt`, 403 on app pages and APIs; browsers 200 | `item6/ua-matrix-prod.txt` |
+| Headless bots | **BLOCKED** (Vercel BotID only runs on Vercel) | |
+| Headers | **PASS**: nonce CSP with `strict-dynamic`, HSTS, XFO DENY, nosniff, Referrer-Policy, Permissions-Policy; `/api/mcp` `private, no-store` | `item6/headers-prod.txt` |
+| `pnpm audit` | **PASS**: `--prod` clean for web and extension; full web audit 1 moderate (minimatch via eslint, dev only); extension full clean | `item6/pnpm-audit-*.txt` |
+| `pip-audit` | **PASS**: no known vulnerabilities | `item6/pip-audit.txt` |
+| gitleaks, full history (336 commits) | **PASS**: no leaks with `.gitleaksignore`; without it 18 findings, exactly the 18 ignored fingerprints (all fake fixtures, reviewed in run 2), 0 new | `item6/gitleaks-*.txt` |
+| Client bundles | **PASS**: keyless and wired `.next/static` have 0 hits for `e2e-service`, `sk_test_`, `whsec_`, `SUPABASE_SERVICE_ROLE_KEY`, `STRIPE_SECRET_KEY`, `service_role`, `eyJhbGciOi`, `UNSUBSCRIBE_SECRET`; control: the public anon key value is inlined in 5 `.next/server` files, so the build had the env, and reaches no static file. `check-bundle`: 146 files, no secrets. | `item6/bundle-grep*.txt` |
+| Cookies | **PASS, observed** on the production build (new this run): session cookie `sb-localhost-auth-token` and PKCE verifier cookies `Secure; HttpOnly; SameSite=lax`; `me_terms` the same. Live HTTPS domain **BLOCKED**. | `item6/cookies-prod.txt` |
+| OAuth consent decision (CSRF) | **PASS**: `POST /api/oauth/decision` 403 with a foreign or missing Origin; 400 on a bad decision; same-origin unknown id 400 "expired or already used"; signed out 401 | `mcp/oauth-decision.txt` |
 
 ## 7. Multipliers and combos: PASS
 
-**A 10x bet with a 14% chance and a 4-point edge appears in tier 2: PASS.**
-- `test/multipliers.test.ts:84`, "the 10x bet with a 14% chance shows in tier edge (chance floor off)", uses fixture `9900010`: 10¢, 14%, +4 pts, tier `edge`.
-- The same bet also appears under Pays 10x+, a typed "10x" search and Biggest payout (`:89`).
-- The e2e `multipliers.spec.ts` passed.
-- The closest real case in the live data is `6771192`: 10¢, 12.6%, +2.1 pts, tier `edge`.
-
-**Every count uses `formatCount` and never rounds up: PASS.**
-- `lib/format.ts:149` rounds down, so 1,299 shows as "1.2K". `lib/format.test.ts` covers this.
-- A grep for raw counts in `components/` and `app/` (`{…length}`, `{total}`, `.toLocaleString` on counts) found only small, bounded counts, such as `BestBets.tsx:253` (`{rows.length} of` for one page) and the number of legs.
-- The raw counts flagged in run 3 (FilterPanel Chip, AlertsView, SearchCombobox, JournalView, Teaser) now use `formatCount`.
-
-**Combo math matches hand-computed cases: PASS.** I recomputed the cases in `lib/combos.test.ts` by hand.
-
-| Case | Chance | Price | Pays | Return |
-|---|---|---|---|---|
-| 2 legs | 0.70 × 0.58 = 0.406 | 0.61 × 0.51 = 0.3111 | 3.214x | +30.5% |
-| 3 legs | 0.34916 | 0.2513688 | — | +38.9% |
-
-All of them match.
-
-**Same-event legs are warned: PASS.**
-- `lib/combos.test.ts`, "warns on same-event legs";
-- `multipliers.spec.ts` checks the warning in the tray;
-- suggested combos never share an event (`test/multipliers.test.ts:23`).
-
-**Suggested combos are hidden if the combo backtest lost money: PASS.**
-- `lib/data/combos.ts:49` skips a leg count unless its `roi_pct > 0`.
-- `test/multipliers.test.ts:34` sets the 3-leg `roi_pct` to −4, and only the 2-leg group remains.
-- In the current `backtest.json`, 2 legs made +16.87% and 3 legs +25.71%, so both groups show.
+No code in this area changed since run 2 (`git diff cb2f21e c151ac7` touches only MCP, auth, bots, email and the `When` component). The covering tests passed in item 1: `test/multipliers.test.ts:84` (10x, 14%, +4 pts in tier `edge`), `lib/format.test.ts` (round-down), `lib/combos.test.ts` (2- and 3-leg math, same-event warning), `test/multipliers.test.ts:34` (losing combo backtest hides suggestions), e2e `multipliers.spec.ts`. Raw-count grep: only bounded counts (`legs.length`, `step of STEPS.length`, a page's `rows.length`); every total uses `formatCount`/`<Count>`, including the MCP text (`lib/mcp/server.ts:108,184,206`: 2,282 shows as "2.2K", 1,069 as "1K"). Evidence `item7/count-grep.txt`.
 
 ## 8. Trading safety: PASS
 
-**Trading is fully off without `KALSHI_TRADING_ENV`: PASS.**
-- `lib/trade/server.ts:14`: only the value `"demo"` turns trading on.
-- On the production build, `/api/trade/config` answers `enabled:false`.
-- `/api/trade/nonce` and `/api/trade/nonce/verify` answer 404 "Trading is off.".
-- No trade ticket appears on any page (item 3 crawl).
+- **Off unless configured** (wired prod, `item8/trade-prod.txt`): with `KALSHI_TRADING_ENV=demo` but no `NEXT_PUBLIC_EXTENSION_ID`, `/api/trade/config` says `enabled:false` for everyone, the allow-listed user included (`app/api/trade/config/route.ts:9`, RT-14). `/api/trade/nonce` is 403 with a foreign or missing Origin.
+- **Keys never leave the extension; transfer scope rejected** (`item8/extension-keys.txt`, `keyinspect.cjs`, extension built for `:3160`, fresh Chromium profile): a trade-only key connects, stored as a non-extractable Ed25519 `CryptoKey` in IndexedDB; 0 requests carry key material; no PEM in `chrome.storage` or page storage. Keys with `write::transfer` or `write::*` are refused with a clear message.
+- **Confirm per order, caps, no order without a click:** not re-exercised in a browser here (needs the extension ID trusted by a live deploy). Covered by the passing e2e `trading-paper` spec and `lib/trade/trade.test.ts` (nonce one-time, tamper, expiry) in item 1. The MCP server registers 5 read-only tools and nothing that places an order (`lib/mcp/server.ts:254-274`).
 
-**With `demo`** (`item8/trade-mock.txt`):
-- `/api/trade/config` is `enabled:false` for anonymous, Free and Pro users, and `enabled:true` only for the allow-listed premium user.
-- `/api/trade/nonce` answers 401 when signed out and 403 "Trading isn't enabled for this account." for Free and Pro.
-- It answers 403 "Bad origin." for a foreign or missing `Origin`.
-- Without `EXT_SIGNING_SECRET` it answers 503, which is fail-closed.
-- Nonces are single-use, bound to the exact order, and expire. Tampering is rejected (`lib/trade/trade.test.ts:22`, `:31`, `:35`, `:51`, `:70`).
+## 9. Billing: PASS on the mock; Stripe test mode BLOCKED
 
-**Every order needs a confirm, and no code path places an order without a user click: PASS** (grep and review).
-- In the web app, `components/trade/TradeTicket.tsx:198-238` calls `placeOrder` only from `onConfirm`, the "Place paper order" button on the confirm step.
-- In the extension, the place handler in `src/background.ts:140-165` checks the caps, then `/api/trade/nonce/verify` (the web app issues that nonce only after the confirm), then calls `K.placeOrder`.
-- No timer, effect or message handler places an order. `apps/extension/test/no-auto-trade.test.ts` covers this.
-- The e2e `trading-paper.spec.ts` asserts the "Confirm this paper order" step.
+`item9/billing.cjs` against the mock (`item9/billing-mock.txt`):
+- A: checkout → signed webhooks → `pro` (trialing).
+- B/C: forged and replayed webhooks, as in item 6.
+- D: `cancel_at_period_end` keeps Pro; `subscription.deleted` at period end → `free`.
+- E: Payment Link with an unsigned `client_reference_id` is ignored (tier stays free; the resulting webhook answers 500 so Stripe retries, as noted in run 2); a signed one → `pro`.
+- F: `DELETE /api/account` cancels the Stripe subscription and signs the user out.
 
-**Caps are enforced: PASS.**
-- `background.ts` checks `maxOrderUsd` and `maxDayUsd` before asking for the nonce.
-- It records the day's spend and refunds it if the order was never placed.
-- `apps/extension/test/trade.test.ts` and `ext-cap-race.test.ts` passed.
-
-**Keys never leave the extension (network and storage inspected): PASS.**
-- **Setup** (`item8/keyinspect.cjs`, results in `item8/extension-keys.txt`):
-  - the extension was built for `:3160` and loaded into a fresh Chromium profile;
-  - the Kalshi demo API was mocked;
-  - every page and service-worker request was recorded.
-- **Test:** I connected a generated Ed25519 PEM in the side panel.
-- **Results:**
-  - 0 requests carried key material;
-  - the key is not in `chrome.storage.local`, `chrome.storage.session` or page storage;
-  - IndexedDB `kismet-vault/keys` holds a `CryptoKey` with `extractable:false` and `usages:["sign"]`;
-  - the private-key field is gone after connecting.
-
-**Keys with a transfer scope are rejected: PASS.**
-- The same harness tried scopes `["read","write::trade","write::transfer"]` and `["read","write::*"]`.
-- Both were refused with "This key also allows write::transfer…" (or `write::*`), and nothing was stored.
-- The check is an allow-list: `src/kalshi/trade.ts:80` `scopeError`.
-
-## 9. Billing: PASS on the mock; Stripe test mode end to end BLOCKED
-
-**How checked:** `item9/billing.cjs` ran against the mock. It signs events with `stripe.webhooks.generateTestHeaderString` and `whsec_e2e`, and it uses new users, not the seeded ones. Output: `item9/billing-mock.txt`.
-
-| Step | Result |
-|---|---|
-| Checkout → webhook → tier up | **PASS.** See A0–A1 below. |
-| Portal cancel → tier down at period end | **PASS** on the mock. See D1–D2 below. The real Customer Portal page is BLOCKED: the mock portal just returns `/account`. |
-| Payment Link path with `client_reference_id` | **PASS.** See E1–E2 below. |
-| Idempotency on duplicate events | **PASS.** C2 answers `{"received":true,"duplicate":true}`. |
-| Delete account cancels the subscription | **PASS.** See F1 below. |
-
-**A0–A1, checkout:**
-- A0: the tier starts at `free`.
-- The user clicks `checkout-pro` and goes through mock Checkout.
-- The mock sends signed `checkout.session.completed` and `customer.subscription.created` events.
-- A1: the tier is `pro`, status `trialing`, period end in 7 days. The `subscriptions` row has the customer id and the subscription id.
-
-**D1–D2, cancel:**
-- D1: `subscription.updated` with `cancel_at_period_end:true` keeps the tier at `pro` until the period ends.
-- D2: the subscription was canceled in the mock Stripe, then a signed `customer.subscription.deleted` was sent. The tier became `free`, status `canceled`.
-
-**E1–E2, Payment Link:**
-- E2: a signed reference (`<uid>_<expiry>_<hmac>`) upgrades the user to `pro`.
-- E1: a raw, unsigned user id is ignored. The log shows `[stripe] checkout with an unsigned or expired client_reference_id ignored`, and the tier stays `free`.
-
-**F1, delete account:**
-- `DELETE /api/account` answers `200 {"deleted":true}`.
-- The mock Stripe subscription becomes `canceled` with `canceled_at` set.
-- `/api/me` then returns a null user.
-- `e2e-paid/s7-upgrade.spec.ts` asserts this too.
-
-**Observation (by design):** after E1, the `customer.subscription.created` event for a customer with no linked user returns 500 so that Stripe retries (`lib/billing/stripe.ts:122-124`, `RetryLater`). Stripe gives up after about 3 days. That is harmless, but every forged Payment Link checkout leaves a failing delivery in the Stripe dashboard.
-
-**BLOCKED:** real Stripe test mode end to end: Checkout, the hosted Portal cancel, the Payment Link, and real webhook delivery and retries. To unblock: a Stripe test account with `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` and the price ids, plus a webhook endpoint (a deploy or `stripe listen`).
+**BLOCKED:** Stripe test mode end to end (needs Stripe test keys and a deployed webhook URL).
 
 ## 10. Legal and wording: FAIL (1)
 
-| Sub-check | Verdict | Evidence |
+| Check | Result | Evidence |
 |---|---|---|
-| All legal pages present, linked in the footer, filled from config | **PASS** | `/terms`, `/privacy`, `/refunds`, `/disclaimer` and `/contact` answer 200 in every state, and every footer links them (item 3 crawls). |
-| Placeholders (listed, not failed) | listed | `config/site.json` → `legal.mailing_address` is `""`. |
-| Disclaimer on every page | **PASS** | "Market analytics, not financial advice. Based on past results. 18+." is in the footer of every crawled page in every state, and on the OG images (`item11/og-root.png`). |
-| Disclaimer in the extension popup | **PASS** | The store build's popup shows the exact text (`item11/extension-zip.txt`, `item11/ext-popup-store.jpg`). |
-| 18+ gate at signup | **PASS** | The Terms/18+ checkbox is required: `input[type=checkbox]:invalid` has a count of 1 until it is checked (`e2e-paid/s7-upgrade.spec.ts:13`). `test/password-auth.test.ts` covers the API side. |
-| Banned words | **PASS** | The crawl regex over every page and state found only benign hits (item 3). The emails contain no banned words (`item10/emails.txt`, `test/email.test.ts:35`). |
-| No claim of guaranteed or expected profit (meta tags, OG images, emails) | **PASS** | The `description`, `og:*` and `twitter:*` tags on `/`, `/about`, `/pricing`, `/m/:id` and `/track-record` were fetched and grepped, with 0 hits (`item10/meta-og.txt`). The OG image carries the disclaimer. The emails say "estimated return … based on past results". |
-| Responsible-gambling resources on `/disclaimer` | **PASS** | 1-800-GAMBLER and ncpgambling.org are present. |
-| Unsubscribe in every email | **FAIL** | FAIL 10-a below. |
+| Legal pages present and in the footer | `/terms`, `/privacy`, `/refunds`, `/disclaimer`, `/contact`, `/about` all 200 and linked in the footer; no unfilled placeholders | `item10/legal-prod.txt` |
+| Disclaimer on every page, extension popup, MCP results, `/account` MCP card, auth emails, `llms.txt` | PASS (crawls; popup.html in the zip; probe; templates) | item 3, `item11/extension-zip.txt`, `mcp/` |
+| 18+ gate at signup | PASS: checkbox "I'm 18 or older…"; the API refuses without it (400 "Tick the box to confirm you're 18 or older…") | `item10/legal-prod.txt` |
+| No guaranteed/expected-profit claims in meta, OG, emails | PASS | `item10/meta-og.txt` |
+| Responsible-gambling resources on `/disclaimer` | PASS: 1-800-GAMBLER, ncpgambling.org | `item10/legal-prod.txt` |
+| Unsubscribe in every email | PASS (10-a fixed) | `item10/email-checks.txt` |
+| Banned words | **FAIL 10-b** | below; `item10/banned-grep.txt` |
 
-### FAIL 10-a: the Supabase auth emails have no unsubscribe link
+### FAIL 10-b: "picks" in the onboarding tour
 
-**The rule:** OVERNIGHT §3 item 10 says "unsubscribe in every email".
+- **Where:** `apps/web/components/onboarding/Tour.tsx:20`: "Results shows how past **picks** actually did, wins and losses, so you can judge the numbers yourself."
+- **Repro:** sign in, open `/?tour=1` (or finish onboarding), click Next to step 5 of 5. Screenshot `item10/tour-picks.jpg`, text `item10/tour-steps.txt`.
+- **Why it fails:** "pick" is on the banned list, and here it is the noun the rule targets (betting picks). The line predates run 2 (`e5f02175`); run 2 missed it because the tour only shows after onboarding.
+- **Fix:** "Results shows how past flagged bets actually did…" (or "past best bets").
+- **Also listed (verb, not the banned meaning, but the rule is literal):** `Tour.tsx:13` "Pick how much it pays"; `app/track-record/page.tsx:101` "when you pick a payout"; `app/terms/page.tsx:103` "We give no guarantee…". The owner should decide whether the verb is acceptable; `Tour.tsx:13` could be "Choose how much it pays".
 
-**What's wrong:** these four templates have the disclaimer and a "Manage your account" link, but no unsubscribe link:
-- `supabase/templates/confirmation.html`
-- `supabase/templates/magic_link.html`
-- `supabase/templates/recovery.html`
-- `supabase/templates/email_change.html`
+## 11. Publication readiness: PASS; engine scan and Web Store BLOCKED
 
-**Where it comes from:** `apps/web/lib/email/templates.ts:79-105`. `AUTH_EMAILS` calls `layout(…, "Manage your account")` with the account URL in the unsubscribe slot. `apps/web/test/auth-email-templates.test.ts:14` only asserts "disclaimer, account link".
+- **robots / sitemap:** see MCP section for robots. Sitemap: 11 URLs, no `/oauth`, `/api` or app pages (`item11/discovery.txt`).
+- **No test users, seed data or debug routes in prod:** `/e2e-mock/*` 404 on the production build; no seed identities in bundles.
+- **Error pages styled:** 404 is the shell with header, footer, disclaimer (see 3-b for its hydration flake).
+- **Icons and OG:** `/icon.svg`, `/apple-icon.png`, `/opengraph-image`, `/twitter-image` 200; `/favicon.ico` 404 but not linked (observation).
+- **Email templates render:** `test/auth-email-templates.test.ts` and the email unit tests passed; the four Supabase templates contain the button, disclaimer and unsubscribe.
+- **Extension:** `pnpm build && pnpm ext:zip`, also with `KISMET_ORIGIN=https://kismetodds.com`: MV3, permissions `storage`, `sidePanel`, host permissions only the site and the Kalshi demo API, CSP `script-src 'self'`; the popup carries the disclaimer; loads in a fresh Chromium profile (`keyinspect.cjs`) (`item11/extension-zip.txt`). Chrome Web Store review **BLOCKED**.
+- **SETUP.md from scratch:** the clean clone install, tests, build and start work (items 1–2). `python -m engine update` fails at `gamma-api.polymarket.com` (proxy block): **BLOCKED** (`item11/engine-scan.txt`).
 
-**The other emails pass:** the alert, admin sign-in and payment-failed emails all have a signed unsubscribe link and List-Unsubscribe headers (`item10/emails.txt`, `item10/email-alert.jpg`, `item10/email-auth-magic-link.jpg`).
+---
 
-**Judgement:** `docs/14-launch.md:64` calls auth mail transactional, and CAN-SPAM doesn't require an opt-out for transactional mail, so the owner may accept this as is. But the audit rule says "every email" with no exception, so this is a literal FAIL, of low severity.
+## MCP server (T-280, T-281): FAIL (2); real OAuth BLOCKED
 
-**Fix:** add an unsubscribe or email-preferences link, or change OVERNIGHT and `docs/14` to exempt transactional auth mail.
+Black-box probe `mcp/mcp-probe.mjs` against the wired production build, output `mcp/mcp-probe.txt` (labels A1… below). Plus the site-side checks.
 
-**Delivery is BLOCKED:** the templates take effect only after the owner pastes them into Supabase Auth → Email Templates, which needs a live Supabase project.
+### Endpoint and auth
 
-## 11. Publication readiness: PASS; engine scan and Web Store review BLOCKED
+| Check | Result |
+|---|---|
+| `/api/mcp`, streamable HTTP | PASS: `initialize` 200 (`2025-06-18`), serverInfo + instructions; `tools/list`; JSON or SSE by `Accept`; GET/DELETE 405; `Cache-Control: private, no-store` (B1–B3) |
+| Discovery | PASS: `401` carries `WWW-Authenticate … resource_metadata="…/.well-known/oauth-protected-resource/api/mcp"`; PRM lists `resource …/api/mcp` and the Supabase auth server; 404 when Supabase is unset (item 2) |
+| Missing / garbage / forged / expired / no-`exp` / Basic / empty `client_id` token | PASS: all 401 (A1–A3, A6–A9) |
+| Site session token as bearer, or site cookie at `/api/mcp` | PASS: 401 "Not an OAuth access token" / "Missing Authorization header" (A4, A5) |
+| MCP token on the site | PASS: as a cookie, `/api/me` shows signed out, data routes 401, `/account` and `/bets` redirect to `/signup`, `DELETE /api/account` 401; as a bearer header, refused everywhere (E1–E3) |
+| Token → user, plan, beta through `getMe()` | PASS: Free/Pro/Premium/beta behave per plan (C, D8) |
+| Consent UI | PASS: `/oauth/consent` signed out → `/login?next=…`; no id → "This link is missing its request"; bad id → "This request has expired or was already used"; decision route Origin-checked (`mcp/ui-mcp.txt`, `mcp/oauth-decision.txt`) |
+| Real OAuth 2.1: DCR, PKCE, consent approve, token issue, refresh, revoke; AS metadata at `<project>/.well-known/oauth-authorization-server/auth/v1` | **BLOCKED**: needs a Supabase project with the OAuth server on |
 
-| Sub-check | Verdict | Evidence |
-|---|---|---|
-| robots and sitemap | **PASS** | `robots.txt` disallows `/api/` and blocks GPTBot, ClaudeBot, CCBot, PerplexityBot, Google-Extended and others. `sitemap.xml` lists the 11 public URLs on the canonical domain, with no app or admin pages (`item11/prod-discovery.txt`). |
-| No test users, seed data or debug routes in production | **PASS** | `/e2e-mock/*` is 404 in production (the route answers 404 unless `E2E_MOCK=1` and not production). `/admin*` and `/api/admin/export` are 404 for non-admins. The bundles contain no seed identities (`item10/meta-og.txt`). |
-| Error pages styled | **PASS** | The styled 404 has the header, the footer and the disclaimer (`shots/prod-anon-*-_no_such_page.jpg`). See also the item 3 observation on signed-out unknown URLs. |
-| Favicon and OG images | **PASS** | `icon.svg` and `apple-icon` answer 200 and are linked. The OG image renders with the disclaimer (`item11/og-root.png`). There is no `/favicon.ico` (404), but nothing links to it. |
-| Email templates render | **PASS** | All 7 templates were rendered, and 2 were screenshotted (`item10/emails.txt`, `item10/*.jpg`). The committed `supabase/templates/*.html` equal `authEmailHtml()` except for a trailing newline. |
-| Extension zip installs on a clean Chrome profile and passes the MV3 checks | **PASS** locally; Web Store review **BLOCKED** | details below |
-| `SETUP.md` §0 from scratch in a fresh clone reaches a running app | **PASS**; the engine scan step is **BLOCKED** | details below |
+### Tools and rules
 
-**Extension zip** (`item11/extension-zip.txt`, `item11/ext-popup-store.jpg`):
-- `KISMET_ORIGIN=https://kismetodds.com pnpm ext:zip` builds `kismet-extension-0.1.0.zip`: 15 files, 43 KB.
-- Without `KISMET_ORIGIN` it warns "fine for loading unpacked, not for the store".
-- **MV3 checks:**
-  - `manifest_version` is 3;
-  - the store build has no `key`;
-  - the only permissions are `storage` and `sidePanel`;
-  - the only hosts are the web origin and the Kalshi demo API;
-  - `externally_connectable` lists only the origin;
-  - the CSP is `script-src 'self'; object-src 'self'`;
-  - there is no `eval`, no `new Function` and no remote script.
-- **Install:** I unpacked the zip into a fresh Chromium profile. The service worker registered and the popup renders with the disclaimer.
-- **Blocked:** the Chrome Web Store's own review and upload. To unblock: a developer account.
+| Check | Result |
+|---|---|
+| 5 tools, all `readOnlyHint: true`, `destructiveHint: false`; no banned words in tool metadata | PASS (B2) |
+| `best_bets` filters (category, pays min/max, tier, closing within, limit ≤ 25) | PASS: limit 100 → 25 rows; filters work (D1) |
+| Same data as the site, no new data | PASS: `best_bets` default and `tier all + sports`, and `search_markets "bitcoin"`, return the same 25 ids in the same order as `/api/flags?g=0` / `/api/markets?g=0` for the same Premium and Pro users (`mcp/d2.txt`). `get_market` for a Pro token matches the Pro site numbers (`mcp/pro-get-market.txt`). |
+| `get_market` shows verdict, price check, sample, model level, backtest basis | PASS (D3) |
+| `track_record`, `my_list` | PASS: `my_list` keeps the saved order, no re-ranking, another user's row not leaked (D6, D7) |
+| Search injection (SQL, regex, HTML, prompt injection, unicode, path traversal) | PASS: treated as text (D4, D5) |
+| Free: no access | PASS: all 5 tools refused with a pricing link and the disclaimer (C1) |
+| Pro: 3 calls a day, then an upgrade message | PASS: calls 1–3 OK, 4 and 5 "upgrade" (C2); a JSON-RPC batch of 4 is counted per call (C3). Per instance without Upstash: live cross-instance cap **BLOCKED** |
+| Premium: unlimited but 60/min | PASS: refused at call 61, "Try again in 57 seconds" (C4) |
+| Beta features only for beta users | PASS by code and unit test (`lib/mcp/server.ts:87-88`, `test/mcp.test.ts`): the venue shows Kalshi only when `canBeta`. Black-box: the beta tester gets results; the data has no Kalshi tickers, so the Kalshi branch could not be exercised (D8) |
+| Disclaimer at the end of every result | **FAIL MCP-a** (input-validation results) |
+| No personalized picks | PASS: same lists for everyone; `my_list` only lists the user's saved markets in saved order |
+| Origin handling | **FAIL MCP-b** |
+| `/pricing` "Use Kismet in Claude" on Premium | PASS: Premium card "Use Kismet in Claude, ChatGPT and Cursor (read-only connector)"; table row "— / 3 calls a day / Yes" |
+| `/account` setup steps | PASS: per plan text (Free "Part of Premium (Pro includes 3 calls a day)", Pro "3 calls a day", Premium "up to 60 calls a minute"), server URL, steps for Claude, Claude Code, ChatGPT, Cursor, disclaimer; no banned words (`mcp/ui-mcp.txt`) |
+| robots.txt | PASS: GPTBot, ClaudeBot, CCBot, Google-Extended (and others) `Disallow: /`; ChatGPT-User, Claude-User, Perplexity-User allowed on `/`, `/pricing`, `/about`, `/track-record`, legal pages and `/llms.txt`, then `Disallow: /`; `*` disallows `/api/`, `/oauth` (`item11/discovery.txt`) |
+| `/llms.txt` | PASS: exists, carries the disclaimer, MCP URL, tools and plans |
 
-**SETUP.md §0 from scratch** (`item11/setup-from-scratch.txt`):
-- `pip install` exits 0.
-- `python3 -m engine scan` exits 1 with `RuntimeError: gave up: https://gamma-api.polymarket.com/events`. The proxy refuses `gamma-api.polymarket.com` (`CONNECT 403`). The failed scan left `output/` untouched (`git status` is clean). This step is BLOCKED; access to `gamma-api.polymarket.com` and `clob.polymarket.com` unblocks it.
-- `pytest engine/tests ops/tests`: 66 passed.
-- `pnpm i --frozen-lockfile` exits 0.
-- `pnpm dev`, on port 3161 instead of 3000, reaches a running app in demo mode on the committed `output/`. `/`, `/bets`, `/markets` and `/pricing` answer 200, and `/api/markets` has 7,391 rows.
+### FAIL MCP-a: input-validation errors come back without the disclaimer
+
+- **Spec:** "every result ends with 'Market analytics, not financial advice. Based on past results. 18+.'"
+- **What happens:** when arguments fail the zod schema, the SDK returns a tool result (`isError: true`) such as "Input validation error: Invalid arguments for tool best_bets: limit: Too small: expected number to be >=1". It never reaches `done()` (`apps/web/lib/mcp/server.ts:40`), so it has no disclaimer.
+- **Repro** (any token with access): `tools/call best_bets {"limit":0}`; also `limit` 25.5 or `"50"`, `page` 1001, `tier "bogus"`, `categories ["admin"]`, `search_markets` with a 121-character or empty query. `mcp/mcp-probe.txt` D1 and D5 rows marked `endsWithDisclaimer=false`.
+- **Where:** schemas at `apps/web/lib/mcp/server.ts:116-117` (`LIMIT`, `PAGE`) and the tool input objects below them; the error text is produced by the SDK's validation before the handler.
+- **Fix:** validate inside the handler: register lenient input schemas (or `z.unknown()` fields with `.describe`) and run the strict zod parse in the gated handler, returning `done([...], true)` on failure; or wrap `server.registerTool` so validation failures are re-wrapped with `DISCLAIMER`. Add a `test/mcp.test.ts` case for `limit: 0`.
+- **Related observation:** `LIMIT` has no `.max`, so `tools/list` advertises `"maximum": 9007199254740991` while the description says 25. Add `.max(MAX_LIMIT)` (a larger value would then be a validation error, which with the fix above carries the disclaimer) or keep the clamp and advertise 25 in the JSON schema.
+- **Not counted as a fail:** an unknown tool name returns a JSON-RPC protocol error (`-32602`, B6), not a tool result.
+
+### FAIL MCP-b: `/api/mcp` does not validate the `Origin` header
+
+- **Spec:** the MCP streamable HTTP transport says servers MUST validate the `Origin` header on all incoming connections (DNS-rebinding protection) and answer 403 when it is present and not allowed. The brief lists "CORS and Origin handling" under "try to break it".
+- **What happens:** `POST /api/mcp` with `Origin: http://evil.example` and a valid token returns 200 and the tool list (B4). No CORS headers are sent (OPTIONS 204 without `Access-Control-Allow-Origin`), so a browser page on another origin cannot read the response; and because auth is a bearer token (no ambient cookie), a cross-site page cannot ride a user's session. Practical risk is low; this is a spec-conformance gap.
+- **Where:** `apps/web/app/api/mcp/route.ts:23-27` (`serve` authenticates and hands off; no Origin check). The SDK in use exports `originValidationResponse(req, allowedOrigins)`, which is not used.
+- **Fix:** in `serve`, before `authenticate`: if an `Origin` header is present and is not the site origin (or an explicit allowlist of client origins), return 403. Requests without `Origin` (server-side MCP clients such as Claude's connectors) stay allowed. Add a test.
+
+### MCP observations (not fails)
+
+1. **No rate limit before auth.** 130 unauthenticated POSTs to `/api/mcp` all got 401, never 429 (`item6/hammer-prod.txt`); each one with a bearer token triggers a Supabase `auth.getUser` call. Add a per-IP limit in front of `authenticate`.
+2. **No audience binding.** `requireBearerAuth`/`verifyBearerToken` is used without `expectedResource`, so any Supabase OAuth access token with a `client_id` (for another resource on the same project) is accepted. Acceptable while the project has one resource; set it if more are added.
+3. **PRM `resource` on the bare path.** `/.well-known/oauth-protected-resource` (no suffix) also returns `resource: …/api/mcp`. RFC 9728 expects the metadata at the bare path to describe the origin resource. Clients use the suffixed URL from `WWW-Authenticate`, so this works in practice.
+4. **`docs/15-security.md` does not list `mcp_premium` (60/min) or `mcp_pro_daily` (3/day)** from `lib/abuse.ts:22-23`.
+5. **The restrictive "no oauth clients" RLS policy** (`supabase/migrations/20261120000000_oauth_clients_no_tables.sql`) is applied to the tables that exist when it runs. Tables added later need it again; worth a test that every RLS table has it.
+6. **Supabase Auth endpoints with an app token** (for example `PUT /auth/v1/user` to change email or password) are outside what the migration covers; whether Supabase allows that for OAuth-client tokens is **BLOCKED** (needs a live project).
 
 ---
 
 ## FAIL list
 
-| # | What | Where |
-|---|------|-------|
-| 3-a | React hydration error #418 on `/`, `/bets` and `/m/:id`, on the production build, for any visitor not in the server's timezone (shown with America/New_York). The game time is formatted with `toLocaleString` and no `timeZone` inside SSR'd client components. A render-time `Date.now()` race on the same line may also cause it in UTC (seen once, unconfirmed). | `apps/web/lib/format.ts:201-207` (`gameTime`) and `:119` (`closesLine`), used at `apps/web/components/market/BetCard.tsx:62`, `MarketCard.tsx:27` and `MarketDetail.tsx:145` |
-| 6-a | The auth email rate limit is 5 per 15 minutes per address; the spec says 5 per hour. The test name says "an hour" but never checks the window. | `apps/web/lib/abuse.ts:19` vs `docs/15-security.md:26`; `apps/web/test/ratelimit.test.ts:64` |
-| 10-a | The Supabase auth emails (confirm, magic link, recovery, email change) have no unsubscribe link, but the rule is "unsubscribe in every email". Low severity, since they are transactional. | `apps/web/lib/email/templates.ts:79-105` → `supabase/templates/*.html`; `apps/web/test/auth-email-templates.test.ts:14` |
+| ID | File:line | Repro | Suggested fix |
+|---|---|---|---|
+| **3-b** | `apps/web/app/not-found.tsx` in the shell `apps/web/app/layout.tsx:40-46` (root cause not isolated; suspect a shell client component reading auth state set by `AuthBoot`) | Signed in, throttled, `/no-such-page`: #418 in 2/10 loads (`item3/hyd-404-rate.txt`) | Get the unminified diff; give the offending component a server snapshot for its first render; re-run `hyd.cjs` 20× |
+| **3-c** | `apps/web/components/shell/nav.ts:31`, `Header.tsx:53`, `MobileNav.tsx:17`; `apps/web/app/kalshi/page.tsx:14-15` | Beta tester, menu → "Kalshi" → 404 (no `output/kalshi.json`) (`item3/wired-beta-ny-summary.txt:100-101`) | Show the link only when the data exists (server flag), or an empty state instead of `notFound()` |
+| **10-b** | `apps/web/components/onboarding/Tour.tsx:20` "past picks" | `/?tour=1`, step 5 (`item10/tour-picks.jpg`). Also literal hits, verb use: `Tour.tsx:13` "Pick how much it pays", `apps/web/app/track-record/page.tsx:101` "when you pick a payout" | "past flagged bets" / "past best bets"; verbs: "Choose how much it pays", "when you choose a payout" |
+| **MCP-a** | `apps/web/lib/mcp/server.ts:116-117` (+ SDK validation path; `done()` at `:40` bypassed) | `tools/call best_bets {"limit":0}` → isError result with no disclaimer (`mcp/mcp-probe.txt` D1, D5) | Validate in the handler and return through `done()`, or wrap validation errors with `DISCLAIMER`; and advertise the 25 cap in the `LIMIT` schema |
+| **MCP-b** | `apps/web/app/api/mcp/route.ts:23-27` | `POST /api/mcp` with `Origin: http://evil.example` + token → 200 (`mcp/mcp-probe.txt` B4) | 403 when `Origin` is present and not allowed (`originValidationResponse` from the SDK); allow absent Origin |
 
 ## BLOCKED list
 
-| Check | What unblocks it |
+| What | Unblock with |
 |---|---|
-| Live Polymarket order book on `/m/*` (`/api/book` 502), and `python -m engine scan` | Network access to `clob.polymarket.com` and `gamma-api.polymarket.com`; the proxy answers 403 CONNECT here. |
-| Headless-bot defense (BotID) and the Vercel Firewall rules (Bot Protection, AI Bots deny, OWASP) | A Vercel deploy with BotID and the Firewall rules on, then a repeat with HeadlessChrome and a scripted client. |
-| Live rate limits (per user when signed in, across instances) | An Upstash Redis (`UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`) plus a production deploy with Supabase auth, then a hammer test as Free and as Pro. |
-| Supabase RLS with the anon key against another user's rows; pgTAP `supabase/tests/rls.test.sql`; live HTTPS cookie flags; auth email templates and auth settings applied | A live Supabase project (URL, anon key, service key) and the Supabase CLI. |
-| Stripe test mode end to end (Checkout, the hosted Customer Portal cancel, the Payment Link, real webhook delivery and retries) | A Stripe test account (secret key, webhook secret, price ids, Payment Link) and a webhook endpoint (a deploy or `stripe listen`). |
-| Chrome Web Store review of the extension zip | A Chrome Web Store developer account and an upload. |
+| Real Supabase OAuth 2.1 (DCR, PKCE, consent approve, token issue/refresh/revoke, AS discovery) | A Supabase project with the OAuth server enabled, the site deployed, and a real MCP client (Claude connector or `claude mcp add`) |
+| RLS against a real `client_id` token; another user's rows with the anon key; pgTAP `supabase/tests/rls.test.sql` | Supabase project or local Supabase CLI: `supabase db test`, then REST calls with user A's JWT and an OAuth app token |
+| Whether an app token can call Supabase Auth's own endpoints (`PUT /auth/v1/user`) | Live Supabase project |
+| Cross-instance rate limits (Pro 3/day, Premium 60/min, site limits) | `UPSTASH_REDIS_REST_*` on a deploy with more than one instance |
+| Headless-bot defense | Vercel deploy with BotID and Bot Protection |
+| Stripe test mode end to end | Stripe test keys and a deployed webhook endpoint |
+| Cookies on the real HTTPS domain | A deploy (flags already observed on the production build) |
+| Chrome Web Store review | Store submission |
+| Engine scan (`python -m engine all`) and `/api/book` live order book | Network access to `gamma-api.polymarket.com` and `clob.polymarket.com` |
 
 ## Observations (not fails)
 
-1. `/api/health` answers 503 on a production build without Upstash. This is intended (`lib/health.ts:31-33`), but uptime monitors will alert until Upstash is set.
-2. When auth is on, signed-out visitors to unknown URLs get `/signup?next=…` instead of the 404 (`middleware.ts:112`).
-3. Lighthouse SEO is 91 because of `meta-description`: for browser user agents, Next 15 streams metadata into `<body>`.
-4. `docs/12` and `docs/18` disagree on `edge_low > 0` for every flag.
-5. An unsigned Payment Link checkout leaves a webhook answering 500 for about 3 days of Stripe retries (`RetryLater`).
-6. The market OG image says "Sign up free to see it" even on a build where sign-in isn't available yet.
-7. There is no `/favicon.ico` file; the icons are served through `<link rel=icon>`.
-8. Python 3.13 was used, not CLAUDE.md's 3.12. SETUP.md says 3.12+, and everything passed.
-9. The Free delay uses `Date.now()`, not `DATA_CLOCK` (`lib/data/store.ts:272-302`). This is correct in production; it only matters when replaying old scans locally.
-10. On `/m/:id`, "Price check ✓ fair fill" sits next to "The live order book didn't answer".
-11. On the committed `output/` (scanned Nov 17, three days before this audit), a market that has already closed can still show as a bet, and the freshness pill turns red with "Updated 3 days ago". This is correct behaviour for stale data. The scheduled refresh is meant to prevent it, but here it can't run because Polymarket is blocked.
+1. Paid e2e: one `ECONNRESET` flake per run under load (item 1).
+2. Moderate axe rules only; Lighthouse SEO 91 on `meta-description` (item 4).
+3. `/favicon.ico` is 404 (not linked; `/icon.svg` serves).
+4. An unsigned Payment Link checkout leaves a webhook answering 500 for Stripe's retry window (`RetryLater`), as in run 2.
+5. `/alerts` signed out (the auth-email unsubscribe target) redirects to `/signup?next=/alerts`; `/login?next=/alerts` would suit a recipient who already has an account.
+6. MCP observations 1–6 above.
+7. `/api/backtest` answers 200 signed out (the public track record's data); by design, as `/track-record` is public.

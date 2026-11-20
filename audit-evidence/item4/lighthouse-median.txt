@@ -1,0 +1,10 @@
+Lighthouse 12.8.2, mobile preset (simulated throttling), keyless prod build on :3161, Chromium 1255 headless, TZ=America/New_York, 5 runs/page
+/ {'performance': (94, [94, 91, 94, 94, 92]), 'accessibility': (98, [98, 98, 98, 98, 98]), 'best-practices': (100, [100, 100, 100, 100, 100]), 'seo': (91, [91, 91, 91, 91, 91])}
+   run3 LCP 2.8 s TBT 150 ms CLS 0 FCP 1.1 s
+   non-perfect weighted audits: ['accessibility:heading-order', 'seo:meta-description']
+/about {'performance': (95, [96, 95, 94, 97, 94]), 'accessibility': (100, [100, 100, 100, 100, 100]), 'best-practices': (100, [100, 100, 100, 100, 100]), 'seo': (91, [91, 91, 91, 91, 91])}
+   run3 LCP 2.8 s TBT 150 ms CLS 0 FCP 0.9 s
+   non-perfect weighted audits: ['seo:meta-description']
+/pricing {'performance': (94, [94, 92, 93, 94, 96]), 'accessibility': (100, [100, 100, 100, 100, 100]), 'best-practices': (100, [100, 100, 100, 100, 100]), 'seo': (91, [91, 91, 91, 91, 91])}
+   run3 LCP 2.8 s TBT 170 ms CLS 0 FCP 0.9 s
+   non-perfect weighted audits: ['seo:meta-description']

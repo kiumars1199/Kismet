@@ -1,11 +1,11 @@
 // usage: node crawl.cjs <base> <state> <storageState|-> <out.json> [shotsDir]
-const { chromium } = require("/home/user/wt-audit2/apps/web/node_modules/@playwright/test");
+const { chromium } = require("/home/user/wt-audit3/apps/web/node_modules/@playwright/test");
 const fs = require("fs");
 const [base, state, ss, out, shots] = process.argv.slice(2);
 const DISC = "Market analytics, not financial advice. Based on past results. 18+.";
 const BAD = /\bNaN\b|\bundefined\b|\[object Object\]|(?<![\w-])null(?![\w-])|lorem ipsum|TODO|FIXME/i;
 const BANNED = /\b(guaranteed?|risk[- ]free|sure thing|can'?t lose|lock of the|locks?\b|free money|easy money|tips?\b|picks?\b)/gi;
-const ROUTES = (process.env.ROUTES || "/ /about /account /admin /admin/audit /admin/grants /admin/health /admin/settings /admin/users /alerts /bets /combos /contact /dashboards /disclaimer /ext/connect /journal /kalshi /login /maintenance /markets /onboarding /pricing /privacy /refunds /reset-password /settings /signup /status /terms /tools /track-record /watchlist /no-such-page").split(" ");
+const ROUTES = (process.env.ROUTES || "/ /about /account /admin /admin/audit /admin/grants /admin/health /admin/settings /admin/users /alerts /bets /combos /contact /dashboards /disclaimer /ext/connect /journal /kalshi /login /maintenance /markets /onboarding /pricing /privacy /refunds /reset-password /settings /signup /status /terms /tools /track-record /watchlist /oauth/consent /no-such-page").split(" ");
 (async () => {
   const browser = await chromium.launch();
   const results = [];
@@ -21,7 +21,7 @@ const ROUTES = (process.env.ROUTES || "/ /about /account /admin /admin/audit /ad
   if (process.env.EXTRA) extra.push(...process.env.EXTRA.split(" "));
   const routes = [...ROUTES, ...extra];
   for (const width of (process.env.WIDTHS || "390 1440").split(" ").map(Number)) {
-    const ctx = await browser.newContext({ storageState: ss !== "-" ? ss : undefined, viewport: { width, height: width < 600 ? 844 : 900 }, baseURL: base });
+    const ctx = await browser.newContext({ storageState: ss !== "-" ? ss : undefined, viewport: { width, height: width < 600 ? 844 : 900 }, baseURL: base, timezoneId: process.env.TZID || undefined });
     for (const route of routes) {
       const page = await ctx.newPage();
       const cdp = await ctx.newCDPSession(page);

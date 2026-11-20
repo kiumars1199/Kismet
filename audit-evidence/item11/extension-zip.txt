@@ -1,103 +1,36 @@
-# pnpm build && pnpm ext:zip (default origin: warns '[ext:zip] KISMET_ORIGIN is http://localhost:3000: fine for loading unpacked, not for the store.')
-> kismet-extension@0.1.0 ext:zip /tmp/claude-0/-home-user-MarketEdge/2e8d356b-d1b5-5401-91e6-9f451833b42c/scratchpad/clean2/apps/extension
-[ext:zip] KISMET_ORIGIN is http://localhost:3000: fine for loading unpacked, not for the store.
+# pnpm build && pnpm ext:zip (default origin)
+computing gzip size...
+dist/content.js  5.43 kB │ gzip: 2.82 kB
+
+✓ built in 20ms
+
+✓ built in 21ms
 [ext:zip] wrote apps/extension/kismet-extension-0.1.0.zip
-# KISMET_ORIGIN=https://kismetodds.com pnpm ext:zip
-> kismet-extension@0.1.0 ext:zip /tmp/claude-0/-home-user-MarketEdge/2e8d356b-d1b5-5401-91e6-9f451833b42c/scratchpad/clean2/apps/extension
+# KISMET_ORIGIN=https://kismetodds.com pnpm build && pnpm ext:zip
+
+✓ built in 19ms
+
+✓ built in 21ms
 [ext:zip] wrote apps/extension/kismet-extension-0.1.0.zip
+-rw-r--r-- 1 root root 23154 Nov 20 05:23 kismet-extension-0.1.0.zip
 Archive:  kismet-extension-0.1.0.zip
   Length      Date    Time    Name
 ---------  ---------- -----   ----
-     1376  2026-11-20 02:39   popup.html
-    10428  2026-11-20 02:39   sidepanel.js
-     5436  2026-11-20 02:39   content.js
-     1447  2026-11-20 02:39   popup.js
-       46  2026-11-20 02:39   types.js
-     1193  2026-11-20 02:39   manifest.json
-        0  2026-11-20 02:39   icons/
-      627  2026-11-20 02:39   icons/32.png
-      381  2026-11-20 02:39   icons/16.png
-     2432  2026-11-20 02:39   icons/128.png
-      897  2026-11-20 02:39   icons/48.png
-      894  2026-11-20 02:39   sidepanel.html
-     3883  2026-11-20 02:39   format.css
-    13196  2026-11-20 02:39   background.js
-     1377  2026-11-20 02:39   format.js
+     1376  2026-11-20 05:23   popup.html
+    10428  2026-11-20 05:23   sidepanel.js
+     5436  2026-11-20 05:23   content.js
+     1447  2026-11-20 05:23   popup.js
+       46  2026-11-20 05:23   types.js
+     1193  2026-11-20 05:23   manifest.json
+        0  2026-11-20 05:23   icons/
+      627  2026-11-20 05:23   icons/32.png
+      381  2026-11-20 05:23   icons/16.png
+     2432  2026-11-20 05:23   icons/128.png
+      897  2026-11-20 05:23   icons/48.png
+      894  2026-11-20 05:23   sidepanel.html
+     3883  2026-11-20 05:23   format.css
+    13196  2026-11-20 05:23   background.js
+     1377  2026-11-20 05:23   format.js
 ---------                     -------
     43613                     15 files
-# manifest.json
-{
-  "manifest_version": 3,
-  "name": "Kismet for Polymarket",
-  "short_name": "Kismet",
-  "version": "0.1.0",
-  "description": "Shows Kismet analytics next to Polymarket outcomes.",
-  "icons": {
-    "16": "icons/16.png",
-    "32": "icons/32.png",
-    "48": "icons/48.png",
-    "128": "icons/128.png"
-  },
-  "permissions": [
-    "storage",
-    "sidePanel"
-  ],
-  "host_permissions": [
-    "https://kismetodds.com/*",
-    "https://external-api.demo.kalshi.co/*"
-  ],
-  "background": {
-    "service_worker": "background.js",
-    "type": "module"
-  },
-  "action": {
-    "default_title": "Kismet",
-    "default_popup": "popup.html",
-    "default_icon": {
-      "16": "icons/16.png",
-      "32": "icons/32.png"
-    }
-  },
-  "side_panel": {
-    "default_path": "sidepanel.html"
-  },
-  "content_scripts": [
-    {
-      "matches": [
-        "https://polymarket.com/event/*",
-        "https://polymarket.com/sports/*"
-      ],
-      "js": [
-        "content.js"
-      ],
-      "run_at": "document_idle"
-    }
-  ],
-  "externally_connectable": {
-    "matches": [
-      "https://kismetodds.com/*"
-    ]
-  },
-  "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'"
-  }
-}
-# key field present?
-0
-# eval/new Function in JS:
-0
-# remote script tags:
-<script type="module" crossorigin src="./popup.js">
-<script type="module" crossorigin src="./sidepanel.js">
-# URLs in JS:
-      1 https://demo.kalshi.co
-      1 https://external-api.demo.kalshi.co
-      3 https://kismetodds.com
-      2 https://polymarket.com
-# popup disclaimer:
-Market analytics, not financial advice. Based on past results. 18+.
-# store zip (KISMET_ORIGIN=https://kismetodds.com) unzipped and loaded into a fresh Chromium profile
-service worker registered: chrome-extension://mnmkjmdingfnneemmdikoonaojhhgcae/background.js
-popup text: Kismet Signed out Account Signed out Data Can't reach kismetodds.com Last scan — Paper trading Off Open Kismet Sign in Open side panel Open a Polymarket event page to see Kismet next to each market. Market analytics, not financial advice. Based on past results. 18+.
-popup console errors (store build points at https://kismetodds.com, unreachable here): ["Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED"]
-loaded manifest_version 3 version 0.1.0 perms [ 'storage', 'sidePanel' ] hosts [ 'https://kismetodds.com/*', 'https://external-api.demo.kalshi.co/*' ]
+manifest_version 3 permissions ['storage', 'sidePanel'] host_permissions ['https://kismetodds.com/*', 'https://external-api.demo.kalshi.co/*'] csp {'extension_pages': "script-src 'self'; object-src 'self'"} background {'service_worker': 'background.js', 'type': 'module'}

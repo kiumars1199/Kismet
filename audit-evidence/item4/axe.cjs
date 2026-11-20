@@ -1,9 +1,9 @@
 // node axe.cjs <base> <state> <storage|-> <out.json>
-const { chromium } = require("/home/user/wt-audit2/apps/web/node_modules/@playwright/test");
-const AxeBuilder = require("/home/user/wt-audit2/apps/web/node_modules/@axe-core/playwright").default;
+const { chromium } = require("/home/user/wt-audit3/apps/web/node_modules/@playwright/test");
+const AxeBuilder = require("/home/user/wt-audit3/apps/web/node_modules/@axe-core/playwright").default;
 const fs = require("fs");
 const [base, state, ss, out] = process.argv.slice(2);
-const ROUTES = (process.env.ROUTES || "/ /about /pricing /track-record /status /terms /privacy /refunds /disclaimer /contact /login /signup /reset-password /markets /bets /watchlist /journal /alerts /dashboards /settings /tools /account /onboarding /combos /no-such-page").split(" ");
+const ROUTES = (process.env.ROUTES || "/ /about /pricing /track-record /status /terms /privacy /refunds /disclaimer /contact /login /signup /reset-password /markets /bets /watchlist /journal /alerts /dashboards /settings /tools /account /onboarding /combos /oauth/consent /m/6654466 /no-such-page").split(" ");
 (async () => {
   const b = await chromium.launch(); const res = [];
   for (const w of [390, 1440]) {

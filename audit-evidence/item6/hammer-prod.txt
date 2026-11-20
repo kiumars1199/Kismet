@@ -1,10 +1,4 @@
-# hammer.py against prod build :3161 (anon, no Upstash -> in-memory limiter; all anonymous callers share one key off Vercel)
-GET /api/markets?ps=5                                                      n=65 statuses={200: 30, 429: 35} first429_at=31 Retry-After=60
-GET /api/suggest?q=bar                                                     n=125 statuses={200: 120, 429: 5} first429_at=121 Retry-After=58
-GET /api/book?token=1&q=0.5&cat=sports                                     n=35 statuses={502: 30, 429: 5} first429_at=31 Retry-After=60
-POST /api/auth/magic-link                                                   n=7 statuses={503: 7} first429_at=None Retry-After=None
-GET /api/model/curve?id=6654466                                            n=65 statuses={400: 65} first429_at=None Retry-After=None
-GET /api/markets?ps=200&p=2                                                n=5 statuses={200: 5} first429_at=None Retry-After=None
-GET /api/markets?ps=500                                                    n=2 statuses={200: 2} first429_at=None Retry-After=None
-# note: curve row used a wrong query param (id= instead of market=) so it only shows 400s; /api/model/curve limit 60/min is covered by test/ratelimit.test.ts
-# magic-link 503 = auth not configured in this build; auth limits covered by test/ratelimit.test.ts:64
+# anonymous hammer, keyless prod (all callers share key 'local' off Vercel)
+/api/markets?ps=5: first 429 at request 31 retry-after: 59
+/api/suggest?q=bit: first 429 at request 121 retry-after: 59
+/api/mcp: first 429 at request none (130 sent): no rate limit on unauthenticated /api/mcp

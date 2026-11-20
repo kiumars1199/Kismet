@@ -1,0 +1,62 @@
+apps/web/app/track-record/page.tsx:101:        note="Every tested bet grouped by what it paid per $1. Best bets are the main list; lower-confidence bets are the extra ones you see when you pick a payout. The verdict uses whichever group tested more bets, and calls a result only when it is too big to be luck.">
+apps/web/app/terms/page.tsx:103:        future ones. We give no guarantee that any estimate is right or that the site will always be available. Read the
+apps/web/components/auth/LoginForm.tsx:90:  const pick = (t: Tab) => { setTab(t); setError(""); setNote(""); };
+apps/web/components/auth/LoginForm.tsx:97:    pick(to.value);
+apps/web/components/auth/LoginForm.tsx:183:                onClick={() => pick(t.value)} onKeyDown={onTabKey}
+apps/web/components/search/SearchCombobox.tsx:198:  const pick = (it: Item) => {
+apps/web/components/search/SearchCombobox.tsx:228:      if (open && it) pick(it);
+apps/web/components/search/SearchCombobox.tsx:337:                        onClick={() => pick(it)}
+apps/web/components/trade/TradeButton.tsx:9:export function venueOf(m: Pick<Market, "url" | "kalshi_ticker">): { name: "Kalshi" | "Polymarket"; href: string } {
+apps/web/components/trade/TradeButton.tsx:13:export function VenueLink({ m, className = "" }: { m: Pick<Market, "url" | "kalshi_ticker">; className?: string }) {
+apps/web/components/trade/TradeButton.tsx:23:export function VenueIconLink({ m, className = "" }: { m: Pick<Market, "url" | "kalshi_ticker">; className?: string }) {
+apps/web/components/screener/MarketTable.tsx:242:  const pick = cols.filter((c) => c.id !== "market" && c.id !== "star");
+apps/web/components/screener/MarketTable.tsx:252:          {pick.filter((c) => !c.pro).map((c) => <Check key={c.id} {...c} />)}
+apps/web/components/screener/MarketTable.tsx:256:          {pick.filter((c) => c.pro).map((c) => <Check key={c.id} {...c} />)}
+apps/web/components/onboarding/Tour.tsx:13:  { sel: ['[role="group"][aria-label="Payout"]'], title: "Pick how much it pays",
+apps/web/components/onboarding/Tour.tsx:20:    body: "Results shows how past picks actually did, wins and losses, so you can judge the numbers yourself." },
+apps/web/components/market/TierNote.tsx:22:function useBandLine(s: Pick<Side, "ask">, tier: FlagTier): { text: string; lost: boolean } | null {
+apps/web/components/market/TierNote.tsx:42:export function TierNote({ s, className = "" }: { s: Pick<Side, "ask" | "model_events">; className?: string }) {
+apps/web/components/market/labels.ts:17:export function topicCrumb(m: Pick<Market, "category" | "niche" | "tags" | "market_type">): { label: string; href: string } {
+apps/web/components/market/labels.ts:27:export function topicLabel(m: Pick<Market, "category" | "niche" | "tags" | "market_type">): string {
+apps/web/components/market/labels.ts:65:export const priceVerdict = (s: Pick<Side, "edge" | "ranges">) =>
+apps/web/lib/search/parse.ts:250:export const describe = (p: Pick<ParsedQuery, "chips">) => p.chips.map((c) => c.label).join(" · ");
+apps/web/lib/format.ts:42:export function sideRet(s: Pick<Side, "roi_pct" | "ranges">): string {
+apps/web/lib/format.ts:46:export function sideEdge(s: Pick<Side, "edge" | "ranges">): string {
+apps/web/lib/format.ts:50:export function sideProfit(s: Pick<Side, "roi_pct" | "ranges">): string {
+apps/web/lib/format.ts:84:export function payoutIfWins(stake: number | null | undefined, s: Pick<Side, "ask" | "fee">): number | null {
+apps/web/lib/format.ts:101:export function betLine(s: Pick<Side, "outcome" | "ask">): string {
+apps/web/lib/format.ts:105:export function realisticReturn(s: Pick<Side, "realistic_edge" | "ask" | "fee">): number | null {
+apps/web/lib/format.ts:141:export function basis(m: { niche: string; market_type: string; horizon_h: number }, s: Pick<Side, "model_neff" | "model_events" | "model_level">): string {
+apps/web/lib/format.ts:168:export function sidePts(s: Pick<Side, "edge" | "ranges">): string {
+apps/web/lib/format.ts:192:export function cardReturn(s: Pick<Side, "roi_pct" | "ranges" | "realistic_edge" | "ask" | "fee">): { roi: number | null; text: string; profit: string; realistic: boolean } {
+apps/web/lib/combos.ts:21:export const legOf = (m: Pick<StoreMarket, "id" | "question" | "event_id" | "event" | "url" | "kalshi_ticker">, s: Side): Leg => ({
+apps/web/lib/combos.ts:39:export function combo(legs: Pick<Leg, "ask" | "fee" | "q" | "q_low" | "event_id" | "event">[]): Combo {
+apps/web/lib/combos.ts:58:export const comboLabel = (c: Pick<Combo, "legs" | "pays">, wins: string) =>
+apps/web/lib/filters/apply.ts:43:export const paysBand = (s: Pick<Side, "ask">) => (s.ask > 0 ? (band(PAYS_BANDS, 1 / s.ask) as PaysBand | undefined) : undefined);
+apps/web/lib/filters/apply.ts:60:export const nowFor = (store: Pick<Store, "meta">): number =>
+apps/web/lib/filters/apply.ts:100:export const paysOf = (s: Pick<Side, "ask">) => (s.ask > 0 ? 1 / s.ask : null);
+apps/web/lib/filters/state.ts:57:export const tierOf = (f: Pick<FilterState, "tier" | "pays_min" | "pays_max" | "sort">): FilterState["tier"] =>
+apps/web/lib/repo/index.ts:43:/** Resolves once AuthBoot has picked the store (account or guest). Never resolves in demo mode: race it with a timeout. */
+apps/web/lib/repo/types.ts:86:export type Insert<T> = Omit<T, Extract<keyof T, Defaulted>> & Partial<Pick<T, Extract<keyof T, Defaulted>>>;
+apps/web/lib/alerts.ts:20:export const dedupeKey = (r: Pick<AlertRule, "id" | "cooldown_minutes">, marketId: string, side: 0 | 1 | null, now: Date) =>
+apps/web/lib/alerts.ts:23:export function inQuietHours(r: Pick<AlertRule, "quiet_hours">, now: Date, timeZone: string): boolean {
+apps/web/lib/data/store.ts:284:  const pick = () => newestBy(cutoff, s, state.prev, state.prev2);
+apps/web/lib/data/store.ts:285:  const hit = pick();
+apps/web/lib/data/store.ts:305:  const late = pick();
+apps/web/lib/trade/fills.ts:47:export async function recordFills(repo: Pick<Repo, "journal">, t: TrackedOrder, v: OrderView): Promise<boolean> {
+apps/web/lib/alerts-server.ts:13:export type Source = Pick<Deps, "fetchMarkets" | "fetchMarket" | "fetchBook">;
+apps/web/lib/reprice.ts:88:export function predictAt(ctx: RepriceCtx, m: Pick<StoreMarket, "niche" | "market_type" | "category" | "horizon_h">, s: Side, p: number): { q: number; lo: number } | null {
+apps/web/lib/reprice.ts:111:export function sideAt(s: Side, q: Pick<Quote, "ask" | "bid">, m: Pick<StoreMarket, "category" | "niche" | "market_type" | "horizon_h">, ctx?: RepriceCtx): Side {
+apps/web/lib/mcp/server.ts:84:const marketUrl = (m: Pick<StoreMarket, "id">) => `${siteUrl()}/m/${encodeURIComponent(m.id)}`;
+apps/web/lib/mcp/server.ts:215: *  Never re-ranked by return, edge or anything else: no personalized picks (CLAUDE.md rule 4). */
+apps/web/lib/journal.ts:10:type Bet = Pick<JournalEntry, "price" | "shares" | "fee">;
+apps/web/lib/journal.ts:20:export const clv = (b: Pick<JournalEntry, "price" | "closing_price">): number | null =>
+apps/web/lib/journal.ts:24:export const entryReturn = (b: Pick<JournalEntry, "price" | "fee" | "model_edge">): number | null =>
+apps/extension/src/kalshi/trade.ts:46:export const maxCostCents = (o: Pick<OrderIntent, "count" | "price_cents">) => o.count * o.price_cents + feeCents(o.count, o.price_cents);
+apps/extension/src/match.ts:17:function labels(m: Pick<Market, "question" | "market_type">): string[] {
+apps/extension/src/match.ts:46:  const pick = (ms?: Market[]) =>
+apps/extension/src/match.ts:48:  const s = pick(idx.specific.get(k));
+apps/extension/src/match.ts:50:  const h = pick(idx.heading.get(k));
+apps/extension/src/content.ts:11:let locked = false; // not Premium: badges show a lock and link to pricing (docs/09 § Auth)
+apps/extension/src/content.ts:30:const LOCK = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>`;
+apps/extension/src/content.ts:36:  root.innerHTML = `<style>${BADGE_CSS}${tag === PILL ? PILL_CSS : ""}</style><button class="${positive ? "pos" : ""}" title="${locked ? "Kismet Premium" : "Kismet: open details"}"><b>${locked ? LOCK : "K"}</b><span></span></button>`;

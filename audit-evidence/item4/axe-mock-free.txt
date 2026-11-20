@@ -1,4 +1,0 @@
-mock-free pages 32 errors 0 serious/critical 0
-  minor/moderate: heading-order moderate; landmark-unique moderate
-session check after run: /api/me tier = free (h/me.cjs)
-list 32

@@ -1,0 +1,4 @@
+# signed-in hammer on the wired production build (no Upstash: per-instance memory limiter)
+premium /api/markets x70: first 429 at request 61 (rule markets 60/1 m)
+200 200 200 200 200 429 429 429 
+anon POST /api/auth/magic-link x8 (distinct emails): first 429 at request 6 (rule auth_ip 5/1 m)

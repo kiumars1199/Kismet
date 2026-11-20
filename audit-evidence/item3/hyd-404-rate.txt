@@ -1,0 +1,5 @@
+# signed-in 404 hydration rate (premium, 1280 px, UTC)
+throttled: 2 of 10 with #418
+no throttle: 0 of 10 with #418
+throttled /m/999999999 (dead market id): 0 of 10 with #418
+anon throttled /no-such-page: 0 of 10 with #418

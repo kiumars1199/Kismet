@@ -1,0 +1,7 @@
+    evs = http("GET", f"{GAMMA}/events", params=dict(
+        limit=100, offset=off, closed="true", order=order, ascending="false",
+        end_date_min=_iso(lo), end_date_max=_iso(hi), tag_slug=tag))
+  File "/tmp/claude-0/-home-user-MarketEdge/2e8d356b-d1b5-5401-91e6-9f451833b42c/scratchpad/clean4/engine/../pipeline/common.py", line 99, in http
+    raise RuntimeError(f"gave up: {url}")
+RuntimeError: gave up: https://gamma-api.polymarket.com/events
+exit 1
