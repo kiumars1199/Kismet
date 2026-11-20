@@ -2,6 +2,9 @@
 
 // FilterPanel (F-03): every FilterState field, sections in the F-03 order, in a "More filters" sheet
 // (native <dialog>: right side on desktop, bottom on mobile; docs/13 §2: no permanent sidebar). Counts come from the API facets (current filter minus that facet).
+// T-302: the body renders only while the sheet is open (its words were in the page's HTML, unseen, before), labels
+// are plain (no "spread", lib/banned.ts), every control is at least 44px tall, and on Best bets the sheet also holds
+// Sort and "On Polymarket US" (the chip row on the page keeps only the everyday choices).
 import Link from "next/link";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import type { Facets, MetaResponse } from "@/lib/api";
@@ -23,17 +26,29 @@ const toggle = <T,>(list: T[] | undefined, x: T): T[] | undefined => {
   const next = list?.includes(x) ? list.filter((y) => y !== x) : [...(list ?? []), x];
   return next.length ? next : undefined;
 };
+const SORTS: [string, FilterState["sort"]][] = [
+  ["Best return", { key: "roi", dir: "desc" }], ["Most likely", { key: "win_prob", dir: "desc" }],
+  ["Closing soon", { key: "closes", dir: "asc" }], ["Biggest payout", { key: "pays", dir: "desc" }],
+];
 const fmt = (n: number | undefined) => (n === undefined ? "" : String(n));
 
 export function FilterPanel(props: Props) {
   const dialog = useRef<HTMLDialogElement>(null);
+  const [open, setOpen] = useState(false);
   const active = countActive(props.state, props.mode);
-  // `f` shortcut (components/keyboard/Shortcuts.tsx) opens/closes the sheet.
+  const show = () => {
+    setOpen(true);
+    dialog.current?.showModal();
+  };
+  // `f` shortcut (components/keyboard/Shortcuts.tsx) opens/closes the sheet; Best bets' "More sports" chip too.
   useEffect(() => {
     const toggle = () => {
       const d = dialog.current;
       if (d?.open) d.close();
-      else d?.showModal();
+      else {
+        setOpen(true);
+        d?.showModal();
+      }
     };
     window.addEventListener("me:toggle-filters", toggle);
     return () => window.removeEventListener("me:toggle-filters", toggle);
@@ -42,31 +57,33 @@ export function FilterPanel(props: Props) {
     <>
       <button
         type="button"
-        onClick={() => dialog.current?.showModal()}
-        className={`flex min-h-10 items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 text-[13px] ${active ? "border-accent-border bg-accent-bg text-accent-softer" : "border-border bg-surface text-soft hover:border-accent-border hover:text-text"}`}
+        onClick={show}
+        className={`flex min-h-11 items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 text-[13px] ${active ? "border-accent-border bg-accent-bg text-accent-softer" : "border-border bg-surface text-soft hover:border-accent-border hover:text-text"}`}
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4" /></svg>
-        More filters{active ? ` · ${active}` : ""}
+        More filters{active ? ` (${active})` : ""}
       </button>
       <dialog
         ref={dialog}
         aria-label="Filters"
         onClick={(e) => e.target === e.currentTarget && e.currentTarget.close()}
+        onClose={() => setOpen(false)}
         className="m-0 mt-auto max-h-[88dvh] w-full max-w-none rounded-t-2xl border border-border bg-surface p-0 text-text backdrop:bg-black/60 md:ml-auto md:mt-0 md:h-dvh md:max-h-dvh md:w-[380px] md:rounded-none md:rounded-l-2xl"
       >
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-surface px-5 py-3">
           <h2 className="text-lg font-semibold">More filters</h2>
           <button type="button" onClick={() => dialog.current?.close()} className="min-h-11 rounded-input bg-accent px-4 font-semibold text-on-accent">Done</button>
         </div>
-        <PanelBody {...props} />
+        {open && <PanelBody {...props} />}
       </dialog>
     </>
   );
 }
 
 function countActive(s: FilterState, mode: Mode) {
-  const skip = new Set(["q", "tz", "v", "view", "sort", "page", "page_size", "win_prob_floor_default", "group_by_event", "side", ...(mode === "flags" ? ["verdicts"] : [])]);
-  return Object.entries(s).filter(([k, v]) => !skip.has(k) && v !== undefined && v !== false).length + (s.side !== "best" ? 1 : 0);
+  // "us" is shown on its own (Best bets' chip row); tier "best" is the page's default, not a choice
+  const skip = new Set(["q", "tz", "v", "view", "sort", "page", "page_size", "win_prob_floor_default", "group_by_event", "side", "us", ...(mode === "flags" ? ["verdicts"] : [])]);
+  return Object.entries(s).filter(([k, v]) => !skip.has(k) && v !== undefined && v !== false && !(k === "tier" && v === "best")).length + (s.side !== "best" ? 1 : 0);
 }
 
 function PanelBody({ state: s, mode, facets, meta, onChange, onReset }: Props) {
@@ -85,7 +102,7 @@ function PanelBody({ state: s, mode, facets, meta, onChange, onReset }: Props) {
     <div className="flex flex-col text-sm">
       <div className="flex items-center justify-between px-4 pb-1 pt-3">
         <p className="text-xs text-muted">Every filter, with how many bets each leaves</p>
-        <button type="button" onClick={onReset} className="min-h-9 px-2 text-[13px] text-muted hover:text-text">Reset</button>
+        <button type="button" onClick={onReset} className="min-h-11 px-2 text-[13px] text-muted hover:text-text">Reset</button>
       </div>
 
       <Section title="View">
@@ -95,7 +112,7 @@ function PanelBody({ state: s, mode, facets, meta, onChange, onReset }: Props) {
             const next = { ...s, view: v, page: 1, verdicts: v === "flags" ? undefined : s.verdicts };
             const href = (v === "flags" ? "/" : "/markets") + queryFor(v === "flags" ? { ...next, group_by_event: true } : { ...next, verdicts: undefined, group_by_event: true }, v);
             return (
-              <Link key={v} href={href} aria-current={on ? "page" : undefined} className={`flex min-h-9 items-center justify-center rounded-[9px] text-[13px] ${on ? "bg-accent-bg text-accent-soft" : "text-soft hover:text-text"}`}>
+              <Link key={v} href={href} aria-current={on ? "page" : undefined} className={`flex min-h-11 items-center justify-center rounded-[9px] text-[13px] ${on ? "bg-accent-bg text-accent-soft" : "text-soft hover:text-text"}`}>
                 {v === "markets" ? "All markets" : "Best bets"}
               </Link>
             );
@@ -105,6 +122,17 @@ function PanelBody({ state: s, mode, facets, meta, onChange, onReset }: Props) {
         <Select label="Per page" value={String(s.page_size)} onChange={(v) => onChange({ page_size: Number(v) })}
           options={[["25", "25"], ["50", "50"], ...(s.group_by_event ? [] : [["100", "100"], ["200", "200"]] as [string, string][])]} />
       </Section>
+
+      {mode === "flags" && (
+        <Section title="Sort and where to bet">
+          <div className="flex flex-wrap gap-1.5" role="group" aria-label="Sort">
+            {SORTS.map(([label, sort]) => (
+              <Chip key={label} label={label} on={s.sort.key === sort.key && s.sort.dir === sort.dir} onClick={() => onChange({ sort })} />
+            ))}
+          </div>
+          <Check label="On Polymarket US only" on={s.us} onChange={(on) => onChange({ us: on })} />
+        </Section>
+      )}
 
       <Section title="Topics">
         <TopicTree s={s} facets={facets} onChange={onChange} />
@@ -143,11 +171,11 @@ function PanelBody({ state: s, mode, facets, meta, onChange, onReset }: Props) {
         </Section>
 
         <Section title="Price check">
-          <p className="text-xs text-muted">Best bets only: what crossing the spread leaves you.</p>
+          <p className="text-xs text-muted">Best bets only: how much of the value is left at the price you would pay.</p>
           {Verdict.options.map((v) => (
             <Check key={v} label={VERDICT_LABEL[v]} count={facets?.verdicts[v]} on={!!s.verdicts?.includes(v)} onChange={() => onChange({ verdicts: toggle(s.verdicts, v) })} />
           ))}
-          <Num label="Min gain kept after the spread" unit="%" min={0} max={100} value={s.retention_min === undefined ? undefined : Math.round(s.retention_min * 100)} onCommit={(v) => onChange({ retention_min: v === undefined ? undefined : v / 100 })} />
+          <Num label="Min value kept at the buy price" unit="%" min={0} max={100} value={s.retention_min === undefined ? undefined : Math.round(s.retention_min * 100)} onCommit={(v) => onChange({ retention_min: v === undefined ? undefined : v / 100 })} />
           <Num label="Min room at this price" unit="$" value={s.capacity_min_usd} min={0} step={100} onCommit={(v) => onChange({ capacity_min_usd: v })} />
         </Section>
 
@@ -173,7 +201,7 @@ function PanelBody({ state: s, mode, facets, meta, onChange, onReset }: Props) {
           <Num label="Min volume" unit="$" min={0} step={1000} value={s.volume_min} onCommit={(v) => onChange({ volume_min: v })} />
           <Num label="Min 24h volume" unit="$" min={0} step={100} value={s.volume_24h_min} onCommit={(v) => onChange({ volume_24h_min: v })} />
           <Num label="Min liquidity" unit="$" min={0} step={1000} value={s.liquidity_min} onCommit={(v) => onChange({ liquidity_min: v })} />
-          <Num label="Max spread" unit="¢" min={0} step={0.5} value={s.spread_max === undefined ? undefined : Math.round(s.spread_max * 1000) / 10} onCommit={(v) => onChange({ spread_max: v === undefined ? undefined : v / 100 })} />
+          <Num label="Max gap between buy and sell price" unit="¢" min={0} step={0.5} value={s.spread_max === undefined ? undefined : Math.round(s.spread_max * 1000) / 10} onCommit={(v) => onChange({ spread_max: v === undefined ? undefined : v / 100 })} />
         </Section>
 
         <Section title="Mine">
@@ -210,7 +238,7 @@ function Count({ n, title }: { n?: number; title?: string }) {
 
 function Check({ label, on, onChange, count, countTitle }: { label: string; on: boolean; onChange: (on: boolean) => void; count?: number; countTitle?: string }) {
   return (
-    <label className={`flex min-h-9 cursor-pointer items-center gap-2.5 ${count === 0 && !on ? "text-muted" : "text-soft"} hover:text-text`}>
+    <label className={`flex min-h-11 cursor-pointer items-center gap-2.5 ${count === 0 && !on ? "text-muted" : "text-soft"} hover:text-text`}>
       <input type="checkbox" checked={on} onChange={(e) => onChange(e.target.checked)} className="size-4 flex-none accent-[var(--accent)]" />
       <span className="first-letter:uppercase">{label}</span>
       <Count n={count} title={countTitle} />
@@ -221,7 +249,7 @@ function Check({ label, on, onChange, count, countTitle }: { label: string; on: 
 function Chip({ label, on, onClick, count }: { label: string; on: boolean; onClick: () => void; count?: number }) {
   return (
     <button type="button" aria-pressed={on} onClick={onClick}
-      className={`min-h-9 rounded-full border px-3 text-[13px] ${on ? "border-accent-border bg-accent-bg text-accent-soft" : `border-border bg-input ${count === 0 ? "text-muted" : "text-soft"} hover:text-text`}`}>
+      className={`min-h-11 rounded-full border px-3 text-[13px] ${on ? "border-accent-border bg-accent-bg text-accent-soft" : `border-border bg-input ${count === 0 ? "text-muted" : "text-soft"} hover:text-text`}`}>
       {label}{count !== undefined && <span className="ml-1 text-xs tabular-nums text-muted" title={exactCount(count)}>{formatCount(count)}</span>}
     </button>
   );
@@ -232,7 +260,7 @@ function Select({ label, value, onChange, options }: { label: string; value: str
   return (
     <div className="flex flex-col gap-1">
       <label htmlFor={id} className="text-xs text-muted">{label}</label>
-      <select id={id} value={value} onChange={(e) => onChange(e.target.value)} className="min-h-10 rounded-[10px] border border-border bg-input px-2.5 text-text focus:border-accent">
+      <select id={id} value={value} onChange={(e) => onChange(e.target.value)} className="min-h-11 rounded-[10px] border border-border bg-input px-2.5 text-text focus:border-accent">
         {options.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
       </select>
     </div>
@@ -259,7 +287,7 @@ function Num({ label, unit, value, onCommit, min, max, step = 1 }: {
         {unit === "$" && <span className="pl-2.5 text-muted" aria-hidden="true">$</span>}
         <input id={id} type="number" inputMode="decimal" min={min} max={max} step={step} value={text} placeholder="Any"
           onChange={(e) => setText(e.target.value)} onBlur={commit} onKeyDown={(e) => e.key === "Enter" && commit()}
-          className="min-h-10 w-full min-w-0 bg-transparent px-2.5 tabular-nums text-text placeholder:text-muted focus:outline-none" />
+          className="min-h-11 w-full min-w-0 bg-transparent px-2.5 tabular-nums text-text placeholder:text-muted focus:outline-none" />
         {unit && unit !== "$" && <span className="pr-2.5 text-muted" aria-hidden="true">{unit}</span>}
       </div>
     </div>
@@ -313,7 +341,7 @@ function TopicTree({ s, facets, onChange }: { s: FilterState; facets?: Facets; o
   return (
     <>
       <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Find a topic" aria-label="Find a topic"
-        className="min-h-10 rounded-[10px] border border-border bg-input px-2.5 text-text placeholder:text-muted focus:border-accent focus:outline-none" />
+        className="min-h-11 rounded-[10px] border border-border bg-input px-2.5 text-text placeholder:text-muted focus:border-accent focus:outline-none" />
       {favs.length > 0 && !needle && (
         <div className="border-b border-border pb-2">
           <p className="text-xs text-muted">My topics</p>

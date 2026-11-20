@@ -7,7 +7,8 @@ import type { ReactNode } from "react";
 import type { ApiRow } from "@/lib/api";
 import { backLine, cardVenue, INTL_ONLY, NOT_FOR_US, priceText, stars, starsHelp, type CardVenue } from "@/lib/card";
 import { paysBand } from "@/lib/filters/apply";
-import { money, pct, ret, sideRet, testedLine } from "@/lib/format";
+import { cardReturn, money, pct, ret, testedLine } from "@/lib/format";
+import { noLiveRecord } from "@/lib/proof";
 import type { Execution, Market, Side } from "@/lib/types";
 import { WatchStar } from "@/components/watch/WatchStar";
 import { venueOf } from "@/components/trade/TradeButton";
@@ -96,13 +97,19 @@ export function Why({ r, livePrice }: { r: ApiRow; livePrice?: ReactNode }) {
             {livePrice}
           </Line>
           <Line label="Estimated return">
-            {v.kind === "us" ? (usRet ?? "No Polymarket US price right now") : sideRet(s)}
+            {v.kind === "us" ? (usRet ?? "No Polymarket US price right now") : cardReturn(s).text}
             <span className="block text-xs text-muted">Per bet, on average, at today&apos;s price after the fee. Any single bet can lose.</span>
           </Line>
           <Line label="How sure we are" testid="why-basis">
-            {s.model_neff >= 100 ? "Strong record" : "Thin record"}: based on {pastBets(s.model_neff)} in {basisWords(m, s)}
+            {s.model_neff >= 100 ? "Plenty of history" : "Little history"}: based on {pastBets(s.model_neff)} in {basisWords(m, s)}
           </Line>
-          {tested && <Line label="In testing" testid="why-tested">{tested}</Line>}
+          {tested && (
+            <Line label="In testing" testid="why-tested">
+              <span data-testid="band-record">{tested}</span>
+              {/* T-290: a test record with no live counterpart says so instead of borrowing the best-bets record */}
+              {m.tier === "edge" && <span data-testid="band-live" className="block cursor-help text-xs text-muted underline decoration-dotted underline-offset-4" title={noLiveRecord("lower-confidence bets")}>No live record yet</span>}
+            </Line>
+          )}
           {m.tier === "edge" && <Line label="Confidence">Lower: the price beats past results by less than our cautious estimate needs.</Line>}
         </dl>
         {notes.length > 0 && <ul className="mt-1 space-y-0.5 text-xs text-warning">{notes.map((n) => <li key={n}>{n}</li>)}</ul>}

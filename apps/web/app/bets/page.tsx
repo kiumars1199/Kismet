@@ -4,7 +4,7 @@ import { firstPage } from "@/lib/data/respond";
 import { getUser } from "@/lib/auth/server";
 import { markFirstBetsVisit } from "@/lib/activation";
 
-export const metadata = { title: { absolute: "Best bets · Kismet" }, description: "Contracts priced below how often similar bets have won, after fees and the spread." };
+export const metadata = { title: { absolute: "Best bets · Kismet" }, description: "Bets that have won more often in the past than their price suggests, after the fee." };
 
 type Search = Record<string, string | string[] | undefined>;
 

@@ -65,7 +65,7 @@ describe("one Best bets count (T-288)", () => {
     expect(s.first.free_daily).toBe(FREE_BEST_BETS_A_DAY);
     expect(s.first.rows).toHaveLength(FREE_BEST_BETS_A_DAY);
     const locked = await html(createElement(LockedBets, { total: s.first.total, shown: s.first.rows.length, daily: s.first.free_daily!, desktop: true }));
-    expect(locked).toContain(`${s.shared - FREE_BEST_BETS_A_DAY} more bets on Pro`);   // under 1,000: formatCount is exact
+    expect(locked).toContain(`Unlock ${s.shared - FREE_BEST_BETS_A_DAY} more bets`);   // under 1,000: formatCount is exact
     expect(locked).toContain(`Free shows ${FREE_BEST_BETS_A_DAY} Best bets a day`);
   });
 
