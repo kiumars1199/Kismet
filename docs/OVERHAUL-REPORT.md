@@ -255,4 +255,4 @@ Lighthouse 12.8.2 mobile on production, two passes:
 - INP isn't measured by a Lighthouse page load; locally it is 72–104 ms (target < 200).
 - `/bets` is behind sign-in on production, so it has no signed-out Lighthouse number.
 - Live check: `/`, `/pricing`, `/track-record` and `/about` load at 390×844 with no console or CSP errors, and "Why this bet?" opens on the landing card.
-- Until the first scan on the new engine (scheduled every 30 min from `final`), the live data has no `us`, so cards link to polymarket.com (the pre-US fallback). After that scan they show the US price and "Bet on Polymarket US".
+- Until the first scan on the new engine (scheduled every 30 min from `final`), the live data has no `us`, so cards link to polymarket.com (the pre-US fallback). After that scan they should show the US price and "Bet on Polymarket US". Not yet verified: no scan had run on the new engine when this was written (21:25 UTC). It is the first production run of the new engine code, so check its run in Actions.
