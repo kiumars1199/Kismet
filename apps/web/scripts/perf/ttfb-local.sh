@@ -13,6 +13,8 @@ t() { curl -s -o /dev/null -w '%{http_code} %{time_starttransfer}\n' "http://loc
 ms() { awk -v s="$1" 'BEGIN { printf "%.0f", s * 1000 }'; }
 printf '%-15s %5s %8s %8s  %-58s %s\n' route code cold_ms warm_ms cache-control x-nextjs-cache
 for r in "${ROUTES[@]}"; do
+  # a leftover server on the port would be measured instead of this build (next start just fails with EADDRINUSE)
+  if curl -s -o /dev/null --max-time 2 "http://localhost:$PORT/"; then echo "port $PORT already in use: stop that server first" >&2; exit 1; fi
   node node_modules/next/dist/bin/next start -p "$PORT" > "$LOG" 2>&1 &
   pid=$!
   for _ in $(seq 1 150); do grep -q "Ready" "$LOG" 2>/dev/null && break; sleep 0.2; done

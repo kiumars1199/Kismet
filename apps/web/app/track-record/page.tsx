@@ -12,7 +12,8 @@ import { DASH, RETURN_HELP, edge, exactCount, formatCount, pct, ret } from "@/li
 import { TAXONOMY } from "@/lib/taxonomy";
 import { PAYS_READ_TEXT, bucketRows, foldRows, paysRows, recordRows, tiles } from "@/lib/trackRecord";
 import type { BacktestRecord, LedgerSummary } from "@/lib/types";
-import { CalibrationChart, EdgeChart, FoldCharts, type CalibrationSet } from "./Charts";
+import type { CalibrationSet } from "./Charts";
+import { CalibrationChart, EdgeChart, FoldCharts } from "./LazyCharts";
 
 export const metadata = { title: "Results", description: "How Kismet estimates have done: walk-forward backtest, calibration and settled-bet ledger.", alternates: { canonical: "/track-record" } };
 export const dynamic = "force-static";   // T-295: prerendered + revalidated (lib/static-routes.ts); signed in: app/signed-in/*

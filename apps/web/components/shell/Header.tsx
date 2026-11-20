@@ -24,8 +24,17 @@ export function Logo() {
 }
 
 // T-295: own chunks, loaded only where they render (never on the signed-out pages: the landing stays light).
-const SearchCombobox = dynamic(() => import("@/components/search/SearchCombobox").then((m) => m.SearchCombobox));
-const Bell = dynamic(() => import("@/components/header/Bell").then((m) => m.Bell));
+// ssr: false, because a server-rendered next/dynamic adds a <link rel=preload> without the CSP nonce, which
+// 'strict-dynamic' blocks (a console violation on every signed-in page). The placeholders are the same size as the
+// real thing (the search box's own Suspense fallback; the bell's 44 px button), so the header does not move.
+const SearchCombobox = dynamic(() => import("@/components/search/SearchCombobox").then((m) => m.SearchCombobox), {
+  ssr: false,
+  loading: () => <div className="h-[42px] w-full max-w-[340px] rounded-input border border-border bg-input" />,
+});
+const Bell = dynamic(() => import("@/components/header/Bell").then((m) => m.Bell), {
+  ssr: false,
+  loading: () => <div aria-hidden="true" className="size-11" />,
+});
 
 const navItem = (active: boolean) =>
   `relative flex min-h-9 items-center gap-1.5 whitespace-nowrap rounded-input px-3 text-sm transition-colors ${active
@@ -66,7 +75,7 @@ export function Header({ signedOutHint = false }: { signedOutHint?: boolean }) {
         {!signedOut && <SearchCombobox />}
         {signedOut ? <span className="contents max-sm:hidden"><FreshnessPill /></span> : <FreshnessPill />}
         {!signedOut && <Bell />}
-        <AccountLink />
+        <AccountLink signedOutHint={signedOutHint} />
       </div>
     </header>
   );
