@@ -23,10 +23,13 @@ Before screenshots and prod headers (taken 16:58 UTC, before any change): `docs/
 17. **Static CSP on the prerendered signed-out pages (lane C).** One cached HTML file can't carry a per-request nonce, so `/`, `/pricing`, `/about`, `/track-record` and the legal pages use `script-src 'self' 'unsafe-inline'` plus the Stripe, Vercel and PostHog hosts, without `strict-dynamic`. Every other directive matches the nonce policy, and dynamic pages keep nonce + `strict-dynamic`. Shipped because §C requires these pages to be static and they take no user input; it's reversible (drop `force-static`). Details: `docs/overhaul-evidence/C/NOTES.md` "Needs owner sign-off".
 18. **Risk bands (lane B).** Safer = wins 85%+, Balanced = 70–85%, Bigger payouts = under 70% (the 40% floor stays). They follow where Best bets actually sit on a real scan: 740 of 1,070 at 85%+, 268 at 70–85%, 62 under 70%.
 19. **No skeleton on `/combos`, `/kalshi` and `/m/[id]`.** A `loading.tsx` there streamed HTTP 200 before `notFound()` ran, so non-testers got 200 for beta pages (the admin e2e caught it). Those three keep the right 404 status; every other signed-in route keeps its skeleton.
-20. **The drawer follows the card's venue rule.** US-listed → "Bet on Polymarket US" (`us.url`). `us: null` → the grey "International only" label, the international link and "Not available to US residents". Scans from before the US venue (no `us`) → "Open on Polymarket" as before.
+20. **The drawer follows the card's venue rule.** US-listed → "Bet on Polymarket US" (`us.url`). `us: null` → the grey "International only" label, the international link and "Not available to US residents". Scans from before the US venue (no `us`) → "Open on Polymarket" as before. Under the US button the drawer states the US price ("68¢ on Polymarket US · Polymarket US price, incl. its fee"). The drawer's headline figures above it are still the international ones; the card face (§G1) is the US one.
 21. **Stretched card links count as the card for tap size.** The /markets row title is a link whose `::after` covers the whole card, so the tap area is the card (≥ 44 px). The iPhone checker now measures that box, not the text line.
-22. **Old e2e brought up to the §B card.** `s7-upgrade` checked the removed T-291 overlay (Esc and close button) and the old `one-bet` card; it now checks the inline "Unlock N more bets" card and counts `bet-card`. Its free-account delete got the same 30 s budget as the paid delete in the same file, and the admin beta-link check waits 15 s for `/api/me`. All three passed alone and failed only when the whole suite ran under load.
+22. **Old e2e brought up to the §B card.** `s7-upgrade` checked the removed T-291 overlay (Esc and close button) and the old `one-bet` card; it now checks the inline "Unlock N more bets" card and counts `bet-card`. Its free-account delete got the same 30 s budget as the paid delete in the same file: timed, the first delete on a fresh `next dev` server takes 2.5 s for the DELETE and 5.0 s to the redirect (both routes compile on first hit), and a second one takes 0.7 s / 1.3 s, so it's dev compile time, not the delete or the lifecycle hook. The admin beta-link check waits 15 s for `/api/me`; it passed 2/2 alone and failed once in the full run under load.
 23. **Landing JS kept under 150 kB after the new card.** The card pulled in zod (via `lib/filters/apply`) and the trade-ticket code (via `venueOf`). Both now come from light modules (`lib/filters/bands`, `lib/trade/venue`), and the My-list star inside the closed "Why this bet?" loads on its own. Result: 183.8 → 148.5 kB.
+24. **Deploy-day data shape checked.** Production's data has no `top.json`/`counts.json`, no `us`/`meta.us` and an old `ledger_summary` until the first scan after deploy. A production build on `origin/live`'s current output builds and serves `/`, `/pricing`, `/about`, `/track-record` and `/terms` with no console or CSP errors (the signed-out static CSP included; "Why this bet?" opens). Signed in (on `next dev` with the mock, which the production build turns off), `/`, `/bets`, `/markets`, `/track-record`, `/pricing`, `/watchlist` and `/account` render with no errors, and the drawer falls back to "Open on Polymarket". Without the migrations and secrets, the funnel and lifecycle hooks log and carry on ("[funnel] not recorded", "first sign-in hook failed: UNSUBSCRIBE_SECRET is not set"), and `/api/revalidate` answers 401.
+25. **Test fixtures use the working US link** (`polymarket.us/event/…`, G6). The engine already emits it; only the fixtures still had the dead `/market/` pattern.
+26. **Post-deploy numbers stay off `final`.** The prod speed numbers are measured after the one push, so they're committed on `overhaul` and the backup branch `claude/dazzling-hypatia-d3jvim`, not pushed to `final` (a second push would be a second deploy). The sha deployed is the one in the last message.
 
 ## Waiting for Q
 - Apply Supabase migrations `20261120000200_funnel_events.sql`, `20261120000300_lifecycle_emails.sql`, `20261120000400_alert_events_rule_id_index.sql` to the live project (not applied by agents).
@@ -35,6 +38,7 @@ Before screenshots and prod headers (taken 16:58 UTC, before any change): `docs/
 - **`engine/ledger.py` same-payout picks** include rows logged before `control.jsonl` existed (no `event_id`), so the picks' event count is inflated. The page hides that count until it is fixed.
 - `vercel.json` now has 3 crons; confirm the Vercel plan allows it (fallback: run trial reminders from `/api/settle/run`).
 - Lane C config: `REVALIDATE_SECRET` in Vercel and as a GitHub secret, and `SITE_URL` or `REVALIDATE_URL` as a GitHub variable. Without them `upload.py` logs "revalidate skipped" and pages refresh within 300 s anyway.
+- **Lighthouse LCP < 2.0 s (§C) isn't met** (2.0–2.9 s, simulated). The paint happens at 148 ms; the metric counts the React/Next download. Options: accept the miss, or rebuild `/`, `/pricing` and `/track-record` without hydration (the bet card would lose its in-page "Why this bet?" or need a tiny non-React script). Q's call.
 - Sign-off on the static CSP for signed-out pages (Decision 17). It ships with this deploy; say if you want it reverted.
 
 ## Merged
@@ -195,7 +199,7 @@ e2e: `e2e-paid/overhaul-funnel.spec.ts` walks the funnel with repeats (reloads, 
 ## F4. Lifecycle emails — PASS
 Welcome (3-line card explainer, unsubscribe + List-Unsubscribe), trial ends in 2 days with how to cancel (daily cron), receipt on first paid invoice, cancel confirmation. Sent once each via a claim row (`lifecycle_emails` PK user/kind/ref). `lib/email/lifecycle.test.ts` (15 tests) renders each, checks every link resolves to a real app route, and checks unsubscribe on the optional mail only (receipt, cancel and the trial notice are transactional/required). No real email sent; Resend mocked.
 
-## C. Speed — local PASS; prod numbers below after deploy
+## C. Speed — MISS on Lighthouse LCP (2.0–2.9 s vs < 2.0 s); cache, TTFB, JS budget, CLS and INP pass locally; prod numbers below after deploy
 Lane notes: `docs/overhaul-evidence/C/NOTES.md`. Prod before (Nov 20 16:58 UTC, `docs/overhaul-evidence/before/hdr_*.txt`): `/` TTFB 2.35 s, `/pricing` 0.59 s, `/track-record` 0.36 s, `/about` 0.51 s; every page `cache-control: private, no-cache, no-store`, `x-vercel-cache: MISS`.
 
 What changed: engine writes `top.json` + `counts.json` (+ per-category tops) each scan; signed-out pages `/`, `/pricing`, `/about`, `/track-record`, legal are static + ISR (`s-maxage=300, stale-while-revalidate`), revalidated by `ops/upload.py` via `/api/revalidate` (401 without the bearer, 200 with it); charts lazy-loaded; header no longer pops in (CLS 0.018 → 0); signed-in routes get skeletons.
@@ -212,3 +216,18 @@ Local, real-size data (prod build, 4-core sandbox):
 | INP `/bets` | 112–144 ms | 96–104 ms |
 | Landing render from `top.json` vs `markets.json` | 1549–1681 ms | 394–403 ms |
 | Signed-in tab tap → first paint | 326–639 ms | 72–181 ms |
+
+**Lighthouse mobile on the merged tree** (Nov 20, 20:42 UTC; production build, accounts on, today's production data shape; `scripts/perf/lighthouse.sh`, RUNS=2, load average 1.4):
+| page | perf | LCP ms | CLS | TBT ms | FCP ms |
+|---|---|---|---|---|---|
+| `/` | 91 / 95 | **2817 / 2632** | 0 | 257 / 161 | 938 / 917 |
+| `/pricing` | 90 / 98 | **2578 / 2012** | 0 | 314 / 143 | 772 / 764 |
+| `/track-record` | 74 / 73 | **2785 / 2819** | 0 | 956 / 1034 | 917 / 918 |
+
+- **LCP misses the < 2.0 s target on every page.**
+  - The LCP element is the hero sentence (`/`) or the header paragraph. It is in the server HTML and paints at FCP: unthrottled, LCP = FCP = 148 ms.
+  - Lighthouse's simulated LCP is 83% "render delay". Its pessimistic graph counts every request that started before that paint, and those are the page's JS chunks. About 105 of the 148 kB is the React and Next framework floor.
+  - Tried: inlining the CSS (`experimental.inlineCss`). FCP got about 110 ms faster, LCP didn't move (2361–2792 ms), so it was dropped (§C: no measured gain, no change).
+  - Getting under 2.0 s on this metric likely means shipping these pages without React hydration. That's a product call, listed under Waiting for Q.
+- `/bets` is signed-in only on production (signed out → /signup), so Lighthouse can't measure it without a session. The accounts-off local number is in the table above (LCP 3.2 s).
+- CLS is 0 everywhere. INP is 72–104 ms. The JS budget passes (148.5 kB).

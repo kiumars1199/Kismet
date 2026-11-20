@@ -26,7 +26,7 @@ describe("On Polymarket US filter", () => {
   });
 
   it("onUs: listed, priced, and the US edge at least min_edge", () => {
-    const q = { slug: "x", url: "https://polymarket.us/market/x", side: 0 as const, ask: 0.5, fee: 0.02, edge: 0.02, roi_pct: 3.8 };
+    const q = { slug: "x", url: "https://polymarket.us/event/x", side: 0 as const, ask: 0.5, fee: 0.02, edge: 0.02, roi_pct: 3.8 };
     expect(onUs({ us: q }, 0.02)).toBe(true);
     expect(onUs({ us: { ...q, edge: 0.0199 } }, 0.02)).toBe(false);
     expect(onUs({ us: { ...q, ask: null, edge: null } }, 0.02)).toBe(false);

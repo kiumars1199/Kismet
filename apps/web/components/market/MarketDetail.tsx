@@ -24,7 +24,7 @@ import { AddToCombo } from "@/components/combo/AddToCombo";
 import { drawerHref } from "./drawer";
 import { TradeButton, VenueLink } from "@/components/trade/TradeButton";
 import { VenueButton, primaryVenue } from "@/components/trade/VenueButton";
-import { INTL_ONLY, NOT_FOR_US } from "@/lib/card";
+import { INTL_ONLY, NOT_FOR_US, US_SMALL_PRINT } from "@/lib/card";
 import { Count } from "@/components/kit";
 import { ProofLine } from "@/components/results/ProofLine";
 
@@ -311,7 +311,10 @@ function Actions({ m, s }: { m: StoreMarket; s: Side }) {
       {m.us === undefined
         ? <VenueLink m={m} className="flex min-h-11 w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-input bg-accent px-4 font-semibold text-on-accent hover:bg-accent-hover" />
         : primaryVenue(m, s)
-          ? <VenueButton m={m} s={s} className="w-full" />
+          ? <div className="flex flex-col gap-1">
+              <VenueButton m={m} s={s} className="w-full" />
+              {m.us && m.us.ask != null && <p data-testid="us-price" className="text-center text-xs text-muted">{price(m.us.ask)} on Polymarket US · {US_SMALL_PRINT}</p>}
+            </div>
           : <div className="flex flex-col gap-1">
               <p data-testid="intl-only" className="flex min-h-11 items-center justify-center rounded-input border border-border bg-raised/60 px-3 text-center text-xs text-muted">{INTL_ONLY}</p>
               <VenueLink m={m} className="inline-flex min-h-11 items-center justify-center gap-1.5 text-xs text-muted underline underline-offset-2 hover:text-text" />

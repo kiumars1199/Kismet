@@ -94,7 +94,7 @@ describe("signed-out landing (T-301)", () => {
 
   it("landingBets: Polymarket US first, then list order; skips banned titles and repeat games", () => {
     const row = (id: string, ev: string, q: string, us = false) =>
-      ({ market: { id, event_id: ev, question: q, us: us ? { url: `https://polymarket.us/market/${id}` } : null }, side: { side_index: 0 } }) as unknown as ApiRow;
+      ({ market: { id, event_id: ev, question: q, us: us ? { url: `https://polymarket.us/event/${id}` } : null }, side: { side_index: 0 } }) as unknown as ApiRow;
     const rows = [row("a", "e1", "Will Arsenal win?"), row("b", "e2", "Spread: Brazil (-3.5)", true), row("c", "e3", "Will Leeds win?", true),
       row("d", "e3", "Will Leeds draw?", true), row("e", "e4", "Will Spurs win?"), row("f", "e5", "Will BTC hit 120,000?"), row("g", "e6", "Will Celtic win?")];
     expect(landingBets(rows).map((r) => r.market.id)).toEqual(["c", "a", "e", "g"]);

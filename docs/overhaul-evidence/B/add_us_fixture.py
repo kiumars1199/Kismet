@@ -25,7 +25,7 @@ def quote(m, i):
     s = m["best"]
     h = zlib.crc32(m["id"].encode()) % 3 - 1          # -1, 0, +1 cent
     slug = f"aec-{m['niche']}-{m['id']}"
-    q = {"slug": slug, "url": f"https://polymarket.us/market/{slug}", "side": s["side_index"]}
+    q = {"slug": slug, "url": f"https://polymarket.us/event/{slug}", "side": s["side_index"]}
     if i == 7:                                        # listed on US, no live book
         return {**q, "ask": None, "fee": None, "edge": None, "roi_pct": None}
     ask = round(s["ask"] + h / 100, 2)
