@@ -38,7 +38,7 @@ Before screenshots and prod headers (taken 16:58 UTC, before any change): `docs/
 - **`engine/ledger.py` same-payout picks** include rows logged before `control.jsonl` existed (no `event_id`), so the picks' event count is inflated. The page hides that count until it is fixed.
 - `vercel.json` now has 3 crons; confirm the Vercel plan allows it (fallback: run trial reminders from `/api/settle/run`).
 - Lane C config: `REVALIDATE_SECRET` in Vercel and as a GitHub secret, and `SITE_URL` or `REVALIDATE_URL` as a GitHub variable. Without them `upload.py` logs "revalidate skipped" and pages refresh within 300 s anyway.
-- **Lighthouse LCP < 2.0 s (§C) isn't met** (2.0–2.9 s, simulated). The paint happens at 148 ms; the metric counts the React/Next download. Options: accept the miss, or rebuild `/`, `/pricing` and `/track-record` without hydration (the bet card would lose its in-page "Why this bet?" or need a tiny non-React script). Q's call.
+- **Lighthouse LCP < 2.0 s (§C) isn't met** (production 2.05–2.26 s; locally 2.0–2.9 s, simulated). The paint happens at 148 ms; the metric counts the React/Next download. Options: accept the miss, or rebuild `/`, `/pricing` and `/track-record` without hydration (the bet card would lose its in-page "Why this bet?" or need a tiny non-React script). Q's call.
 - Sign-off on the static CSP for signed-out pages (Decision 17). It ships with this deploy; say if you want it reverted.
 
 ## Merged
@@ -199,7 +199,7 @@ e2e: `e2e-paid/overhaul-funnel.spec.ts` walks the funnel with repeats (reloads, 
 ## F4. Lifecycle emails — PASS
 Welcome (3-line card explainer, unsubscribe + List-Unsubscribe), trial ends in 2 days with how to cancel (daily cron), receipt on first paid invoice, cancel confirmation. Sent once each via a claim row (`lifecycle_emails` PK user/kind/ref). `lib/email/lifecycle.test.ts` (15 tests) renders each, checks every link resolves to a real app route, and checks unsubscribe on the optional mail only (receipt, cancel and the trial notice are transactional/required). No real email sent; Resend mocked.
 
-## C. Speed — MISS on Lighthouse LCP (2.0–2.9 s vs < 2.0 s); cache, TTFB, JS budget, CLS and INP pass locally; prod numbers below after deploy
+## C. Speed — prod: edge cache HIT, cold TTFB 191–348 ms, CLS 0, JS 148.5 kB PASS; Lighthouse LCP 2.05–2.26 s MISSES the < 2.0 s target
 Lane notes: `docs/overhaul-evidence/C/NOTES.md`. Prod before (Nov 20 16:58 UTC, `docs/overhaul-evidence/before/hdr_*.txt`): `/` TTFB 2.35 s, `/pricing` 0.59 s, `/track-record` 0.36 s, `/about` 0.51 s; every page `cache-control: private, no-cache, no-store`, `x-vercel-cache: MISS`.
 
 What changed: engine writes `top.json` + `counts.json` (+ per-category tops) each scan; signed-out pages `/`, `/pricing`, `/about`, `/track-record`, legal are static + ISR (`s-maxage=300, stale-while-revalidate`), revalidated by `ops/upload.py` via `/api/revalidate` (401 without the bearer, 200 with it); charts lazy-loaded; header no longer pops in (CLS 0.018 → 0); signed-in routes get skeletons.
@@ -231,3 +231,28 @@ Local, real-size data (prod build, 4-core sandbox):
   - Getting under 2.0 s on this metric likely means shipping these pages without React hydration. That's a product call, listed under Waiting for Q.
 - `/bets` is signed-in only on production (signed out → /signup), so Lighthouse can't measure it without a session. The accounts-off local number is in the table above (LCP 3.2 s).
 - CLS is 0 everywhere. INP is 72–104 ms. The JS budget passes (148.5 kB).
+
+**Production, after the deploy of c2533e4** (Nov 20, 21:21–21:26 UTC; `ops/perf-prod.sh https://kismetodds.com`, no cookies):
+| page | 1st request | 2nd request | cache-control |
+|---|---|---|---|
+| `/` | 200, 327 ms, HIT | 200, 254 ms, HIT | public, max-age=0, must-revalidate |
+| `/pricing` | 200, 348 ms, PRERENDER | 200, 247 ms, HIT | same |
+| `/about` | 200, 191 ms, PRERENDER | 200, 212 ms, HIT | same |
+| `/track-record` | 200, 273 ms, PRERENDER | 200, 220 ms, HIT | same |
+| `/terms` | 200, 195 ms, PRERENDER | 200, 197 ms, HIT | same |
+| `/privacy` | 200, 307 ms, PRERENDER | 200, 160 ms, HIT | same |
+
+Before (16:58 UTC): `/` 2.35 s, `private, no-store`, MISS. Cold TTFB is now under 500 ms on every signed-out page (PRERENDER is the first hit on a new deploy; HIT after).
+
+Lighthouse 12.8.2 mobile on production, two passes:
+| page | perf | LCP ms | CLS | TBT ms |
+|---|---|---|---|---|
+| `/` | 92 / 97 | 2150 / 2083 | 0 | 319 / 165 |
+| `/pricing` | 98 / 98 | 2070 / 2052 | 0 | 104 / 140 |
+| `/track-record` | 85 / 81 | 2260 / 2252 | 0 | 544 / 722 |
+
+- LCP is 50–260 ms over target on all three; reason and options under Waiting for Q. CLS passes.
+- INP isn't measured by a Lighthouse page load; locally it is 72–104 ms (target < 200).
+- `/bets` is behind sign-in on production, so it has no signed-out Lighthouse number.
+- Live check: `/`, `/pricing`, `/track-record` and `/about` load at 390×844 with no console or CSP errors, and "Why this bet?" opens on the landing card.
+- Until the first scan on the new engine (scheduled every 30 min from `final`), the live data has no `us`, so cards link to polymarket.com (the pre-US fallback). After that scan they show the US price and "Bet on Polymarket US".
