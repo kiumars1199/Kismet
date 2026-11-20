@@ -1,4 +1,4 @@
-import { defineConfig } from "@playwright/test";
+import { defineConfig, devices } from "@playwright/test";
 
 // Paid-mode flows (S7 upgrade, account delete): DEMO_MODE=false, with Supabase and Stripe served by the in-app
 // mock (app/e2e-mock, on only with E2E_MOCK=1 outside production). Same port as the demo run; they run one after the other.
@@ -8,8 +8,14 @@ export default defineConfig({
   testDir: "e2e-paid",
   workers: 1,
   timeout: 120_000,   // a cold .next compiles every route on first hit
+  use: { baseURL: ORIGIN },
+  // docs/OVERHAUL.md §D: the iPhone spec runs in WebKit at 390×844 and 430×932; everything else in Chromium.
   // PW_CHROMIUM_PATH: use a preinstalled Chromium when the pinned Playwright's own build isn't downloaded.
-  use: { baseURL: ORIGIN, launchOptions: { executablePath: process.env.PW_CHROMIUM_PATH || undefined } },
+  projects: [
+    { name: "chromium", testIgnore: /overhaul-iphone/, use: { launchOptions: { executablePath: process.env.PW_CHROMIUM_PATH || undefined } } },
+    { name: "iphone-390", testMatch: /overhaul-iphone/, use: { ...devices["iPhone 15"], viewport: { width: 390, height: 844 } } },
+    { name: "iphone-430", testMatch: /overhaul-iphone/, use: { ...devices["iPhone 15 Pro Max"], viewport: { width: 430, height: 932 } } },
+  ],
   webServer: {
     command: `pnpm exec next dev -p ${PORT}`,
     port: PORT,
