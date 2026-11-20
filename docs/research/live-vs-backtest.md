@@ -74,10 +74,12 @@ python3 scripts/ledger/weather.py         /tmp/l/ledger.jsonl /tmp/l/ledger_now.
 
 ## 3. The filter
 
-Pre-registered candidates (from the brief's hypotheses, not mined): an edge cap, one bet per event, a 60¢ price
-floor, weather only. Held-out split: **in-sample** = the 862 rows the published snapshot had graded (flagged Nov 17);
-**held-out** = the 149 rows graded since by `grade_now.py` (settled Nov 19–20, flagged Nov 17 and 19), never looked
-at while choosing. Months-based splits are impossible: the live ledger starts Nov 17.
+Candidates came from the brief's hypotheses (an edge cap, one bet per event, a 60¢ price floor, weather only), but
+they were **not** pre-registered: the in-sample edge-band table had been seen before the cap was picked. Held-out
+split: **in-sample** = the 862 rows the published snapshot had graded (flagged Nov 17); **held-out** = the 149 rows
+graded since by `grade_now.py` (settled Nov 19–20), not looked at while choosing. The held-out rows are close to
+independent of the in-sample ones: 146 of 149 were flagged on Nov 19, and only 1 of their 30 events also appears
+in-sample (107 sports rows, 42 weather). Month-based splits are impossible: the live ledger starts Nov 17.
 
 | Rule | In-sample (rows) | Held-out (rows) | Both, distinct bets |
 |---|---|---|---|
@@ -101,9 +103,37 @@ at while choosing. Months-based splits are impossible: the live ledger starts No
 keep one rule. Tests: `engine/tests/test_max_edge.py` (off by default, cap boundary, other rules unchanged, backtest
 parity, shipped config off).
 
-## 4. What would actually tell us more
+## 4. The US record (§G)
 
-1. Count the live record by distinct bet and by event (the US-venue branch adds `first` and per-event fields).
+`ledger_summary.us` (merged from `claude/us-venue`) is **empty on every row logged so far**: no ledger row before
+the US venue shipped carries `us_ask`, so there is no US live result yet, at any price. The nearest proxy is the
+sports part of the live record (Polymarket US lists only sports): 315 settled rows / 63 games at **−5.3%** at
+international prices, before US's ~0.6¢ higher fee. `/track-record` therefore leads with an empty US card that says
+so, then the whole record.
+
+Two caveats for the new summary fields, both in `engine/ledger.py` (not lane E's file):
+- `events` groups by `event_id`, which old rows lack, so each old market counts as its own event: `first` shows
+  **739 events for 742 bets** where the real count is ~179 games and city-days. The page treats a record of 50+
+  bets with ≥ 98% as many events as bets as "events not recorded" and makes no "enough to compare" call from it.
+  Fix at the source: derive `event_id` for old rows (Gamma event id, or `scripts/ledger/common.event_key`).
+- `intl_only` is every old row (742 of 742), not "bets US users couldn't place". The page shows the
+  international-only line only once some US rows exist.
+
+## 5. Why the test history is thin before September (§G3)
+
+Not re-run: `data/` lives only in the Actions cache, so this is a reading of the code, not a measurement.
+The bootstrap (`refresh.yml`, first run) calls `pipeline/fetch_closed.py` with its defaults, **the newest 2,000
+closed events per tag, ordered by end date**. Sports and weather close hundreds of events a day, so for them that
+reaches back only a few weeks; older weeks are filled only by the 730-day backfill (`mode=backfill`, up to 1,000
+events per tag per 30-day window) and `fetch_prices --extend`, which tops each niche-month up to a cap. A week also
+needs a validated category and horizon record before it yields best bets. Probable result: a sample dense in the
+last weeks and thin before, which matches 86–87% of test bets in the last two weeks. To confirm: count
+`data/sample.jsonl` rows per (category, month) in the cache, run the backfill to completion, and re-run
+`python -m engine backtest`.
+
+## 6. What would actually tell us more
+
+1. Count the live record by distinct bet and by event (`first`, `events`; fill `event_id` for old rows).
 2. Store per-bet test rows (id, horizon, price, model chance, result) for the last folds, so the overlap week can be
    compared bet for bet with the ledger.
 3. Embargo the training cutoff by the horizon (train on markets resolved before `fold start − 7 days`) and re-run;

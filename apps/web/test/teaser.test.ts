@@ -135,6 +135,9 @@ describe("the test return never stands alone (T-290)", async () => {
   const { HIT_RATE_VS_PROFIT, siteProof } = await import("@/lib/proof");
   const store = await getStore();
   const p = siteProof({ backtest: store.backtest, ledger: store.ledgerSummary, since: store.ledgerSince });
+  // T-296 (OVERHAUL §G3): /track-record states the test span from folds[] and judges the live record on events
+  const { trackProof } = await import("@/components/results/summary");
+  const tp = trackProof(p, store.backtest, store.ledgerSummary, store.ledgerSince ?? null);
   const text = (h: string) => h.replace(/<[^>]+>/g, "").replace(/&#x27;|&apos;/g, "'").replace(/&amp;/g, "&").replace(/\s+/g, " ");
   const pages: [string, () => Promise<unknown>][] = [
     ["landing", () => Landing()],
@@ -145,8 +148,9 @@ describe("the test return never stands alone (T-290)", async () => {
   for (const [name, el] of pages) {
     it(`${name}: test line and live line together, with the basis on hover`, async () => {
       const out = await html(el());
-      expect(p.test).toBeTruthy();
-      expect(text(out), name).toContain(p.line);
+      const want = name === "/track-record" ? tp : p;
+      expect(want.test).toBeTruthy();
+      expect(text(out), name).toContain(want.line);
       expect(out).toContain('data-testid="proof-line"');
       expect(out).toMatch(/data-testid="proof-line"[^>]*title="Testing: /);
     });

@@ -1,5 +1,7 @@
-// Results (T-26, F-14, F-29): walk-forward backtest from backtest.json (chosen half-life), model calibration
-// from model.json, live forward record from ledger_summary.json. Every figure is read, never invented.
+// Results (T-26, F-14, F-29; T-296 plain words): the live forward record (ledger_summary.json) and the walk-forward
+// backtest (backtest.json, chosen half-life) side by side, then model calibration (model.json). Every figure is read,
+// never invented. Each section leads with one headline and one sentence; t-stats, cents per share and full tables
+// sit in a "Details" expand. Charts stay in ./Charts (client, lazy-loadable on their own).
 import { Tiles } from "@/components/results/Tiles";
 import { Count } from "@/components/kit";
 import { chosenResult, coarseCurve, curve } from "@/lib/data/model";
@@ -7,14 +9,18 @@ import { getTier } from "@/lib/auth/server";
 import { can } from "@/lib/entitlements";
 import { getStore } from "@/lib/data/store";
 import { ProofLine } from "@/components/results/ProofLine";
-import { liveReturn, siteProof } from "@/lib/proof";
-import { DASH, RETURN_HELP, edge, exactCount, formatCount, pct, ret } from "@/lib/format";
+import {
+  biggestGroup, compareSentence, eventsOf, intlOnlyNote, liveBase, liveHeadline, paysHeadline, ratedHigher, testHeadline, testSpanText,
+  testWeeks, trackProof, usHeadline, weeksHeadline, type Headline,
+} from "@/components/results/summary";
+import { liveReturn, siteProof, sinceDay } from "@/lib/proof";
+import { DASH, edge, exactCount, formatCount, pct, ret } from "@/lib/format";
 import { TAXONOMY } from "@/lib/taxonomy";
 import { PAYS_READ_TEXT, bucketRows, foldRows, paysRows, recordRows, tiles } from "@/lib/trackRecord";
 import type { BacktestRecord, LedgerSummary } from "@/lib/types";
 import { CalibrationChart, EdgeChart, FoldCharts, type CalibrationSet } from "./Charts";
 
-export const metadata = { title: "Results", description: "How Kismet estimates have done: walk-forward backtest, calibration and settled-bet ledger.", alternates: { canonical: "/track-record" } };
+export const metadata = { title: "Results", description: "How Kismet best bets have done: the live record of real bets next to a week-by-week test on past markets.", alternates: { canonical: "/track-record" } };
 export const dynamic = "force-dynamic";
 
 const DATE = { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" } as const;
@@ -29,10 +35,11 @@ export default async function Page() {
   const r = chosenResult(b);
   const folds = foldRows(b);
   const buckets = bucketRows(b);
-  const horizons = recordRows(r?.by_horizon).sort((x, y) => Number(x.key) - Number(y.key));
+  const cats = recordRows(r?.by_category).map((x) => ({ ...x, name: label(x.key) }));
+  const horizons = recordRows(r?.by_horizon).sort((x, y) => Number(x.key) - Number(y.key)).map((x) => ({ ...x, name: H_NAME[x.key] ?? `${x.key} h` }));
 
-  const cats = ["all", ...((store.model.vocab as { cat?: string[] } | undefined)?.cat ?? [])];
-  const sets: Record<string, CalibrationSet> = Object.fromEntries(cats.map((c) => [c, {
+  const calCats = ["all", ...((store.model.vocab as { cat?: string[] } | undefined)?.cat ?? [])];
+  const sets: Record<string, CalibrationSet> = Object.fromEntries(calCats.map((c) => [c, {
     label: c === "all" ? "All categories" : label(c),
     byH: Object.fromEntries(Object.keys(H_NAME).map((h) => {
       const cv = curve(store.model, c === "all" ? "all" : `cat:${c}`, Number(h));
@@ -42,77 +49,113 @@ export default async function Page() {
 
   const ledger = store.ledgerSummary;
   const since = store.ledgerSince ?? null;
-  const proof = siteProof({ backtest: b, ledger, since });
+  const proof = trackProof(siteProof({ backtest: b, ledger, since }), b, ledger, since);
+  const tw = testWeeks(b);
+  const us = usHeadline(ledger);
+  const live = liveHeadline(ledger, since ? sinceDay(since) : null);
+  const intl = intlOnlyNote(ledger);
+  const test = testHeadline(r?.taker, tw);
+  const compare = compareSentence(ledger, r?.taker);
+  const weeks = weeksHeadline(folds);
+  const rated = ratedHigher(buckets);
+  const catHead = biggestGroup(cats, "Categories");
+  const hHead = biggestGroup(horizons, "Timings");
+  const pays = paysHeadline(r?.by_pays?.best);
 
   return (
     <article className="mx-auto flex max-w-6xl flex-col gap-12 pb-8">
       <header className="flex flex-col gap-3">
-        <h1 className="max-w-3xl text-[32px] font-bold leading-[1.05] tracking-[-0.02em] md:text-[40px]">How best bets did in testing</h1>
+        <h1 className="max-w-3xl text-[32px] font-bold leading-[1.05] tracking-[-0.02em] md:text-[40px]">How best bets have done</h1>
         <p className="max-w-2xl text-[15px] leading-relaxed text-muted">
-          We replayed {(b.folds as number | undefined) ?? DASH} weeks, one at a time. Each week the model only knew what happened before
-          it, chose its best bets, and we checked how they settled. Each bet pays the estimated asking price plus Polymarket&apos;s fee.
-          Last run {date(b.ran_at)}.
+          Two records, side by side: real best bets logged live as we showed them, and a replay of past weeks. Past results, not a promise: any single bet can lose.
         </p>
       </header>
 
-      <section aria-labelledby="tiles-h" className="flex flex-col gap-3">
-        <h2 id="tiles-h" className="sr-only">Headline results</h2>
-        <Tiles tiles={tiles(b)} />
-        <ProofLine p={proof} className="text-[15px] leading-relaxed text-soft" />
-        <p className="text-xs text-muted" title={RETURN_HELP}>
-          &ldquo;Every bet, no filter&rdquo; buys every side of every market in the same weeks. It shows what the fee and the
-          spread cost you without a filter. Past results, not a promise: any single bet can lose.
-        </p>
+      <section aria-labelledby="compare-h" className="flex flex-col gap-4">
+        <h2 id="compare-h" className="sr-only">Live and testing</h2>
+        <div className="grid gap-4 md:grid-cols-3">
+          <Card testId="us-card" kicker="Live on Polymarket US" head={us}>
+            <p className="text-xs leading-relaxed text-muted">The bets a US user could actually have placed. Each bet counted once; each game is one event.</p>
+          </Card>
+          <Card testId="live-card" kicker="Live, every best bet" head={live}>
+            {intl && <p data-testid="intl-only" className="text-xs leading-relaxed text-muted">{intl}</p>}
+            <Details summary="Details">
+              <LiveDetails ledger={ledger} needs={proof.needs} />
+            </Details>
+          </Card>
+          <Card testId="test-card" kicker="Testing on past weeks" head={test}>
+            <Details summary="Details">
+              <div className="flex flex-col gap-3">
+                <Tiles tiles={tiles(b)} />
+                <p className="text-xs leading-relaxed text-muted">
+                  &ldquo;Every bet, no filter&rdquo; buys every side of every market in the same weeks: what the fee and the spread cost
+                  without a filter. Confidence (t-stat): how far the result sits from zero given its noise; above 2 is unlikely to be
+                  luck alone. {tw.withBets} of {tw.weeks} test weeks had best bets ({testSpanText(tw)}). Test last run {date(b.ran_at)}.
+                </p>
+              </div>
+            </Details>
+          </Card>
+        </div>
+        {compare && <p data-testid="compare" className="max-w-3xl text-[15px] leading-relaxed text-soft">{compare}</p>}
+        <ProofLine p={proof} className="max-w-3xl text-sm leading-relaxed text-muted" />
       </section>
 
-      <Section id="weeks" title="Week by week" note="Each bar is one test week. Weeks with no bars had no best bets. Red weeks lost money.">
+      <Section id="weeks" title="Week by week" head={{ value: weeks.value, tone: "flat", sentence: weeks.sentence }}>
         <FoldCharts rows={folds} />
-        <TableDetails summary="Show weeks as a table">
+        <Details summary="Show weeks as a table">
           <Table head={["Week of", "Bets", "Return"]} rows={folds.map((f) => [f.week, <Count key="n" n={f.bets} />, f.retText])} />
-        </TableDetails>
+        </Details>
       </Section>
 
-      <Section id="edges" title="Do predicted edges come true?"
-        note="Bets grouped by how big an edge the model predicted, in cents per $1 share, next to what that group actually earned. Smaller than predicted means the model was too optimistic there.">
+      <Section id="edges" title={rated.title} note={rated.sentence}>
         <EdgeChart rows={buckets} />
-        <TableDetails summary="Show as a table">
+        <Details summary="Details">
+          <p className="mb-2 text-xs text-muted">Bets grouped by the edge the model predicted, in cents per $1 share, next to what each group actually earned in testing.</p>
           <Table head={["Predicted edge", "Bets", "Predicted", "Actually earned"]}
             rows={buckets.map((x) => [x.bucket, <Count key="n" n={x.bets} />, edge(x.predicted / 100), edge(x.realized / 100)])} />
-        </TableDetails>
+        </Details>
       </Section>
 
       <div className="grid gap-12 lg:grid-cols-2 lg:gap-8">
-        <Section id="cats" title="By category" note="Small samples swing a lot. Check the bets and events columns before trusting a row.">
-          <RecordTable first="Category" rows={recordRows(r?.by_category).map((x) => ({ ...x, name: label(x.key) }))} />
+        <Section id="cats" title="By category" head={catHead}>
+          <SimpleTable first="Category" rows={cats} />
+          <Details summary="Details"><RecordTable first="Category" rows={cats} /></Details>
         </Section>
-        <Section id="close" title="By time before close" note="How long before the market closed the bet was placed.">
-          <RecordTable first="Placed" rows={horizons.map((x) => ({ ...x, name: H_NAME[x.key] ?? `${x.key} h` }))} />
+        <Section id="close" title="By time before close" head={hHead}>
+          <SimpleTable first="Placed" rows={horizons} />
+          <Details summary="Details"><RecordTable first="Placed" rows={horizons} /></Details>
         </Section>
       </div>
 
-      <Section id="pays" title="By payout"
-        note="Every tested bet grouped by what it paid per $1. Best bets are the main list; lower-confidence bets are the extra ones you see when you choose a payout. The verdict uses whichever group tested more bets, and calls a result only when it is too big to be luck.">
-        <PaysTable rows={paysRows(r)} />
+      <Section id="pays" title="By payout" head={pays}>
+        <Details summary="Details">
+          <p className="mb-2 text-xs text-muted">
+            Every tested bet grouped by what it paid per $1. Lower-confidence bets are the extra ones you see when you choose a payout.
+            The verdict uses whichever group tested more bets, and calls a result only when it is too big to be luck.
+          </p>
+          <PaysTable rows={paysRows(r)} />
+        </Details>
       </Section>
 
       <Section id="calibration" title="Are the win chances honest?"
-        note="For every price, how often bets at that price actually won in past markets (the model's curve). A curve on the dashed line means the market priced it right.">
+        note="How often past bets at each price actually won. On the dashed line means the price was right; above it, bets won more often than the price said.">
         <CalibrationChart sets={sets} />
-      </Section>
-
-      <Section id="live" title="Live record" note="Every best bet is logged the moment it is shown, then graded when the market settles. This is the forward test, with no hindsight.">
-        <LiveRecord ledger={ledger} since={since} needs={proof.needs} />
       </Section>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <section aria-labelledby="limits-h" className="rounded-card border border-border bg-surface p-5 md:p-6">
           <h2 id="limits-h" className="text-xl font-semibold">Limitations</h2>
           <ul className="mt-3 flex list-disc flex-col gap-2 pl-5 text-sm leading-relaxed text-soft">
+            <li>The live record is young. Bets on the same game or the same day&apos;s weather win or lose together, so a few days of results swing a lot.</li>
+            <li>Headline live numbers count each bet once, even when we showed it again at a lower price. Details also shows every logged row.</li>
+            <li>Bets logged before Polymarket US prices were added have no game id, so each of their markets counts as its own event; the true number of events is lower.</li>
             <li>Past prices are mid prices (halfway between buy and sell). The real asking price was higher.</li>
             <li>To cover that gap, each test bet is charged half of today&apos;s typical spread for its kind of market. Spreads at the time are estimated, not recorded.</li>
+            {weeks.lastTwoShare !== null && weeks.lastTwoShare >= 0.5 && (
+              <li>Most test bets ({pct(weeks.lastTwoShare)}) come from the last two test weeks, so the test leans on a short, recent stretch.</li>
+            )}
             <li>Weather history is short, only a few weeks so far.</li>
             <li>Some categories and weeks have very few bets. Their numbers can be luck either way.</li>
-            <li>Bets on the same game or day move together, so the true sample is the number of events, not bets.</li>
           </ul>
         </section>
         <section aria-labelledby="method-h" className="rounded-card border border-border bg-surface p-5 md:p-6">
@@ -124,6 +167,8 @@ export default async function Page() {
               markets), so a few lucky results can&apos;t drive it alone.</p>
             <p>Older results count less than recent ones, and bets from one game or one weather day are treated as one piece of
               evidence, not many.</p>
+            <p>The test replays {(b.folds as number | undefined) ?? DASH} weeks one at a time: each week the model only knows what
+              happened before it, chooses its best bets, and we check how they settled, paying the estimated asking price plus Polymarket&apos;s fee.</p>
             <p>A bet is a best bet when its win chance beats the asking price plus the fee by at least {edge(store.meta.rule?.min_edge)} per $1
               share, still beats it on a pessimistic estimate, and its category and timing made money in this test.</p>
           </div>
@@ -133,11 +178,30 @@ export default async function Page() {
   );
 }
 
-function Section({ id, title, note, children }: { id: string; title: string; note?: string; children: React.ReactNode }) {
+const TONE: Record<Headline["tone"], string> = { pos: "text-positive", neg: "text-negative", flat: "text-text" };
+
+function Card({ testId, kicker, head, children }: { testId: string; kicker: string; head: Headline; children: React.ReactNode }) {
   return (
-    <section aria-labelledby={`${id}-h`} className="flex min-w-0 flex-col gap-4">
+    <div data-testid={testId} className="flex min-w-0 flex-col gap-2 rounded-card border border-border bg-surface p-5 md:p-6">
+      <p className="text-xs font-medium uppercase tracking-wide text-muted">{kicker}</p>
+      <p data-testid="headline" className={`font-heading text-[40px] font-bold leading-none tracking-[-0.02em] ${TONE[head.tone]}`}>{head.value}</p>
+      <p className="text-sm leading-relaxed text-soft">{head.sentence}</p>
+      {children}
+    </div>
+  );
+}
+
+function Section({ id, title, note, head, children }: { id: string; title: string; note?: string; head?: Headline | null; children: React.ReactNode }) {
+  return (
+    <section aria-labelledby={`${id}-h`} data-testid={`section-${id}`} className="flex min-w-0 flex-col gap-4">
       <div className="flex flex-col gap-1.5">
         <h2 id={`${id}-h`} className="text-2xl font-semibold tracking-[-0.01em]">{title}</h2>
+        {head && (
+          <p className="max-w-2xl text-sm leading-relaxed text-muted">
+            <span data-testid="headline" className={`mr-1.5 font-heading text-xl font-bold ${TONE[head.tone]}`}>{head.value}</span>
+            {head.sentence}
+          </p>
+        )}
         {note && <p className="max-w-2xl text-sm leading-relaxed text-muted">{note}</p>}
       </div>
       {children}
@@ -145,7 +209,7 @@ function Section({ id, title, note, children }: { id: string; title: string; not
   );
 }
 
-function TableDetails({ summary, children }: { summary: string; children: React.ReactNode }) {
+function Details({ summary, children }: { summary: string; children: React.ReactNode }) {
   return (
     <details className="text-sm">
       <summary className="inline-flex min-h-11 cursor-pointer items-center text-accent-hover">{summary}</summary>
@@ -176,13 +240,21 @@ function Table({ head, rows }: { head: string[]; rows: (string | React.ReactNode
 }
 
 type RecRow = { key: string; name: string; r: BacktestRecord; f: ReturnType<typeof recordRows>[number]["f"] };
+const retCell = (r: BacktestRecord, f: RecRow["f"]) => (
+  <span key="r" className={!r.flags ? "text-muted" : (r.roi_pct ?? 0) < 0 ? "text-negative" : "text-positive"} title={r.flags ? undefined : "not available"}>
+    {r.flags ? f.ret : DASH}
+  </span>
+);
+/** Up front: group, bets, return. */
+function SimpleTable({ first, rows }: { first: string; rows: RecRow[] }) {
+  return <Table head={[first, "Bets", "Return"]} rows={rows.map(({ name, r, f }) => [name, r.flags ? <Count key="b" n={r.flags} /> : f.bets, retCell(r, f)])} />;
+}
+/** In Details: everything, t-stat and cents per share included. */
 function RecordTable({ first, rows }: { first: string; rows: RecRow[] }) {
   return (
-    <Table head={[first, "Bets", "Events", "Won", "Return"]} rows={rows.map(({ name, r, f }) => [
+    <Table head={[first, "Bets", "Events", "Won", "Per $1 share", "t-stat", "Return"]} rows={rows.map(({ name, r, f }) => [
       name, r.flags ? <Count key="b" n={r.flags} /> : f.bets, r.events !== undefined ? <Count key="e" n={r.events} /> : f.events, f.won,
-      <span key="r" className={!r.flags ? "text-muted" : (r.roi_pct ?? 0) < 0 ? "text-negative" : "text-positive"} title={r.flags ? undefined : "not available"}>
-        {r.flags ? f.ret : DASH}
-      </span>,
+      f.cents, f.t, retCell(r, f),
     ])} />
   );
 }
@@ -204,35 +276,31 @@ function PaysTable({ rows }: { rows: ReturnType<typeof paysRows> }) {
   );
 }
 
-function LiveRecord({ ledger, since, needs }: { ledger?: LedgerSummary; since: number | null; needs: number | null }) {
-  if (!ledger) {
-    return <p className="rounded-card border border-border bg-surface p-5 text-sm text-soft">No live record on this data yet. It starts with the first logged best bet.</p>;
-  }
-  const n = formatCount(ledger.entries);
+function LiveDetails({ ledger, needs }: { ledger?: LedgerSummary; needs: number | null }) {
+  if (!ledger) return <p className="text-xs text-muted">Every best bet is logged the moment it is shown, then graded when its market settles.</p>;
+  const once = liveBase(ledger)!;
   const cats = Object.entries(ledger.by_category).sort((a, b) => b[1].entries - a[1].entries);
   return (
-    <div className="flex flex-col gap-4 rounded-card border border-border bg-surface p-5 md:p-6">
-      {ledger.graded === 0 ? (
-        <p data-testid="live-summary" className="font-heading text-xl font-semibold leading-snug">
-          Tracking {n} best bets{since ? ` since ${date(since)}` : ""}, none settled yet{needs ? ` (needs ~${formatCount(needs)} settled to judge)` : ""}.
-          <span className="mt-1 block font-sans text-sm font-normal text-muted">Results appear here as markets close. Updated {date(ledger.updated_at)}.</span>
-        </p>
-      ) : (
-        <dl className="grid grid-cols-2 gap-4 sm:grid-cols-5">
-          <Stat label="Logged best bets" value={n} />
-          <Stat label="Settled" value={`${formatCount(ledger.wins)} won · ${formatCount(ledger.losses)} lost`} />
-          <Stat label="Won" value={pct(ledger.wins / ledger.graded)} />
-          <Stat label="Average profit per $1 share" value={edge(ledger.avg_pnl)} />
-          <Stat label="Return on money staked" value={ret(liveReturn(ledger))} />
-        </dl>
-      )}
+    <div className="flex flex-col gap-3">
+      <dl className="grid grid-cols-2 gap-3 text-sm">
+        <Stat label="Best bets logged (each once)" value={formatCount(once.entries)} />
+        <Stat label="Settled" value={once.graded ? `${formatCount(once.wins)} won · ${formatCount(once.losses)} lost` : "none yet"} />
+        <Stat label="Events settled" value={eventsOf(once) !== null ? formatCount(eventsOf(once)) : "not recorded"} />
+        <Stat label="Average profit per $1 share" value={edge(once.avg_pnl)} />
+        <Stat label="Every logged row, re-shows included" value={ledger.graded ? `${formatCount(ledger.graded)} settled · ${ret(liveReturn(ledger))}` : "none settled"} />
+        <Stat label="Updated" value={date(ledger.updated_at)} />
+      </dl>
       {cats.length > 0 && (
         <ul className="flex flex-wrap gap-2 text-xs text-soft">
           {cats.map(([c, s]) => (
-            <li key={c} className="rounded-full bg-muted-bg px-3 py-1">{label(c)} <Count n={s.entries} /> logged · <Count n={s.graded} /> settled</li>
+            <li key={c} className="rounded-full bg-muted-bg px-3 py-1">{label(c)} <Count n={s.entries} /> rows · <Count n={s.graded} /> settled{s.graded ? ` · ${ret(liveReturn(s))}` : ""}</li>
           ))}
         </ul>
       )}
+      <p className="text-xs leading-relaxed text-muted">
+        Every best bet is logged the moment it is shown, then graded when its market settles: one $1 share at the asking price plus the fee, no hindsight.
+        {needs ? ` About ${formatCount(needs)} settled events would be enough to tell a return the size of the test's from zero (test events × (2 ÷ test t-stat)²).` : ""}
+      </p>
     </div>
   );
 }
@@ -241,7 +309,7 @@ function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <dt className="text-xs text-muted">{label}</dt>
-      <dd className="font-heading text-2xl font-bold">{value}</dd>
+      <dd className="font-heading text-lg font-bold">{value}</dd>
     </div>
   );
 }
