@@ -4,6 +4,7 @@
 // URLs lose their query strings, emails are redacted, and only allow-listed event properties are sent.
 import type { Breadcrumb, ErrorEvent } from "@sentry/nextjs";
 import { KEYS } from "@/lib/filters/url";
+import { stepForPath, type FunnelStep } from "@/lib/funnel";
 
 const EMAIL = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi;
 const redact = (s: string) => s.replace(EMAIL, "[email]");
@@ -141,5 +142,50 @@ export async function initAnalytics(key = process.env.NEXT_PUBLIC_POSTHOG_KEY) {
 
 /** Fire-and-forget; a no-op when analytics is off. Only allow-listed properties leave the browser. */
 export function track(event: AnalyticsEvent, props?: Record<string, unknown>) {
+  if (event === "checkout_started") funnel("checkout_start");   // T-299: the funnel counts it whether or not PostHog is on
   ph?.capture(event, cleanProps(props));
+}
+
+// ---------------------------------------------------------------- Funnel (T-299, lib/funnel.ts)
+// The browser only names the step; the server decides whether it counts (signed in or out, first time for this user)
+// and records it in Supabase, then sends it to PostHog from the server (lib/funnel-server.ts). No ids, URLs or
+// properties leave the browser here, nothing is stored in the browser, and nothing is sent in demo mode.
+
+const sentThisLoad = new Set<FunnelStep>();
+const demo = () => process.env.NEXT_PUBLIC_DEMO_MODE === "true";
+
+/** One POST per step per page load (the server keeps "first" steps to once per user across loads and devices). */
+export function funnel(step: FunnelStep) {
+  if (typeof window === "undefined" || demo() || sentThisLoad.has(step)) return;
+  sentThisLoad.add(step);
+  void fetch("/api/funnel", {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ step }),
+    keepalive: true, credentials: "same-origin",
+  }).catch(() => {});
+}
+
+let watching = false;
+/** Page-view steps (/, /signup, /bets, /pricing) on the URL the app actually committed: the first load, then every
+ *  client navigation (history push/replace, back/forward). A link that redirects counts where it lands. */
+export function watchFunnelPaths() {
+  if (typeof window === "undefined" || watching) return;
+  watching = true;
+  let last = "";
+  const check = () => {
+    const path = window.location.pathname;
+    if (path === last) return;
+    last = path;
+    const step = stepForPath(path);
+    if (step) funnel(step);
+  };
+  for (const k of ["pushState", "replaceState"] as const) {
+    const orig = window.history[k];
+    window.history[k] = function (this: History, ...args: Parameters<History["pushState"]>) {
+      const r = orig.apply(this, args);
+      queueMicrotask(check);
+      return r;
+    };
+  }
+  window.addEventListener("popstate", check);
+  check();
 }

@@ -38,7 +38,7 @@ const Note = ({ msg }: { msg: { ok: boolean; text: string } | null }) =>
 
 const SECTIONS = [
   { href: "/admin", label: "Overview" }, { href: "/admin/users", label: "Users" }, { href: "/admin/grants", label: "Plan grants" }, { href: "/admin/settings", label: "Site settings" },
-  { href: "/admin/health", label: "System health" }, { href: "/admin/audit", label: "Audit log" },
+  { href: "/admin/funnel", label: "Funnel" }, { href: "/admin/health", label: "System health" }, { href: "/admin/audit", label: "Audit log" },
 ] as const;
 
 export function AdminNav() {
