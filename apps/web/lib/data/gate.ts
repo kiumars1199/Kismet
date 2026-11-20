@@ -75,9 +75,10 @@ export function freeView(store: Store): Store {
   return v;
 }
 
-export function gateMarkets(r: MarketsResponse, tier: Tier): MarketsResponse {
+/** `max`: rows to keep; default the tier's rows per request (Free: site setting free_rows, default 10). The Free Best
+ *  bets sample passes its own size (FREE_BEST_BETS_A_DAY), so the setting can't cut or widen the daily allowance. */
+export function gateMarkets(r: MarketsResponse, tier: Tier, max = rowCap(tier)): MarketsResponse {
   if (can(tier, "exact_edge")) return r;
-  const max = rowCap(tier);   // Free cap from site settings (default 10)
   const rows = r.rows.slice(0, max).map(({ market, side }) => {
     const g = gateMarket(market, tier);
     return { market: g, side: g.sides.find((s) => s.side_index === side.side_index) ?? rangeSide(side) };

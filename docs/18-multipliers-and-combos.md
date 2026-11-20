@@ -43,7 +43,7 @@ checks in docs/12 apply the 5% cap to tier "best" only.
 
 ## 4. Clean numbers
 `formatCount(n)` used for every count shown to users (bets, markets, events):
-under 1,000 exact; otherwise **round down** to a short form: 9,666 → "9.6K", 12,340 → "12K", 778,152 → "778K",
+under 1,000 exact; otherwise **round down** to one decimal, dropping a trailing ".0" (T-288): 1,000 → "1K", 9,666 → "9.6K", 12,340 → "12.3K", 16,896 → "16.8K", 778,152 → "778.1K",
 1,240,000 → "1.2M". Hover shows the exact number. Never round up: "10K+" only when the real number is ≥ 10,000.
 Unit test the edges (999, 1,000, 9,999, 10,000, 999,999).
 

@@ -5,7 +5,8 @@ import { botCheck, clientIp, clientKey, noteRows, rateLimit, rowBudget, verified
 import { getMe, type Me } from "@/lib/auth/server";
 import { freeView, gateMarket, gateMarkets } from "./gate";
 import { categoryRecord, curve, segmentOf } from "./model";
-import { can, type Tier } from "@/lib/entitlements";
+import { FREE_BEST_BETS_A_DAY, can, type Tier } from "@/lib/entitlements";
+import { bestBetsRows } from "./counts";
 import { delayMin, rowCap } from "@/lib/settings-core";
 import { apply, nowFor, openOnly } from "@/lib/filters/apply";
 import { parse } from "@/lib/filters/url";
@@ -173,29 +174,30 @@ function fnv(s: string): number {
   return h >>> 0;
 }
 
-/** docs/19 P3: Free sees `rowCap("free")` Best bets a day, a random sample per user (or IP) per UTC day, so a refresh
- *  doesn't change it. Consistent sampling: each open best-tier bet ranks by hash(key + day + id) and the lowest N win,
- *  so a new scan only swaps the bets that closed or appeared. */
+/** docs/19 P3: Free sees FREE_BEST_BETS_A_DAY (10) Best bets a day, a random sample per user (or IP) per UTC day, so a
+ *  refresh doesn't change it. Drawn from the unfiltered Best bets list (lib/data/counts.ts, the same rows every count
+ *  uses), so the default page shows exactly 10 whenever 10 exist. Consistent sampling: each bet ranks by
+ *  hash(key + day + id) and the lowest N win, so a new scan only swaps the bets that closed or appeared. Fixed, never
+ *  the admin free_rows setting: that one is rows per list request. */
 export function freeSample(store: Store, key: string, now = Date.now()): Set<string> {
   const seed = `${key}|${new Date(now).toISOString().slice(0, 10)}|`;
-  const t = nowFor(store);
   return new Set(
-    store.flags
-      .filter((m) => m.closes_at > t && (m.tier ?? "best") === "best" && !!m.execution && BEST_BETS_VERDICTS.includes(m.execution.verdict))
-      .map((m) => [fnv(seed + m.id), m.id] as const)
+    bestBetsRows(store)
+      .map((r) => [fnv(seed + r.market.id), r.market.id] as const)
       .sort((a, b) => a[0] - b[0])
-      .slice(0, rowCap("free"))
+      .slice(0, FREE_BEST_BETS_A_DAY)
       .map(([, id]) => id),
   );
 }
 
 /** Free Best bets: every match is counted (`total` is the real N for "Unlock all N bets"), but only the day's sample
- *  leaves the server, ungrouped (a game group would carry the other bets in it). */
+ *  leaves the server, ungrouped (a game group would carry the other bets in it). `free_daily` marks the page as the
+ *  Free sample, so the client draws the locked cards from the server's answer, never from its own guess of the tier. */
 function freeFlagsPage(store: Store, f: FilterState, key: string): MarketsResponse {
   const page = marketsPage(store, { ...f, page: 1, page_size: Number.MAX_SAFE_INTEGER, group_by_event: false });
   const keep = freeSample(store, key);
   const rows = page.rows.filter((r) => keep.has(r.market.id));
-  return { ...page, page_size: f.page_size, total_groups: undefined, groups: undefined, rows };
+  return { ...page, page_size: f.page_size, total_groups: undefined, groups: undefined, rows, free_daily: FREE_BEST_BETS_A_DAY };
 }
 
 /** Live re-pricing (lib/reprice.ts) is off for a frozen snapshot (DATA_CLOCK=scan: tests, demo fixtures), under
@@ -212,11 +214,15 @@ export async function listBody(store: Store, f: FilterState, tier: Tier, sampleK
   const live = can(tier, "live_data");
   const page = live ? marketsPage(store, f) : f.view === "flags" ? freeFlagsPage(store, f, sampleKey) : marketsPage(store, { ...f, page: 1 });
   if (live && f.page > Math.max(1, page.pages)) return null;
-  if (!live || !repriceOn()) return gateMarkets(page, tier);   // Free stays 15 min behind
+  if (!live) return gateMarkets(page, tier, page.free_daily);   // Free stays 15 min behind; its Best bets are the day's sample
+  if (!repriceOn()) return gateMarkets(page, tier);
   const want = tierOf(f);
   // Best bets drops bets that lost their edge or tier; All markets keeps every row (a lost edge only clears its flag)
   const keep = f.view === "flags" ? (t: "best" | "edge") => want === "all" || t === want : undefined;
-  return gateMarkets(await repricePage(page, ctxOf(store), keep, quoteSource()), tier);
+  const priced = await repricePage(page, ctxOf(store), keep, quoteSource());
+  // T-288: the count is the scan's (lib/data/counts), the same on every page, reload and surface. Live prices can hide
+  // a card on this page that lost its edge, but they price only this page, so they don't move the one count.
+  return gateMarkets(f.view === "flags" ? { ...priced, total: page.total, total_groups: page.total_groups } : priced, tier);
 }
 
 const sampleKeyOf = (req: Request, me: Me) => (me.user?.id ? `u:${me.user.id}` : `ip:${clientIp(req)}`);

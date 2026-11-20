@@ -2,6 +2,7 @@
 
 // Desktop rows (F-01): TanStack Table for columns + visibility, TanStack Virtual over the window for rows.
 // Sorting is server-side (manualSorting): a header click asks the page to change `sort` in the URL.
+import { ClosesIn, ClosesLine } from "@/components/clock";
 import Link from "next/link";
 import { createColumnHelper, flexRender, getCoreRowModel, useReactTable, type ColumnDef, type VisibilityState } from "@tanstack/react-table";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
@@ -9,7 +10,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { ApiGroup, ApiRow } from "@/lib/api";
 import type { SortKey } from "@/lib/filters/state";
 import type { FilterState } from "@/lib/filters/state";
-import { basis, chance, closesIn, closesLine, DASH, edge, money, pays, PAYS_HELP, pct, price, RETURN_HELP, sideRet, sideEdge, formatCount } from "@/lib/format";
+import { basis, chance, DASH, edge, money, pays, PAYS_HELP, pct, price, RETURN_HELP, sideRet, sideEdge, formatCount } from "@/lib/format";
 import { WatchStar } from "@/components/watch/WatchStar";
 import { drawerHref, useOpenDrawer } from "@/components/market/drawer";
 import { AlertLink, Notes, Val } from "@/components/market/bits";
@@ -49,7 +50,7 @@ function columns(pro: boolean): Col[] {
       id: "chance", header: "Chance", meta: { label: "Chance" },
       cell: ({ row: { original: r } }) => { const c = chance(r.side.win_prob); return <span className={`whitespace-nowrap ${chanceTone(c)}`}>{c ?? <Val v={DASH} />}</span>; },
     }),
-    h.display({ id: "closes", header: "Closes", meta: { label: "Closes", sort: "closes", right: true }, cell: ({ row: { original: r } }) => <span className="whitespace-nowrap">{closesIn(r.market.closes_at)}</span> }),
+    h.display({ id: "closes", header: "Closes", meta: { label: "Closes", sort: "closes", right: true }, cell: ({ row: { original: r } }) => <span className="whitespace-nowrap"><ClosesIn at={r.market.closes_at} /></span> }),
     h.display({ id: "topic", header: "Topic", meta: { label: "Topic" }, cell: ({ row: { original: r } }) => <span className="whitespace-nowrap text-xs text-muted">{topicLabel(r.market)}</span> }),
     // optional Pro columns (hidden by default)
     h.display({ id: "mid", header: "Mid", meta: { label: "Mid", pro: true, right: true }, cell: ({ row: { original: r } }) => <Val v={price(r.side.mid)} /> }),
@@ -189,7 +190,7 @@ export function MarketTable({ items, sort, onSort, onToggleGroup, pro = false, l
                   <td colSpan={visible.length} className="px-3 pb-1.5 pt-4">
                     <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                       <Link href={`/event/${it.g.event_id}`} className="font-heading text-[15px] font-semibold hover:text-accent-hover">{it.g.event}</Link>
-                      <span className="text-xs text-muted">{closesLine(it.g.closes_at, undefined, true)}</span>
+                      <span className="text-xs text-muted"><ClosesLine at={it.g.closes_at} cap /></span>
                       {it.g.flagged > 0 && <span className="text-xs text-accent-softer">{it.g.flagged} best {it.g.flagged === 1 ? "bet" : "bets"}</span>}
                     </div>
                   </td>

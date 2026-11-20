@@ -1,4 +1,5 @@
 // Landing at /about (T-28, F-20; moved from / by T-70, docs/13). Live counters and preview cards come from the store; tiles from backtest.json.
+import { bestBetsCount } from "@/lib/data/counts";
 import { REFRESH_WORDS } from "@/lib/freshness";
 import Link from "next/link";
 import { Faq, Plans } from "@/components/pricing/Plans";
@@ -49,7 +50,7 @@ export default async function Page() {
     const m = gateMarket(market, tier);
     return { market: m, side: m.sides.find((x) => x.side_index === side.side_index) ?? m.best };
   });
-  const bestCount = apply(store, FilterState.parse({ view: "flags", verdicts: ["worth it", "thin"] })).total; // same filter as the Best bets page (BEST_BETS_VERDICTS)
+  const bestCount = bestBetsCount(store).total;   // T-288: the one Best bets count (lib/data/counts.ts)
   const tested = chosenResult(store.backtest)?.taker;
 
   return (
