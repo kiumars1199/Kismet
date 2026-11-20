@@ -7,7 +7,7 @@ import { BetCard } from "@/components/market/BetCard";
 import { chosenResult } from "@/lib/data/model";
 import { freeView } from "@/lib/data/gate";
 import { listBody } from "@/lib/data/respond";
-import { getStoreFor } from "@/lib/data/store";
+import { topOrStore } from "@/lib/data/top";
 import { bestBetsCount, bestBetsQuery } from "@/lib/data/counts";
 import { behindWords, exactCount, formatCount, pct } from "@/lib/format";
 import { getSettings } from "@/lib/settings";
@@ -40,7 +40,7 @@ async function scan() {
   try {
     // The visitor is signed out, so Free: the same store, query, daily random sample and gate as a Free /api/flags
     // page 1 (lib/data/respond.ts listBody), keyed "landing" so every visitor sees the same 3 for the day.
-    const store = freeView(await getStoreFor("free"));
+    const store = freeView(await topOrStore("free"));   // T-295: top.json when it can serve Free, else the full store
     const page = await listBody(store, bestBetsQuery({ page_size: LANDING_REAL }), "free", LANDING_SAMPLE);
     if (!page) return null;
     return {

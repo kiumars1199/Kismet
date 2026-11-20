@@ -5,7 +5,7 @@ import { Count } from "@/components/kit";
 import { chosenResult, coarseCurve, curve } from "@/lib/data/model";
 import { getTier } from "@/lib/auth/server";
 import { can } from "@/lib/entitlements";
-import { getStore } from "@/lib/data/store";
+import { getResults } from "@/lib/data/top";
 import { ProofLine } from "@/components/results/ProofLine";
 import { liveReturn, siteProof } from "@/lib/proof";
 import { DASH, RETURN_HELP, edge, exactCount, formatCount, pct, ret } from "@/lib/format";
@@ -15,7 +15,8 @@ import type { BacktestRecord, LedgerSummary } from "@/lib/types";
 import { CalibrationChart, EdgeChart, FoldCharts, type CalibrationSet } from "./Charts";
 
 export const metadata = { title: "Results", description: "How Kismet estimates have done: walk-forward backtest, calibration and settled-bet ledger.", alternates: { canonical: "/track-record" } };
-export const dynamic = "force-dynamic";
+export const dynamic = "force-static";   // T-295: prerendered + revalidated (lib/static-routes.ts); signed in: app/signed-in/*
+export const revalidate = 300;
 
 const DATE = { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" } as const;
 const date = (unix: unknown) => (typeof unix === "number" ? new Date(unix * 1000).toLocaleDateString("en-US", DATE) : DASH);
@@ -23,7 +24,7 @@ const label = (cat: string) => TAXONOMY[cat]?.label ?? cat;
 const H_NAME: Record<string, string> = { "1": "~1 hour", "6": "~6 hours", "24": "~1 day", "72": "~3 days", "168": "~1 week" };
 
 export default async function Page() {
-  const [store, tier] = await Promise.all([getStore(), getTier()]);
+  const [store, tier] = await Promise.all([getResults(), getTier()]);
   const exact = can(tier, "exact_edge");   // RT3-01: Free / signed-out see the curves rounded to their band width
   const b = store.backtest;
   const r = chosenResult(b);

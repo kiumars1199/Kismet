@@ -140,6 +140,21 @@ export interface Derived {
 }
 export type StoreMarket = Market & { derived: Derived; execution?: Execution; tier?: FlagTier };   // tier: flags only
 
+// output/top.json, top-<category>.json, counts.json (T-295, docs/03 § Precomputed files): written after each scan
+// (engine/precompute.py), rotated to *-prev.json / *-prev2.json like flags.json. Exact numbers: the server gates them.
+export interface TopRow { market: Flag; side: Side }   // ApiRow-shaped (lib/api.ts), before derive() and gating
+export interface TopQuery { view: "flags"; tier: "best"; verdicts: Verdict[]; win_prob_min: number; sort: "roi desc"; category?: Category }
+export interface TopFile { meta: ScanMeta; query: TopQuery; total: number; rows: TopRow[] }
+export interface CountsFile {
+  scanned_at: number;
+  meta: ScanMeta;                                       // flags.json meta (rule, instance, verdicts)
+  markets_scanned: number;
+  flags: number;                                        // flags.json rows, both tiers
+  tiers: Record<FlagTier, number>;
+  verdicts: Partial<Record<Verdict, number>>;
+  best_bets: { total: number; sections: Record<"worth it" | "thin", number>; by_category: Partial<Record<Category, number>> };
+}
+
 // output/events.json (T-05): event slug -> markets, used by the extension lookup
 export type EventsFile = Record<string, { event_id: string; event: string; market_ids: string[]; flag_ids: string[] }>;
 

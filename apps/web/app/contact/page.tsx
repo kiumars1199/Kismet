@@ -4,6 +4,9 @@ import Link from "next/link";
 import { LegalPage, SupportEmail, type Section } from "@/components/legal/Legal";
 import { SITE } from "@/lib/site";
 
+export const dynamic = "force-static";   // T-295: prerendered + revalidated (lib/static-routes.ts)
+export const revalidate = 300;
+
 export const metadata: Metadata = { title: "Contact", description: `How to reach the people behind ${SITE.name}.`, alternates: { canonical: "/contact" } };
 
 export default function Page() {

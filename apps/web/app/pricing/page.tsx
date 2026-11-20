@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { Faq, Plans } from "@/components/pricing/Plans";
 import { ProofLine } from "@/components/results/ProofLine";
-import { getStore } from "@/lib/data/store";
+import { getResults } from "@/lib/data/top";
 import { HIT_RATE_VS_PROFIT, siteProof } from "@/lib/proof";
 import { planCtx } from "@/lib/billing/planCtx";
 import { getSettings } from "@/lib/settings";
@@ -10,7 +10,8 @@ import { tradingEnv } from "@/lib/trade/server";
 import { behindWords, usd } from "@/lib/format";
 import { SITE } from "@/lib/site";
 
-export const dynamic = "force-dynamic";   // T-290: the proof line reads the latest backtest and ledger
+export const dynamic = "force-static";   // T-295: prerendered + revalidated (lib/static-routes.ts); signed in: app/signed-in/*
+export const revalidate = 300;
 export const metadata = { title: "Pricing", description: "Free, Pro and Premium plans for Kismet. Start free; paid plans include a 7-day trial and cancel any time.", alternates: { canonical: "/pricing" } };
 
 const rows = (delay: number): [string, string, string, string][] => [
@@ -46,7 +47,7 @@ const PRICING_FAQ: { q: string; a: React.ReactNode }[] = [
 export default async function Page() {
   const [delay, ctx] = await Promise.all([getSettings().then((s) => s.free_delay_min), planCtx()]);   // Free delay from site settings, the one place it is set
   // T-290: the test result never stands alone; no engine output yet → no line (the page still sells the plans)
-  const proof = await getStore().then((s) => siteProof({ backtest: s.backtest, ledger: s.ledgerSummary, since: s.ledgerSince }), () => null);
+  const proof = await getResults().then((s) => siteProof({ backtest: s.backtest, ledger: s.ledgerSummary, since: s.ledgerSince }), () => null);
   return (
     <article className="mx-auto flex max-w-6xl flex-col gap-14 pb-8">
       <header className="flex max-w-2xl flex-col gap-3">

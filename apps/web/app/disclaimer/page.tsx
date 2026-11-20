@@ -4,6 +4,9 @@ import Link from "next/link";
 import { LegalPage, type Section } from "@/components/legal/Legal";
 import { SITE } from "@/lib/site";
 
+export const dynamic = "force-static";   // T-295: prerendered + revalidated (lib/static-routes.ts)
+export const revalidate = 300;
+
 export const metadata: Metadata = { title: "Disclaimer", description: "Market analytics, not financial advice. How to read the numbers, and where to get help.", alternates: { canonical: "/disclaimer" } };
 
 export default function Page() {

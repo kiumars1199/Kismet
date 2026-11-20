@@ -22,8 +22,9 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = { themeColor: "#070a09" };
-// The CSP nonce is per request (middleware.ts), so no page may be prerendered with a stale one.
-export const dynamic = "force-dynamic";
+// T-295: no `dynamic` here. requestClock() reads cookies() and headers(), so every route renders per request (fresh
+// CSP nonce, middleware.ts) unless its page opts into `dynamic = "force-static"` (lib/static-routes.ts): there those
+// read as empty, the zone is unknown (clock times show after mount) and the page is prerendered + revalidated.
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const [settings, clock] = await Promise.all([getSettings(), requestClock()]);   // banner (T-142, cached 60 s); the visitor's zone (T-288)

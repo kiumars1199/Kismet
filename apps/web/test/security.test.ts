@@ -96,6 +96,7 @@ describe("web hardening greps", () => {
       "app/api/trade/nonce/verify/route.ts": "the nonce is the credential",
       "app/api/alerts/run/route.ts": "CRON_SECRET",
       "app/api/settle/run/route.ts": "CRON_SECRET",
+      "app/api/revalidate/route.ts": "REVALIDATE_SECRET or CRON_SECRET (T-295)",
       "app/api/mcp/route.ts": "OAuth bearer token only (lib/mcp/auth.ts), never cookies; read-only tools",
       "app/e2e-mock/[...path]/route.ts": "404 unless E2E_MOCK=1 outside production",
       "app/api/admin/export/route.ts": "GET only (sameSiteRequest); its POST/PUT/PATCH/DELETE are adminOnly405: 404 or 405, no state change",

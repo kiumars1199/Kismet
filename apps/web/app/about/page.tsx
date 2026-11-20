@@ -10,7 +10,8 @@ import { planCtx } from "@/lib/billing/planCtx";
 import { getSettings } from "@/lib/settings";
 import { chosenResult } from "@/lib/data/model";
 import { getMe } from "@/lib/auth/server";
-import { getStoreFor, type Store } from "@/lib/data/store";
+import type { Store } from "@/lib/data/store";
+import { topOrStore } from "@/lib/data/top";
 import { pendingLine } from "@/lib/data/respond";
 import { PendingState } from "@/components/screener/States";
 import { DASH, RETURN_HELP, closesLine, formatCount, pct, price, recordHelp } from "@/lib/format";
@@ -20,7 +21,8 @@ import { tiles } from "@/lib/trackRecord";
 import { allRows, topByReturn } from "@/lib/topBets";
 import type { Side, StoreMarket } from "@/lib/types";
 
-export const dynamic = "force-dynamic";
+export const dynamic = "force-static";   // T-295: prerendered + revalidated (lib/static-routes.ts); signed in: app/signed-in/*
+export const revalidate = 300;
 export const metadata = { title: "How it works" };
 
 const n = (x: number | undefined) => formatCount(x);   // docs/18 §4
@@ -49,7 +51,7 @@ export default async function Page() {
   const tier = me.tier;   // landing preview: same tier shaping and Free delay as the API (docs/15)
   let store: Store;
   try {
-    store = await getStoreFor(tier);
+    store = await topOrStore(tier);   // T-295: top.json (every best bet) when it can serve this tier, else the full store
   } catch (e) {
     return <div className="mx-auto w-full max-w-[720px] pt-4 md:pt-10"><PendingState line={pendingLine(e)} /></div>;
   }

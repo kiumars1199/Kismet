@@ -5,6 +5,8 @@ import { LegalPage, SupportEmail, tradingEnabled, type Section } from "@/compone
 import { usd } from "@/lib/format";
 import { SITE } from "@/lib/site";
 
+export const dynamic = "force-static";   // T-295: prerendered + revalidated (lib/static-routes.ts)
+export const revalidate = 300;
 export const metadata: Metadata = { title: "Terms of use", description: `The terms for using ${SITE.name}, a market analytics service.`, alternates: { canonical: "/terms" } };
 
 export default function Page() {
