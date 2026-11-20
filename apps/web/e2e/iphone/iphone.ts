@@ -3,7 +3,7 @@
 // Checks per page: no horizontal scroll, tap targets ≥ 44 px, the sticky header and bottom nav never cover content,
 // and no loading flash (a list that showed rows never drops back to zero rows while the page settles).
 import { expect, type Page, type TestInfo } from "@playwright/test";
-import { mkdirSync } from "node:fs";
+import { appendFileSync, mkdirSync } from "node:fs";
 import path from "node:path";
 
 export const SHOTS = path.resolve(__dirname, "../../../../docs/overhaul-evidence/D");
@@ -105,7 +105,11 @@ export async function checkPage(page: Page, url: string, info: TestInfo, opts: {
   mkdirSync(SHOTS, { recursive: true });
   const vp = page.viewportSize()!;
   const name = `${url === "/" ? "home" : url.replace(/^\//, "").replace(/[/?=&]/g, "_")}${info.project.name.includes("paid") ? "-signedout" : ""}-${vp.width}x${vp.height}.png`;
-  await page.screenshot({ path: path.join(SHOTS, name), fullPage: true });
+  // full page when it fits the 32,767 px screenshot limit at the device's pixel ratio, else the first screen
+  const dpr = await page.evaluate(() => window.devicePixelRatio);
+  const h = await page.evaluate(() => document.documentElement.scrollHeight);
+  await page.screenshot({ path: path.join(SHOTS, name), fullPage: h * dpr < 32000 });
+  if (process.env.IPHONE_LOG) appendFileSync(process.env.IPHONE_LOG, JSON.stringify({ url, vp: `${vp.width}x${vp.height}`, project: info.project.name, ...problems }) + "\n");
   await info.attach(`${url} problems`, { body: JSON.stringify(problems, null, 2), contentType: "application/json" });
   expect(problems, `${url} at ${vp.width}×${vp.height}`).toEqual({ horizontalScroll: [], smallTargets: [], covered: [], flashes: [] });
 }
