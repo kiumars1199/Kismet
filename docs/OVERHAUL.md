@@ -107,10 +107,62 @@ Live ledger: 1,117 settled best bets at −2.2%. Walk-forward backtest: +17%. Th
    reminders are expected by card networks and some state auto-renewal laws. Check: each email
    rendered in a test, links work, unsubscribe where required.
 
+## G. US-first, spread-out live record (owners' priority, added Nov 20 midday)
+Read `docs/research/polymarket-us.md` first. In short:
+- US users can only trade on Polymarket US.
+- 27% of our scan is listed there, all of it sports.
+- 53% of the live record is weather, which isn't on Polymarket US.
+- On the same bet, a US user pays about 0.6¢ more per share (fee Θ = 0.095).
+
+The **engine part is done** on branch `claude/us-venue` (PR "US venue"). It does F1's research and data work, so
+don't redo it: merge that PR into `final` before any lane touches `engine/` or the card components.
+- Every market gets `us` (link, side, US ask, fee, edge at US prices) or null.
+- `meta.us` reports coverage.
+- The ledger logs US prices and grades a separate US record (`ledger_summary.us`), plus `first` (each bet once) and
+  `events` / `avg_pnl_by_event` (each game counted once).
+
+1. **Cards and buttons (lane B, card owner).** The site serves the US only (`config/site.json` countries), so:
+   - Bets with `us`: the main price, return and button are the US ones. The button reads "Bet on Polymarket US"
+     and goes to `us.url`. Small print: "Polymarket US price, incl. its fee".
+   - Bets with `us: null`: grey "International only, not on Polymarket US" label. No primary bet button; the
+     international link sits in Details with "Not available to US residents".
+   - Check: e2e asserts no card's primary button points to polymarket.com when `us` exists, and none exists when
+     `us` is null.
+2. **Lists (lane B).**
+   - New filter "On Polymarket US", **default on** for every tier. Best bets with it on = `us` present and
+     `us.edge ≥ meta.rule.min_edge`, ranked by US return.
+   - The Free daily 10 are drawn from that set when it has ≥ 10.
+   - Counts and headlines use the same set.
+   - Check: unit tests on filter + count, screenshot with the default.
+3. **/track-record (lane E).**
+   - Lead the live section with the US record (`ledger_summary.us`): settled bets, **events**, return. Then the
+     whole record, with "including international-only bets US users couldn't place: N (mostly weather)".
+   - Base "enough to compare" / `needs` on events, not bets.
+   - Use `first` (each bet once) for the headline numbers.
+   - Replace "Testing on 1 year of past markets" with the truth: 87% of tested best bets fall in the last 2 test
+     weeks and none before Apr 22. Find out why history before September is thin, fix it if it's a data gap, and
+     re-run the test.
+   - Check: screenshots + `docs/research/live-vs-backtest.md` numbers.
+4. **US-native scan (engine, after the PR merges).** Politics, culture, crypto and macro on Polymarket US don't
+   match international contracts, so score them directly:
+   - Run the model on US markets at US prices, with fee 0.095.
+   - Category map: politics → politics, culture → culture, crypto → crypto, macro/finance → finance,
+     technology → tech.
+   - Rows get `venue: "us"` and a US-only link. The ledger records them in the US record.
+   - Ship behind `US_NATIVE_SCAN` (default off), report counts and first results with it on.
+   - Check: unit tests on a US fixture; `meta.us.native` count.
+5. **Spread out (engine).** Report-side weighting is done (`avg_pnl_by_event`).
+   - Also cap Best bets to the 2 best lines per game (config `max_best_per_event`, default 2) so one game's 20 lines
+     can't flood the list or the record.
+   - Report the live numbers with the cap on and off.
+6. **Link check.** Confirm `https://polymarket.us/market/<slug>` opens the market in the US app and site
+   (iPhone + desktop). If not, find the right pattern and change `US_URL` in `pipeline/venue_us.py`.
+
 ## Rules
 - Use parallel subagents, one lane per agent, each on its own branch, merged into `final` when green.
   Lanes A, B and D touch the same components: give B the card and filter components, A only the landing
   files, and D fixes layout after A and B merge.
 - Don't change prices, plans, the disclaimer, or compliance rules in CLAUDE.md.
-- Keep lint, typecheck, unit and e2e green. Production deploys are done by hand: end with
-  "ready to deploy: <sha>".
+- Keep lint, typecheck, unit and e2e green. **Every push to `final` deploys kismetodds.com to production in ~2 min**
+  (CLAUDE.md rule 10). Work on lane branches and merge into `final` only finished, green work. Measure lane C on
+  prod after its merge deploys.
