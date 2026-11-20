@@ -1,64 +1,13 @@
 "use client";
-// "Worth keeping open all day" pieces on Best bets (docs/17), all from real data:
-// ClosingSoon (next 5 best bets closing within 3 h, live countdowns), ResultsTicker (live ledger, hidden until
-// 20 bets have settled) and TodayCard (signed-in: the user's own saved bets, alerts and My bets P&L, never picks).
+// TodayCard on Best bets (docs/17): signed-in, the user's own saved bets, alerts and My bets P&L, never picks.
+// The closing-soon strip and results ticker were removed with the plain Best bets page (docs/OVERHAUL.md §B).
 import Link from "next/link";
-import { useNow } from "@/components/clock";   // T-288: the shared clock (request time while hydrating)
-import type { ApiRow, MetaResponse } from "@/lib/api";
-import { countdown, edge, formatCount, money, pays, pct, price } from "@/lib/format";
+import { formatCount, money } from "@/lib/format";
 import { summarize } from "@/lib/journal";
 import { useMe } from "@/lib/me";
 import { DEMO_MODE } from "@/lib/repo";
 import { useCollection } from "@/lib/repo/hooks";
-import { drawerHref, useOpenDrawer } from "@/components/market/drawer";
 import type { WatchSnapshot } from "@/components/watch/WatchStar";
-
-/** Closing-soon strip: up to 5 rows, soonest first. Renders nothing when none close within 3 h. */
-export function ClosingSoon({ rows }: { rows: ApiRow[] | undefined }) {
-  const { open } = useOpenDrawer();
-  const now = useNow(15_000);
-  const live = (rows ?? []).filter((r) => r.market.closes_at * 1000 > now).slice(0, 5);
-  if (!live.length) return null;
-  return (
-    <section aria-labelledby="soon-h" data-testid="closing-soon" className="flex min-w-0 flex-col gap-2">
-      <h2 id="soon-h" className="font-sans text-[13px] font-semibold text-soft">Closing in the next 3 hours</h2>
-      <ul className="-mx-4 flex snap-x gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:px-0">
-        {live.map(({ market: m, side: s }) => {
-          const mins = (m.closes_at * 1000 - now) / 60000;
-          return (
-            <li key={`${m.id}:${s.side_index}`} className="flex w-[264px] flex-none snap-start">
-              <a href={drawerHref(m.id, s.side_index)} onClick={(e) => { if (e.metaKey || e.ctrlKey) return; e.preventDefault(); open(m.id, s.side_index); }}
-                className="flex w-full flex-col gap-1 rounded-input border border-border bg-surface px-3 py-2.5 text-[13px] transition-colors duration-200 ease-out hover:border-accent-border">
-                <span className="flex items-center justify-between gap-2 text-xs">
-                  <span className={`font-semibold tabular-nums ${mins < 30 ? "text-warning" : "text-accent-softer"}`}>{countdown(m.closes_at, now)}</span>
-                  <span className="text-muted">Pays {pays(s.ask)}</span>
-                </span>
-                <span className="truncate font-medium text-text">{m.question}</span>
-                <span className="text-xs text-muted">Bet {s.outcome} at {price(s.ask)}</span>
-              </a>
-            </li>
-          );
-        })}
-      </ul>
-    </section>
-  );
-}
-
-const MIN_SETTLED = 20;   // docs/17: hidden until at least 20 best bets have settled
-
-/** "Results so far: 41 best bets settled · 29 hit · +5.1¢ per $1 share" with wins and losses shown honestly. */
-export function ResultsTicker({ results }: { results: MetaResponse["results"] }) {
-  if (!results || results.graded < MIN_SETTLED) return null;
-  return (
-    <p data-testid="results-ticker" className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-muted">
-      <span className="text-soft">Results so far:</span>
-      <span>{formatCount(results.graded)} best bets settled</span><span aria-hidden="true">·</span>
-      <span>{formatCount(results.wins)} hit, {formatCount(results.losses)} lost ({pct(results.wins / results.graded)})</span>
-      {results.avg_pnl !== null && <><span aria-hidden="true">·</span><span className={results.avg_pnl >= 0 ? "text-accent-softer" : "text-negative"}>{edge(results.avg_pnl)} per $1 share on average</span></>}
-      <Link href="/track-record" className="text-accent-hover hover:text-accent-soft">See results</Link>
-    </p>
-  );
-}
 
 const sameDay = (a: Date, b: Date) => a.toDateString() === b.toDateString();
 

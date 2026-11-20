@@ -23,6 +23,8 @@ import { LowerConfidence, TierNote } from "./TierNote";
 import { AddToCombo } from "@/components/combo/AddToCombo";
 import { drawerHref } from "./drawer";
 import { TradeButton, VenueLink } from "@/components/trade/TradeButton";
+import { VenueButton, primaryVenue } from "@/components/trade/VenueButton";
+import { INTL_ONLY, NOT_FOR_US } from "@/lib/card";
 import { Count } from "@/components/kit";
 import { ProofLine } from "@/components/results/ProofLine";
 
@@ -304,7 +306,17 @@ function Actions({ m, s }: { m: StoreMarket; s: Side }) {
   const icon = `flex size-11 flex-none ${box}`;   // no px-3: conflicting padding classes made the star box 70 px
   return (
     <div className="flex flex-col gap-2">
-      <VenueLink m={m} className="flex min-h-11 w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-input bg-accent px-4 font-semibold text-on-accent hover:bg-accent-hover" />
+      {/* T-302 (§G1/§F1): same rule as the card. US-listed → Polymarket US; us === null → International only, with the
+          international link kept as a plain secondary link that says US residents can't use it. Old scans (no `us`) unchanged. */}
+      {m.us === undefined
+        ? <VenueLink m={m} className="flex min-h-11 w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-input bg-accent px-4 font-semibold text-on-accent hover:bg-accent-hover" />
+        : primaryVenue(m, s)
+          ? <VenueButton m={m} s={s} className="w-full" />
+          : <div className="flex flex-col gap-1">
+              <p data-testid="intl-only" className="flex min-h-11 items-center justify-center rounded-input border border-border bg-raised/60 px-3 text-center text-xs text-muted">{INTL_ONLY}</p>
+              <VenueLink m={m} className="inline-flex min-h-11 items-center justify-center gap-1.5 text-xs text-muted underline underline-offset-2 hover:text-text" />
+              <p className="text-center text-xs text-muted">{NOT_FOR_US}</p>
+            </div>}
       <div className="flex flex-wrap gap-1.5 sm:gap-2">
         <TradeButton m={m} s={s} className={btn} />
         <AddToCombo m={m} s={s} className={btn} />
