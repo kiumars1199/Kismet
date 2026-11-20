@@ -97,6 +97,10 @@ won't survive on US. The new `us.edge` field shows that bet by bet.
   (`lib/data/gate.ts`).
 - Tests: `engine/tests/test_venue_us.py` (16 tests), `apps/web/test/us-gate.test.ts`.
 
+- Same-payout comparison: every new pick also logs one random other bet at the same payout band (same category
+  when possible) to `output/control.jsonl`. It's graded the same way, and `ledger_summary.vs_same_payout` shows
+  picks vs others per band. This measures the honest pitch ("the best pick at the multiplier you already want").
+
 The US record starts the first scan after deploy. Earlier rows have no US price and stay in `intl_only`.
 
 ## 8. Not done here (spec in docs/OVERHAUL.md §G)

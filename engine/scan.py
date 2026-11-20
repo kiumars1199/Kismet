@@ -214,7 +214,8 @@ def run(cfg, log=print):
     json.dump(dict(meta=meta, markets=rows), open(cfg.path("output", "markets.json"), "w"))
     json.dump(dict(meta=meta, flags=flags), open(cfg.path("output", "flags.json"), "w"), indent=1)
     from . import ledger
-    log(f"ledger: {ledger.append(cfg, best_flags, now)} new rows")  # track record = Best bets only
+    # track record = Best bets only; plus one random same-payout bet per new pick (control.jsonl)
+    log(f"ledger: {ledger.append(cfg, best_flags, now, rows=rows)} new rows")
     # slug -> event index, so the extension can look up a Polymarket page by its URL slug
     events = {}
     for r in rows:
