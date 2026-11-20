@@ -43,21 +43,15 @@ test("S7 sign up → upgrade with Stripe → Pro unlocks live data and exact num
   await page.goto("/bets");
   await expect(page.getByTestId("locked-bets")).toContainText("Free shows 10 Best bets a day");
 
-  // T-291 #11: Free Best bets end in the "N more bets on Pro" panel: it closes on Esc and with its close button,
-  // focus goes to the button that brings it back, and back to Close when it reopens.
+  // §B (T-302): Free Best bets end in one solid inline card, "Unlock N more bets" → /pricing. It covers nothing, so it
+  // has no close button (the T-291 #11 overlay it replaced did).
   await page.goto("/");
   const panel = page.getByTestId("locked-bets");
   await panel.scrollIntoViewIfNeeded();
-  await expect(panel.getByRole("link", { name: /^Unlock all/ })).toBeVisible();
-  await expect(async () => {   // hydration: Esc is handled once the page is interactive
-    await page.keyboard.press("Escape");
-    await expect(page.getByTestId("locked-reopen")).toBeVisible({ timeout: 1_000 });
-  }).toPass({ timeout: 30_000 });
-  await expect(page.getByTestId("locked-reopen")).toBeFocused();
-  await page.getByTestId("locked-reopen").click();
-  await expect(page.getByTestId("locked-close")).toBeFocused();
-  await page.getByTestId("locked-close").click();
-  await expect(page.getByTestId("locked-reopen")).toBeFocused();
+  const unlock = panel.getByRole("link", { name: /^Unlock [\d,]+ more bets?$/ });
+  await expect(unlock).toBeVisible();
+  await expect(unlock).toHaveAttribute("href", "/pricing");
+  await expect(page.getByTestId("locked-close")).toHaveCount(0);
 
   await page.goto("/pricing");
   await page.getByTestId("checkout-pro").click();
@@ -72,7 +66,7 @@ test("S7 sign up → upgrade with Stripe → Pro unlocks live data and exact num
   for (const path of ["/", "/bets"]) {
     expect(await (await page.request.get(path)).text(), path).not.toContain("locked-bets");
     await page.goto(path);
-    await expect(page.getByTestId("one-bet").nth(10)).toBeVisible();   // more than Free's 10 rendered
+    await expect(page.getByTestId("bet-card").nth(10)).toBeVisible();   // more than Free's 10 rendered (§B card)
     await expect(page.getByTestId("locked-bets")).toHaveCount(0);
   }
   await page.goto("/pricing");
@@ -97,7 +91,7 @@ test("account delete: type the email, everything goes, signed out", async ({ pag
   await expect(confirm).toBeDisabled();
   await page.getByLabel(`Type ${email} to confirm`).fill(email);
   await confirm.click();
-  await expect(page).toHaveURL(/\/\?deleted=1/);
+  await expect(page).toHaveURL(/\/\?deleted=1/, { timeout: 30_000 });   // same budget as the paid delete above
   const me = await (await page.request.get("/api/me")).json();
   expect(me.user).toBeNull();
   await page.goto("/account");
