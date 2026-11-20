@@ -73,8 +73,8 @@ export function paymentFailedEmail(to: string, unsubscribeUrl: string): Email {
 /**
  * Supabase Auth emails (confirm sign-up, magic link, password reset, email change). Supabase sends these itself, so
  * they live as templates in supabase/templates/ and the owner pastes them into Auth > Email Templates. Same layout,
- * disclaimer and footer as our own mail. They're sent only when someone asks, so the footer link manages the account
- * (where it can be deleted) instead of an alert unsubscribe. Go template fields: {{ .ConfirmationURL }}, {{ .SiteURL }}.
+ * disclaimer and footer as our own mail. They're sent only when someone asks; the footer still carries an unsubscribe
+ * link (docs/OVERNIGHT §3: unsubscribe in every email) to /alerts, where every alert email can be turned off. Go template fields: {{ .ConfirmationURL }}, {{ .SiteURL }}.
  */
 export const AUTH_EMAILS = {
   confirmation: {
@@ -106,7 +106,8 @@ export const AUTH_EMAILS = {
 export function authEmailHtml(kind: keyof typeof AUTH_EMAILS): string {
   const e = AUTH_EMAILS[kind];
   return layout(
-    e.heading, [...e.lines], { href: "{{ .ConfirmationURL }}", label: e.cta }, "{{ .SiteURL }}/account",
-    "You get this because someone asked for it with this address on Kismet.", "Manage your account",
+    e.heading, [...e.lines], { href: "{{ .ConfirmationURL }}", label: e.cta }, "{{ .SiteURL }}/alerts",
+    "You get this because someone asked for it with this address on Kismet. Sign-in emails only come when asked for; alert emails can be turned off any time.",
+    "Unsubscribe from Kismet emails",
   ).html;
 }

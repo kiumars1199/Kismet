@@ -197,13 +197,14 @@ export function cardReturn(s: Pick<Side, "roi_pct" | "ranges" | "realistic_edge"
 export const REALISTIC_HELP =
   "What similar past bets actually returned on average, after the fee and the price you'd really pay. The model's own estimate is in the details. Any single bet can lose.";
 
-/** Game or close time, docs/17 fix 14: "Tue 2:45 PM" within the next 6 days, else "Nov 28". Local time zone. */
-export function gameTime(closesAt: number | null | undefined, now = Date.now()): string {
+/** Game or close time, docs/17 fix 14: "Tue 2:45 PM" within the next 6 days, else "Nov 28". Local time zone
+ *  unless `timeZone` is given (the server render passes "UTC" so hydration matches; see components/market/When). */
+export function gameTime(closesAt: number | null | undefined, now = Date.now(), timeZone?: string): string {
   if (!ok(closesAt)) return DASH;
   const d = new Date(closesAt * 1000);
   return closesAt * 1000 - now < 6 * 86400_000
-    ? d.toLocaleString("en-US", { weekday: "short", hour: "numeric", minute: "2-digit" }).replace(",", "")
-    : d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    ? d.toLocaleString("en-US", { weekday: "short", hour: "numeric", minute: "2-digit", timeZone }).replace(",", "")
+    : d.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone });
 }
 
 /** Live countdown for the closing-soon strip: "2h 05m", "14m", "closing". */

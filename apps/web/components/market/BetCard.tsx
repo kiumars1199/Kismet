@@ -9,7 +9,8 @@
 import { useRef } from "react";
 import type { ApiRow } from "@/lib/api";
 import { useEntitlements } from "@/lib/entitlements";
-import { REALISTIC_HELP, RETURN_HELP, basis, cardReturn, closesLine, gameTime, money, pays, PAYS_HELP, payoutIfWins, payoutMoney, price, priceAsOf, recordHelp, recordLabel, sideEdge, sidePts, winsAbout } from "@/lib/format";
+import { useWhen } from "./When";
+import { REALISTIC_HELP, RETURN_HELP, basis, cardReturn, money, pays, PAYS_HELP, payoutIfWins, payoutMoney, price, priceAsOf, recordHelp, recordLabel, sideEdge, sidePts, winsAbout } from "@/lib/format";
 import { useProfile } from "@/lib/repo/hooks";
 import { WatchStar } from "@/components/watch/WatchStar";
 import { VenueIconLink } from "@/components/trade/TradeButton";
@@ -22,6 +23,7 @@ import { LowerConfidence, TierNote } from "./TierNote";
 export function BetCard({ r, pro = false }: { r: ApiRow; pro?: boolean }) {
   const { open } = useOpenDrawer();
   const { market: m, side: s } = r;
+  const when = useWhen(m.closes_at);
   const rec = recordLabel(s.model_neff);
   const ret = cardReturn(s);
   const ref = useRef<HTMLElement>(null);
@@ -59,7 +61,7 @@ export function BetCard({ r, pro = false }: { r: ApiRow; pro?: boolean }) {
             {m.question}
           </a>
         </h3>
-        <p className="mt-1 text-xs text-muted" title={closesLine(m.closes_at, undefined, true)}>{gameTime(m.closes_at)} · {closesLine(m.closes_at)}</p>
+        <p className="mt-1 text-xs text-muted" title={when.Closes} suppressHydrationWarning>{when.game} · {when.closes}</p>
       </div>
       <div>
         <p data-testid="one-bet" className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5" title={basis(m, s)}>

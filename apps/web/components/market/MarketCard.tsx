@@ -4,7 +4,8 @@
 // ("Pays 10x · wins about 1 in 7", docs/18 §6), the price line, and the return on the right, smaller.
 // The question link covers the card (opens the drawer); star and alert sit above it.
 import type { ApiRow } from "@/lib/api";
-import { basis, cardReturn, closesLine, gameTime, money, pays, PAYS_HELP, payoutIfWins, payoutMoney, price, priceAsOf, sideEdge, sidePts, winsAbout } from "@/lib/format";
+import { useWhen } from "./When";
+import { basis, cardReturn, money, pays, PAYS_HELP, payoutIfWins, payoutMoney, price, priceAsOf, sideEdge, sidePts, winsAbout } from "@/lib/format";
 import { useProfile } from "@/lib/repo/hooks";
 import { WatchStar } from "@/components/watch/WatchStar";
 import { VenueIconLink } from "@/components/trade/TradeButton";
@@ -16,6 +17,7 @@ import { LowerConfidence, TierNote } from "./TierNote";
 export function MarketCard({ r, pro = false, notes = true }: { r: ApiRow; pro?: boolean; notes?: boolean }) {
   const { open } = useOpenDrawer();
   const { market: m, side: s } = r;
+  const when = useWhen(m.closes_at);
   const edgeTier = m.tier === "edge";
   const ret = cardReturn(s);
   const stake = useProfile().default_stake_usd;
@@ -24,7 +26,7 @@ export function MarketCard({ r, pro = false, notes = true }: { r: ApiRow; pro?: 
     <div data-row data-market-id={m.id} data-tier={m.tier ?? undefined} className="relative flex gap-3 rounded-inner border border-border bg-surface p-3.5 hover:border-soft/30 focus-within:border-soft/30">
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted">
-          <span title={closesLine(m.closes_at, undefined, true)}>{topicLabel(m)} · <span className="whitespace-nowrap">{gameTime(m.closes_at)}</span></span>
+          <span title={when.Closes} suppressHydrationWarning>{topicLabel(m)} · <span className="whitespace-nowrap" suppressHydrationWarning>{when.game}</span></span>
           {edgeTier && <LowerConfidence className="py-0" />}
         </div>
         <a
