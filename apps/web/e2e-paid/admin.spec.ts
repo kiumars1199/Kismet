@@ -75,7 +75,7 @@ test("admin: sees /admin with a user count, flips the banner and everyone sees i
   const nav = page.locator("header").getByRole("navigation", { name: "Main" });
   for (const [label, path] of [["Combos", "/combos"], ["Kalshi", "/kalshi"]] as const) {
     const link = nav.getByRole("link", { name: new RegExp(`^${label}`) });
-    await expect(link).toBeVisible();
+    await expect(link).toBeVisible({ timeout: 15_000 });   // beta links appear once /api/me answers after each page load
     await expect(link.getByTestId("beta-badge")).toHaveText("Beta");
     expect((await page.goto(path))?.status(), path).toBe(200);
     await expect(page.getByTestId("beta-banner")).toHaveText("Beta: only visible to admins and testers. Not live for customers.");

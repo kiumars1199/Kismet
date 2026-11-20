@@ -6,12 +6,17 @@
 import type { ReactNode } from "react";
 import type { ApiRow } from "@/lib/api";
 import { backLine, cardVenue, INTL_ONLY, NOT_FOR_US, priceText, stars, starsHelp, type CardVenue } from "@/lib/card";
-import { paysBand } from "@/lib/filters/apply";
+import { paysBand } from "@/lib/filters/bands";   // not ./apply: zod on the landing (T-295)
 import { cardReturn, money, pct, ret, testedLine } from "@/lib/format";
 import { noLiveRecord } from "@/lib/proof";
 import type { Execution, Market, Side } from "@/lib/types";
-import { WatchStar } from "@/components/watch/WatchStar";
-import { venueOf } from "@/components/trade/TradeButton";
+import dynamic from "next/dynamic";
+// T-295: the star sits inside the closed "Why this bet?" body, so it loads on its own (keeps the landing under 150 kB)
+const WatchStar = dynamic(() => import("@/components/watch/WatchStar").then((m) => m.WatchStar), {
+  ssr: false,
+  loading: () => <span aria-hidden="true" className="inline-block size-11" />,
+});
+import { venueOf } from "@/lib/trade/venue";
 import { AlertLink } from "../bits";
 import { drawerHref, useOpenDrawer } from "../drawer";
 import { topicLabel } from "../labels";

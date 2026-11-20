@@ -6,7 +6,7 @@
 // international venue as before. Keep the props stable.
 import type { Market, Side } from "@/lib/types";
 import { funnel } from "@/lib/telemetry";
-import { venueOf } from "./TradeButton";
+import { venueOf } from "@/lib/trade/venue";
 
 type VenueMarket = Pick<Market, "url" | "kalshi_ticker" | "id"> & Partial<Pick<Market, "us" | "best">>;
 
