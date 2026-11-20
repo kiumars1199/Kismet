@@ -8,7 +8,7 @@
 // until the new one arrives (no skeleton flash). The old Big payouts / More bets with an edge / Combos rows are gone:
 // "Bigger payouts" is a chip, lower-confidence bets come in through it or More filters, Combos has its own page.
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { ApiGroup, ApiRow, MarketsResponse } from "@/lib/api";
 import { plainTitle, priceText, sideLabel } from "@/lib/card";
 import type { FilterState } from "@/lib/filters/state";
@@ -194,9 +194,9 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
   const desktop = useDesktop();
   // R2-6: keep the last answer on screen while the next one loads (dimmed, aria-busy), never a skeleton flash.
   const fresh = sc.data ? { data: sc.data, more: sc.more, moreGroups: sc.moreGroups } : null;
-  const [last, setLast] = useState(fresh);
-  if (fresh && (fresh.data !== last?.data || fresh.more !== last.more)) setLast(fresh);
-  const view = fresh ?? (sc.loading ? last : null);
+  const last = useRef(fresh);   // the last answer shown; a ref, so keeping it never re-renders
+  if (fresh) last.current = fresh;
+  const view = fresh ?? (sc.loading ? last.current : null);
   const data = view?.data;
   const busy = !fresh && !!view;
   const total = data?.total;

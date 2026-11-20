@@ -32,21 +32,20 @@ test("S3 drawer: price check, stake table, curve, custom stake", async ({ page }
   await expect(stakes.locator("tbody tr", { hasText: "$250" })).toContainText("+$75");
 });
 
-// T-289: one return figure per bet, and the same fee-inclusive payout, on the card and in the drawer headline.
-test("card and drawer show the same return, points, wins-about and payout", async ({ page }) => {
+// T-289 / T-302: one return figure per bet. The card face is plain-language (docs/OVERHAUL.md §B); its "Why this bet?"
+// carries the same return the drawer headlines (an international card: a US card shows the US price's return).
+test("card's 'Why this bet?' and the drawer show the same return and win chance", async ({ page }) => {
   await page.route("**/api/book*", (r) => r.fulfill({ json: book() }));
-  await page.goto("/");
-  const card = page.locator("article[data-row]").first();
-  const ret = (await card.getByTestId("bet-return").innerText()).trim();
-  const payout = (await card.getByTestId("payout").innerText()).replace(/\s+/g, " ").trim();
-  const oneBet = (await card.getByTestId("one-bet").innerText()).replace(/\s+/g, " ");
-  const pts = (await card.getByTestId("verdict").innerText()).match(/\(([^)]+)\)/)![1];
-  expect(payout).toMatch(/^Bet \$[\d,.]+ → get \$[\d,.]+ after fees if it wins$/);
-  expect(oneBet).toMatch(/before fees/);
+  await page.goto("/?us=0");
+  const card = page.locator("article[data-row][data-venue=intl-only]").first();
+  await card.getByText("Why this bet?").click();
+  const ret = (await card.getByTestId("why-return").innerText()).trim();
+  expect(ret).toMatch(/^[+−-]?\d/);
+  const back = (await card.getByTestId("why-back").innerText()).trim();
+  expect(back).toMatch(/^If it wins you get \$[\d,.]+ back \(\$10 \+ \$[\d,.]+\)$/);
+  const chance = (await card.getByTestId("card-chance").innerText()).trim();
+  expect(chance).toMatch(/^Wins (about \d+ in 10|less than 1 in 10|more than 9 in 10)$/);
   await card.locator("h3 a").click();
   const drawer = page.getByRole("dialog", { name: "Market details" });
   await expect(drawer.getByTestId("bet-return")).toHaveText(ret);
-  await expect(drawer.getByTestId("payout")).toHaveText(payout);
-  await expect(drawer.getByTestId("verdict")).toContainText(`(${pts})`);
-  await expect(drawer.getByTestId("one-bet")).toContainText(oneBet.match(/wins about .+$/)![0].trim());
 });

@@ -83,8 +83,9 @@ test("safe bets → every row 80%+", async ({ page }) => {
   expect(r.rows.every((x) => x.side.win_prob >= 0.8)).toBe(true);
 });
 
+// T-302: Best bets has its own one-row chips (e2e/overhaul-cards.spec.ts); the dropdown pills are on All markets.
 test("pills: Pays 3–5x and Biggest payout land in the URL; long shots toggle", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/markets");
   await page.getByRole("button", { name: "Pays", exact: true }).click();
   await page.getByRole("dialog", { name: "Pays" }).getByRole("button", { name: /^3–5x/ }).click();
   await expect(page).toHaveURL(/x0=3&x1=5|x1=5&x0=3/);

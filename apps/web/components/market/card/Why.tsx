@@ -97,7 +97,7 @@ export function Why({ r, livePrice }: { r: ApiRow; livePrice?: ReactNode }) {
             {livePrice}
           </Line>
           <Line label="Estimated return">
-            {v.kind === "us" ? (usRet ?? "No Polymarket US price right now") : cardReturn(s).text}
+            <span data-testid="why-return">{v.kind === "us" ? (usRet ?? "No Polymarket US price right now") : cardReturn(s).text}</span>
             <span className="block text-xs text-muted">Per bet, on average, at today&apos;s price after the fee. Any single bet can lose.</span>
           </Line>
           <Line label="How sure we are" testid="why-basis">
