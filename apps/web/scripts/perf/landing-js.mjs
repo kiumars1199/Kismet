@@ -3,8 +3,10 @@
 //   node scripts/perf/landing-js.mjs [--route /] [--budget-kb 150] [--dir .next]
 // First-load JS = the root main files (webpack runtime, main-app) + every JS chunk the root layout and the route's page
 // entry list in app-build-manifest.json, deduplicated, each gzipped (level 9, like `next build`'s size column).
-// Lazy chunks (next/dynamic, import()) are not in the entry lists, so they don't count: they load after first paint.
-import { readFileSync } from "node:fs";
+// Lazy chunks (next/dynamic, import()) are not in the entry lists; but a lazy component the server renders is referenced
+// by the page's HTML and loads with it. So for a prerendered route the script tags in its HTML
+// (server/app/<route>.html) are added too: what a first visit really downloads.
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { gzipSync } from "node:zlib";
 import { fileURLToPath } from "node:url";
@@ -21,13 +23,23 @@ export function entryKeys(route, pages) {
   return keys;
 }
 
+/** JS files a prerendered route's HTML references (`/_next/static/...` → `static/...`), or [] when not prerendered. */
+export function htmlScripts(dir, route) {
+  const html = path.join(dir, "server/app", `${route === "/" ? "index" : route.slice(1)}.html`);
+  if (!existsSync(html)) return [];
+  // <script nomodule> (Next's polyfills) is skipped by every browser that runs modules
+  const src = readFileSync(html, "utf8").replace(/<script[^>]*\bnomodule\b[^>]*>/gi, "");
+  return [...new Set([...src.matchAll(/\/_next\/(static\/[^"'\s>\\]+?\.js)/g)].map((m) => m[1]))];
+}
+
 /** { files, bytes, gzip } for `route`, from a build dir. */
 export function firstLoadJs(dir, route, gz = (b) => gzipSync(b, { level: 9 }).length) {
   const app = JSON.parse(readFileSync(path.join(dir, "app-build-manifest.json"), "utf8")).pages;
   const build = JSON.parse(readFileSync(path.join(dir, "build-manifest.json"), "utf8"));
   const keys = entryKeys(route, app);
   if (!app[keys.at(-1)]) throw new Error(`no page entry ${keys.at(-1)} in ${dir}/app-build-manifest.json`);
-  const files = [...new Set([...(build.rootMainFiles ?? []), ...keys.flatMap((k) => app[k] ?? [])])].filter((f) => f.endsWith(".js"));
+  const files = [...new Set([...(build.rootMainFiles ?? []), ...keys.flatMap((k) => app[k] ?? []), ...htmlScripts(dir, route)])]
+    .filter((f) => f.endsWith(".js"));
   let bytes = 0, gzip = 0;
   const each = files.map((f) => {
     const buf = readFileSync(path.join(dir, f));

@@ -4,7 +4,7 @@
 // testing"; the label is never dropped.
 import { useEffect, useState } from "react";
 import { backtestOnce, type BacktestResponse } from "@/lib/api";
-import { paysBand } from "@/lib/filters/apply";
+import { paysBand } from "@/lib/filters/bands";   // not ./apply: zod on the landing (T-295)
 import { formatCount, exactCount, testedLine } from "@/lib/format";
 import { noLiveRecord } from "@/lib/proof";
 import type { FlagTier, Side } from "@/lib/types";

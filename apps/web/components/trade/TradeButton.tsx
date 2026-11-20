@@ -2,7 +2,7 @@
 // "Open on Kalshi / Polymarket" (every bet, on by default) and the paper "Trade" button (docs/16 §2, §4).
 import { ExternalLink } from "@/components/kit/icons";
 import { openTicket, useTradeConfig } from "@/lib/trade/ext";
-import { kalshiMarketUrl } from "@/lib/trade/intent";
+import { kalshiMarketUrl } from "@/lib/trade/urls";   // not ./intent: zod on the landing (T-295)
 import type { Market, Side } from "@/lib/types";
 
 /** Kalshi when the market has a mapped ticker, else Polymarket. */

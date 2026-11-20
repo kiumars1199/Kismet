@@ -6,7 +6,8 @@ import { MobileNav } from "@/components/shell/MobileNav";
 import { LazyHosts } from "@/components/shell/LazyHosts";
 import { siteUrl } from "@/lib/site";
 import { getSettings } from "@/lib/settings";
-import { requestClock } from "@/lib/zone-server";
+import { hasSessionCookie, requestClock } from "@/lib/zone-server";
+import { authEnabled } from "@/lib/auth/server";
 import { ClockProvider } from "@/components/clock";
 import "./globals.css";
 
@@ -27,7 +28,10 @@ export const viewport: Viewport = { themeColor: "#070a09" };
 // read as empty, the zone is unknown (clock times show after mount) and the page is prerendered + revalidated.
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const [settings, clock] = await Promise.all([getSettings(), requestClock()]);   // banner (T-142, cached 60 s); the visitor's zone (T-288)
+  const [settings, clock, session] = await Promise.all([getSettings(), requestClock(), hasSessionCookie()]);   // banner (T-142, cached 60 s); the visitor's zone (T-288)
+  // T-295: accounts on and no session cookie (every prerendered page): the header renders signed out from the first
+  // paint, so the landing never ships search and alerts code it would hide once /api/me answers.
+  const signedOut = authEnabled() && !session;
   const now = Date.now();   // one clock for the server render and the hydration render (components/clock.tsx)
   const banner = settings.banner_on && settings.banner_text ? settings.banner_text : null;
   return (
@@ -42,12 +46,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             {banner}
           </div>
         )}
-        <Header />
+        <Header signedOutHint={signedOut} />
         <main id="main" className="flex-1 px-4 py-6 md:px-8">
           {children}
         </main>
         <Footer />
-        <MobileNav />
+        <MobileNav signedOutHint={signedOut} />
         <LazyHosts />
         </ClockProvider>
       </body>

@@ -17,3 +17,15 @@ export async function requestClock(): Promise<{ zone: string | null; saved: stri
 }
 
 export const requestZone = async (): Promise<string | null> => (await requestClock()).zone;
+
+/** T-295: whether this request carries a Supabase session cookie (`sb-…`), so the server render of the header can
+ *  start in the right state before /api/me answers. A prerendered page has no cookies: false. Only a hint (an expired
+ *  cookie still counts); every gate checks the session itself. */
+export async function hasSessionCookie(): Promise<boolean> {
+  try {
+    return (await cookies()).getAll().some((c) => c.name.startsWith("sb-"));
+  } catch (e) {
+    unstable_rethrow(e);
+    return false;
+  }
+}

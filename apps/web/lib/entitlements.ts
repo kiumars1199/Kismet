@@ -1,8 +1,12 @@
 // Tier table (docs/01-product.md § Tiers, docs/08-auth-billing.md § Entitlements) as data.
 // Server routes enforce; the UI mirrors with <UpgradeGate>. Infinity = unlimited.
-import { DEMO_MODE } from "@/lib/repo";
+import { demoFlag } from "@/lib/config";
 import { currentMe, useMe } from "@/lib/me";
 import { canBeta, type Gated } from "@/lib/beta";
+
+/** Browser copy of DEMO_MODE, as lib/repo has it. Not imported from lib/repo: that pulls the local repo, its schemas
+ *  and zod into the layout bundle every page loads (Header and MobileNav call useEntitlements; T-295). */
+const DEMO_MODE = demoFlag(process.env.NEXT_PUBLIC_DEMO_MODE);
 
 export type Tier = "free" | "pro" | "premium";
 

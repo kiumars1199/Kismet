@@ -3,7 +3,7 @@
 // when off. Privacy: no cookies or storage (PostHog persistence "memory"), no autocapture, no replay,
 // URLs lose their query strings, emails are redacted, and only allow-listed event properties are sent.
 import type { Breadcrumb, ErrorEvent } from "@sentry/nextjs";
-import { KEYS } from "@/lib/filters/url";
+import { KEYS } from "@/lib/filters/keys";   // not ./url: that pulls zod into every page (T-295)
 
 const EMAIL = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi;
 const redact = (s: string) => s.replace(EMAIL, "[email]");

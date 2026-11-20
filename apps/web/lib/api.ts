@@ -29,10 +29,7 @@ import type { Proof } from "@/lib/proof";
 import type { Counts, Facets, Group } from "@/lib/filters/apply";
 import type { FilterInput } from "@/lib/filters/state";
 import type { Chip } from "@/lib/search/parse";
-import { FilterState } from "@/lib/filters/state";
-import { serialize } from "@/lib/filters/url";
 import type { BacktestFile, BacktestRecord, BacktestResult, Execution, ScanMeta, Side, SideRanges, StoreMarket } from "@/lib/types";
-import { behindWords } from "@/lib/format";
 
 export type { Curve, Facets, StoreMarket };
 
@@ -93,21 +90,10 @@ export interface SuggestResponse {
 export const fetchSuggest = (q: string, view: "markets" | "flags", init?: RequestInit) =>
   get<SuggestResponse>(`/api/suggest?${new URLSearchParams({ q, view, ...(userTz() ? { tz: userTz()! } : {}) })}`, init);
 
-/** 503 `code` when Free has no delayed scan yet (lib/data/store.ts DelayedPending). */
-export const DELAYED_PENDING = "delayed_pending";
-export const delayedPendingLine = (min: number) => `Free prices run ${behindWords(min)}; the first update is on its way.`;
-/** Error-message prefix the screeners read to show the honest pending state instead of "Couldn't load". */
-export const PENDING_PREFIX = "pending: ";
-
-async function get<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(path, init);
-  if (res.status === 503) {
-    const body = (await res.json().catch(() => null)) as { error?: string; code?: string } | null;
-    if (body?.code === DELAYED_PENDING) throw new Error(PENDING_PREFIX + (body.error ?? ""));
-  }
-  if (!res.ok) throw new Error(`${path}: HTTP ${res.status}`);
-  return res.json() as Promise<T>;
-}
+// The fetch helper and the pending-state constants live in ./api-core (T-295: the header's freshness pill reads
+// /api/meta on every page without pulling the filter schemas and zod that this module needs).
+import { DELAYED_PENDING, PENDING_PREFIX, delayedPendingLine, fetchMeta, get } from "./api-core";
+export { DELAYED_PENDING, PENDING_PREFIX, delayedPendingLine, fetchMeta };
 
 /** The browser's IANA zone, so "today" / "tomorrow" in a search mean the user's day. */
 const userTz = () => {
@@ -118,15 +104,17 @@ const userTz = () => {
   }
 };
 
-const qs = (state: FilterInput) => {
+// T-295: the filter schemas (zod) load with the first screener fetch, not with every component that imports this
+// module (bet cards read fetchMarket and backtestOnce on the landing). Screener pages already hold them.
+const qs = async (state: FilterInput) => {
+  const [{ FilterState }, { serialize }] = await Promise.all([import("@/lib/filters/state"), import("@/lib/filters/url")]);
   const f = FilterState.parse(state);
   const s = serialize(f.q && !f.tz ? { ...f, tz: userTz() } : f).toString();
   return s ? `?${s}` : "";
 };
 
-export const fetchMeta = (init?: RequestInit) => get<MetaResponse>("/api/meta", init);
-export const fetchMarkets = (state: FilterInput = {}, init?: RequestInit) => get<MarketsResponse>(`/api/markets${qs(state)}`, init);
-export const fetchFlags = (state: FilterInput = {}, init?: RequestInit) => get<MarketsResponse>(`/api/flags${qs(state)}`, init);
+export const fetchMarkets = async (state: FilterInput = {}, init?: RequestInit) => get<MarketsResponse>(`/api/markets${await qs(state)}`, init);
+export const fetchFlags = async (state: FilterInput = {}, init?: RequestInit) => get<MarketsResponse>(`/api/flags${await qs(state)}`, init);
 /** `detail` = the details panel is opening (counts toward the Free tier's 3 exact reveals a day). */
 export const fetchMarket = (id: string, init?: RequestInit, detail = false) =>
   get<MarketResponse>(`/api/markets/${encodeURIComponent(id)}${detail ? "?detail=1" : ""}`, init);

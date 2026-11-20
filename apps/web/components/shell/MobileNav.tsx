@@ -9,7 +9,7 @@ import { BetaBadge } from "@/components/beta/BetaBadge";
 import { useEntitlements } from "@/lib/entitlements";
 
 // Mobile (<768px) bottom tab bar: Best bets · All markets · My list · More (docs/06 § App shell).
-export function MobileNav() {
+export function MobileNav({ signedOutHint = false }: { signedOutHint?: boolean }) {
   const pathname = usePathname();
   const dialog = useRef<HTMLDialogElement>(null);
   useEffect(() => dialog.current?.close(), [pathname]);
@@ -20,7 +20,7 @@ export function MobileNav() {
   // P7: the current tab is bright text plus a short accent bar on top, so it reads at a glance
   const on = "font-medium text-text before:absolute before:inset-x-5 before:-top-1 before:h-0.5 before:rounded-full before:bg-accent";
   const me = useMe();
-  if (me?.auth && !me.user) {
+  if (me ? me.auth && !me.user : signedOutHint) {   // before /api/me answers: the layout's hint (T-295)
     // T-276: signed out, the app tabs only lead to the sign-up wall; show the sales pages and sign-up instead.
     return (
       <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-border bg-background pb-[max(env(safe-area-inset-bottom),8px)] pt-1 text-[13px] md:hidden">
