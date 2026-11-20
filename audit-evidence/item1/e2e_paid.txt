@@ -1,18 +1,60 @@
+  ✓   8 e2e-paid/s7-upgrade.spec.ts:34:1 › S7 sign up → upgrade with Stripe → Pro unlocks live data and exact numbers (25.9s)
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+  ✓   9 e2e-paid/s7-upgrade.spec.ts:64:1 › account delete: type the email, everything goes, signed out (8.5s)
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+  ✓  10 e2e-paid/s7-upgrade.spec.ts:82:1 › keyboard only: search → drawer → save → upgrade reaches /pricing (21.5s)
 
-Running 10 tests using 1 worker
 
-[WebServer] <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (114kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
-[WebServer] <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (268kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
-[WebServer] [abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
-  ✓   1 e2e-paid/admin.spec.ts:69:1 › admin: sees /admin with a user count, flips the banner and everyone sees it (1.1m)
-  ✓   2 e2e-paid/admin.spec.ts:124:1 › normal user and anonymous visitor: 404 on every admin page and API route, no Admin link, no beta features (32.2s)
-  ✓   3 e2e-paid/password.spec.ts:35:1 › password: sign up, confirm by email, stay signed in, sign out, sign in again (16.2s)
-  ✓   4 e2e-paid/password.spec.ts:82:1 › password: forgot → reset link → set a new one → sign in with it (20.2s)
-  ✓   5 e2e-paid/paywall-pages.spec.ts:12:1 › signed out: data APIs are 401, app pages redirect with next, public pages carry no paid fields (12.5s)
-  ✓   6 e2e-paid/paywall-pages.spec.ts:57:1 › signed out: public pages make no API call that gets a 401 (18.8s)
-  ✓   7 e2e-paid/paywall-pages.spec.ts:90:1 › redirect with next: a signed-out deep link → sign up → onboarding → back on that page (14.8s)
-  ✓   8 e2e-paid/s7-upgrade.spec.ts:34:1 › S7 sign up → upgrade with Stripe → Pro unlocks live data and exact numbers (19.4s)
-  ✓   9 e2e-paid/s7-upgrade.spec.ts:64:1 › account delete: type the email, everything goes, signed out (5.1s)
-  ✓  10 e2e-paid/s7-upgrade.spec.ts:82:1 › keyboard only: search → drawer → save → upgrade reaches /pricing (19.4s)
+  1) e2e-paid/paywall-pages.spec.ts:90:1 › redirect with next: a signed-out deep link → sign up → onboarding → back on that page 
 
-  10 passed (3.8m)
+    Error: apiRequestContext.get: read ECONNRESET
+    Call log:
+      - → GET http://localhost:3160/api/flags
+        - user-agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.8103.78 Safari/537.36
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+        - cookie: sb-localhost-auth-token-flow-5c237e0cceb9d0492ed2d5453a8dc17c-code-verifier=base64-REDACTED; sb-localhost-auth-token-flows-code-verifier=base64-REDACTED; sb-localhost-auth-token=base64-REDACTED
+
+
+      103 |
+      104 |   // Signed in now: the data APIs answer, / is Best bets, and /m/<id> is the full market page.
+    > 105 |   expect((await page.request.get("/api/flags")).status()).toBe(200);
+          |                              ^
+      106 |   await page.goto("/");
+      107 |   await expect(page.locator("[data-row]").first()).toBeVisible({ timeout: 30_000 });
+      108 |   await page.goto(`/m/${m.id}`);
+        at /tmp/claude-0/-home-user-MarketEdge/2e8d356b-d1b5-5401-91e6-9f451833b42c/scratchpad/clean4/apps/web/e2e-paid/paywall-pages.spec.ts:105:30
+
+    Error Context: test-results/paywall-pages-redirect-wit-1c9c4-oarding-→-back-on-that-page/error-context.md
+
+  1 failed
+    e2e-paid/paywall-pages.spec.ts:90:1 › redirect with next: a signed-out deep link → sign up → onboarding → back on that page 
+  9 passed (4.0m)

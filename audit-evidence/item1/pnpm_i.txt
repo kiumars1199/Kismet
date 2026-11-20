@@ -3,11 +3,12 @@ Lockfile is up to date, resolution step is skipped
 Packages are hard linked from the content-addressable store to the virtual store.
   Content-addressable store is at: /root/.local/share/pnpm/store/v11
   Virtual store is at:             node_modules/.pnpm
-Packages: +501
+Packages: +508
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-Progress: resolved 501, reused 500, downloaded 0, added 501, done
+Progress: resolved 508, reused 507, downloaded 0, added 508, done
 
 dependencies:
++ @modelcontextprotocol/server 2.4.0
 + @sentry/nextjs 11.9.0
 + @supabase/ssr 0.12.7
 + @supabase/supabase-js 2.118.0
@@ -31,6 +32,7 @@ devDependencies:
 + @axe-core/playwright 4.14.0
 + @electric-sql/pglite 0.5.14
 + @eslint/eslintrc 3.3.7
++ @modelcontextprotocol/client 2.4.0
 + @playwright/test 1.65.1
 + @tailwindcss/postcss 4.3.5
 + @testing-library/react 16.3.3
@@ -45,4 +47,4 @@ devDependencies:
 + typescript 5.9.3
 + vitest 5.1.0
 
-Done in 249ms using pnpm v12.21.0
+Done in 282ms using pnpm v12.21.0

@@ -1,7 +1,7 @@
-const { chromium } = require("/home/user/wt-audit2/apps/web/node_modules/@playwright/test");
-const Stripe = require("/home/user/wt-audit2/apps/web/node_modules/stripe");
+const { chromium } = require("/home/user/wt-audit3/apps/web/node_modules/@playwright/test");
+const Stripe = require("/home/user/wt-audit3/apps/web/node_modules/stripe");
 const { createHash, createHmac, randomUUID } = require("crypto");
-const base = process.argv[2]; const SECRET = "whsec_e2e";
+const base = process.argv[2]; const SECRET = process.env.STRIPE_WEBHOOK_SECRET // the mock's fake secret, see setup/mock3160.sh;
 async function retry(fn, ms = 90000) { const t = Date.now(); let e; while (Date.now() - t < ms) { try { return await fn(); } catch (x) { e = x; await new Promise(r => setTimeout(r, 1500)); } } throw e; }
 const log = (...a) => console.log(...a);
 async function signIn(browser, email) {
@@ -28,7 +28,7 @@ const evt = (type, object, id = `evt_audit_${randomUUID().slice(0, 8)}`) => ({ i
 (async () => {
   const browser = await chromium.launch();
   // A. checkout -> webhook -> tier up
-  const email = `audit2-bill-${Date.now()}@example.com`;
+  const email = `audit3-bill-${Date.now()}@example.com`;
   const { ctx, page } = await signIn(browser, email);
   log("A0 before checkout:", (await tier(page)).tier);
   await page.goto("/pricing"); await page.getByTestId("checkout-pro").first().click(); await page.waitForURL(/\/account\?checkout=success/, { timeout: 60000 });
@@ -38,7 +38,7 @@ const evt = (type, object, id = `evt_audit_${randomUUID().slice(0, 8)}`) => ({ i
   const subObj = (await (await page.request.get(`/e2e-mock/stripe/v1/subscriptions/${subId}`)).json());
   // B. forged webhooks
   const premiumObj = { ...subObj, items: { ...subObj.items, data: [{ ...subObj.items.data[0], price: { id: "price_premium_m", object: "price" } }] } };
-  log("B1 forged (wrong secret) subscription.updated → premium:", await send(page, evt("customer.subscription.updated", premiumObj), { secret: "whsec_attacker" }), "tier now", (await tier(page)).tier);
+  log("B1 forged (wrong secret) subscription.updated → premium:", await send(page, evt("customer.subscription.updated", premiumObj), { secret: "not-the-secret" }), "tier now", (await tier(page)).tier);
   log("B2 unsigned:", await send(page, evt("customer.subscription.updated", premiumObj), { header: "" }), "tier now", (await tier(page)).tier);
   log("B3 garbage signature:", await send(page, evt("customer.subscription.updated", premiumObj), { header: "t=1,v1=deadbeef" }), "tier now", (await tier(page)).tier);
   log("B4 valid HMAC, timestamp 10 min old:", await send(page, evt("customer.subscription.updated", premiumObj), { timestamp: Math.floor(Date.now() / 1000) - 600 }), "tier now", (await tier(page)).tier);
@@ -54,7 +54,7 @@ const evt = (type, object, id = `evt_audit_${randomUUID().slice(0, 8)}`) => ({ i
   const canceled = (await (await page.request.get(`/e2e-mock/stripe/v1/subscriptions/${subId}`)).json());
   log("D2 period ends: Stripe status", canceled.status, "→ subscription.deleted:", await send(page, evt("customer.subscription.deleted", canceled)), "tier", (await tier(page)).tier, "status", (await tier(page)).status);
   // E. Payment Link path: client_reference_id
-  const email2 = `audit2-link-${Date.now()}@example.com`;
+  const email2 = `audit3-link-${Date.now()}@example.com`;
   const u2 = await signIn(browser, email2);
   const uid = (await exp(u2.page)).account.id;
   const body = `${uid}_${Date.now() + 7 * 86400000}`;

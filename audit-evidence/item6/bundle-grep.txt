@@ -1,4 +1,15 @@
-$ grep -roE "SUPABASE_SERVICE_ROLE_KEY|STRIPE_SECRET_KEY|...|service_role|sk_live_|sk_test_|whsec_|rk_live_|eyJhbGciOi" .next/static  (prod build, empty keys)
-0
-$ node scripts/check-bundle.mjs
-check-bundle: 140 files in .next/static, no secrets
+# client bundle grep (.next/static of keyless prod build)
+SUPABASE_SERVICE_ROLE_KEY: 0 files
+STRIPE_SECRET_KEY: 0 files
+STRIPE_WEBHOOK_SECRET: 0 files
+UPSTASH_REDIS_REST_TOKEN: 0 files
+CRON_SECRET: 0 files
+EXT_SIGNING_SECRET: 0 files
+service_role: 0 files
+sk_live_: 0 files
+sk_test_: 0 files
+whsec_: 0 files
+rk_live_: 0 files
+eyJhbGciOi: 0 files
+e2e-service: 0 files
+check-bundle: 146 files in .next/static, no secrets

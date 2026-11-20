@@ -1,0 +1,4 @@
+# TODO/FIXME/console.log in shipped code (app, components, lib, middleware; tests excluded)
+TODO/FIXME hits: 0
+console.log hits: 0
+extension src console.log: 0

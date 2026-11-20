@@ -1,4 +1,3 @@
-# keyinspect.cjs: extension built with KISMET_ORIGIN=http://localhost:3160 OUT_DIR=dist-audit, loaded in a fresh Chromium profile; Kalshi demo API mocked via ctx.route; every context + service-worker request recorded
 == trade-only key: scopes=["read","write::trade"]
    connected=true privateKeyFieldStillShown=0
    panel says: Demo key connected Key ID a0d1…0002 Type Ed25519 Permissio
@@ -23,3 +22,4 @@
    PEM in chrome.storage.local: false, session: false, page local/sessionStorage: false
    chrome.storage.local keys: (none); session keys: (none)
    IndexedDB kismet-vault/keys: []
+exit 0

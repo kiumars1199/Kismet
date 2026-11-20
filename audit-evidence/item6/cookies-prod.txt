@@ -1,0 +1,18 @@
+# Cookie flags on the wired production build (NODE_ENV=production, http://localhost:3161, mock Supabase)
+## POST /api/auth/magic-link
+HTTP/1.1 200 OK
+set-cookie: sb-localhost-auth-token-flow-827f340a5ff95d773c2917727a83784c-code-verifier=REDACTED; Path=/; Expires=Sat, 25 Dec 2027 05:20:27 GMT; Max-Age=34560000; Secure; HttpOnly; SameSite=lax
+set-cookie: sb-localhost-auth-token-flows-code-verifier=REDACTED; Path=/; Expires=Sat, 25 Dec 2027 05:20:27 GMT; Max-Age=34560000; Secure; HttpOnly; SameSite=lax
+set-cookie: sb-localhost-auth-token-code-verifier=REDACTED; Path=/; Expires=Sat, 25 Dec 2027 05:20:27 GMT; Max-Age=34560000; Secure; HttpOnly; SameSite=lax
+set-cookie: me_terms=2026-11-20T05%3A20%3A27.423Z; Path=/; Expires=Fri, 20 Nov 2026 06:20:27 GMT; Max-Age=3600; Secure; HttpOnly; SameSite=lax
+## GET magic-link callback (http://localhost:3161/auth/callback?next=%2F&code=REDACTED)
+HTTP/1.1 303 See Other
+Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+location: http://localhost:3161/login?error=link&next=%2F
+## GET magic-link callback with the verifier cookies (second user)
+HTTP/1.1 303 See Other
+Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+location: http://localhost:3161/onboarding?next=%2F
+set-cookie: sb-localhost-auth-token-code-verifier=REDACTED; Path=/; Max-Age=0; Secure; HttpOnly; SameSite=lax
+set-cookie: me_terms=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT
+set-cookie: sb-localhost-auth-token=REDACTED; Path=/; Expires=Sat, 25 Dec 2027 05:20:34 GMT; Max-Age=34560000; Secure; HttpOnly; SameSite=lax

@@ -1,9 +1,9 @@
-const { request } = require("/home/user/wt-audit2/apps/web/node_modules/@playwright/test");
+const { request } = require("/home/user/wt-audit3/apps/web/node_modules/@playwright/test");
 const fs = require("fs");
 (async () => {
-  const flags = JSON.parse(fs.readFileSync("/home/user/wt-audit2/output/flags.json", "utf8")).flags;
-  const mk = JSON.parse(fs.readFileSync("/home/user/wt-audit2/output/markets.json", "utf8")).markets; const byM = new Map(mk.map((m) => [String(m.id), m])); const byId = new Map(flags.map((f) => [f.id, f])); let fromMarkets = 0;
-  const ctx = await request.newContext({ baseURL: "http://localhost:3160", storageState: `${process.env.S}/states/pro.json` });
+  const flags = JSON.parse(fs.readFileSync("/home/user/wt-audit3/output/flags.json", "utf8")).flags;
+  const mk = JSON.parse(fs.readFileSync("/home/user/wt-audit3/output/markets.json", "utf8")).markets; const byM = new Map(mk.map((m) => [String(m.id), m])); const byId = new Map(flags.map((f) => [f.id, f])); let fromMarkets = 0;
+  const ctx = await request.newContext({ baseURL: "http://localhost:3161", storageState: `/tmp/claude-0/-home-user-MarketEdge/2e8d356b-d1b5-5401-91e6-9f451833b42c/scratchpad/r3/states/pro.json` });
   const r = await (await ctx.get("/api/markets?ps=50")).json();
   let n = 0, bad = 0;
   for (const row of r.rows) {
@@ -14,5 +14,5 @@ const fs = require("fs");
     if (byId.has(row.market.id) && JSON.stringify(row.market.execution) !== JSON.stringify(f.execution)) { bad++; console.log("exec mismatch", row.market.id); }
   }
   const meta = await (await ctx.get("/api/meta")).json();
-  console.log(`pro /api/markets?ps=50: ${r.rows.length} rows, ${n} side fields compared with output/flags.json, mismatches=${bad} (rows checked against flags.json: ${r.rows.length-fromMarkets}, against markets.json: ${fromMarkets}); /api/meta scanned_at=${meta.scanned_at ?? JSON.stringify(meta).slice(0,200)}; flags.json scanned_at=${JSON.parse(fs.readFileSync("/home/user/wt-audit2/output/flags.json","utf8")).scanned_at}`);
+  console.log(`pro /api/markets?ps=50: ${r.rows.length} rows, ${n} side fields compared with output/flags.json, mismatches=${bad} (rows checked against flags.json: ${r.rows.length-fromMarkets}, against markets.json: ${fromMarkets}); /api/meta scanned_at=${meta.scanned_at ?? JSON.stringify(meta).slice(0,200)}; flags.json scanned_at=${JSON.parse(fs.readFileSync("/home/user/wt-audit3/output/flags.json","utf8")).scanned_at}`);
 })();

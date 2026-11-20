@@ -1,4 +1,4 @@
-const { chromium } = require("/home/user/wt-audit2/apps/web/node_modules/@playwright/test");
+const { chromium } = require("/home/user/wt-audit3/apps/web/node_modules/@playwright/test");
 const { generateKeyPairSync } = require("crypto");
 const OUT = process.argv[2], EXT = "cgoaaiaghbckpalppklocajbdpoelmbd";
 async function run(label, scopes) {
