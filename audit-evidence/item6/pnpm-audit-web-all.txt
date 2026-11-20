@@ -7,9 +7,9 @@
 ├─────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
 │ Patched versions    │ >=11.0.1                                                                                                                           │
 ├─────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
-│ Paths               │ .>eslint-config-next>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch                                      │
+│ Paths               │ .>eslint-config-next>@typescript-eslint/eslint-plugin>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch     │
 │                     │                                                                                                                                    │
-│                     │ .>eslint-config-next>@typescript-eslint/eslint-plugin>@typescript-eslint/parser>@typescript-eslint/typescript-estree>minimatch     │
+│                     │ .>eslint-config-next>@typescript-eslint/eslint-plugin>@typescript-eslint/utils>@typescript-eslint/typescript-estree>minimatch      │
 │                     │                                                                                                                                    │
 │                     │ .>eslint-config-next>@typescript-eslint/eslint-plugin>@typescript-eslint/type-utils>@typescript-eslint/typescript-estree>minimatch │
 │                     │                                                                                                                                    │

@@ -1,5 +1,0 @@
-/alerts signed out: 307 http://localhost:3161/signup?next=%2Falerts
-GET /api/unsubscribe bad token: <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Unsubscribe · Kismet</title></head>
-<body style="margin:0;background:#0b0f0d;color:#e6ece9;font-family:system-ui,sans-serif"><ma
-POST /api/unsubscribe bad token: <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Unsubscribe · Kismet</title></head>
-<body style="margin:0;background:#0b0f0d;color:#e6ece9;font-family:system-ui,sans-serif"><ma

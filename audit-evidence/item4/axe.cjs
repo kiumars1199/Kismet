@@ -1,6 +1,6 @@
 // node axe.cjs <base> <state> <storage|-> <out.json>
-const { chromium } = require("/home/user/wt-audit3/apps/web/node_modules/@playwright/test");
-const AxeBuilder = require("/home/user/wt-audit3/apps/web/node_modules/@axe-core/playwright").default;
+const { chromium } = require("/tmp/claude-0/-home-user-MarketEdge/2e8d356b-d1b5-5401-91e6-9f451833b42c/scratchpad/clean6/apps/web/node_modules/@playwright/test");
+const AxeBuilder = require("/tmp/claude-0/-home-user-MarketEdge/2e8d356b-d1b5-5401-91e6-9f451833b42c/scratchpad/clean6/apps/web/node_modules/@axe-core/playwright").default;
 const fs = require("fs");
 const [base, state, ss, out] = process.argv.slice(2);
 const ROUTES = (process.env.ROUTES || "/ /about /pricing /track-record /status /terms /privacy /refunds /disclaimer /contact /login /signup /reset-password /markets /bets /watchlist /journal /alerts /dashboards /settings /tools /account /onboarding /combos /oauth/consent /m/6654466 /no-such-page").split(" ");

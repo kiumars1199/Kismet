@@ -125,11 +125,12 @@ function PlanButton({ id, annual, ctx, featured }: { id: string; annual: boolean
   );
 }
 
-export function Faq({ items }: { items: { q: string; a: React.ReactNode }[] }) {
+/** `id` makes an entry linkable (/about#returns, T-289); `open` shows it expanded on load. */
+export function Faq({ items }: { items: { q: string; a: React.ReactNode; id?: string; open?: boolean }[] }) {
   return (
     <div className="divide-y divide-border rounded-card border border-border bg-surface">
-      {items.map(({ q, a }) => (
-        <details key={q} className="group px-4 md:px-5">
+      {items.map(({ q, a, id, open }) => (
+        <details key={q} id={id} open={open} className="group scroll-mt-24 px-4 md:px-5">
           <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 py-3 font-medium [&::-webkit-details-marker]:hidden">
             {q}
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 text-muted group-open:rotate-45" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>

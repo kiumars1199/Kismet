@@ -1,6 +1,6 @@
 // T-291 #13: /about "Best bets right now" ranks by the return the card shows (shared cardReturn), over every match.
 import { describe, expect, it } from "vitest";
-import { cardReturn } from "@/lib/format";
+import { betFigures } from "@/lib/betFigures";
 import { gateMarket } from "@/lib/data/gate";
 import { allRows, topByReturn } from "@/lib/topBets";
 import type { Row } from "@/lib/filters/apply";
@@ -16,12 +16,12 @@ describe("about top 3", () => {
       const rows = allRows(store, F);
       const top = topByReturn(rows, 3, tier);
       expect(top.length).toBe(Math.min(3, new Set(rows.map((r) => r.market.event_id)).size));
-      const shown = top.map((r) => cardReturn(r.side).roi ?? -Infinity);
+      const shown = top.map((r) => betFigures(r.side).ret.roi ?? -Infinity);
       expect([...shown].sort((a, b) => b - a)).toEqual(shown);
       // nothing left out shows a higher return than the third card
       const best = Math.max(...rows.map(({ market, side }) => {
         const m = gateMarket(market, tier);
-        return cardReturn(m.sides.find((x) => x.side_index === side.side_index) ?? m.best).roi ?? -Infinity;
+        return betFigures(m.sides.find((x) => x.side_index === side.side_index) ?? m.best).ret.roi ?? -Infinity;
       }));
       expect(shown[0]).toBe(best);
       expect(new Set(top.map((r) => r.market.event_id)).size).toBe(top.length);

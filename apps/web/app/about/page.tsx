@@ -12,18 +12,17 @@ import { pendingLine } from "@/lib/data/respond";
 import { PendingState } from "@/components/screener/States";
 import { apply } from "@/lib/filters/apply";
 import { FilterState } from "@/lib/filters/state";
-import { DASH, REALISTIC_HELP, RETURN_HELP, cardReturn, closesLine, formatCount, money, pays, payoutIfWins, payoutMoney, pct, price, recordHelp, recordLabel, winsAbout } from "@/lib/format";
-import { topicLabel } from "@/components/market/labels";
+import { DASH, RETURN_HELP, closesLine, formatCount, pct, price, recordHelp } from "@/lib/format";
+import { betFigures, RETURN_HELP_ONE, RETURN_LABEL } from "@/lib/betFigures";
+import { VERDICT_TONE, topicLabel } from "@/components/market/labels";
 import { tiles } from "@/lib/trackRecord";
 import { allRows, topByReturn } from "@/lib/topBets";
-import { DEFAULT_PROFILE } from "@/lib/repo/types";
 import type { Side, StoreMarket } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "How it works" };
 
 const n = (x: number | undefined) => formatCount(x);   // docs/18 §4
-const STAKE = DEFAULT_PROFILE.default_stake_usd;   // the Best bets cards' default stake ($100), not a second number
 
 const STEPS: [string, string][] = [
   ["Read the price", `A Yes at 68¢ means the market says 68%. We check every open Polymarket market, ${REFRESH_WORDS}.`],
@@ -31,8 +30,13 @@ const STEPS: [string, string][] = [
   ["Show the gap", "When bets like it won more often than the price says, after the fee and what you'd really pay, it's a best bet. You decide what to do with it."],
 ];
 
-const FAQ: { q: string; a: React.ReactNode }[] = [
-  { q: "What is estimated return?", a: <>{RETURN_HELP} A +10% estimated return means bets like it made about +$10 per $100 staked, on average, in past results. It is not a promise: any single bet can lose.</> },
+const FAQ: { q: string; a: React.ReactNode; id?: string; open?: boolean }[] = [
+  { q: "What is estimated return?", a: <>{RETURN_HELP_ONE} A +10% estimated return means bets like it made about +$10 per $100 staked, on average. It is not a promise: any single bet can lose.</> },
+  { id: "returns", open: true, q: "Why do I see more than one return number?", a: <>
+    Each answers a different question. <strong>Estimated return at today&apos;s price</strong> is for this one bet: card, details and the AI connector all show the same figure.
+    {" "}<strong>How bets like this did in testing</strong> is the whole group (a category, or a payout band) over the walk-forward test, so it differs from bet to bet.
+    {" "}The <strong>live record</strong> is every best bet logged since launch and graded as markets settle; until enough have settled it can swing far from the test either way.
+    {" "}All three are past results, not a promise. </> },
   { q: "Is this betting advice?", a: "No. It's market analytics. Everyone sees the same numbers, based on how past markets settled. Kismet never looks at your bets to tell you what to buy, and any single bet can lose." },
   { q: "How is it tested?", a: <>Week by week, on markets the model had never seen: each week it only knows what happened before, and we check how its best bets settled. Losing weeks and limits are shown on <Link href="/track-record" className="text-accent-hover underline-offset-4 hover:underline">Results</Link>.</> },
   { q: "Which markets do you cover?", a: "Polymarket today. Kalshi later, once we have their permission to use the data." },
@@ -140,7 +144,7 @@ function Counter({ label, value, accent }: { label: string; value: string; accen
 // Server-rendered Best bet card in the BetCard style (docs/18 §6 headline, docs/17 return line). No client JS here.
 function PreviewCard({ m, s }: { m: StoreMarket; s: Side }) {
   const bar = (p: number) => `${Math.max(0, Math.min(100, p * 100))}%`;
-  const r = cardReturn(s);
+  const f = betFigures(s);   // T-289: the same figures as BetCard (signed-out: the $100 default stake)
   return (
     <Link href={`/m/${m.id}`} data-testid="preview-card"
       className="flex flex-col gap-3 rounded-card border border-border bg-surface p-4 transition-colors duration-200 ease-out hover:border-accent-border">
@@ -151,12 +155,12 @@ function PreviewCard({ m, s }: { m: StoreMarket; s: Side }) {
       <p className="line-clamp-3 text-base font-semibold leading-[1.3] md:min-h-[42px]">{m.question}</p>
       <div>
         <p className="flex flex-wrap items-baseline gap-x-2">
-          <span className="font-heading text-[32px] font-bold leading-none tracking-[-0.02em]">Pays {pays(s.ask)}</span>
-          <span className="text-[15px] font-medium text-soft">wins about {winsAbout(s.win_prob)}</span>
+          <span className="font-heading text-[32px] font-bold leading-none tracking-[-0.02em]" title={f.feeHelp}>Pays {f.pays}</span>
+          <span className="text-[15px] font-medium text-soft">before fees · <span title={`Won ${f.winPct} of the time in similar past bets`}>wins about {f.wins}</span></span>
         </p>
-        <p className="mt-2 text-[13px] text-soft">Bet <strong className="font-semibold text-text">{s.outcome}</strong> at {price(s.ask)}</p>
-        <p className="mt-0.5 text-[13px] text-muted" title={r.realistic ? REALISTIC_HELP : RETURN_HELP}>
-          {r.realistic ? "Similar past bets returned" : "Estimated return"} <span className="font-semibold text-accent" data-testid="return">{r.text}</span>
+        <p className="mt-2 text-[13px] text-soft">Bet <strong className="font-semibold text-text">{s.outcome}</strong> at {price(s.ask)} <span className={VERDICT_TONE[f.verdict.tone]}>({f.pts})</span></p>
+        <p className="mt-0.5 text-[13px] text-muted" title={RETURN_HELP_ONE}>
+          {RETURN_LABEL} <span className="font-semibold text-accent" data-testid="return">{f.ret.text}</span>
         </p>
       </div>
       <div className="flex flex-col gap-1.5 text-xs">
@@ -164,8 +168,8 @@ function PreviewCard({ m, s }: { m: StoreMarket; s: Side }) {
         <BarRow label="Won before" value={pct(s.win_prob)} width={bar(s.win_prob)} fill="bg-accent" strong />
       </div>
       <div className="mt-auto flex items-center justify-between border-t border-border pt-3 text-[13px]">
-        <span className="text-muted" data-testid="payout">Bet {money(STAKE)} → get <span className="font-semibold tabular-nums text-text">{payoutMoney(payoutIfWins(STAKE, s))}</span> if it wins</span>
-        <span className="rounded-full bg-muted-bg px-2.5 py-[3px] text-xs text-soft" title={recordHelp(s.model_neff)}>{recordLabel(s.model_neff) ?? DASH}</span>
+        <span className="text-muted" data-testid="payout" title={f.feeHelp}>Bet {f.stakeText} → get <span className="font-semibold tabular-nums text-text">{f.payoutText}</span> after fees if it wins</span>
+        <span className="rounded-full bg-muted-bg px-2.5 py-[3px] text-xs text-soft" title={recordHelp(s.model_neff)}>{f.record ?? DASH}</span>
       </div>
     </Link>
   );

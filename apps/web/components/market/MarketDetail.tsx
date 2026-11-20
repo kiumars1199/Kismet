@@ -8,7 +8,8 @@ import { softNav } from "@/lib/softNav";
 import { useEffect, useRef, useState } from "react";
 import { fetchBook, fetchMarket, type BookResponse, type MarketResponse } from "@/lib/api";
 import { useWhen } from "./When";
-import { ago, basis, chance, edge, money, pays, PAYS_HELP, pct, price, realisticReturn, ret, RETURN_HELP, payoutIfWins, payoutMoney, sideRet, sideEdge, sidePts, formatCount, LONG_SHOT_LINE, winsAbout } from "@/lib/format";
+import { ago, basis, cardReturn, edge, money, pays, pct, price, ret, sideRet, sideEdge, formatCount, LONG_SHOT_LINE } from "@/lib/format";
+import { betFigures, edgeAbove0, PTS_HELP, RETURN_HELP_ONE, RETURN_LABEL_LONG, RETURNS_FAQ } from "@/lib/betFigures";
 import { useProfile } from "@/lib/repo/hooks";
 import { useEntitlements } from "@/lib/entitlements";
 import type { Execution, Side, StoreMarket } from "@/lib/types";
@@ -17,7 +18,7 @@ import { DrawerExtras } from "./DrawerExtras";
 // Recharts (~390 KB) loads only when a drawer opens, not with Best bets; the placeholder keeps the chart's height.
 const CurveChart = dynamic(() => import("./CurveChart").then((m) => m.CurveChart), { ssr: false, loading: () => <div className="h-[236px]" /> });
 import { InfoTip, OddsBars, Skeleton, Val } from "./bits";
-import { VERDICT_LABEL, chanceTone, priceVerdict, returnTone, topicLabel } from "./labels";
+import { VERDICT_LABEL, VERDICT_TONE, chanceTone, returnTone, topicLabel } from "./labels";
 import { LowerConfidence, TierNote } from "./TierNote";
 import { AddToCombo } from "@/components/combo/AddToCombo";
 import { drawerHref } from "./drawer";
@@ -132,8 +133,9 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
   const liveX = live.book && live.book.book_ok ? (live.book as Execution & { warning?: string }) : undefined;
   const x: Execution | undefined = liveX ?? (live.book ? undefined : scanX);
   const bookState = live.book && !live.book.book_ok ? live.book.verdict : undefined;
-  const realistic = realisticReturn(s);
-  const c = chance(s.win_prob);
+  // T-289: the headline's figures come from the same helper as the cards, at the live price once the book answers
+  const f = betFigures(s, { ask: liveX?.best_ask, stake: profile.default_stake_usd });
+  const c = f.chance;
 
   const pickSide = (i: 0 | 1) => (onClose ? softNav(pathname + drawerHref(m.id, i, params), { replace: true }) : router.replace(`${pathname}?side=${i}`, { scroll: false }));
   const H = onClose ? "h2" : "h1";
@@ -158,22 +160,19 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
           {m.tier === "edge" && <LowerConfidence />}
         </div>
         <p data-testid="one-bet" className="mt-2 font-heading text-[26px] font-bold leading-tight text-text" title={basis(m, s)}>
-          <span title={PAYS_HELP}>Pays {pays(s.ask)}</span> <span className="font-sans text-base font-medium text-accent-soft">· wins about {winsAbout(s.win_prob)}</span>
+          <span title={f.feeHelp}>Pays {f.pays}</span> <span className="font-sans text-base font-medium text-accent-soft">before fees · <span className="whitespace-nowrap" title={`Won ${f.winPct} of the time in similar past bets`}>wins about {f.wins}</span></span>
         </p>
-        <p className={`text-[13px] ${s.ranges || s.edge > 0 ? "text-accent-softer" : "text-negative"}`}>{priceVerdict(s)} <span className="font-semibold">({sidePts(s)})</span></p>
-        {s.win_prob < 0.25 && <p data-testid="long-shot-line" className="mt-2 text-[13px] leading-relaxed text-text">{LONG_SHOT_LINE}</p>}
+        <p data-testid="verdict" className={`text-[13px] ${f.verdict.tone === "up" ? "text-accent-softer" : VERDICT_TONE[f.verdict.tone]}`}>{f.verdict.text} <span className="font-semibold" title={PTS_HELP}>({f.pts})</span></p>
+        {s.win_prob < 0.25 && <p data-testid="long-shot-line" className="mt-2 text-[13px] leading-relaxed text-text">{edgeAbove0(s) ? LONG_SHOT_LINE : "Most of the time this loses."}</p>}
         <div className="mt-2 flex items-baseline gap-2.5">
-          <div className={`font-heading text-[30px] font-bold leading-none tracking-tight ${s.roi_pct >= 0 ? "text-accent-soft" : "text-negative"}`} title={basis(m, s)}>
-            {pro ? sideEdge(s) : sideRet(s)}
+          <div data-testid="bet-return" className={`font-heading text-[30px] font-bold leading-none tracking-tight ${(pro ? s.roi_pct : f.ret.roi ?? 0) >= 0 ? "text-accent-soft" : "text-negative"}`} title={basis(m, s)}>
+            {pro ? sideEdge(s) : f.ret.text}
           </div>
           <div className="flex items-center gap-1 text-[13px] text-accent-soft">
-            {pro ? "edge per share" : "estimated return, based on past results"}<InfoTip text={RETURN_HELP} className="text-accent-softer" />
+            {pro ? "edge per share" : RETURN_LABEL_LONG}<InfoTip text={RETURN_HELP_ONE} className="text-accent-softer" />
           </div>
         </div>
-        {realistic !== null && !s.ranges && (
-          <p className="mt-1.5 text-[13px] text-accent-soft">Similar past bets returned <strong>{ret(realistic)}</strong> on average.</p>
-        )}
-        <p className={`mt-1.5 text-[13px] ${chanceTone(c)}`}>{c ?? ""}{c && " · "}<span className="text-accent-soft">Bet {money(profile.default_stake_usd)} → get {payoutMoney(payoutIfWins(profile.default_stake_usd, s))} if it wins</span></p>
+        <p className={`mt-1.5 text-[13px] ${chanceTone(c)}`}>{c ?? ""}{c && " · "}<span data-testid="payout" className="text-accent-soft" title={f.feeHelp}>Bet {f.stakeText} → get {f.payoutText} after fees if it wins</span></p>
         {m.tier === "edge" && <TierNote s={s} className="mt-1.5 !text-accent-soft" />}
         {free && (
           <p data-testid="upgrade-note" className="mt-3 border-t border-accent-border pt-3 text-[13px] text-accent-softer">
@@ -204,7 +203,7 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
                   <span title={basis(m, x)}>won {pct(x.win_prob)} before</span>
                   {/* docs/17 fix 11: no scary negative return on the other side; just say so */}
                   {x.ranges || x.roi_pct >= 0
-                    ? <span className={returnTone(x.roi_pct)}>{pro ? sideEdge(x) : sideRet(x)}</span>
+                    ? <span className={returnTone(pro ? x.roi_pct : cardReturn(x).roi)}>{pro ? sideEdge(x) : cardReturn(x).text}</span>
                     : <span>Not recommended</span>}
                 </div>
               </button>
@@ -214,7 +213,7 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
       )}
 
       <section className={card} aria-labelledby="why">
-        <h3 id="why" className="mb-3 font-sans text-sm font-semibold">{s.edge > 0 ? "Why it's a good price" : "How the price compares"}</h3>
+        <h3 id="why" className="mb-3 font-sans text-sm font-semibold">{edgeAbove0(s) ? "Why it's a good price" : "How the price compares"}</h3>
         <OddsBars big market={s.ask} won={s.win_prob} labels={["Market's odds", "How often similar bets won"]} basis={basis(m, s)} />
         <p className="mt-3 text-[13px] leading-relaxed text-soft">
           Based on <Count n={s.model_events} /> past {topicLabel(m)} events ({m.market_type}, about {m.horizon_h} h before close
@@ -236,6 +235,7 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
             ["Ask", price(x?.best_ask ?? s.ask)], ["Mid", price(x?.book_mid ?? s.mid)],
             ["Spread", price(x?.spread ?? m.spread)], ["Fee", price(x?.fee_at_ask ?? s.fee)],
             ["Edge", edge(x?.net_edge ?? s.edge)], ["Cautious edge", edge(s.edge_low)],
+            ["Model's own return estimate", sideRet(s)],
             ["Edge kept after spread", pct(x?.retention)], ["Win chance range", `${pct(s.win_prob_low)}–${pct(s.win_prob)}`],
             ["Model level", LEVEL[s.model_level] ?? s.model_level], ["Samples", `${formatCount(s.model_neff)} eff. · ${formatCount(s.model_events)} events`],
           ] as const).map(([k, v]) => (
@@ -259,7 +259,7 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
                 <Link href={onClose ? drawerHref(o.id, undefined, params) : `/m/${o.id}`} replace={!!onClose} scroll={!onClose}
                   className="flex min-h-11 items-center justify-between gap-3 border-t border-border py-2 text-[13px] hover:text-accent-hover">
                   <span className="line-clamp-2">{o.question}</span>
-                  <span className={`flex-none tabular-nums ${returnTone(o.best.roi_pct)}`}>{pro ? sideEdge(o.best) : sideRet(o.best)}</span>
+                  <span className={`flex-none tabular-nums ${returnTone(pro ? o.best.roi_pct : cardReturn(o.best).roi)}`}>{pro ? sideEdge(o.best) : cardReturn(o.best).text}</span>
                 </Link>
               </li>
             ))}
@@ -355,7 +355,7 @@ function StakeSection({ x, live, fetchedAt, error, bookState, scanAt, stake, onS
             <tr className="text-left text-xs text-muted">
               <th scope="col" className="whitespace-nowrap py-1 pr-2 font-medium">You bet</th>
               <th scope="col" className="font-medium">You get back if it wins</th>
-              <th scope="col" className="text-right font-medium">Est. profit (past results)</th>
+              <th scope="col" className="text-right font-medium" title="The model's own estimate at the price this stake fills at, before any correction from how similar past bets did. The headline's estimated return is the one to compare bets by.">Model&apos;s est. profit</th>
             </tr>
           </thead>
           <tbody>
@@ -407,8 +407,8 @@ function TrackRecord({ data, pro }: { data: MarketResponse; pro: boolean }) {
         )}
       </div>
       {b ? (
-        <p className="text-[13px] leading-relaxed text-soft">
-          In our walk-forward test, <Count n={b.flags} /> past {cat} bets like these
+        <p data-testid="tested-line" className="text-[13px] leading-relaxed text-soft">
+          <strong className="font-semibold text-text">How bets like this did in testing:</strong> in our walk-forward test, <Count n={b.flags} /> past {cat} best bets
           {b.win_rate !== undefined ? ` won ${pct(b.win_rate)} of the time` : ""}
           {b.roi_pct !== undefined ? ` and returned ${ret(b.roi_pct)} on average` : ""}
           {b.events !== undefined && <>, across <Count n={b.events} /> events</>}.
@@ -417,6 +417,10 @@ function TrackRecord({ data, pro }: { data: MarketResponse; pro: boolean }) {
       ) : (
         <p className="text-[13px] text-muted" title="not available">No past test covers {cat} markets yet.</p>
       )}
+      {b && <p className="mt-2 text-xs text-muted">
+        That is the whole {cat} group, so it differs from this bet&apos;s {RETURN_LABEL_LONG} above.{" "}
+        <Link href={RETURNS_FAQ} className="text-accent-hover underline underline-offset-4">Why two numbers?</Link>
+      </p>}
       {!m.validated && <p className="mt-2 text-[13px] text-warning">This kind of bet hasn&apos;t made money in testing yet. Treat the numbers as a rough guide.</p>}
     </section>
   );

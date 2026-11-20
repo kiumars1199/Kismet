@@ -1,19 +1,19 @@
 // /about "Best bets right now" (T-291 #13): the top N by the estimated return the card shows. Ranked with the same
-// shared helper the cards use (cardReturn), on each side as this tier sees it (Free: its band, never the exact number),
+// shared helper the cards use (betFigures().ret, i.e. cardReturn), on each side as this tier sees it (Free: its band, never the exact number),
 // so the order always matches the numbers on screen. One card per game, like Best bets.
 import type { Store } from "@/lib/data/store";
 import { gateMarket } from "@/lib/data/gate";
 import type { Tier } from "@/lib/entitlements";
 import { apply, type Row } from "@/lib/filters/apply";
 import { FilterState } from "@/lib/filters/state";
-import { cardReturn } from "@/lib/format";
+import { betFigures } from "@/lib/betFigures";
 
 /** Shown side for a tier, ranked by the card's return (highest first; no return sorts last); one per event. */
 export function topByReturn(rows: Row[], n: number, tier: Tier): Row[] {
   const shown = rows.map(({ market, side }) => {
     const m = gateMarket(market, tier);
     const s = m.sides.find((x) => x.side_index === side.side_index) ?? m.best;
-    return { row: { market: m, side: s }, roi: cardReturn(s).roi, i: 0 };
+    return { row: { market: m, side: s }, roi: betFigures(s).ret.roi, i: 0 };
   });
   shown.forEach((x, i) => (x.i = i));
   shown.sort((a, b) => (b.roi ?? -Infinity) - (a.roi ?? -Infinity) || a.i - b.i);   // stable: ties keep the list order

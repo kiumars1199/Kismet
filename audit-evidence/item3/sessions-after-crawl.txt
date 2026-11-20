@@ -1,4 +1,0 @@
-free audit3-st-free-1795150787214@example.com free False
-pro audit3-st-pro-1795150787214@example.com pro False
-premium audit3-st-prem-1795150787214@example.com premium False
-beta audit3-st-beta-1795150787214@example.com premium True

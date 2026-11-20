@@ -1,6 +1,0 @@
-## /api/oauth/decision
-Origin=[http://evil.example]: {"error":"Bad origin"} HTTP 403
-Origin=[]: {"error":"Bad origin"} HTTP 403
-Origin=[http://localhost:3161]: {"error":"This request has expired or was already used. Start again from the app."} HTTP 400
-same-origin bad decision: {"error":"Invalid request"} HTTP 400
-same-origin signed out: {"error":"Sign in to use this.","signin":"/login"} HTTP 401 

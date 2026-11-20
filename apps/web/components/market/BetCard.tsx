@@ -10,13 +10,14 @@ import { useRef } from "react";
 import type { ApiRow } from "@/lib/api";
 import { useEntitlements } from "@/lib/entitlements";
 import { useWhen } from "./When";
-import { REALISTIC_HELP, RETURN_HELP, basis, cardReturn, money, pays, PAYS_HELP, payoutIfWins, payoutMoney, price, priceAsOf, recordHelp, recordLabel, sideEdge, sidePts, winsAbout } from "@/lib/format";
+import { basis, price, priceAsOf, recordHelp, sideEdge } from "@/lib/format";
+import { betFigures, RETURN_HELP_ONE, RETURN_LABEL } from "@/lib/betFigures";
 import { useProfile } from "@/lib/repo/hooks";
 import { WatchStar } from "@/components/watch/WatchStar";
 import { VenueIconLink } from "@/components/trade/TradeButton";
 import { drawerHref, useOpenDrawer } from "./drawer";
 import { AlertLink, InfoTip, Notes } from "./bits";
-import { PTS_HELP, priceVerdict, returnTone, rowNotes, topicLabel } from "./labels";
+import { PTS_HELP, VERDICT_TONE, returnTone, rowNotes, topicLabel } from "./labels";
 import { useLastVisit, useLiveAsk } from "./live";
 import { LowerConfidence, TierNote } from "./TierNote";
 
@@ -24,12 +25,12 @@ export function BetCard({ r, pro = false }: { r: ApiRow; pro?: boolean }) {
   const { open } = useOpenDrawer();
   const { market: m, side: s } = r;
   const when = useWhen(m.closes_at);
-  const rec = recordLabel(s.model_neff);
-  const ret = cardReturn(s);
   const ref = useRef<HTMLElement>(null);
   const live = useLiveAsk(m.tokens?.[s.side_index], useEntitlements().can("live_data"), ref);
-  const stake = useProfile().default_stake_usd;
-  const win = payoutIfWins(stake, { ask: live?.ask ?? s.ask, fee: s.fee });
+  // T-289: every figure from one helper, at one price (the live ask when there is one), for the default stake
+  const f = betFigures(s, { ask: live?.ask, stake: useProfile().default_stake_usd });
+  const rec = f.record;
+  const ret = f.ret;
   const since = useLastVisit();
   const isNew = since !== null && (m.created_at ?? 0) > since;
   const dir = live && Math.abs(live.ask - s.ask) >= 0.005 ? (live.ask > s.ask ? "up" : "down") : null;
@@ -65,8 +66,8 @@ export function BetCard({ r, pro = false }: { r: ApiRow; pro?: boolean }) {
       </div>
       <div>
         <p data-testid="one-bet" className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5" title={basis(m, s)}>
-          <span className="whitespace-nowrap font-heading text-[28px] font-bold leading-none tracking-[-0.02em]" title={PAYS_HELP}>Pays {pays(s.ask)}</span>
-          <span className="text-[15px] font-medium text-soft">wins about {winsAbout(s.win_prob)}</span>
+          <span className="whitespace-nowrap font-heading text-[28px] font-bold leading-none tracking-[-0.02em]" title={f.feeHelp}>Pays {f.pays}</span>
+          <span className="text-[15px] font-medium text-soft"><span className="whitespace-nowrap">before fees ·</span> <span className="whitespace-nowrap" title={`Won ${f.winPct} of the time in similar past bets`}>wins about {f.wins}</span></span>
         </p>
         <p className="mt-2 text-[13px] text-soft">
           Bet <strong className="font-semibold text-text">{s.outcome}</strong> at{" "}
@@ -80,13 +81,13 @@ export function BetCard({ r, pro = false }: { r: ApiRow; pro?: boolean }) {
             )}
           </span>
           {/* own line on every card: a wrapping "·" left some cards with a dangling separator */}
-          <span className={`block ${s.ranges || s.edge > 0 ? "text-soft" : "text-negative"}`}>{priceVerdict(s).toLowerCase()} <span className="whitespace-nowrap" title={PTS_HELP}>({sidePts(s)})</span></span>
+          <span data-testid="verdict" className={`block ${VERDICT_TONE[f.verdict.tone]}`}>{f.verdict.text.toLowerCase()} <span className="whitespace-nowrap" title={PTS_HELP}>({f.pts})</span></span>
           {r.price_at && <span data-testid="price-as-of" className="block text-xs text-muted" title="Live Polymarket price read when this page loaded; edge, Pays and payout use it.">{priceAsOf(r.price_at)}</span>}
         </p>
         <p className="mt-0.5 flex items-center gap-1 text-[13px] text-muted">
-          {pro ? "Edge per share" : ret.realistic ? "Similar past bets returned" : "Estimated return"}
-          <span className={`tabular-nums ${returnTone(pro ? s.roi_pct : ret.roi)}`}>{pro ? sideEdge(s) : ret.text}</span>
-          <InfoTip text={ret.realistic && !pro ? REALISTIC_HELP : RETURN_HELP} />
+          {pro ? "Edge per share" : RETURN_LABEL}
+          <span data-testid="bet-return" className={`tabular-nums ${returnTone(pro ? s.roi_pct : ret.roi)}`}>{pro ? sideEdge(s) : ret.text}</span>
+          <InfoTip text={RETURN_HELP_ONE} />
         </p>
       </div>
       {/* P7: "Market says / Won before" bars live in the drawer ("Why it's a good price"); on the card they repeated
@@ -94,8 +95,8 @@ export function BetCard({ r, pro = false }: { r: ApiRow; pro?: boolean }) {
       <Notes notes={rowNotes(m.execution)} />
       {m.tier === "edge" && <TierNote s={s} />}
       <div className="mt-auto flex items-center justify-between gap-2 pt-1 text-[13px]">
-        <span data-testid="payout" className="text-muted" title="What your default stake (Settings) pays back if this side wins, after the fee. If it loses, you lose the stake.">
-          {win !== null ? <><span className="whitespace-nowrap">Bet <span className="tabular-nums text-soft">{money(stake)}</span> →</span>{" "}<span className="whitespace-nowrap">get <span className="font-semibold tabular-nums text-text">{payoutMoney(win)}</span> if it wins</span></> : null}
+        <span data-testid="payout" className="text-muted" title={`Your default stake (Settings). ${f.feeHelp}`}>
+          {f.payout !== null ? <><span className="whitespace-nowrap">Bet <span className="tabular-nums text-soft">{f.stakeText}</span> →</span>{" "}<span className="whitespace-nowrap">get <span className="font-semibold tabular-nums text-text">{f.payoutText}</span> after fees</span>{" "}<span className="whitespace-nowrap">if it wins</span></> : null}
         </span>
         <span className="flex items-center gap-1">
           {rec && <span title={`${recordHelp(s.model_neff)} ${basis(m, s)}`} className={`whitespace-nowrap text-xs ${rec === "Strong record" ? "text-soft" : "text-muted"}`}>{rec}</span>}

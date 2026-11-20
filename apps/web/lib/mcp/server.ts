@@ -17,7 +17,8 @@ import { chosenResult } from "@/lib/data/model";
 import { nowFor } from "@/lib/filters/apply";
 import { BEST_BETS_VERDICTS, FilterState } from "@/lib/filters/state";
 import { Category } from "@/lib/schemas";
-import { basis, betLine, cardReturn, closesLine, edge, formatCount, money, pays, pct, price, recordLabel, ret, testedLine } from "@/lib/format";
+import { basis, betLine, closesLine, edge, formatCount, money, pct, price, ret, testedLine } from "@/lib/format";
+import { betFigures, RETURN_LABEL_LONG, sideRecord } from "@/lib/betFigures";
 import { PAYS_READ_TEXT, fmtRecord, paysRows, recordRows, tiles } from "@/lib/trackRecord";
 import { siteUrl } from "@/lib/site";
 import type { MarketsResponse } from "@/lib/api";
@@ -98,14 +99,13 @@ const venue = (m: StoreMarket, me: Me) =>
   m.kalshi_ticker && canBeta(me, "kalshi") ? `Kalshi (${m.kalshi_ticker}, beta)` : `Polymarket ${m.url}`;
 
 /** One market side, with its basis one line away (CLAUDE.md rule 3). */
-function sideLines(m: StoreMarket, s: Side, now: number, n?: number): string[] {
-  const r = cardReturn(s);
+export function sideLines(m: StoreMarket, s: Side, now: number, n?: number): string[] {
+  const f = betFigures(s);   // T-289: the same figures and labels as the site's cards and drawer ($100 stake)
   const verdict = m.execution?.verdict;
-  const rec = recordLabel(s.model_neff);
   return [
     `${n ? `${n}. ` : ""}${m.question}`,
-    `   ${betLine(s)} · pays ${pays(s.ask)} · win chance ${pct(s.win_prob)} (model) · ${r.text} ${r.realistic ? "similar past bets returned" : "estimated return"}`,
-    `   ${verdict ? `Price check: ${verdict}` : "Not flagged"}${rec ? ` · ${rec}` : ""} · ${closesLine(m.closes_at, now)} · ${m.category}`,
+    `   ${betLine(s)} · ${f.feeLine} · wins about ${f.wins} (${f.winPct}, model) · ${f.verdict.text.toLowerCase()} (${f.pts}) · ${f.ret.text} ${RETURN_LABEL_LONG}`,
+    `   ${verdict ? `Price check: ${verdict}` : "Not flagged"}${f.record ? ` · ${f.record}` : ""} · ${closesLine(m.closes_at, now)} · ${m.category}`,
     `   Basis: ${basis(m, s)}`,
     `   ${marketUrl(m)}`,
   ];
@@ -191,8 +191,8 @@ export async function getMarket(args: z.infer<typeof GetMarketInput>, me: Me, st
       `  Edge after costs ${price(x.net_edge)} a share${typeof x.capacity_usd === "number" ? ` · about ${money(x.capacity_usd)} can be bought before the edge drops under the minimum` : ""}`,
     ] : []),
     "",
-    `Model level: ${LEVEL[s.model_level] ?? s.model_level} · sample: ${formatCount(s.model_neff)} effective past bets, ${formatCount(s.model_events)} events${recordLabel(s.model_neff) ? ` (${recordLabel(s.model_neff)})` : ""}`,
-    `Backtest basis: ${tested ?? `no walk-forward record for ${mk.category} yet`}${body.backtest ? ` · ${fmtRecord(body.backtest).bets} bets tested` : ""}`,
+    `Model level: ${LEVEL[s.model_level] ?? s.model_level} · sample: ${formatCount(s.model_neff)} effective past bets, ${formatCount(s.model_events)} events${sideRecord(s) ? ` (${sideRecord(s)})` : ""}`,
+    `Backtest basis: how bets like this did in testing (all ${mk.category} best bets, not this bet's ${RETURN_LABEL_LONG}): ${tested ?? `no walk-forward record for ${mk.category} yet`}${body.backtest ? ` · ${fmtRecord(body.backtest).bets} bets tested` : ""}`,
     body.price_at ? `Live price read ${Math.max(0, Math.round((Date.now() - body.price_at) / 1000))}s ago.` : `Scan price from ${new Date(store.meta.scanned_at * 1000).toISOString()}.`,
     `Bet on: ${venue(mk, me)}`,
     marketUrl(mk),

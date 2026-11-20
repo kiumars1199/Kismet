@@ -1,10 +1,10 @@
-const { chromium } = require("/home/user/wt-audit3/apps/web/node_modules/@playwright/test");
+const { chromium } = require("/tmp/claude-0/-home-user-MarketEdge/2e8d356b-d1b5-5401-91e6-9f451833b42c/scratchpad/clean6/apps/web/node_modules/@playwright/test");
 const fs = require("fs");
 const [base, st, route, width, n, out] = process.argv.slice(2);
 (async () => {
   const b = await chromium.launch(); const log = [];
   for (let i = 0; i < Number(n); i++) {
-    const ctx = await b.newContext({ storageState: st === "-" ? undefined : `/tmp/claude-0/-home-user-MarketEdge/2e8d356b-d1b5-5401-91e6-9f451833b42c/scratchpad/r3/states/${st}.json`, timezoneId: process.env.TZID || undefined, viewport: { width: Number(width), height: Number(width) < 600 ? 844 : 900 } });
+    const ctx = await b.newContext({ storageState: st === "-" ? undefined : `/tmp/claude-0/-home-user-MarketEdge/2e8d356b-d1b5-5401-91e6-9f451833b42c/scratchpad/r4/states/${st}.json`, timezoneId: process.env.TZID || undefined, viewport: { width: Number(width), height: Number(width) < 600 ? 844 : 900 } });
     const p = await ctx.newPage(); const cdp = await ctx.newCDPSession(p);
     await cdp.send("Network.enable"); if (!process.env.NOTHROTTLE) await cdp.send("Network.emulateNetworkConditions", { offline: false, latency: 40, downloadThroughput: 1.25e6, uploadThroughput: 0.5e6 });
     const msgs = [];

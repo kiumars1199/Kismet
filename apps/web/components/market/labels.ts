@@ -1,7 +1,7 @@
 // Plain-language labels and token classes shared by rows, cards, BetCard and the drawer (docs/06 § Display language).
 import { TAXONOMY, topicsOf } from "@/lib/taxonomy";
 import { money, type Chance } from "@/lib/format";
-import type { Execution, Market, Side, Verdict } from "@/lib/types";
+import type { Execution, Market, Verdict } from "@/lib/types";
 
 /** Return color: ≥10% strong green, 3–10% green, 0–3% grey, <0 red. */
 export function returnTone(roi: number | null | undefined): string {
@@ -58,9 +58,7 @@ export function rowNotes(x: Execution | undefined): Note[] {
 
 export const NOTE_TONE: Record<Note["tone"], string> = { warning: "text-warning", negative: "text-negative", muted: "text-muted" };
 
-/** P9: "pts" was unexplained. Its basis, one hover away on every card. */
-export const PTS_HELP = "Points of win chance: how many percentage points more often bets like this have won than the price implies. 70¢ implies 70%; if bets like it won 80%, that's +10 pts.";
-
-/** docs/18 §6: the edge read as a price ("better price than usual", then +N pts); a negative edge says so plainly. */
-export const priceVerdict = (s: Pick<Side, "edge" | "ranges">) =>
-  s.ranges || s.edge > 0 ? "Better price than usual" : "Priced above how often bets like it won";
+/** P9: "pts" was unexplained; T-289: the help, the number and the verdict are all lib/betFigures (the gap, won − price). */
+export { PTS_HELP } from "@/lib/betFigures";
+/** Tone class for a verdict (lib/betFigures `verdict`). */
+export const VERDICT_TONE = { up: "text-soft", thin: "text-muted", down: "text-negative" } as const;

@@ -1,6 +1,7 @@
 // CSV export of the current view (docs/05 F-18): plain-language columns first, then pro columns. Max 5,000 rows.
 import type { ApiRow, MarketsResponse } from "@/lib/api";
-import { betLine, chance, closesIn, expectedProfit, money, pct, price, ret } from "@/lib/format";
+import { betLine, closesIn, expectedProfit, money, pct, price, ret } from "@/lib/format";
+import { sideChance } from "@/lib/betFigures";
 
 export const MAX_ROWS = 5000;
 
@@ -12,7 +13,7 @@ const COLUMNS: [header: string, cell: (r: ApiRow) => unknown][] = [
   ["Past results per $100 bet", (r) => money(expectedProfit(r.side.roi_pct), true)],
   ["Market says", (r) => pct(r.side.ask)],
   ["Won before", (r) => pct(r.side.win_prob)],
-  ["Chance", (r) => chance(r.side.win_prob)],
+  ["Chance", (r) => sideChance(r.side)],
   ["Price", (r) => price(r.side.ask)],
   ["Closes in", (r) => closesIn(r.market.closes_at)],
   ["Category", (r) => r.market.category],

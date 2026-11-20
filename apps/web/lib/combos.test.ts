@@ -17,7 +17,8 @@ describe("combo math", () => {
     expect(c.ret).toBeCloseTo(0.30505, 4);      // (0.70/0.61)(0.58/0.51) − 1
     expect(c.has_edge).toBe(true);              // 0.351 > 0.3111
     expect(c.same_event).toEqual([]);
-    expect(comboLabel(c, winsAbout(c.q))).toBe("Combo · 2 legs · pays 3.2x · wins about 1 in 2");
+    // T-289: 40.6% read "1 in 2" (50%); winsAbout now says "4 in 10"
+    expect(comboLabel(c, winsAbout(c.q))).toBe("Combo · 2 legs · pays 3.2x · wins about 4 in 10");
   });
   it("three legs: bigger return, lower chance", () => {
     const c = combo([A, B, C]);
