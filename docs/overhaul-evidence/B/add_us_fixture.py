@@ -42,12 +42,11 @@ chosen = {}
 for m in flags["flags"]:
     if pick(m):
         chosen[m["id"]] = quote(m, len(chosen))
+# like engine/scan.py attach_us: every row gets `us`, None when the market isn't listed on Polymarket US
 for m in flags["flags"]:
-    if m["id"] in chosen:
-        m["us"] = chosen[m["id"]]
+    m["us"] = chosen.get(m["id"], m.get("us"))
 for m in markets["markets"]:
-    if m["id"] in chosen:
-        m["us"] = chosen[m["id"]]
+    m["us"] = chosen.get(m["id"], m.get("us"))
 priced = [q for q in chosen.values() if q["edge"] is not None]
 us_meta = {"ok": True, "markets": 82000, "matched": len(chosen), "best_on_us": len(chosen),
            "best_us_edge": sum(1 for q in priced if q["edge"] >= flags["meta"]["rule"]["min_edge"])}
