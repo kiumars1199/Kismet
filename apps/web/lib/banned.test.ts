@@ -12,7 +12,8 @@ describe("banned words (docs/OVERHAUL.md §A)", () => {
   it("counts above 3 digits, not times or years", () => {
     expect(bannedHits("1.4K bets", { counts: true })).toHaveLength(1);
     expect(bannedHits("1,117 settled", { counts: true })).toHaveLength(1);
-    expect(bannedHits("at 11:53 AM on Nov 21, 2026, 3 steps, 999 bets", { counts: true })).toHaveLength(0);
+    expect(bannedHits("at 11:53 AM on Nov 21, 2026, 3 steps, 999 bets, Unlock 14 more bets, every 10 minutes", { counts: true })).toHaveLength(0);
+    expect(bannedHits("12K bets, 3M users", { counts: true })).toHaveLength(1);
   });
   it("reads title, meta description and visible text, not scripts", () => {
     const html = `<title>Kismet</title><meta name="description" content="no edge here"><script>var model=1</script><p>hi</p>`;

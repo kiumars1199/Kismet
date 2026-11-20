@@ -14,7 +14,7 @@ export const BANNED: { label: string; re: RegExp }[] = [
   { label: "t-stat", re: /\bt[- ]?stat(istic)?s?\b/i },
 ];
 /** Any count above 3 digits: "1,234", "1.4K", "12K", "1234". Times ("11:53") and years in dates are not counts. */
-export const BIG_COUNT = /(?<![\d:.,/-])(\d{1,3}(,\d{3})+|\d{4,}|\d+(\.\d+)?\s?[KkMm])(?![\d:/-])/;
+export const BIG_COUNT = /(?<![\d:.,/-])(\d{1,3}(,\d{3})+|\d{4,}|\d+(\.\d+)?\s?[KkMm](?![A-Za-z]))(?![\d:/-])/;
 
 export function bannedHits(text: string, opts: { counts?: boolean } = {}): string[] {
   const hits = BANNED.filter((b) => b.re.test(text)).map((b) => `${b.label}: "${text.match(b.re)![0]}"`);
