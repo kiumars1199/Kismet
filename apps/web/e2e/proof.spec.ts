@@ -28,3 +28,13 @@ test("drawer: the category's test record has its live record beside it", async (
   await expect(drawer.getByTestId("tested-line")).toBeVisible();
   await expect(drawer.getByTestId("drawer-live")).toContainText(/^Live/);
 });
+
+test("group records with no live counterpart say so: lower-confidence band and combos", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("group", { name: "Payout" }).getByRole("button", { name: "Pays 10x+" }).click();
+  const card = page.locator("[data-tier=edge]").filter({ hasText: "Will Harbor City win the 2026 Island Cup?" }).first();
+  await expect(card.getByTestId("band-record")).toBeVisible();
+  await expect(card.getByTestId("band-live")).toHaveAttribute("title", "No live record for lower-confidence bets yet: the live record tracks single best bets only.");
+  await page.goto("/combos");
+  await expect(page.getByText("No live record for combos yet: the live record tracks single best bets only.").first()).toBeVisible();
+});

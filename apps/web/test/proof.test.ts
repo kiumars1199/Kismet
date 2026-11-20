@@ -183,3 +183,11 @@ describe("every surface that shows the test return prints the proof line beside 
     vi.resetModules();
   });
 });
+
+describe("group records with no live counterpart", () => {
+  it("say so in one shared wording instead of borrowing the best-bets line", async () => {
+    const { noLiveRecord, LIVE_NOT_BY_BAND } = await import("@/lib/proof");
+    expect(noLiveRecord("combos")).toBe("No live record for combos yet: the live record tracks single best bets only.");
+    expect(LIVE_NOT_BY_BAND).toMatch(/^No live record by payout band yet/);
+  });
+});

@@ -120,6 +120,12 @@ export function siteProof(o: { backtest: BacktestFile | null | undefined; ledger
   });
 }
 
+/** T-290: test records with no live counterpart (payout bands, lower-confidence bets, combos) say so instead of
+ *  borrowing the best-bets live record, which would mislead: the ledger logs single best bets only. */
+export const noLiveRecord = (group: string) => `No live record for ${group} yet: the live record tracks single best bets only.`;
+/** The payout-band notes: the ledger is not split by payout, so its one line lives on Results, not beside each band. */
+export const LIVE_NOT_BY_BAND = "No live record by payout band yet: the live record covers best bets as a whole.";
+
 /** T-290: hit rate is not profit. The one answer to "do best bets win / can I lose", used by every FAQ. */
 export const HIT_RATE_VS_PROFIT =
   "Most best bets win often but pay little; the edge is that over many bets the wins should cover the losses. Any single bet can lose.";

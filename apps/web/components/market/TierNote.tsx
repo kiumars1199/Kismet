@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { backtestOnce, type BacktestResponse } from "@/lib/api";
 import { paysBand } from "@/lib/filters/apply";
 import { formatCount, exactCount, testedLine } from "@/lib/format";
+import { noLiveRecord } from "@/lib/proof";
 import type { FlagTier, Side } from "@/lib/types";
 
 export function useBacktest(): BacktestResponse | null {
@@ -44,7 +45,8 @@ export function TierNote({ s, className = "" }: { s: Pick<Side, "ask" | "model_e
   return (
     <p className={`text-xs leading-relaxed text-muted ${className}`}>
       <span title={`${exactCount(s.model_events)} past events behind this estimate`}>Based on {formatCount(s.model_events)} past events</span>
-      {line && <> · <span data-testid="band-record" className={line.lost ? "text-warning" : "text-soft"}>{line.text}</span></>}
+      {line && <> · <span data-testid="band-record" className={line.lost ? "text-warning" : "text-soft"}>{line.text}</span>
+        {" "}· <span data-testid="band-live" className="cursor-help underline decoration-dotted underline-offset-4" title={noLiveRecord("lower-confidence bets")}>no live record yet</span></>}
     </p>
   );
 }

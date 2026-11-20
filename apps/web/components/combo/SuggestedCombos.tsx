@@ -7,6 +7,7 @@ import { fetchCombos } from "@/lib/api";
 import { comboLabel } from "@/lib/combos";
 import type { CombosResponse, SuggestedCombo } from "@/lib/data/combos";
 import { pct, price, ret, testedLine, winsAbout } from "@/lib/format";
+import { noLiveRecord } from "@/lib/proof";
 import { useCombo } from "./useCombo";
 import { useNear } from "@/components/screener/useNear";
 import Link from "next/link";
@@ -37,7 +38,7 @@ export function SuggestedCombos() {
         </div>
         <p className="mt-1 max-w-[760px] text-[13px] leading-relaxed text-muted">
           Two or three Best bets from different events, closing within a day, in one bet. Bigger payout, lower chance:
-          every leg has to win. {groups.map((g) => testedLine(g.record, `${g.size}-leg combos`)).filter(Boolean).join(". ")}.
+          every leg has to win. {groups.map((g) => testedLine(g.record, `${g.size}-leg combos`)).filter(Boolean).join(". ")}. {noLiveRecord("combos")}
         </p>
       </div>
       <ul className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1 md:mx-0 md:px-0">

@@ -9,6 +9,7 @@ import { btn, btnGhost, btnPrimary } from "@/components/kit";
 import { useBacktest } from "@/components/market/TierNote";
 import { combo, kalshiComboEdge, MIN_LEGS, type Leg } from "@/lib/combos";
 import { LONG_SHOT_LINE, pct, price, ret, testedLine, winsAbout } from "@/lib/format";
+import { noLiveRecord } from "@/lib/proof";
 import { openTicket, useTradeConfig } from "@/lib/trade/ext";
 import { useCombo } from "./useCombo";
 import { BetaBadge } from "@/components/beta/BetaBadge";
@@ -157,7 +158,7 @@ function Body({ id, legs, onRemove, onClear }: { id: string; legs: Leg[]; onRemo
           <p className="text-xs leading-relaxed text-muted">
             Price = every leg bought and the winnings rolled into the next, fees included. Prices are from when you added each leg.
             {c.q < 0.25 && <> {LONG_SHOT_LINE}</>} Small errors in each leg multiply in a combo.
-            {tested && <> <span className={(record?.roi_pct ?? 0) < 0 ? "text-warning" : "text-soft"}>{tested}.</span></>}
+            {tested && <> <span className={(record?.roi_pct ?? 0) < 0 ? "text-warning" : "text-soft"}>{tested}.</span> {noLiveRecord("combos")}</>}
           </p>
           {k && quote?.ok && (
             <p data-testid="kalshi-quote" className="rounded-input border border-border bg-raised px-3 py-2 text-[13px] text-soft">

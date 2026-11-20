@@ -7,6 +7,7 @@ import { fetchCombos } from "@/lib/api";
 import { COMBO_PAYS, type ComboPays } from "@/lib/combos";
 import type { CombosResponse } from "@/lib/data/combos";
 import { testedLine } from "@/lib/format";
+import { noLiveRecord } from "@/lib/proof";
 import { softNav } from "@/lib/softNav";
 
 export function ComboBrowser() {
@@ -52,7 +53,7 @@ export function ComboBrowser() {
           <section key={g.size} aria-labelledby={`combos-${g.size}`} className="flex flex-col gap-3">
             <div>
               <h2 id={`combos-${g.size}`} className="text-xl font-semibold">{g.size}-leg combos</h2>
-              <p className="mt-1 text-[13px] text-muted">{testedLine(g.record, `${g.size}-leg combos`)}.</p>
+              <p className="mt-1 text-[13px] text-muted">{testedLine(g.record, `${g.size}-leg combos`)}. {noLiveRecord("combos")}</p>
             </div>
             <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {g.combos.map((c) => <ComboCard key={c.items.map((l) => l.market_id).join("-")} c={c} wide />)}
