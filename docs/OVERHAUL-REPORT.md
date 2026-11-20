@@ -37,9 +37,12 @@ Before screenshots and prod headers (taken 16:58 UTC, before any change): `docs/
 - **Re-run the backtest on production data with an even history.** The public test has 86–87% of its best bets in the last 2 weeks; on an evenly sampled local rebuild that share is 0.9% and the result is about +2% per bet (t < 1). Backfill the fetch (it keeps only the newest 2,000 events per tag) and re-run; until then the "enough to compare" bar (~10 US events, from the concentrated run's t of 34.7) is too low — the even rebuild implies ~1,340 events. Research doc §5, §7.
 - **`engine/ledger.py` same-payout picks** include rows logged before `control.jsonl` existed (no `event_id`), so the picks' event count is inflated. The page hides that count until it is fixed.
 - `vercel.json` now has 3 crons; confirm the Vercel plan allows it (fallback: run trial reminders from `/api/settle/run`).
-- Lane C config (**Q is setting these**, Nov 20): `REVALIDATE_SECRET` in Vercel and as a GitHub secret, and `SITE_URL` or `REVALIDATE_URL` as a GitHub variable. Without them `upload.py` logs "revalidate skipped" and pages refresh within 300 s anyway.
+- ~~Lane C config~~ **Resolved: set on Railway and Vercel; revalidate verified on prod (see "PR #4 deploy" below).** Was: `REVALIDATE_SECRET` in Vercel and as a GitHub secret, and `SITE_URL` or `REVALIDATE_URL` as a GitHub variable. Without them `upload.py` logs "revalidate skipped" and pages refresh within 300 s anyway.
 - ~~Lighthouse LCP < 2.0 s (§C)~~ **Resolved by Q (Nov 20): accepted as is** (production 2.05–2.26 s). No React removal.
 - ~~Sign-off on the static CSP (Decision 17)~~ **Resolved: Q signed off** (Nov 20).
+
+- **Prod `/bets` filter bar, seen signed in.** `/bets` sends signed-out visitors to `/signup?next=%2Fbets` (307), and making a test account would write to the live database, so I didn't. Evidence so far: the bar ships in 5cceb49 (`components/screener/FilterBar.tsx`) and passes demo e2e 133/133 and paid e2e 32/32. Q: sign in once and confirm Sport / Multiplier / Date show.
+- **Supabase migrations still not applied** (already listed above). Prod log at 22:04:17 UTC on dpl_JCA6: `[lifecycle] first sign-in hook failed: lifecycle_emails: Could not find the table 'public.lifecycle_emails'`. It fails soft, so sign-in works, but no lifecycle emails go out until `20261120000300_lifecycle_emails.sql` is applied.
 
 ## Merged
 - PR #3 `claude/us-venue` (kiumars1199/Kismet): merged via `overhaul` (3 commits: 29282c9, d40090f, ddf9cfd).
@@ -255,4 +258,21 @@ Lighthouse 12.8.2 mobile on production, two passes:
 - INP isn't measured by a Lighthouse page load; locally it is 72–104 ms (target < 200).
 - `/bets` is behind sign-in on production, so it has no signed-out Lighthouse number.
 - Live check: `/`, `/pricing`, `/track-record` and `/about` load at 390×844 with no console or CSP errors, and "Why this bet?" opens on the landing card.
-- Until the first scan on the new engine (run on Railway), the live data has no `us`, so cards link to polymarket.com (the pre-US fallback). After that scan they should show the US price and "Bet on Polymarket US". **Confirmed by Q (Nov 20):** the engine runs on Railway, not GitHub Actions. Its scans at 21:29 and 21:33 UTC produced about 6,600 US-listed bets. The signed-out landing shows Free data, which runs 15 min behind, so it switches about 15 min after the first US scan. Landing check: PENDING.
+- Until the first scan on the new engine (run on Railway), the live data has no `us`, so cards link to polymarket.com (the pre-US fallback). After that scan they should show the US price and "Bet on Polymarket US". **Confirmed by Q (Nov 20):** the engine runs on Railway, not GitHub Actions. Its scans at 21:29 and 21:33 UTC produced about 6,600 US-listed bets. The signed-out landing shows Free data, which runs 15 min behind, so it switches about 15 min after the first US scan. Landing check: **PASS** at 22:13 UTC. The live `/` has 4 `polymarket.us/event/…` links, each with "Polymarket US price, incl. its fee".
+
+## PR #4 deploy (Mark's fixes + filter bar) — Nov 20
+
+**Gates on `claude/marc-fixes-final` plus one test fix (c70156c):**
+- Typecheck, lint, vitest 1,080, pytest 105, landing JS 149.5 kB and demo e2e 133/133 passed (Q's run). I re-ran lint and typecheck after the fix: clean.
+- **Paid e2e: 32/32.** The full run gave 31 passed and 1 failed: `t291-plans` expected the old trial link `/signup?next=/pricing`. Mark's #32 intentionally changed it to `/signup?next=%2Fpricing%3Fstart%3D<plan>_monthly`, so the test now expects the new links for both Pro and Premium. It passes on rerun.
+- Merged into `final` as one fast-forward push: `c2533e4..5cceb49`, 21:57 UTC. Vercel deployment `dpl_JCA6DaFh6F31y5TEXNTVfZx7FWrL` is READY. GitHub shows PR #4 as merged because its head (343e6c6) is in `final`.
+
+**Production checks:**
+| check | result | evidence |
+|---|---|---|
+| Railway revalidates after a scan | **PASS** | Scan at 22:09:51 → `precomputed: top.json 743 best bets` → uploads → `revalidated 9 pages, warmed 9` (22:11:15 UTC). Before the secrets were set: `revalidate skipped: REVALIDATE_URL (or SITE_URL) and REVALIDATE_SECRET … not both set` (21:29, 21:33, 21:49). |
+| `/api/meta` has a `us` block | **PASS** | `"us": {"ok": true, "markets": 87507, "matched": 6593, "native": 0, "best_on_us": 104, "best_us_edge": 104}` (22:00 UTC). Railway at 22:11: `polymarket us: 6700 of 24347 scanned markets are on Polymarket US`. |
+| `/bets` shows the Sport / Multiplier / Date bar | **Not seen on prod (needs sign-in)** | `/bets` → 307 to `/signup?next=%2Fbets` signed out. Shipped in 5cceb49 and covered by demo e2e. Listed under Waiting for Q. |
+| No `[store] github load failed` / 22 h-old data (#46) | **PASS** | Vercel runtime logs, warning+ level, on dpl_JCA6 from 21:50 to 22:10: no `[store]` lines. The previous deployment (dpl_C6ML, c2533e4) logged `[store] github load failed` / `supabase load failed: … timeout` every 2–5 min from 21:12 to 21:59. `/api/meta` `scanned_at` was 27 min old at 22:00 (Free 15-min delay plus scan cadence), not 22 h. The only warning on the new deployment is the lifecycle_emails one under Waiting for Q. |
+| "Start trial" signed out | **PASS** | Live `/pricing` HTML: `href="/signup?next=%2Fpricing%3Fstart%3Dpro_monthly"` and `…premium_monthly`. That URL returns 200. Covered by paid e2e `t291-plans`. |
+| Landing shows US links | **PASS** | 22:13 UTC: 4 `polymarket.us/event/…` links with "Polymarket US price, incl. its fee". |
