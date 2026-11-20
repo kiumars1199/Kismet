@@ -2,9 +2,9 @@
 // route of this app (the page.tsx / route.ts tree under app/); the unsubscribe link and List-Unsubscribe header only on
 // the optional welcome; each hook sends exactly once however often its trigger fires, and a failed send can be retried.
 // Resend is a mock (sendEmail with fetch stubbed, or a fake send); nothing leaves the process.
-import { readdirSync, statSync } from "node:fs";
+import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
-import type Stripe from "stripe";
+import Stripe from "stripe";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { sendEmail, unsubscribeUrl, type Email } from "./index";
 import { DISCLAIMER } from "./templates";
@@ -12,6 +12,7 @@ import { amount, cancelEmail, receiptEmail, trialEndingEmail, welcomeEmail } fro
 import { afterBillingEvent, onFirstSignIn, runTrialReminders, sendOnce, trialsDue, type ClaimStore, type LifecycleKind, type MailDeps, type TrialRow } from "./lifecycle";
 import { PROFIT_CLAIM } from "@/test/profit-claim";
 import { GET as lifecycleGet } from "@/app/api/lifecycle/run/route";
+import { handleWebhook, type BillingDb } from "@/lib/billing/stripe";
 
 const SITE = "https://kismet.test";
 const DAY = 86_400_000;
@@ -103,7 +104,13 @@ describe("lifecycle email templates", () => {
 
     expect(m.trial_ending.subject).toBe("Your Kismet Pro trial ends in 2 days");
     expect(m.trial_ending.text).toContain("Sun, Nov 22, 2026");
-    expect(m.trial_ending.text).toMatch(/To cancel: open your account, tap Manage billing, then Cancel plan/);
+    expect(m.trial_ending.text).toMatch(/To cancel: open your account, tap Manage billing and cancel there/);
+    // The button the instructions name is the one /account renders (components/auth/AccountActions.tsx → Stripe portal).
+    const account = readFileSync(path.resolve(__dirname, "../../app/account/page.tsx"), "utf8");
+    const actions = readFileSync(path.resolve(__dirname, "../../components/auth/AccountActions.tsx"), "utf8");
+    expect(account).toMatch(/<AccountActions kind="billing"/);
+    expect(actions).toMatch(/goTo\("\/api\/stripe\/portal"[\s\S]{0,120}Manage billing/);
+    for (const e of [m.trial_ending, m.receipt]) expect(e.text).toContain("Manage billing");
     expect(m.trial_ending.html).toContain(`${SITE}/account`);
     expect(trialEndingEmail({ to: "a", plan: "Pro", endsAt: NOW + 1.2 * DAY, now: NOW }).subject).toBe("Your Kismet Pro trial ends tomorrow");
 
@@ -138,7 +145,8 @@ describe("lifecycle email templates", () => {
 
 // ---------------------------------------------------------------- once-only sending
 /** lifecycle_emails with its primary key (user_id, kind, ref), plus a mock Resend. */
-function fakeMail(opts: { failSends?: number; tier?: string } = {}) {
+function fakeMail(opts: { failSends?: number; tier?: string; current?: { tier: string; stripe_subscription_id: string } } = {}) {
+  const current = opts.current;
   const claimed = new Set<string>();
   const key = (u: string, k: LifecycleKind, r: string) => `${u}|${k}|${r}`;
   const claims: ClaimStore = {
@@ -154,7 +162,7 @@ function fakeMail(opts: { failSends?: number; tier?: string } = {}) {
       sent.push(e);
       return { sent: true };
     },
-    tierOf: async () => opts.tier ?? "pro",
+    subOf: async () => current ?? { tier: opts.tier ?? "pro", stripe_subscription_id: null },
     unsubscribe: (u) => `${SITE}/api/unsubscribe?t=tok-${u}`,
   };
   return { mail, sent, claimed };
@@ -258,6 +266,24 @@ describe("triggers", () => {
   });
 });
 
+describe("cancel vs upgrade", () => {
+  it("an old Pro ending (or set to cancel) while the user pays for Premium sends no cancel email", async () => {
+    const { mail, sent } = fakeMail({ current: { tier: "premium", stripe_subscription_id: "sub_premium" } });
+    const d = { mail, funnel: noFunnel, now: () => NOW };
+    const end = Math.floor((NOW + 5 * DAY) / 1000);
+    const old = { id: "sub_pro", customer: "cus_1", status: "active", metadata: {}, cancel_at_period_end: true, cancel_at: end, current_period_end: end, items: { data: [] } };
+    await afterBillingEvent(ev("customer.subscription.updated", old, { cancel_at_period_end: false }), billing, d);
+    await afterBillingEvent(ev("customer.subscription.deleted", { ...old, status: "canceled" }), billing, d);
+    expect(sent).toEqual([]);
+  });
+
+  it("the current subscription ending still sends one (row already moved to free)", async () => {
+    const { mail, sent } = fakeMail({ current: { tier: "free", stripe_subscription_id: "sub_premium" } });
+    await afterBillingEvent(ev("customer.subscription.deleted", { id: "sub_premium", customer: "cus_1", status: "canceled", metadata: {}, cancel_at_period_end: false, cancel_at: null, items: { data: [] } }), billing, { mail, funnel: noFunnel, now: () => NOW });
+    expect(sent.map((e) => e.subject)).toEqual(["Your Kismet Pro plan has ended"]);
+  });
+});
+
 describe("trial-ending cron", () => {
   const row = (over: Partial<TrialRow>): TrialRow => ({
     user_id: U, stripe_subscription_id: "sub_t", tier: "pro", status: "trialing",
@@ -300,5 +326,29 @@ describe("trial-ending cron", () => {
     const ok = await call("Bearer s3cret");
     expect(ok.status).toBe(200);
     expect((await ok.json()).ran).toBe(false);
+  });
+});
+
+describe("invoice.paid before the customer is linked (no-trial checkout, Payment Links)", () => {
+  it("a charge for an unlinked customer → 500 so Stripe retries, not marked seen; after linking the retry is accepted", async () => {
+    const SECRET = "whsec_t";
+    const seen = new Set<string>();
+    const customers = new Map<string, string>();
+    const db = {
+      seen: async (id: string) => seen.has(id), markSeen: async (id: string) => { seen.add(id); },
+      userForCustomer: async (c: string) => customers.get(c) ?? null, emailFor: async () => "a@x.test",
+    } as unknown as BillingDb;
+    const signed = (id: string, amount_paid: number) => {
+      const payload = JSON.stringify({ id, object: "event", type: "invoice.paid", data: { object: { id: "in_1", object: "invoice", customer: "cus_new", amount_paid, currency: "usd" } } });
+      return new Request("http://x/api/stripe/webhook", { method: "POST", body: payload, headers: { "stripe-signature": Stripe.webhooks.generateTestHeaderString({ payload, secret: SECRET }) } });
+    };
+    const err = vi.spyOn(console, "error").mockImplementation(() => {});
+    expect((await handleWebhook(signed("evt_zero", 0), db, null, SECRET)).status).toBe(200);   // $0 trial invoice: nothing to retry for
+    expect((await handleWebhook(signed("evt_paid", 900), db, null, SECRET)).status).toBe(500);
+    expect(seen.has("evt_paid")).toBe(false);
+    customers.set("cus_new", U);   // checkout.session.completed / subscription.created arrives
+    expect((await handleWebhook(signed("evt_paid", 900), db, null, SECRET)).status).toBe(200);
+    expect(seen.has("evt_paid")).toBe(true);
+    err.mockRestore();
   });
 });

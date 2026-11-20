@@ -47,7 +47,7 @@ export function trialEndingEmail(i: { to: string; plan: PlanName; endsAt: number
     subject,
     [
       `Your free ${i.plan} trial ends on ${date(i.endsAt)}. After that, the card you added is charged for ${i.plan} at the price you chose at checkout, and the plan renews until you cancel.`,
-      "To cancel: open your account, tap Manage billing, then Cancel plan. Cancel before the trial ends and you won't be charged.",
+      "To cancel: open your account, tap Manage billing and cancel there. Cancel before the trial ends and you won't be charged.",
       "Want to keep it? Do nothing.",
     ],
     { href: `${siteUrl()}/account`, label: "Manage or cancel" },

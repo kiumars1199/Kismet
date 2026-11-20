@@ -4,7 +4,7 @@ Branch `worktree-agent-aed0561c2651fdc20`, which branches from `overhaul`. The c
 
 - T-298 `b8caec4`
 - T-299 `51ea927`
-- T-300 `f855a47`
+- T-300 `f855a47`, then the follow-up fixes after review (see the final commit)
 
 Nothing was pushed, and nothing was written to live Resend, PostHog, Supabase, Stripe or Vercel. Every Resend and fetch call in the tests is a mock.
 
@@ -13,9 +13,9 @@ Nothing was pushed, and nothing was written to live Resend, PostHog, Supabase, S
 ```
 pnpm lint       → eslint . --max-warnings 0      (clean)
 pnpm typecheck  → tsc --noEmit                   (clean)
-pnpm test       → Test Files 94 passed (94), Tests 691 passed (691); ops node tests: tests 36, pass 36, fail 0
+pnpm test       → Test Files 94 passed (94), Tests 694 passed (694); ops node tests: tests 36, pass 36, fail 0
 PW_CHROMIUM_PATH=/opt/pw-browsers/chromium PW_PORT=3240 pnpm exec playwright test e2e-paid/overhaul-funnel.spec.ts -c playwright.paid.config.ts --workers=1
-                → 2 passed (1.9m)   (rerun after T-300: the webhook path now also does lifecycle mail)
+                → 2 passed (1.7m)   (rerun after the T-300 fixes: the webhook path now also does lifecycle mail)
 e2e/s1-landing.spec.ts (demo regression after T-299) → 3 passed
 ```
 
@@ -113,7 +113,14 @@ ok 9 - decide() is a pure state machine
 | Welcome: how to read a card, 3 lines | first sign-in of a new account (`lib/auth/finish.ts` → `onFirstSignIn`) | `''` | **yes**: link + List-Unsubscribe (RFC 8058) |
 | Trial ends in 2 days + how to cancel | daily Vercel cron `/api/lifecycle/run` (GET, `CRON_SECRET`, `41 15 * * *`): trialing, ending within 2.5 days and still in the future, not set to cancel | subscription id | no |
 | Receipt | first `invoice.paid` with `amount_paid > 0` | `''` | no |
-| Cancel confirmation | `customer.subscription.updated` turning `cancel_at_period_end` / `cancel_at` on, or `customer.subscription.deleted` | subscription id | no |
+| Cancel confirmation | `customer.subscription.updated` turning `cancel_at_period_end` / `cancel_at` on, or `customer.subscription.deleted`; skipped when the user's row shows another subscription still paying (an old Pro ending after an upgrade to Premium) | subscription id | no |
+
+**`invoice.paid` before the customer is linked**
+- This happens with a no-trial checkout or a Payment Link, where the charge can arrive before the event that links the customer.
+- `handleEvent` throws `RetryLater` when `amount_paid > 0` and no user is found. The webhook answers 500, the event is not marked seen, and Stripe retries.
+- `applySubscription` already handles the same race this way.
+- So neither the `paid` step nor the receipt is lost.
+- `$0` invoices for unknown customers stay 200.
 
 **Sending once**
 - `lifecycle_emails` has primary key (user_id, kind, ref).
@@ -132,11 +139,16 @@ ok 9 - decide() is a pure state machine
 - Each of these emails states in its footer why it has no unsubscribe link.
 
 **Limits**
-- If Resend fails at the first charge, nothing is sent then.
+- **Welcome is never retried.** `onFirstSignIn` runs only on the sign-in that stores the terms acceptance. If that send fails (Resend down, `UNSUBSCRIBE_SECRET` unset, migration not applied), the welcome is never sent. The claim is released, but nothing calls the hook again.
+  - In the paid e2e (no `UNSUBSCRIBE_SECRET`), this shows up as a logged `[lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set`, and the sign-in still succeeds.
+- **Receipt:** if Resend fails at the first charge, nothing is sent then.
   - The hook never throws, so Stripe does not retry the event.
   - The receipt goes out on the next charge.
-- The trial reminder and welcome retry naturally: the welcome on the next first sign-in path, the reminder on the next day's cron.
-- A user who cancels, resumes and cancels again on the same subscription gets one confirmation.
+- **Trial reminder:** retries on the next day's cron while the trial is still in its window.
+  - It skips rows with `cancel_at_period_end`.
+  - A cancel recorded only as a `cancel_at` date is not in the subscriptions row, so that user would still get the reminder ("you'll be charged").
+- **Cancel:** a user who cancels, resumes and cancels again on the same subscription gets one confirmation.
+- **Wording:** the trial email says "open your account, tap Manage billing and cancel there". The test pins that `/account` renders the `Manage billing` button (`components/auth/AccountActions.tsx` → `/api/stripe/portal`). The Stripe portal's own button labels are not named, since they can change.
 
 **Tests** (`lib/email/lifecycle.test.ts`, 15 tests)
 ```
@@ -158,6 +170,9 @@ ok 9 - decide() is a pure state machine
 ```
 - The route list comes from walking `apps/web/app/**/page.tsx|route.ts`. Route groups are dropped, and dynamic segments match any value.
 - The root 404 catch-all and the e2e mock are left out, so a link to a missing page fails the test.
+- Also in the same file:
+  - upgrade vs cancel: 2 tests.
+  - `invoice.paid` before linking: 1 test, through `handleWebhook`.
 - Prices and plans are unchanged. Emails name the plan and the amount Stripe charged.
 
 ## Edits outside the files this lane owns (minimal, listed)
@@ -166,10 +181,19 @@ ok 9 - decide() is a pure state machine
 - `apps/web/components/trade/VenueButton.tsx`: `funnel("first_bet_click")` in onClick, plus the import.
 - `apps/web/lib/auth/public-paths.ts`: adds `/api/funnel` and `/api/lifecycle/run` (CRON_SECRET).
 - `apps/web/lib/auth/finish.ts`: `await onFirstSignIn(user)` after the terms are saved.
-- `apps/web/lib/billing/stripe.ts`: `case "invoice.paid": return;` and `await afterBillingEvent(event, db)` before markSeen.
+- `apps/web/lib/billing/stripe.ts`:
+  - A `case "invoice.paid"` that throws `RetryLater` for a charge to an unlinked customer.
+  - `await afterBillingEvent(event, db)` before markSeen.
 - `apps/web/components/admin/Controls.tsx`: a Funnel entry in SECTIONS.
 - `apps/web/lib/email/index.ts` and `templates.ts`: optional `unsubscribeUrl`, and `layout` is exported (`lib/email/*` is owned).
 - `apps/web/vercel.json`: the third cron, `/api/lifecycle/run`.
+- New files outside the owned globs:
+  - `apps/web/app/api/funnel/route.ts`
+  - `apps/web/app/api/lifecycle/run/route.ts`
+  - `apps/web/lib/funnel.ts` (+ `funnel.test.ts`)
+  - `apps/web/lib/funnel-server.ts`
+  - `apps/web/test/funnel-db.test.ts`
+  - `apps/web/e2e-paid/overhaul-funnel.spec.ts`
 - Tests that pin lists:
   - `test/rls.test.ts`: the new tables and `admin_funnel`.
   - `test/security.test.ts`: `us.i.posthog.com`.
@@ -188,6 +212,7 @@ ok 9 - decide() is a pure state machine
 - `SUPABASE_SERVICE_ROLE_KEY` (existing).
 - Optional: `NEXT_PUBLIC_POSTHOG_KEY`.
 - Vercel Hobby runs crons once a day, which is enough here.
+- **Deploy risk:** `vercel.json` now has 3 crons. If the plan allows only 2, the deploy fails. The fallback is to drop that entry and call `runTrialReminders` from an existing daily cron route, such as `/api/settle/run`.
 
 **Supabase**
 - Apply `supabase/migrations/20261120000200_funnel_events.sql` and `20261120000300_lifecycle_emails.sql`.

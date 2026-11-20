@@ -32,8 +32,8 @@ export interface ClaimStore {
 export interface MailDeps {
   claims: ClaimStore;
   send: (e: Email) => Promise<{ sent: boolean }>;
-  /** subscriptions.tier for the user (the plan a receipt names). */
-  tierOf: (userId: string) => Promise<string | null>;
+  /** The user's subscriptions row as the webhook just left it (plan for a receipt; which subscription is current). */
+  subOf: (userId: string) => Promise<{ tier: string | null; stripe_subscription_id: string | null } | null>;
   unsubscribe: (userId: string) => string;
 }
 
@@ -64,7 +64,7 @@ export function defaultMail(): MailDeps | null {
   return {
     claims: supabaseClaims(db),
     send: sendEmail,
-    tierOf: async (userId) => (await db.from("subscriptions").select("tier").eq("user_id", userId).maybeSingle()).data?.tier ?? null,
+    subOf: async (userId) => (await db.from("subscriptions").select("tier, stripe_subscription_id").eq("user_id", userId).maybeSingle()).data ?? null,
     unsubscribe: (userId) => unsubscribeUrl(userId),
   };
 }
@@ -126,7 +126,7 @@ export async function afterBillingEvent(event: Stripe.Event, db: Pick<BillingDb,
         if (mail && to) {
           const paidSec = inv.status_transitions?.paid_at ?? inv.created ?? Math.floor(now / 1000);
           await sendOnce(mail, userId, "receipt", "", async () => receiptEmail({
-            to, plan: planName(await mail.tierOf(userId)), cents: inv.amount_paid, currency: inv.currency,
+            to, plan: planName((await mail.subOf(userId))?.tier), cents: inv.amount_paid, currency: inv.currency,
             paidAt: paidSec * 1000, invoice: inv.number ?? null,
           }));
         }
@@ -144,6 +144,10 @@ export async function afterBillingEvent(event: Stripe.Event, db: Pick<BillingDb,
         const mail = mailOf(deps);
         const to = userId && mail ? await db.emailFor(userId) : null;
         if (!userId || !mail || !to) return;
+        // An old subscription ending while the user pays for another (Pro → Premium): not a cancellation. The row was
+        // just written from the customer's current subscription (lib/billing/stripe.ts currentSubscription).
+        const row = await mail.subOf(userId);
+        if (row && row.stripe_subscription_id && row.stripe_subscription_id !== sub.id && row.tier && row.tier !== "free") return;
         const { tierFromPrice } = await import("@/lib/billing/stripe");   // lazy: stripe.ts imports this module
         const endSec = ended ? null : sub.cancel_at ?? periodEnd(sub);
         // ref = subscription id: one confirmation per subscription, so "canceled" now and "ended" at period end send one.

@@ -175,8 +175,13 @@ export async function handleEvent(event: Stripe.Event, db: BillingDb, stripe: St
       if (email) await sendEmail(paymentFailedEmail(email, unsubscribeUrl(userId)));
       return;
     }
-    case "invoice.paid":   // T-299/T-300: listed so ops/stripe-setup.mjs subscribes the webhook; afterBillingEvent does the work
+    case "invoice.paid": {   // T-299/T-300: funnel "paid" + receipt in afterBillingEvent; listed so ops/stripe-setup.mjs subscribes
+      const inv = event.data.object;
+      const customer = idOf(inv.customer);
+      // A charge can beat the event that links the customer (no-trial checkout, Payment Links): 500 → Stripe retries.
+      if (inv.amount_paid > 0 && customer && !(await db.userForCustomer(customer))) throw new RetryLater(`no user for customer ${customer}`);
       return;
+    }
     default:
       return;
   }
