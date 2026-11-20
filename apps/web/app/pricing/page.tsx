@@ -53,7 +53,7 @@ export default async function Page() {
 
       <section aria-labelledby="compare-h" className="flex flex-col gap-4">
         <h2 id="compare-h" className="text-2xl font-semibold">Compare plans</h2>
-        <div className="overflow-x-auto rounded-card border border-border bg-surface">
+        <div tabIndex={0} role="region" aria-labelledby="compare-h" className="overflow-x-auto rounded-card border border-border bg-surface focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent">
           <table className="w-full min-w-[620px] border-collapse text-sm">
             <thead>
               <tr className="text-left text-xs text-muted">

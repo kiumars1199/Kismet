@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { TEASER_LINE, type Teaser } from "@/lib/teaser";
 import { Breadcrumbs } from "@/components/shell/Breadcrumbs";
+import { formatCount } from "@/lib/format";
 
 const WHEN = { dateStyle: "medium", timeStyle: "short", timeZone: "America/New_York" } as const;
 
@@ -15,7 +16,7 @@ export function TeaserView({ t, path }: { t: Teaser; path: string }) {
       <header className="flex flex-col gap-3">
         <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: t.title }]} />
         <p className="text-xs font-medium uppercase tracking-wide text-muted">
-          {t.category}{t.kind === "event" && t.markets ? ` · ${t.markets} ${t.markets === 1 ? "market" : "markets"}` : ""}
+          {t.category}{t.kind === "event" && t.markets ? ` · ${formatCount(t.markets)} ${t.markets === 1 ? "market" : "markets"}` : ""}
         </p>
         <h1 className="text-balance text-[28px] font-bold leading-tight tracking-[-0.02em] md:text-[36px]">{t.title}</h1>
         {t.event ? <p className="text-sm text-soft">{t.event}</p> : null}

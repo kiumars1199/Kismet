@@ -249,10 +249,10 @@ const w = (p: number) => `${Math.max(2, Math.min(100, p * 100))}%`;
 
 function Bar({ label, p, tone, dim }: { label: string; p: number; tone: string; dim?: boolean }) {
   return (
-    <div className={`flex items-center gap-3 text-xs ${dim ? "opacity-50" : ""}`}>
+    <div className="flex items-center gap-3 text-xs">
       <span className="w-[76px] flex-none text-muted">{label}</span>
-      <div className="h-2.5 flex-1 rounded-full bg-muted-bg"><div className={`h-full rounded-full ${tone} ${s.fill}`} style={{ width: w(p) }} /></div>
-      <span className="w-9 text-right tabular-nums text-soft">{pct(p)}</span>
+      <div className="h-2.5 flex-1 rounded-full bg-muted-bg"><div className={`h-full rounded-full ${tone} ${s.fill} ${dim ? "opacity-50" : ""}`} style={{ width: w(p) }} /></div>
+      <span className={`w-9 text-right tabular-nums ${dim ? "text-muted" : "text-soft"}`}>{pct(p)}</span>
     </div>
   );
 }

@@ -24,7 +24,7 @@ export async function POST(req: Request) {
   const parsed = Body.safeParse(raw);
   if (!parsed.success) return Response.json({ error: "Use 8 to 72 characters." }, { status: 400 });
   const { error } = await (await supabaseServer()).auth.updateUser({ password: parsed.data.password });
-  if (error) return Response.json({ error: /password/i.test(error.message) ? "Pick a stronger password." : "Couldn't save it. Try again." }, { status: 400 });
+  if (error) return Response.json({ error: /password/i.test(error.message) ? "Choose a stronger password." : "Couldn't save it. Try again." }, { status: 400 });
   await clearResetProof();
   return Response.json({ ok: true });
 }

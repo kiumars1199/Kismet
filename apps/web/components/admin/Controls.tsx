@@ -273,7 +273,7 @@ export function Grants({ rows }: { rows: Grant[] }) {
                   <td className="whitespace-nowrap px-4 py-2 text-right md:px-5">
                     <button type="button" className={btnGhost} onClick={() => {
                       setEditing(g.email); setEmail(g.email); setTier(g.tier); setUntil(expired ? "" : dateOnly(g.expires_at));
-                      window.scrollTo({ top: 0, behavior: "smooth" });
+                      window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
                     }}>Edit</button>
                     <button type="button" className={`${btnGhost} hover:!text-negative`} onClick={() => setRevoking(g)}>Revoke</button>
                   </td>

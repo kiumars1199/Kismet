@@ -9,7 +9,7 @@ export const DISCLAIMER = "Market analytics, not financial advice. Based on past
 const esc = (s: string) =>
   s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 
-function layout(heading: string, lines: string[], cta: { href: string; label: string }, unsub: string, why: string) {
+function layout(heading: string, lines: string[], cta: { href: string; label: string }, unsub: string, why: string, unsubLabel = "Unsubscribe") {
   const html = `<!doctype html><html><body style="margin:0;background:#0b0f0d;color:#e6ece9;font-family:system-ui,-apple-system,Segoe UI,sans-serif">
 <div style="max-width:560px;margin:0 auto;padding:24px">
 <p style="margin:0 0 4px;color:#10b981;font-weight:600">Kismet</p>
@@ -17,10 +17,10 @@ function layout(heading: string, lines: string[], cta: { href: string; label: st
 ${lines.map((l) => `<p style="margin:0 0 8px">${esc(l)}</p>`).join("\n")}
 <p style="margin:20px 0"><a href="${esc(cta.href)}" style="background:#10b981;color:#000;padding:10px 16px;border-radius:12px;text-decoration:none;font-weight:600">${esc(cta.label)}</a></p>
 <hr style="border:0;border-top:1px solid #1a2520;margin:24px 0">
-<p style="margin:0 0 8px;font-size:12px;color:#8a9a93">${esc(why)} <a href="${esc(unsub)}" style="color:#8a9a93">Unsubscribe</a></p>
+<p style="margin:0 0 8px;font-size:12px;color:#8a9a93">${esc(why)} <a href="${esc(unsub)}" style="color:#8a9a93">${esc(unsubLabel)}</a></p>
 <p style="margin:0;font-size:12px;color:#8a9a93">${esc(DISCLAIMER)}</p>
 </div></body></html>`;
-  const text = [heading, "", ...lines, "", `${cta.label}: ${cta.href}`, "", `${why} Unsubscribe: ${unsub}`, DISCLAIMER].join("\n");
+  const text = [heading, "", ...lines, "", `${cta.label}: ${cta.href}`, "", `${why} ${unsubLabel}: ${unsub}`, DISCLAIMER].join("\n");
   return { html, text };
 }
 
@@ -68,4 +68,45 @@ export function paymentFailedEmail(to: string, unsubscribeUrl: string): Email {
     "You get this because you have a Kismet subscription.",
   );
   return { to, subject: "Your Kismet payment didn't go through", html, text, unsubscribeUrl };
+}
+
+/**
+ * Supabase Auth emails (confirm sign-up, magic link, password reset, email change). Supabase sends these itself, so
+ * they live as templates in supabase/templates/ and the owner pastes them into Auth > Email Templates. Same layout,
+ * disclaimer and footer as our own mail. They're sent only when someone asks, so the footer link manages the account
+ * (where it can be deleted) instead of an alert unsubscribe. Go template fields: {{ .ConfirmationURL }}, {{ .SiteURL }}.
+ */
+export const AUTH_EMAILS = {
+  confirmation: {
+    subject: "Confirm your Kismet account",
+    heading: "Confirm your email",
+    lines: ["Tap the button to confirm this address and finish creating your free Kismet account.", "If you didn't sign up, ignore this email. Nothing happens without the link."],
+    cta: "Confirm my email",
+  },
+  magic_link: {
+    subject: "Your Kismet sign-in link",
+    heading: "Your Kismet sign-in link",
+    lines: ["Use the button below to sign in. The link works once and expires soon.", "If you didn't ask for this, ignore this email."],
+    cta: "Sign in to Kismet",
+  },
+  recovery: {
+    subject: "Reset your Kismet password",
+    heading: "Reset your password",
+    lines: ["Tap the button to set a new password. The link works once and expires soon.", "If you didn't ask for this, ignore this email. Your password stays the same."],
+    cta: "Set a new password",
+  },
+  email_change: {
+    subject: "Confirm your new Kismet email",
+    heading: "Confirm your new email",
+    lines: ["Tap the button to use this address for your Kismet account.", "If you didn't ask for this, ignore this email."],
+    cta: "Confirm new email",
+  },
+} as const;
+
+export function authEmailHtml(kind: keyof typeof AUTH_EMAILS): string {
+  const e = AUTH_EMAILS[kind];
+  return layout(
+    e.heading, [...e.lines], { href: "{{ .ConfirmationURL }}", label: e.cta }, "{{ .SiteURL }}/account",
+    "You get this because someone asked for it with this address on Kismet.", "Manage your account",
+  ).html;
 }

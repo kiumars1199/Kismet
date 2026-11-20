@@ -60,7 +60,7 @@ export async function POST(req: Request) {
       return Response.json({ error: "Sign-up with a password isn't available right now. Use the email link." }, { status: 503 });
     }
     if (error && error.status === 429) return Response.json({ error: "Too many tries. Wait a minute and try again." }, { status: 429 });
-    if (error && /password/i.test(error.message)) return Response.json({ error: "Pick a stronger password (at least 8 characters, not a common one)." }, { status: 400 });
+    if (error && /password/i.test(error.message)) return Response.json({ error: "Choose a stronger password (at least 8 characters, not a common one)." }, { status: 400 });
     if (error) console.error("[auth/password] sign-up", error.status, error.message);   // logged, never shown: same answer
     // An existing address gets the same answer (Supabase sends nothing new), so this can't probe for accounts.
     await rememberTerms();
