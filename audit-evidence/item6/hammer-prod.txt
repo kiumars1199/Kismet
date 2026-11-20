@@ -1,4 +1,0 @@
-# anonymous hammer, keyless prod (all callers share key 'local' off Vercel)
-/api/markets?ps=5: first 429 at request 31 retry-after: 59
-/api/suggest?q=bit: first 429 at request 121 retry-after: 59
-/api/mcp: first 429 at request none (130 sent): no rate limit on unauthenticated /api/mcp

@@ -11,7 +11,7 @@ async function seed(email, sub){
   await fetch(`${SB}/rest/v1/profiles?user_id=eq.${s.user.id}`,{method:"PATCH",headers:svc,body:JSON.stringify({accepted_terms_at:t,onboarded_at:t,first_bets_at:t})});
   return s;
 }
-const plans={free:[`audit3-st-free-${RUN}@example.com`,null],pro:[`audit3-st-pro-${RUN}@example.com`,{tier:"pro",status:"active"}],premium:[`audit3-st-prem-${RUN}@example.com`,{tier:"premium",status:"active"}],beta:[`audit3-st-beta-${RUN}@example.com`,{comp_tier:"premium",comp_expires_at:new Date(Date.now()+864e5).toISOString()}],admin:["audit3-admin@example.com",null]};
+const plans={free:[`audit4-st-free-${RUN}@example.com`,null],pro:[`audit4-st-pro-${RUN}@example.com`,{tier:"pro",status:"active"}],premium:[`audit4-st-prem-${RUN}@example.com`,{tier:"premium",status:"active"}],beta:[`audit4-st-beta-${RUN}@example.com`,{comp_tier:"premium",comp_expires_at:new Date(Date.now()+864e5).toISOString()}],admin:["audit4-admin@example.com",null]};
 for (const [k,[email,sub]] of Object.entries(plans)){
   const s=await seed(email,sub);
   const value=`base64-${Buffer.from(JSON.stringify(s)).toString("base64url")}`;

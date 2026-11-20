@@ -1,6 +1,6 @@
 const W="http://localhost:3161", SB="http://localhost:3160/e2e-mock/supabase";
 const b64u=(o)=>Buffer.from(JSON.stringify(o)).toString("base64url");
-const email=`audit3-d2-${Date.now()}@example.com`;
+const email=`audit4-d2-${Date.now()}@example.com`;
 await fetch(`${SB}/auth/v1/otp`,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({email})});
 const {url}=await (await fetch(`${SB}/_inbox?email=${encodeURIComponent(email)}`)).json();
 const s=await (await fetch(`${SB}/auth/v1/token?grant_type=pkce`,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({auth_code:new URL(url).searchParams.get("code")})})).json();

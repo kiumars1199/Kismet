@@ -1,4 +1,4 @@
-STATE anon-prod-utc pages 74
+STATE prod-anon-utc pages 76
   390 /                      200 -> /  ok
   390 /about                 200 -> /about  ok
   390 /account               200 -> /account  ok
@@ -15,7 +15,8 @@ STATE anon-prod-utc pages 74
   390 /admin/users           404 -> /admin/users
        console ["error: Failed to load resource: the server responded with a status of 404 (Not Found)"]
   390 /alerts                200 -> /alerts  ok
-  390 /bets                  200 -> /bets  ok
+  390 /bets                  200 -> /bets
+       banned ["Unlock :: Unlock all 619 bets"]
   390 /combos                404 -> /combos
        console ["error: Failed to load resource: the server responded with a status of 404 (Not Found)"]
   390 /contact               200 -> /contact  ok
@@ -39,16 +40,17 @@ STATE anon-prod-utc pages 74
   390 /terms                 200 -> /terms
        banned ["guarantee :: The service is provided \u201cas is\u201d. Data can be late, missing or wrong, and past results don't promise future ones. We give no guarantee that any estimate is right"]
   390 /tools                 200 -> /tools  ok
-  390 /track-record          200 -> /track-record
-       banned ["pick :: Every tested bet grouped by what it paid per $1. Best bets are the main list; lower-confidence bets are the extra ones you see when you pick a payout. The verdi"]
+  390 /track-record          200 -> /track-record  ok
   390 /watchlist             200 -> /watchlist  ok
   390 /oauth/consent         200 -> /oauth/consent  ok
   390 /no-such-page          404 -> /no-such-page
        console ["error: Failed to load resource: the server responded with a status of 404 (Not Found)"]
-  390 /m/6654466             200 -> /m/6654466
-       console ["error: Failed to load resource: the server responded with a status of 502 (Bad Gateway)", "error: Failed to load resource: the server responded with a status of 502 (Bad Gateway)", "error: Failed to load resource: the server responded with a status of 502 (Bad Gateway)", "error: Failed to load resource: the server responded with a status of 502 (Bad Gateway)", "error: Failed to load resource: the server responded with a status of 502 (Bad Gateway)"]
-       failed ["502 /api/book?token=80003629366067542961725471508940932125556923334987364692791885056705551775263&q=0.85&cat=sports", "502 /api/book?token=80003629366067542961725471508940932125556923334987364692791885056705551775263&q=0.9&cat=sports", "502 /api/book?token=80003629366067542961725471508940932125556923334987364692791885056705551775263&q=0.9&cat=sports", "502 /api/book?token=80003629366067542961725471508940932125556923334987364692791885056705551775263&q=0.9&cat=sports", "502 /api/book?token=80003629366067542961725471508940932125556923334987364692791885056705551775263&q=0.9&cat=sports"]
-  390 /event/1309855         200 -> /event/1309855  ok
+  390 /a/b/c                 404 -> /a/b/c
+       console ["error: Failed to load resource: the server responded with a status of 404 (Not Found)"]
+  390 /m/6117508             200 -> /m/6117508
+       console ["error: Failed to load resource: the server responded with a status of 502 (Bad Gateway)", "error: Failed to load resource: the server responded with a status of 502 (Bad Gateway)", "error: Failed to load resource: the server responded with a status of 502 (Bad Gateway)"]
+       failed ["502 /api/book?token=72780970944645889181146946952599065415502226456240858170734594302271551469332&q=0.8&cat=sports", "502 /api/book?token=72780970944645889181146946952599065415502226456240858170734594302271551469332&q=0.9&cat=sports", "502 /api/book?token=72780970944645889181146946952599065415502226456240858170734594302271551469332&q=0.9&cat=sports"]
+  390 /event/1245659         200 -> /event/1245659  ok
  1440 /                      200 -> /  ok
  1440 /about                 200 -> /about  ok
  1440 /account               200 -> /account  ok
@@ -65,7 +67,8 @@ STATE anon-prod-utc pages 74
  1440 /admin/users           404 -> /admin/users
        console ["error: Failed to load resource: the server responded with a status of 404 (Not Found)"]
  1440 /alerts                200 -> /alerts  ok
- 1440 /bets                  200 -> /bets  ok
+ 1440 /bets                  200 -> /bets
+       banned ["Unlock :: Unlock all 619 bets"]
  1440 /combos                404 -> /combos
        console ["error: Failed to load resource: the server responded with a status of 404 (Not Found)"]
  1440 /contact               200 -> /contact  ok
@@ -89,14 +92,15 @@ STATE anon-prod-utc pages 74
  1440 /terms                 200 -> /terms
        banned ["guarantee :: The service is provided \u201cas is\u201d. Data can be late, missing or wrong, and past results don't promise future ones. We give no guarantee that any estimate is right"]
  1440 /tools                 200 -> /tools  ok
- 1440 /track-record          200 -> /track-record
-       banned ["pick :: Every tested bet grouped by what it paid per $1. Best bets are the main list; lower-confidence bets are the extra ones you see when you pick a payout. The verdi"]
+ 1440 /track-record          200 -> /track-record  ok
  1440 /watchlist             200 -> /watchlist  ok
  1440 /oauth/consent         200 -> /oauth/consent  ok
  1440 /no-such-page          404 -> /no-such-page
        console ["error: Failed to load resource: the server responded with a status of 404 (Not Found)"]
- 1440 /m/6654466             200 -> /m/6654466
-       console ["error: Failed to load resource: the server responded with a status of 502 (Bad Gateway)", "error: Failed to load resource: the server responded with a status of 502 (Bad Gateway)", "error: Failed to load resource: the server responded with a status of 502 (Bad Gateway)", "error: Failed to load resource: the server responded with a status of 502 (Bad Gateway)", "error: Failed to load resource: the server responded with a status of 502 (Bad Gateway)"]
-       failed ["502 /api/book?token=80003629366067542961725471508940932125556923334987364692791885056705551775263&q=0.85&cat=sports", "502 /api/book?token=80003629366067542961725471508940932125556923334987364692791885056705551775263&q=0.9&cat=sports", "502 /api/book?token=80003629366067542961725471508940932125556923334987364692791885056705551775263&q=0.9&cat=sports", "502 /api/book?token=80003629366067542961725471508940932125556923334987364692791885056705551775263&q=0.9&cat=sports", "502 /api/book?token=80003629366067542961725471508940932125556923334987364692791885056705551775263&q=0.9&cat=sports"]
- 1440 /event/1309855         200 -> /event/1309855  ok
-links checked 66 broken 0
+ 1440 /a/b/c                 404 -> /a/b/c
+       console ["error: Failed to load resource: the server responded with a status of 404 (Not Found)"]
+ 1440 /m/6117508             200 -> /m/6117508
+       console ["error: Failed to load resource: the server responded with a status of 502 (Bad Gateway)", "error: Failed to load resource: the server responded with a status of 502 (Bad Gateway)", "error: Failed to load resource: the server responded with a status of 502 (Bad Gateway)"]
+       failed ["502 /api/book?token=72780970944645889181146946952599065415502226456240858170734594302271551469332&q=0.8&cat=sports", "502 /api/book?token=72780970944645889181146946952599065415502226456240858170734594302271551469332&q=0.9&cat=sports", "502 /api/book?token=72780970944645889181146946952599065415502226456240858170734594302271551469332&q=0.9&cat=sports"]
+ 1440 /event/1245659         200 -> /event/1245659  ok
+links checked 64 broken 0

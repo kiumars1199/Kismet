@@ -1,4 +1,4 @@
-// Run 3 audit: black-box probe of /api/mcp on the mock-wired production build.
+// Run 4 audit (adapted from run 3): black-box probe of /api/mcp on the mock-wired production build.
 // usage: node mcp-probe.mjs   (env: W = app origin, O = mock origin)
 // The in-repo Supabase mock stands in for Supabase's OAuth server: it accepts any JWT whose `sub` is a known user,
 // so "issued OAuth token" = a JWT with a client_id claim minted here. Real issuance (DCR, PKCE, consent) is BLOCKED.
@@ -26,7 +26,7 @@ async function seed(email, sub = {}, profile = true) {
   if (profile) await fetch(`${SB}/rest/v1/profiles?user_id=eq.${id}`, { method: "PATCH", headers: svc, body: JSON.stringify({ accepted_terms_at: new Date().toISOString(), onboarded_at: new Date().toISOString(), first_bets_at: new Date().toISOString() }) });
   return { email, id, session: s };
 }
-const appToken = (u, extra = {}) => jwt({ sub: u.id, email: u.email, role: "authenticated", aud: "authenticated", exp: now() + 3600, client_id: "client-audit3", session_id: "s1", ...extra });
+const appToken = (u, extra = {}) => jwt({ sub: u.id, email: u.email, role: "authenticated", aud: "authenticated", exp: now() + 3600, client_id: "client-audit4", session_id: "s1", ...extra });
 const cookieOf = (session) => `sb-localhost-auth-token=base64-${Buffer.from(JSON.stringify(session)).toString("base64url")}`;
 
 let rid = 1;
@@ -54,13 +54,13 @@ const checkDisc = (label, r) => {
 };
 const head = (t, n = 6) => (t ?? "").split("\n").slice(0, n).map((l) => `      | ${l}`).join("\n");
 
-const free = await seed(`audit3-mcp-free-${RUN}@example.com`);
-const pro = await seed(`audit3-mcp-pro-${RUN}@example.com`, { tier: "pro", status: "active" });
-const pro2 = await seed(`audit3-mcp-pro2-${RUN}@example.com`, { tier: "pro", status: "active" });
-const prem = await seed(`audit3-mcp-premium-${RUN}@example.com`, { tier: "premium", status: "active" });
-const prem2 = await seed(`audit3-mcp-premium2-${RUN}@example.com`, { tier: "premium", status: "active" });
-const beta = await seed(`audit3-mcp-beta-${RUN}@example.com`, { comp_tier: "premium", comp_expires_at: new Date(Date.now() + 864e5).toISOString() });
-const victim = await seed(`audit3-mcp-victim-${RUN}@example.com`, { tier: "premium", status: "active" });
+const free = await seed(`audit4-mcp-free-${RUN}@example.com`);
+const pro = await seed(`audit4-mcp-pro-${RUN}@example.com`, { tier: "pro", status: "active" });
+const pro2 = await seed(`audit4-mcp-pro2-${RUN}@example.com`, { tier: "pro", status: "active" });
+const prem = await seed(`audit4-mcp-premium-${RUN}@example.com`, { tier: "premium", status: "active" });
+const prem2 = await seed(`audit4-mcp-premium2-${RUN}@example.com`, { tier: "premium", status: "active" });
+const beta = await seed(`audit4-mcp-beta-${RUN}@example.com`, { comp_tier: "premium", comp_expires_at: new Date(Date.now() + 864e5).toISOString() });
+const victim = await seed(`audit4-mcp-victim-${RUN}@example.com`, { tier: "premium", status: "active" });
 log(`seeded free/pro/pro2/premium/premium2/beta/victim on the mock (run ${RUN})`);
 
 log("\n== A. Authentication at /api/mcp");
