@@ -39,6 +39,8 @@ def flag_mask(cfg, b, q, lo, maker=False, tight=False):
     slip = 0 if maker else (cfg.taker_slippage if tight else slippage(cfg, b))
     cost = b.p + fee + slip
     ok = (b.p >= cfg.price_min) & (b.p < cfg.price_max) & ~np.isnan(q)
+    if cfg.flag_max_edge is not None:  # T-296: same optional edge cap as the live rule (scan.under_edge_cap)
+        ok = ok & (q - cost < cfg.flag_max_edge)
     return ok & (q - cost >= cfg.flag_min_edge) & (lo - cost > 0), cost
 
 

@@ -54,6 +54,23 @@ def is_edge(cfg, r):
             and s["edge"] >= cfg.flag_min_edge and s["model_neff"] >= et.get("min_neff", 40))
 
 
+def under_edge_cap(cfg, edge):
+    """T-296 (docs/research/live-vs-backtest.md): optional cap on the predicted edge of a Best bet. Config key
+    `flag_max_edge` (per $1 share, e.g. 0.10); absent or null = off, the default. Live, flags the model rated 10c+
+    did no better than the rest, and in testing the 10-15c bucket was the one that earned less than predicted."""
+    cap = cfg.flag_max_edge
+    return cap is None or edge < cap
+
+
+def is_best(cfg, r, has_record=True):
+    """Tier "best": price in range, edge after fee >= min (and under the optional cap), still > 0 on the
+    pessimistic estimate, and validated by the walk-forward test (when one has run)."""
+    s = r["best"]
+    return (cfg.price_min <= s["mid"] < cfg.price_max and abs(s["mid"] - 0.5) >= 0.005
+            and s["edge"] >= cfg.flag_min_edge and under_edge_cap(cfg, s["edge"]) and s["edge_low"] > 0
+            and (r["validated"] or not has_record))
+
+
 def run(cfg, log=print):
     d = json.load(open(cfg.path("output", "model.json")))
     model = Model.from_json(cfg, d)
@@ -132,10 +149,7 @@ def run(cfg, log=print):
             sides=sides, best=best))
 
     def is_flag(r):
-        s = r["best"]
-        return (cfg.price_min <= s["mid"] < cfg.price_max and abs(s["mid"] - 0.5) >= 0.005
-                and s["edge"] >= cfg.flag_min_edge and s["edge_low"] > 0
-                and (r["validated"] or not record))
+        return is_best(cfg, r, bool(record))
 
     flags = [r for r in rows if is_flag(r)]
     edge = [r for r in rows if not is_flag(r) and is_edge(cfg, r)]
