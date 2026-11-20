@@ -99,6 +99,7 @@ describe("signed-out landing (T-301)", () => {
       row("d", "e3", "Will Leeds draw?", true), row("e", "e4", "Will Spurs win?"), row("f", "e5", "Will BTC hit 120,000?"), row("g", "e6", "Will Celtic win?")];
     expect(landingBets(rows).map((r) => r.market.id)).toEqual(["c", "a", "e", "g"]);
     expect(landingBets(rows, 2).map((r) => r.market.id)).toEqual(["c", "a"]);
+    expect(landingBets(rows, 6).map((r) => r.market.id)).toEqual(["c", "a", "e", "g", "d"]);   // short of games: a 2nd line fills in
   });
 
   it("order: hero, 3 steps, bets, plans, FAQ (5 questions), results link; no proof, counts or banned words", async () => {

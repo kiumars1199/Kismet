@@ -37,21 +37,18 @@ const CTA = "inline-flex min-h-14 items-center justify-center rounded-input bg-a
 const LINK = "inline-flex min-h-11 items-center font-medium text-accent-hover underline-offset-4 hover:underline";
 
 /** Which of the Free sample's rows the landing shows, in order. The sample arrives in Best bets order; bets on
- *  Polymarket US come first (§G2: the site serves the US), one bet per game, and never a title that would put a
- *  banned word or a big number on the page (e.g. "Spread: …" lines). */
+ *  Polymarket US come first (§G2: the site serves the US), one bet per game while there are enough games (then a
+ *  second line of a game fills the gap), and never a title that would put a banned word or a big number on the page
+ *  (e.g. "Spread: …" lines). */
 export function landingBets(rows: ApiRow[], n = LANDING_HERO + LANDING_MORE): ApiRow[] {
   const clean = rows.filter((r) => bannedHits(r.market.question, { counts: true }).length === 0);
   const ordered = [...clean.filter((r) => r.market.us?.url), ...clean.filter((r) => !r.market.us?.url)];
   const seen = new Set<string>();
-  const out: ApiRow[] = [];
-  for (const r of ordered) {
+  const first = ordered.filter((r) => {
     const game = r.market.event_id || r.market.id;
-    if (seen.has(game)) continue;
-    seen.add(game);
-    out.push(r);
-    if (out.length === n) break;
-  }
-  return out;
+    return seen.has(game) ? false : (seen.add(game), true);
+  });
+  return [...first, ...ordered.filter((r) => !first.includes(r))].slice(0, n);
 }
 
 async function bets(): Promise<ApiRow[]> {

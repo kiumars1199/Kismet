@@ -19,7 +19,9 @@
   - puts bets on Polymarket US first (§G2)
   - keeps one bet per game
   - skips titles with banned words or big numbers ("Spread: …")
-- Static: `Landing` reads no cookies or headers. `requestZone()` and the scan-time line are gone. A unit test asserts this.
+- If there aren't enough games, a second line from the same game fills the gap, so the page still gets 1 + 3 bets when it can.
+- No cookies or headers: `requestZone()` and the scan-time line are gone. A unit test proves `Landing` calls neither `headers()` nor `cookies()`. That is not proof `/` renders statically. For lane C: `lib/data/store.ts` fetches with `cache: "no-store"`, so check that against static rendering of `/`.
+- The hero glow stays inside its box. An earlier version made the page 20 px wider than a 390 px screen. The spec now asserts there is no sideways scroll.
 - `app/page.tsx`: only the landing title and description strings changed.
 
 ## Checks
@@ -27,7 +29,8 @@
 - `pnpm test`: 696/697 pass. The one failure is the `api.test.ts` 15k-row timing test under shared CPU load. It passes when rerun alone (7/7).
 - Demo `e2e/s1-landing.spec.ts` (PW_PORT=3261): 3 passed.
 - Paid `paywall-pages.spec.ts` and `t291-plans.spec.ts`: 4 passed. paywall-pages was updated for the new landing.
-- `e2e-paid/overhaul-landing.spec.ts` (PW_PORT=3260, chromium): every landing assertion passes at both sizes:
+- `e2e-paid/overhaul-landing.spec.ts` (PW_PORT=3260, chromium): **red, 3 of 3 fail**. The only failure is `pts` from today's BetCard (below). Every other assertion passes at both sizes:
+  - no sideways scroll
   - no banned word in the landing's own text (DOM with bet cards removed, plus title and metas)
   - section order
   - 3 steps, 3 bets, 5 FAQs, the results link

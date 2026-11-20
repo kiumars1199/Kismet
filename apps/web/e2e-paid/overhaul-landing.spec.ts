@@ -37,6 +37,7 @@ for (const size of SIZES) {
     await page.goto("/");
     await page.waitForLoadState("networkidle");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Which Polymarket bets are worth it today?");
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth), "no sideways scroll").toBeLessThanOrEqual(0);
 
     // Banned words: the whole hydrated page, and (so a card regression is told apart) the page without bet cards.
     expect(bannedHits(await domText(page, "main", CARD), { counts: true }), "landing's own text").toEqual([]);
@@ -54,7 +55,7 @@ for (const size of SIZES) {
       expect(ys[0]!).toBeLessThan(ys[3]!);
     } else expect(ys).toEqual([...ys].sort((a, b) => a - b));
     await expect(page.getByTestId("landing-steps").locator("ol > li")).toHaveCount(3);
-    await expect(page.getByTestId("landing-bets").locator(CARD)).toHaveCount(3);
+    await expect(page.getByTestId("landing-bets").locator("ul > li")).toHaveCount(3);
     await expect(page.getByTestId("landing-faq").locator("details")).toHaveCount(5);
     const results = page.getByTestId("landing-results").getByRole("link");
     await expect(results).toHaveText("See how we track results");
