@@ -37,9 +37,9 @@ Before screenshots and prod headers (taken 16:58 UTC, before any change): `docs/
 - **Re-run the backtest on production data with an even history.** The public test has 86–87% of its best bets in the last 2 weeks; on an evenly sampled local rebuild that share is 0.9% and the result is about +2% per bet (t < 1). Backfill the fetch (it keeps only the newest 2,000 events per tag) and re-run; until then the "enough to compare" bar (~10 US events, from the concentrated run's t of 34.7) is too low — the even rebuild implies ~1,340 events. Research doc §5, §7.
 - **`engine/ledger.py` same-payout picks** include rows logged before `control.jsonl` existed (no `event_id`), so the picks' event count is inflated. The page hides that count until it is fixed.
 - `vercel.json` now has 3 crons; confirm the Vercel plan allows it (fallback: run trial reminders from `/api/settle/run`).
-- Lane C config: `REVALIDATE_SECRET` in Vercel and as a GitHub secret, and `SITE_URL` or `REVALIDATE_URL` as a GitHub variable. Without them `upload.py` logs "revalidate skipped" and pages refresh within 300 s anyway.
-- **Lighthouse LCP < 2.0 s (§C) isn't met** (production 2.05–2.26 s; locally 2.0–2.9 s, simulated). The paint happens at 148 ms; the metric counts the React/Next download. Options: accept the miss, or rebuild `/`, `/pricing` and `/track-record` without hydration (the bet card would lose its in-page "Why this bet?" or need a tiny non-React script). Q's call.
-- Sign-off on the static CSP for signed-out pages (Decision 17). It ships with this deploy; say if you want it reverted.
+- Lane C config (**Q is setting these**, Nov 20): `REVALIDATE_SECRET` in Vercel and as a GitHub secret, and `SITE_URL` or `REVALIDATE_URL` as a GitHub variable. Without them `upload.py` logs "revalidate skipped" and pages refresh within 300 s anyway.
+- ~~Lighthouse LCP < 2.0 s (§C)~~ **Resolved by Q (Nov 20): accepted as is** (production 2.05–2.26 s). No React removal.
+- ~~Sign-off on the static CSP (Decision 17)~~ **Resolved: Q signed off** (Nov 20).
 
 ## Merged
 - PR #3 `claude/us-venue` (kiumars1199/Kismet): merged via `overhaul` (3 commits: 29282c9, d40090f, ddf9cfd).
@@ -199,7 +199,7 @@ e2e: `e2e-paid/overhaul-funnel.spec.ts` walks the funnel with repeats (reloads, 
 ## F4. Lifecycle emails — PASS
 Welcome (3-line card explainer, unsubscribe + List-Unsubscribe), trial ends in 2 days with how to cancel (daily cron), receipt on first paid invoice, cancel confirmation. Sent once each via a claim row (`lifecycle_emails` PK user/kind/ref). `lib/email/lifecycle.test.ts` (15 tests) renders each, checks every link resolves to a real app route, and checks unsubscribe on the optional mail only (receipt, cancel and the trial notice are transactional/required). No real email sent; Resend mocked.
 
-## C. Speed — prod: edge cache HIT, cold TTFB 191–348 ms, CLS 0, JS 148.5 kB PASS; Lighthouse LCP 2.05–2.26 s MISSES the < 2.0 s target
+## C. Speed — PASS (LCP accepted by Q): edge cache HIT, cold TTFB 191–348 ms, CLS 0, JS 148.5 kB; Lighthouse LCP 2.05–2.26 s is over the < 2.0 s target, and Q accepted it as is on Nov 20
 Lane notes: `docs/overhaul-evidence/C/NOTES.md`. Prod before (Nov 20 16:58 UTC, `docs/overhaul-evidence/before/hdr_*.txt`): `/` TTFB 2.35 s, `/pricing` 0.59 s, `/track-record` 0.36 s, `/about` 0.51 s; every page `cache-control: private, no-cache, no-store`, `x-vercel-cache: MISS`.
 
 What changed: engine writes `top.json` + `counts.json` (+ per-category tops) each scan; signed-out pages `/`, `/pricing`, `/about`, `/track-record`, legal are static + ISR (`s-maxage=300, stale-while-revalidate`), revalidated by `ops/upload.py` via `/api/revalidate` (401 without the bearer, 200 with it); charts lazy-loaded; header no longer pops in (CLS 0.018 → 0); signed-in routes get skeletons.
@@ -255,4 +255,4 @@ Lighthouse 12.8.2 mobile on production, two passes:
 - INP isn't measured by a Lighthouse page load; locally it is 72–104 ms (target < 200).
 - `/bets` is behind sign-in on production, so it has no signed-out Lighthouse number.
 - Live check: `/`, `/pricing`, `/track-record` and `/about` load at 390×844 with no console or CSP errors, and "Why this bet?" opens on the landing card.
-- Until the first scan on the new engine (scheduled every 30 min from `final`), the live data has no `us`, so cards link to polymarket.com (the pre-US fallback). After that scan they should show the US price and "Bet on Polymarket US". Not yet verified: no scan had run on the new engine when this was written (21:25 UTC). It is the first production run of the new engine code, so check its run in Actions.
+- Until the first scan on the new engine (run on Railway), the live data has no `us`, so cards link to polymarket.com (the pre-US fallback). After that scan they should show the US price and "Bet on Polymarket US". **Confirmed by Q (Nov 20):** the engine runs on Railway, not GitHub Actions. Its scans at 21:29 and 21:33 UTC produced about 6,600 US-listed bets. The signed-out landing shows Free data, which runs 15 min behind, so it switches about 15 min after the first US scan. Landing check: PENDING.
