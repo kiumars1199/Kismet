@@ -38,6 +38,8 @@ for (const size of SIZES) {
     await page.waitForLoadState("networkidle");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Which Polymarket bets are worth it today?");
     expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth), "no sideways scroll").toBeLessThanOrEqual(0);
+    // §A: no stats table and no chart anywhere on the landing
+    await expect(page.locator("main").locator("table, [role=table], [role=grid], .recharts-wrapper, canvas, svg[aria-label*=chart i]")).toHaveCount(0);
 
     // Banned words: the whole hydrated page, and (so a card regression is told apart) the page without bet cards.
     expect(bannedHits(await domText(page, "main", CARD), { counts: true }), "landing's own text").toEqual([]);

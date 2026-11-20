@@ -20,6 +20,13 @@ Before screenshots and prod headers (taken 16:58 UTC, before any change): `docs/
 14. **Lane E merge conflict in `engine/scan.py`.** Kept both sides: G's `cap_per_event` runs after E's `is_best` (which now includes the optional `flag_max_edge`). Engine tests after the merge: 99 passed.
 15. **Proof line keeps the test's +14%, with its concentration stated.** `lib/proof.ts` now says the span and "86% of bets in the last 2 weeks" instead of "1 year" and drops "enough to compare". It still quotes production's backtest number, because the even rebuild (+2%) was run locally on a different sample and isn't what production publishes. Replacing the headline number waits on a production re-run (see Waiting for Q).
 16. **G5 cap reported both ways.** The scan holds slots for lines already in the ledger, so live behaviour is closest to "first 2 per game" (−0.9%), not "best 2" (+2.1%). Both are in the table; neither is a claim the cap improves returns.
+17. **Static CSP on the prerendered signed-out pages (lane C).** One cached HTML file can't carry a per-request nonce, so `/`, `/pricing`, `/about`, `/track-record` and the legal pages use `script-src 'self' 'unsafe-inline'` plus the Stripe, Vercel and PostHog hosts, without `strict-dynamic`. Every other directive matches the nonce policy, and dynamic pages keep nonce + `strict-dynamic`. Shipped because §C requires these pages to be static and they take no user input; it's reversible (drop `force-static`). Details: `docs/overhaul-evidence/C/NOTES.md` "Needs owner sign-off".
+18. **Risk bands (lane B).** Safer = wins 85%+, Balanced = 70–85%, Bigger payouts = under 70% (the 40% floor stays). They follow where Best bets actually sit on a real scan: 740 of 1,070 at 85%+, 268 at 70–85%, 62 under 70%.
+19. **No skeleton on `/combos`, `/kalshi` and `/m/[id]`.** A `loading.tsx` there streamed HTTP 200 before `notFound()` ran, so non-testers got 200 for beta pages (the admin e2e caught it). Those three keep the right 404 status; every other signed-in route keeps its skeleton.
+20. **The drawer follows the card's venue rule.** US-listed → "Bet on Polymarket US" (`us.url`). `us: null` → the grey "International only" label, the international link and "Not available to US residents". Scans from before the US venue (no `us`) → "Open on Polymarket" as before.
+21. **Stretched card links count as the card for tap size.** The /markets row title is a link whose `::after` covers the whole card, so the tap area is the card (≥ 44 px). The iPhone checker now measures that box, not the text line.
+22. **Old e2e brought up to the §B card.** `s7-upgrade` checked the removed T-291 overlay (Esc and close button) and the old `one-bet` card; it now checks the inline "Unlock N more bets" card and counts `bet-card`. Its free-account delete got the same 30 s budget as the paid delete in the same file, and the admin beta-link check waits 15 s for `/api/me`. All three passed alone and failed only when the whole suite ran under load.
+23. **Landing JS kept under 150 kB after the new card.** The card pulled in zod (via `lib/filters/apply`) and the trade-ticket code (via `venueOf`). Both now come from light modules (`lib/filters/bands`, `lib/trade/venue`), and the My-list star inside the closed "Why this bet?" loads on its own. Result: 183.8 → 148.5 kB.
 
 ## Waiting for Q
 - Apply Supabase migrations `20261120000200_funnel_events.sql`, `20261120000300_lifecycle_emails.sql`, `20261120000400_alert_events_rule_id_index.sql` to the live project (not applied by agents).
@@ -27,9 +34,21 @@ Before screenshots and prod headers (taken 16:58 UTC, before any change): `docs/
 - **Re-run the backtest on production data with an even history.** The public test has 86–87% of its best bets in the last 2 weeks; on an evenly sampled local rebuild that share is 0.9% and the result is about +2% per bet (t < 1). Backfill the fetch (it keeps only the newest 2,000 events per tag) and re-run; until then the "enough to compare" bar (~10 US events, from the concentrated run's t of 34.7) is too low — the even rebuild implies ~1,340 events. Research doc §5, §7.
 - **`engine/ledger.py` same-payout picks** include rows logged before `control.jsonl` existed (no `event_id`), so the picks' event count is inflated. The page hides that count until it is fixed.
 - `vercel.json` now has 3 crons; confirm the Vercel plan allows it (fallback: run trial reminders from `/api/settle/run`).
+- Lane C config: `REVALIDATE_SECRET` in Vercel and as a GitHub secret, and `SITE_URL` or `REVALIDATE_URL` as a GitHub variable. Without them `upload.py` logs "revalidate skipped" and pages refresh within 300 s anyway.
+- Sign-off on the static CSP for signed-out pages (Decision 17). It ships with this deploy; say if you want it reverted.
 
 ## Merged
 - PR #3 `claude/us-venue` (kiumars1199/Kismet): merged via `overhaul` (3 commits: 29282c9, d40090f, ddf9cfd).
+
+## Gates on the merged tree — PASS
+Run on `overhaul` at commit ce9ee55, plus the landing spec again after its no-table/no-chart check was added:
+- `pnpm lint`: 0 warnings. `pnpm typecheck`: clean.
+- `pnpm test`: 102 files, 1,070 tests, plus ops 36/36.
+- Extension: typecheck clean, 42/42 tests.
+- Engine: `python3 -m pytest -q engine/tests`, 105 passed.
+- `pnpm build && pnpm check:js`: `/` first-load JS 148.5 kB gzipped (budget 150).
+- e2e, demo config (`playwright.config.ts`): **132/132** (chromium 78 + iPhone WebKit 54).
+- e2e, paid config (`playwright.paid.config.ts`): **32/32** (chromium 16 + iPhone WebKit 16). `overhaul-landing` re-run with the table/chart check: 3/3.
 
 ## 0. Research — PASS
 - `docs/research/overhaul.md`: 15 rules (IDs R1-1…R1-8, R2-1…R2-6, R2-8; R2-7 merged into R2-5), each with source links and an example to copy; chosen value proposition; 5 pages to imitate with screenshots in `docs/research/screens/` (polymarket-trade, polymarket-sports, polymarket-game, robinhood-event, actionnetwork-projections). Lane files: `overhaul-r1.md` (256 lines), `overhaul-r2.md` (238 lines, with a "Removed claims" table).
@@ -37,6 +56,62 @@ Before screenshots and prod headers (taken 16:58 UTC, before any change): `docs/
 - Not reachable even after allowlisting: kalshi.com (bot wall, HTTP 429), news.kalshi.com (403), pmc.ncbi.nlm.nih.gov (reCAPTCHA), sportsbook.fanduel.com (403). No rule rests on them.
 - Chosen headline "Which Polymarket bets are worth it today?" and sentence "Placing a bet or two? Kismet shows which Polymarket bets look like good value today, how often bets like them win, and what $10 pays." Scoring is judgment against stated 5-second criteria, not a user test.
 - Citation check: see the `git log` grep under §A, §B, §D below.
+
+## A. First screen and landing page — PASS
+- First screen (390×844 and 1440×900): headline "Which Polymarket bets are worth it today?", one sentence, one "Sign up free" button, one real bet card in the §B style. Below it, in this order: 3 steps, 3 real bets, plans, a 5-question FAQ, then "See how we track results" → /track-record. The market-says/won-before bars and "Bars use…" are gone.
+- Headline options (research R1-1, R1-2, R1-3, R1-7):
+  1. **Shipped:** "Which Polymarket bets are worth it today?"
+  2. "Find the good-value bets on Polymarket." Clear, but it names neither the reader nor "today".
+  3. "Polymarket bets that pay more than they should." Rejected because it reads as a profit claim (R1-7).
+  Choosing one is judgment against the research's 5-second criteria, not a user test.
+- Check: `e2e-paid/overhaul-landing.spec.ts`, 3 tests, all pass on the merged tree:
+  - The server HTML of `/` and the hydrated page at both sizes contain no banned word ("edge", "spread", "pts", "model", "priced below their record", "$1 share", "walk-forward", "EV", "t-stat") and no count above 3 digits (`lib/banned.ts`).
+  - No stats table or chart, the section order above, exactly one primary button in `main` above the fold, the hero card inside the first screen, and no sideways scroll.
+  - The `pts` failure noted in lane A's notes was the old card; it is gone since lane B merged.
+- Screenshots: `docs/overhaul-evidence/A/home-390x844.png`, `home-1440x900.png` (+ `-full`), re-shot on the merged tree. Before: `docs/overhaul-evidence/before/home-*.png`. Lane notes: `docs/overhaul-evidence/A/NOTES.md`.
+
+## B. Cards, Best bets, filters — PASS
+- Card face, seven slots: plain title ("Miami (OH) to win the 1st quarter"), "Bet {side} at 69¢", "Wins about 9 in 10", a 1–3 star value rating, "$10 wins $4.08", the closing time, and the bet button. Everything else is inside "Why this bet?".
+- Free: one solid card with a lock and "Unlock N more bets" → /pricing. No blur, no fade.
+- /bets: "Today's top 5", then "More bets". No tier or section words.
+- One chip row: top 6 sports + "More sports", Today / This week, Safer / Balanced / Bigger payouts, "On Polymarket US", "More filters". A filter change keeps the old list on screen, dimmed and `aria-busy`, until the new one arrives (no flash, R2-6).
+- Checks, all passing on the merged tree:
+  - `e2e/overhaul-cards.spec.ts`: every card has at most 7 visible text slots outside "Why this bet?"; banned-word grep on `/bets`; chip row lands in the URL; tap targets.
+  - `test/card-render.test.tsx` renders the card for all 151 fixture Best bets, exact and Free-banded. It checks no banned words, ≤ 7 slots and the venue rule.
+- Before/after screenshots: `docs/overhaul-evidence/B/shots/before-bets-*.png` and `after-bets-*.png` (390×844 and 1440×900), plus the served HTML in `before-bets.html` and `after-bets.html`. Lane notes: `docs/overhaul-evidence/B/NOTES.md`.
+
+## D. iPhone — PASS
+- Playwright **WebKit** (`devices["iPhone 15"]` and `["iPhone 15 Pro Max"]`, both `defaultBrowserType: webkit`) at 390×844 and 430×932. Projects `iphone-390` and `iphone-430` are in both Playwright configs.
+- Demo config (`e2e/overhaul-iphone.spec.ts`):
+  - 24 pages: every app page, the legal pages, /maintenance, and a missing page that must return 404.
+  - An event page and a market page.
+  - The drawer: fits the screen, closes, keeps focus usable.
+  - Search input stays visible when focused.
+- Paid config (`e2e-paid/overhaul-iphone.spec.ts`): the signed-out pages `/`, `/pricing`, `/about`, `/track-record`, `/signup`, `/login`, `/reset-password` and `/terms`.
+- Each page is checked for no horizontal scroll, tap targets ≥ 44 px, nothing under the sticky header or the bottom tab bar, and no loading flashes. Checker: `apps/web/e2e/iphone/iphone.ts`. Two exemptions: WCAG 2.5.8 inline links inside a sentence, and stretched card links, which count as the card (Decision 21).
+- Before the fixes, iphone-390 failed 17 of 27. Mostly 36–41 px chips, card links, legal nav, the switch and selects; the before shots are in `docs/overhaul-evidence/D/before/`.
+- After: demo 54/54 and paid 16/16 iPhone tests pass, inside the full e2e runs below. Fixes are in commits 2f3d382, 149f6ec and 253ec44 (R2-8).
+- Screenshots of every page at both sizes: `docs/overhaul-evidence/D/*.png` (57 files).
+
+## G1. Cards and buttons — PASS
+- Bets with `us`: the card shows the US price and return, "Polymarket US price, incl. its fee", and "Bet on Polymarket US" → `us.url`. Bets with `us: null`: a grey "International only, not on Polymarket US" label and no primary button; the international link sits in "Why this bet?" with "Not available to US residents".
+- The bet drawer follows the same rule (Decision 20, commit 253ec44).
+- Check: `e2e/overhaul-cards.spec.ts` "venue" passes. No card's primary button points to polymarket.com when `us` exists, and no primary button exists when `us` is null. `test/card-render.test.tsx` checks the same thing on all 151 fixture bets.
+
+## G2. Lists — PASS
+- "On Polymarket US" is on by default for every tier. Best bets with it on = `us` present and `us.edge ≥ meta.rule.min_edge`, ranked by US return.
+- Free's daily 10 come from that set when it has at least 10. Counts and headlines use the same set: `counts.json` and `top.json` from `engine/precompute.py` too.
+- Checks:
+  - `test/us-filter.test.ts` (8 tests: default on, the set, ranking, one count, Free's 10, the fallback, no-op without coverage, /markets ignores it).
+  - `engine/tests/test_precompute.py::test_counts_use_the_us_set_when_the_scan_priced_us`.
+  - e2e "'On Polymarket US' is on by default; turning it off includes international bets".
+  - Screenshot with the default: `docs/overhaul-evidence/B/shots/after-bets-390x844.png` (fixture: 34 of 151 Best bets).
+
+## G3. /track-record — PASS
+See §E below: US record first (settled bets, events, return), then the same-payout card (events), then the whole record (`first`) with the international-only line, then the test with its real span. "Needs" is counted in events. Numbers: `docs/research/live-vs-backtest.md`.
+
+## Research citations
+`git log origin/final..overhaul | grep -E "R[12]-[0-9]"`: 10 commits cite research rules: R1-1 (2), R1-2, R1-3, R1-4, R1-7 (2), R1-8, R2-1, R2-4, R2-6 (2), R2-8 (4). Examples: 3f00859 (landing, R1-1…R1-8), 1b40593 (card, R2-1, R2-4), 6c37f5e (Best bets, R2-6), 2f3d382 (tap targets, R2-8).
 
 ## E. Results and the live record — PASS
 Research file: `docs/research/live-vs-backtest.md` (§1–8). Lane notes: `docs/overhaul-evidence/E/NOTES.md`. Data: `origin/live` @ ecbc3a7 (Nov 19 19:47 UTC) plus public Gamma/CLOB reads.
