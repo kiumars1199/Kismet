@@ -7,6 +7,7 @@ Return (ROI) = sum(pnl) / sum(cost), the same definition as the backtest's roi_p
 """
 import json
 import math
+import re
 from collections import defaultdict
 
 
@@ -44,8 +45,15 @@ def horizon(e):
 
 
 def event_key(e):
-    """Best-effort event id for clustering: the question before ':' (game) plus the close time."""
-    return (e["question"].split(":")[0].strip(), e["closes_at"] // 86400, e["category"])
+    """Best-effort event id for clustering (the ledger has no event id). Sports: the game (question before ':').
+    Weather: city + high/low/rain + day, so every temperature bucket of one city-day is one event, as on Polymarket."""
+    q = e["question"]
+    day = e["closes_at"] // 86400
+    if e["category"] == "weather":
+        m = re.search(r"(highest|lowest|rain|precipitation)\D*? in ([A-Z][\w .'-]+?)(?: be|,| on|\?)", q)
+        if m:
+            return ("weather", m.group(1), m.group(2), day)
+    return (q.split(":")[0].strip(), day, e["category"])
 
 
 def stats(rows):
