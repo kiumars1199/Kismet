@@ -134,6 +134,10 @@ Two caveats for the new summary fields, both in `engine/ledger.py` (not lane E's
   makes no call. Fix at the source: derive `event_id` for old rows (Gamma event id, or `common.event_key`).
 - On the test's numbers "enough" comes early: test events × (2 ÷ t)² is ~10 events on the live-branch run (2,871
   events, t 34.7) and 17 on the fixture, so the US record will read "enough to compare" after its first ten-odd games.
+  The t is event-clustered, so the formula is sound, but t 34.7 comes from the run with 86% of its bets in the last 2
+  weeks. On the evenly sampled rebuild (§7: 214 events, t 0.80) the same formula gives ~1,340 events, and the return
+  it would have to confirm is +0.9% per event, not +14%. **Owner decision:** publish a backtest without the
+  concentration (§5) before trusting the ~10 bar, or raise the bar by hand.
 - `intl_only` is every old row (742 of 742), not "bets US users couldn't place". The page shows the
   international-only line only once some US rows exist.
 - `vs_same_payout` ("Kismet's picks vs other bets at the same payout"): `others` are the random same-payout bets from
@@ -211,7 +215,10 @@ low**; the mean-premium run below is the sensitivity check.
 
 Half the median live spread is already a bigger charge than live asks paid over the history price wherever both are
 known (e.g. soccer totals: half spread vs +1.5¢), so pricing at the ask makes the test slightly *cheaper*, not
-dearer. **The mid-vs-ask question does not explain the live gap**, which agrees with §2 (same live bets: test-style
+dearer. Only groups with 20+ graded live asks are calibrated (soccer moneyline, props and totals; weather
+multi-outcome). Every other group keeps the half spread (the `cat:` premium only where no spread is known), so most test bets are priced
+the same in both runs: moving the premium from the median (+1.05¢) to the mean (+2.21¢) moves the mean charge by only
+0.08¢. This re-run tests the ask where live asks exist, not across the board. **The mid-vs-ask question does not explain the live gap**, which agrees with §2 (same live bets: test-style
 cost 80.67¢ vs live 80.15¢). Per fold (week of, mid → ask): Apr 29 +27.4% → +27.6% (10 events), May 20 +2.4% → +7.7%
 (40 → 46), Jun 10 +8.2% → +8.2% (41), Jun 17 −3.4% → −5.0% (38 → 40), Jul 22 +4.2% → +8.5% (9 → 23), Sep 16 +4.5% →
 −5.1% (9 → 10); every other week is identical at both pricings or has under 10 events. Full table in
