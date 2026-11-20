@@ -10,6 +10,14 @@ high live**. Live is clearly below the test (about 7 standard errors), but not c
 markets (179 events, almost all flagged on Nov 17), and its own t-stat is −0.96. The one filter that moved both the in-sample and the held-out rows the same way is a cap on
 the predicted edge (`flag_max_edge = 0.10`); it is shipped off by default and it does **not** close the gap.
 
+Re-run (§7, Nov 20 evening): the walk-forward test priced **at the real ask** instead of mid + half the spread, filters
+chosen on older weeks and judged on the newest 8, every result **per event**. On a local, evenly sampled rebuild
+(34,679 markets; production's data could not be rebuilt here) pricing at the ask changes almost nothing (mean charge
+over the history price 12.0¢ vs 12.2¢; +1.9% vs +2.1% per bet, both t < 1); no filter chosen on older weeks holds up
+on the newest weeks (23 events, −19% per event, t −0.8): too few to judge either way. Even sampling removes the
+"87% of bets in the last two weeks" concentration (0.9%), which points at the sample, not the market; that cause is
+**not confirmed** on production data (§5).
+
 Everything below is reproducible with `scripts/ledger/*.py` (python3, standard library). Data: the `live` branch
 (`git fetch origin live --depth=1`, commit `ecbc3a7`, published 2026-11-19 19:47 UTC) plus Polymarket's public Gamma and
 CLOB APIs (read-only).
@@ -25,6 +33,11 @@ python3 scripts/ledger/grade_now.py       /tmp/l/ledger.jsonl /tmp/l/ledger_now.
 python3 scripts/ledger/filters.py         /tmp/l/ledger_now.jsonl
 python3 scripts/ledger/weather.py         /tmp/l/ledger.jsonl /tmp/l/ledger_now.jsonl
 python3 scripts/ledger/split_check.py     /tmp/l/ledger.jsonl /tmp/l/ledger_now.jsonl   # §3 split, §4 summary fields
+# §7: ask premium from the live ledger, an evenly sampled rebuild, then the fold report (mid vs ask, held-out, per event)
+python3 scripts/ledger/calibrate_ask.py   /tmp/l/ledger.jsonl /tmp/l/cache /tmp/l/ask_premium.json
+python3 pipeline/fetch_closed.py --days 240 --window-days 30 --per-window 150      # writes data/ (gitignored)
+python3 pipeline/fetch_prices.py --extend --per-niche-month 300                    # run on an empty data/sample.jsonl
+python3 scripts/ledger/fold_report.py config/demo.json /tmp/l/ask_premium.json --json /tmp/l/fold_report.json
 ```
 
 ## 1. Where the site's numbers come from, reconciled
@@ -64,14 +77,15 @@ python3 scripts/ledger/split_check.py     /tmp/l/ledger.jsonl /tmp/l/ledger_now.
 - **The "1 year" test is mostly two weeks.** Live-branch run: 14,615 of 16,896 test best bets (86.5%) are in the last
   two weeks (Nov 1–14); production: 26.5K of 30.5K (87%), none before Apr 22. The earlier weeks still return +12.3%
   over 2,281 bets (32 of 40 weeks up), so the result is not *only* the last two weeks, but "Testing on 1 year of past
-  markets" overstates the span (lib/proof `testSpan` multiplies folds by days).
+  markets" overstated the span (lib/proof `testSpan` multiplied folds by days). **Fixed** (lane E now owns
+  `lib/proof.ts`): the span comes from `folds[]`, see §8.
 - **The model is too sure, live.** Predicted win rate 86.6% vs actual 77.4% on all settled rows; sports 88.4% vs
   75.9%. Flags the model rated highest did worst live: predicted edge 2–5¢ −1.6%, 5–10¢ −1.8%, 10–15¢ −3.6%, 15¢+
   −4.1%. In the production test the edge buckets earned +13.1¢, +14.0¢, +10.2¢, +16.9¢: higher rating did not
   consistently earn more, so `/track-record` should **not** say "Bets we rated higher did better" on that data.
-- **"Needs ~39 settled bets to judge" is too optimistic.** `lib/proof.betsNeeded` scales the test's t-stat (56.3)
-  as if live bets were independent; they arrive in correlated slates (179 events, one day). Not lane E's file:
-  flagged for the owner.
+- **"Needs ~39 settled bets to judge" was too optimistic.** `lib/proof.betsNeeded` scaled the test's t-stat (56.3)
+  as if live bets were independent; they arrive in correlated slates (179 events, one day). **Fixed**: replaced by
+  `eventsNeeded` (test events × (2 ÷ t)²), judged on settled US events, see §8.
 
 ## 3. The filter
 
@@ -122,18 +136,43 @@ Two caveats for the new summary fields, both in `engine/ledger.py` (not lane E's
   events, t 34.7) and 17 on the fixture, so the US record will read "enough to compare" after its first ten-odd games.
 - `intl_only` is every old row (742 of 742), not "bets US users couldn't place". The page shows the
   international-only line only once some US rows exist.
+- `vs_same_payout` ("Kismet's picks vs other bets at the same payout"): `others` are the random same-payout bets from
+  `output/control.jsonl`, logged with `event_id`, so their events are real. `picks` is `first_rows(entries)`: **every
+  pick since the ledger began**, including the rows logged before the control log existed, and counted by `id` where
+  `event_id` is missing. So the two sides cover different periods and the picks' event count is inflated. Fix at the
+  source (engine/ledger.py, not lane E's file): pair each control bet with its own `pick_id` and aggregate only those
+  picks. Until then the page shows the others' events only, and claims no difference until the others reach the same
+  events bar as the proof line. No summary has `vs_same_payout` yet (no `control.jsonl` exists on any branch I can
+  read), so the card does not render on today's data.
 
 ## 5. Why the test history is thin before September (§G3)
 
-Not re-run: `data/` lives only in the Actions cache, so this is a reading of the code, not a measurement.
-The bootstrap (`refresh.yml`, first run) calls `pipeline/fetch_closed.py` with its defaults, **the newest 2,000
-closed events per tag, ordered by end date**. Sports and weather close hundreds of events a day, so for them that
-reaches back only a few weeks; older weeks are filled only by the 730-day backfill (`mode=backfill`, up to 1,000
-events per tag per 30-day window) and `fetch_prices --extend`, which tops each niche-month up to a cap. A week also
-needs a validated category and horizon record before it yields best bets. Probable result: a sample dense in the
-last weeks and thin before, which matches 86–87% of test bets in the last two weeks. To confirm: count
-`data/sample.jsonl` rows per (category, month) in the cache, run the backfill to completion, and re-run
-`python -m engine backtest`.
+Production's run has 87% of test best bets in its last two weeks and none before Apr 22. Two causes, measured on a
+local rebuild (§7), not on production's `data/` (it lives only in the Actions cache: 1,738,882 bets, 340,380
+markets, too big to rebuild here):
+
+1. **The sample is dense at the end.** The bootstrap takes the **newest 2,000 closed events per tag**
+   (`fetch_closed.py` defaults) and `engine/update.py` then adds **every** newly closed market, uncapped, on each
+   refresh. Sports and weather close hundreds of events a day, so recent weeks get everything and older weeks only
+   what the backfill reached. Gamma itself is not thin: in a windowed backfill at a fixed 150 events per tag per 30
+   days, Apr–Aug still return 20–30K markets a month (Sep–Nov 68–88K: Polymarket listed more markets). The CLOB price
+   history is not thin either: once sampled evenly (≤ 300 markets per niche-month), 60–67% of markets in every month
+   from Apr to Nov get a usable snapshot, older months included.
+2. **The model needs a few dense weeks before it flags anything.** On the rebuild, folds before Apr 29 have up to
+   7,902 test bets each and **zero** best bets: a node needs `min_node_events` 25 and a pessimistic edge above the
+   cost, which a thin training set cannot give. The first flagged week (Apr 29) comes five weeks after the rebuild's
+   data turns dense (Mar 25); production's first (Apr 22) fits the same pattern if its own dense data starts in
+   March.
+
+With an even sample, the concentration disappears: **0.9%** of the rebuild's best bets are in its last two weeks
+(production 87%). That is consistent with cause 1 but **does not confirm it**: the rebuild has 432 best bets, not
+30.5K, and its last weeks have almost none (0 in 3 of the last 4 weeks, despite 1.3–7.7K test bets each), so it
+cannot show what production's last two weeks would look like with a capped sample. What would settle it: test bets
+per fold on production's data (backtest.json stores flags per fold, not test bets). **Owner action**: run the
+backfill to completion in `refresh.yml` (`mode=backfill`, then `fetch_prices --extend`), cap `engine/update.py`'s
+additions per niche-month the same way, and re-run `python -m engine backtest`; then compare `folds[].flags` with
+today's. Until then the site states the span it has: "past markets from Apr 22 to Nov 14, 87% of bets in the last 2
+weeks" (production) instead of "1 year".
 
 ## 6. What would actually tell us more
 
@@ -143,3 +182,75 @@ last weeks and thin before, which matches 86–87% of test bets in the last two 
 3. Embargo the training cutoff by the horizon (train on markets resolved before `fold start − 7 days`) and re-run;
    if 72 h/168 h returns fall, (a) above was doing the work.
 4. Wait for weeks, not days, of live results before judging; report them by event.
+5. Store test bets per fold (not just flags) in `backtest.json`, so the sample density behind each week is visible.
+
+## 7. Re-run: the test at the ask, filters held out, results per event
+
+**Data.** A local rebuild, not production: `fetch_closed.py --days 240 --window-days 30 --per-window 150`
+(355,488 resolved markets, end dates Mar 25–Nov 20, 2026), then `fetch_prices.py --extend --per-niche-month 300`:
+**34,679 markets, 195,466 bets, 10,733 events** (sports 52K bets, finance 11K, politics 9K, geopolitics 9K, tech 7K,
+culture 5K, weather 3.7K, crypto 0.6K). Production has 1.74M bets. Same config (`config/demo.json`), same 52 weekly
+folds, one half-life (90 days, production's choice). Script: `scripts/ledger/fold_report.py`.
+
+**Ask pricing.** `calibrate_ask.py` measures, on the 593 settled live bets, what the real ask paid over the CLOB
+history price the test uses, at the moment of flagging: median **+1.05¢** (mean +2.21¢); sports +1.0¢, weather
++1.5¢; per niche|market type only soccer moneyline (+0.5¢, 25 bets), soccer props (+1.0¢, 114), soccer totals
+(+1.5¢, 65) and weather multi-outcome (+1.5¢, 330) have 20+ bets. New backtest option `"taker_price": "ask"` (config,
+default `"mid"`, unchanged behaviour) charges that premium where a niche|market type is calibrated and keeps the
+half-spread charge elsewhere (`engine/backtest.slippage`, `engine/tests/test_ask_price.py`). Caveat: the premium is
+measured only on bets the live rule flagged, which fire where the ask sits close to the price, so it is **biased
+low**; the mean-premium run below is the sensitivity check.
+
+**(1) Mid vs ask, all folds, each event once.**
+
+| Pricing | Mean charge over history price | Best bets | Events | Return per bet | Return per event | t (event-clustered) |
+|---|---|---|---|---|---|---|
+| Mid + ½ live spread (today) | 12.21¢ | 432 | 214 | +2.1% | +0.9% | 0.80 |
+| Ask, median premium | 12.02¢ | 474 | 237 | +1.9% | +1.9% | 0.71 |
+| Ask, mean premium | 12.10¢ | 463 | 231 | +2.8% | +2.5% | 1.07 |
+
+Half the median live spread is already a bigger charge than live asks paid over the history price wherever both are
+known (e.g. soccer totals: half spread vs +1.5¢), so pricing at the ask makes the test slightly *cheaper*, not
+dearer. **The mid-vs-ask question does not explain the live gap**, which agrees with §2 (same live bets: test-style
+cost 80.67¢ vs live 80.15¢). Per fold (week of, mid → ask): Apr 29 +27.4% → +27.6% (10 events), May 20 +2.4% → +7.7%
+(40 → 46), Jun 10 +8.2% → +8.2% (41), Jun 17 −3.4% → −5.0% (38 → 40), Jul 22 +4.2% → +8.5% (9 → 23), Sep 16 +4.5% →
+−5.1% (9 → 10); every other week is identical at both pricings or has under 10 events. Full table in
+`fold_report.json` (`folds[]`).
+
+**(2) Filters chosen on older folds (Nov 19, 2025–Sep 16, 2026), reported on the newest 8 (Sep 23–Nov 11).**
+Candidates: categories with a positive per-event return on older folds (30+ events), time-to-close likewise,
+"validated" (the live rule: ≥ 100 flags, profit, t ≥ 2, per category and per horizon, computed on older folds only),
+and the 10¢ edge cap, alone and combined. Chosen = best per-event return on older folds with 100+ events.
+
+| Pricing | Chosen on older folds | Older: events, return/event | Newest 8 weeks: events, return/event, return/bet, t |
+|---|---|---|---|
+| Ask (median) | no filter | 214, +4.1% | 23, **−19.1%**, −9.8%, −0.81 |
+| Ask (mean) | time-to-close (72 h, 168 h) | 172, +4.9% | 17, −22.0%, −8.1%, −0.54 |
+| Mid | edge cap 10¢ | 136, +3.6% | 18, −15.2%, −4.0%, −0.31 |
+
+- **"Validated" selects nothing**: no category and horizon reach ≥ 100 flags with t ≥ 2 on the older folds of this
+  sample, so the live rule would show no best bets at all on it.
+- Nothing chosen on older folds carries over: every candidate is negative on the newest weeks, but on 8–23 events
+  with |t| < 2. **Too few to judge.** The newest weeks have few best bets because the model flags little there
+  (0 in 3 of the last 4 weeks), not because they were left out.
+
+**(3) Per event, not per bet.** All tables above count each event once (its bets averaged). Over all folds the
+two views agree within ~1 point (ask: +1.9% per bet, +1.9% per event; mid: +2.1% vs +0.9%); 73% of events made
+money at either pricing.
+
+## 8. What the site says now (`lib/proof.ts`, before → after)
+
+`/pricing`, `/about`, `llms.txt`, `/api/backtest`, the MCP `track_record` tool and `/track-record` all print
+`siteProof`. On the live-branch data (Nov 20):
+
+- Before: "Testing on 1 year of past markets: best bets, +14% per bet. Live since Nov 17: 742 settled bets, +1.3%,
+  enough to compare with testing." (production: "+17%"). "1 year" was folds × 7 days; "enough" compared 742 bets
+  with a bets threshold of 56, as if bets were independent.
+- After: "In testing on past markets from Nov 30, 2025 to Nov 14, 2026, 86% of bets in the last 2 weeks: best bets,
+  +14% per bet. Live since Nov 17: 742 settled bets, +1.3%." The span is the first to the last week with best bets
+  (`folds[]`); "enough to compare" / "still too few (needs ~N events)" appears only once US bets settle, judged on
+  their events: test events × (2 ÷ t)² = 2,871 × (2 ÷ 34.7)² ≈ **10 events** on this run, 17 on the fixture.
+- `/track-record` leads with the Polymarket US record (settled bets, events, return), then the whole record (each
+  bet once) with "Including international-only bets US users couldn't place: N (mostly weather)" once US rows
+  exist, and "Kismet's picks vs other bets at the same payout" beside the US record when `vs_same_payout` exists
+  (events counted on the same-payout side; see §4 for why not on the picks side).

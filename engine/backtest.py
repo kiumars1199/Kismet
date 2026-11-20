@@ -17,20 +17,37 @@ from .model import Model, DAY
 
 
 def slippage(cfg, b):
-    """Per-bet taker cost above mid: half the LIVE median spread for that niche and
-    market type (output/spreads.json, written by every scan), never below the config floor."""
+    """Per-bet taker cost above the history price. Default ("taker_price": "mid" or unset): half the LIVE median
+    spread for that niche and market type (output/spreads.json, written by every scan), never below the config floor.
+
+    "taker_price": "ask" (T-296, off by default): where a niche|market type has a calibrated premium (what the real
+    asks logged in the live ledger paid over the same history price at flag time; output/ask_premium.json from
+    scripts/ledger/calibrate_ask.py), charge that instead; elsewhere keep the half-spread charge, and with neither,
+    the category's premium, else the overall one. Never below the floor. Measured on bets the live rule flagged, so
+    the premium is biased low (flags fire where the ask sits close to the price); see docs/research/live-vs-backtest.md."""
     import os
     slip = np.full(b.n, float(cfg.taker_slippage))
-    p = cfg.path("output", "spreads.json")
-    if not os.path.exists(p):
-        return slip
-    sp = json.load(open(p))
+    ask = cfg.taker_price == "ask"
+    sp_p, pr_p = cfg.path("output", "spreads.json"), cfg.path("output", "ask_premium.json")
+    if ask and not os.path.exists(pr_p):
+        raise FileNotFoundError(f"taker_price=ask needs {pr_p} (scripts/ledger/calibrate_ask.py)")
+    sp = json.load(open(sp_p)) if os.path.exists(sp_p) else {}
+    pr = json.load(open(pr_p)) if ask else {}
+    cats = b.vocab.get("cat") or []
     for ni, niche in enumerate(b.vocab["niche"]):
         for ti, mt in enumerate(b.vocab["mt"]):
-            s = sp.get(f"{niche}|{mt}")
-            if s:
-                sel = (b.niche == ni) & (b.mt == ti)
-                slip[sel] = max(cfg.taker_slippage, s["median"] / 2)
+            key = f"{niche}|{mt}"
+            sel = (b.niche == ni) & (b.mt == ti)
+            if ask and key in pr:
+                slip[sel] = max(cfg.taker_slippage, pr[key]["median"])
+            elif key in sp:
+                slip[sel] = max(cfg.taker_slippage, sp[key]["median"] / 2)
+            elif ask and sel.any():  # seen neither live nor in a scan: the category's premium, else the overall one
+                for c in np.unique(b.cat[sel]):
+                    s = pr.get(f"cat:{cats[c]}") if len(cats) else None
+                    s = s or pr.get("all")
+                    if s:
+                        slip[sel & (b.cat == c)] = max(cfg.taker_slippage, s["median"])
     return slip
 
 

@@ -10,10 +10,10 @@ import { can } from "@/lib/entitlements";
 import { getStore } from "@/lib/data/store";
 import { ProofLine } from "@/components/results/ProofLine";
 import {
-  biggestGroup, compareSentence, intlOnlyNote, liveBase, liveHeadline, paysHeadline, ratedHigher, testHeadline, testSpanText,
-  testWeeks, trackProof, usEvents, usHeadline, weeksHeadline, type Headline,
+  biggestGroup, compareSentence, intlOnlyNote, liveHeadline, paysHeadline, ratedHigher, samePayoutHeadline, samePayoutRows,
+  testHeadline, usHeadline, weeksHeadline, type Headline,
 } from "@/components/results/summary";
-import { liveReturn, siteProof, sinceDay } from "@/lib/proof";
+import { liveBase, liveReturn, siteProof, sinceDay, testSpan, testWeeks, usEvents } from "@/lib/proof";
 import { DASH, edge, exactCount, formatCount, pct, ret } from "@/lib/format";
 import { TAXONOMY } from "@/lib/taxonomy";
 import { PAYS_READ_TEXT, bucketRows, foldRows, paysRows, recordRows, tiles } from "@/lib/trackRecord";
@@ -49,12 +49,15 @@ export default async function Page() {
 
   const ledger = store.ledgerSummary;
   const since = store.ledgerSince ?? null;
-  const proof = trackProof(siteProof({ backtest: b, ledger, since }), b, ledger, since);
+  const proof = siteProof({ backtest: b, ledger, since });
   const tw = testWeeks(b);
+  const span = testSpan(b);
+  const same = samePayoutHeadline(ledger, proof.needs);
+  const sameRows = samePayoutRows(ledger);
   const us = usHeadline(ledger);
   const live = liveHeadline(ledger, since ? sinceDay(since) : null);
   const intl = intlOnlyNote(ledger);
-  const test = testHeadline(r?.taker, tw);
+  const test = testHeadline(r?.taker, span);
   const compare = compareSentence(ledger, r?.taker);
   const weeks = weeksHeadline(folds);
   const rated = ratedHigher(buckets);
@@ -73,10 +76,24 @@ export default async function Page() {
 
       <section aria-labelledby="compare-h" className="flex flex-col gap-4">
         <h2 id="compare-h" className="sr-only">Live and testing</h2>
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className={`grid gap-4 md:grid-cols-2 ${same ? "" : "lg:grid-cols-3"}`}>
           <Card testId="us-card" kicker="Live on Polymarket US" head={us}>
             <p className="text-xs leading-relaxed text-muted">The bets a US user could actually have placed. Each bet counted once; each game is one event.</p>
           </Card>
+          {same && (
+            <Card testId="same-payout-card" kicker="Kismet's picks vs other bets at the same payout" head={same}>
+              <p className="text-xs leading-relaxed text-muted">
+                For every new pick we also log one random other bet that pays about the same, priced and graded the same way.
+                Counted in events: bets on one game or one day&apos;s weather win or lose together.
+              </p>
+              {sameRows.length > 0 && (
+                <Details summary="Details">
+                  <Table head={["Pays", "Our picks", "Same-payout bets", "Their events"]}
+                    rows={sameRows.map((x) => [x.band, ret(x.picks.roi_pct), ret(x.others.roi_pct), formatCount(x.others.events)])} />
+                </Details>
+              )}
+            </Card>
+          )}
           <Card testId="live-card" kicker="Live, every best bet" head={live}>
             {intl && <p data-testid="intl-only" className="text-xs leading-relaxed text-muted">{intl}</p>}
             <Details summary="Details">
@@ -90,7 +107,7 @@ export default async function Page() {
                 <p className="text-xs leading-relaxed text-muted">
                   &ldquo;Every bet, no filter&rdquo; buys every side of every market in the same weeks: what the fee and the spread cost
                   without a filter. Confidence (t-stat): how far the result sits from zero given its noise; above 2 is unlikely to be
-                  luck alone. {tw.withBets} of {tw.weeks} test weeks had best bets ({testSpanText(tw)}). Test last run {date(b.ran_at)}.
+                  luck alone. {tw.withBets} of {tw.weeks} test weeks had best bets{span ? ` (${span})` : ""}. Test last run {date(b.ran_at)}.
                 </p>
               </div>
             </Details>

@@ -1,10 +1,9 @@
 // T-296: /track-record in plain words (docs/OVERHAUL.md §E, §G3). One headline per section, every figure read from
 // backtest.json or ledger_summary.json, never typed in. Pure, so the page and the unit tests share it.
 // Findings behind the wording: docs/research/live-vs-backtest.md.
-import { chosenResult } from "@/lib/data/model";
 import { exactCount, formatCount, pct, ret } from "@/lib/format";
-import { JUDGE_T, liveReturn, sinceDay, type Proof } from "@/lib/proof";
-import type { BacktestFile, BacktestRecord, LedgerStats, LedgerSummary } from "@/lib/types";
+import { liveBase, liveReturn, usEvents } from "@/lib/proof";
+import type { BacktestRecord, LedgerSummary, PayoutStats } from "@/lib/types";
 import type { WeekDir } from "@/lib/trackRecord";
 
 /** Fewest bets a group needs before a section's headline uses it. */
@@ -15,20 +14,6 @@ const ok = (x: unknown): x is number => typeof x === "number" && Number.isFinite
 const tone = (x: number | null | undefined): Headline["tone"] => (!ok(x) || x === 0 ? "flat" : x > 0 ? "pos" : "neg");
 const bets = (n: number) => `${exactCount(n)} settled bet${n === 1 ? "" : "s"}`;
 const evs = (n: number) => `${exactCount(n)} event${n === 1 ? "" : "s"}`;
-
-/** The live record counted the honest way: each bet once (`first`, re-flags at a lower price dropped) when the
- *  summary has it, else the raw rows (summaries written before `first` existed). */
-export const liveBase = (l: LedgerSummary | null | undefined): LedgerStats | null => (l ? (l.first ?? l) : null);
-
-/** Distinct events among settled bets, from the US record only. engine/ledger.summarize groups by `event_id`, which
- *  rows logged before the US venue shipped don't have, so in `first` (and the raw totals) each of those markets counts
- *  as its own event (Nov 20 ledger: 739 "events" for 742 bets, really ~179 games and city-days), and that stays true
- *  as new rows arrive. Rows with a US price are all logged by the new code, which writes `event_id`, so the US
- *  record's count is the only one shown as a sample size until old rows get an `event_id`. */
-export function usEvents(l: LedgerSummary | null | undefined): number | null {
-  const u = l?.us;
-  return u?.graded && ok(u.events) ? u.events : null;
-}
 
 /** Polymarket US record (the only venue US users can trade): settled US-listed bets at the US price and fee. */
 export function usHeadline(l: LedgerSummary | null | undefined): Headline {
@@ -71,74 +56,13 @@ export function intlOnlyNote(l: LedgerSummary | null | undefined): string | null
   return `Including international-only bets US users couldn't place: ${exactCount(n)}${mostly}.`;
 }
 
-/** Where the test's bets really fall: the weeks that had any, and the share in the last two weeks. Replaces
- *  "Testing on 1 year of past markets" (folds × days), which counts weeks with no bets as tested. */
-export interface TestWeeks { first: number | null; last: number | null; weeks: number; withBets: number; total: number; lastTwoShare: number | null }
-export function testWeeks(b: BacktestFile | null | undefined): TestWeeks {
-  const folds = ((b && chosenResult(b)?.folds) ?? []) as (BacktestRecord & { start: number })[];
-  const days = ok(b?.test_days) ? (b!.test_days as number) : 7;
-  const has = folds.filter((f) => (f.flags ?? 0) > 0);
-  const total = folds.reduce((s, f) => s + (f.flags ?? 0), 0);
-  const lastTwo = folds.slice(-2).reduce((s, f) => s + (f.flags ?? 0), 0);
-  return {
-    first: has.length ? has[0].start : null,
-    last: has.length ? has.at(-1)!.start + days * 86400 - 1 : null,
-    weeks: folds.length, withBets: has.length, total,
-    lastTwoShare: total ? lastTwo / total : null,
-  };
-}
-
-/** "past markets from Aug 29 to Nov 13, 99% of bets in the last 2 weeks" */
-export function testSpanText(w: TestWeeks): string {
-  if (w.first === null || w.last === null) return "past markets";
-  const tail = w.lastTwoShare !== null && w.lastTwoShare >= 0.5 ? `, ${pct(w.lastTwoShare)} of bets in the last 2 weeks` : "";
-  const y = (t: number) => new Date(t * 1000).getUTCFullYear();
-  const day = (t: number) => (y(w.first!) === y(w.last!) ? sinceDay(t) : `${sinceDay(t)}, ${y(t)}`);
-  return `past markets from ${day(w.first)} to ${day(w.last)}${tail}`;
-}
-
 /** The testing card: the chosen walk-forward taker record. */
-export function testHeadline(r: BacktestRecord | null | undefined, w: TestWeeks): Headline {
+export function testHeadline(r: BacktestRecord | null | undefined, span: string | null): Headline {
   if (!r?.flags) return { value: "—", tone: "flat", sentence: "No test has run on this data yet." };
   return {
     value: ret(r.roi_pct), tone: tone(r.roi_pct),
-    sentence: `Return on ${formatCount(r.flags)} best bets on ${testSpanText(w)}, each picked by a model that only knew earlier weeks.`,
+    sentence: `Return on ${formatCount(r.flags)} best bets on ${span ?? "past markets"}, each picked by a model that only knew earlier weeks.`,
   };
-}
-
-/** Settled events the live record needs before it can be compared with the test: the test's events scaled by
- *  (JUDGE_T ÷ t)², the same rule as lib/proof betsNeeded but on events, the honest sample (bets on one game or one
- *  day's weather win or lose together). null when the test made no money or is too thin. */
-export function eventsNeeded(r: BacktestRecord | null | undefined): number | null {
-  if (!r || !ok(r.events) || r.events < MIN_BETS || !ok(r.roi_pct) || r.roi_pct <= 0 || !ok(r.t_stat) || r.t_stat <= 0) return null;
-  return Math.max(1, Math.ceil(r.events * (JUDGE_T / r.t_stat) ** 2));
-}
-
-/** The site proof line with the §G3 corrections for this page: the test span from folds[] (not folds × days); the
- *  live record counted by bet once; and "enough to compare" judged on events, which only the US record counts
- *  reliably (see usEvents), so with no settled US bets no call is made. `help` is kept (it starts "Testing: "). */
-export function trackProof(p: Proof, b: BacktestFile | null | undefined, l: LedgerSummary | null | undefined, since: number | null): Proof {
-  const r = b ? chosenResult(b)?.taker : null;
-  const test = r && ok(r.roi_pct) && r.flags
-    ? `In testing on ${testSpanText(testWeeks(b))}: best bets, ${ret(r.roi_pct)} per bet${r.roi_pct < 0 ? " (lost money)" : ""}.`
-    : null;
-  const s = liveBase(l);
-  const need = eventsNeeded(r);
-  const head = since ? `Live since ${sinceDay(since)}` : "Live so far";
-  const n = s?.graded ?? 0;
-  const e = usEvents(l);
-  const roi = liveReturn(s);
-  const enough = need !== null && e !== null && e >= need;
-  let live: string;
-  if (!s) live = "Live record: starts with the first logged best bet.";
-  else if (!n) live = `${head}: ${exactCount(s.entries)} logged, none settled yet.`;
-  else {
-    const us = e !== null ? `; on Polymarket US ${bets(l!.us!.graded)} in ${evs(e)}, ${ret(liveReturn(l!.us))}` : "";
-    live = need === null || e === null ? `${head}: ${bets(n)}, ${ret(roi)}${us}.`
-      : enough ? `${head}: ${bets(n)}, ${ret(roi)}${us}, enough to compare with testing.`
-        : `${head}: ${bets(n)}, ${ret(roi)}${us}, still too few to judge (needs ~${formatCount(need)} events).`;
-  }
-  return { ...p, test, live, line: [test, live].filter(Boolean).join(" "), needs: need, settled: n, liveRoi: roi, enough };
 }
 
 /** One sentence that puts live and test side by side, without judging more than the numbers allow. */
@@ -194,4 +118,35 @@ export function paysHeadline(best: Record<string, BacktestRecord | undefined> | 
   const low = best?.["<1.5x"]?.flags ?? 0;
   if (!all) return null;
   return { value: pct(low / all), tone: "flat", sentence: "of best bets pay less than 1.5x: they win often and pay little, so one loss undoes several wins." };
+}
+
+/** Kismet's picks vs other bets at the same payout (ledger_summary.vs_same_payout): for every new pick the scanner
+ *  logs one random other bet at the same payout band, graded the same way. The sample is the same-payout bets'
+ *  events (they carry event ids). The picks' own event count is not shown: `picks` holds every pick since the ledger
+ *  began, including rows logged before event ids, each counted as its own event. Judged on the same bar as the proof
+ *  line (`needs`, eventsNeeded): under it the returns are shown but no difference is claimed. */
+export interface PayoutRow { band: string; picks: PayoutStats; others: PayoutStats }
+const BANDS = ["<1.5x", "1.5-2x", "2-3x", "3-5x", "5-10x", "10x+"];
+export function samePayoutRows(l: LedgerSummary | null | undefined): PayoutRow[] {
+  const v = l?.vs_same_payout ?? {};
+  return BANDS.filter((b) => v[b]).map((b) => ({ band: b, ...v[b] }));
+}
+export function samePayoutHeadline(l: LedgerSummary | null | undefined, needs: number | null): Headline | null {
+  const all = l?.vs_same_payout?.all;
+  if (!all) return null;
+  const p = all.picks, o = all.others;
+  if (!o.graded || !p.graded) {
+    return { value: "—", tone: "flat", sentence: o.entries
+      ? `${exactCount(o.entries)} same-payout bet${o.entries === 1 ? "" : "s"} logged beside our picks, none settled yet.`
+      : "Same-payout bets are logged beside each new pick; none yet." };
+  }
+  const both = `Our picks returned ${ret(p.roi_pct)}; random bets at the same payouts returned ${ret(o.roi_pct)} over ${evs(o.events)}.`;
+  const d = ok(p.roi_pct) && ok(o.roi_pct) ? p.roi_pct - o.roi_pct : null;
+  if (d === null || needs === null || o.events < needs) {
+    const why = needs === null ? "" : ` Too few to judge yet (needs ~${formatCount(needs)} events).`;
+    return { value: "—", tone: "flat", sentence: `${both}${why}` };
+  }
+  const a = Math.abs(d);
+  const pts = `${d >= 0 ? "+" : "−"}${a >= 10 ? Math.round(a) : a.toFixed(1).replace(/\.0$/, "")} pts`;
+  return { value: pts, tone: tone(d), sentence: `${both} The difference is our picks' return minus theirs.` };
 }

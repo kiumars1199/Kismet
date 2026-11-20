@@ -2,11 +2,11 @@
 import { describe, expect, it } from "vitest";
 import fixture from "@/test/fixtures/backtest.json";
 import { ret } from "@/lib/format";
-import { siteProof } from "@/lib/proof";
+import { eventsNeeded, liveBase, siteProof, testSpan, testWeeks, usEvents } from "@/lib/proof";
 import type { BacktestFile, LedgerStats, LedgerSummary } from "@/lib/types";
 import {
-  biggestGroup, compareSentence, eventsNeeded, intlOnlyNote, liveBase, liveHeadline, ratedHigher, testHeadline, testSpanText,
-  testWeeks, trackProof, usEvents, usHeadline, weeksHeadline,
+  biggestGroup, compareSentence, intlOnlyNote, liveHeadline, ratedHigher, samePayoutHeadline, samePayoutRows, testHeadline,
+  usHeadline, weeksHeadline,
 } from "./summary";
 
 const b = fixture as unknown as BacktestFile;
@@ -55,14 +55,14 @@ describe("event counts: only the US record's", () => {
     const l: LedgerSummary = { ...base, first: S(772, 597, 0.01, 749), us: { ...S(30, 25, 0.02, 10), by_category: {} }, intl_only: S(742, 572, 0.01) };
     expect(usEvents(l)).toBe(10);
     expect(liveHeadline(l, null).sentence).toMatch(/^Return on 772 settled bets logged,/);
-    const p = trackProof(siteProof({ backtest: b, ledger: l, since: NOV17 }), b, l, NOV17);
+    const p = siteProof({ backtest: b, ledger: l, since: NOV17 });
     expect(p.live).toBe(`Live since Nov 17: 772 settled bets, ${ret(p.liveRoi)}; on Polymarket US 30 settled bets in 10 events, ${ret((0.6 / 24.4) * 100)}, still too few to judge (needs ~${eventsNeeded(taker)} events).`);
     expect(p.enough).toBe(false);
   });
   it("no settled US bets: no events, no 'enough' call, no international-only note", () => {
     const l = { ...base, first: S(742, 573, 0.0103, 739) };
     expect(usEvents(l)).toBeNull();
-    const p = trackProof(siteProof({ backtest: b, ledger: l, since: NOV17 }), b, l, NOV17);
+    const p = siteProof({ backtest: b, ledger: l, since: NOV17 });
     expect(p.live).toBe(`Live since Nov 17: 742 settled bets, ${ret(p.liveRoi)}.`);
     expect(p.enough).toBe(false);
     expect(intlOnlyNote({ ...l, intl_only: S(742, 573, 0.01) })).toBeNull();
@@ -78,19 +78,22 @@ describe("test span from folds[], not folds × days", () => {
     expect(w.lastTwoShare).toBeCloseTo((4532 + 4619) / 9666, 6);
   });
   it("reads as dates, never as '1 year'", () => {
-    expect(testSpanText(w)).toBe("past markets from Aug 29 to Nov 14, 95% of bets in the last 2 weeks");
-    expect(testHeadline(taker, w).sentence).not.toMatch(/year/);
-    expect(testSpanText(testWeeks(null))).toBe("past markets");
-    // a span across New Year names both years
-    const ny = { first: Date.UTC(2025, 10, 30) / 1000, last: Date.UTC(2026, 10, 14) / 1000, weeks: 50, withBets: 42, total: 100, lastTwoShare: 0.86 };
-    expect(testSpanText(ny)).toBe("past markets from Nov 30, 2025 to Nov 14, 2026, 86% of bets in the last 2 weeks");
+    expect(testSpan(b)).toBe("past markets from Aug 29 to Nov 14, 95% of bets in the last 2 weeks");
+    expect(testHeadline(taker, testSpan(b)).sentence).not.toMatch(/year/);
+    expect(testSpan(null)).toBeNull();
+    expect(testHeadline(taker, null).sentence).toMatch(/best bets on past markets,/);
+    // a span across New Year names both years; the last week ends 7 days after its start
+    const t = (y: number, m: number, d: number) => Date.UTC(y, m, d) / 1000;
+    const ny = { test_days: 7, chosen_half_life_days: null, results: { None: { folds: [
+      { start: t(2025, 10, 30), flags: 14 }, { start: t(2026, 10, 1), flags: 43 }, { start: t(2026, 10, 8), flags: 43 }] } } };
+    expect(testSpan(ny)).toBe("past markets from Nov 30, 2025 to Nov 14, 2026, 86% of bets in the last 2 weeks");
   });
 });
 
 describe("proof line for this page", () => {
   it("keeps the test return and the 'Testing: ' basis, judges live on events", () => {
     const l = { ...base, first, us: { ...S(60, 52, 0.03, 20), by_category: {} } };
-    const p = trackProof(siteProof({ backtest: b, ledger: l, since: NOV17 }), b, l, NOV17);
+    const p = siteProof({ backtest: b, ledger: l, since: NOV17 });
     expect(p.test).toBe(`In testing on past markets from Aug 29 to Nov 14, 95% of bets in the last 2 weeks: best bets, ${ret(taker.roi_pct)} per bet.`);
     expect(p.help).toMatch(/^Testing: /);
     const need = eventsNeeded(taker)!;
@@ -126,5 +129,35 @@ describe("headlines", () => {
     ], "Categories")!;
     expect(h.value).toBe("1 of 2");
     expect(h.sentence).toBe("Categories with at least 30 test bets made money. The biggest, Sports, returned +12%.");
+  });
+});
+
+describe("Kismet's picks vs other bets at the same payout", () => {
+  const P = (graded: number, roi_pct: number | null, events: number, entries = graded) =>
+    ({ entries, graded, wins: 0, avg_pnl: null, roi_pct, events });
+  const bands = (all: { picks: ReturnType<typeof P>; others: ReturnType<typeof P> }) => ({ ...base, vs_same_payout: {
+    "2-3x": { picks: P(4, 10, 3), others: P(4, -5, 4) },
+    "<1.5x": { picks: P(20, 3, 6), others: P(20, 1, 7) },
+    all,
+  } });
+  it("no comparison yet: no card", () => {
+    expect(samePayoutHeadline(base, 17)).toBeNull();
+    expect(samePayoutRows(base)).toEqual([]);
+  });
+  it("logged but unsettled", () => {
+    const l = { ...base, vs_same_payout: { all: { picks: P(0, null, 0, 5), others: P(0, null, 0, 5) } } };
+    expect(samePayoutHeadline(l, 17)!.sentence).toBe("5 same-payout bets logged beside our picks, none settled yet.");
+  });
+  it("under the events bar: both returns, no difference claimed; the picks' (inflated) event count never shown", () => {
+    const h = samePayoutHeadline(bands({ picks: P(24, 4.2, 23), others: P(24, -1.3, 10) }), 17)!;
+    expect(h).toMatchObject({ value: "—", tone: "flat" });
+    expect(h.sentence).toBe(`Our picks returned ${ret(4.2)}; random bets at the same payouts returned ${ret(-1.3)} over 10 events. Too few to judge yet (needs ~17 events).`);
+    expect(h.sentence).not.toMatch(/23/);
+  });
+  it("over the bar: the difference in points; bands in payout order", () => {
+    const l = bands({ picks: P(60, 4.2, 40), others: P(60, -1.3, 20) });
+    expect(samePayoutHeadline(l, 17)).toMatchObject({ value: "+5.5 pts", tone: "pos" });
+    expect(samePayoutHeadline(l, null)!.value).toBe("—");   // no positive test result: no bar, no claim
+    expect(samePayoutRows(l).map((x) => x.band)).toEqual(["<1.5x", "2-3x"]);
   });
 });

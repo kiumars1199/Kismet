@@ -143,6 +143,21 @@ don't redo it: merge that PR into `final` before any lane touches `engine/` or t
      weeks and none before Apr 22. Find out why history before September is thin, fix it if it's a data gap, and
      re-run the test.
    - Check: screenshots + `docs/research/live-vs-backtest.md` numbers.
+   - Next to the US record: "Kismet's picks vs other bets at the same payout" (`vs_same_payout`), counting events.
+   - **Status (lane E, T-296):**
+     - Done in `lib/proof.ts`, so /pricing, /about, llms.txt, the MCP tool and /track-record all show it:
+       - The span comes from `folds[]`: "past markets from Apr 22 to Nov 14, 87% of bets in the last 2 weeks".
+       - "Needs" is counted in events and judged on the US record's events only.
+     - /track-record order:
+       1. US record.
+       2. Same-payout card, which renders once `vs_same_payout` exists. It is gated on events.
+       3. Whole record (`first`) with the international-only line.
+       4. Test.
+     - Thin history: the sample is dense at the end and the model needs warm-up. On an evenly sampled local rebuild
+       the last-2-weeks share is 0.9%, not 87%. This is not confirmed on production; the owner must re-run the
+       backfill. See research doc §5.
+     - Ask pricing, held-out filters and per-event results: research doc §7. Before/after text: research doc §8.
+     - Engine-side gap: `vs_same_payout.picks` includes picks from before the control log existed. See §4 of the doc.
 4. **US-native scan (engine, after the PR merges).** Politics, culture, crypto and macro on Polymarket US don't
    match international contracts, so score them directly:
    - Run the model on US markets at US prices, with fee 0.095.
