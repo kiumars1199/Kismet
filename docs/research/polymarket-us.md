@@ -109,4 +109,4 @@ The US record starts the first scan after deploy. Earlier rows have no US price 
 - /track-record: show the US record first, with events as the sample size.
 - A US-native scan for politics, culture, crypto and macro, which don't match international contracts.
 - Make the record mostly US and spread out (§G).
-- Verify the US market URL (`https://polymarket.us/market/<slug>`) opens the market on phone and desktop.
+- Verified 2026-11-20 (T-307, docs/overhaul-evidence/G): `https://polymarket.us/market/<slug>` does NOT open the market (307 to the home page on desktop, to the app-install link on iPhone). Links use `https://polymarket.us/event/<event slug>` (sports events redirect to `/sports/<league>/<slug>`).
