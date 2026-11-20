@@ -20,7 +20,7 @@ export function KalshiNum({ children, what = "Price" }: { children: ReactNode; w
 export function KalshiLink({ href, children, className = "" }: { href: string; children: ReactNode; className?: string }) {
   return (
     <a href={href} target="_blank" rel="noopener noreferrer"
-      className={`group inline-flex items-baseline gap-1 underline-offset-4 hover:text-accent hover:underline focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${className}`}>
+      className={`group inline-flex min-h-11 items-center gap-1 underline-offset-4 hover:text-accent hover:underline focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${className}`}>
       {children}
       <svg aria-hidden="true" viewBox="0 0 12 12" className="size-2.5 shrink-0 self-center text-muted group-hover:text-accent" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
         <path d="M4.5 2.5h5v5M9.5 2.5 3 9" />

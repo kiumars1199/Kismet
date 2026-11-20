@@ -53,7 +53,7 @@ function Highlight({ label, q }: { label: string; q: string }) {
 
 export function SearchCombobox() {
   return (
-    <Suspense fallback={<div className="h-[42px] w-full max-w-[340px] rounded-input border border-border bg-input" />}>
+    <Suspense fallback={<div className="h-11 w-full max-w-[340px] rounded-input border border-border bg-input" />}>
       <Combobox />
     </Suspense>
   );
@@ -257,7 +257,7 @@ function Combobox() {
         : "relative w-full max-w-[340px]"}
     >
       <div className="flex items-center gap-2">
-        <label className="flex min-h-[42px] flex-1 items-center gap-2.5 rounded-input border border-border bg-input px-3.5 text-muted transition-colors duration-150 focus-within:border-accent">
+        <label className="flex min-h-11 flex-1 items-center gap-2.5 rounded-input border border-border bg-input px-3.5 text-muted transition-colors duration-150 focus-within:border-accent">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></svg>
           <span className="sr-only">Search markets</span>
           <input

@@ -47,8 +47,9 @@ export function LegalPage({ title, intro, sections }: { title: string; intro: Re
           </div>
         </section>
       ))}
-      <nav aria-label="Legal pages" className="flex flex-wrap gap-x-4 gap-y-2 border-t border-border pt-5 text-sm text-muted">
-        {LEGAL_PAGES.map((p) => <Link key={p.href} href={p.href} className="hover:text-text">{p.label}</Link>)}
+      <nav aria-label="Legal pages" className="-mx-2 flex flex-wrap gap-x-1 border-t border-border pt-3 text-sm text-muted">
+        {/* §D (R2-8): 44 px tap targets on a phone */}
+        {LEGAL_PAGES.map((p) => <Link key={p.href} href={p.href} className="inline-flex min-h-11 min-w-11 items-center justify-center px-2 hover:text-text">{p.label}</Link>)}
       </nav>
     </article>
   );

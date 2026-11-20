@@ -8,7 +8,7 @@ const PAGES = ["/", "/bets", "/markets", "/combos", "/watchlist", "/journal", "/
   "/disclaimer", "/refunds", "/maintenance", "/no-such-page"];
 
 for (const url of PAGES) test(`iPhone ${url}`, async ({ page }, info) => {
-  await checkPage(page, url, info);
+  await checkPage(page, url, info, url === "/no-such-page" ? { status: 404 } : {});   // the not-found page must say 404
 });
 
 test("iPhone event and market pages", async ({ page }, info) => {

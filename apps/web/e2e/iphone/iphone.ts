@@ -38,7 +38,10 @@ export async function smallTargets(page: Page): Promise<Problem[]> {
       if (el.closest("[aria-hidden=true], [inert]")) continue;
       // a visually hidden skip link etc.
       if (r.width <= 1 && r.height <= 1) continue;
-      const inlineText = cs.display === "inline" && !!el.closest("p, li, dd, label, figcaption, small, td");
+      // in a sentence: an inline link whose parent block holds other text too (WCAG 2.5.8 "inline" exception)
+      const host = el.parentElement;
+      const inSentence = cs.display === "inline" && !!host && (host.textContent ?? "").trim().length > (el.textContent ?? "").trim().length + 20;
+      const inlineText = cs.display === "inline" && (!!el.closest("p, li, dd, label, figcaption, small, td") || inSentence);
       if (inlineText) continue;
       // a control wrapped by a label that is itself big enough counts as the label's size
       const label = el.closest("label");
@@ -89,10 +92,11 @@ export async function coveredContent(page: Page): Promise<Problem[]> {
   });
 }
 
-export async function checkPage(page: Page, url: string, info: TestInfo, opts: { settle?: (p: Page) => Promise<void> } = {}) {
+export async function checkPage(page: Page, url: string, info: TestInfo, opts: { settle?: (p: Page) => Promise<void>; status?: number } = {}) {
   await watchFlashes(page);
   const res = await page.goto(url, { waitUntil: "domcontentloaded" });
-  expect(res?.status(), `${url} status`).toBeLessThan(400);
+  if (opts.status) expect(res?.status(), `${url} status`).toBe(opts.status);
+  else expect(res?.status(), `${url} status`).toBeLessThan(400);
   await page.waitForLoadState("networkidle").catch(() => {});
   await opts.settle?.(page);
   await page.waitForTimeout(300);

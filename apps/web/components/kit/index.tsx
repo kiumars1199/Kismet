@@ -92,9 +92,11 @@ export function Switch({ checked, onChange, label: l }: { checked: boolean; onCh
   return (
     <button
       type="button" role="switch" aria-checked={checked} aria-label={l} onClick={() => onChange(!checked)}
-      className={`relative inline-flex h-7 w-12 flex-none items-center rounded-full border transition-colors ${checked ? "border-accent bg-accent" : "border-border bg-muted-bg"}`}
+      className="group inline-flex h-11 w-14 flex-none items-center justify-center"   // §D (R2-8): 44 px hit area around the 48×28 track
     >
-      <span className={`inline-block size-5 rounded-full bg-text transition-transform ${checked ? "translate-x-6 bg-on-accent" : "translate-x-1"}`} />
+      <span className={`relative inline-flex h-7 w-12 items-center rounded-full border transition-colors ${checked ? "border-accent bg-accent" : "border-border bg-muted-bg"}`}>
+        <span className={`inline-block size-5 rounded-full bg-text transition-transform ${checked ? "translate-x-6 bg-on-accent" : "translate-x-1"}`} />
+      </span>
     </button>
   );
 }

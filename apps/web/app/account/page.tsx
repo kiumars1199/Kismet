@@ -26,7 +26,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ c
     return (
       <div className="mx-auto flex max-w-3xl flex-col gap-6">
         <PageTitle title="Account" sub={accountsOffNote()} />
-        <Link href="/settings" className="w-fit text-accent-hover underline-offset-4 hover:underline">Open settings</Link>
+        <Link href="/settings" className="inline-flex min-h-11 w-fit items-center text-accent-hover underline-offset-4 hover:underline">Open settings</Link>
       </div>
     );
   }

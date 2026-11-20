@@ -12,7 +12,7 @@ import { AccountLink } from "@/components/auth/AccountLink";
 
 export function Logo() {
   return (
-    <Link href="/" className="flex flex-none items-center gap-2 font-heading text-lg font-bold tracking-[-0.01em]">
+    <Link href="/" className="flex min-h-11 flex-none items-center gap-2 font-heading text-lg font-bold tracking-[-0.01em]">
       {/* Mark: the Space Grotesk Bold "K" of the wordmark as a path, so it matches app/icon.svg at every size */}
       <svg width="28" height="28" viewBox="0 0 32 32" aria-hidden="true" className="shrink-0">
         <rect width="32" height="32" rx="9" fill="var(--accent)" />
@@ -29,7 +29,7 @@ export function Logo() {
 // real thing (the search box's own Suspense fallback; the bell's 44 px button), so the header does not move.
 const SearchCombobox = dynamic(() => import("@/components/search/SearchCombobox").then((m) => m.SearchCombobox), {
   ssr: false,
-  loading: () => <div className="h-[42px] w-full max-w-[340px] rounded-input border border-border bg-input" />,
+  loading: () => <div className="h-11 w-full max-w-[340px] rounded-input border border-border bg-input" />,
 });
 const Bell = dynamic(() => import("@/components/header/Bell").then((m) => m.Bell), {
   ssr: false,
