@@ -96,3 +96,26 @@ Not monotonic; weak evidence on returns. The cap does what it's for: one game's 
 
 ## G6. Polymarket US link — PASS (pattern changed)
 `/market/<slug>` does **not** open the market (desktop: 307 to home; iPhone: 307 to the app-install link). `/event/<event slug>` does, on both. `US_URL` is now `https://polymarket.us/event/{slug}`; 60 of 60 sampled sports twins confirmed. Raw: `docs/overhaul-evidence/G/linkcheck.json`; screenshots `docs/overhaul-evidence/G/shots/` (desktop Chromium 1440×900 and WebKit iPhone 15 for each URL).
+
+## F1. US users and Polymarket US — PASS (via PR #3 + G1)
+- Research: `docs/research/polymarket-us.md`. US residents can only trade on Polymarket US (CFTC, KYC); international order placement is geoblocked for them. Public API `gateway.polymarket.us` (no key, 25 req/s). Fee Θ·p(1−p), Θ = 0.095. 27% of our scan (6,775 of 24,937) is listed on US, all sports; median price gap vs international 0.5¢; a US user pays +0.58¢ per share median on the same bet.
+- Fix built: every market carries `us` (link, side, US ask, fee, edge) or null; the ledger grades a separate US record (PR #3, merged via overhaul); US-native markets scored behind `US_NATIVE_SCAN` (G4); links use the working `/event/` pattern (G6). Card side: see G1.
+- F1's own WIP fetcher (`f6a1e28`) is not merged (decision 4). Its independent findings agreed with PR #3: same gateway endpoints, 27% exact-bet coverage, 46/46 sides agreeing.
+
+## F2. Stale-data alarm — PASS
+`ops/stale_alarm.mjs` + `.github/workflows/stale-alarm.yml` (every 15 min, reads `/api/meta`, Resend to the ops inbox when the scan is > 45 min old or the site errors; one alert + one all-clear per incident; state in the Actions cache).
+```
+node --test ops/tests/stale-alarm.test.mjs
+ok 1 - a stale timestamp across several consecutive runs sends exactly one alert, recovery exactly one all-clear
+ok 2 - 45 min exactly is fine; 46 is stale
+ok 3 - site error path: HTTP 500 / network failure over consecutive runs is one alert, recovery one all-clear
+... 9 of 9 pass
+```
+Limit: scheduled workflows run from the default branch's copy, so the alarm starts once this reaches it. Details: `docs/overhaul-evidence/F234/NOTES.md`.
+
+## F3. Funnel tracking — PASS
+Steps: landing_view, signup_start, upgrade_view (signed out, per visit); signup_done, first_bets_view, first_bet_click, checkout_start, trial_start, paid (once per account, enforced by `unique(user_id, event)` in `funnel_events`). PostHog gets a capture only for a new row. Admin page `/admin/funnel` (totals, step conversion, daily counts; screenshot `docs/overhaul-evidence/F234/admin-funnel.png`).
+e2e: `e2e-paid/overhaul-funnel.spec.ts` walks the funnel with repeats (reloads, second click, Stripe retry, renewal) and asserts each step once, and that a forged `paid` from the browser gets 400 — 2 passed. Unit: `lib/funnel.test.ts` 12, `test/funnel-db.test.ts` 5 (PGlite, all migrations).
+
+## F4. Lifecycle emails — PASS
+Welcome (3-line card explainer, unsubscribe + List-Unsubscribe), trial ends in 2 days with how to cancel (daily cron), receipt on first paid invoice, cancel confirmation. Sent once each via a claim row (`lifecycle_emails` PK user/kind/ref). `lib/email/lifecycle.test.ts` (15 tests) renders each, checks every link resolves to a real app route, and checks unsubscribe on the optional mail only (receipt, cancel and the trial notice are transactional/required). No real email sent; Resend mocked.
