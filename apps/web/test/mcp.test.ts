@@ -134,6 +134,26 @@ describe("auth (T-280)", () => {
     expect(seen).not.toHaveBeenCalled();
   });
 
+  it("MCP-c: expired, malformed and site-session tokens are refused locally and never block the client", async () => {
+    const { supabaseVerifier } = await import("@/lib/mcp/auth");
+    _setVerifier({ verifyAccessToken: (t: string) => (t === "good" ? verifier.verifyAccessToken(t) : supabaseVerifier.verifyAccessToken(t)) });
+    const jwt = (claims: object) => `x.${Buffer.from(JSON.stringify(claims)).toString("base64url")}.sig`;
+    const past = Math.floor(Date.now() / 1000) - 60;
+    const req = (t: string) => POST(rpcReq({ jsonrpc: "2.0", id: 1, method: "tools/list", params: {} }, t));
+    for (let i = 0; i < 40; i++) expect((await req(jwt({ sub: `u${i}`, client_id: "c1", exp: past }))).status).toBe(401);
+    for (let i = 0; i < 40; i++) expect((await req(`junk${i}`)).status).toBe(401);
+    for (let i = 0; i < 40; i++) expect((await req(jwt({ sub: `u${i}`, exp: past + 3600 }))).status).toBe(401);
+    expect((await req("good")).status).toBe(200);   // a first-time valid token: the client isn't blocked
+  });
+
+  it("MCP-c: once a client is blocked for tokens Supabase rejected, tokens it verified recently still pass", async () => {
+    const req = (t: string) => POST(rpcReq({ jsonrpc: "2.0", id: 1, method: "tools/list", params: {} }, t));
+    expect((await req("good")).status).toBe(200);
+    for (let i = 0; i < 31; i++) expect((await req(`forged${i}`)).status).toBe(401);
+    expect((await req("forged-more")).status).toBe(429);
+    expect((await req("good")).status).toBe(200);
+  });
+
   it("refuses everything when accounts are off and no verifier is forced (demo mode never opens the endpoint)", async () => {
     _setVerifier(null);
     const res = await POST(rpcReq({ jsonrpc: "2.0", id: 1, method: "tools/list", params: {} }));
@@ -177,6 +197,10 @@ describe("auth (T-280)", () => {
     const ok = await supabaseVerifier.verifyAccessToken(jwt({ sub: USER.id, client_id: "c1", exp }));
     expect(ok).toMatchObject({ clientId: "c1", expiresAt: exp, extra: { user: { id: USER.id } } });
     await expect(supabaseVerifier.verifyAccessToken(jwt({ sub: USER.id, exp }))).rejects.toThrow(/OAuth/);   // site session token
+    const calls = getUser.mock.calls.length;
+    await expect(supabaseVerifier.verifyAccessToken(jwt({ sub: USER.id, client_id: "c1", exp: 1 }))).rejects.toThrow(/expired/);
+    await expect(supabaseVerifier.verifyAccessToken("not-a-jwt")).rejects.toThrow(/Malformed/);
+    expect(getUser.mock.calls.length).toBe(calls);   // refused locally: Supabase not asked
     await expect(supabaseVerifier.verifyAccessToken(jwt({ sub: "someone-else", client_id: "c1", exp }))).rejects.toThrow(/subject/);
     getUser.mockResolvedValueOnce({ data: { user: null }, error: { status: 403, message: "bad jwt" } } as never);
     await expect(supabaseVerifier.verifyAccessToken(jwt({ sub: USER.id, client_id: "c1", exp }))).rejects.toMatchObject({ code: "invalid_token" });
@@ -185,6 +209,8 @@ describe("auth (T-280)", () => {
       () => getUser.mockResolvedValueOnce({ data: { user: null }, error: { name: "AuthRetryableFetchError", status: 0, message: "fetch failed" } } as never),
       () => getUser.mockResolvedValueOnce({ data: { user: null }, error: { status: 503, message: "down" } } as never),
       () => getUser.mockRejectedValueOnce(new TypeError("fetch failed")),
+      () => getUser.mockResolvedValueOnce({ data: { user: null }, error: { status: 429, message: "slow down" } } as never),
+      () => getUser.mockResolvedValueOnce({ data: { user: null }, error: { status: 408, message: "timeout" } } as never),
     ]) {
       fail();
       await expect(supabaseVerifier.verifyAccessToken(jwt({ sub: USER.id, client_id: "c1", exp }))).rejects.toMatchObject({ code: "server_error" });

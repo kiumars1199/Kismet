@@ -10,12 +10,13 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { ApiGroup, ApiRow } from "@/lib/api";
 import type { SortKey } from "@/lib/filters/state";
 import type { FilterState } from "@/lib/filters/state";
-import { basis, chance, DASH, edge, money, pays, PAYS_HELP, pct, price, RETURN_HELP, sideRet, sideEdge, formatCount } from "@/lib/format";
+import { basis, DASH, edge, money, pays, PAYS_HELP, pct, price, RETURN_HELP, sideRet, sideEdge, formatCount } from "@/lib/format";
 import { WatchStar } from "@/components/watch/WatchStar";
 import { drawerHref, useOpenDrawer } from "@/components/market/drawer";
 import { AlertLink, Notes, Val } from "@/components/market/bits";
 import { VenueIconLink } from "@/components/trade/TradeButton";
 import { VERDICT_LABEL, chanceTone, returnTone, rowNotes, topicLabel } from "@/components/market/labels";
+import { sideChance } from "@/lib/betFigures";
 
 export type Item =
   | { kind: "group"; g: ApiGroup }
@@ -48,7 +49,7 @@ function columns(pro: boolean): Col[] {
     h.display({ id: "says", header: "Market says", meta: { label: "Market says", sort: "price", right: true }, cell: ({ row: { original: r } }) => <Val v={pct(r.side.ask)} /> }),
     h.display({
       id: "chance", header: "Chance", meta: { label: "Chance" },
-      cell: ({ row: { original: r } }) => { const c = chance(r.side.win_prob); return <span className={`whitespace-nowrap ${chanceTone(c)}`}>{c ?? <Val v={DASH} />}</span>; },
+      cell: ({ row: { original: r } }) => { const c = sideChance(r.side); return <span className={`whitespace-nowrap ${chanceTone(c)}`}>{c ?? <Val v={DASH} />}</span>; },
     }),
     h.display({ id: "closes", header: "Closes", meta: { label: "Closes", sort: "closes", right: true }, cell: ({ row: { original: r } }) => <span className="whitespace-nowrap"><ClosesIn at={r.market.closes_at} /></span> }),
     h.display({ id: "topic", header: "Topic", meta: { label: "Topic" }, cell: ({ row: { original: r } }) => <span className="whitespace-nowrap text-xs text-muted">{topicLabel(r.market)}</span> }),

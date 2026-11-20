@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ago, basis, chance, closesIn, countdown, edge, exactCount, expectedProfit, formatCount, money, pays, payoutIfWins, payoutMoney, pct, price, realisticReturn, recordLabel, ret, sidePts, testedLine, usd, utcWhen, winsAbout } from "./format";
+import { ago, basis, chance, closesIn, countdown, edge, exactCount, expectedProfit, formatCount, money, pays, payoutIfWins, payoutMoney, pct, price, realisticReturn, recordLabel, ret, testedLine, usd, utcWhen, winsAbout } from "./format";
 
 describe("docs/18 numbers", () => {
   it("formatCount rounds down, never up", () => {
@@ -11,8 +11,9 @@ describe("docs/18 numbers", () => {
     expect(exactCount(1_333_014)).toBe("1,333,014");
   });
   it("wins about, points and the tested line", () => {
-    expect([0.14, 0.1, 0.33, 0.5, 0.75, 0.97, 0].map(winsAbout)).toEqual(["1 in 7", "1 in 10", "1 in 3", "5 in 10", "8 in 10", "9 in 10", "—"]);
-    expect([sidePts({ edge: 0.04 }), sidePts({ edge: 0.011 }), sidePts({ edge: 0.03, ranges: { roi_pct: [0, 5], edge: [0.02, 0.05] } })]).toEqual(["+4 pts", "+1 pt", "+2–5 pts"]);
+    // T-289 (outside tester): 85% read "9 in 10"; now two tenths when it sits between them. 75% was "8 in 10" (spec changed).
+    expect([0.14, 0.1, 0.33, 0.5, 0.75, 0.97, 0].map(winsAbout)).toEqual(["1 in 7", "1 in 10", "1 in 3", "5 in 10", "7–8 in 10", "over 9 in 10", "—"]);
+    // the points label moved to lib/betFigures gapPts (won − price); see lib/betFigures.test.ts
     expect(testedLine({ flags: 111, win_rate: 0.0541, roi_pct: -41.85 })).toBe("Bets like this: won 5% of the time, lost money in testing (−42%)");
     expect(testedLine({ flags: 1186, win_rate: 0.14, roi_pct: 6 })).toBe("Bets like this: won 14% of the time, +6% return in testing");
     expect(testedLine({ combos: 2001, win_rate: 0.65, roi_pct: 25.71 }, "3-leg combos")).toBe("3-leg combos: won 65% of the time, +26% return in testing");

@@ -161,22 +161,18 @@ export function formatCount(n: number | null | undefined): string {
 /** exact count for the hover: 9666 → "9,666" */
 export const exactCount = (n: number | null | undefined) => (ok(n) ? Math.round(n).toLocaleString("en-US") : DASH);
 
-/** docs/18 §6 "wins about 1 in 7": under 50% as 1 in N; from 50% as K in 10 (capped at 9, so it never reads as certain). */
+/** docs/18 §6 / docs/19 P4 "wins about 1 in 7", "wins about 8–9 in 10". Under 35% as 1 in N (N = 1 ÷ p, rounded);
+ *  from 35% in tenths: within a quarter of a whole tenth it's that tenth, else the two tenths around it (85% →
+ *  "8–9 in 10", never a rounded-up "9"). From 92.5% "over 9 in 10", so it never reads as certain. */
 export function winsAbout(p: number | null | undefined): string {
   if (!ok(p) || p <= 0) return DASH;
-  if (p < 0.5) return `1 in ${Math.max(2, Math.round(1 / p))}`;
-  return `${Math.min(9, Math.max(5, Math.round(p * 10)))} in 10`;
-}
-/** docs/18 §6 edge as points of win chance above the price: 0.04 → "+4 pts"; the Free tier gets its band "+2–5 pts". */
-export function sidePts(s: Pick<Side, "edge" | "ranges">): string {
-  const pt = (e: number) => Math.round(e * 100);
-  if (s.ranges) {
-    const [lo, hi] = s.ranges.edge;
-    return lo === null ? `under ${pt(hi ?? 0)} pts` : hi === null ? `over +${pt(lo)} pts` : `+${pt(lo)}–${pt(hi)} pts`;
-  }
-  if (!ok(s.edge)) return DASH;
-  const p = pt(s.edge);
-  return `${p < 0 ? "−" : "+"}${Math.abs(p)} ${Math.abs(p) === 1 ? "pt" : "pts"}`;
+  if (p < 0.35) return `1 in ${Math.round(1 / p)}`;
+  if (p >= 0.925) return "over 9 in 10";
+  const t = Math.round(p * 1000) / 100;   // tenths, clean of float noise (0.85 * 10 = 8.5 exactly, 0.7 * 10 = 7.000…01)
+  const lo = Math.floor(t), f = t - lo;
+  if (f <= 0.25) return `${lo} in 10`;
+  if (f >= 0.75) return `${lo + 1} in 10`;
+  return `${lo}–${lo + 1} in 10`;
 }
 /** How a payout band (or combo size) did in the walk-forward test, docs/18 §2. Losing records always say
  *  "lost money in testing": labelled, never hidden. Null when nothing was tested. */

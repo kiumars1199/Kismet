@@ -1,2 +1,0 @@
-# 10 signed-in (premium) fetches of /no-such-page on the wired prod build; md5 after removing CSP nonces
-     10 7c58f96c

@@ -1,5 +1,5 @@
-const { chromium } = require("/home/user/wt-audit3/apps/web/node_modules/@playwright/test");
-const Stripe = require("/home/user/wt-audit3/apps/web/node_modules/stripe");
+const { chromium } = require("/tmp/claude-0/-home-user-MarketEdge/2e8d356b-d1b5-5401-91e6-9f451833b42c/scratchpad/clean6/apps/web/node_modules/@playwright/test");
+const Stripe = require("/tmp/claude-0/-home-user-MarketEdge/2e8d356b-d1b5-5401-91e6-9f451833b42c/scratchpad/clean6/apps/web/node_modules/stripe");
 const { createHash, createHmac, randomUUID } = require("crypto");
 const base = process.argv[2]; const SECRET = process.env.STRIPE_WEBHOOK_SECRET // the mock's fake secret, see setup/mock3160.sh;
 async function retry(fn, ms = 90000) { const t = Date.now(); let e; while (Date.now() - t < ms) { try { return await fn(); } catch (x) { e = x; await new Promise(r => setTimeout(r, 1500)); } } throw e; }
@@ -28,7 +28,7 @@ const evt = (type, object, id = `evt_audit_${randomUUID().slice(0, 8)}`) => ({ i
 (async () => {
   const browser = await chromium.launch();
   // A. checkout -> webhook -> tier up
-  const email = `audit3-bill-${Date.now()}@example.com`;
+  const email = `audit4-bill-${Date.now()}@example.com`;
   const { ctx, page } = await signIn(browser, email);
   log("A0 before checkout:", (await tier(page)).tier);
   await page.goto("/pricing"); await page.getByTestId("checkout-pro").first().click(); await page.waitForURL(/\/account\?checkout=success/, { timeout: 60000 });
@@ -54,7 +54,7 @@ const evt = (type, object, id = `evt_audit_${randomUUID().slice(0, 8)}`) => ({ i
   const canceled = (await (await page.request.get(`/e2e-mock/stripe/v1/subscriptions/${subId}`)).json());
   log("D2 period ends: Stripe status", canceled.status, "→ subscription.deleted:", await send(page, evt("customer.subscription.deleted", canceled)), "tier", (await tier(page)).tier, "status", (await tier(page)).status);
   // E. Payment Link path: client_reference_id
-  const email2 = `audit3-link-${Date.now()}@example.com`;
+  const email2 = `audit4-link-${Date.now()}@example.com`;
   const u2 = await signIn(browser, email2);
   const uid = (await exp(u2.page)).account.id;
   const body = `${uid}_${Date.now() + 7 * 86400000}`;

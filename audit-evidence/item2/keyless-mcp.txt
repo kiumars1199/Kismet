@@ -1,5 +1,0 @@
-# keyless production build (no Supabase env), from the run-3 session log
-POST /api/mcp            -> 401 {"error":"invalid_token","error_description":"Sign-in is not configured"}
-GET /.well-known/oauth-protected-resource          -> 404
-GET /.well-known/oauth-protected-resource/api/mcp  -> 404
-GET /api/health          -> 503 (no Upstash, by design)
