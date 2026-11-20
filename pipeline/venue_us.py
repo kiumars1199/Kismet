@@ -22,7 +22,10 @@ from .common import http
 
 US_GATEWAY = "https://gateway.polymarket.us"
 US_FEE = 0.095        # taker coefficient, Tier 1 (< $10k 30-day volume): every casual user (docs.polymarket.us/fees)
-US_URL = "https://polymarket.us/market/{slug}"
+# Event page (G6 link check, Nov 20, docs/overhaul-evidence/G/NOTES.md): /event/<event slug> opens the market's
+# event on desktop and iPhone browsers, and sports events redirect to /sports/<league>/<event slug>.
+# /market/<market slug> does NOT: desktop gets a 307 to the home page, iPhone a 307 to an app-install link.
+US_URL = "https://polymarket.us/event/{slug}"
 MAX_MID_GAP = 0.12    # oriented mids further apart than this are not the same market (or one book is broken)
 PAGE = 500
 
@@ -33,8 +36,18 @@ def _f(q):
         return None
 
 
+def _long_first(m, outs):
+    """Outcomes with the long side first. bestBid/bestAsk and /settlement belong to the long side, but `outcomes`
+    is not always listed in that order (on Nov 20 about half of the politics and culture futures listed "No"
+    first; sports game lines were in order). marketSides[].long names the long side. Unknown -> as listed."""
+    lng = next((s.get("description") for s in m.get("marketSides") or [] if s.get("long")), None)
+    if lng is not None and lng == outs[1] and lng != outs[0]:
+        return [outs[1], outs[0]]
+    return outs
+
+
 def fetch_open(get=http, log=print):
-    """All open US markets as compact dicts keyed by slug."""
+    """All open US markets as compact dicts keyed by slug. outcomes[0] is the long side (bid/ask are its prices)."""
     out, off = {}, 0
     while True:
         d = get("GET", f"{US_GATEWAY}/v1/markets", params=dict(limit=PAGE, offset=off, active="true",
@@ -47,15 +60,54 @@ def fetch_open(get=http, log=print):
                 continue
             if len(outs) != 2 or m.get("hidden") or m.get("status") != "MARKET_STATUS_OPEN":
                 continue
-            out[m["slug"]] = dict(slug=m["slug"], question=m.get("question") or "", outcomes=outs,
+            out[m["slug"]] = dict(slug=m["slug"], question=m.get("question") or "", outcomes=_long_first(m, outs),
                                   bid=_f(m.get("bestBidQuote")), ask=_f(m.get("bestAskQuote")),
                                   fee=float(m.get("feeCoefficient") or US_FEE), category=m.get("category"),
-                                  end=m.get("endDate"))
+                                  end=m.get("endDate"), id=str(m.get("id") or ""), title=m.get("title") or "",
+                                  start=m.get("gameStartTime"))
         if len(ms) < PAGE or off > 100_000:
             break
         off += PAGE
     log(f"polymarket us: {len(out)} open binary markets")
     return out
+
+
+def fetch_events(categories, get=http, log=print):
+    """market slug -> its event (slug, id, title, end) for open events in `categories` (US category names).
+    The markets listing has no event slug, and the event's endDate is the real close (a market's endDate is the
+    settlement deadline: +30 min for crypto hourlies, about a week for gas weeklies)."""
+    out = {}
+    for c in categories:
+        off = 0
+        while True:
+            es = (get("GET", f"{US_GATEWAY}/v1/events", params=dict(limit=PAGE, offset=off, active="true",
+                                                                       closed="false", categories=c))
+                  or {}).get("events") or []
+            for e in es:
+                ev = dict(slug=e.get("slug"), id=str(e.get("id") or ""), title=e.get("title") or "",
+                          end=e.get("endDate"))
+                for m in e.get("markets") or []:
+                    if m.get("slug") and ev["slug"]:
+                        out.setdefault(m["slug"], ev)
+            if len(es) < PAGE or off > 100_000:
+                break
+            off += PAGE
+    log(f"polymarket us: {len(out)} markets in open {'/'.join(categories)} events")
+    return out
+
+
+def event_slug(market_slug):
+    """Event slug of a US sports market: its game key (`aec-nba-hou-den-2026-11-20-...` -> `nba-hou-den-2026-11-20`;
+    true for all 6,744 twins matched on Nov 20, 60 of 60 checked against /v1/events/slug). None if not a game."""
+    core = market_slug.split("-", 1)[1] if "-" in market_slug else market_slug
+    g = _GAME.match(core)
+    return f"{g['lg']}-{g['a']}-{g['b']}-{g['d']}" if g else None
+
+
+def market_url(market_slug, ev_slug=None):
+    """Link that opens this market's event on polymarket.us (US_URL), or the site's home page if unknown."""
+    ev = ev_slug or event_slug(market_slug)
+    return US_URL.format(slug=ev) if ev else "https://polymarket.us/"
 
 
 def _norm(s):
@@ -214,7 +266,7 @@ def side_ask(hit, side_index):
 
 def quote(hit, side_index, win_prob):
     """The best international side, priced on Polymarket US. win_prob = the model's chance for that side."""
-    base = dict(slug=hit["slug"], url=US_URL.format(slug=hit["slug"]), side=side_index ^ int(hit["flip"]))
+    base = dict(slug=hit["slug"], url=market_url(hit["slug"]), side=side_index ^ int(hit["flip"]))
     if hit.get("no_book"):
         return dict(base, ask=None, fee=None, edge=None, roi_pct=None)
     ask = side_ask(hit, side_index)
@@ -223,3 +275,24 @@ def quote(hit, side_index, win_prob):
     edge = win_prob - cost
     return dict(base, ask=round(ask, 4), fee=round(fee, 4), edge=round(edge, 4),
                 roi_pct=round(edge / cost * 100, 2))
+
+
+def _levels(rows):
+    out = []
+    for x in rows or []:
+        try:
+            out.append((float(x["px"]["value"]), float(x["qty"])))
+        except (KeyError, TypeError, ValueError):
+            continue
+    return out
+
+
+def book(slug, side, get=http):
+    """Order book for buying US side `side` (0 = long, 1 = short) in execution.check's shape:
+    {"asks": [{price, size}], "bids": [...]}. One instrument per market: buying short at 1 - p takes a long bid
+    at p, so the short side's asks are the long bids mirrored (and its bids the long offers)."""
+    d = (get("GET", f"{US_GATEWAY}/v1/markets/{slug}/book") or {}).get("marketData") or {}
+    bids, offers = _levels(d.get("bids")), _levels(d.get("offers"))
+    if side == 1:
+        bids, offers = [(round(1 - p, 4), q) for p, q in offers], [(round(1 - p, 4), q) for p, q in bids]
+    return dict(asks=[dict(price=p, size=q) for p, q in offers], bids=[dict(price=p, size=q) for p, q in bids])
