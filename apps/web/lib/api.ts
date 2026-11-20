@@ -25,6 +25,7 @@
 //   /api/suggest?q=&tz=&view=      → SuggestResponse teams/topics/markets for the search dropdown (q ≤ 120 chars, else 400)
 //   /api/book?token=&q=&cat=&stake= → BookResponse   live execution check of one side (fetchBook)
 import type { Curve } from "@/lib/data/model";
+import type { Proof } from "@/lib/proof";
 import type { Counts, Facets, Group } from "@/lib/filters/apply";
 import type { FilterInput } from "@/lib/filters/state";
 import type { Chip } from "@/lib/search/parse";
@@ -62,6 +63,7 @@ export interface MarketResponse {
   segment: string;                         // model segment of the best side (for /api/model/curve)
   curve: Curve | null;                     // that segment at the market's horizon; null for Free / signed-out (RT3-01)
   backtest: BacktestRecord | null;         // walk-forward record for the market's category
+  proof?: Proof;                           // T-290: that record beside the category's live record (lib/proof.ts)
   event_markets: StoreMarket[];            // other markets in the same event
   reveals_left?: number;                   // Free tier with ?detail=1: exact-number reveals left today (3/day)
   price_at?: number;                       // live tiers: when the CLOB price was read (lib/reprice.ts); absent = scan price
@@ -73,7 +75,10 @@ export interface EventResponse {
   flags: StoreMarket[];                    // flagged markets in the event (with execution)
 }
 
-export type BacktestResponse = BacktestFile & { chosen: BacktestResult | null };
+export type BacktestResponse = BacktestFile & {
+  chosen: BacktestResult | null;
+  proof?: Proof;                           // T-290: the chosen result beside the live record (lib/proof.ts siteProof)
+};
 
 export interface SuggestResponse {
   q: string;

@@ -5,7 +5,9 @@ import { Count } from "@/components/kit";
 import { chosenResult, coarseCurve, curve } from "@/lib/data/model";
 import { getTier } from "@/lib/auth/server";
 import { can } from "@/lib/entitlements";
-import { getStore, readSource } from "@/lib/data/store";
+import { getStore } from "@/lib/data/store";
+import { ProofLine } from "@/components/results/ProofLine";
+import { liveReturn, siteProof } from "@/lib/proof";
 import { DASH, RETURN_HELP, edge, exactCount, formatCount, pct, ret } from "@/lib/format";
 import { TAXONOMY } from "@/lib/taxonomy";
 import { PAYS_READ_TEXT, bucketRows, foldRows, paysRows, recordRows, tiles } from "@/lib/trackRecord";
@@ -19,17 +21,6 @@ const DATE = { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" 
 const date = (unix: unknown) => (typeof unix === "number" ? new Date(unix * 1000).toLocaleDateString("en-US", DATE) : DASH);
 const label = (cat: string) => TAXONOMY[cat]?.label ?? cat;
 const H_NAME: Record<string, string> = { "1": "~1 hour", "6": "~6 hours", "24": "~1 day", "72": "~3 days", "168": "~1 week" };
-
-/** First flag date of the live ledger (append-only file, oldest line first). */
-async function firstFlaggedAt(): Promise<number | null> {
-  const text = await readSource("ledger.jsonl").catch(() => undefined);
-  let min: number | null = null;
-  for (const line of text?.split("\n") ?? []) {
-    const t = line ? (JSON.parse(line) as { flagged_at?: number }).flagged_at : undefined;
-    if (typeof t === "number" && (min === null || t < min)) min = t;
-  }
-  return min;
-}
 
 export default async function Page() {
   const [store, tier] = await Promise.all([getStore(), getTier()]);
@@ -50,7 +41,8 @@ export default async function Page() {
   }]));
 
   const ledger = store.ledgerSummary;
-  const since = ledger ? await firstFlaggedAt() : null;
+  const since = store.ledgerSince ?? null;
+  const proof = siteProof({ backtest: b, ledger, since });
 
   return (
     <article className="mx-auto flex max-w-6xl flex-col gap-12 pb-8">
@@ -66,6 +58,7 @@ export default async function Page() {
       <section aria-labelledby="tiles-h" className="flex flex-col gap-3">
         <h2 id="tiles-h" className="sr-only">Headline results</h2>
         <Tiles tiles={tiles(b)} />
+        <ProofLine p={proof} className="text-[15px] leading-relaxed text-soft" />
         <p className="text-xs text-muted" title={RETURN_HELP}>
           &ldquo;Every bet, no filter&rdquo; buys every side of every market in the same weeks. It shows what the fee and the
           spread cost you without a filter. Past results, not a promise: any single bet can lose.
@@ -108,7 +101,7 @@ export default async function Page() {
       </Section>
 
       <Section id="live" title="Live record" note="Every best bet is logged the moment it is shown, then graded when the market settles. This is the forward test, with no hindsight.">
-        <LiveRecord ledger={ledger} since={since} />
+        <LiveRecord ledger={ledger} since={since} needs={proof.needs} />
       </Section>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -211,7 +204,7 @@ function PaysTable({ rows }: { rows: ReturnType<typeof paysRows> }) {
   );
 }
 
-function LiveRecord({ ledger, since }: { ledger?: LedgerSummary; since: number | null }) {
+function LiveRecord({ ledger, since, needs }: { ledger?: LedgerSummary; since: number | null; needs: number | null }) {
   if (!ledger) {
     return <p className="rounded-card border border-border bg-surface p-5 text-sm text-soft">No live record on this data yet. It starts with the first logged best bet.</p>;
   }
@@ -221,15 +214,16 @@ function LiveRecord({ ledger, since }: { ledger?: LedgerSummary; since: number |
     <div className="flex flex-col gap-4 rounded-card border border-border bg-surface p-5 md:p-6">
       {ledger.graded === 0 ? (
         <p data-testid="live-summary" className="font-heading text-xl font-semibold leading-snug">
-          Tracking {n} best bets{since ? ` since ${date(since)}` : ""}, none settled yet.
+          Tracking {n} best bets{since ? ` since ${date(since)}` : ""}, none settled yet{needs ? ` (needs ~${formatCount(needs)} settled to judge)` : ""}.
           <span className="mt-1 block font-sans text-sm font-normal text-muted">Results appear here as markets close. Updated {date(ledger.updated_at)}.</span>
         </p>
       ) : (
-        <dl className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <dl className="grid grid-cols-2 gap-4 sm:grid-cols-5">
           <Stat label="Logged best bets" value={n} />
           <Stat label="Settled" value={`${formatCount(ledger.wins)} won · ${formatCount(ledger.losses)} lost`} />
           <Stat label="Won" value={pct(ledger.wins / ledger.graded)} />
           <Stat label="Average profit per $1 share" value={edge(ledger.avg_pnl)} />
+          <Stat label="Return on money staked" value={ret(liveReturn(ledger))} />
         </dl>
       )}
       {cats.length > 0 && (

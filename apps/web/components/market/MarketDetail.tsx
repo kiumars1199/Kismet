@@ -24,6 +24,7 @@ import { AddToCombo } from "@/components/combo/AddToCombo";
 import { drawerHref } from "./drawer";
 import { TradeButton, VenueLink } from "@/components/trade/TradeButton";
 import { Count } from "@/components/kit";
+import { ProofLine } from "@/components/results/ProofLine";
 
 const card = "rounded-inner border border-border bg-raised p-4";
 const LEVEL = { all: "all markets", cat: "category", niche: "niche", nmt: "niche + type" } as const;
@@ -407,7 +408,7 @@ function TrackRecord({ data, pro }: { data: MarketResponse; pro: boolean }) {
         )}
       </div>
       {b ? (
-        <p data-testid="tested-line" className="text-[13px] leading-relaxed text-soft">
+        <p data-testid="tested-line" className="text-[13px] leading-relaxed text-soft" title={data.proof?.help}>
           <strong className="font-semibold text-text">How bets like this did in testing:</strong> in our walk-forward test, <Count n={b.flags} /> past {cat} best bets
           {b.win_rate !== undefined ? ` won ${pct(b.win_rate)} of the time` : ""}
           {b.roi_pct !== undefined ? ` and returned ${ret(b.roi_pct)} on average` : ""}
@@ -417,6 +418,7 @@ function TrackRecord({ data, pro }: { data: MarketResponse; pro: boolean }) {
       ) : (
         <p className="text-[13px] text-muted" title="not available">No past test covers {cat} markets yet.</p>
       )}
+      {b && data.proof ? <ProofLine p={data.proof} liveOnly testId="drawer-live" className="mt-1.5 text-[13px] leading-relaxed text-soft" /> : null}
       {b && <p className="mt-2 text-xs text-muted">
         That is the whole {cat} group, so it differs from this bet&apos;s {RETURN_LABEL_LONG} above.{" "}
         <Link href={RETURNS_FAQ} className="text-accent-hover underline underline-offset-4">Why two numbers?</Link>

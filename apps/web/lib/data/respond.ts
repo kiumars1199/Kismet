@@ -12,7 +12,8 @@ import { parse } from "@/lib/filters/url";
 import { RELAX_STEPS, relax, relaxedNote, type ParsedQuery } from "@/lib/search/parse";
 import { BEST_BETS_VERDICTS, CLOSING_SOON, tierOf, type FilterState } from "@/lib/filters/state";
 import { DELAYED_PENDING, delayedPendingLine, type EventResponse, type MarketResponse, type MarketsResponse } from "@/lib/api";
-import type { StoreMarket } from "@/lib/types";
+import type { LedgerStats, StoreMarket } from "@/lib/types";
+import { proofLine, type Proof } from "@/lib/proof";
 import { headers } from "next/headers";
 
 /** RT-15: tier-shaped bodies must never sit in a shared cache. A route's own private Cache-Control is kept. */
@@ -141,6 +142,16 @@ export function eventBody(store: Store, markets: StoreMarket[], tier: Tier = "pr
 }
 
 /** /api/markets/[id] and the /m/[id] page. `shown` = the tier the market itself is shaped for (a Free reveal = "pro"). */
+const NONE: LedgerStats = { entries: 0, graded: 0, wins: 0, losses: 0, avg_pnl: null, avg_clv: null };
+/** T-290: a category's test record beside the same category's live record (best bets only, like the ledger). */
+export function categoryProof(store: Store, cat: string): Proof {
+  const l = store.ledgerSummary;
+  return proofLine({
+    record: categoryRecord(store.backtest, cat), backtest: store.backtest,
+    live: l ? (l.by_category[cat] ?? NONE) : null, since: store.ledgerSince, updatedAt: l?.updated_at, who: `${cat} best bets`,
+  });
+}
+
 export function marketBody(store: Store, m: StoreMarket, tier: Tier, shown: Tier = tier, live?: Map<string, StoreMarket>): MarketResponse {
   const segment = segmentOf(m);
   const at = (x: StoreMarket) => live?.get(x.id) ?? x;
@@ -149,6 +160,7 @@ export function marketBody(store: Store, m: StoreMarket, tier: Tier, shown: Tier
     segment,
     curve: can(shown, "exact_edge") ? curve(store.model, segment, m.horizon_h) : null,   // RT3-01: curve + mid = exact win chance
     backtest: categoryRecord(store.backtest, m.category),
+    proof: categoryProof(store, m.category),
     event_markets: siblings(store, m, tier).map((x) => gateMarket(at(x), tier)),
   };
 }

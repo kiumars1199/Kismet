@@ -3,6 +3,8 @@ import { REFRESH_WORDS } from "@/lib/freshness";
 import Link from "next/link";
 import { Faq, Plans } from "@/components/pricing/Plans";
 import { Tiles } from "@/components/results/Tiles";
+import { ProofLine } from "@/components/results/ProofLine";
+import { HIT_RATE_VS_PROFIT, siteProof } from "@/lib/proof";
 import { DEMO_MODE } from "@/lib/config";
 import { getSettings } from "@/lib/settings";
 import { chosenResult } from "@/lib/data/model";
@@ -37,6 +39,7 @@ const FAQ: { q: string; a: React.ReactNode; id?: string; open?: boolean }[] = [
     {" "}<strong>How bets like this did in testing</strong> is the whole group (a category, or a payout band) over the walk-forward test, so it differs from bet to bet.
     {" "}The <strong>live record</strong> is every best bet logged since launch and graded as markets settle; until enough have settled it can swing far from the test either way.
     {" "}All three are past results, not a promise. </> },
+  { q: "Do best bets usually win?", a: HIT_RATE_VS_PROFIT },
   { q: "Is this betting advice?", a: "No. It's market analytics. Everyone sees the same numbers, based on how past markets settled. Kismet never looks at your bets to tell you what to buy, and any single bet can lose." },
   { q: "How is it tested?", a: <>Week by week, on markets the model had never seen: each week it only knows what happened before, and we check how its best bets settled. Losing weeks and limits are shown on <Link href="/track-record" className="text-accent-hover underline-offset-4 hover:underline">Results</Link>.</> },
   { q: "Which markets do you cover?", a: "Polymarket today. Kalshi later, once we have their permission to use the data." },
@@ -118,6 +121,7 @@ export default async function Page() {
           <Link href="/track-record" className="flex min-h-11 items-center text-accent-hover hover:underline">Full results and limits</Link>
         </div>
         <Tiles tiles={tiles(store.backtest).filter((t) => t.key !== "cents" && t.key !== "t")} /* cents + t-stat stay on Results */ />
+        <ProofLine p={siteProof({ backtest: store.backtest, ledger: store.ledgerSummary, since: store.ledgerSince })} className="text-[15px] leading-relaxed text-soft" />
       </section>
 
       <section aria-labelledby="plans-h" className="flex flex-col gap-6">

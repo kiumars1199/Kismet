@@ -18,7 +18,10 @@ vi.mock("next/headers", () => ({ headers: async () => new Headers(), cookies: as
 vi.mock("@/components/market/BetCard", () => ({
   BetCard: ({ r }: { r: ApiRow }) => createElement("article", { "data-row": "", "data-market-id": r.market.id }, r.market.question),
 }));
-vi.mock("@/components/pricing/Plans", () => ({ Plans: () => createElement("div", { "data-plans": "" }) }));
+vi.mock("@/components/pricing/Plans", async (orig) => ({
+  ...(await orig<typeof import("@/components/pricing/Plans")>()),   // the real Faq (T-290 reads the FAQ text)
+  Plans: () => createElement("div", { "data-plans": "" }),
+}));
 
 const { getStore, getStoreFor } = await import("@/lib/data/store");
 const { TEASER_DESCRIPTION, TEASER_LINE } = await import("@/lib/teaser");
@@ -123,5 +126,36 @@ describe("signed-out teaser while the store isn't there yet", () => {
       expect(out).toMatch(/role="status"|pending|being prepared|Couldn/i);
     }
     vi.doUnmock("@/lib/data/store");
+  });
+});
+
+// T-290: on every page that shows the test return, the live record is printed beside it (lib/proof siteProof), and
+// the FAQ splits hit rate from profit with the one shared sentence.
+describe("the test return never stands alone (T-290)", async () => {
+  const { HIT_RATE_VS_PROFIT, siteProof } = await import("@/lib/proof");
+  const store = await getStore();
+  const p = siteProof({ backtest: store.backtest, ledger: store.ledgerSummary, since: store.ledgerSince });
+  const text = (h: string) => h.replace(/<[^>]+>/g, "").replace(/&#x27;|&apos;/g, "'").replace(/&amp;/g, "&").replace(/\s+/g, " ");
+  const pages: [string, () => Promise<unknown>][] = [
+    ["landing", () => Landing()],
+    ["/about", async () => (await import("@/app/about/page")).default()],
+    ["/track-record", async () => (await import("@/app/track-record/page")).default()],
+    ["/pricing", async () => (await import("@/app/pricing/page")).default()],
+  ];
+  for (const [name, el] of pages) {
+    it(`${name}: test line and live line together, with the basis on hover`, async () => {
+      const out = await html(el());
+      expect(p.test).toBeTruthy();
+      expect(text(out), name).toContain(p.line);
+      expect(out).toContain('data-testid="proof-line"');
+      expect(out).toMatch(/data-testid="proof-line"[^>]*title="Testing: /);
+    });
+  }
+  it("landing, /about and /pricing FAQs use the hit-rate vs profit sentence verbatim; no 'many best bets do' lose", async () => {
+    for (const [name, el] of pages.filter(([n]) => n !== "/track-record")) {
+      const t = text(await html(el()));
+      expect(t, name).toContain(HIT_RATE_VS_PROFIT);
+      expect(t, name).not.toMatch(/many best bets do|Plenty still lost/);
+    }
   });
 });

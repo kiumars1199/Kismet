@@ -11,7 +11,7 @@ what you found in `docs/research/polish-round.md` (sources linked).
   to see all X bets"), proof in plain words with the basis on hover, plans, FAQ, disclaimer. HANDOFF § Account required.
 - Sections: hero (one-line mission + live counter of bets found today + a real card from today's scan), "how it works"
   in 3 steps with simple animated graphics (market price vs. how often bets like it actually won → the gap → you bet),
-  proof (track record chart, past bets tested, honest "most lose, the edge is the price"), pricing preview, FAQ,
+  proof (track record chart, past bets tested, honest hit rate vs profit (T-290: "Most best bets win often but pay little; the edge is that over many bets the wins should cover the losses. Any single bet can lose.") with the live record beside every test return), pricing preview, FAQ,
   final CTA "See today's bets free". Real numbers from the API only, no invented stats or testimonials.
 - Research 5–8 strong fintech/consumer landing pages (e.g. Robinhood, Kalshi, Polymarket, Linear, Ramp, Mercury)
   for structure and motion; don't copy. Fast: LCP < 2 s on mobile.

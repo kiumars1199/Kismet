@@ -28,6 +28,7 @@ export interface RawData {
   backtest: BacktestFile;
   events?: EventsFile;              // output/events.json (T-05), optional
   ledgerSummary?: LedgerSummary;    // output/ledger_summary.json (T-04), optional
+  ledgerSince?: number | null;      // first flagged_at in output/ledger.jsonl (T-290), the live record's start
   source?: DataSource;              // which source served this copy
 }
 
@@ -48,6 +49,7 @@ export interface Store {
   backtest: BacktestFile;
   events?: EventsFile;
   ledgerSummary?: LedgerSummary;
+  ledgerSince?: number | null;
   source?: DataSource;
 }
 
@@ -129,6 +131,7 @@ export function buildStore(raw: RawData, loadedAt = Date.now()): Store {
     backtest: raw.backtest,
     events: raw.events,
     ledgerSummary: raw.ledgerSummary,
+    ledgerSince: raw.ledgerSince ?? null,
     source: raw.source,
   };
 }
@@ -206,7 +209,28 @@ async function loadFrom(source: DataSource): Promise<RawData> {
     read<EventsFile>("events.json", false),
     read<LedgerSummary>("ledger_summary.json", false),
   ]);
-  return { markets: markets!, flags: flags!, model: model!, backtest: backtest!, events, ledgerSummary, source };
+  const ledgerSince = ledgerSummary ? await firstFlaggedAt(source).catch(() => null) : null;
+  return { markets: markets!, flags: flags!, model: model!, backtest: backtest!, events, ledgerSummary, ledgerSince, source };
+}
+
+const sinceMemo = new Map<DataSource, number>();
+/** T-290: when the live record started: the first flagged_at in ledger.jsonl (append-only, oldest first, but scan
+ *  it all in case). The start never changes, so it is read once per source per instance; until a ledger has a first
+ *  entry it is re-read with each store load. */
+export async function firstFlaggedAt(source: DataSource): Promise<number | null> {
+  const hit = sinceMemo.get(source);
+  if (hit !== undefined) return hit;
+  const text = await readFrom(source, "ledger.jsonl");
+  let min: number | null = null;
+  for (const line of text?.split("\n") ?? []) {
+    if (!line.trim()) continue;
+    try {
+      const t = (JSON.parse(line) as { flagged_at?: unknown }).flagged_at;
+      if (typeof t === "number" && Number.isFinite(t) && (min === null || t < min)) min = t;
+    } catch { /* a torn last line while the grader writes: skip it */ }
+  }
+  if (min !== null) sinceMemo.set(source, min);
+  return min;
 }
 
 /** Every file from one source (never mix two scans); on any failure the next source. */
@@ -262,7 +286,7 @@ async function loadCopy(s: Store, suffix: "prev" | "prev2"): Promise<Store | und
   };
   const [markets, flags] = await Promise.all([read<MarketsFile>(`markets-${suffix}.json`), read<FlagsFile>(`flags-${suffix}.json`)]);
   if (!markets || !flags || !(markets.meta.scanned_at < s.meta.scanned_at)) return undefined;
-  return buildStore({ markets, flags, model: s.model, backtest: s.backtest, events: s.events, ledgerSummary: s.ledgerSummary, source: s.source });
+  return buildStore({ markets, flags, model: s.model, backtest: s.backtest, events: s.events, ledgerSummary: s.ledgerSummary, ledgerSince: s.ledgerSince, source: s.source });
 }
 
 /** Newest of the stores at or before `cutoff` (unix s). */

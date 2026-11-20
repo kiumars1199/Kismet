@@ -167,7 +167,7 @@ describe("Origin checks", () => {
 
 describe("AI readers (T-281)", () => {
   it("/llms.txt is served as Markdown with the connector URL and the disclaimer", async () => {
-    const res = (await import("@/app/llms.txt/route")).GET();
+    const res = await (await import("@/app/llms.txt/route")).GET();   // async since T-290 (it reads the track record)
     expect(res.status).toBe(200);
     expect(res.headers.get("content-type")).toMatch(/text\/markdown/);
     const body = await res.text();

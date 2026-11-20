@@ -19,6 +19,7 @@ import { BEST_BETS_VERDICTS, FilterState } from "@/lib/filters/state";
 import { Category } from "@/lib/schemas";
 import { basis, betLine, closesLine, edge, formatCount, money, pct, price, ret, testedLine } from "@/lib/format";
 import { betFigures, RETURN_LABEL_LONG, sideRecord } from "@/lib/betFigures";
+import { HIT_RATE_VS_PROFIT, siteProof } from "@/lib/proof";
 import { PAYS_READ_TEXT, fmtRecord, paysRows, recordRows, tiles } from "@/lib/trackRecord";
 import { siteUrl } from "@/lib/site";
 import type { MarketsResponse } from "@/lib/api";
@@ -193,6 +194,7 @@ export async function getMarket(args: z.infer<typeof GetMarketInput>, me: Me, st
     "",
     `Model level: ${LEVEL[s.model_level] ?? s.model_level} · sample: ${formatCount(s.model_neff)} effective past bets, ${formatCount(s.model_events)} events${sideRecord(s) ? ` (${sideRecord(s)})` : ""}`,
     `Backtest basis: how bets like this did in testing (all ${mk.category} best bets, not this bet's ${RETURN_LABEL_LONG}): ${tested ?? `no walk-forward record for ${mk.category} yet`}${body.backtest ? ` · ${fmtRecord(body.backtest).bets} bets tested` : ""}`,
+    ...(body.backtest && body.proof ? [`Live record beside it: ${body.proof.live}`] : []),
     body.price_at ? `Live price read ${Math.max(0, Math.round((Date.now() - body.price_at) / 1000))}s ago.` : `Scan price from ${new Date(store.meta.scanned_at * 1000).toISOString()}.`,
     `Bet on: ${venue(mk, me)}`,
     marketUrl(mk),
@@ -212,9 +214,10 @@ export async function trackRecord(_args: unknown, _me: Me, store: Store): Promis
     "By category:",
     ...recordRows(r?.by_category).slice(0, 9).map((c) => `  ${c.key}: ${c.f.bets} bets, won ${c.f.won}, ${c.f.ret} return`),
     "",
-    ledger
-      ? `Live record since launch: ${formatCount(ledger.graded)} settled bets, ${formatCount(ledger.wins)} won, ${formatCount(ledger.losses)} lost${typeof ledger.avg_pnl === "number" ? `, ${edge(ledger.avg_pnl)} average profit per $1 share` : ""}.`
-      : "Live record: not published yet.",
+    // T-290: the test return and the live record together, from the same helper as every page
+    ...((p) => [p.test ?? "", p.live, `  Basis: ${p.help}`])(siteProof({ backtest: b, ledger, since: store.ledgerSince })),
+    ...(ledger && ledger.graded ? [`  Settled so far: ${formatCount(ledger.wins)} won, ${formatCount(ledger.losses)} lost${typeof ledger.avg_pnl === "number" ? `, ${edge(ledger.avg_pnl)} average profit per $1 share` : ""}.`] : []),
+    `  ${HIT_RATE_VS_PROFIT}`,
     `Full charts: ${siteUrl()}/track-record`,
   ]);
 }

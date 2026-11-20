@@ -15,6 +15,8 @@ import { SITE } from "@/lib/site";
 import { quota } from "@/lib/entitlements";
 import { foldRows, tiles } from "@/lib/trackRecord";
 import { Tiles } from "@/components/results/Tiles";
+import { ProofLine } from "@/components/results/ProofLine";
+import { HIT_RATE_VS_PROFIT, siteProof } from "@/lib/proof";
 import { Plans } from "@/components/pricing/Plans";
 import { DISCLAIMER } from "@/components/shell/Footer";
 import { DEMO_MODE } from "@/lib/config";
@@ -42,7 +44,7 @@ async function scan() {
     if (!page) return null;
     return {
       total: page.total, rows: page.rows.slice(0, LANDING_REAL) as ApiRow[], scannedAt: store.meta.scanned_at,
-      backtest: store.backtest, ledger: store.ledgerSummary ?? null,
+      backtest: store.backtest, ledger: store.ledgerSummary ?? null, since: store.ledgerSince ?? null,
     };
   } catch {
     return null;   // engine output not there yet: the landing still explains the product, without numbers
@@ -59,6 +61,7 @@ export async function Landing() {
   const ledger = data?.ledger && data.ledger.graded > 0 ? data.ledger : null;
   const testDays = typeof data?.backtest.test_days === "number" ? data.backtest.test_days : null;
   const testWeeks = typeof data?.backtest.folds_run === "number" ? data.backtest.folds_run : weeks.length;
+  const proof = data ? siteProof({ backtest: data.backtest, ledger: data.ledger, since: data.since }) : null;
 
   return (
     <article className="mx-auto flex w-full max-w-6xl flex-col gap-24 pb-12 md:gap-32">
@@ -129,27 +132,20 @@ export async function Landing() {
         <section aria-labelledby="proof-h" className="flex flex-col gap-8">
           <div className="flex max-w-2xl flex-col gap-3">
             <h2 id="proof-h" className={H2}>Tested on weeks it had never seen</h2>
-            <p className="text-[17px] leading-relaxed text-soft" data-testid="proof-line">
+            <p className="text-[17px] leading-relaxed text-soft" data-testid="hit-line">
               In testing, best bets{" "}
               <span className="cursor-help underline decoration-dotted underline-offset-4"
                 title={`${exactCount(taker.flags)} best bets${taker.events !== undefined ? ` in ${exactCount(taker.events)} events` : ""}, ${testWeeks} ${testDays === 7 ? "weeks" : "test windows"}, each judged by a model fitted only on what came before. Bought at the asking price, after Polymarket's fee.`}>
                 won {pct(taker.win_rate)} of the time vs {pct(taker.avg_price)} the price implied
               </span>
-              . Plenty still lost: the edge is the price, not a sure result.
+              . {HIT_RATE_VS_PROFIT}
             </p>
-            <p className="text-[15px] leading-relaxed text-muted" data-testid="ledger-line">
-              {ledger ? (
-                <>
-                  Live, since launch:{" "}
-                  <span className="cursor-help underline decoration-dotted underline-offset-4"
-                    title={`Every best bet is logged when it's flagged and graded when its market settles. ${exactCount(ledger.graded)} settled of ${exactCount(ledger.entries)} logged.`}>
-                    {exactCount(ledger.wins)} won and {exactCount(ledger.losses)} lost of {exactCount(ledger.graded)} settled ({pct(ledger.wins / ledger.graded)} won)
-                  </span>.
-                </>
-              ) : (
-                <>The live record of every best bet since launch fills in on Results as markets settle.</>
-              )}
-            </p>
+            <ProofLine p={proof!} className="text-[15px] leading-relaxed text-muted" />
+            {ledger ? (
+              <p className="text-sm text-muted" data-testid="ledger-line">
+                Live so far: {exactCount(ledger.wins)} won and {exactCount(ledger.losses)} lost of {exactCount(ledger.graded)} settled ({pct(ledger.wins / ledger.graded)} won).
+              </p>
+            ) : null}
           </div>
           {weeks.length > 1 ? <WeekChart weeks={weeks} /> : null}
           <Tiles tiles={tiles(data.backtest).filter((t) => t.key !== "cents" && t.key !== "t")} />
@@ -205,7 +201,7 @@ const FAQ: [string, string][] = [
   ["Is it free?", `Yes. A free account shows ${FREE_ROWS} best bets a day, a little behind live, with no card. Pro and Premium are live, show every bet and start with 7 days free.`],
   ["Do you place bets?", "No. Kismet shows the numbers. You bet on Polymarket yourself, or not at all."],
   ["Is this advice?", "No. It's market analytics. Everyone sees the same list, based on how past markets settled. Kismet never looks at your bets to tell you what to buy."],
-  ["Can I lose money?", "Yes. Any single bet can lose, and many best bets do. The idea is that, over many bets, paying less than the record says can come out ahead. Past results don't promise future ones."],
+  ["Can I lose money?", `Yes. ${HIT_RATE_VS_PROFIT} Past results don't promise future ones.`],
   ["Where do the numbers come from?", `Polymarket's live prices, checked ${REFRESH_WORDS}, and thousands of settled markets. The full test, including losing weeks, is on the Results page.`],
   ["Who can use it?", `Adults ${SITE.minAge}+ in ${SITE.countries}. Prediction markets aren't legal everywhere: check your local rules.`],
 ];

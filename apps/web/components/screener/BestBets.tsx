@@ -3,6 +3,7 @@
 // / "Best bets" (Hybrid artboard): title + inline stats, Today / closing-soon / results (docs/17), filter pills + sort
 // (docs/13 §2), price-check chips, one card per game (docs/17 fix 2), Big payouts and Combos rows (docs/18 §6).
 import { useEffect, useState } from "react";
+import { ProofLine } from "@/components/results/ProofLine";
 import { backtestOnce, fetchFlags, type ApiGroup, type ApiRow, type BacktestResponse, type MarketsResponse } from "@/lib/api";
 import { CLOSING_SOON, tierOf, type FilterState } from "@/lib/filters/state";
 import { RETURN_HELP, ago, ret, formatCount, pays, price } from "@/lib/format";
@@ -64,6 +65,10 @@ function StatTiles() {
         <>
           <div className="flex items-baseline gap-1.5"><dd className="font-heading text-xl font-bold text-accent">{ret(t.roi_pct)}</dd><dt>avg return in testing</dt></div>
           <div className="flex items-baseline gap-1.5"><dd className="font-heading text-xl font-bold text-text"><Count n={t.flags} /></dd><dt>past bets tested</dt></div>
+          {bt?.proof ? (
+            <div className="flex basis-full items-baseline sm:basis-auto"><dt className="sr-only">Live record</dt>
+              <dd><ProofLine p={bt.proof} liveOnly testId="tiles-live" className="text-[13px] text-muted" /></dd></div>
+          ) : null}
         </>
       )}
     </dl>
