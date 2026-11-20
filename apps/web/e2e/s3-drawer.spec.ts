@@ -41,8 +41,8 @@ test("card's 'Why this bet?' and the drawer show the same return and win chance"
   await card.getByText("Why this bet?").click();
   const ret = (await card.getByTestId("why-return").innerText()).trim();
   expect(ret).toMatch(/^[+−-]?\d/);
-  const back = (await card.getByTestId("why-back").innerText()).trim();
-  expect(back).toMatch(/^If it wins you get \$[\d,.]+ back \(\$10 \+ \$[\d,.]+\)$/);
+  const back = (await card.getByTestId("why-back").locator("p").innerText()).trim();
+  expect(back).toMatch(/^If it wins you get \$[\d,.]+ back \(\$[\d,]+ \+ \$[\d,.]+\)$/);
   const chance = (await card.getByTestId("card-chance").innerText()).trim();
   expect(chance).toMatch(/^(\d+% chance to win|Under 1% chance to win|Over 99% chance to win)$/);
   await card.locator("h3 a").click();

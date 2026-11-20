@@ -3,9 +3,9 @@
 // words. First line is the payout with the stake added back (Polymarket's own sheet says "To win $X" meaning the total
 // payout; the card says "$10 wins $5.60" for the profit, so this line spells out both). No banned words (lib/banned.ts):
 // no "edge", "spread", "model", "pts"; counts stay under four digits.
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import type { ApiRow } from "@/lib/api";
-import { backLine, cardVenue, INTL_ONLY, NOT_FOR_US, priceText, stars, starsHelp, type CardVenue } from "@/lib/card";
+import { backLine, cardVenue, STAKE, INTL_ONLY, NOT_FOR_US, priceText, stars, starsHelp, type CardVenue } from "@/lib/card";
 import { paysBand } from "@/lib/filters/bands";   // not ./apply: zod on the landing (T-295)
 import { cardReturn, costPct, ESTIMATE_HELP, money, PAST_RETURN_HELP, pastReturnLine, pct, ret, testedLine } from "@/lib/format";
 import { noLiveRecord } from "@/lib/proof";
@@ -68,13 +68,30 @@ function Line({ label, children, testid }: { label: string; children: ReactNode;
   );
 }
 
+/** First line of "Why this bet?": the payout for the amount the user types (Q, Nov 20: dollars only for their own
+ *  stake, the way Kalshi's and Polymarket's bet slips do it). Starts at $10; not the Settings stake, because reading the
+ *  profile store here pulls it into the landing bundle (over the 150 kB budget). */
+function StakeBack({ q }: { q: { ask: number | null; fee: number | null } }) {
+  const [n, setN] = useState(STAKE);
+  return (
+    <div data-testid="why-back" className="pb-2 font-medium text-text">
+      <label className="text-xs text-muted">If you bet ${" "}
+        <input type="number" defaultValue={STAKE}
+          onChange={(e) => setN(+e.target.value > 0 ? +e.target.value : STAKE)}
+          className="h-11 w-20 rounded-input border border-border bg-raised px-2 text-text" />
+      </label>
+      <p className="mt-1.5">{backLine(q, n)}</p>
+    </div>
+  );
+}
+
 export function Why({ r, livePrice }: { r: ApiRow; livePrice?: ReactNode }) {
   const { market: m, side: s } = r;
   const { open } = useOpenDrawer();
   const bt = useBacktest();
   const v = cardVenue(m, s);
   const banded = !!s.ranges;
-  const back = backLine(v);
+  const back = backLine(v) !== null;
   const st = stars({ roi_pct: v.roi_pct, model_neff: s.model_neff });
   const band = paysBand({ ask: v.ask ?? s.ask });
   // #14/#51 (Mark, Nov 20): say which group the test record is (Best bets vs lower-confidence bets, at this payout) so it
@@ -101,7 +118,7 @@ export function Why({ r, livePrice }: { r: ApiRow; livePrice?: ReactNode }) {
         </svg>
       </summary>
       <div className="px-3 pb-3 text-[13px] leading-relaxed">
-        {back && <p data-testid="why-back" className="pb-2 font-medium text-text">{back}</p>}
+        {back && <StakeBack q={v} />}
         <dl>
           <Line label="Value" testid="why-value">{st ? st.label : "No value at today's price"}<span className="block text-xs text-muted">{starsHelp(st)}</span></Line>
           <Line label="Our estimate">Wins {pct(s.win_prob)} of the time{banded ? " (rounded down)" : ""}</Line>
