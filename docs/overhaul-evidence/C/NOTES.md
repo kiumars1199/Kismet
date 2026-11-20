@@ -7,8 +7,9 @@ with other lanes. Prod numbers are the owner's to take after a deploy with `ops/
 ## What changed
 
 1. Precomputed `top.json`, `counts.json` and `top-<category>.json` (`engine/precompute.py`, run by `python -m engine all`).
-   `lib/data/top.ts` reads them, and falls back to the full store when they're missing. The landing, `/pricing`,
-   `/about` and `/track-record` read them instead of parsing `markets.json`. Free-delay rotation (`-prev`, `-prev2`)
+   `lib/data/top.ts` reads them, and falls back to the full store when they're missing or more than 1 h old. The
+   landing, `/pricing`, `/about` and `/track-record` read them instead of parsing `markets.json`. `top-<category>.json`
+   has no page consumer yet. Free-delay rotation (`-prev`, `-prev2`)
    is the same as for `markets` and `flags`.
 2. Static + ISR signed-out pages: `/`, `/pricing`, `/about`, `/track-record`, `/terms`, `/privacy`, `/refunds`,
    `/disclaimer` and `/contact` are `force-static` with `revalidate = 300`. The signed-in/out split moved into
@@ -29,20 +30,43 @@ with other lanes. Prod numbers are the owner's to take after a deploy with `ops/
 
 ## Before / after
 
-**TTFB and headers** (`scripts/perf/ttfb-local.sh`). Cold is the first request after a fresh `next start`; warm is the
-median of 5.
+**TTFB and headers** (`scripts/perf/ttfb-local.sh`, final sha, accounts-on build). Cold is the first request after a
+fresh `next start`; warm is the median of 5.
 
 | route | before cold | before warm | before cache-control | after cold | after warm | after cache-control |
 |---|---|---|---|---|---|---|
-| / | 2095 ms | 35 ms | private, no-cache, no-store | 745 ms | 15 ms | s-maxage=300, stale-while-revalidate (x-nextjs-cache STALE/HIT) |
-| /pricing | 1908 | 18 | private, no-store | 635 | 11 | s-maxage=300, swr (HIT) |
-| /about | 1856 | 42 | private, no-store | 627 | 25 | s-maxage=300, swr |
-| /track-record | 1864 | 36 | private, no-store | 617 | 29 | s-maxage=300, swr (HIT) |
-| /terms | 727 | 17 | private, no-store | 702 | 6 | s-maxage=300, swr (HIT) |
+| / | 2095 ms | 35 ms | private, no-cache, no-store | 738 ms | 9 ms | s-maxage=300, stale-while-revalidate (x-nextjs-cache HIT) |
+| /pricing | 1908 | 18 | private, no-store | 692 | 10 | s-maxage=300, swr (HIT) |
+| /about | 1856 | 42 | private, no-store | 739 | 8 | s-maxage=300, swr (HIT) |
+| /track-record | 1864 | 36 | private, no-store | 1022 | 11 | s-maxage=300, swr (HIT) |
+| /terms | 727 | 17 | private, no-store | 740 | 7 | s-maxage=300, swr (HIT) |
 
-After cold time is server boot plus module load. The data is no longer touched on the request: pages come from the
-prerender cache. In prod the edge serves them (`x-vercel-cache: HIT`), so prod TTFB should drop from 2.35 s to edge
-latency. To be verified with `ops/perf-prod.sh`.
+After cold time is server boot plus module load. The request serves the prerendered HTML and does no data work. In
+prod the edge serves these pages (`x-vercel-cache: HIT`), so prod TTFB should drop from 2.35 s to edge latency. To be
+verified with `ops/perf-prod.sh`.
+
+**Regeneration cost: `top.json` versus the full store.** This is what an ISR or on-demand regeneration pays on a cold
+instance. `scratchpad topvsfull.sh`, run twice:
+- fresh `next start`
+- warm the runtime on `/terms`
+- `POST /api/revalidate`
+- time the blocking re-render
+
+The live test data is 23 h old and `top.json` older than `TOP_MAX_AGE_S` (1 h) is ignored. So this run uses
+`DATA_CLOCK=scan`, and **every other "after" number on this page went through the full-store fallback**, not `top.json`.
+
+| | `/` re-render | `/track-record` re-render | landing prices rendered |
+|---|---|---|---|
+| top.json + counts.json (3.7 MB, 1,364 rows) | 394 / 403 ms | 75 / 58 ms | 24 |
+| removed: full store (~20 MB markets.json) | 1549 / 1681 ms | 79 / 119 ms | 24 |
+
+**`/api/revalidate` against a real server** (`REVALIDATE_SECRET` set):
+- no bearer: 401
+- wrong bearer: 401
+- right bearer: 200, all 9 STATIC_PAGES listed
+- the next GET of each page is a blocking MISS re-render, then HIT
+
+The `upload.py` warm GET pays that re-render, so visitors don't.
 
 **First-load JS**, gzipped, `landing-js.mjs` (root main files + layout + page entries + scripts in the prerendered HTML):
 
@@ -82,12 +106,13 @@ Before the AccountLink fix the same build showed CLS 0.018 on every page.
 - **Kept: static + ISR pages.** TTFB, plus a cacheable header instead of `no-store`.
 - **Kept: the zod / filter split.** Shared JS 137 to 108 kB; `/` 203.7 to 144.3 kB; `/bets` TBT about 700 to about 360 ms.
 - **Kept: lazy charts.** `/track-record` JS 286.6 to 145.8 kB and TBT down in the paired run. Most of its remaining TBT
-  is hydration of a long page (framework chunk 8701), not Recharts.
+  is hydration of a long page (framework chunk 8701), not Recharts. Placeholder heights were measured with the chart
+  chunk held back: identical section heights at 412 px and 1350 px, CLS 0 at both.
 - **Kept: AccountLink hint.** CLS 0.018 to 0 on prerendered pages.
 - **Not done: a `/bets` fast path from `top.json`.** Its facets and counts don't match what the screener needs, and
   `/bets` is per-user anyway.
-- **Not done: extra `loading.tsx` skeletons and nav prefetch tuning.** Next already prefetches `<Link>` in view on
-  prerendered pages, and nothing measured pointed at a navigation cost worth a skeleton.
+- **Not attempted: goal 3, signed-in navigation.** No `loading.tsx` skeletons, no prefetch changes, no cross-user
+  caching of signed-in pages, and no signed-in navigation was timed. Their only gain is the shared-bundle trim above.
 
 ## Pitfalls found
 
@@ -100,6 +125,22 @@ Before the AccountLink fix the same build showed CLS 0.018 on every page.
 - `/bets` has a pre-existing CLS of 0.05 to 0.08: the BestBets proof tiles (`<dl className="min-h-[28px]">`) fill from
   `/api/backtest` after hydration and grow by about 125 px on a phone. The before build shows the same shifts, so it is
   not from this lane. It belongs to lane B: reserve the height, or pass the backtest down from the server.
+
+## Known limits
+
+- **Freshness after an upload.** `resetTop()` clears only the instance that handled the POST. The warm GET can land on
+  another instance:
+  - With `top.json`, the small files are re-read after 30 s. Static regenerations are their only readers and happen
+    at most every 300 s, so that read is almost always fresh.
+  - On the full-store fallback, `getStore()` serves its last copy while it reloads. A warm instance can then re-render
+    the previous scan, and that page holds until its 300 s window ends.
+  - Worst case is about 5 minutes behind, against about 2 minutes for the old dynamic pages. The banner on static pages
+    likewise updates within 300 s.
+- **Signed-in visitors on untwinned prerendered pages** (`/terms`, `/privacy`, `/refunds`, `/disclaimer`, `/contact`)
+  see "Log in / Sign up" in the header until `/api/me` answers, then their account link. Before, the header was empty
+  there.
+- **Signed-in routing** (cookie → rewrite → `/signed-in/*` twin) is unit-tested in `test/static-routes.test.ts`. It is
+  exercised end to end by the paid e2e specs on `next dev` (see Gates), not on a production build.
 
 ## Needs owner sign-off
 
@@ -129,7 +170,11 @@ script host, have not been checked against prod.
 - `pytest ops/tests engine/tests`: 77 passed.
 - E2E, `PW_PORT=3210`: `s1-landing`, `headers` (with the new static-CSP test), `proof` and `s2-filters` give
   13 passed. Also run because search and the bell changed: `search.spec` 7 passed, `alerts.spec` 1 passed.
-- `pnpm check:bundle && pnpm check:js`: OK, 144.3 kB.
+- Paid e2e (`-c playwright.paid.config.ts`): `s7-upgrade`, `paywall-pages` and `t291-plans` give 7 passed. These
+  cover signed-in `/` and `/pricing` through the middleware rewrite, and the signed-out pages.
+- web-ci's build step, run with the env stripped as in CI (`env -i`, default `DATA_SOURCE=local` from the committed
+  `output/`): `pnpm build && pnpm check:bundle && pnpm check:js` passes at 144.3 kB, and the prerendered landing has
+  real cards (24 prices).
 
 ## Commands
 
