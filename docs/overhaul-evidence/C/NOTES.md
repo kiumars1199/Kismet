@@ -186,3 +186,21 @@ BASE=http://localhost:3211 RUNS=2 bash scripts/perf/lighthouse.sh /bets / /track
 BASE=http://localhost:3211 node scripts/perf/inp.mjs /bets /
 ops/perf-prod.sh https://kismetodds.com                # owner, after a deploy
 ```
+
+## Signed-in navigation (goal 3, done after the lane merged)
+`loading.tsx` skeletons (`components/shell/PageSkeleton.tsx`) on every signed-in route: bets, markets, watchlist,
+journal, alerts, settings, account, tools, dashboards, combos, kalshi, status, onboarding, m/[id], signed-in/*.
+Next's default `<Link>` prefetch now fetches the skeleton with the link, so a tap paints in one frame.
+Measured with `node scripts/perf/nav-timing.cjs http://localhost:3250 5` (prod build, DEMO_MODE, real-size live
+data, 390×844, median of 5, after the page's prefetch settles). Raw: `nav-before.json`, `nav-after.json`.
+
+| tap | first feedback before | after | content before | after |
+|---|---|---|---|---|
+| /bets → /markets | 639 ms | 76 ms | 639 ms | 572 ms |
+| /markets → /watchlist | 440 ms | 181 ms | 440 ms | 246 ms |
+| /watchlist → /bets | 326 ms | 72 ms | 326 ms | 471 ms |
+| /markets → /bets | 326 ms | 140 ms | 326 ms | 355 ms |
+
+Locally the server answers in under 0.7 s, so content time is noise-level either way; the gain is the instant
+feedback. On prod, where owners saw ~5 s waits, the skeleton is what changes the feel; content time there depends
+on the cold-start fixes above.
