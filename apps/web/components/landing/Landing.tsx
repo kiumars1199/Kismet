@@ -19,6 +19,7 @@ import { Plans } from "@/components/pricing/Plans";
 import { DISCLAIMER } from "@/components/shell/Footer";
 import { DEMO_MODE } from "@/lib/config";
 import type { ApiRow } from "@/lib/api";
+import { REFRESH_WORDS } from "@/lib/freshness";
 import s from "./landing.module.css";
 
 const TIME = { hour: "numeric", minute: "2-digit", timeZone: "America/New_York", timeZoneName: "short" } as const;
@@ -86,7 +87,7 @@ export async function Landing() {
           )}
         </div>
         <ol aria-label="How it works" className="grid gap-px overflow-hidden rounded-card border border-border bg-border md:grid-cols-3">
-          <Step n={1} title="Read the price" text="Every open Polymarket market, about every 10 minutes. The price is the market's guess at the chance.">
+          <Step n={1} title="Read the price" text={`Every open Polymarket market, ${REFRESH_WORDS}. The price is the market's guess at the chance.`}>
             <Bar label="Market says" p={ask ?? 0.4} tone="bg-market-bar" />
           </Step>
           <Step n={2} title="Check the record" text="How often did bets like this one win? Same topic, same kind of bet, same time before close, across thousands of settled markets.">
@@ -205,7 +206,7 @@ const FAQ: [string, string][] = [
   ["Do you place bets?", "No. Kismet shows the numbers. You bet on Polymarket yourself, or not at all."],
   ["Is this advice?", "No. It's market analytics. Everyone sees the same list, based on how past markets settled. Kismet never looks at your bets to tell you what to buy."],
   ["Can I lose money?", "Yes. Any single bet can lose, and many best bets do. The idea is that, over many bets, paying less than the record says can come out ahead. Past results don't promise future ones."],
-  ["Where do the numbers come from?", "Polymarket's live prices, checked about every 10 minutes, and thousands of settled markets. The full test, including losing weeks, is on the Results page."],
+  ["Where do the numbers come from?", `Polymarket's live prices, checked ${REFRESH_WORDS}, and thousands of settled markets. The full test, including losing weeks, is on the Results page.`],
   ["Who can use it?", `Adults ${SITE.minAge}+ in ${SITE.countries}. Prediction markets aren't legal everywhere: check your local rules.`],
 ];
 

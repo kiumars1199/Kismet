@@ -10,7 +10,7 @@ import { WatchStar } from "@/components/watch/WatchStar";
 import { VenueIconLink } from "@/components/trade/TradeButton";
 import { drawerHref, useOpenDrawer } from "./drawer";
 import { AlertLink, Notes } from "./bits";
-import { priceVerdict, returnTone, rowNotes, topicLabel } from "./labels";
+import { PTS_HELP, priceVerdict, returnTone, rowNotes, topicLabel } from "./labels";
 import { LowerConfidence, TierNote } from "./TierNote";
 
 export function MarketCard({ r, pro = false, notes = true }: { r: ApiRow; pro?: boolean; notes?: boolean }) {
@@ -45,7 +45,7 @@ export function MarketCard({ r, pro = false, notes = true }: { r: ApiRow; pro?: 
         </p>
         <div className="mt-0.5 text-xs text-muted">
           Bet {s.outcome} at {price(s.ask)}
-          <span className={`block ${s.ranges || s.edge > 0 ? "text-soft" : "text-negative"}`}>{priceVerdict(s).toLowerCase()} <span className="whitespace-nowrap">({sidePts(s)})</span></span>
+          <span className={`block ${s.ranges || s.edge > 0 ? "text-soft" : "text-negative"}`}>{priceVerdict(s).toLowerCase()} <span className="whitespace-nowrap" title={PTS_HELP}>({sidePts(s)})</span></span>
           {r.price_at && <span data-testid="price-as-of" className="block" title="Live Polymarket price read when this page loaded; edge, Pays and payout use it.">{priceAsOf(r.price_at)}</span>}
           {win !== null && (
             <span data-testid="payout" className="block" title="What your default stake (Settings) pays back if this side wins, after the fee. If it loses, you lose the stake.">

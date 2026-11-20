@@ -1,4 +1,5 @@
 // Landing at /about (T-28, F-20; moved from / by T-70, docs/13). Live counters and preview cards come from the store; tiles from backtest.json.
+import { REFRESH_WORDS } from "@/lib/freshness";
 import Link from "next/link";
 import { Faq, Plans } from "@/components/pricing/Plans";
 import { Tiles } from "@/components/results/Tiles";
@@ -23,7 +24,7 @@ export const metadata = { title: "How it works" };
 const n = (x: number | undefined) => formatCount(x);   // docs/18 §4
 
 const STEPS: [string, string][] = [
-  ["Read the price", "A Yes at 68¢ means the market says 68%. We check every open Polymarket market, about every 10 minutes."],
+  ["Read the price", `A Yes at 68¢ means the market says 68%. We check every open Polymarket market, ${REFRESH_WORDS}.`],
   ["Check the history", "How often did bets like this one win? Same sport or topic, same kind of bet, same time before close, across thousands of settled markets."],
   ["Show the gap", "When bets like it won more often than the price says, after the fee and what you'd really pay, it's a best bet. You decide what to do with it."],
 ];

@@ -34,11 +34,17 @@ export function TopicsPicker() {
       <p className="text-sm text-muted" aria-live="polite">
         {favorite_topics.length ? `${favorite_topics.length} chosen. They show first in your quick filters.` : "Choose any you follow. You can change them later in Settings."}
       </p>
-      {GROUPS.map((g) => (
+      {GROUPS.map((g) => {
+        // P9: a topic with nothing open is a dead choice for a new user; hide it unless already chosen. With no counts
+        // (still loading, or the fetch failed) every topic shows.
+        const known = !!counts && Object.keys(counts).length > 0;
+        const topics = g.topics.filter((t) => !known || (counts[t.id] ?? 0) > 0 || favorite_topics.includes(t.id));
+        if (!topics.length) return null;
+        return (
         <fieldset key={g.label} className="flex flex-col gap-2.5">
           <legend className="mb-2.5 font-heading text-sm font-semibold text-soft">{g.label}</legend>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
-            {g.topics.map((t) => {
+            {topics.map((t) => {
               const on = favorite_topics.includes(t.id);
               const n = counts?.[t.id];
               return (
@@ -60,7 +66,8 @@ export function TopicsPicker() {
             })}
           </div>
         </fieldset>
-      ))}
+        );
+      })}
     </div>
   );
 }

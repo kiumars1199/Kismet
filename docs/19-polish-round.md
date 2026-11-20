@@ -109,5 +109,32 @@ off under `prefers-reduced-motion`. Screenshots: `docs/screenshots/polish/p7/bef
 - Do a fresh-eyes pass as a first-time user on phone and desktop, and list the 15 biggest friction points; fix them.
 - Stale-data banner: once the engine host runs, it should never show; until then keep it honest.
 
+### P9 done (T-283): the 15 frictions from a first-run walk
+Walked sign up → confirm email → onboarding → Best bets → details → save → market page → My list → pricing →
+All markets as a new Free account, at 390 and 1440 px (E2E mock Supabase, local data). Screenshots:
+`docs/screenshots/polish/p9/before-flow*` and `after-flow*`.
+
+| # | Friction | Fix |
+|---|---|---|
+| 1 | The scan age was said three times on Best bets (header dot, "Scanned 3 days ago" in the subhead, the amber banner), and the banner (3 h, `States.tsx`) and the pill (`lib/freshness`) kept separate thresholds. | One threshold: the banner shows when `freshness()` is not "fresh". The subhead drops its "Scanned … ago" when the banner shows. |
+| 2 | Copy said prices refresh "about every 10 minutes", which neither scanner does (engine host: every 120 s; GitHub fallback: every 30 min). | `REFRESH_WORDS` = "at least every 30 minutes" in `lib/freshness.ts`, used by the pill, empty state, landing, about and status. Both cadences stay inside the 3 h window, so no stale notice shows while either runs (unit test). |
+| 3 | The stale banner's copy read as a warning about Kismet, not advice. | "The last price scan was 3 days ago, so these prices may have moved. Check the live price on the market before you bet." |
+| 4 | Free's headline said "1K bets where the odds lean your way", but Free sees 10. | Free reads "10 of 1K bets where the odds lean your way". |
+| 5 | "Choose your topics" showed right after finishing setup. | Finishing setup sets the dismissal; the banner also hides once any topic is chosen. |
+| 6 | A new account's "Today" strip said "none · none · no bets logged" above the first card. | The strip appears once there is something in it. |
+| 7 | On a phone, three rows of chips (Pays, price-check counts, Show every bet) came before any card. | One scrolling row (Pays chips + Show every bet); the price-check counts show from md up. |
+| 8 | Sign-up asked for the 18+/Terms tick above the email field. | Without Google sign-in, the box sits after the password, right before "Create account". |
+| 9 | "Already have an account? Log in instead." on the check-email card was plain text. | It is a link to /login (keeps `next`). |
+| 10 | Setup listed topics with "0 open" (e.g. Boxing). | Topics with nothing open are hidden unless already chosen; all show if counts fail to load. |
+| 11 | Setup step 3 said "the big number is the estimated return"; the big number is now Pays. | "The big number is what it pays: Pays 1.4x turns $100 into $140 if it wins…" |
+| 12 | Setup step 2 used "Market order: fills now at the ask / Limit order". | "Fills right away at the current price" / "Waits until someone sells at your price". |
+| 13 | Tapping the star gave no sign of where the bet went. | A 2.5 s "Saved to My list" note under the star (role=status). |
+| 14 | Free's drawer restated the rule ("exact numbers on 3 bets a day") without saying how many were left. | "Free has 2 of 3 exact looks left today", or "You've used today's 3 exact looks" once they are gone (server count `reveals_left`). |
+| 15 | "(+10 pts)" was unexplained jargon on every card; a Free user on /pricing saw "Start free" on the plan they already had. | "pts" has its basis on hover (what a point of win chance is, with an example); the Free card reads "Your plan". |
+
+Stale banner, honestly: it keys off the scan time each tier is served (`/api/meta`), uses the same 3 h line as the
+header dot, and says only what is true (when the last scan was, and to check the live price). With the engine host
+(120 s) or the fallback (30 min) running, it never shows.
+
 ## Done = the full audit (docs/OVERNIGHT.md §3) passes again, by a fresh auditor, loop to zero fails. Deploy via
 push to `final` (Vercel project `kismet` builds it), then run `ops/smoke-prod.sh https://kismetodds.com`.

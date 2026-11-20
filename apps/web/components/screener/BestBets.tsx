@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { backtestOnce, fetchFlags, type ApiGroup, type ApiRow, type BacktestResponse, type MarketsResponse } from "@/lib/api";
 import { CLOSING_SOON, tierOf, type FilterState } from "@/lib/filters/state";
 import { RETURN_HELP, ago, ret, formatCount, pays, price } from "@/lib/format";
+import { REFRESH_WORDS, freshness } from "@/lib/freshness";
 import { savePresetFromState } from "@/lib/presets";
 import { useProfile } from "@/lib/repo/hooks";
 import { TAXONOMY } from "@/lib/taxonomy";
@@ -74,7 +75,7 @@ const PAYS_CHIPS = [2, 5, 10] as const;
 /** "2x+ · 5x+ · 10x+" quick payout chips (docs/18 §3). A pays filter widens the list to both tiers (tierOf). */
 function PaysChips({ state, onChange }: { state: FilterState; onChange: (p: Partial<FilterState>) => void }) {
   return (
-    <div role="group" aria-label="Payout" className="-mx-4 flex gap-2 overflow-x-auto px-4 md:mx-0 md:px-0">
+    <div role="group" aria-label="Payout" className="flex flex-none gap-2">
       {PAYS_CHIPS.map((x) => {
         const on = state.pays_min === x && state.pays_max === undefined;
         return (
@@ -247,12 +248,16 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
     <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-4">
       <section className="flex flex-col gap-2">
         <h1 className="text-[28px] font-bold leading-[1.1] tracking-[-0.02em] md:text-[34px]">
-          {total !== undefined ? <><Count n={total} /> {total === 1 ? "bet" : "bets"} where the odds lean your way</> : "Bets where the odds lean your way"}
+          {/* P9: Free sees the day's sample, so the headline says "10 of 1K", not a count it can't open */}
+          {total !== undefined
+            ? <>{!live && data && rows.length < total ? <>{rows.length} of </> : null}<Count n={total} /> {total === 1 ? "bet" : "bets"} where the odds lean your way</>
+            : "Bets where the odds lean your way"}
         </h1>
         <div className="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2">
           <p className="max-w-[760px] text-sm leading-normal text-muted">
             Each one is priced lower than how often bets like it have actually won, after Polymarket&apos;s fee and the price you&apos;d really pay.
-            {scanned && <span suppressHydrationWarning className="whitespace-nowrap"> Scanned {ago(scanned)}.</span>}
+            {/* P9: when the stale banner shows, it carries the scan age; saying it here too was the third stale notice */}
+            {scanned && freshness(scanned) === "fresh" && <span suppressHydrationWarning className="whitespace-nowrap"> Scanned {ago(scanned)}.</span>}
           </p>
           <StatTiles />
         </div>
@@ -267,10 +272,12 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
         <span role="status" className="text-[13px] text-accent-softer empty:hidden">{saved?.ok ? saved.msg : ""}</span>
       </FilterPills>
 
-      <div className="flex flex-wrap items-center gap-2">
+      {/* P9: one scrolling row on phones (Pays chips + Show every bet); the price-check counts wait for md+, where
+          they fit beside the chips (the drawer carries the price check for each bet) */}
+      <div className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 [scrollbar-width:none] md:mx-0 md:flex-wrap md:overflow-visible md:px-0">
         <PaysChips state={state} onChange={set} />
-        {data && data.total > 0 && <PriceChips f={data.facets} />}
-        <button type="button" aria-pressed={!state.group_by_event} onClick={() => set({ group_by_event: !state.group_by_event })} className={`${chipClass(!state.group_by_event)} md:ml-auto`}>
+        {data && data.total > 0 && <div className="max-md:hidden"><PriceChips f={data.facets} /></div>}
+        <button type="button" aria-pressed={!state.group_by_event} onClick={() => set({ group_by_event: !state.group_by_event })} className={`${chipClass(!state.group_by_event)} flex-none md:ml-auto`}>
           Show every bet
         </button>
       </div>
@@ -288,7 +295,7 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
       ) : data.total === 0 ? (
         <EmptyState
           title={topic ? `Nothing in ${topic} right now` : "No best bets match these filters"}
-          line={`Nothing with these filters is priced below how often similar bets have won. Prices refresh about every 10 minutes.`}
+          line={`Nothing with these filters is priced below how often similar bets have won. Prices refresh ${REFRESH_WORDS}.`}
           onReset={reset}
           link={{ href: "/markets", label: "Look in All markets" }}
         />

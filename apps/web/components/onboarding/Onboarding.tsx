@@ -11,6 +11,7 @@ import { money } from "@/lib/format";
 import { DEMO_MODE, getRepo, repoReady } from "@/lib/repo";
 import { useProfile } from "@/lib/repo/hooks";
 import { TOUR_KEY } from "./Tour";
+import { NUDGE_KEY } from "./OnboardingNudge";
 
 const STAKES = [10, 25, 50, 100, 250];
 const ORDER_STYLE_KEY = "me:v1:order_style"; // "market" | "limit"; read by the drawer to lead with the limit price
@@ -22,7 +23,7 @@ const STEPS = [
 ];
 
 const TOUR = [
-  { title: "Best bets", body: "Each card is a bet priced lower than how often bets like it have won. The big number is the estimated return: the average profit per dollar if you made bets like it many times. Any single bet can lose." },
+  { title: "Best bets", body: "Each card is a bet priced lower than how often bets like it have won. The big number is what it pays: Pays 1.4x turns $100 into $140 if it wins, and next to it is how often bets like it have won. Any single bet can lose." },
   { title: "Tap a card for details", body: "The details panel shows Market says vs Won before, what a stake would fill at, and the past record behind the number." },
   { title: "Save views and markets", body: "Save a set of filters as a view to reopen it in one tap, and star markets to follow them on My list." },
 ];
@@ -55,6 +56,7 @@ export function Onboarding({ next }: { next?: string }) {
     try {
       localStorage.setItem(ORDER_STYLE_KEY, style);
       if (!next || next === "/") localStorage.setItem(TOUR_KEY, "1");
+      localStorage.setItem(NUDGE_KEY, "1");   // P9: setup done in this browser, so no "Choose your topics" banner after it
     } catch { /* storage off */ }
     setError(null);
     let topics: string[] | undefined;
@@ -102,10 +104,10 @@ export function Onboarding({ next }: { next?: string }) {
             <legend className="mb-2.5 font-heading text-sm font-semibold text-soft">When you place a bet, you usually…</legend>
             <div className="grid gap-2 sm:grid-cols-2">
               <button type="button" aria-pressed={style === "market"} onClick={() => setStyle("market")} className={choice(style === "market")}>
-                <span><span className="block font-medium">Take the price shown</span><span className="text-muted">Market order: fills now at the ask</span></span>
+                <span><span className="block font-medium">Take the price shown</span><span className="text-muted">Fills right away at the current price</span></span>
               </button>
               <button type="button" aria-pressed={style === "limit"} onClick={() => setStyle("limit")} className={choice(style === "limit")}>
-                <span><span className="block font-medium">Set my own price</span><span className="text-muted">Limit order: waits for a better price</span></span>
+                <span><span className="block font-medium">Set my own price</span><span className="text-muted">Waits until someone sells at your price</span></span>
               </button>
             </div>
           </fieldset>

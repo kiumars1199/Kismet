@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { fetchMeta } from "@/lib/api";
 import { ago, behindWords } from "@/lib/format";
-import { freshness } from "@/lib/freshness";
+import { REFRESH_WORDS, freshness } from "@/lib/freshness";
 
 const DOT = { fresh: "bg-accent", amber: "bg-warning", red: "bg-negative" } as const;
 const TEXT = { fresh: "text-muted", amber: "text-warning", red: "text-negative" } as const;
@@ -29,7 +29,7 @@ export function FreshnessPill({ scannedAt: initial }: { scannedAt?: number }) {
   const when = ago(scannedAt, now);
   const behind = delay > 0 ? ` On the Free plan you see prices ${behindWords(delay)}.` : "";
   const title = level === "fresh"
-    ? `Prices and win chances were last checked ${when}. Prices refresh about every 10 minutes.${behind}`
+    ? `Prices and win chances were last checked ${when}. Prices refresh ${REFRESH_WORDS}.${behind}`
     : `The last scan was ${when}. Prices may have moved since, so check the market before betting.${behind}`;
 
   return (

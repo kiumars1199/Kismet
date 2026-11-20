@@ -5,17 +5,19 @@ import { useEffect, useState } from "react";
 import { useProfile } from "@/lib/repo/hooks";
 import { Tour } from "./Tour";   // the first-run spotlight tour lives here too: it only shows once started
 
-const KEY = "me:v1:nudge_dismissed";
+export const NUDGE_KEY = "me:v1:nudge_dismissed";
+const KEY = NUDGE_KEY;
 
 export function OnboardingNudge() {
-  const { onboarded_at } = useProfile();
+  const { onboarded_at, favorite_topics } = useProfile();
   // shown on the server render: first-time visitors (most of them) see no layout shift; a returning visitor who
   // dismissed it sees it leave at hydration, before any cards arrive
   const [hidden, setHidden] = useState(false);
   useEffect(() => {
     try { setHidden(localStorage.getItem(KEY) === "1"); } catch { setHidden(false); }
   }, []);
-  const show = !hidden && !onboarded_at;
+  // P9: someone who already chose topics (here or in Settings) has nothing to choose
+  const show = !hidden && !onboarded_at && !favorite_topics.length;
   const dismiss = () => {
     setHidden(true);
     try { localStorage.setItem(KEY, "1"); } catch { /* storage off */ }

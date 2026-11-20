@@ -114,7 +114,11 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
   const other = m.sides.find((x) => x !== s);
   const profile = useProfile();
   const pro = profile.numbers_mode === "pro";
-  const free = useEntitlements().tier === "free";   // the Free plan limits this drawer: say so, with a way up
+  const ent = useEntitlements();
+  const free = ent.tier === "free";   // the Free plan limits this drawer: say so, with a way up
+  // P9: say how many exact looks are left today instead of restating the rule (the server counts them: reveals_left)
+  const looks = ent.quota("flags_revealed");
+  const left = data.reveals_left;
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
@@ -172,8 +176,12 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
         {free && (
           <p data-testid="upgrade-note" className="mt-3 border-t border-accent-border pt-3 text-[13px] text-accent-softer">
             {s.ranges
-              ? "Free shows ranges. Exact numbers and the full price check are on Pro."
-              : "Free shows exact numbers on 3 bets a day. Pro shows them on every bet."}{" "}
+              ? left === 0
+                ? `You've used today's ${looks} exact looks, so this shows ranges. Pro shows exact numbers and the full price check on every bet.`
+                : "Free shows ranges. Exact numbers and the full price check are on Pro."
+              : left !== undefined
+                ? `Exact numbers on this bet. Free has ${left} of ${looks} exact looks left today; Pro shows them on every bet.`
+                : `Free shows exact numbers on ${looks} bets a day. Pro shows them on every bet.`}{" "}
             <Link href="/pricing" className="font-semibold text-accent-soft underline underline-offset-4 hover:text-accent">See plans</Link>
           </p>
         )}
@@ -297,7 +305,7 @@ function Actions({ m, s }: { m: StoreMarket; s: Side }) {
       <div className="flex flex-wrap gap-1.5 sm:gap-2">
         <TradeButton m={m} s={s} className={btn} />
         <AddToCombo m={m} s={s} className={btn} />
-        <div className={`flex flex-none ${box}`}><WatchStar marketId={m.id} side={s.side_index} market={m} /></div>
+        <div className={`flex flex-none ${box}`}><WatchStar marketId={m.id} side={s.side_index} market={m} tipAlign="left" /></div>
         <Link href={`/alerts?market=${m.id}&side=${s.side_index}`} className={btn}>
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg>
           {/* "me" drops visually under 400 px so the four controls stay on one row; the name stays "Alert me" */}

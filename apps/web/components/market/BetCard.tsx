@@ -15,7 +15,7 @@ import { WatchStar } from "@/components/watch/WatchStar";
 import { VenueIconLink } from "@/components/trade/TradeButton";
 import { drawerHref, useOpenDrawer } from "./drawer";
 import { AlertLink, InfoTip, Notes } from "./bits";
-import { priceVerdict, returnTone, rowNotes, topicLabel } from "./labels";
+import { PTS_HELP, priceVerdict, returnTone, rowNotes, topicLabel } from "./labels";
 import { useLastVisit, useLiveAsk } from "./live";
 import { LowerConfidence, TierNote } from "./TierNote";
 
@@ -78,7 +78,7 @@ export function BetCard({ r, pro = false }: { r: ApiRow; pro?: boolean }) {
             )}
           </span>
           {/* own line on every card: a wrapping "·" left some cards with a dangling separator */}
-          <span className={`block ${s.ranges || s.edge > 0 ? "text-soft" : "text-negative"}`}>{priceVerdict(s).toLowerCase()} <span className="whitespace-nowrap">({sidePts(s)})</span></span>
+          <span className={`block ${s.ranges || s.edge > 0 ? "text-soft" : "text-negative"}`}>{priceVerdict(s).toLowerCase()} <span className="whitespace-nowrap" title={PTS_HELP}>({sidePts(s)})</span></span>
           {r.price_at && <span data-testid="price-as-of" className="block text-xs text-muted" title="Live Polymarket price read when this page loaded; edge, Pays and payout use it.">{priceAsOf(r.price_at)}</span>}
         </p>
         <p className="mt-0.5 flex items-center gap-1 text-[13px] text-muted">

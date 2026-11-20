@@ -108,7 +108,9 @@ export function LoginForm({ next, error: initialError, mode = "login" }: { next:
               It works once and expires in 15 minutes.</>
           ) : (
             <>To finish, confirm your email: open the link we sent to <span className="font-medium text-accent-soft">{email}</span> in
-              this browser and you&apos;re signed in. Already have an account? Log in instead.</>
+              this browser and you&apos;re signed in. Already have an account?{" "}
+              {/* P9: was plain text, a dead end for someone who signed up twice */}
+              <Link href={`/login${next && next !== "/" ? `?next=${encodeURIComponent(next)}` : ""}`} className="font-medium text-accent-soft underline underline-offset-4">Log in instead</Link>.</>
           )}
         </p>
         <button type="button" className="w-fit text-sm text-accent-hover underline-offset-4 hover:underline" onClick={() => setState("idle")}>
@@ -128,25 +130,30 @@ export function LoginForm({ next, error: initialError, mode = "login" }: { next:
       />
     </>
   );
+  const terms = (
+    <div className="flex flex-col gap-1.5">
+      <label htmlFor={ids.terms} className="flex cursor-pointer items-start gap-3 rounded-input border border-border bg-surface p-4 text-sm leading-relaxed text-soft has-[:focus-visible]:border-accent-border">
+        <input
+          id={ids.terms} type="checkbox" checked={accept} required aria-invalid={termsError && !accept}
+          onChange={(e) => { setAccept(e.target.checked); setTermsError(false); }}
+          className="mt-0.5 size-5 flex-none accent-[var(--accent)]"
+        />
+        <span>
+          I&apos;m 18 or older and agree to the{" "}
+          <Link href="/terms" className="text-accent-hover underline underline-offset-4" target="_blank">Terms</Link> and{" "}
+          <Link href="/privacy" className="text-accent-hover underline underline-offset-4" target="_blank">Privacy Policy</Link>.
+        </span>
+      </label>
+      {termsError && !accept && <p className="text-xs text-warning">Tick this box to continue.</p>}
+    </div>
+  );
   return (
     <div className="flex flex-col gap-6">
       {error && <p id={ids.err} role="alert" className="rounded-input border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-text">{error}</p>}
 
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor={ids.terms} className="flex cursor-pointer items-start gap-3 rounded-input border border-border bg-surface p-4 text-sm leading-relaxed text-soft has-[:focus-visible]:border-accent-border">
-          <input
-            id={ids.terms} type="checkbox" checked={accept} required aria-invalid={termsError && !accept}
-            onChange={(e) => { setAccept(e.target.checked); setTermsError(false); }}
-            className="mt-0.5 size-5 flex-none accent-[var(--accent)]"
-          />
-          <span>
-            I&apos;m 18 or older and agree to the{" "}
-            <Link href="/terms" className="text-accent-hover underline underline-offset-4" target="_blank">Terms</Link> and{" "}
-            <Link href="/privacy" className="text-accent-hover underline underline-offset-4" target="_blank">Privacy Policy</Link>.
-          </span>
-        </label>
-        {termsError && !accept && <p className="text-xs text-warning">Tick this box to continue.</p>}
-      </div>
+      {/* P9: with Google on, the box gates that button too, so it sits above everything; without it, the box sits
+          right before the submit button, after the fields, where people expect consent */}
+      {GOOGLE && terms}
 
       {GOOGLE && <>
       <form method="post" action="/api/auth/google" onSubmit={needTerms}>
@@ -201,6 +208,7 @@ export function LoginForm({ next, error: initialError, mode = "login" }: { next:
                 </button>
               </div>
               <p id={ids.hint} className="text-xs text-muted">At least {PASSWORD_MIN} characters.</p>
+              {!GOOGLE && terms}
               <button type="submit" className={`${btnPrimary} min-h-12 text-[15px]`} disabled={busy}>
                 {busy ? "One moment…" : mode === "signup" ? "Create account" : "Log in"}
               </button>
@@ -212,6 +220,7 @@ export function LoginForm({ next, error: initialError, mode = "login" }: { next:
           ) : (
             <form method="post" onSubmit={sendLink} className="flex flex-col gap-3">{/* post: never put the email in the URL */}
               {emailField}
+              {!GOOGLE && terms}
               <button type="submit" className={`${btnPrimary} min-h-12 text-[15px]`} disabled={busy}>
                 {busy ? "Sending…" : "Email me a sign-in link"}
               </button>

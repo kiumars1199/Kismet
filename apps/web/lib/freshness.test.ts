@@ -28,3 +28,12 @@ describe("next scan", () => {
     expect(nextScanIn(at("2026-11-17T03:00:00Z"))).toBe("1 h 17 min");
   });
 });
+
+describe("P9: stale notices stay off while scans run", () => {
+  it("a scan as old as the slowest scanner's gap (30 min fallback) plus a slow run is still fresh", () => {
+    const now = Date.parse("2026-11-20T12:00:00Z");
+    expect(freshness(now / 1000 - 30 * 60, now)).toBe("fresh");
+    expect(freshness(now / 1000 - 2 * 3600, now)).toBe("fresh");
+    expect(freshness(now / 1000 - 3.5 * 3600, now)).toBe("amber");
+  });
+});

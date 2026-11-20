@@ -3,16 +3,17 @@
 import Link from "next/link";
 import { PENDING_PREFIX } from "@/lib/api";
 import { ago } from "@/lib/format";
+import { freshness } from "@/lib/freshness";
 import { Inbox } from "@/components/kit/icons";
 
-const STALE_S = 3 * 3600;
-
-/** Amber banner when the scan is more than 3 h old. */
+/** Amber banner once the scan is past the "fresh" window (lib/freshness: 3 h, the same line the header pill turns
+ *  amber at). Scans run REFRESH_WORDS, so with the engine host or the fallback running this never shows. When it
+ *  does, the page drops its own "Scanned … ago" line so the age is said once on the page. */
 export function StaleBanner({ scannedAt }: { scannedAt?: number }) {
-  if (!scannedAt || Date.now() / 1000 - scannedAt < STALE_S) return null;
+  if (!scannedAt || freshness(scannedAt) === "fresh") return null;
   return (
     <p role="status" suppressHydrationWarning className="rounded-input border border-warning/40 bg-warning/10 px-4 py-2.5 text-sm text-warning">
-      These prices are from a scan {ago(scannedAt)}. They may have moved since; check the live price before you bet.
+      The last price scan was {ago(scannedAt)}, so these prices may have moved. Check the live price on the market before you bet.
     </p>
   );
 }

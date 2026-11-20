@@ -23,7 +23,7 @@ function snapshotOf(m: Market, side?: 0 | 1): WatchSnapshot {
   };
 }
 
-export function WatchStar({ marketId, side, market }: { marketId: string; side?: 0 | 1; market?: Market }) {
+export function WatchStar({ marketId, side, market, tipAlign = "right" }: { marketId: string; side?: 0 | 1; market?: Market; tipAlign?: "left" | "right" }) {
   const list = useCollection("watchlist");
   const { quota } = useEntitlements();
   const sideIndex = side ?? null;
@@ -31,7 +31,13 @@ export function WatchStar({ marketId, side, market }: { marketId: string; side?:
   const full = !item && list.length >= quota("watchlist");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [savedNote, setSavedNote] = useState(false);   // P9: a star alone gave no sign of where the bet went
   const errId = useId();
+  useEffect(() => {
+    if (!savedNote) return;
+    const t = setTimeout(() => setSavedNote(false), 2_500);
+    return () => clearTimeout(t);
+  }, [savedNote]);
   useEffect(() => {
     if (!error) return;
     const t = setTimeout(() => setError(null), 6_000);
@@ -46,11 +52,12 @@ export function WatchStar({ marketId, side, market }: { marketId: string; side?:
     setBusy(true);
     setError(null);
     try {
-      if (item) return await repo.watchlist.remove(item.id);
+      if (item) { setSavedNote(false); return await repo.watchlist.remove(item.id); }
       const row = await repo.watchlist.insert({
         market_id: marketId, side_index: sideIndex, note: null, target_price: null,
         snapshot: market ? snapshotOf(market, side) : null,
       });
+      setSavedNote(true);
       if (!market) {
         const m = await fetchMarket(marketId).then((r) => r.market, () => null);
         if (m) await repo.watchlist.update(row.id, { snapshot: snapshotOf(m, side) }).catch(() => null);   // the row is saved either way
@@ -81,6 +88,11 @@ export function WatchStar({ marketId, side, market }: { marketId: string; side?:
           <path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z" />
         </svg>
       </button>
+      {savedNote && !error && (
+        <span role="status" className={`pointer-events-none absolute ${tipAlign === "left" ? "left-0" : "right-0"} top-full z-20 mt-1 whitespace-nowrap rounded-input border border-border bg-raised px-2 py-1 text-xs text-soft shadow`}>
+          Saved to My list
+        </span>
+      )}
       {error && (
         <span id={errId} role="alert" className="absolute right-0 top-full z-20 mt-1 whitespace-nowrap rounded-input border border-warning/40 bg-raised px-2 py-1 text-xs text-warning shadow">
           {error}

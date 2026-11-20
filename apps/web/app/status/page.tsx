@@ -5,7 +5,7 @@ import { pendingLine } from "@/lib/data/respond";
 import { getStoreFor, type Store } from "@/lib/data/store";
 import { PendingState } from "@/components/screener/States";
 import { DASH, ago, delayWords, formatCount } from "@/lib/format";
-import { freshness } from "@/lib/freshness";
+import { REFRESH_WORDS, freshness } from "@/lib/freshness";
 import { delayMin } from "@/lib/settings-core";
 
 export const metadata = { title: "Status", description: "When Kismet data last refreshed." };
@@ -45,7 +45,7 @@ export default async function Page() {
         <h1 className="text-[32px] font-bold leading-[1.05] tracking-[-0.02em] md:text-[40px]">Status</h1>
         <p className={`flex items-center gap-2 text-[15px] ${level === "fresh" ? "text-soft" : level === "amber" ? "text-warning" : "text-negative"}`}>
           <span className={`size-2 rounded-full ${level === "fresh" ? "bg-accent" : level === "amber" ? "bg-warning" : "bg-negative"}`} aria-hidden="true" />
-          {level === "fresh" ? `Data is current. Last scan ${ago(meta.scanned_at)}.` : `Data may be stale. Last scan ${ago(meta.scanned_at)}; prices normally refresh about every 10 minutes.`}
+          {level === "fresh" ? `Data is current. Last scan ${ago(meta.scanned_at)}.` : `Data may be stale. Last scan ${ago(meta.scanned_at)}; prices normally refresh ${REFRESH_WORDS}.`}
         </p>
         {delay > 0 && <p className="text-sm text-muted">On the Free plan and when signed out, you see each scan {delayWords(delay)} after it runs: the scan above is the one you see. Paid plans see the newest scan.</p>}
       </header>

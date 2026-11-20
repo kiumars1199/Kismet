@@ -85,6 +85,9 @@ export function TodayCard() {
   });
   const fired = events.filter((e) => sameDay(new Date(e.fired_at), now));
   const s = summarize(journal);
+  // P9: a new account would see "none · none · no bets logged", three empty answers above the first card. The strip
+  // appears once there is something to report.
+  if (!closing.length && !fired.length && !s.bets) return null;
   // one slim row, so the first cards stay above the fold (docs/17 fix 8)
   const stat = "flex min-h-11 min-w-0 items-center gap-1.5 rounded-input px-2 transition-colors duration-200 ease-out hover:bg-raised";
   return (
