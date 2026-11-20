@@ -1,0 +1,227 @@
+
+    ○
+    │╲
+    │ ○
+    ○ ░
+    ░    gitleaks
+
+[90m1:16AM[0m [32mINF[0m [1mUnknown SCM platform. Use --platform to include links in findings.[0m [36mhost=[0m
+Finding:     ...t quoting the fake `[1;3;mREDACTED[0m`). The 14 product co...
+Secret:      [1;3;mREDACTED[0m
+RuleID:      stripe-access-token
+Entropy:     3.001629
+File:        AUDIT.md
+Line:        2132
+Commit:      b7740346cd520f9d3496662bcd92efead0592acf
+Author:      Kiumars Momtaz
+Email:       kiu@Kiumarss-MacBook-Air.local
+Date:        2026-11-19T07:19:07Z
+Fingerprint: b7740346cd520f9d3496662bcd92efead0592acf:AUDIT.md:stripe-access-token:2132
+
+Finding:     ...t quoting the fake `[1;3;mREDACTED[0m`). The 4 commits sin...
+Secret:      [1;3;mREDACTED[0m
+RuleID:      stripe-access-token
+Entropy:     3.001629
+File:        AUDIT.md
+Line:        1841
+Commit:      c387baa28f9f87c6abe69afa34bb2f24e0eb08a1
+Author:      Kiumars Momtaz
+Email:       kiu@Kiumarss-MacBook-Air.local
+Date:        2026-11-19T01:20:29Z
+Fingerprint: c387baa28f9f87c6abe69afa34bb2f24e0eb08a1:AUDIT.md:stripe-access-token:1841
+
+Finding:     ...t quoting the fake `[1;3;mREDACTED[0m`). Commits since run...
+Secret:      [1;3;mREDACTED[0m
+RuleID:      stripe-access-token
+Entropy:     3.001629
+File:        AUDIT.md
+Line:        1538
+Commit:      3eb8132c72cee5ed4b0fe844930aa6daf59481a5
+Author:      Kiumars Momtaz
+Email:       kiu@Kiumarss-MacBook-Air.local
+Date:        2026-11-18T19:32:12Z
+Fingerprint: 3eb8132c72cee5ed4b0fe844930aa6daf59481a5:AUDIT.md:stripe-access-token:1538
+
+Finding:     ...STRIPE_SECRET_KEY: "[1;3;mREDACTED[0m"` in `ops/tests/stri...
+Secret:      [1;3;mREDACTED[0m
+RuleID:      stripe-access-token
+Entropy:     3.001629
+File:        AUDIT.md
+Line:        1217
+Commit:      bb2cb59626db303d7965382463da848861b696a5
+Author:      Kiumars Momtaz
+Email:       kiu@Kiumarss-MacBook-Air.local
+Date:        2026-11-18T17:56:40Z
+Fingerprint: bb2cb59626db303d7965382463da848861b696a5:AUDIT.md:stripe-access-token:1217
+
+Finding:     ...STRIPE_SECRET_KEY: "[1;3;mREDACTED[0m", STRIPE_API_BASE: b...
+Secret:      [1;3;mREDACTED[0m
+RuleID:      stripe-access-token
+Entropy:     3.001629
+File:        ops/tests/stripe-setup.test.mjs
+Line:        141
+Commit:      7df1a927d1b3eebb66061457bc1630dc972de637
+Author:      Kiumars Momtaz
+Email:       kiu@Kiumarss-MacBook-Air.local
+Date:        2026-11-18T10:38:05Z
+Fingerprint: 7df1a927d1b3eebb66061457bc1630dc972de637:ops/tests/stripe-setup.test.mjs:stripe-access-token:141
+
+Finding:     const KEY = "[1;3;mREDACTED[0m"
+Secret:      [1;3;mREDACTED[0m
+RuleID:      jwt
+Entropy:     4.677669
+File:        ops/tests/supabase-setup.test.mjs
+Line:        11
+Commit:      889fe3db3149267aed796b7b6669208b05e5811f
+Author:      Kiumars Momtaz
+Email:       kiu@Kiumarss-MacBook-Air.local
+Date:        2026-11-18T02:00:35Z
+Fingerprint: 889fe3db3149267aed796b7b6669208b05e5811f:ops/tests/supabase-setup.test.mjs:jwt:11
+
+Finding:     ...{ ...cs[0], value: "[1;3;mREDACTED[0m" }), /SECRETVALUE/);
+Secret:      [1;3;mREDACTED[0m
+RuleID:      stripe-access-token
+Entropy:     3.681881
+File:        ops/tests/vercel-env.test.mjs
+Line:        17
+Commit:      7a909693c17540945236935a94879ee3338486ce
+Author:      Kiumars Momtaz
+Email:       kiu@Kiumarss-MacBook-Air.local
+Date:        2026-11-18T01:58:59Z
+Fingerprint: 7a909693c17540945236935a94879ee3338486ce:ops/tests/vercel-env.test.mjs:stripe-access-token:17
+
+Finding:     ...STRIPE_SECRET_KEY: "[1;3;mREDACTED[0m", STRIPE_API_BASE: b...
+Secret:      [1;3;mREDACTED[0m
+RuleID:      stripe-access-token
+Entropy:     3.001629
+File:        ops/tests/stripe-setup.test.mjs
+Line:        80
+Commit:      d1724a5d52a29f47a10fc1b611d5278b60c7fd3f
+Author:      Kiumars Momtaz
+Email:       kiu@Kiumarss-MacBook-Air.local
+Date:        2026-11-18T01:57:52Z
+Fingerprint: d1724a5d52a29f47a10fc1b611d5278b60c7fd3f:ops/tests/stripe-setup.test.mjs:stripe-access-token:80
+
+Finding:     ...STRIPE_SECRET_KEY: "[1;3;mREDACTED[0m" },
+Secret:      [1;3;mREDACTED[0m
+RuleID:      stripe-access-token
+Entropy:     3.168296
+File:        ops/tests/stripe-setup.test.mjs
+Line:        128
+Commit:      d1724a5d52a29f47a10fc1b611d5278b60c7fd3f
+Author:      Kiumars Momtaz
+Email:       kiu@Kiumarss-MacBook-Air.local
+Date:        2026-11-18T01:57:52Z
+Fingerprint: d1724a5d52a29f47a10fc1b611d5278b60c7fd3f:ops/tests/stripe-setup.test.mjs:stripe-access-token:128
+
+Finding:     ...SUPABASE_ANON_KEY: "[1;3;mREDACTED[0m"
+Secret:      [1;3;mREDACTED[0m
+RuleID:      jwt
+Entropy:     4.723662
+File:        ops/tests/fixtures.mjs
+Line:        5
+Commit:      7a909693c17540945236935a94879ee3338486ce
+Author:      Kiumars Momtaz
+Email:       kiu@Kiumarss-MacBook-Air.local
+Date:        2026-11-18T01:58:59Z
+Fingerprint: 7a909693c17540945236935a94879ee3338486ce:ops/tests/fixtures.mjs:jwt:5
+
+Finding:     ..._SERVICE_ROLE_KEY: "[1;3;mREDACTED[0m"
+Secret:      [1;3;mREDACTED[0m
+RuleID:      jwt
+Entropy:     4.677669
+File:        ops/tests/fixtures.mjs
+Line:        6
+Commit:      7a909693c17540945236935a94879ee3338486ce
+Author:      Kiumars Momtaz
+Email:       kiu@Kiumarss-MacBook-Air.local
+Date:        2026-11-18T01:58:59Z
+Fingerprint: 7a909693c17540945236935a94879ee3338486ce:ops/tests/fixtures.mjs:jwt:6
+
+Finding:     STRIPE_SECRET_KEY: "[1;3;mREDACTED[0m", STRIPE_WEBHOOK_SEC...
+Secret:      [1;3;mREDACTED[0m
+RuleID:      stripe-access-token
+Entropy:     2.934549
+File:        ops/tests/fixtures.mjs
+Line:        7
+Commit:      7a909693c17540945236935a94879ee3338486ce
+Author:      Kiumars Momtaz
+Email:       kiu@Kiumarss-MacBook-Air.local
+Date:        2026-11-18T01:58:59Z
+Fingerprint: 7a909693c17540945236935a94879ee3338486ce:ops/tests/fixtures.mjs:stripe-access-token:7
+
+Finding:     STRIPE_SECRET_KEY: "[1;3;mREDACTED[0m", STRIPE_WEBHOOK_SEC...
+Secret:      [1;3;mREDACTED[0m
+RuleID:      generic-api-key
+Entropy:     3.921928
+File:        ops/tests/preflight.test.mjs
+Line:        52
+Commit:      aaf1c720647144ac4e82c04912ee09fb48353f91
+Author:      Kiumars Momtaz
+Email:       kiu@Kiumarss-MacBook-Air.local
+Date:        2026-11-18T01:55:37Z
+Fingerprint: aaf1c720647144ac4e82c04912ee09fb48353f91:ops/tests/preflight.test.mjs:generic-api-key:52
+
+Finding:     STRIPE_SECRET_KEY: "[1;3;mREDACTED[0m", STRIPE_WEBHOOK_SEC...
+Secret:      [1;3;mREDACTED[0m
+RuleID:      stripe-access-token
+Entropy:     2.934549
+File:        ops/tests/preflight.test.mjs
+Line:        16
+Commit:      aaf1c720647144ac4e82c04912ee09fb48353f91
+Author:      Kiumars Momtaz
+Email:       kiu@Kiumarss-MacBook-Air.local
+Date:        2026-11-18T01:55:37Z
+Fingerprint: aaf1c720647144ac4e82c04912ee09fb48353f91:ops/tests/preflight.test.mjs:stripe-access-token:16
+
+Finding:     ...STRIPE_SECRET_KEY: "[1;3;mREDACTED[0m" }, GOOD_SITE, { liv...
+Secret:      [1;3;mREDACTED[0m
+RuleID:      stripe-access-token
+Entropy:     3.168296
+File:        ops/tests/preflight.test.mjs
+Line:        45
+Commit:      aaf1c720647144ac4e82c04912ee09fb48353f91
+Author:      Kiumars Momtaz
+Email:       kiu@Kiumarss-MacBook-Air.local
+Date:        2026-11-18T01:55:37Z
+Fingerprint: aaf1c720647144ac4e82c04912ee09fb48353f91:ops/tests/preflight.test.mjs:stripe-access-token:45
+
+Finding:     ...STRIPE_SECRET_KEY: "[1;3;mREDACTED[0m" }), [], "restricted...
+Secret:      [1;3;mREDACTED[0m
+RuleID:      stripe-access-token
+Entropy:     3.084963
+File:        ops/tests/preflight.test.mjs
+Line:        59
+Commit:      aaf1c720647144ac4e82c04912ee09fb48353f91
+Author:      Kiumars Momtaz
+Email:       kiu@Kiumarss-MacBook-Air.local
+Date:        2026-11-18T01:55:37Z
+Fingerprint: aaf1c720647144ac4e82c04912ee09fb48353f91:ops/tests/preflight.test.mjs:stripe-access-token:59
+
+Finding:     ...SUPABASE_ANON_KEY: "[1;3;mREDACTED[0m"
+Secret:      [1;3;mREDACTED[0m
+RuleID:      jwt
+Entropy:     4.723662
+File:        ops/tests/preflight.test.mjs
+Line:        14
+Commit:      aaf1c720647144ac4e82c04912ee09fb48353f91
+Author:      Kiumars Momtaz
+Email:       kiu@Kiumarss-MacBook-Air.local
+Date:        2026-11-18T01:55:37Z
+Fingerprint: aaf1c720647144ac4e82c04912ee09fb48353f91:ops/tests/preflight.test.mjs:jwt:14
+
+Finding:     ..._SERVICE_ROLE_KEY: "[1;3;mREDACTED[0m"
+Secret:      [1;3;mREDACTED[0m
+RuleID:      jwt
+Entropy:     4.677669
+File:        ops/tests/preflight.test.mjs
+Line:        15
+Commit:      aaf1c720647144ac4e82c04912ee09fb48353f91
+Author:      Kiumars Momtaz
+Email:       kiu@Kiumarss-MacBook-Air.local
+Date:        2026-11-18T01:55:37Z
+Fingerprint: aaf1c720647144ac4e82c04912ee09fb48353f91:ops/tests/preflight.test.mjs:jwt:15
+
+[90m1:16AM[0m [32mINF[0m [1m330 commits scanned.[0m
+[90m1:16AM[0m [32mINF[0m [1mscanned ~162382753 bytes (162.38 MB) in 6.27s[0m
+[90m1:16AM[0m [33mWRN[0m [1mleaks found: 18[0m

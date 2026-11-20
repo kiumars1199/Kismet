@@ -1,0 +1,22 @@
+20 sampled flags (seed 20261120): recompute fee=taker_fee(cat,ask), edge=q-(ask+fee), edge_low=q_low-(ask+fee), roi=(q-cost)/cost*100
+ 7018479 crypto    ask=0.62   fee 0.0165  vs 0.0165  edge 0.0335  vs 0.0335  edge_low -0.1249 vs -0.1249 roi 5.26    vs 5.26    OK
+ 6821623 sports    ask=0.84   fee 0.0067  vs 0.0067  edge 0.0452  vs 0.0452  edge_low -0.037  vs -0.037  roi 5.34    vs 5.34    OK
+ 6822454 sports    ask=0.72   fee 0.0101  vs 0.0101  edge 0.0508  vs 0.0508  edge_low -0.0157 vs -0.0157 roi 6.96    vs 6.96    OK
+ 7018504 crypto    ask=0.71   fee 0.0144  vs 0.0144  edge 0.049   vs 0.049   edge_low -0.1123 vs -0.1123 roi 6.77    vs 6.76    OK
+ 6823273 sports    ask=0.69   fee 0.0107  vs 0.0107  edge 0.0846  vs 0.0846  edge_low -0.0352 vs -0.0352 roi 12.08   vs 12.07   OK
+ 6673017 sports    ask=0.93   fee 0.0033  vs 0.0033  edge 0.0361  vs 0.036   edge_low 0.0131  vs 0.013   roi 3.86    vs 3.86    OK
+ 7058288 weather   ask=0.84   fee 0.0067  vs 0.0067  edge 0.0615  vs 0.0615  edge_low 0.0414  vs 0.0414  roi 7.27    vs 7.26    OK
+ 7080474 sports    ask=0.57   fee 0.0123  vs 0.0123  edge 0.0408  vs 0.0408  edge_low -0.0096 vs -0.0096 roi 7.01    vs 7.01    OK
+ 7085707 weather   ask=0.817  fee 0.0075  vs 0.0075  edge 0.0741  vs 0.0741  edge_low 0.0561  vs 0.0561  roi 8.99    vs 8.99    OK
+ 7109836 crypto    ask=0.87   fee 0.0079  vs 0.0079  edge 0.0389  vs 0.039   edge_low -0.0999 vs -0.0999 roi 4.44    vs 4.44    OK
+ 6676970 sports    ask=0.88   fee 0.0053  vs 0.0053  edge 0.0731  vs 0.0731  edge_low 0.0539  vs 0.0539  roi 8.26    vs 8.26    OK
+ 6823509 sports    ask=0.78   fee 0.0086  vs 0.0086  edge 0.0672  vs 0.0671  edge_low 0.0066  vs 0.0065  roi 8.52    vs 8.51    OK
+ 6822634 sports    ask=0.79   fee 0.0083  vs 0.0083  edge 0.0865  vs 0.0865  edge_low -0.0378 vs -0.0378 roi 10.84   vs 10.84   OK
+ 7085995 weather   ask=0.898  fee 0.0046  vs 0.0046  edge 0.035   vs 0.035   edge_low 0.0212  vs 0.0212  roi 3.88    vs 3.88    OK
+ 6834255 sports    ask=0.94   fee 0.0028  vs 0.0028  edge 0.0292  vs 0.0292  edge_low -0.0018 vs -0.0018 roi 3.09    vs 3.09    OK
+ 7097177 crypto    ask=0.59   fee 0.0169  vs 0.0169  edge 0.0577  vs 0.0577  edge_low 0.0347  vs 0.0347  roi 9.51    vs 9.5     OK
+ 7105501 sports    ask=0.8    fee 0.008   vs 0.0080  edge 0.0753  vs 0.0753  edge_low -0.0334 vs -0.0334 roi 9.32    vs 9.32    OK
+ 6925245 sports    ask=0.93   fee 0.0033  vs 0.0033  edge 0.0531  vs 0.053   edge_low 0.0124  vs 0.0124  roi 5.69    vs 5.68    OK
+ 6884730 sports    ask=0.86   fee 0.006   vs 0.0060  edge 0.036   vs 0.036   edge_low -0.1193 vs -0.1193 roi 4.16    vs 4.15    OK
+ 6823892 sports    ask=0.63   fee 0.0117  vs 0.0117  edge 0.0244  vs 0.0244  edge_low -0.0308 vs -0.0309 roi 3.81    vs 3.81    OK
+mismatches: 0

@@ -1,0 +1,21 @@
+# rm.cjs: Playwright reducedMotion no-preference vs reduce; document.getAnimations() sampled on every DOM mutation + at end
+prod-anon no-preference /              animations>1ms seen: ["landing_pulse__V9_Xk:2400"] running-at-end: 57
+prod-anon no-preference /about         animations>1ms seen: [] running-at-end: 0
+prod-anon no-preference /pricing       animations>1ms seen: [] running-at-end: 0
+prod-anon no-preference /track-record  animations>1ms seen: [] running-at-end: 0
+prod-anon no-preference /markets       animations>1ms seen: [] running-at-end: 0
+prod-anon reduce        /              animations>1ms seen: [] running-at-end: 0
+prod-anon reduce        /about         animations>1ms seen: [] running-at-end: 0
+prod-anon reduce        /pricing       animations>1ms seen: [] running-at-end: 0
+prod-anon reduce        /track-record  animations>1ms seen: [] running-at-end: 0
+prod-anon reduce        /markets       animations>1ms seen: [] running-at-end: 0
+pro no-preference /bets          animations>1ms seen: [] running-at-end: 0
+pro no-preference /m/6674492     animations>1ms seen: [] running-at-end: 0
+pro no-preference /dashboards    animations>1ms seen: [] running-at-end: 0
+pro no-preference /journal       animations>1ms seen: [] running-at-end: 0
+pro reduce        /bets          animations>1ms seen: [] running-at-end: 0
+pro reduce        /m/6674492     animations>1ms seen: [] running-at-end: 0
+pro reduce        /dashboards    animations>1ms seen: [] running-at-end: 0
+pro reduce        /journal       animations>1ms seen: [] running-at-end: 0
+
+# static: app/globals.css:152 global reduce rule (animation/transition 0.01ms, scroll-behavior auto); components/landing/landing.module.css:8 pulse only under no-preference; recharts 3.10.1 Bars default isAnimationActive='auto' (honours prefers-reduced-motion, node_modules/recharts/lib/util/usePrefersReducedMotion.js); Tour.tsx motion-reduce:transition-none; admin Controls smooth scroll checks the media query

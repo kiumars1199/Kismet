@@ -1,0 +1,29 @@
+Item 5 - Free tier delay, checked in the server response (production build, signed out = Free view)
+Setup: `next start` (NODE_ENV=production, no keys) on a copy of output/ via DATA_DIR.
+  markets.json / flags.json  = newest scan (scanned_at 1794895125, Nov 17 2026 5:58 AM UTC); newest questions tagged "NEWSCAN"
+  markets-prev.json / flags-prev.json = scan 20 min older (scanned_at 1794893925, 5:38 AM UTC), no NEWSCAN
+  Clock moved via a Date.now preload to just after the newest scan (delay setting = 15 min default).
+Server log: Next.js 15.5.29 ready; "[abuse] UPSTASH_REDIS_REST_URL/TOKEN not set ..." (expected).
+
+Free / signed-out responses (count of the string NEWSCAN in the body):
+/api/markets?ps=200        NEWSCAN=0  {total 12598, page 1, page_size 50 (clamped), pages 1, rows 10}
+/api/flags?ps=200          NEWSCAN=0  {total 1069, page 1, pages 1, rows 10}
+/api/markets?ps=200&p=2    NEWSCAN=0  {page 1 (p ignored), rows 10}
+/api/suggest?q=Hornets     NEWSCAN=0
+/api/markets/6627716   200 NEWSCAN=0
+/api/events/1306312    200 NEWSCAN=0
+/api/model/curve?id=6627716 400 NEWSCAN=0
+/m/6627716   200 NEWSCAN=0
+/            200 NEWSCAN=0
+/markets     200 NEWSCAN=0
+/event/1306312 200 NEWSCAN=0
+/status      200 NEWSCAN=0
+/track-record 200 NEWSCAN=0
+
+/api/meta (Free): meta.scanned_at = 1794893925  (the older scan) -> FreshnessPill shows the delayed age.
+/status text: "Data is current. Last scan 25 min ago. On the Free plan and when signed out, you see each scan
+  ... after it runs: the scan above is the one you see. Paid plans see the newest scan."
+  "Last market scan Nov 17, 2026, 5:38 AM UTC - 25 min ago"
+Pro (mock, item5/cards-vs-api.txt): meta.scanned_at = 1794895125 (newest).
+Code: apps/web/lib/data/store.ts:254-302 (loadCopy / newestBy, delayMin("free")).
+Result: PASS.

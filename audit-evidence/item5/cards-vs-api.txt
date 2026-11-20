@@ -1,0 +1,7 @@
+# apicmp.cjs (pro storage state, E2E mock :3160): /api/markets rows vs output/flags.json / markets.json
+pro /api/markets?ps=50: 168 rows, 2352 side fields compared with output/flags.json, mismatches=0 (rows checked against flags.json: 157, against markets.json: 11); /api/meta scanned_at={"meta":{"instance":"demo","platform":"polymarket","scanned_at":1794895125,"model_half_life_days":90,"markets_scanned":13971,"flags":2778,"tiers":
+
+# card vs API: /m/6674492 rendered for Pro (1440) vs API row
+API: Yes ask 0.70 fee 0.0105 win_prob 0.9255 win_prob_low 0.8946 edge 0.215 roi_pct 30.26; No ask 0.31 win_prob 0.0817; execution.stakes[100] shares 136.97 avg 0.72 profit 26.77
+Page: 'Bet Yes at 70¢' 'Pays 1.4x' (1/0.7105=1.41) '+22 pts' (21.5) '+30%' 'won 93% before' 'cautious estimate is 89%' 'No 31¢ · 3.2x won 8% before' '$100 → $137 +$26.77' '$25 → $34.24 +$6.69' 'holds for bets up to about $24,282' (capacity_usd 24282.16)
+Result: all match (rounded for display).

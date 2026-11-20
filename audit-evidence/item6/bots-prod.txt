@@ -1,0 +1,30 @@
+403  /  UA=Mozilla/5.0 (compatible; GPTBot/1.2; +https://openai.com/gptbot)
+403  /api/markets?ps=5  UA=Mozilla/5.0 (compatible; GPTBot/1.2; +https://openai.com/gptbot)
+200  /robots.txt  UA=Mozilla/5.0 (compatible; GPTBot/1.2; +https://openai.com/gptbot)
+403  /  UA=ClaudeBot/1.0
+403  /api/markets?ps=5  UA=ClaudeBot/1.0
+200  /robots.txt  UA=ClaudeBot/1.0
+403  /  UA=CCBot/2.0
+403  /api/markets?ps=5  UA=CCBot/2.0
+200  /robots.txt  UA=CCBot/2.0
+403  /  UA=PerplexityBot/1.0
+403  /api/markets?ps=5  UA=PerplexityBot/1.0
+200  /robots.txt  UA=PerplexityBot/1.0
+403  /  UA=Google-Extended
+403  /api/markets?ps=5  UA=Google-Extended
+200  /robots.txt  UA=Google-Extended
+403  /  UA=Bytespider
+403  /api/markets?ps=5  UA=Bytespider
+200  /robots.txt  UA=Bytespider
+200  /  UA=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/131.0.0.0 Safari/537.36
+200  /api/markets?ps=5  UA=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/131.0.0.0 Safari/537.36
+200  /robots.txt  UA=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/131.0.0.0 Safari/537.36
+200  /  UA=python-requests/2.32
+200  /api/markets?ps=5  UA=python-requests/2.32
+200  /robots.txt  UA=python-requests/2.32
+200  /  UA=curl/8.5.0
+200  /api/markets?ps=5  UA=curl/8.5.0
+200  /robots.txt  UA=curl/8.5.0
+200  /  UA=Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/131 Safari/537.36
+200  /api/markets?ps=5  UA=Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/131 Safari/537.36
+200  /robots.txt  UA=Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/131 Safari/537.36
