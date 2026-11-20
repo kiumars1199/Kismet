@@ -5,8 +5,8 @@ import { ret } from "@/lib/format";
 import { siteProof } from "@/lib/proof";
 import type { BacktestFile, LedgerStats, LedgerSummary } from "@/lib/types";
 import {
-  biggestGroup, compareSentence, eventsNeeded, eventsOf, intlOnlyNote, liveBase, liveHeadline, ratedHigher, testHeadline, testSpanText,
-  testWeeks, trackProof, usHeadline, weeksHeadline,
+  biggestGroup, compareSentence, eventsNeeded, intlOnlyNote, liveBase, liveHeadline, ratedHigher, testHeadline, testSpanText,
+  testWeeks, trackProof, usEvents, usHeadline, weeksHeadline,
 } from "./summary";
 
 const b = fixture as unknown as BacktestFile;
@@ -30,7 +30,7 @@ describe("live record: four states", () => {
     expect(usHeadline(base)).toMatchObject({ value: "—" });
     expect(usHeadline(base).sentence).toMatch(/No bets on Polymarket US logged yet/);
     expect(liveBase(base)).toBe(base);
-    expect(liveHeadline(base, "Nov 17").sentence).toMatch(/^Return on 862 settled bets in 179 events logged since Nov 17/);
+    expect(liveHeadline(base, "Nov 17").sentence).toMatch(/^Return on 862 settled bets logged since Nov 17/);
   });
   it("US bets logged but none settled", () => {
     const l = { ...base, first, us: { ...S(0, 0, 0, 0, 12), avg_pnl: null, by_category: {} } };
@@ -44,21 +44,27 @@ describe("live record: four states", () => {
     expect(h.value).toBe(ret((40 * 0.05) / (36 - 40 * 0.05) * 100));
     expect(h.sentence).toMatch(/^Return on 40 settled bets in 9 events you could place on Polymarket US/);
     // headline whole record uses `first` (each bet once), not the raw rows
-    expect(liveHeadline(l, null).sentence).toMatch(/^Return on 593 settled bets in 179 events/);
+    expect(liveHeadline(l, null).sentence).toMatch(/^Return on 593 settled bets logged,/);
     expect(intlOnlyNote(l)).toBe("Including international-only bets US users couldn't place: 553 (mostly weather).");
   });
 });
 
-describe("event counts from rows without event ids", () => {
-  it("are not shown as a sample size, and the live line makes no 'enough' call on them", () => {
+describe("event counts: only the US record's", () => {
+  it("old rows without event ids never count as events, even mixed with new rows that have them", () => {
+    // 742 old bets (each its own "event") + 30 new US bets in 10 games: first.events = 749 of 772
+    const l: LedgerSummary = { ...base, first: S(772, 597, 0.01, 749), us: { ...S(30, 25, 0.02, 10), by_category: {} }, intl_only: S(742, 572, 0.01) };
+    expect(usEvents(l)).toBe(10);
+    expect(liveHeadline(l, null).sentence).toMatch(/^Return on 772 settled bets logged,/);
+    const p = trackProof(siteProof({ backtest: b, ledger: l, since: NOV17 }), b, l, NOV17);
+    expect(p.live).toBe(`Live since Nov 17: 772 settled bets, ${ret(p.liveRoi)}; on Polymarket US 30 settled bets in 10 events, ${ret((0.6 / 24.4) * 100)}, still too few to judge (needs ~${eventsNeeded(taker)} events).`);
+    expect(p.enough).toBe(false);
+  });
+  it("no settled US bets: no events, no 'enough' call, no international-only note", () => {
     const l = { ...base, first: S(742, 573, 0.0103, 739) };
-    expect(eventsOf(l.first)).toBeNull();
-    expect(eventsOf(first)).toBe(179);
-    expect(liveHeadline(l, null).sentence).toMatch(/^Return on 742 settled bets logged,/);
+    expect(usEvents(l)).toBeNull();
     const p = trackProof(siteProof({ backtest: b, ledger: l, since: NOV17 }), b, l, NOV17);
     expect(p.live).toBe(`Live since Nov 17: 742 settled bets, ${ret(p.liveRoi)}.`);
     expect(p.enough).toBe(false);
-    // no US rows logged yet: every bet would read as international-only, so no note
     expect(intlOnlyNote({ ...l, intl_only: S(742, 573, 0.01) })).toBeNull();
   });
 });
@@ -83,16 +89,14 @@ describe("test span from folds[], not folds × days", () => {
 
 describe("proof line for this page", () => {
   it("keeps the test return and the 'Testing: ' basis, judges live on events", () => {
-    const l = { ...base, first };
+    const l = { ...base, first, us: { ...S(60, 52, 0.03, 20), by_category: {} } };
     const p = trackProof(siteProof({ backtest: b, ledger: l, since: NOV17 }), b, l, NOV17);
     expect(p.test).toBe(`In testing on past markets from Aug 29 to Nov 14, 95% of bets in the last 2 weeks: best bets, ${ret(taker.roi_pct)} per bet.`);
     expect(p.help).toMatch(/^Testing: /);
     const need = eventsNeeded(taker)!;
     expect(need).toBe(Math.ceil(1394 * (2 / 18.51) ** 2));
-    expect(p.live).toBe(`Live since Nov 17: 593 settled bets in 179 events, ${ret(p.liveRoi)}, enough to compare with testing.`);
-    const few = { ...l, first: S(20, 15, -0.01, 4) };
-    expect(trackProof(siteProof({ backtest: b, ledger: few, since: NOV17 }), b, few, NOV17).live)
-      .toBe(`Live since Nov 17: 20 settled bets in 4 events, ${ret((-0.2 / 15.2) * 100)}, still too few to judge (needs ~${need} events).`);
+    expect(p.live).toBe(`Live since Nov 17: 593 settled bets, ${ret(p.liveRoi)}; on Polymarket US 60 settled bets in 20 events, ${ret((1.8 / 50.2) * 100)}, enough to compare with testing.`);
+    expect(p.enough).toBe(true);
   });
   it("no events needed when the test lost money", () => {
     expect(eventsNeeded({ ...taker, roi_pct: -1 })).toBeNull();

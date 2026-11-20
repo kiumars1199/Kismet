@@ -24,15 +24,15 @@ node --input-type=module - after < ../../scripts/ledger/shoot.mjs           # Ch
 - "Testing on 1 year of past markets" is gone from this page: the span comes from `folds[]` ("from Nov 30, 2025 to
   Nov 14, 2026, 86% of bets in the last 2 weeks"). `lib/proof.testSpan` (folds × days) still says "1 year" on other
   pages: not lane E's file.
-- "Enough to compare" is judged on events (test events × (2 ÷ t)²), and never on the event count of rows logged
-  without `event_id`.
+- "Enough to compare" is judged on events (test events × (2 ÷ t)²), taken from the US record only: rows logged
+  before the US venue have no `event_id`, so `first.events` counts each market as an event (739 for 742 bets).
 - Edge section title is computed: "Bets we rated higher did better" only when every edge group of 30+ test bets
   earned more than the one below (true on the fixture, false on production Nov 20: 13.1 / 14.0 / 10.2 / 16.9¢).
 - No week was changed: the May week is not a proven data bug.
 - Charts stay in `app/track-record/Charts.tsx`.
 
 ## Gates
-- `pnpm lint`, `pnpm typecheck`: clean. `pnpm test`: 93 files, 675 tests passed (13 new in `components/results/summary.test.ts`).
+- `pnpm lint`, `pnpm typecheck`: clean. `pnpm test`: 93 files, 676 tests passed (14 new in `components/results/summary.test.ts`).
 - `engine`: `python3 -m pytest -q tests`: 77 passed (after merging `overhaul`).
-- e2e (`PW_PORT=3220`, `--workers=1`) a11y + proof + s6: 36 passed, 1 failed on the first run (proof.spec drawer
+- e2e (`PW_PORT=3220`, `--workers=1`) a11y + proof + s6: 37 passed on the final run; on an earlier run 1 failed (proof.spec drawer
   test, `/` drawer, untouched by lane E), passed on rerun.

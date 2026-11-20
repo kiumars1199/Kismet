@@ -20,13 +20,14 @@ const evs = (n: number) => `${exactCount(n)} event${n === 1 ? "" : "s"}`;
  *  summary has it, else the raw rows (summaries written before `first` existed). */
 export const liveBase = (l: LedgerSummary | null | undefined): LedgerStats | null => (l ? (l.first ?? l) : null);
 
-/** Distinct events among settled bets, or null when the summary can't know them. engine/ledger.summarize groups by
- *  `event_id`, which rows logged before the US venue shipped don't have, so each of those markets counts as its own
- *  event (Nov 20 ledger: 739 "events" for 742 bets, really ~179 games and city-days). A record of 50+ bets with at
- *  least 98% as many events as bets is read as "no event ids", never shown as a sample size. */
-export function eventsOf(s: LedgerStats | null | undefined): number | null {
-  if (!s || !ok(s.events) || !s.graded) return null;
-  return s.graded >= 50 && s.events >= 0.98 * s.graded ? null : s.events;
+/** Distinct events among settled bets, from the US record only. engine/ledger.summarize groups by `event_id`, which
+ *  rows logged before the US venue shipped don't have, so in `first` (and the raw totals) each of those markets counts
+ *  as its own event (Nov 20 ledger: 739 "events" for 742 bets, really ~179 games and city-days), and that stays true
+ *  as new rows arrive. Rows with a US price are all logged by the new code, which writes `event_id`, so the US
+ *  record's count is the only one shown as a sample size until old rows get an `event_id`. */
+export function usEvents(l: LedgerSummary | null | undefined): number | null {
+  const u = l?.us;
+  return u?.graded && ok(u.events) ? u.events : null;
 }
 
 /** Polymarket US record (the only venue US users can trade): settled US-listed bets at the US price and fee. */
@@ -43,7 +44,7 @@ export function usHeadline(l: LedgerSummary | null | undefined): Headline {
   const r = liveReturn(u);
   return {
     value: ret(r), tone: tone(r),
-    sentence: `Return on ${bets(u.graded)}${eventsOf(u) !== null ? ` in ${evs(eventsOf(u)!)}` : ""} you could place on Polymarket US, $1 a bet at the US price plus its fee.`,
+    sentence: `Return on ${bets(u.graded)}${usEvents(l) !== null ? ` in ${evs(usEvents(l)!)}` : ""} you could place on Polymarket US, $1 a bet at the US price plus its fee.`,
   };
 }
 
@@ -57,7 +58,7 @@ export function liveHeadline(l: LedgerSummary | null | undefined, since: string 
   const r = liveReturn(s);
   return {
     value: ret(r), tone: tone(r),
-    sentence: `Return on ${bets(s.graded)}${eventsOf(s) !== null ? ` in ${evs(eventsOf(s)!)}` : ""} logged${since ? ` since ${since}` : ""}, $1 a bet at the real asking price plus the fee.`,
+    sentence: `Return on ${bets(s.graded)} logged${since ? ` since ${since}` : ""}, $1 a bet at the real asking price plus the fee.`,
   };
 }
 
@@ -113,8 +114,9 @@ export function eventsNeeded(r: BacktestRecord | null | undefined): number | nul
   return Math.max(1, Math.ceil(r.events * (JUDGE_T / r.t_stat) ** 2));
 }
 
-/** The site proof line with the two §G3 corrections for this page: the test span from folds[] (not folds × days),
- *  and the live half counted by bet once and by event, judged on events. `help` is kept (it starts "Testing: "). */
+/** The site proof line with the §G3 corrections for this page: the test span from folds[] (not folds × days); the
+ *  live record counted by bet once; and "enough to compare" judged on events, which only the US record counts
+ *  reliably (see usEvents), so with no settled US bets no call is made. `help` is kept (it starts "Testing: "). */
 export function trackProof(p: Proof, b: BacktestFile | null | undefined, l: LedgerSummary | null | undefined, since: number | null): Proof {
   const r = b ? chosenResult(b)?.taker : null;
   const test = r && ok(r.roi_pct) && r.flags
@@ -124,17 +126,17 @@ export function trackProof(p: Proof, b: BacktestFile | null | undefined, l: Ledg
   const need = eventsNeeded(r);
   const head = since ? `Live since ${sinceDay(since)}` : "Live so far";
   const n = s?.graded ?? 0;
-  const e = eventsOf(s);
+  const e = usEvents(l);
   const roi = liveReturn(s);
   const enough = need !== null && e !== null && e >= need;
   let live: string;
   if (!s) live = "Live record: starts with the first logged best bet.";
   else if (!n) live = `${head}: ${exactCount(s.entries)} logged, none settled yet.`;
   else {
-    const what = `${bets(n)}${e !== null ? ` in ${evs(e)}` : ""}, ${ret(roi)}`;
-    live = need === null || e === null ? `${head}: ${what}.`
-      : enough ? `${head}: ${what}, enough to compare with testing.`
-        : `${head}: ${what}, still too few to judge (needs ~${formatCount(need)} events).`;
+    const us = e !== null ? `; on Polymarket US ${bets(l!.us!.graded)} in ${evs(e)}, ${ret(liveReturn(l!.us))}` : "";
+    live = need === null || e === null ? `${head}: ${bets(n)}, ${ret(roi)}${us}.`
+      : enough ? `${head}: ${bets(n)}, ${ret(roi)}${us}, enough to compare with testing.`
+        : `${head}: ${bets(n)}, ${ret(roi)}${us}, still too few to judge (needs ~${formatCount(need)} events).`;
   }
   return { ...p, test, live, line: [test, live].filter(Boolean).join(" "), needs: need, settled: n, liveRoi: roi, enough };
 }

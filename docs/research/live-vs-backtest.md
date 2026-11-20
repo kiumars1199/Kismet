@@ -6,8 +6,8 @@ Why, and what filter would have brought live closer to the test?
 Short answer: the gap is real, but it is **not** explained by entry prices, the lower-confidence tier, 90¢+
 favourites, weather, or a lookahead we could find in the price data. On the very markets of the overlap week the
 model claims ~87% wins where the price says ~79% and the outcome came out ~80%: the **model's win chances are too
-high live**. The live record itself is one slate of markets (179 events, almost all flagged on Nov 17), so it cannot
-yet tell −2% from +10%. The one filter that moved both the in-sample and the held-out rows the same way is a cap on
+high live**. Live is clearly below the test (about 7 standard errors), but not clearly below zero: it is one slate of
+markets (179 events, almost all flagged on Nov 17), and its own t-stat is −0.96. The one filter that moved both the in-sample and the held-out rows the same way is a cap on
 the predicted edge (`flag_max_edge = 0.10`); it is shipped off by default and it does **not** close the gap.
 
 Everything below is reproducible with `scripts/ledger/*.py` (python3, standard library). Data: the `live` branch
@@ -24,6 +24,7 @@ python3 scripts/ledger/stale_check.py     /tmp/l/ledger.jsonl /tmp/l/cache
 python3 scripts/ledger/grade_now.py       /tmp/l/ledger.jsonl /tmp/l/ledger_now.jsonl /tmp/l/cache_now
 python3 scripts/ledger/filters.py         /tmp/l/ledger_now.jsonl
 python3 scripts/ledger/weather.py         /tmp/l/ledger.jsonl /tmp/l/ledger_now.jsonl
+python3 scripts/ledger/split_check.py     /tmp/l/ledger.jsonl /tmp/l/ledger_now.jsonl   # §3 split, §4 summary fields
 ```
 
 ## 1. Where the site's numbers come from, reconciled
@@ -112,10 +113,13 @@ international prices, before US's ~0.6¢ higher fee. `/track-record` therefore l
 so, then the whole record.
 
 Two caveats for the new summary fields, both in `engine/ledger.py` (not lane E's file):
-- `events` groups by `event_id`, which old rows lack, so each old market counts as its own event: `first` shows
-  **739 events for 742 bets** where the real count is ~179 games and city-days. The page treats a record of 50+
-  bets with ≥ 98% as many events as bets as "events not recorded" and makes no "enough to compare" call from it.
-  Fix at the source: derive `event_id` for old rows (Gamma event id, or `scripts/ledger/common.event_key`).
+- `events` groups by `event_id`, which no row logged so far has (0 of 2,687), so each old market counts as its own
+  event: `first` shows **739 events for 742 bets** where `event_key` finds 208 (179 in-sample). Mixed with new rows
+  the count stays inflated, so the page takes events, and the "enough to compare" call, from the US record only
+  (every row with a US price is written by the new code, which logs `event_id`). With no settled US bets the page
+  makes no call. Fix at the source: derive `event_id` for old rows (Gamma event id, or `common.event_key`).
+- On the test's numbers "enough" comes early: test events × (2 ÷ t)² is ~10 events on the live-branch run (2,871
+  events, t 34.7) and 17 on the fixture, so the US record will read "enough to compare" after its first ten-odd games.
 - `intl_only` is every old row (742 of 742), not "bets US users couldn't place". The page shows the
   international-only line only once some US rows exist.
 

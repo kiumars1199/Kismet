@@ -10,8 +10,8 @@ import { can } from "@/lib/entitlements";
 import { getStore } from "@/lib/data/store";
 import { ProofLine } from "@/components/results/ProofLine";
 import {
-  biggestGroup, compareSentence, eventsOf, intlOnlyNote, liveBase, liveHeadline, paysHeadline, ratedHigher, testHeadline, testSpanText,
-  testWeeks, trackProof, usHeadline, weeksHeadline, type Headline,
+  biggestGroup, compareSentence, intlOnlyNote, liveBase, liveHeadline, paysHeadline, ratedHigher, testHeadline, testSpanText,
+  testWeeks, trackProof, usEvents, usHeadline, weeksHeadline, type Headline,
 } from "@/components/results/summary";
 import { liveReturn, siteProof, sinceDay } from "@/lib/proof";
 import { DASH, edge, exactCount, formatCount, pct, ret } from "@/lib/format";
@@ -67,7 +67,7 @@ export default async function Page() {
       <header className="flex flex-col gap-3">
         <h1 className="max-w-3xl text-[32px] font-bold leading-[1.05] tracking-[-0.02em] md:text-[40px]">How best bets have done</h1>
         <p className="max-w-2xl text-[15px] leading-relaxed text-muted">
-          Two records, side by side: real best bets logged live as we showed them, and a replay of past weeks. Past results, not a promise: any single bet can lose.
+          Real best bets logged live as we showed them, first the ones you could place on Polymarket US, next to a replay of past weeks. Past results, not a promise: any single bet can lose.
         </p>
       </header>
 
@@ -148,7 +148,7 @@ export default async function Page() {
           <ul className="mt-3 flex list-disc flex-col gap-2 pl-5 text-sm leading-relaxed text-soft">
             <li>The live record is young. Bets on the same game or the same day&apos;s weather win or lose together, so a few days of results swing a lot.</li>
             <li>Headline live numbers count each bet once, even when we showed it again at a lower price. Details also shows every logged row.</li>
-            <li>Bets logged before Polymarket US prices were added have no game id, so each of their markets counts as its own event; the true number of events is lower.</li>
+            <li>Bets logged before Polymarket US prices were added have no game id, so events are counted, and the live record judged, on the US record only.</li>
             <li>Past prices are mid prices (halfway between buy and sell). The real asking price was higher.</li>
             <li>To cover that gap, each test bet is charged half of today&apos;s typical spread for its kind of market. Spreads at the time are estimated, not recorded.</li>
             {weeks.lastTwoShare !== null && weeks.lastTwoShare >= 0.5 && (
@@ -285,7 +285,7 @@ function LiveDetails({ ledger, needs }: { ledger?: LedgerSummary; needs: number 
       <dl className="grid grid-cols-2 gap-3 text-sm">
         <Stat label="Best bets logged (each once)" value={formatCount(once.entries)} />
         <Stat label="Settled" value={once.graded ? `${formatCount(once.wins)} won · ${formatCount(once.losses)} lost` : "none yet"} />
-        <Stat label="Events settled" value={eventsOf(once) !== null ? formatCount(eventsOf(once)) : "not recorded"} />
+        <Stat label="Events settled, US record" value={usEvents(ledger) !== null ? formatCount(usEvents(ledger)) : "none yet"} />
         <Stat label="Average profit per $1 share" value={edge(once.avg_pnl)} />
         <Stat label="Every logged row, re-shows included" value={ledger.graded ? `${formatCount(ledger.graded)} settled · ${ret(liveReturn(ledger))}` : "none settled"} />
         <Stat label="Updated" value={date(ledger.updated_at)} />
