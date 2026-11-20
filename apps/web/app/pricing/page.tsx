@@ -23,6 +23,7 @@ const rows = (delay: number): [string, string, string, string][] => [
   ["Price check (order book, stake table)", "First share only", "Full", "Full"],
   ["My bets: profit and closing-price tracking", "—", "Yes", "Yes"],
   ["Results and win-chance charts", "Yes", "Yes", "Yes"],
+  ["Use Kismet in Claude, ChatGPT and Cursor", "—", "3 calls a day", "Yes"],
   ["Chrome extension", "—", "—", "Coming soon"],
   ["CSV export", "—", "Yes", "Yes"],
 ];

@@ -7,7 +7,7 @@ import { Redis } from "@upstash/redis";
 import { checkBotId } from "botid/server";
 import { DEMO_MODE } from "@/lib/config";
 
-type Window = `${number} ${"s" | "m" | "h"}`;
+type Window = `${number} ${"s" | "m" | "h" | "d"}`;
 export const RULES = {
   markets: { limit: 60, window: "1 m" },     // /api/markets, /api/flags, /api/markets/[id], /api/events/*
   pages: { limit: 50, window: "1 m" },       // list pages past the first, per user (docs/15 pagination cap)
@@ -20,6 +20,8 @@ export const RULES = {
   auth_password: { limit: 5, window: "15 m" },  // password sign-in tries, per address (own bucket: guesses can't block the email link)
   checkout: { limit: 10, window: "1 h" },
   admin: { limit: 30, window: "1 m" },       // /api/admin mutations and exports, per admin
+  mcp_premium: { limit: 60, window: "1 m" }, // /api/mcp tool calls, Premium, per user (lib/mcp)
+  mcp_pro_daily: { limit: 3, window: "1 d" },// /api/mcp tool calls, Pro: 3 a day, per user (lib/mcp)
 } as const satisfies Record<string, { limit: number; window: Window }>;
 export type Rule = keyof typeof RULES;
 
@@ -29,8 +31,8 @@ export const ROWS_PER_HOUR_ALERT = 5_000;
 export const FREE_ROWS_PER_HOUR = 1_500;
 
 const ms = (w: Window) => {
-  const [n, u] = w.split(" ") as [string, "s" | "m" | "h"];
-  return Number(n) * { s: 1_000, m: 60_000, h: 3_600_000 }[u];
+  const [n, u] = w.split(" ") as [string, "s" | "m" | "h" | "d"];
+  return Number(n) * { s: 1_000, m: 60_000, h: 3_600_000, d: 86_400_000 }[u];
 };
 
 interface Limiter {

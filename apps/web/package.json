@@ -15,6 +15,7 @@
     "preflight": "node ../../ops/preflight.mjs"
   },
   "dependencies": {
+    "@modelcontextprotocol/server": "2.4.0",
     "@sentry/nextjs": "11.9.0",
     "@supabase/ssr": "0.12.7",
     "@supabase/supabase-js": "2.118.0",
@@ -38,6 +39,7 @@
     "@axe-core/playwright": "4.14.0",
     "@electric-sql/pglite": "0.5.14",
     "@eslint/eslintrc": "3.3.7",
+    "@modelcontextprotocol/client": "2.4.0",
     "@playwright/test": "^1.65.1",
     "@tailwindcss/postcss": "^4.3.5",
     "@testing-library/react": "^16.3.3",

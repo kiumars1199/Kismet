@@ -19,11 +19,14 @@ create table auth.users (id uuid primary key, email text, email_confirmed_at tim
   created_at timestamptz default now(), last_sign_in_at timestamptz);
 create table auth.sessions (id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users on delete cascade, created_at timestamptz default now(),
-  updated_at timestamptz, refreshed_at timestamp);
+  updated_at timestamptz, refreshed_at timestamp, oauth_client_id uuid);
 create function auth.uid() returns uuid language sql stable as
   $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
+create function auth.jwt() returns jsonb language sql stable as
+  $$ select coalesce(nullif(current_setting('request.jwt.claims', true), ''), '{}')::jsonb $$;
 grant usage on schema auth to anon, authenticated, service_role;
 grant execute on function auth.uid() to anon, authenticated, service_role;
+grant execute on function auth.jwt() to anon, authenticated, service_role;
 `;
 const GRANTS = `
 grant usage on schema public to anon, authenticated, service_role;
@@ -33,8 +36,9 @@ grant all on all sequences in schema public to anon, authenticated, service_role
 
 let db: PGlite;
 
-async function as<T>(role: "anon" | "authenticated", sub: string | null, sql: string, params: unknown[] = []) {
-  await db.exec(`set role ${role}; select set_config('request.jwt.claim.sub', '${sub ?? ""}', false);`);
+async function as<T>(role: "anon" | "authenticated", sub: string | null, sql: string, params: unknown[] = [], clientId?: string) {
+  const claims = JSON.stringify({ sub: sub ?? undefined, role, ...(clientId ? { client_id: clientId } : {}) });
+  await db.exec(`set role ${role}; select set_config('request.jwt.claim.sub', '${sub ?? ""}', false); select set_config('request.jwt.claims', '${claims}', false);`);
   try {
     return (await db.query<T>(sql, params)).rows;
   } finally {
@@ -129,6 +133,24 @@ describe("RLS (supabase/migrations)", () => {
     }
     await as("authenticated", B, `update alert_rules set webhook_url = 'https://evil.example'`);
     expect((await db.query<{ w: string | null }>("select webhook_url as w from alert_rules")).rows).toEqual([{ w: null }]);
+  });
+
+  it("T-280: an OAuth-client token (client_id claim) can't read or write even its own user's rows", async () => {
+    const CLIENT = "9a8b7c6d-5e4f-3a2b-1c0d-9e8f7a6b5c4d";
+    const tables = (await db.query<{ tablename: string }>("select tablename from pg_tables where schemaname = 'public'")).rows.map((r) => r.tablename);
+    for (const t of tables) {
+      const policy = (await db.query<{ permissive: string }>(`select permissive from pg_policies where tablename = $1 and policyname = 'no oauth clients'`, [t])).rows;
+      expect(policy, `${t} has the restrictive OAuth-client policy`).toEqual([{ permissive: "RESTRICTIVE" }]);
+      expect(await as("authenticated", A, `select * from ${t}`, [], CLIENT), `client reads ${t}`).toEqual([]);
+    }
+    // the browser session (no client_id) still reads A's own rows
+    expect(await as("authenticated", A, "select * from watchlist")).toHaveLength(1);
+    expect(await as("authenticated", A, "select * from subscriptions")).toHaveLength(1);
+    await expect(as("authenticated", A, `insert into watchlist (market_id, side_index) values ('m9', null)`, [], CLIENT)).rejects.toThrow(/row-level security/);
+    await as("authenticated", A, "update profiles set onboarded_at = now()", [], CLIENT);
+    await as("authenticated", A, "delete from watchlist", [], CLIENT);
+    expect(await as("authenticated", A, "select * from watchlist")).toHaveLength(1);
+    expect((await db.query<{ o: string | null }>(`select onboarded_at as o from profiles where user_id = '${A}'`)).rows[0].o).toBeNull();
   });
 
   it("security definer functions pin search_path and can't be called by clients", async () => {
@@ -259,6 +281,20 @@ describe("RLS (supabase/migrations)", () => {
     const left = (await db.query<{ n: number }>(
       `select (created_at > now() + interval '90 seconds') as n from auth.sessions where user_id = '${A}'`)).rows;
     expect(left).toEqual([{ n: true }, { n: true }, { n: true }]); // the +1 min session was dropped
+  });
+
+  it("T-280: app connections (OAuth sessions) and browser sessions are capped at 3 each, separately", async () => {
+    await db.exec(`delete from auth.sessions where user_id = '${A}'`);
+    const app = "00000000-0000-0000-0000-0000000000c1";
+    for (let i = 1; i <= 3; i++) await db.exec(`insert into auth.sessions (user_id, created_at) values ('${A}', now() + interval '${i} minutes')`);
+    for (let i = 1; i <= 4; i++) await db.exec(`insert into auth.sessions (user_id, created_at, oauth_client_id) values ('${A}', now() + interval '${10 + i} minutes', '${app}')`);
+    const rows = (await db.query<{ app: boolean; n: number }>(
+      `select (oauth_client_id is not null) as app, count(*)::int as n from auth.sessions where user_id = '${A}' group by 1 order by 1`)).rows;
+    expect(rows).toEqual([{ app: false, n: 3 }, { app: true, n: 3 }]);   // connecting an assistant signed no browser out
+    await db.exec(`insert into auth.sessions (user_id, created_at) values ('${A}', now() + interval '1 hour')`);
+    const after = (await db.query<{ app: boolean; n: number }>(
+      `select (oauth_client_id is not null) as app, count(*)::int as n from auth.sessions where user_id = '${A}' group by 1 order by 1`)).rows;
+    expect(after).toEqual([{ app: false, n: 3 }, { app: true, n: 3 }]);   // a 4th browser drops the oldest browser, not an app
   });
 
   it("deleting the auth user removes every row (delete account)", async () => {

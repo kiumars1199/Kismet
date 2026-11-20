@@ -81,16 +81,24 @@ export interface Me {
   beta: boolean;
 }
 
+const NO_SUB = { status: null, current_period_end: null, cancel_at_period_end: false };
+
 /** Tier comes only from the webhook-written subscriptions row (docs/15 § Billing). Demo mode = premium. */
 export async function getMe(): Promise<Me> {
-  const none = { status: null, current_period_end: null, cancel_at_period_end: false };
-  if (DEMO_MODE) return { user: null, tier: "premium", ...none, beta: true };   // demo has no customers
+  if (DEMO_MODE) return { user: null, tier: "premium", ...NO_SUB, beta: true };   // demo has no customers
   const user = await getUser();
-  if (!user) return { user: null, tier: "free", ...none, beta: false };
+  if (!user) return { user: null, tier: "free", ...NO_SUB, beta: false };
   // "*" so a deploy that runs before the T-140 migration (comp columns) still reads the paid tier.
   const { data } = await (await supabaseServer())
     .from("subscriptions").select("*")
     .eq("user_id", user.id).maybeSingle();
+  return meOf(user, data);
+}
+
+type SubRow = { tier?: unknown; comp_tier?: unknown; comp_expires_at?: string | null; status?: string | null; current_period_end?: string | null; cancel_at_period_end?: boolean | null };
+
+/** Plan, beta and admin from a verified user and their subscriptions row: the one rule getMe and getMeForUser share. */
+export function meOf(user: SessionUser, data: SubRow | null | undefined): Me {
   const admin = isAdminEmail(user, process.env.ADMIN_EMAILS, DEMO_MODE);
   const tier: Tier = admin ? "premium" : effectiveTier(data);   // admins get every paid feature
   return {
@@ -99,6 +107,15 @@ export async function getMe(): Promise<Me> {
     current_period_end: data?.current_period_end ?? null,
     cancel_at_period_end: !!data?.cancel_at_period_end,
   };
+}
+
+/** getMe() for a user verified some other way than the session cookie (the MCP bearer token, lib/mcp/auth.ts).
+ *  Reads the row with the service role, scoped to that user id: OAuth-client tokens get no direct table access
+ *  (supabase/migrations/20261120000000_oauth_clients_no_tables.sql). Never the demo shortcut: no user, no plan. */
+export async function getMeForUser(user: SessionUser): Promise<Me> {
+  const { data, error } = await supabaseAdmin().from("subscriptions").select("*").eq("user_id", user.id).maybeSingle();
+  if (error) throw new Error(`subscriptions read failed: ${error.message}`);
+  return meOf(user, data);
 }
 
 export const getTier = async (): Promise<Tier> => (await getMe()).tier;
