@@ -4,7 +4,7 @@ import { ImageResponse } from "next/og";
 import { DISCLAIMER } from "@/components/shell/Footer";
 import { C, TAGLINE, Wordmark, brandFonts } from "./_brand";
 
-export const alt = "Kismet: Less luck, more math. Prediction-market prices next to how often similar bets won";
+export const alt = "Kismet: good-value bets on Polymarket, how often bets like them win, and what $10 pays";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 

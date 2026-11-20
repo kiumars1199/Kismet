@@ -3,7 +3,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-export const TAGLINE = "Less luck, more math.";
+export const TAGLINE = "Good-value bets on Polymarket.";
 export const C = { bg: "#070a09", surface: "#0c120f", border: "#1a2520", text: "#e6efe9", muted: "#a9bab1", accent: "#10b981", onAccent: "#04140d", soft: "#d1fae5" };
 
 // withDefault: keep next/og's own Noto Sans first (the default face), for cards whose body text predates the brand fonts.
