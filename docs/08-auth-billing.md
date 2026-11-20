@@ -15,6 +15,9 @@
   needs a session and that cookie.
 - Session length: the `sb-*` cookies last 400 days (`@supabase/ssr` default); how long a session stays valid is the
   refresh-token lifetime / inactivity timeout in the Supabase dashboard (Auth → Sessions), not app code.
+- Account required (T-276): signed out, only `lib/auth/public-paths.ts` answers; other pages redirect to
+  `/signup?next=<page>`, other API routes are 401. After sign-up or sign-in the user returns to `next` (new
+  accounts see onboarding first). `/signup` copy: "10 best bets a day free, no card" (Free `rows` quota).
 - On first sign-in: create `profiles` and `subscriptions(tier='free')` rows (DB trigger on `auth.users` insert).
 - Signup screen requires checking "I'm 18 or older and agree to the Terms" (store `accepted_terms_at`).
 - Local → account migration: if `localStorage` has presets/watchlist/favorites/journal, show

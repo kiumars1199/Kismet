@@ -55,7 +55,7 @@ function signUp(email: string, confirmed = true): User {
   if (found) return found;
   const u: User = { id: randomUUID(), email, created_at: new Date().toISOString(), confirmed };
   db().users.set(u.id, u);
-  table("profiles").push({ user_id: u.id, accepted_terms_at: null, onboarded_at: null, created_at: u.created_at });   // handle_new_user()
+  table("profiles").push({ user_id: u.id, accepted_terms_at: null, onboarded_at: null, first_bets_at: null, created_at: u.created_at });   // handle_new_user()
   table("subscriptions").push({ user_id: u.id, tier: "free", stripe_customer_id: null, stripe_subscription_id: null, status: null, current_period_end: null, cancel_at_period_end: false, trialed_at: null });
   return u;
 }
@@ -260,6 +260,19 @@ async function rpc(req: Request, fn: string) {
       trials_converted: count((s) => !!s.trialed_at && s.status === "active"),
       active_24h: active, active_7d: active, alerts_24h: table("alert_events").length, paper_orders: 0, signups,
     });
+  }
+  if (fn === "admin_activation") {   // 20261119000500_first_bets_visit.sql
+    const day = (d: Date) => d.toISOString().slice(0, 10);
+    const profiles = table("profiles");
+    const week = Date.now() - 7 * 86_400_000;
+    const days = Array.from({ length: 30 }, (_, i) => {
+      const d = day(new Date(Date.now() - (29 - i) * 86_400_000));
+      return { day: d, signups: users.filter((u) => u.created_at.slice(0, 10) === d).length,
+        first_bets: profiles.filter((p) => String(p.first_bets_at ?? "").slice(0, 10) === d).length };
+    });
+    return json({ days, signups_7d: users.filter((u) => Date.parse(u.created_at) > week).length,
+      first_bets_7d: profiles.filter((p) => p.first_bets_at && Date.parse(String(p.first_bets_at)) > week).length,
+      first_bets_total: profiles.filter((p) => p.first_bets_at).length });
   }
   if (fn === "admin_users") {
     const q = String(a.q ?? "").toLowerCase();

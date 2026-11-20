@@ -29,7 +29,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ c
     );
   }
   const me = await getMe();
-  if (!me.user) redirect("/login?next=/account");
+  if (!me.user) redirect("/signup?next=/account");
   const renew = date(me.current_period_end);
   const billing = billingMode() !== null;
 

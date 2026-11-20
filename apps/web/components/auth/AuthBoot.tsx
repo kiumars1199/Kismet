@@ -10,10 +10,10 @@ import { SupabaseRepo } from "@/lib/repo/supabase";
 const NAMES: CollectionName[] = ["presets", "dashboards", "watchlist", "alert_rules", "alert_events", "journal"];
 const askedKey = (uid: string) => `me:v1:import_asked:${uid}`;
 
-/** Signed-out visitors browse freely; saving anything sends them to sign in (docs/14 §1). */
+/** Signed-out visitors only reach public pages (T-276); saving anything there sends them to sign up. */
 function guestRepo(local: Repo): Repo {
   const toLogin = () => {
-    window.location.assign(`/login?next=${encodeURIComponent(location.pathname + location.search)}`);
+    window.location.assign(`/signup?next=${encodeURIComponent(location.pathname + location.search)}`);
     return Promise.reject(new Error("Sign in to save"));
   };
   return new Proxy(local, {

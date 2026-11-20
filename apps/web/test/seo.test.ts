@@ -28,8 +28,13 @@ describe("robots.txt and sitemap.xml (T-76)", () => {
       .filter((p) => !disallow.some((d) => p === d.replace(/\/$/, "") || p.startsWith(d.endsWith("/") ? d : `${d}/`)))
       .filter((p) => !NOT_FOR_SEARCH.some((x) => p.startsWith(x)));
     expect(pages).toContain("/about");
+    for (const gated of ["/bets", "/markets", "/combos", "/tools", "/watchlist"]) expect(pages).not.toContain(gated);   // T-276: account-only
     const urls = sitemap().map((e) => new URL(e.url).pathname);
     expect(urls.sort()).toEqual(pages.sort());
+  });
+  it("the sitemap lists only pages a signed-out visitor can open (T-276)", async () => {
+    const { signedOutAccess } = await import("@/lib/auth/public-paths");
+    for (const u of sitemap().map((e) => new URL(e.url).pathname || "/")) expect(signedOutAccess(u), u).toBe("public");
   });
   it("every page gets a 1200×630 share image: site default plus a large Twitter card (audit fail 11)", async () => {
     const og = await import("@/app/opengraph-image");
@@ -43,9 +48,11 @@ describe("robots.txt and sitemap.xml (T-76)", () => {
   it("the market share card wraps instead of running off the 1200 px edge (audit run 2 fail 5)", () => {
     const src = readFileSync(path.resolve(import.meta.dirname, "../app/m/[id]/opengraph-image.tsx"), "utf8");
     expect(src).toMatch(/fontSize: 54[^}]*lineClamp: 3/);                       // question: 3 lines, then …
-    expect(src).toMatch(/flexShrink: 0, maxWidth: 420/);                         // left column has a width cap
-    expect(src).toMatch(/fontSize: 32, flex: 1, minWidth: 0/);                    // right column takes the rest and can shrink
-    expect(src.match(/lineClamp: 2/g)?.length).toBe(2);                          // bet line and won-before wrap, 2 lines max
-    expect(src).not.toMatch(/of the time before/);                               // the shorter copy
+    expect(src).toMatch(/fontSize: 32[^}]*lineClamp: 2/);                       // the sign-up line wraps, 2 lines max
+  });
+  it("the market share card is the signed-out teaser: no model numbers (T-276)", () => {
+    const src = readFileSync(path.resolve(import.meta.dirname, "../app/m/[id]/opengraph-image.tsx"), "utf8");
+    expect(src).toMatch(/marketTeaser/);
+    for (const k of ["sideRet", "betLine", "win_prob", "roi_pct", "getStoreFor", "gateMarket", "pct("]) expect(src).not.toContain(k);
   });
 });

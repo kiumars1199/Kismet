@@ -6,6 +6,9 @@ what you found in `docs/research/polish-round.md` (sources linked).
 
 ## P1. Landing page for logged-out visitors
 - `/` for a signed-out visitor is a real landing page; signed-in users land on Best bets. `/about` stays as the long version.
+- T-276 (supersedes the list below where they differ): an account is required for the app. Landing order: hero
+  (promise, 3 steps, "Sign up free"), teaser (3 real best bets, then 6 blurred placeholders with no data, "Sign up free
+  to see all X bets"), proof in plain words with the basis on hover, plans, FAQ, disclaimer. HANDOFF § Account required.
 - Sections: hero (one-line mission + live counter of bets found today + a real card from today's scan), "how it works"
   in 3 steps with simple animated graphics (market price vs. how often bets like it actually won → the gap → you bet),
   proof (track record chart, past bets tested, honest "most lose, the edge is the price"), pricing preview, FAQ,

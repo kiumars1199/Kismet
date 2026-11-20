@@ -7,6 +7,13 @@ export const MAIN_TABS = [
   { href: "/track-record", label: "Results" },
 ] as const;
 
+/** Signed out (T-276): the app needs an account, so the header shows the sales pages instead. */
+export const SALES_TABS = [
+  { href: "/about", label: "How it works" },
+  { href: "/track-record", label: "Results" },
+  { href: "/pricing", label: "Pricing" },
+] as const;
+
 export const MORE_LINKS = [
   { href: "/journal", label: "My bets" },
   { href: "/track-record", label: "Results" },

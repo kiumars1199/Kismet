@@ -5,7 +5,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Tier } from "@/lib/entitlements";
 
 const h = vi.hoisted(() => ({ tier: "free" as Tier }));
-vi.mock("@/lib/auth/server", () => ({ getMe: async () => ({ user: null, tier: h.tier }), getTier: async () => h.tier }));
+// T-276: authEnabled false = accounts off, so /m and /event render the data path, not the signed-out teaser (test/teaser.test.ts)
+vi.mock("@/lib/auth/server", () => ({ getMe: async () => ({ user: null, tier: h.tier }), getTier: async () => h.tier, authEnabled: () => false, getUser: async () => null }));
 const bot = vi.hoisted(() => ({ isBot: false, isVerifiedBot: false }));
 vi.mock("botid/server", () => ({ checkBotId: async () => bot }));
 vi.mock("next/headers", () => ({ headers: async () => new Headers(), cookies: async () => ({ get: () => undefined }) }));

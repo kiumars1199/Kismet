@@ -17,11 +17,17 @@ interface Overview {
   signups: { day: string; n: number }[];
 }
 
+/** T-276 activation (20261119000500_first_bets_visit.sql): sign-ups and first Best bets visits per day. */
+interface Activation {
+  days: { day: string; signups: number; first_bets: number }[];
+  signups_7d: number; first_bets_7d: number; first_bets_total: number;
+}
+
 const pct = (a: number, b: number) => (b > 0 ? `${Math.round((a / b) * 100)}%` : "—");
 
 export default async function Page() {
   const { db } = await requireAdmin();
-  const { data, error } = await db.rpc("admin_overview");
+  const [{ data, error }, act] = await Promise.all([db.rpc("admin_overview"), db.rpc("admin_activation")]);
   if (error || !data) {
     return <p role="alert" className="rounded-card border border-warning/40 bg-warning/10 px-4 py-3 text-sm">Couldn&apos;t load the overview. Has the admin migration (supabase/migrations/20261118000000_admin.sql) been applied?</p>;
   }
@@ -30,6 +36,7 @@ export default async function Page() {
   const mrr = o.paying.pro * SITE.prices.pro_monthly + o.paying.premium * SITE.prices.premium_monthly;
   const signups = o.signups.map((d) => ({ ...d, label: new Date(`${d.day}T00:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" }) }));
   const last30 = signups.reduce((n, d) => n + d.n, 0);
+  const a = act.error ? null : (act.data as Activation | null);   // null until the owner applies the migration
 
   return (
     <div className="flex flex-col gap-8">
@@ -49,6 +56,37 @@ export default async function Page() {
           <SignupsChart rows={signups} />
         </div>
       </section>
+
+      {a ? (
+        <section aria-labelledby="activation-h" className="flex flex-col gap-2.5" data-testid="admin-activation">
+          <Stats label="Activation" items={[
+            { k: "Sign-ups, last 7 days", v: exactCount(a.signups_7d), testId: "admin-signups-7d" },
+            { k: "First Best bets visits, last 7 days", v: exactCount(a.first_bets_7d), title: "Accounts whose first signed-in Best bets page load was in the window", testId: "admin-first-bets-7d" },
+            { k: "Reached Best bets, all time", v: exactCount(a.first_bets_total), sub: `${pct(a.first_bets_total, o.users_total)} of all users` },
+            { k: "Active, last 7 days", v: exactCount(o.active_7d), title: "Distinct users with a session refreshed in the window" },
+          ]} />
+          <h2 id="activation-h" className="sr-only">Sign-ups and first Best bets visits per day</h2>
+          <div className="overflow-x-auto rounded-card border border-border bg-surface">
+            <table className="w-full text-sm tabular-nums">
+              <caption className="sr-only">Last 14 days, newest first</caption>
+              <thead className="text-left text-muted">
+                <tr><th scope="col" className="px-4 py-2 font-medium">Day (UTC)</th><th scope="col" className="px-4 py-2 font-medium">Sign-ups</th><th scope="col" className="px-4 py-2 font-medium">First Best bets visits</th></tr>
+              </thead>
+              <tbody>
+                {a.days.slice(-14).reverse().map((d) => (
+                  <tr key={d.day} className="border-t border-border">
+                    <td className="px-4 py-2">{d.day}</td><td className="px-4 py-2">{exactCount(d.signups)}</td><td className="px-4 py-2">{exactCount(d.first_bets)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      ) : (
+        <p className="text-sm text-muted" data-testid="admin-activation-missing">
+          Activation counts (first Best bets visits) need supabase/migrations/20261119000500_first_bets_visit.sql.
+        </p>
+      )}
 
       <Stats label="Revenue (Stripe subscriptions)" items={[
         { k: "Paying subscribers", v: exactCount(payingTotal), sub: `${exactCount(o.paying.pro)} Pro · ${exactCount(o.paying.premium)} Premium` },

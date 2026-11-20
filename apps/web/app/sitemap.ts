@@ -2,7 +2,8 @@
 import type { MetadataRoute } from "next";
 import { siteUrl } from "@/lib/site";
 
-const PUBLIC_PAGES = ["/", "/bets", "/about", "/markets", "/combos", "/tools", "/pricing", "/track-record", "/status", "/terms", "/privacy", "/refunds", "/disclaimer", "/contact", "/signup"];
+// T-276: the pages a signed-out visitor can open (lib/auth/public-paths.ts), minus sign-in plumbing.
+const PUBLIC_PAGES = ["/", "/about", "/pricing", "/track-record", "/status", "/terms", "/privacy", "/refunds", "/disclaimer", "/contact", "/signup"];
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = siteUrl();

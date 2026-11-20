@@ -8,6 +8,9 @@ import { PendingState } from "@/components/screener/States";
 import { SlowDownState } from "@/components/screener/SlowDownState";
 import { betLine, sideRet } from "@/lib/format";
 import { MarketDetail } from "@/components/market/MarketDetail";
+import { TeaserView } from "@/components/market/Teaser";
+import { authEnabled, getUser } from "@/lib/auth/server";
+import { TEASER_DESCRIPTION, marketTeaser } from "@/lib/teaser";
 
 export const dynamic = "force-dynamic";
 
@@ -23,7 +26,14 @@ const load = cache(async (id: string): Promise<MarketResponse | null> => {
   return liveMarketBody(ctx.store, m, ctx.tier);
 });
 
+// T-276: signed out (with accounts on), the page is a teaser: title, category, closing time, sign up. No model output.
+const teaser = cache(async () => authEnabled() && !(await getUser()));
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  if (await teaser()) {
+    const t = await marketTeaser((await params).id).catch(() => null);
+    return t ? { title: t.title, description: TEASER_DESCRIPTION } : { title: "Market" };
+  }
   let data: MarketResponse | null;
   try {
     data = await load((await params).id);
@@ -37,6 +47,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function Page({ params, searchParams }: Props) {
   const [{ id }, { side }] = await Promise.all([params, searchParams]);
+  if (await teaser()) {
+    let t: Awaited<ReturnType<typeof marketTeaser>>;
+    try {
+      t = await marketTeaser(id);
+    } catch (e) {
+      return <div className="mx-auto w-full max-w-[720px]"><PendingState line={pendingLine(e)} /></div>;   // no store yet is not a missing page
+    }
+    if (!t) notFound();
+    return <TeaserView t={t} path={`/m/${encodeURIComponent(id)}`} />;
+  }
   let data: MarketResponse | null;
   try {
     data = await load(id);

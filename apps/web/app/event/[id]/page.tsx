@@ -5,6 +5,9 @@ import { SlowDown, eventBody, pageBudget, pageStore, pendingLine } from "@/lib/d
 import { PendingState } from "@/components/screener/States";
 import { SlowDownState } from "@/components/screener/SlowDownState";
 import { EventView } from "@/components/screener/EventView";
+import { TeaserView } from "@/components/market/Teaser";
+import { authEnabled, getUser } from "@/lib/auth/server";
+import { TEASER_DESCRIPTION, eventTeaser } from "@/lib/teaser";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +22,14 @@ const load = cache(async (id: string) => {
   return ev;
 });
 
+// T-276: signed out (with accounts on), a teaser: title, category, closing time, sign up. No model output.
+const teaser = cache(async () => authEnabled() && !(await getUser()));
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  if (await teaser()) {
+    const t = await eventTeaser((await params).id).catch(() => null);
+    return t ? { title: t.title, description: TEASER_DESCRIPTION } : { title: "Event" };
+  }
   try {
     return { title: (await load((await params).id))?.event ?? "Event" };
   } catch (e) {
@@ -29,6 +39,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function Page({ params }: Props) {
   const { id } = await params;
+  if (await teaser()) {
+    let t: Awaited<ReturnType<typeof eventTeaser>>;
+    try {
+      t = await eventTeaser(id);
+    } catch (e) {
+      return <div className="mx-auto w-full max-w-[720px]"><PendingState line={pendingLine(e)} /></div>;   // no store yet is not a missing page
+    }
+    if (!t) notFound();
+    return <TeaserView t={t} path={`/event/${encodeURIComponent(id)}`} />;
+  }
   let ev: Awaited<ReturnType<typeof load>>;
   try {
     ev = await load(id);

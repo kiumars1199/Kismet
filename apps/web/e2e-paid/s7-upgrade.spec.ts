@@ -75,7 +75,7 @@ test("account delete: type the email, everything goes, signed out", async ({ pag
   const me = await (await page.request.get("/api/me")).json();
   expect(me.user).toBeNull();
   await page.goto("/account");
-  await expect(page).toHaveURL(/\/login\?next=%2Faccount/);
+  await expect(page).toHaveURL(/\/signup\?next=%2Faccount/);   // T-276: signed out, app pages go to sign-up
 });
 
 // Audit fail 5: a Free user reaches the upgrade with the keyboard alone: search → drawer → save → "See plans".

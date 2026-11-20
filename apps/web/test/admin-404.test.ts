@@ -73,7 +73,12 @@ describe("middleware: /api/admin* is 404 before routing for non-admins", () => {
     const hit = await mw({ email: "owner@example.com", email_confirmed_at: "x" });
     expect((await hit("/api/admin", "POST")).status).toBe(200);   // NextResponse.next()
     const anon = await (vi.resetModules(), mw(null));
-    expect((await anon("/api/markets", "GET")).status).toBe(200);
-    expect((await anon("/api/administrator", "GET")).status).toBe(200);
+    // T-276: signed out, other API routes get the account wall's 401, not the admin 404
+    expect((await anon("/api/markets", "GET")).status).toBe(401);
+    expect((await anon("/api/administrator", "GET")).status).toBe(401);
+    expect((await anon("/api/health", "GET")).status).toBe(200);
+    const free = await (vi.resetModules(), mw({ email: "free@example.com", email_confirmed_at: "x" }));
+    expect((await free("/api/markets", "GET")).status).toBe(200);
+    expect((await free("/api/administrator", "GET")).status).toBe(200);
   });
 });

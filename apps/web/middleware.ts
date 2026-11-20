@@ -1,4 +1,5 @@
-// Session refresh (docs/08, docs/15 § Auth) and sign-in prompt for account-only pages (docs/14 §1).
+// Session refresh (docs/08, docs/15 § Auth) and the account wall (T-276): signed out, only lib/auth/public-paths.ts
+// is reachable; other pages redirect to /signup?next=<page>, other API routes answer 401.
 // Refuses AI crawlers always (docs/15); the session part does nothing in demo mode or before Supabase is configured.
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
@@ -6,9 +7,9 @@ import { isAdminEmail, mfaRequired } from "@/lib/admin/core";
 import { maintenanceOn } from "@/lib/maintenance";
 import { isAiBot } from "@/lib/bots";
 import { DEMO_MODE } from "@/lib/config";
+import { signedOutAccess } from "@/lib/auth/public-paths";
 
 const COOKIE_OPTIONS = { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax" as const, path: "/" };
-const SIGNED_IN_ONLY = ["/account", "/watchlist", "/journal", "/alerts", "/dashboards"];
 // Reachable during maintenance (T-142): sign-in (so an admin can always get back in), session, uptime check.
 const MAINTENANCE_OPEN = ["/login", "/reset-password", "/auth", "/api/auth", "/api/me", "/api/health", "/maintenance"];
 const under = (path: string, list: string[]) => list.some((p) => path === p || path.startsWith(p + "/"));
@@ -86,13 +87,31 @@ export async function middleware(req: NextRequest) {
       return r;
     }
   }
-  if (!data.user && SIGNED_IN_ONLY.some((p) => path === p || path.startsWith(p + "/"))) {
-    const to = req.nextUrl.clone();
-    to.pathname = "/login";
-    to.search = `?next=${encodeURIComponent(path + req.nextUrl.search)}`;
-    return NextResponse.redirect(to);
+  if (!data.user) {
+    const wall = accountWall(req);
+    if (wall) {
+      for (const c of res.cookies.getAll()) wall.cookies.set(c);   // keep any cookie the refresh just cleared
+      return wall;
+    }
   }
   return res;
+}
+
+/** The signed-out answer for a request outside the public list (T-276), or null to let it through. */
+export function accountWall(req: NextRequest): NextResponse | null {
+  const path = req.nextUrl.pathname;
+  if (req.method === "OPTIONS") return null;   // CORS preflights carry no cookies
+  // The e2e Stripe mock (next.config rewrite /v1/* → /e2e-mock/stripe, dev + E2E_MOCK only): server-to-server, no cookies.
+  if (process.env.E2E_MOCK === "1" && process.env.NODE_ENV !== "production" && path.startsWith("/v1/")) return null;
+  const access = signedOutAccess(path, req.nextUrl.searchParams);
+  if (access === "public") return null;
+  if (access === "api401") {
+    return NextResponse.json({ error: "Sign in to use this.", signin: "/login" }, { status: 401, headers: { "Cache-Control": "private, no-store" } });
+  }
+  const to = req.nextUrl.clone();
+  to.pathname = access === "login" ? "/login" : "/signup";
+  to.search = `?next=${encodeURIComponent(path + req.nextUrl.search)}`;
+  return NextResponse.redirect(to);
 }
 
 export const config = {

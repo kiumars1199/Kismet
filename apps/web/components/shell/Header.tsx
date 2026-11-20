@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BETA_LINKS, MAIN_TABS, isActive } from "./nav";
+import { BETA_LINKS, MAIN_TABS, SALES_TABS, isActive } from "./nav";
+import { useMe } from "@/lib/me";
 import { BetaBadge } from "@/components/beta/BetaBadge";
 import { useEntitlements } from "@/lib/entitlements";
 import { SearchCombobox } from "@/components/search/SearchCombobox";
@@ -26,12 +27,16 @@ export function Logo() {
 export function Header() {
   const pathname = usePathname();
   const { canBeta } = useEntitlements();
+  const me = useMe();
+  // T-276: signed out, the app tabs, search and alerts all lead to the sign-up wall, so show the sales pages.
+  const signedOut = !!me?.auth && !me.user;
+  const tabs = signedOut ? SALES_TABS : MAIN_TABS;
   return (
     <header className="flex flex-wrap items-center gap-x-7 gap-y-3 border-b border-border px-4 py-3 md:px-8 md:py-4">
       <Logo />
       <nav aria-label="Main" className="hidden gap-1 md:flex md:flex-wrap">
-        {MAIN_TABS.map((t) => {
-          const active = isActive(pathname, t.href);
+        {tabs.map((t) => {
+          const active = signedOut ? pathname === t.href : isActive(pathname, t.href);
           return (
             <Link
               key={t.href}
@@ -55,10 +60,10 @@ export function Header() {
         ))}
       </nav>
       <div className="flex flex-[1_1_260px] items-center justify-end gap-2 sm:gap-3">
-        <SearchCombobox />
-        <Link href="/about" aria-current={pathname === "/about" ? "page" : undefined} className="hidden whitespace-nowrap text-sm text-muted hover:text-text lg:block">How it works</Link>
+        {!signedOut && <SearchCombobox />}
+        {!signedOut && <Link href="/about" aria-current={pathname === "/about" ? "page" : undefined} className="hidden whitespace-nowrap text-sm text-muted hover:text-text lg:block">How it works</Link>}
         <FreshnessPill />
-        <Bell />
+        {!signedOut && <Bell />}
         <AccountLink />
       </div>
     </header>

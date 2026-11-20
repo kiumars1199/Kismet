@@ -136,7 +136,7 @@ describe("RLS (supabase/migrations)", () => {
       select p.proname as name, p.proconfig as config,
         has_function_privilege('anon', p.oid, 'execute') as anon, has_function_privilege('authenticated', p.oid, 'execute') as auth
       from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public' and p.prosecdef`)).rows;
-    expect(fns.map((f) => f.name).sort()).toEqual(["admin_grant_plan", "admin_overview", "admin_revoke_grant", "admin_revoke_sessions",
+    expect(fns.map((f) => f.name).sort()).toEqual(["admin_activation", "admin_grant_plan", "admin_overview", "admin_revoke_grant", "admin_revoke_sessions",
       "admin_user_detail", "admin_users", "apply_pending_plan_grant", "enforce_session_limit", "handle_new_user"]);
     for (const f of fns) {
       expect(f.config, f.name).toContain("search_path=\"\"");
@@ -228,6 +228,18 @@ describe("RLS (supabase/migrations)", () => {
     await db.exec(`update subscriptions set tier = 'pro' where user_id = '${B}'`);
     expect(await as("authenticated", B, `insert into journal (market_id, side_index, price, shares) values ('m2', 0, 0.5, 1) returning market_id`)).toEqual([{ market_id: "m2" }]);
     await db.exec(`update subscriptions set tier = 'free' where user_id = '${B}'; delete from journal where user_id = '${B}'`);
+  });
+
+  it("T-276: first_bets_at is server-owned, and the activation counts are service-role only", async () => {
+    await expect(as("authenticated", A, "update profiles set first_bets_at = now()")).rejects.toThrow(/set by the server/);
+    await db.exec(`update profiles set first_bets_at = now() where user_id = '${A}' and first_bets_at is null`);   // lib/activation.ts
+    await expect(as("authenticated", A, "update profiles set first_bets_at = null")).rejects.toThrow(/set by the server/);
+    await expect(as("authenticated", A, "select public.admin_activation()")).rejects.toThrow(/permission denied/);
+    const r = (await db.query<{ a: { first_bets_total: number; days: { first_bets: number }[] } }>("select public.admin_activation() as a")).rows[0]!.a;
+    expect(r.first_bets_total).toBe(1);
+    expect(r.days).toHaveLength(30);
+    expect(r.days.at(-1)!.first_bets).toBe(1);
+    await db.exec(`update profiles set first_bets_at = null where user_id = '${A}'`);
   });
 
   it("RT-08/RT-11 + admin comps: the database uses the same plan as the app (Stripe tier or an unexpired comp)", async () => {

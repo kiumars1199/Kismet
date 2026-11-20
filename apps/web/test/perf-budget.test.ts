@@ -39,7 +39,7 @@ describe("first-load JS budget", () => {
     expect(bad).toEqual([]);
     const gate = src("components/market/DrawerGate.tsx");
     expect(gate).toMatch(/dynamic\(\(\) => import\("\.\/DrawerHost"\)/);
-    expect(gate).toMatch(/useSearchParams\(\)\.has\("m"\)/);
+    expect(gate).toMatch(/useSearchParams\(\)\.(has|get)\("m"\)/);   // T-276: get, to send a signed-out ?m to sign-up
   });
 
   it("Sentry and PostHog start when the page is idle, not at load", () => {

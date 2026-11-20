@@ -8,7 +8,8 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 const h = vi.hoisted(() => ({ tier: "free" as "free" | "pro" }));
-vi.mock("@/lib/auth/server", () => ({ getMe: async () => ({ user: null, tier: h.tier }), getTier: async () => h.tier }));
+// T-276: authEnabled false = accounts off, so /m and /event render the data path, not the signed-out teaser (test/teaser.test.ts)
+vi.mock("@/lib/auth/server", () => ({ getMe: async () => ({ user: null, tier: h.tier }), getTier: async () => h.tier, authEnabled: () => false, getUser: async () => null }));
 vi.mock("next/headers", () => ({ headers: async () => new Headers() }));   // page loads key the rate limit on it (RT3-02)
 
 const FIX = path.resolve(__dirname, "fixtures");

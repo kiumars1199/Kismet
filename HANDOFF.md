@@ -95,6 +95,8 @@ so a cloud session can continue. Work on `final`; every push to `final` deploys 
 - Vercel: `ADMIN_EMAILS` including `kismetodds@gmail.com`; check the Stripe env vars (live `/pricing` says "Coming soon"
   because `/api/me` reports `billing: false`).
 - Apply migration `20261119000300_plan_grants.sql` in Supabase (`/admin/grants` errors until then).
+- Apply migration `20261119000500_first_bets_visit.sql` in Supabase (T-276: `profiles.first_bets_at` + the
+  `admin_activation()` counts). Until then Best bets skips the write and /admin shows a note instead of Activation.
 - `NEXT_PUBLIC_GOOGLE_AUTH=1` only after Google OAuth is set up in Supabase.
 - Kalshi: written data permission before `KALSHI_DATA_PERMISSION=true` (Vercel and the scan step env in refresh.yml);
   check that `https://kalshi.com/markets/<series>` links resolve.
@@ -127,3 +129,27 @@ so a cloud session can continue. Work on `final`; every push to `final` deploys 
 - Owner (optional): Supabase "leaked password protection" on; Site URL / redirect allow-list must include
   `/auth/callback` (already used by the email link). A confirmation link opened in another browser confirms the
   address but can't sign that browser in (PKCE); the /login error says to log in with the password.
+
+## Account required (T-276)
+- Signed out, only the public list in `apps/web/lib/auth/public-paths.ts` answers (one place; extend it there):
+  `/`, `/pricing`, `/about`, `/track-record`, `/status`, the legal pages, `/login`, `/signup`, `/reset-password`,
+  `/auth/*`, `/m/*` and `/event/*` (teasers), `/maintenance`, robots/sitemap/llms.txt/`.well-known`/icons/share images. Every other
+  page redirects to `/signup?next=<page+query>` (`/oauth/*` to `/login?next=`); every other API route is a 401
+  JSON `{ error, signin }`. Public APIs: health, meta, me, backtest (same figures as /track-record), `/api/auth/*`, stripe webhook, unsubscribe, the two cron
+  routes, the extension's token refresh/telemetry/trade config/nonce verify, `/api/events/by-slug` (the route itself
+  needs a session or an extension bearer token) and `/api/mcp` (OAuth bearer, checked by the route). `/admin` and
+  `/e2e-mock` keep answering 404 to non-admins. Demo mode and builds without Supabase keys have no wall.
+- Signed-out `/` is the landing (`components/landing/Landing.tsx`): hero, 3 real Free-gated best bets + 6 blurred
+  placeholder shapes (no data), proof from backtest.json (+ the live ledger once bets are graded), plans, FAQ,
+  disclaimer. Signed out, `/` with any query is the landing; only `/?m=<id>` (a market deep link) goes to sign-up.
+  The 3 real cards are the Free daily sample (key "landing"), the CTA says "Sign up free to see 10 of all N bets".
+- `/m/<id>` and `/event/<id>` signed out: title, category, closing time and "Kismet has a verdict on this market.
+  Sign up free to see it" (`lib/teaser.ts`, `components/market/Teaser.tsx`); the share image is the teaser too.
+- Header signed out: How it works, Results, Pricing, Log in, Sign up (no search, alerts or app tabs). Until
+  `/api/me` answers, the header briefly shows the app tabs (client-side, as before).
+- e2e only: the Stripe mock rewrite `/v1/*` (next.config, dev + E2E_MOCK) passes the wall.
+- Admin → Activation: sign-ups and first Best bets visits per day and over 7 days (`admin_activation()`); the visit is
+  stamped once per account after a signed-in Best bets render (`lib/activation.ts`, service role, best effort).
+- Not changed, for the owner to know: `ops/redteam/*` scripts call `/api/markets` and `/api/flags` without a cookie;
+  they now get 401 (expected). `ops/smoke-prod.sh` only uses public routes and still passes.
+

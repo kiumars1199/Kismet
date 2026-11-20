@@ -53,6 +53,10 @@ The scan is regenerated every 2 h and is read-only. An in-memory store is simple
 (15k markets). Move to Postgres only if scans run more often than every 10 min or rows exceed ~200k.
 
 ## API routes (web)
+T-276: signed out, every route below answers 401 JSON except the public list in `apps/web/lib/auth/public-paths.ts`
+(`PUBLIC_API`: health, meta, me, auth, Stripe webhook, unsubscribe, cron routes, extension token/telemetry,
+`events/by-slug` with its own session-or-token check, MCP). "public" in the table means "any signed-in tier".
+
 | Route | Method | Auth | Returns |
 |---|---|---|---|
 | `/api/meta` | GET | public | scan time, counts, facets (categories, niches, types with counts) |

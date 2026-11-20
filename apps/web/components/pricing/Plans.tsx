@@ -75,10 +75,10 @@ function PlanButton({ id, annual, demo, me, featured }: { id: string; annual: bo
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const cls = `flex min-h-11 items-center justify-center rounded-input px-4 font-semibold disabled:cursor-not-allowed disabled:opacity-60 ${featured ? "bg-accent text-on-accent hover:bg-accent-hover" : "border border-border bg-muted-bg hover:border-accent-border"}`;
-  if (id === "free") return <Link href={me?.auth && !me.user ? "/login?next=/" : "/"} className={cls}>Start free</Link>;
+  if (id === "free") return <Link href={me?.auth && !me.user ? "/signup" : "/"} className={cls}>Start free</Link>;
   if (demo || me?.demo) return <Link href="/" className={cls}>Start trial</Link>;
   if (!me?.billing) return <button type="button" disabled className={cls}>Coming soon</button>;
-  if (!me.user) return <Link href="/login?next=/pricing" className={cls}>Start trial</Link>;
+  if (!me.user) return <Link href="/signup?next=/pricing" className={cls}>Start trial</Link>;
   if (me.tier === id) return <Link href="/account" className={cls}>Your plan</Link>;
 
   async function start() {

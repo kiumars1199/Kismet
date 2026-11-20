@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
-import { BETA_LINKS, MAIN_TABS, MORE_LINKS, isActive } from "./nav";
+import { BETA_LINKS, MAIN_TABS, MORE_LINKS, SALES_TABS, isActive } from "./nav";
+import { useMe } from "@/lib/me";
 import { BetaBadge } from "@/components/beta/BetaBadge";
 import { useEntitlements } from "@/lib/entitlements";
 
@@ -16,6 +17,20 @@ export function MobileNav() {
   const beta = BETA_LINKS.filter((l) => canBeta(l.feature));
   const moreActive = [...MORE_LINKS, ...beta].some((l) => isActive(pathname, l.href));
   const tab = "flex min-h-11 items-center justify-center py-2.5";
+  const me = useMe();
+  if (me?.auth && !me.user) {
+    // T-276: signed out, the app tabs only lead to the sign-up wall; show the sales pages and sign-up instead.
+    return (
+      <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-border bg-background pb-[max(env(safe-area-inset-bottom),8px)] pt-1 text-[13px] md:hidden">
+        {SALES_TABS.map((t) => (
+          <Link key={t.href} href={t.href} aria-current={pathname === t.href ? "page" : undefined} className={`${tab} ${pathname === t.href ? "text-accent" : "text-muted"}`}>
+            {t.label}
+          </Link>
+        ))}
+        <Link href="/signup" className={`${tab} font-semibold text-accent`}>Sign up</Link>
+      </nav>
+    );
+  }
 
   return (
     <>

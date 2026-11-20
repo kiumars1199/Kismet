@@ -8,6 +8,9 @@ vi.mock("@/lib/auth/server", () => ({
   COOKIE_OPTIONS: { httpOnly: true, sameSite: "lax", path: "/" },
   getMe: async () => ({ user: h.user, tier: h.tier, status: null, current_period_end: null, cancel_at_period_end: false }),
   getTier: async () => h.tier,
+  // T-276: the route-level gates are checked as if accounts were off (no signed-out teaser), so anon still sees the data path
+  authEnabled: () => false,
+  getUser: async () => h.user,
   supabaseServer: async () => ({
     // signed-in Free user's reveal rows (drawer_reveals): none yet, inserts succeed
     from: () => ({ select: () => ({ eq: async () => ({ data: [] }) }), insert: async () => ({ error: null }) }),

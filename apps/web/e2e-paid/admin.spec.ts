@@ -27,7 +27,18 @@ async function signIn(page: Page, email: string) {
 }
 
 // Beta features (lib/beta.ts): customers get 404s and no nav link; admins get the pages, marked Beta.
-async function expectNoBeta(page: Page) {
+async function expectNoBeta(page: Page, signedOut = false) {
+  if (signedOut) {   // T-276: signed out, beta pages are behind the account wall like every app page, and their APIs are 401
+    for (const p of ["/combos", "/kalshi"]) {
+      await page.goto(p);
+      await expect(page).toHaveURL(new RegExp(`/signup\\?next=%2F${p.slice(1)}$`));
+    }
+    for (const p of ["/api/combos?pays=2", "/api/kalshi", "/api/combos/kalshi"]) expect((await page.request.get(p)).status(), p).toBe(401);
+    await page.goto("/pricing");
+    await expect(page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: /Combos|Kalshi/ })).toHaveCount(0);
+    expect((await (await page.request.get("/api/me")).json()).beta).toBeFalsy();
+    return;
+  }
   for (const p of ["/combos", "/kalshi"]) expect((await page.goto(p))?.status(), p).toBe(404);
   await page.goto("/pricing");
   await expect(page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: /Combos|Kalshi/ })).toHaveCount(0);
@@ -35,6 +46,14 @@ async function expectNoBeta(page: Page) {
   expect((await page.request.get("/api/kalshi")).status()).toBe(404);
   expect((await (await page.request.get("/api/combos/kalshi")).json()).enabled).toBe(false);
   expect((await (await page.request.get("/api/me")).json()).beta).toBeFalsy();
+}
+
+/** Wait for the write itself (60 s, cold compiles under load), then the status line: not a fixed 5 s. */
+async function saveSettings(page: Page) {
+  const write = page.waitForResponse((r) => r.request().method() === "POST" && new URL(r.url()).pathname === "/api/admin", { timeout: 60_000 });
+  await page.getByRole("button", { name: "Save changes" }).click();
+  expect((await write).status()).toBe(200);
+  await expect(page.getByRole("status").filter({ hasText: "Saved." })).toBeVisible();
 }
 
 async function expectNoAdmin(page: Page) {
@@ -63,9 +82,17 @@ test("admin: sees /admin with a user count, flips the banner and everyone sees i
   }
   expect((await page.request.get("/api/kalshi")).status()).toBe(200);
 
-  await page.goto("/admin");
+  // T-276 activation: a signed-in Best bets render stamps the first visit (after the response, so poll /admin)
+  await page.goto("/");
+  await expect(page.locator("[data-row]").first()).toBeVisible({ timeout: 30_000 });
+  await expect(async () => {
+    await page.goto("/admin");
+    await expect(page.getByTestId("admin-first-bets-7d")).toHaveText(/^[1-9][\d,]*$/, { timeout: 2_000 });
+  }).toPass({ timeout: 60_000 });
   await expect(page.getByRole("heading", { name: "Admin", exact: true })).toBeVisible();
   await expect(page.getByTestId("admin-users-total")).toHaveText(/^[1-9][\d,]*$/);
+  // T-276 activation: this admin's sign-up is counted (the mock serves admin_activation like the migration)
+  await expect(page.getByTestId("admin-signups-7d")).toHaveText(/^[1-9][\d,]*$/);
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
   await expect(page.getByText("Market analytics, not financial advice. Based on past results. 18+.")).toBeVisible();
 
@@ -73,8 +100,7 @@ test("admin: sees /admin with a user count, flips the banner and everyone sees i
   await page.goto("/admin/settings");
   await page.getByRole("switch", { name: "Show announcement banner" }).click();
   await page.getByLabel("Banner text").fill(text);
-  await page.getByRole("button", { name: "Save changes" }).click();
-  await expect(page.getByRole("status").filter({ hasText: "Saved." })).toBeVisible();
+  await saveSettings(page);
 
   await page.goto("/pricing");
   await expect(page.getByTestId("site-banner")).toHaveText(text);
@@ -90,8 +116,7 @@ test("admin: sees /admin with a user count, flips the banner and everyone sees i
   // turn it off again so other specs see the default site
   await page.goto("/admin/settings");
   await page.getByRole("switch", { name: "Show announcement banner" }).click();
-  await page.getByRole("button", { name: "Save changes" }).click();
-  await expect(page.getByRole("status").filter({ hasText: "Saved." })).toBeVisible();
+  await saveSettings(page);
   await page.goto("/pricing");
   await expect(page.getByTestId("site-banner")).toHaveCount(0);
 });
@@ -107,6 +132,6 @@ test("normal user and anonymous visitor: 404 on every admin page and API route, 
   const anon = await ctx.newPage();
   await anon.goto("/");
   await expectNoAdmin(anon);
-  await expectNoBeta(anon);
+  await expectNoBeta(anon, true);
   await ctx.close();
 });
