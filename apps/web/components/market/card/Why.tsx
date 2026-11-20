@@ -7,7 +7,7 @@ import type { ReactNode } from "react";
 import type { ApiRow } from "@/lib/api";
 import { backLine, cardVenue, INTL_ONLY, NOT_FOR_US, priceText, stars, starsHelp, type CardVenue } from "@/lib/card";
 import { paysBand } from "@/lib/filters/bands";   // not ./apply: zod on the landing (T-295)
-import { cardReturn, money, pct, ret, testedLine } from "@/lib/format";
+import { cardReturn, ESTIMATE_HELP, money, PAST_RETURN_HELP, pastReturnLine, pct, ret, testedLine } from "@/lib/format";
 import { noLiveRecord } from "@/lib/proof";
 import type { Execution, Market, Side } from "@/lib/types";
 import dynamic from "next/dynamic";
@@ -77,10 +77,20 @@ export function Why({ r, livePrice }: { r: ApiRow; livePrice?: ReactNode }) {
   const back = backLine(v);
   const st = stars({ roi_pct: v.roi_pct, model_neff: s.model_neff });
   const band = paysBand({ ask: v.ask ?? s.ask });
-  const tested = testedLine(band ? bt?.chosen?.by_pays?.[m.tier ?? "best"]?.[band] : undefined);
+  // #14/#51 (Mark, Nov 20): say which group the test record is (Best bets vs lower-confidence bets, at this payout) so it
+  // can't be read as contradicting /track-record, which shows Best bets; and when that group lost money in testing
+  // while this bet's estimate is positive, say plainly that the estimate is the less trustworthy of the two.
+  const bandRec = band ? bt?.chosen?.by_pays?.[m.tier ?? "best"]?.[band] : undefined;
+  const bandWords = band ? ({ "<1.5x": "under 1.5x", "10x+": "10x or more" } as Record<string, string>)[band] ?? band.replace("-", "–") : null;
+  const group = `${m.tier === "edge" ? "Lower-confidence bets" : "Best bets"}${bandWords ? ` paying ${bandWords}` : ""}`;
+  const tested = testedLine(bandRec, group);
+  const estRoi = v.kind === "us" ? v.roi_pct : cardReturn(s).roi;
+  const clash = !!bandRec?.flags && (bandRec.roi_pct ?? 0) < 0 && (estRoi ?? 0) > 0;
   const intl = venueOf(m);
   const notes = priceNotes(m.execution);
   const usRet = v.kind === "us" ? usReturnText(v, banded) : null;
+  // the past-bets figure is priced at the international ask; beside a US price it would compare two different prices
+  const past = v.kind === "us" ? null : pastReturnLine(s);
   return (
     <details data-testid="why" className="group relative z-10 rounded-xl border border-border/70 bg-background/40 open:bg-background/60"
       onClick={(e) => e.stopPropagation()}>
@@ -103,14 +113,21 @@ export function Why({ r, livePrice }: { r: ApiRow; livePrice?: ReactNode }) {
           </Line>
           <Line label="Estimated return">
             <span data-testid="why-return">{v.kind === "us" ? (usRet ?? "No Polymarket US price right now") : cardReturn(s).text}</span>
-            <span className="block text-xs text-muted">Per bet, on average, at today&apos;s price after the fee. Any single bet can lose.</span>
+            <span className="block text-xs text-muted">{ESTIMATE_HELP}</span>
           </Line>
+          {past && (
+            <Line label="Similar past bets" testid="why-past">
+              <span data-testid="why-past-return">{past}</span>
+              <span className="block text-xs text-muted">{PAST_RETURN_HELP}</span>
+            </Line>
+          )}
           <Line label="How sure we are" testid="why-basis">
             {s.model_neff >= 100 ? "Plenty of history" : "Little history"}: based on {pastBets(s.model_neff)} in {basisWords(m, s)}
           </Line>
           {tested && (
             <Line label="In testing" testid="why-tested">
               <span data-testid="band-record">{tested}</span>
+              {clash && <span data-testid="band-clash" className="block text-xs text-warning">Bets like this lost money in testing, so treat the estimated return above with caution.</span>}
               {/* T-290: a test record with no live counterpart says so instead of borrowing the best-bets record */}
               {m.tier === "edge" && <span data-testid="band-live" className="block cursor-help text-xs text-muted underline decoration-dotted underline-offset-4" title={noLiveRecord("lower-confidence bets")}>No live record yet</span>}
             </Line>

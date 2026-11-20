@@ -9,7 +9,7 @@
 // strip and results ticker are gone: "Bigger payouts" is a chip (best bets that win less often), lower-confidence
 // bets come in through a payout filter (tierOf), Combos has its own page, results are one link away.
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import type { ApiGroup, ApiRow, MarketsResponse } from "@/lib/api";
 import { cardVenue, plainTitle, priceText, sideLabel } from "@/lib/card";
 import type { FilterState } from "@/lib/filters/state";
@@ -17,7 +17,7 @@ import { ago, formatCount } from "@/lib/format";
 import { REFRESH_WORDS, freshness } from "@/lib/freshness";
 import { savePresetFromState } from "@/lib/presets";
 import { timeWindow } from "@/lib/search/parse";
-import { TAXONOMY, TAXONOMY_TREE } from "@/lib/taxonomy";
+import { TAXONOMY } from "@/lib/taxonomy";
 import { BetCard } from "@/components/market/BetCard";
 import { drawerHref, useOpenDrawer } from "@/components/market/drawer";
 import { SaveViewDialog } from "@/components/presets/SaveViewDialog";
@@ -30,6 +30,7 @@ import { FilterPanel } from "./FilterPanel";
 import { EmptyState, ErrorState, StaleBanner } from "./States";
 import { useDesktop } from "./useDesktop";
 import { LockedBets } from "./LockedBets";
+import { FilterBar, barValues } from "./FilterBar";
 import { queryFor, useMeta, useScreener } from "./useScreener";
 
 const nf = formatCount;   // docs/18 §4: counts short, rounded down
@@ -37,7 +38,6 @@ const GRID = "grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
 const TOP = 5;
 const H = 3_600_000;
 const r2 = (x: number) => Math.round(x * 100) / 100;
-const SPORTS = (TAXONOMY_TREE.find((n) => n.id === "sports")?.children ?? []).map((n) => n.id);
 
 /** 44px chip (R2: tap targets), the same look as the other pills. */
 const chip = (on: boolean) =>
@@ -103,7 +103,6 @@ function Cards({ slots, desktop, label }: { slots: Slot[]; desktop: boolean; lab
   );
 }
 
-type Change = (p: Partial<FilterState>, opts?: { replace?: boolean }) => void;
 
 /** Closing windows in the viewer's timezone, stored as hours from the scan (what the data measures from); the same
  *  arithmetic as the Closes pill on All markets (components/search/FilterPills.tsx). */
@@ -115,93 +114,13 @@ function windowFor(kind: "today" | "week", scannedAt: number | undefined) {
   return { closes_after_h: after > 0.05 ? r2(after) : undefined, closes_within_h: r2((w.to - scan) / H) };
 }
 
-/** Win-chance bands, in plain words, cut where Best bets actually sit: nearly all win 60%+ of the time (real scan,
- *  Nov 20: 740 of 1,070 at 85%+, 268 at 70–85%, 62 under 70%). The default 40% floor stays on. */
-const RISK: { key: string; label: string; patch: Pick<FilterState, "win_prob_min" | "win_prob_max">; help: string }[] = [
-  { key: "safer", label: "Safer", patch: { win_prob_min: 0.85, win_prob_max: undefined }, help: "Won 85% of the time or more" },
-  { key: "balanced", label: "Balanced", patch: { win_prob_min: 0.7, win_prob_max: 0.85 }, help: "Won 70–85% of the time" },
-  { key: "bigger", label: "Bigger payouts", patch: { win_prob_min: undefined, win_prob_max: 0.7 }, help: "Pays more, loses more often: won under 70% of the time" },
-];
-
-/** Which chips are pressed. A time chip matches on the window's end, within 15 minutes: the window is measured from
- *  the scan and recomputed from the clock, so an exact match would un-press it a minute later. */
-function chipsFor(s: FilterState, facets: MarketsResponse["facets"] | undefined, scannedAt: number | undefined) {
-  const chosen = s.topics ?? [];
-  const sports = [...new Set([...chosen.filter((id) => SPORTS.includes(id)), ...SPORTS.filter((id) => (facets?.topics[id] ?? 0) > 0)
-    .sort((a, b) => (facets?.topics[b] ?? 0) - (facets?.topics[a] ?? 0))])].slice(0, 6);
-  const today = windowFor("today", scannedAt);
-  const week = windowFor("week", scannedAt);
-  const near = (w: typeof today) => s.closes_within_h !== undefined && Math.abs(s.closes_within_h - w.closes_within_h) <= 0.25;
-  const time = { today: near(today), week: !near(today) && near(week) };
-  const risk = RISK.find((r) => s.win_prob_min === r.patch.win_prob_min && s.win_prob_max === r.patch.win_prob_max)?.key;
-  return { chosen, sports, today, week, time, risk };
-}
-
-function ChipRow({ state: s, facets, scannedAt, usOn, onChange, children }: {
-  state: FilterState; facets?: MarketsResponse["facets"]; scannedAt?: number; usOn: boolean; onChange: Change; children?: React.ReactNode;
-}) {
-  const c = chipsFor(s, facets, scannedAt);
-  const { chosen, sports } = c;
-  return (
-    <div role="group" aria-label="Quick filters" className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] md:mx-0 md:flex-wrap md:overflow-visible md:px-0">
-      {sports.map((id) => {
-        const on = chosen.includes(id);
-        return (
-          <button key={id} type="button" aria-pressed={on} className={chip(on)}
-            onClick={() => onChange({ topics: on ? (chosen.filter((x) => x !== id).length ? chosen.filter((x) => x !== id) : undefined) : [id], categories: undefined })}>
-            {TAXONOMY[id]?.label ?? id}
-          </button>
-        );
-      })}
-      <button type="button" className={chip(chosen.some((id) => !sports.includes(id)) || !!s.categories?.length)}
-        onClick={() => window.dispatchEvent(new Event("me:toggle-filters"))}>
-        More sports
-      </button>
-      <span aria-hidden="true" className="mx-1 h-6 w-px flex-none bg-border" />
-      {([["Today", "today"], ["This week", "week"]] as const).map(([label, k]) => {
-        const on = c.time[k];
-        return (
-          <button key={label} type="button" aria-pressed={on} className={chip(on)} suppressHydrationWarning
-            onClick={() => onChange(on ? { closes_after_h: undefined, closes_within_h: undefined } : c[k])}>
-            {label}
-          </button>
-        );
-      })}
-      <span aria-hidden="true" className="mx-1 h-6 w-px flex-none bg-border" />
-      {RISK.map((r) => {
-        const on = c.risk === r.key;
-        return (
-          <button key={r.key} type="button" aria-pressed={on} title={r.help} className={chip(on)}
-            onClick={() => onChange(on ? { win_prob_min: undefined, win_prob_max: undefined } : r.patch)}>
-            {r.label}
-          </button>
-        );
-      })}
-      {usOn && (
-        <>
-          <span aria-hidden="true" className="mx-1 h-6 w-px flex-none bg-border" />
-          <button type="button" aria-pressed={s.us} data-testid="us-chip" className={chip(s.us)}
-            title="Only bets you can place on Polymarket US, at its price and fee"
-            onClick={() => onChange({ us: !s.us })}>
-            {s.us && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true"><path d="m5 12 5 5 9-10" /></svg>}
-            On Polymarket US
-          </button>
-        </>
-      )}
-      {children}
-    </div>
-  );
-}
-
-/** AppliedPills leaves out a filter only while a pressed chip already shows it (keys: components/screener/AppliedPills.tsx).
- *  Anything set in the sheet, a saved view or a shared link with no pressed chip keeps its removable pill. */
-function chipPills(s: FilterState, facets: MarketsResponse["facets"] | undefined, scannedAt: number | undefined) {
-  const c = chipsFor(s, facets, scannedAt);
-  const shownTopics = new Set(c.sports.filter((id) => c.chosen.includes(id)));
+/** AppliedPills leaves out what the filter bar already shows (its three values); anything else keeps its pill. */
+function barPills(s: FilterState, win: Parameters<typeof barValues>[1]) {
+  const v = barValues(s, win);
   return (key: string) =>
-    (key.startsWith("topics:") && shownTopics.has(key.slice(7))) ||
-    (!!c.risk && (key === "wp" || key === "wp1")) ||
-    ((c.time.today || c.time.week) && (key === "cw" || key === "ca"));
+    (!!v.sport && (key === `topics:${v.sport.slice(2)}` || key === `categories:${v.sport.slice(2)}`)) ||
+    (!!v.mult && key === "pays") ||
+    (!!v.date && (key === "cw" || key === "ca"));
 }
 
 /** initial: the server's /api/flags page 1 for this URL, so the cards and the headline count are final on first
@@ -232,6 +151,7 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
   const scanned = meta?.meta.scanned_at ?? initial?.scanned_at;   // server value first: the stale banner paints with the cards
   // §G2: the "On Polymarket US" chip exists once the scan carries US quotes (older scans: the filter is a no-op)
   const usOn = meta ? meta.meta.us?.ok === true : rows.some((r) => !!r.market.us);
+  const win = useMemo(() => ({ today: windowFor("today", scanned), week: windowFor("week", scanned) }), [scanned]);
   const topic = state.topics?.length === 1 ? TAXONOMY[state.topics[0]!]?.label : state.categories?.length === 1 ? TAXONOMY[state.categories[0]!]?.label : undefined;
 
   const save = async (name: string, emoji: string | null) => {
@@ -263,14 +183,24 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
 
       <TodayCard />
 
-      <ChipRow state={state} facets={sc.facets} scannedAt={scanned} usOn={usOn} onChange={set}>
+      {/* Mark's filter bar (Nov 20): Sport · Multiplier · Date · Apply, then count and Sort */}
+      <FilterBar state={state} facets={sc.facets} win={win} total={total} onChange={set} />
+      <div role="group" aria-label="More filters" className="flex flex-wrap items-center gap-2">
+        {usOn && (
+          <button type="button" aria-pressed={state.us} data-testid="us-chip" className={chip(state.us)}
+            title="Only bets you can place on Polymarket US, at its price and fee"
+            onClick={() => set({ us: !state.us })}>
+            {state.us && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true"><path d="m5 12 5 5 9-10" /></svg>}
+            On Polymarket US
+          </button>
+        )}
         <FilterPanel state={state} mode="flags" facets={sc.facets} meta={meta} onChange={set} onReset={reset} />
         <button type="button" onClick={() => (setSaved(null), setSaving(true))} className="inline-flex min-h-11 flex-none items-center whitespace-nowrap px-2 text-[13px] text-muted hover:text-text">+ Save this view</button>
         <span role="status" className="text-[13px] text-accent-softer empty:hidden">{saved?.ok ? saved.msg : ""}</span>
-      </ChipRow>
+      </div>
       <SaveViewDialog open={saving} title="Save this view" error={saved && !saved.ok ? saved.msg : null} onSubmit={save} onClose={() => setSaving(false)} />
       <SearchChips q={state.q} search={data?.search} onChange={set} />
-      <AppliedPills state={state} mode="flags" onChange={set} onReset={reset} omit={chipPills(state, sc.facets, scanned)} />
+      <AppliedPills state={state} mode="flags" onChange={set} onReset={reset} omit={barPills(state, win)} />
       <StaleBanner scannedAt={scanned} />
 
       {error && !data ? (
@@ -289,8 +219,10 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
             : { href: "/markets", label: "Look in All markets" }}
         />
       ) : (
-        <div data-testid="bets-list" aria-busy={busy} className={`flex flex-col gap-4 transition-opacity duration-200 ease-out ${busy ? "pointer-events-none opacity-60" : ""}`}>
-          {busy && <p role="status" className="sr-only">Updating best bets</p>}
+        <>
+        {/* #45: the old list stays only as a dim backdrop that can't be used; a visible label says it is being replaced */}
+        {busy && <p role="status" data-testid="bets-updating" className="sticky top-16 z-20 mx-auto -mb-2 rounded-full border border-border bg-surface px-4 py-1.5 text-sm font-medium text-text shadow">Updating bets…</p>}
+        <div data-testid="bets-list" aria-busy={busy} inert={busy || undefined} className={`flex flex-col gap-4 transition-opacity duration-200 ease-out ${busy ? "pointer-events-none opacity-40" : ""}`}>
           {error && <ErrorState onRetry={sc.retry} what="best bets" error={error} />}
           <h2 id="top-h" className="text-xl font-semibold">Today&apos;s top {Math.min(TOP, slots.length)}</h2>
           <Cards slots={slots.slice(0, TOP)} desktop={desktop} label="top-h" />
@@ -312,6 +244,7 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
             </button>
           )}
         </div>
+        </>
       )}
     </div>
   );

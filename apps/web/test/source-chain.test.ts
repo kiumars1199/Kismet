@@ -8,6 +8,9 @@ const fixture = (file: string) => {
   try { return readFileSync(path.join("test/fixtures", file), "utf8"); } catch { return undefined; }
 };
 
+/** #46: a fallback is used only while its scan is recent; these tests run "now" 10 minutes after the fixture scan. */
+const NOW = (JSON.parse(fixture("markets.json")!) as { meta: { scanned_at: number } }).meta.scanned_at + 600;
+
 /** fetch stub: each host answers with `ok` (serve fixtures) or a status code. */
 function stubFetch(hosts: { supabase: "ok" | number; github: "ok" | number }) {
   const calls: string[] = [];
@@ -54,7 +57,7 @@ describe("data source chain", () => {
     vi.stubEnv("VERCEL_GIT_REPO_OWNER", "owner");   // no GITHUB_DATA_REPO: the repo Vercel deployed from
     vi.stubEnv("VERCEL_GIT_REPO_SLUG", "repo");
     const calls = stubFetch({ supabase: 503, github: "ok" });
-    const raw = await loadRaw(sourceChain("supabase"));
+    const raw = await loadRaw(sourceChain("supabase"), NOW);
     expect(raw.source).toBe("github");
     expect(calls.some((u) => u.startsWith("https://api.github.com/repos/owner/repo/contents/markets.json?ref=live"))).toBe(true);
   });
@@ -62,7 +65,7 @@ describe("data source chain", () => {
   it("falls back to GitHub when Supabase is not configured", async () => {
     vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "");
     stubFetch({ supabase: "ok", github: "ok" });
-    expect((await loadRaw(sourceChain("supabase"))).source).toBe("github");
+    expect((await loadRaw(sourceChain("supabase"), NOW)).source).toBe("github");
   });
 
   it("throws when every source fails", async () => {

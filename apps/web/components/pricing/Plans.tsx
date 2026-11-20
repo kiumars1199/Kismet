@@ -5,7 +5,7 @@
 // T-291 #12: the server passes what it knows (`ctx`: billing, accounts, signed in, plan), so the first HTML has the
 // right button; /api/me takes over once it answers. Before T-291 the buttons read "Coming soon" until /api/me came back.
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Tier } from "@/lib/entitlements";
 import { useMe } from "@/lib/me";
 import { yearlySavings } from "@/lib/billing/plans";
@@ -36,8 +36,22 @@ function useCtx(initial: PlanCtx): PlanCtx {
 }
 
 /** `delay`: the Free plan delay in minutes, from site settings (free_delay_min). `ctx`: lib/billing/planCtx.ts. */
+/** #32 (Nov 20): "Start trial" while signed out goes through sign-up and comes back to /pricing?start=<plan>_<period>,
+ *  which picks that period and opens that plan's checkout, instead of a generic free sign-up that forgot the plan. */
+const START = /^(pro|premium)_(monthly|yearly)$/;
+function startParam(): { id: string; annual: boolean } | null {
+  if (typeof window === "undefined") return null;
+  const m = START.exec(new URLSearchParams(window.location.search).get("start") ?? "");
+  return m ? { id: m[1]!, annual: m[2] === "yearly" } : null;
+}
+
 export function Plans({ delay, ctx: initial }: { delay: number; ctx: PlanCtx }) {
   const [annual, setAnnual] = useState(false);
+  const [resume, setResume] = useState<string | null>(null);
+  useEffect(() => {   // the page is prerendered (T-295): read the query once in the browser
+    const st = startParam();
+    if (st) { setAnnual(st.annual); setResume(st.id); }
+  }, []);
   const ctx = useCtx(initial);
   const demo = ctx.demo;
   return (
@@ -76,7 +90,7 @@ export function Plans({ delay, ctx: initial }: { delay: number; ctx: PlanCtx }) 
                   </li>
                 ))}
               </ul>
-              <PlanButton id={p.id} annual={annual} ctx={ctx} featured={featured} />
+              <PlanButton resume={resume === p.id} id={p.id} annual={annual} ctx={ctx} featured={featured} />
             </section>
           );
         })}
@@ -86,8 +100,16 @@ export function Plans({ delay, ctx: initial }: { delay: number; ctx: PlanCtx }) 
   );
 }
 
-function PlanButton({ id, annual, ctx, featured }: { id: string; annual: boolean; ctx: PlanCtx; featured: boolean }) {
+function PlanButton({ id, annual, ctx, featured, resume = false }: { id: string; annual: boolean; ctx: PlanCtx; featured: boolean; resume?: boolean }) {
   const [busy, setBusy] = useState(false);
+  const resumed = useRef(false);
+  const ready = resume && !ctx.demo && ctx.billing && ctx.signedIn && ctx.tier === "free";
+  useEffect(() => {   // #32: back from sign-up with this plan chosen: open its checkout once
+    if (!ready || resumed.current) return;
+    resumed.current = true;
+    void start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready]);
   const [error, setError] = useState("");
   const cls = `flex min-h-11 items-center justify-center rounded-input px-4 font-semibold disabled:cursor-not-allowed disabled:opacity-60 ${featured ? "bg-accent text-on-accent hover:bg-accent-hover" : "border border-border bg-muted-bg hover:border-accent-border"}`;
   // P9: a signed-in Free user saw "Start free" on the plan they already have. T-291 #14: everyone else signs up.
@@ -96,7 +118,10 @@ function PlanButton({ id, annual, ctx, featured }: { id: string; annual: boolean
     : <Link href="/signup" className={cls} data-testid="start-free">Start free</Link>;
   if (ctx.demo) return <Link href="/" className={cls}>Start trial</Link>;
   if (!ctx.billing) return <button type="button" disabled className={cls}>Coming soon</button>;
-  if (!ctx.signedIn) return <Link href="/signup?next=/pricing" className={cls}>Start trial</Link>;
+  if (!ctx.signedIn) {
+    const back = `/pricing?start=${id}_${annual ? "yearly" : "monthly"}`;
+    return <Link href={`/signup?next=${encodeURIComponent(back)}`} className={cls} data-testid={`start-trial-${id}`}>Start trial</Link>;
+  }
   if (ctx.tier === id) return <Link href="/account" className={cls}>Your plan</Link>;
   const tier = ctx.tier;
 

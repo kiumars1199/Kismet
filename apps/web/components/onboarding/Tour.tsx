@@ -10,8 +10,8 @@ export const TOUR_KEY = "me:v1:tour";
 const STEPS = [
   { sel: ['[data-testid="bet-card"]', "article[data-row]"], title: "A best bet",
     body: "Each card is a bet that looks like good value today: how often bets like it win, what $10 wins, and when it closes. Tap \"Why this bet?\" for the details. Any single bet can lose." },
-  { sel: ['[role="group"][aria-label="Quick filters"]'], title: "Narrow the list",
-    body: "Pick a sport, today or this week, and Safer or Bigger payouts. Bigger payouts win less often." },
+  { sel: ['[data-testid="filter-bar"]', '[role="group"][aria-label="Quick filters"]'], title: "Narrow the list",
+    body: "Pick a sport, a multiplier and a date, then Apply. Bigger multipliers pay more and win less often." },
   { sel: ['header [role="combobox"]', '[role="combobox"]'], title: "Search any market",
     body: "Find a team, an election or a ticker and see whether it's priced well today." },
   { sel: ['article[data-row] button[aria-label="Save"]', 'a[href="/watchlist"]'], title: "Save and get alerts",

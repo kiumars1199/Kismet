@@ -105,7 +105,9 @@ describe("numbers", () => {
     expect(winsInTen(0.149)).toBe("about 1 in 10");
     expect(winsInTen(0.04)).toBe("less than 1 in 10");
     expect(winsInTen(0.96)).toBe("more than 9 in 10");
-    expect(winsInTen(0.85)).toBe("about 9 in 10");   // halves round up: 8.5 → 9 (never "certain": 95%+ reads "more than 9")
+    expect(winsInTen(0.85)).toBe("about 8 in 10");   // #14: halves round down, never above the % shown (95%+ reads "more than 9")
+    expect(winsInTen(0.86)).toBe("about 9 in 10");
+    expect(winsInTen(0.05)).toBe("about 1 in 10");
   });
 
   it("$10 wins $X after the fee; the expand line adds the stake back", () => {

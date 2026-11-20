@@ -80,10 +80,11 @@ describe("gzip or plain storage objects", () => {
     expect(JSON.parse((await readSource("kalshi.json", sourceChain("supabase")))!)).toEqual(JSON.parse(fixture("kalshi.json")!.toString()));
   });
 
-  it("a corrupt gzip object falls through to the GitHub live branch", async () => {
+  it("a corrupt gzip object falls through to the GitHub live branch (while its scan is recent, #46)", async () => {
     supabaseEnv();
     const calls = stubFetch(() => "corrupt");
-    const raw = await loadRaw(sourceChain("supabase"));
+    const at = (JSON.parse(fixture("markets.json")!.toString()) as { meta: { scanned_at: number } }).meta.scanned_at;
+    const raw = await loadRaw(sourceChain("supabase"), at + 600);
     expect(raw.source).toBe("github");
     expect(raw.markets.markets).toHaveLength(501);
     expect(calls.some((u) => u.startsWith("https://api.github.com/repos/owner/repo/contents/markets.json"))).toBe(true);

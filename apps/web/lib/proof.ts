@@ -100,6 +100,16 @@ export interface Proof {
   enough: boolean;
 }
 
+/** #3 (Mark, Nov 20): the test and live numbers sat side by side with no reason given for the gap. When the win chances
+ *  shown live ran above how often those bets actually won (by 3+ points, 50+ settled bets), say so in one sentence:
+ *  that is what pulls a live return under a test return. */
+export function calibration(l: Pick<LedgerStats, "graded" | "wins" | "avg_win_prob"> | null | undefined): string | null {
+  if (!l || !ok(l.avg_win_prob) || !l.graded || l.graded < 50) return null;
+  const won = l.wins / l.graded;
+  if (l.avg_win_prob - won < 0.03) return null;
+  return ` Why live trails testing: our win chances have run high, bets we gave ${Math.round(l.avg_win_prob * 100)}% won ${Math.round(won * 100)}% of the time.`;
+}
+
 /**
  * The proof line: test result, then the live record beside it.
  * `record` is the test result being shown (overall taker, or a category's); `live` the matching ledger totals
@@ -139,6 +149,7 @@ export function proofLine(o: {
     live = needs === null || events === null ? `${what}.`
       : enough ? `${what}, enough to compare with testing.`
         : `${what}, still too few to judge (needs ~${formatCount(needs)} events).`;
+    live += calibration(l) ?? "";
   }
 
   const help = [

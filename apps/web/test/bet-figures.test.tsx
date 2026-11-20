@@ -32,8 +32,9 @@ const free = (s: Side) => rangeSide(s);
 
 describe("betFigures on real-shaped sides", () => {
   const rows: { name: string; s: Side; stake?: number; want: Partial<{ pts: string; wins: string; tone: string; chance: string | null; record: string | null; ret: string; pays: string; payout: string; feeLine: string }> }[] = [
+    // #55/#20: the return shown is the one the win chance gives (roi_pct), not the past-bets figure (realistic_edge)
     { name: "exact, good price, realistic return known", s: side({}),
-      want: { pts: "+15 pts", wins: "8–9 in 10", tone: "up", chance: "Leans your way", record: "Strong record", ret: "+11%", pays: "1.4x", payout: "$141",
+      want: { pts: "+15 pts", wins: "8–9 in 10", tone: "up", chance: "Leans your way", record: "Strong record", ret: "+20%", pays: "1.4x", payout: "$141",
         feeLine: "Pays 1.4x before fees · Bet $100 → get $141 after fees if it wins" } },
     { name: "won more often than the price, but the fee eats it (edge ≤ 0)", s: side({ ask: 0.8, fee: 0.015, win_prob: 0.81, edge: -0.005, roi_pct: -0.6, realistic_edge: null }),
       want: { pts: "+1 pt", tone: "thin", chance: null, record: null } },

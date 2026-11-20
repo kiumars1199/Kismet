@@ -114,35 +114,39 @@ test("'On Polymarket US' is on by default; turning it off includes international
   await expect(page.getByRole("dialog", { name: "Filters" }).getByRole("checkbox", { name: "On Polymarket US only" })).not.toBeChecked();
 });
 
-test("chip row: sports, Today / This week, Safer / Balanced / Bigger payouts land in the URL", async ({ page }) => {
+// Mark's filter bar (Nov 20): Sport · Multiplier · Date apply together on Apply; the count and Sort sit under it.
+test("filter bar: three dropdowns land in the URL on Apply, and stay after a reload", async ({ page }) => {
   await page.goto("/");
-  const row = page.getByRole("group", { name: "Quick filters" });
-  for (const name of ["Today", "This week", "Safer", "Balanced", "Bigger payouts", "More sports"]) await expect(row.getByRole("button", { name, exact: true })).toBeVisible();
-  // sports with best bets under the other filters, biggest first (a sport with none left drops off the row)
-  await row.getByRole("button", { name: "Soccer", exact: true }).click();
+  const bar = page.getByTestId("filter-bar");
+  await expect(bar).toBeVisible();
+  await page.waitForLoadState("networkidle");   // hydrated: the selects' handlers are attached
+  await bar.getByTestId("bar-sport").selectOption("t:sports.soccer");
+  await bar.getByTestId("bar-mult").selectOption("1.5-2");
+  await bar.getByTestId("bar-date").selectOption("week");
+  await expect(page).not.toHaveURL(/t=sports\.soccer/);   // nothing moves until Apply
+  await bar.getByTestId("bar-apply").click();
   await expect(page).toHaveURL(/t=sports\.soccer/);
-  await expect(row.getByRole("button", { name: "Soccer", exact: true })).toHaveAttribute("aria-pressed", "true");
-  await row.getByRole("button", { name: "Safer", exact: true }).click();
-  await expect(page).toHaveURL(/wp=0\.85/);
-  await expect(row.getByRole("button", { name: "Safer", exact: true })).toHaveAttribute("aria-pressed", "true");
-  await row.getByRole("button", { name: "Bigger payouts", exact: true }).click();
-  await expect(page).toHaveURL(/wp1=0\.7/);
-  await expect(page).not.toHaveURL(/[?&]wp=/);
-  await row.getByRole("button", { name: "This week", exact: true }).click();
+  await expect(page).toHaveURL(/x0=1\.5/);
+  await expect(page).toHaveURL(/x1=2/);
   await expect(page).toHaveURL(/cw=/);
-  // a pressed chip hides its own pill; it stays pressed after a reload (the window is matched with a tolerance)
-  await expect(page.getByLabel("Applied filters").getByRole("button", { name: /Closes|Chance|Soccer/ })).toHaveCount(0);
+  // the bar shows them, so no duplicate pills
+  await expect(page.getByLabel("Applied filters").getByRole("button", { name: /Closes|Pays|Soccer/ })).toHaveCount(0);
   await page.reload();
-  await expect(row.getByRole("button", { name: "This week", exact: true })).toHaveAttribute("aria-pressed", "true");
-  await expect(row.getByRole("button", { name: "Bigger payouts", exact: true })).toHaveAttribute("aria-pressed", "true");
-  await row.getByRole("button", { name: "More sports" }).click();
-  await expect(page.getByRole("dialog", { name: "Filters" })).toBeVisible();
+  await expect(bar.getByTestId("bar-sport")).toHaveValue("t:sports.soccer");
+  await expect(bar.getByTestId("bar-mult")).toHaveValue("1.5-2");
+  await expect(bar.getByTestId("bar-date")).toHaveValue("week");
+  await expect(page.getByTestId("bar-count")).toContainText(/\d+ bets?/);
 });
 
-test("a filter set outside the chips keeps its removable pill", async ({ page }) => {
+test("sort menu changes the order in the URL", async ({ page }) => {
+  await page.goto("/");
+  await page.waitForLoadState("networkidle");
+  await page.getByTestId("bar-sort").selectOption("win_prob");
+  await expect(page).toHaveURL(/win_prob/);
+});
+
+test("a filter set outside the bar keeps its removable pill", async ({ page }) => {
   await page.goto("/?wp=0.6");
-  const row = page.getByRole("group", { name: "Quick filters" });
-  for (const name of ["Safer", "Balanced", "Bigger payouts"]) await expect(row.getByRole("button", { name, exact: true })).toHaveAttribute("aria-pressed", "false");
   await expect(page.getByRole("button", { name: /^Remove filter: Chance ≥ 60/ })).toBeVisible();
 });
 
@@ -153,7 +157,7 @@ for (const [w, h] of [[390, 844], [1440, 900]] as const) {
     await expect(page.locator("article[data-testid=bet-card]").first()).toBeVisible();
     const small = await page.evaluate(() => {
       const sel = [
-        "[aria-label='Quick filters'] button", "article[data-testid=bet-card] h3 a", "article[data-testid=bet-card] summary",
+        "[data-testid=filter-bar] select", "[data-testid=bar-apply]", "[data-testid=bar-sort]", "[aria-label='More filters'] button", "article[data-testid=bet-card] h3 a", "article[data-testid=bet-card] summary",
         "[data-testid=venue-button]", "[aria-label='Applied filters'] button",
       ].join(",");
       return [...document.querySelectorAll<HTMLElement>(sel)]
