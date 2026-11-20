@@ -72,7 +72,15 @@ export function Why({ r, livePrice }: { r: ApiRow; livePrice?: ReactNode }) {
   const back = backLine(v);
   const st = stars({ roi_pct: v.roi_pct, model_neff: s.model_neff });
   const band = paysBand({ ask: v.ask ?? s.ask });
-  const tested = testedLine(band ? bt?.chosen?.by_pays?.[m.tier ?? "best"]?.[band] : undefined);
+  // #14/#51 (Mark, Nov 20): say which group the test record is (Best bets vs lower-confidence bets, at this payout) so it
+  // can't be read as contradicting /track-record, which shows Best bets; and when that group lost money in testing
+  // while this bet's estimate is positive, say plainly that the estimate is the less trustworthy of the two.
+  const bandRec = band ? bt?.chosen?.by_pays?.[m.tier ?? "best"]?.[band] : undefined;
+  const bandWords = band ? ({ "<1.5x": "under 1.5x", "10x+": "10x or more" } as Record<string, string>)[band] ?? band.replace("-", "–") : null;
+  const group = `${m.tier === "edge" ? "Lower-confidence bets" : "Best bets"}${bandWords ? ` paying ${bandWords}` : ""}`;
+  const tested = testedLine(bandRec, group);
+  const estRoi = v.kind === "us" ? v.roi_pct : cardReturn(s).roi;
+  const clash = !!bandRec?.flags && (bandRec.roi_pct ?? 0) < 0 && (estRoi ?? 0) > 0;
   const intl = venueOf(m);
   const notes = priceNotes(m.execution);
   const usRet = v.kind === "us" ? usReturnText(v, banded) : null;
@@ -114,6 +122,7 @@ export function Why({ r, livePrice }: { r: ApiRow; livePrice?: ReactNode }) {
           {tested && (
             <Line label="In testing" testid="why-tested">
               <span data-testid="band-record">{tested}</span>
+              {clash && <span data-testid="band-clash" className="block text-xs text-warning">Bets like this lost money in testing, so treat the estimated return above with caution.</span>}
               {/* T-290: a test record with no live counterpart says so instead of borrowing the best-bets record */}
               {m.tier === "edge" && <span data-testid="band-live" className="block cursor-help text-xs text-muted underline decoration-dotted underline-offset-4" title={noLiveRecord("lower-confidence bets")}>No live record yet</span>}
             </Line>

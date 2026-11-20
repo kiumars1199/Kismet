@@ -264,7 +264,9 @@ export function winsInTen(p: number | null | undefined): string {
   if (!ok(p) || p <= 0) return "—";
   if (p < 0.05) return "less than 1 in 10";
   if (p >= 0.95) return "more than 9 in 10";
-  return `about ${Math.round(Math.round(p * 1000) / 100)} in 10`;
+  // #14 (Mark, Nov 20): 85% read "about 9 in 10" beside "85%". One number still (R2-1), but halves round DOWN, so
+  // the words never claim more than the percentage shown elsewhere: 85% → "about 8 in 10".
+  return `about ${Math.max(1, Math.ceil(Math.round(p * 1000) / 100 - 0.5))} in 10`;
 }
 
 export const STAKE = 10;

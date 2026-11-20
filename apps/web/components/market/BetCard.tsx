@@ -59,6 +59,8 @@ export function BetCard({ r }: { r: ApiRow; pro?: boolean }) {
         {noUsPrice ? <span className="text-muted">No Polymarket US price right now</span>
           : money10 && <span className="font-heading text-xl font-bold tabular-nums text-accent">{money10}</span>}
         {v.kind === "us" && !noUsPrice && <span data-testid="us-small-print" className="block text-xs text-muted">{US_SMALL_PRINT}</span>}
+        {/* #15 (Mark, Nov 20): say the payout already takes the fee off, so $10 at 62¢ reading less than 10 ÷ 0.62 isn't a mystery */}
+        {v.kind !== "us" && money10 && <span data-testid="fee-small-print" className="block text-xs text-muted">After Polymarket&apos;s fee</span>}
       </p>
       <p data-slot="closes" className="text-xs text-muted" title={when.full ?? when.Closes} suppressHydrationWarning>
         {when.game} · {when.closes}

@@ -198,7 +198,8 @@ export interface LedgerStats { entries: number; graded: number; wins: number; lo
   avg_pnl: number | null; avg_clv: number | null;
   roi_pct?: number | null;            // total profit / total staked (ask + fee), %
   events?: number;                    // distinct events among graded bets (the honest sample size)
-  avg_pnl_by_event?: number | null }  // each event's bets averaged, then events averaged equally
+  avg_pnl_by_event?: number | null;  // each event's bets averaged, then events averaged equally
+  avg_win_prob?: number | null }     // mean win chance shown for the graded bets (compare with wins ÷ graded)
 export interface LedgerSummary extends LedgerStats {
   by_category: Record<string, LedgerStats>; updated_at: number;
   first?: LedgerStats;      // one row per market and side (re-flags at a better ask not counted twice)

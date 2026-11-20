@@ -233,7 +233,10 @@ def summarize(entries, now):
                     roi_pct=round(sum(e[pnl] for e in g) / cost * 100, 2) if cost else None,
                     events=len(ev),
                     avg_pnl_by_event=round(sum(sum(v) / len(v) for v in ev.values()) / len(ev), 4)
-                    if ev else None)
+                    if ev else None,
+                    # #3: the win chance we showed vs how often those bets won (why live can trail testing)
+                    avg_win_prob=round(sum(wp) / len(wp), 4) if (wp := [e["win_prob"] for e in g
+                                                                         if e.get("win_prob") is not None]) else None)
     out = agg(entries)
     out["by_category"] = {c: agg([e for e in entries if e["category"] == c])
                           for c in sorted({e["category"] for e in entries})}

@@ -311,6 +311,8 @@ async function loadCopy(s: Store, suffix: "prev" | "prev2"): Promise<Store | und
   };
   const [markets, flags] = await Promise.all([read<MarketsFile>(`markets-${suffix}.json`), read<FlagsFile>(`flags-${suffix}.json`)]);
   if (!markets || !flags || !(markets.meta.scanned_at < s.meta.scanned_at)) return undefined;
+  // #46: a delayed copy is a scan or two behind, never a day-old one from a stale fallback source
+  if (s.meta.scanned_at - markets.meta.scanned_at > FALLBACK_MAX_AGE_S) return undefined;
   return buildStore({ markets, flags, model: s.model, backtest: s.backtest, events: s.events, ledgerSummary: s.ledgerSummary, ledgerSince: s.ledgerSince, source: s.source });
 }
 
