@@ -271,12 +271,12 @@ export function winsInTen(p: number | null | undefined): string {
 
 export const STAKE = 10;
 /** What $10 brings back if it wins, after the fee: payout and profit (null without a price). */
-export function on10(q: { ask: number | null; fee: number | null }): { back: number; profit: number } | null {
-  if (!ok(q.ask)) return null;
+export function on10(q: { ask: number | null; fee: number | null }, stake: number = STAKE): { back: number; profit: number } | null {
+  if (!ok(q.ask) || !(stake > 0)) return null;
   const cost = q.ask + (ok(q.fee) ? q.fee : 0);
   if (!(cost > 0 && cost < 1)) return null;
-  const back = STAKE / cost;
-  return { back, profit: back - STAKE };
+  const back = stake / cost;
+  return { back, profit: back - stake };
 }
 /** The card's money line as the multiplier bettors read (Q, Nov 20): "Pays 1.53x", after the fee. */
 export function paysLine(q: { ask: number | null; fee: number | null }): string | null {
@@ -300,9 +300,9 @@ export function winsLine(q: { ask: number | null; fee: number | null }): string 
   return r ? `$${STAKE} wins ${dollars(r.profit)}` : null;
 }
 /** First line inside "Why this bet?": "If it wins you get $15.60 back ($10 + $5.60)". */
-export function backLine(q: { ask: number | null; fee: number | null }): string | null {
-  const r = on10(q);
-  return r ? `If it wins you get ${dollars(r.back)} back ($${STAKE} + ${dollars(r.profit)})` : null;
+export function backLine(q: { ask: number | null; fee: number | null }, stake: number = STAKE): string | null {
+  const r = on10(q, stake);
+  return r ? `If it wins you get ${dollars(r.back)} back (${dollars(stake).replace(".00", "")} + ${dollars(r.profit)})` : null;
 }
 
 export type Stars = { n: 1 | 2 | 3; label: "Great value" | "Good value" | "Fair value" };

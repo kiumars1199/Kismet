@@ -40,8 +40,11 @@ test("every card face: at most 7 slots, no loose text, 'Why this bet?' starts wi
   const card = page.locator("article[data-testid=bet-card]").first();
   await expect(card.getByTestId("card-money")).toContainText(/^Pays [\d.]+x/);
   await card.getByText("Why this bet?").click();
-  const first = card.getByTestId("why").locator("p, dl").first();
-  await expect(first).toHaveText(/^If it wins you get \$[\d,.]+ back \(\$10 \+ \$[\d,.]+\)$/);
+  const back = card.getByTestId("why-back");
+  await expect(back.locator("p")).toHaveText(/^If it wins you get \$[\d,.]+ back \(\$10 \+ \$[\d,.]+\)$/);
+  // the amount is the user's: typing $25 reprices the line
+  await back.getByLabel(/If you bet/).fill("25");
+  await expect(back.locator("p")).toHaveText(/^If it wins you get \$[\d,.]+ back \(\$25 \+ \$[\d,.]+\)$/);
   await expect(page.locator("main")).not.toContainText(/\bTo win\b/);
 });
 
