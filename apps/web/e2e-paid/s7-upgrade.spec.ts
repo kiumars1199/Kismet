@@ -56,7 +56,7 @@ test("S7 sign up → upgrade with Stripe → Pro unlocks live data and exact num
   await page.goto("/pricing");
   await page.getByTestId("checkout-pro").click();
   await expect(page).toHaveURL(/\/account\?checkout=success/, { timeout: 45_000 });   // checkout → mock Stripe → signed webhooks
-  await expect(page.getByTestId("checkout-status")).toHaveText("Payment confirmed. Your plan is active.");
+  await expect(page.getByTestId("checkout-status")).toHaveText("Payment confirmed. Your plan is active.", { timeout: 30_000 });   // the page polls /api/me every 2 s for up to 60 s
   await expect(page.getByText("Pro", { exact: true }).first()).toBeVisible();
 
   const pro = await rows(page);
