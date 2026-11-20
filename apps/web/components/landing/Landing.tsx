@@ -8,21 +8,23 @@ import { chosenResult } from "@/lib/data/model";
 import { freeView } from "@/lib/data/gate";
 import { listBody } from "@/lib/data/respond";
 import { getStoreFor } from "@/lib/data/store";
-import { BEST_BETS_VERDICTS, FilterState } from "@/lib/filters/state";
+import { bestBetsCount, bestBetsQuery } from "@/lib/data/counts";
 import { behindWords, exactCount, formatCount, pct } from "@/lib/format";
 import { getSettings } from "@/lib/settings";
 import { SITE } from "@/lib/site";
-import { quota } from "@/lib/entitlements";
-import { foldRows, tiles } from "@/lib/trackRecord";
+import { FREE_BEST_BETS_A_DAY } from "@/lib/entitlements";
+import { foldRows, tiles, weeksUp } from "@/lib/trackRecord";
 import { Tiles } from "@/components/results/Tiles";
 import { Plans } from "@/components/pricing/Plans";
 import { DISCLAIMER } from "@/components/shell/Footer";
 import { planCtx } from "@/lib/billing/planCtx";
 import type { ApiRow } from "@/lib/api";
 import { REFRESH_WORDS } from "@/lib/freshness";
+import { zonedTime } from "@/lib/zone";
+import { requestZone } from "@/lib/zone-server";
 import s from "./landing.module.css";
 
-const TIME = { hour: "numeric", minute: "2-digit", timeZone: "America/New_York", timeZoneName: "short" } as const;
+const TIME = { hour: "numeric", minute: "2-digit" } as const;
 const H2 = "font-heading text-[28px] font-semibold leading-tight tracking-[-0.02em] md:text-[36px]";
 const CTA = "inline-flex min-h-12 items-center justify-center rounded-input bg-accent px-6 font-semibold text-on-accent transition-colors hover:bg-accent-hover";
 const SIGNUP = "/signup";
@@ -30,18 +32,18 @@ const SIGNUP = "/signup";
 export const LANDING_REAL = 3;
 export const LANDING_PLACEHOLDERS = 6;
 export const LANDING_SAMPLE = "landing";
-const FREE_ROWS = quota("free", "rows");
+const FREE_ROWS = FREE_BEST_BETS_A_DAY;   // the same constant the server samples with (lib/data/respond.ts freeSample)
 
 async function scan() {
   try {
     // The visitor is signed out, so Free: the same store, query, daily random sample and gate as a Free /api/flags
     // page 1 (lib/data/respond.ts listBody), keyed "landing" so every visitor sees the same 3 for the day.
     const store = freeView(await getStoreFor("free"));
-    const state = FilterState.parse({ view: "flags", verdicts: BEST_BETS_VERDICTS, page_size: LANDING_REAL });
-    const page = await listBody(store, state, "free", LANDING_SAMPLE);
+    const page = await listBody(store, bestBetsQuery({ page_size: LANDING_REAL }), "free", LANDING_SAMPLE);
     if (!page) return null;
     return {
-      total: page.total, rows: page.rows.slice(0, LANDING_REAL) as ApiRow[], scannedAt: store.meta.scanned_at,
+      total: bestBetsCount(store).total,   // T-288: the one Best bets count (lib/data/counts.ts), as on /status and Best bets
+      rows: page.rows.slice(0, LANDING_REAL) as ApiRow[], scannedAt: store.meta.scanned_at,
       backtest: store.backtest, ledger: store.ledgerSummary ?? null,
     };
   } catch {
@@ -50,7 +52,7 @@ async function scan() {
 }
 
 export async function Landing() {
-  const [data, settings] = await Promise.all([scan(), getSettings()]);
+  const [data, settings, zone] = await Promise.all([scan(), getSettings(), requestZone()]);   // zone: T-288, the visitor's
   const bt = data ? chosenResult(data.backtest) : undefined;
   const taker = bt?.taker;
   const weeks = data ? foldRows(data.backtest) : [];
@@ -81,7 +83,7 @@ export async function Landing() {
               <span>
                 <strong className="font-semibold tabular-nums text-text" title={exactCount(data.total)}>{formatCount(data.total)}</strong>{" "}
                 {data.total === 1 ? "bet" : "bets"} priced below their record in the latest scan
-                {data.scannedAt ? <>, {new Date(data.scannedAt * 1000).toLocaleTimeString("en-US", TIME)}</> : null}
+                {data.scannedAt ? <>, {zonedTime(data.scannedAt, zone, TIME)}</> : null}
               </span>
             </p>
           )}
@@ -117,7 +119,7 @@ export async function Landing() {
             {Array.from({ length: LANDING_PLACEHOLDERS }, (_, i) => <Placeholder key={i} i={i} />)}
           </ul>
           <div className="pointer-events-none absolute inset-x-0 bottom-0 flex h-2/3 items-end justify-center bg-gradient-to-t from-background via-background/80 to-transparent pb-8">
-            <Link href={SIGNUP} className={`${CTA} pointer-events-auto`} data-testid="teaser-cta">
+            <Link href={SIGNUP} className={`${CTA} pointer-events-auto`} data-testid="teaser-cta" data-best-bets={data?.total} title={data && data.total >= 1000 ? `${exactCount(data.total)} best bets right now` : undefined}>
               {ctaLine(data?.total ?? 0)}
             </Link>
           </div>
@@ -277,7 +279,7 @@ function WeekChart({ weeks }: { weeks: ReturnType<typeof foldRows> }) {
   const vals = weeks.map((x) => x.ret ?? 0);
   const max = Math.max(1, ...vals.map(Math.abs));
   const W = 600, H = 160, mid = H / 2, bw = W / weeks.length;
-  const up = weeks.filter((x) => (x.ret ?? 0) > 0).length;
+  const up = weeksUp(weeks);
   return (
     <figure className="flex flex-col gap-3 rounded-card border border-border bg-surface p-5 md:p-6">
       <figcaption className="flex flex-wrap items-baseline justify-between gap-2 text-sm">
@@ -291,7 +293,7 @@ function WeekChart({ weeks }: { weeks: ReturnType<typeof foldRows> }) {
           const v = x.ret ?? 0, h = Math.max(1, (Math.abs(v) / max) * (mid - 4));
           return (
             <rect key={i} x={i * bw + bw * 0.15} width={bw * 0.7} y={v >= 0 ? mid - h : mid} height={h} rx="1.5"
-              className={`${s.bar} ${v >= 0 ? s.up : s.down}`} fill={x.ret === null ? "var(--market-bar)" : v >= 0 ? "var(--accent)" : "var(--negative)"}>
+              className={`${s.bar} ${v >= 0 ? s.up : s.down}`} fill={x.dir === "up" ? "var(--accent)" : x.dir === "down" ? "var(--negative)" : "var(--market-bar)"}>
               <title>{`${x.week}: ${x.retText}${x.bets ? `, ${x.bets} bets` : ""}`}</title>
             </rect>
           );

@@ -1,12 +1,13 @@
 "use client";
 // My list (docs/05 F-09): saved markets with today's numbers, "since saved", status, note + target price
 // (target price = a market_price alert rule), bulk remove. Rows open the market drawer.
+import { ClosesLine } from "@/components/clock";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { drawerHref } from "@/components/market/drawer";
 import { fetchMarket, type StoreMarket } from "@/lib/api";
-import { DASH, betLine, formatCount, closesLine, pct, price, ret } from "@/lib/format";
+import { DASH, betLine, formatCount, pct, price, ret } from "@/lib/format";
 import { getRepo, type WatchlistItem } from "@/lib/repo";
 import { useCollection } from "@/lib/repo/hooks";
 import { WatchStar, type WatchSnapshot } from "./WatchStar";
@@ -76,7 +77,7 @@ function Row({ item, live, selected, onSelect }: { item: WatchlistItem; live: Li
               <p className="mt-1 text-sm text-muted">
                 {s ? betLine(s) : snap?.outcome ? `Saved: ${snap.outcome}` : DASH}
                 {label && <> · {label}</>}
-                {m && <> · {closesLine(m.closes_at)}</>}
+                {m && <> · <ClosesLine at={m.closes_at} /></>}
               </p>
             </div>
             <div className="flex items-center gap-3">

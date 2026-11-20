@@ -105,15 +105,17 @@ export function betLine(s: Pick<Side, "outcome" | "ask">): string {
 export function realisticReturn(s: Pick<Side, "realistic_edge" | "ask" | "fee">): number | null {
   return ok(s.realistic_edge) && s.ask + s.fee > 0 ? (s.realistic_edge / (s.ask + s.fee)) * 100 : null;
 }
-/** closes in: unix seconds → "45m", "19h", "3 days"; past → "closed" */
+/** closes in: unix seconds → "45m", "19h", "3 days"; past → "closed". T-288: one rounding rule everywhere times
+ *  appear (cards, drawer, market page, tables, CSV, alerts, MCP), and it is DOWN, like the closing strip's countdown:
+ *  2h 40m left reads "2h", never "3h", so the time left is never overstated. Under a minute reads "1m". */
 export function closesIn(closesAt: number | null | undefined, now = Date.now()): string {
   if (!ok(closesAt)) return DASH;
   const m = (closesAt * 1000 - now) / 60000;
   if (m <= 0) return "closed";
-  if (m < 60) return `${Math.max(1, Math.round(m))}m`;
-  const h = m / 60;
-  if (h < 48) return `${Math.round(h)}h`;
-  return `${Math.round(h / 24)} days`;
+  if (m < 60) return `${Math.max(1, Math.floor(m))}m`;
+  const h = Math.floor(m / 60);
+  if (h < 48) return `${h}h`;
+  return `${Math.floor(h / 24)} days`;
 }
 /** "closes in 45m" for an open market, "Closed" once closes_at has passed: never "closes in closed". */
 export function closesLine(closesAt: number | null | undefined, now = Date.now(), cap = false): string {
@@ -143,9 +145,10 @@ export function basis(m: { niche: string; market_type: string; horizon_h: number
   return `Model: ${m.niche.toUpperCase()} · ${m.market_type} · ~${m.horizon_h} h · ${formatCount(s.model_neff)} eff. samples · ${formatCount(s.model_events)} events (${lvl} level)`;
 }
 
-/** docs/18 §4: counts of bets, markets, events. Under 1,000 exact; above, ROUNDED DOWN to a short form so a count
- *  is never overstated: 9,666 → "9.6K", 12,340 → "12K", 778,152 → "778K", 1,333,014 → "1.3M". The exact number
- *  goes in the hover (<Count> in components/kit does both). */
+/** docs/18 §4: counts of bets, markets, events. Under 1,000 exact; above, ROUNDED DOWN to one decimal so a count is
+ *  never overstated, with a trailing ".0" dropped: 999 → "999", 1,000 → "1K", 1,050 → "1K", 9,666 → "9.6K",
+ *  16,896 → "16.8K", 778,152 → "778.1K", 1,000,000 → "1M", 1,234,567 → "1.2M". The exact number goes in the hover
+ *  (<Count> in components/kit does both). */
 export function formatCount(n: number | null | undefined): string {
   if (!ok(n)) return DASH;
   const a = Math.floor(Math.abs(n));
@@ -153,7 +156,7 @@ export function formatCount(n: number | null | undefined): string {
   if (a < 1000) return `${sign}${a}`;
   const [d, u] = a >= 1e9 ? [1e9, "B"] : a >= 1e6 ? [1e6, "M"] : [1e3, "K"];
   const tenths = Math.floor(a / (d / 10));   // integer math: no 2.3 * 10 = 22.999… surprises
-  return `${sign}${tenths < 100 ? tenths / 10 : Math.floor(tenths / 10)}${u}`;
+  return `${sign}${Math.floor(tenths / 10)}${tenths % 10 ? `.${tenths % 10}` : ""}${u}`;
 }
 /** exact count for the hover: 9666 → "9,666" */
 export const exactCount = (n: number | null | undefined) => (ok(n) ? Math.round(n).toLocaleString("en-US") : DASH);
@@ -193,14 +196,15 @@ export function cardReturn(s: Pick<Side, "roi_pct" | "ranges" | "realistic_edge"
 export const REALISTIC_HELP =
   "What similar past bets actually returned on average, after the fee and the price you'd really pay. The model's own estimate is in the details. Any single bet can lose.";
 
-/** Game or close time, docs/17 fix 14: "Tue 2:45 PM" within the next 6 days, else "Nov 28". Local time zone
- *  unless `timeZone` is given (the server render passes "UTC" so hydration matches; see components/market/When). */
+/** Game or close time, docs/17 fix 14: "Tue 2:45 PM" within the next 6 days, else "Nov 28". In `timeZone` (the
+ *  user's, components/clock.tsx), local when undefined. A narrow no-break space before AM/PM (newer ICU, Node or
+ *  browser) becomes a plain space, so the server and the browser print the same bytes. */
 export function gameTime(closesAt: number | null | undefined, now = Date.now(), timeZone?: string): string {
   if (!ok(closesAt)) return DASH;
   const d = new Date(closesAt * 1000);
-  return closesAt * 1000 - now < 6 * 86400_000
+  return (closesAt * 1000 - now < 6 * 86400_000
     ? d.toLocaleString("en-US", { weekday: "short", hour: "numeric", minute: "2-digit", timeZone }).replace(",", "")
-    : d.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone });
+    : d.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone })).replace(/[\u202f\u00a0]/g, " ");
 }
 
 /** Live countdown for the closing-soon strip: "2h 05m", "14m", "closing". */

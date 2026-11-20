@@ -2,7 +2,8 @@
 const ok = (x: number | null | undefined): x is number => typeof x === "number" && Number.isFinite(x);
 const DASH = "—";
 
-/** docs/18 §4 counts: under 1,000 exact, above rounded DOWN to a short form (9,666 → "9.6K", 1,333,014 → "1.3M"). */
+/** docs/18 §4 counts: under 1,000 exact, above rounded DOWN to one decimal, trailing ".0" dropped (9,666 → "9.6K",
+ *  16,896 → "16.8K", 1,000 → "1K", 1,333,014 → "1.3M"). */
 export function formatCount(n: number | null | undefined): string {
   if (!ok(n)) return DASH;
   const a = Math.floor(Math.abs(n));
@@ -10,7 +11,7 @@ export function formatCount(n: number | null | undefined): string {
   if (a < 1000) return `${sign}${a}`;
   const [d, u] = a >= 1e9 ? [1e9, "B"] : a >= 1e6 ? [1e6, "M"] : [1e3, "K"];
   const tenths = Math.floor(a / (d / 10));
-  return `${sign}${tenths < 100 ? tenths / 10 : Math.floor(tenths / 10)}${u}`;
+  return `${sign}${Math.floor(tenths / 10)}${tenths % 10 ? `.${tenths % 10}` : ""}${u}`;
 }
 
 /** 0.68 → "68¢" (one decimal when not whole: 0.055 → "5.5¢") */

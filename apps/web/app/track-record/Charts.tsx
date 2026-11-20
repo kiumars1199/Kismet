@@ -31,7 +31,7 @@ export function FoldCharts({ rows }: { rows: ReturnType<typeof foldRows> }) {
           {/* no per-bar labels: 52 weeks of labels overlapped at every width; the value is one hover away */}
           <Tooltip {...TIP} formatter={(_v, _n, p) => [(p.payload as (typeof rows)[number]).retText, "Return"]} />
           <Bar dataKey="ret" radius={[4, 4, 0, 0]} maxBarSize={28}>
-            {rows.map((r) => <Cell key={r.week} fill={r.ret !== null && r.ret < 0 ? "var(--negative)" : "var(--accent)"} />)}
+            {rows.map((r) => <Cell key={r.week} fill={r.dir === "down" ? "var(--negative)" : r.dir === "up" ? "var(--accent)" : "var(--market-bar)"} />)}
           </Bar>
         </BarChart>
       </ResponsiveContainer>

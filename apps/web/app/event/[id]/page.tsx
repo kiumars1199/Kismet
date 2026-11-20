@@ -6,6 +6,7 @@ import { PendingState } from "@/components/screener/States";
 import { SlowDownState } from "@/components/screener/SlowDownState";
 import { EventView } from "@/components/screener/EventView";
 import { TeaserView } from "@/components/market/Teaser";
+import { requestZone } from "@/lib/zone-server";
 import { authEnabled, getUser } from "@/lib/auth/server";
 import { TEASER_DESCRIPTION, eventTeaser } from "@/lib/teaser";
 
@@ -47,7 +48,7 @@ export default async function Page({ params }: Props) {
       return <div className="mx-auto w-full max-w-[720px]"><PendingState line={pendingLine(e)} /></div>;   // no store yet is not a missing page
     }
     if (!t) notFound();
-    return <TeaserView t={t} path={`/event/${encodeURIComponent(id)}`} />;
+    return <TeaserView t={t} path={`/event/${encodeURIComponent(id)}`} zone={await requestZone()} />;
   }
   let ev: Awaited<ReturnType<typeof load>>;
   try {

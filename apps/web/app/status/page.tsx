@@ -1,8 +1,12 @@
 // Status (T-29, F-24): when each part of the data was last refreshed, and what it holds.
 import { DATA_SOURCE } from "@/lib/config";
+import { zonedTime } from "@/lib/zone";
+import { requestZone } from "@/lib/zone-server";
 import { getTier } from "@/lib/auth/server";
 import { pendingLine } from "@/lib/data/respond";
 import { getStoreFor, type Store } from "@/lib/data/store";
+import { bestBetsCount } from "@/lib/data/counts";
+import { Count } from "@/components/kit";
 import { PendingState } from "@/components/screener/States";
 import { DASH, ago, delayWords, formatCount } from "@/lib/format";
 import { REFRESH_WORDS, freshness } from "@/lib/freshness";
@@ -13,17 +17,14 @@ export const metadata = { title: "Status", description: "When Kismet data last r
 export const dynamic = "force-dynamic";
 
 const n = (x: number | null | undefined) => formatCount(x);   // docs/18 §4
-const when = (unix: unknown) =>
-  typeof unix === "number"
-    ? `${new Date(unix * 1000).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" })} UTC`
-    : DASH;
-const VERDICT_LABEL: Record<string, string> = {
-  "worth it": "Fair price", thin: "Spread eats most of it", "not worth it": "Price too high right now", "no sellers": "No sellers", "no book": "No order book",
-};
+/** In the visitor's zone (T-288), else UTC; always named. */
+const when = (unix: unknown, zone: string | null) =>
+  typeof unix === "number" ? zonedTime(unix, zone, { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" }, "UTC") : DASH;
+const VERDICT_LABEL: Record<string, string> = { "worth it": "Fair price", thin: "Spread eats most of it" };
 
 export default async function Page() {
   // RT3-07: the scan this tier is served (Free / signed-out: the delayed copy), like /api/meta: its time and counts.
-  const tier = await getTier();
+  const [tier, zone] = await Promise.all([getTier(), requestZone()]);
   let s: Store;
   try {
     s = await getStoreFor(tier);
@@ -33,6 +34,9 @@ export default async function Page() {
   const delay = delayMin(tier);
   const { meta, model, backtest, ledgerSummary: l } = s;
   const level = freshness(meta.scanned_at);
+  // T-288: the same count as Best bets and the landing (lib/data/counts.ts): open best-tier bets that pass the price
+  // check, at the default chance floor. Its price-check sections below add up to it. (meta.flags counted both tiers.)
+  const best = bestBetsCount(s);
   const times: [string, unknown, string][] = [
     ["Last market scan", meta.scanned_at, "Prices, win chances and best bets"],
     ["Last model fit", model.fitted_at, "Win-chance curves from settled markets"],
@@ -58,7 +62,7 @@ export default async function Page() {
             <li key={label} className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-t border-border px-4 py-3 first:border-t-0 md:px-5">
               <span><span className="font-medium">{label}</span><span className="block text-xs text-muted">{what}</span></span>
               <span className="tabular-nums text-soft" title={typeof t === "number" ? undefined : "not available"}>
-                {when(t)}{typeof t === "number" && <span className="text-muted"> · {ago(t)}</span>}
+                {when(t, zone)}{typeof t === "number" && <span className="text-muted"> · {ago(t)}</span>}
               </span>
             </li>
           ))}
@@ -69,7 +73,7 @@ export default async function Page() {
         <h2 id="counts-h" className="text-xl font-semibold">What&apos;s in the data</h2>
         <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-card border border-border bg-border md:grid-cols-4">
           <Stat label="Markets scanned" value={n(meta.markets_scanned)} />
-          <Stat label="Best bets" value={n(meta.flags)} />
+          <Stat label="Best bets" value={<Count n={best.total} />} testId="status-best-bets" />
           <Stat label="Events" value={n(s.byEvent.size)} />
           <Stat label="Live record" value={l ? `${n(l.entries)} logged` : DASH} sub={l ? `${n(l.graded)} settled · ${n(l.wins)} won · ${n(l.losses)} lost` : "No live record yet"} />
         </dl>
@@ -77,15 +81,16 @@ export default async function Page() {
 
       <section aria-labelledby="checks-h" className="flex flex-col gap-3">
         <h2 id="checks-h" className="text-xl font-semibold">Price checks on best bets</h2>
-        {meta.verdicts ? (
-          <ul className="overflow-hidden rounded-card border border-border bg-surface">
-            {Object.entries(meta.verdicts).map(([v, c]) => (
-              <li key={v} className="flex justify-between border-t border-border px-4 py-3 first:border-t-0 md:px-5">
-                <span>{VERDICT_LABEL[v] ?? v}</span><span className="tabular-nums text-soft">{n(c)}</span>
-              </li>
-            ))}
-          </ul>
-        ) : <p className="text-sm text-muted">Not available in this scan.</p>}
+        <ul className="overflow-hidden rounded-card border border-border bg-surface" data-testid="status-sections">
+          {Object.entries(best.sections).map(([v, c]) => (
+            <li key={v} className="flex justify-between border-t border-border px-4 py-3 first:border-t-0 md:px-5">
+              <span>{VERDICT_LABEL[v] ?? v}</span><span className="tabular-nums text-soft" data-section={v}><Count n={c} /></span>
+            </li>
+          ))}
+          <li className="flex justify-between border-t border-border px-4 py-3 font-medium md:px-5">
+            <span>Best bets</span><span className="tabular-nums"><Count n={best.total} /></span>
+          </li>
+        </ul>
       </section>
 
       <section aria-labelledby="source-h" className="flex flex-col gap-2 text-sm text-soft">
@@ -99,9 +104,9 @@ export default async function Page() {
   );
 }
 
-function Stat({ label, value, sub }: { label: string; value: string; sub?: string }) {
+function Stat({ label, value, sub, testId }: { label: string; value: React.ReactNode; sub?: string; testId?: string }) {
   return (
-    <div className="flex flex-col gap-1 bg-surface p-4 md:p-5">
+    <div className="flex flex-col gap-1 bg-surface p-4 md:p-5" data-testid={testId}>
       <dt className="text-xs text-muted">{label}</dt>
       <dd className="font-heading text-2xl font-bold tabular-nums">{value}</dd>
       {sub && <dd className="text-xs text-muted">{sub}</dd>}

@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { ago, basis, chance, closesIn, edge, exactCount, expectedProfit, formatCount, money, pays, payoutIfWins, payoutMoney, pct, price, realisticReturn, recordLabel, ret, testedLine, usd, utcWhen, winsAbout } from "./format";
+import { ago, basis, chance, closesIn, countdown, edge, exactCount, expectedProfit, formatCount, money, pays, payoutIfWins, payoutMoney, pct, price, realisticReturn, recordLabel, ret, testedLine, usd, utcWhen, winsAbout } from "./format";
 
 describe("docs/18 numbers", () => {
   it("formatCount rounds down, never up", () => {
-    expect([999, 1_000, 9_999, 10_000, 999_999].map(formatCount)).toEqual(["999", "1K", "9.9K", "10K", "999K"]);
-    expect([9_666, 12_340, 778_152, 1_240_000, 1_333_014, 0, 7].map(formatCount)).toEqual(["9.6K", "12K", "778K", "1.2M", "1.3M", "0", "7"]);
+    // T-288: one decimal at every size (rounded down, trailing ".0" dropped), was "16K" / "12K" / "778K"
+    expect([999, 1_000, 1_050, 1_099, 1_100, 9_999, 10_000, 999_999].map(formatCount)).toEqual(["999", "1K", "1K", "1K", "1.1K", "9.9K", "10K", "999.9K"]);
+    expect([9_666, 12_340, 16_896, 778_152, 1_240_000, 1_234_567, 1_333_014, 0, 7].map(formatCount)).toEqual(["9.6K", "12.3K", "16.8K", "778.1K", "1.2M", "1.2M", "1.3M", "0", "7"]);
+    expect([-16_896, 1_000_000_000, 12_345_678_901].map(formatCount)).toEqual(["−16.8K", "1B", "12.3B"]);
     expect([1_000_000, 2_300, 9_999_999, null].map(formatCount)).toEqual(["1M", "2.3K", "9.9M", "—"]);
     expect(exactCount(1_333_014)).toBe("1,333,014");
   });
@@ -36,6 +38,14 @@ describe("format", () => {
     const now = 1_000_000_000_000;
     expect([closesIn(now / 1000 + 1800, now), closesIn(now / 1000 + 19 * 3600, now), closesIn(now / 1000 + 72 * 3600, now), closesIn(now / 1000 - 5, now)])
       .toEqual(["30m", "19h", "3 days", "closed"]);
+    // T-288: one rounding rule, down (was Math.round: 2h 40m read "3h" on cards and "2h 40m" in the closing strip)
+    const at = (min: number) => closesIn(now / 1000 + min * 60, now);
+    expect([at(0.2), at(1.9), at(59.9), at(60), at(160), at(119.99), at(47 * 60 + 59), at(48 * 60), at(71 * 60 + 59), at(72 * 60)])
+      .toEqual(["1m", "1m", "59m", "1h", "2h", "1h", "47h", "2 days", "2 days", "3 days"]);
+    for (let min = 1; min < 48 * 60; min += 7) {
+      const c = countdown(now / 1000 + min * 60, now), x = at(min);
+      expect(x, `${min} min`).toBe(min < 60 ? c : `${c.split("h")[0]}h`);   // "2h 05m" in the strip ⇔ "2h" on a card
+    }
     expect(ago(now / 1000 - 12 * 60, now)).toBe("12 min ago");
     expect(realisticReturn({ realistic_edge: 0.1078, ask: 0.85, fee: 0.0064 })).toBeCloseTo(12.59, 1);
     expect(realisticReturn({ realistic_edge: null, ask: 0.5, fee: 0 })).toBeNull();

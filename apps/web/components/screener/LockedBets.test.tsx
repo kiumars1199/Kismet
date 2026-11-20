@@ -9,7 +9,7 @@ afterEach(cleanup);
 
 describe("LockedBets", () => {
   it("links every locked bet to pricing, with the real total and no market rows", () => {
-    const { container } = render(<LockedBets total={2778} shown={10} desktop />);
+    const { container } = render(<LockedBets total={2778} shown={10} daily={10} desktop />);
     const link = screen.getByRole("link", { name: "Unlock all 2.7K bets" });
     expect(link.getAttribute("href")).toBe("/pricing");
     expect(screen.getByRole("heading").textContent).toBe("2.7K more bets on Pro");
@@ -19,13 +19,13 @@ describe("LockedBets", () => {
   });
 
   it("renders nothing when every bet is already shown", () => {
-    const { container } = render(<LockedBets total={10} shown={10} desktop={false} />);
+    const { container } = render(<LockedBets total={10} shown={10} daily={10} desktop={false} />);
     expect(container.innerHTML).toBe("");
   });
 
   // T-291 #11: the panel over the cards closes (button or Esc) and comes back; focus follows it
   it("closes with the close button, focus moves to the button that brings it back, and back again", () => {
-    render(<LockedBets total={50} shown={10} desktop />);
+    render(<LockedBets total={50} shown={10} daily={10} desktop />);
     const close = screen.getByRole("button", { name: "Close" });
     fireEvent.click(close);
     expect(screen.queryByRole("link", { name: /Unlock all/ })).toBeNull();
@@ -38,7 +38,7 @@ describe("LockedBets", () => {
   });
 
   it("closes on Esc, but leaves Esc to an open modal (drawer, dialog)", () => {
-    render(<LockedBets total={50} shown={10} desktop />);
+    render(<LockedBets total={50} shown={10} daily={10} desktop />);
     const modal = document.createElement("div");
     modal.setAttribute("aria-modal", "true");
     document.body.appendChild(modal);
@@ -49,5 +49,12 @@ describe("LockedBets", () => {
     act(() => void document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true })));
     expect(screen.queryByRole("button", { name: "Close" })).toBeNull();
     expect(document.activeElement).toBe(screen.getByTestId("locked-reopen"));
+  });
+
+  it("T-288: states the daily allowance, never the number of rows on the page", () => {
+    const { container } = render(<LockedBets total={1070} shown={4} daily={10} desktop />);
+    expect(container.textContent).toContain("Free shows 10 Best bets a day, chosen at random");
+    expect(container.querySelector("h2")!.textContent).toBe("1K more bets on Pro");
+    expect(container.textContent).not.toMatch(/Free shows 4\b/);
   });
 });

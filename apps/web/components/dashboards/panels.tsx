@@ -1,12 +1,13 @@
 "use client";
 // Dashboard panel kinds (docs/05 F-10). Each panel fetches its own data and links to its full view.
+import { ClosesLine } from "@/components/clock";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { drawerHref } from "@/components/market/drawer";
 import { fetchCurve, fetchMarkets, type ApiRow, type Curve } from "@/lib/api";
-import { closesLine, DASH, edge, money, pct, price, ret, sideRet, sideEdge, formatCount } from "@/lib/format";
+import { DASH, edge, money, pct, price, ret, sideRet, sideEdge, formatCount } from "@/lib/format";
 import type { FilterState } from "@/lib/filters/state";
 import { summarize } from "@/lib/journal";
 import { useCollection, useProfile } from "@/lib/repo/hooks";
@@ -78,7 +79,7 @@ function MarketRows({ rows, pro }: { rows: ApiRow[]; pro: boolean }) {
           <Link href={pathname + drawerHref(m.id, s.side_index)} scroll={false} className="flex items-center justify-between gap-3 py-2.5 hover:text-accent-hover">
             <span className="min-w-0">
               <span className="block truncate text-sm font-medium">{m.question}</span>
-              <span className="text-xs text-muted">Bet {s.outcome} at {price(s.ask)} · Won before {pct(s.win_prob)} · {closesLine(m.closes_at)}</span>
+              <span className="text-xs text-muted">Bet {s.outcome} at {price(s.ask)} · Won before {pct(s.win_prob)} · <ClosesLine at={m.closes_at} /></span>
             </span>
             <span className={`flex-none font-heading text-lg font-bold tabular-nums ${s.roi_pct > 0 ? "text-accent" : "text-muted"}`}>{pro ? sideEdge(s) : sideRet(s)}</span>
           </Link>

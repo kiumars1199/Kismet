@@ -40,16 +40,36 @@ export function tiles(b: BacktestFile): Tile[] {
 }
 
 const DAY = { month: "short", day: "numeric", timeZone: "UTC" } as const;
+
+/** A test week's direction, judged at the precision its return is shown (lib/format ret: 1 decimal under 10%, whole
+ *  % above). "up" only for a positive return that still reads above zero: +0.04% prints "+0%", so it is "flat"
+ *  (break-even), never an up week. "none": no best bets that week. */
+export type WeekDir = "up" | "down" | "flat" | "none";
+export function weekDir(roiPct: number | null): WeekDir {
+  if (roiPct === null || !ok(roiPct)) return "none";
+  const a = Math.abs(roiPct);
+  const shown = a >= 10 ? Math.round(a) : Number(a.toFixed(1));
+  return shown === 0 ? "flat" : roiPct > 0 ? "up" : "down";
+}
+
 /** Weekly folds with dates formatted server-side (avoids hydration mismatch). Return is null on empty weeks. */
 export function foldRows(b: BacktestFile) {
   const folds = (chosenResult(b)?.folds ?? []) as Fold[];
-  return folds.map((f) => ({
-    week: new Date(f.start * 1000).toLocaleDateString("en-US", DAY),
-    bets: f.flags ?? 0,
-    ret: f.flags && ok(f.roi_pct) ? f.roi_pct : null,
-    retText: f.flags ? ret(f.roi_pct) : "no bets",
-  }));
+  return folds.map((f) => {
+    const r = f.flags && ok(f.roi_pct) ? f.roi_pct : null;
+    return {
+      week: new Date(f.start * 1000).toLocaleDateString("en-US", DAY),
+      bets: f.flags ?? 0,
+      ret: r,
+      retText: f.flags ? ret(f.roi_pct) : "no bets",
+      dir: weekDir(r),
+    };
+  });
 }
+
+/** "N of M weeks up": weeks whose return is positive as shown (weekDir "up"); zero, break-even and empty weeks are
+ *  not up. The one count every page uses (landing, Results). */
+export const weeksUp = (rows: { dir: WeekDir }[]) => rows.filter((x) => x.dir === "up").length;
 
 /** Predicted vs realized edge per bucket, in ¢ per $1 share. */
 export function bucketRows(b: BacktestFile) {

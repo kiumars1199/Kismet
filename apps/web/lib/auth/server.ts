@@ -5,7 +5,7 @@ import { createServerClient } from "@supabase/ssr";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import { DEMO_MODE } from "@/lib/config";
-import { compLive, effectiveTier, type Tier } from "@/lib/entitlements";
+import { FREE_BEST_BETS_A_DAY, compLive, effectiveTier, type Tier } from "@/lib/entitlements";
 import { isAdminEmail } from "@/lib/admin/core";
 import { delayMin } from "@/lib/settings-core";
 import { behindWords } from "@/lib/format";
@@ -24,7 +24,7 @@ export const authEnabled = () => !DEMO_MODE && !!env().url && !!env().anon;
 export const accountsOffNote = (demo = DEMO_MODE, delay = delayMin("free")) =>
   demo
     ? "Accounts aren't switched on here. Everything is unlocked and saved in this browser."
-    : `Sign-in isn't available yet. You can browse on the Free plan: every open market, ${behindWords(delay)}, 10 Best bets a day, with returns shown as ranges.`;
+    : `Sign-in isn't available yet. You can browse on the Free plan: every open market, ${behindWords(delay)}, ${FREE_BEST_BETS_A_DAY} Best bets a day, with returns shown as ranges.`;
 /** The service-role client can be built (cron jobs). */
 export const adminEnabled = () => !!env().url && !!env().service;
 
