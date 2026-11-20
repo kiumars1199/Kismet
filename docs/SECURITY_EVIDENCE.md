@@ -41,7 +41,7 @@ Run everything: `cd apps/web && pnpm typecheck && pnpm lint && pnpm test && pnpm
 | Google OAuth: production origin only; scopes `openid email profile` | `app/api/auth/google/route.ts` (scopes); origin is set by the owner | Code; `docs/setup-notes/lane-l.md` |
 | Cookies HttpOnly, Secure (in production), SameSite=Lax; refreshed in middleware | `COOKIE_OPTIONS` in `lib/auth/server.ts` and `middleware.ts` | `test/security.test.ts` ("cookie flags"): every cookie the server sets spreads `COOKIE_OPTIONS`, and there is no `document.cookie` |
 | Admin routes check `ADMIN_EMAILS` | N/A: there are no admin routes | `grep -r ADMIN apps/web` finds nothing |
-| Magic-link and auth abuse | `app/api/auth/*`: Origin check, 5/min per IP, 5/hour per email | `test/ratelimit.test.ts` |
+| Magic-link and auth abuse | `app/api/auth/*`: Origin check, 5/min per IP, 5 per 15 min per email | `test/ratelimit.test.ts` |
 
 ## Database
 

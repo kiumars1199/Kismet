@@ -1,0 +1,46 @@
+# headers (keyless prod :3161)
+== curl -I /
+HTTP/1.1 200 OK
+Strict-Transport-Security: max-age=63072000; includeSubDomains
+X-Content-Type-Options: nosniff
+Referrer-Policy: strict-origin-when-cross-origin
+X-Frame-Options: DENY
+Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+content-security-policy: default-src 'self'; script-src 'self' 'nonce-YmY0NjViMjgtOTYxYi00NThhLWI2OGItNWU5MGE0MzRlNDE5' 'strict-dynamic' https://js.stripe.com https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self'; connect-src 'self' https://us.i.posthog.com https://*.posthog.com https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://api.stripe.com https://vitals.vercel-insights.com; frame-src https://js.stripe.com https://checkout.stripe.com; frame-ancestors 'none'; object-src 'none'; base-uri 'self'
+Cache-Control: private, no-cache, no-store, max-age=0, must-revalidate
+== curl -I /markets
+HTTP/1.1 200 OK
+Strict-Transport-Security: max-age=63072000; includeSubDomains
+X-Content-Type-Options: nosniff
+Referrer-Policy: strict-origin-when-cross-origin
+X-Frame-Options: DENY
+Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+content-security-policy: default-src 'self'; script-src 'self' 'nonce-OWI4ODdkZTAtOWM1YS00ZWMxLTkzMmItMWVmOGNhMjU4MGEy' 'strict-dynamic' https://js.stripe.com https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self'; connect-src 'self' https://us.i.posthog.com https://*.posthog.com https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://api.stripe.com https://vitals.vercel-insights.com; frame-src https://js.stripe.com https://checkout.stripe.com; frame-ancestors 'none'; object-src 'none'; base-uri 'self'
+Cache-Control: private, no-cache, no-store, max-age=0, must-revalidate
+== curl -I /api/meta
+HTTP/1.1 200 OK
+Strict-Transport-Security: max-age=63072000; includeSubDomains
+X-Content-Type-Options: nosniff
+Referrer-Policy: strict-origin-when-cross-origin
+X-Frame-Options: DENY
+Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+content-security-policy: default-src 'self'; script-src 'self' 'nonce-NjIxY2RjM2EtNTkwOC00MDdmLWJlNDEtMTE3YjdmNmM5Yzlk' 'strict-dynamic' https://js.stripe.com https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self'; connect-src 'self' https://us.i.posthog.com https://*.posthog.com https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://api.stripe.com https://vitals.vercel-insights.com; frame-src https://js.stripe.com https://checkout.stripe.com; frame-ancestors 'none'; object-src 'none'; base-uri 'self'
+cache-control: private, no-store
+== curl -I /api/mcp
+HTTP/1.1 401 Unauthorized
+Strict-Transport-Security: max-age=63072000; includeSubDomains
+X-Content-Type-Options: nosniff
+Referrer-Policy: strict-origin-when-cross-origin
+X-Frame-Options: DENY
+Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+content-security-policy: default-src 'self'; script-src 'self' 'nonce-NjdlZmYzOWQtODZkMS00MGIyLWJhMWMtMjc0MDJkNzQ5YTVk' 'strict-dynamic' https://js.stripe.com https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self'; connect-src 'self' https://us.i.posthog.com https://*.posthog.com https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://api.stripe.com https://vitals.vercel-insights.com; frame-src https://js.stripe.com https://checkout.stripe.com; frame-ancestors 'none'; object-src 'none'; base-uri 'self'
+cache-control: private, no-store
+== curl -I /llms.txt
+HTTP/1.1 200 OK
+Strict-Transport-Security: max-age=63072000; includeSubDomains
+X-Content-Type-Options: nosniff
+Referrer-Policy: strict-origin-when-cross-origin
+X-Frame-Options: DENY
+Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+content-security-policy: default-src 'self'; script-src 'self' 'nonce-NzhhNjRkZmEtYzg4Ni00YTMwLTljNzktZjEwMTc1YzFkYzRj' 'strict-dynamic' https://js.stripe.com https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self'; connect-src 'self' https://us.i.posthog.com https://*.posthog.com https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://api.stripe.com https://vitals.vercel-insights.com; frame-src https://js.stripe.com https://checkout.stripe.com; frame-ancestors 'none'; object-src 'none'; base-uri 'self'
+cache-control: public, max-age=3600

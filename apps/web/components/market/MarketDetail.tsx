@@ -7,7 +7,8 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { softNav } from "@/lib/softNav";
 import { useEffect, useRef, useState } from "react";
 import { fetchBook, fetchMarket, type BookResponse, type MarketResponse } from "@/lib/api";
-import { ago, basis, chance, closesLine, gameTime, edge, money, pays, PAYS_HELP, pct, price, realisticReturn, ret, RETURN_HELP, payoutIfWins, payoutMoney, sideRet, sideEdge, sidePts, formatCount, LONG_SHOT_LINE, winsAbout } from "@/lib/format";
+import { useWhen } from "./When";
+import { ago, basis, chance, edge, money, pays, PAYS_HELP, pct, price, realisticReturn, ret, RETURN_HELP, payoutIfWins, payoutMoney, sideRet, sideEdge, sidePts, formatCount, LONG_SHOT_LINE, winsAbout } from "@/lib/format";
 import { useProfile } from "@/lib/repo/hooks";
 import { useEntitlements } from "@/lib/entitlements";
 import type { Execution, Side, StoreMarket } from "@/lib/types";
@@ -110,6 +111,7 @@ function useLiveBook(m: StoreMarket, s: Side, stake?: number): Live {
 
 function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side?: 0 | 1; onClose?: () => void }) {
   const m = data.market;
+  const when = useWhen(m.closes_at);
   const s = m.sides.find((x) => x.side_index === sideParam) ?? m.best;
   const other = m.sides.find((x) => x !== s);
   const profile = useProfile();
@@ -142,7 +144,7 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
       title={
         <div>
           {/* page mode (no onClose): the breadcrumbs above already name the topic and the game */}
-          <div className="text-xs text-muted">{onClose && <>{topicLabel(m)} · </>}<span title={new Date(m.closes_at * 1000).toLocaleString()}>{gameTime(m.closes_at)}</span> · {closesLine(m.closes_at)}</div>
+          <div className="text-xs text-muted">{onClose && <>{topicLabel(m)} · </>}<span title={when.full} suppressHydrationWarning>{when.game}</span> · <span suppressHydrationWarning>{when.closes}</span></div>
           <H className="mt-1.5 text-[22px] font-semibold leading-tight">{m.question}</H>
           {onClose && m.event !== m.question && <Link href={`/event/${m.event_id}`} className="mt-1 inline-block text-[13px] text-accent-hover hover:text-accent-soft">{m.event}</Link>}
         </div>

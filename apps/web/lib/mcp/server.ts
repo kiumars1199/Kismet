@@ -43,6 +43,16 @@ const done = (lines: (string | null | undefined | false)[], isError = false): Ca
 });
 const refuse = (text: string) => done([text], true);
 
+/** Any JSON-RPC reply (or batch) whose result is a tool result gets the disclaimer if it lacks one. */
+export function withDisclaimer(body: unknown): unknown {
+  if (Array.isArray(body)) return body.map(withDisclaimer);
+  const r = (body as { result?: { content?: unknown } } | null)?.result;
+  if (!r || !Array.isArray(r.content)) return body;
+  const has = r.content.some((c: { type?: string; text?: string }) => c?.type === "text" && c.text?.includes(DISCLAIMER));
+  if (!has) r.content.push({ type: "text", text: DISCLAIMER });
+  return body;
+}
+
 /** The plan gate for one tool call: the caller's plan from the same rule as the site (getMe), then the call quota. */
 async function gate(user: SessionUser | null): Promise<{ me: Me } | { refused: CallToolResult }> {
   if (!user) return { refused: refuse("Sign in again: this connection has no Kismet account.") };

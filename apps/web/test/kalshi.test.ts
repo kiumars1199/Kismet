@@ -67,3 +67,19 @@ describe("/kalshi page", () => {
     expect(el.props.children[0]!.props.variant).toBe("banner");
   });
 });
+
+describe("/kalshi page (audit run 3, 3-c)", () => {
+  afterEach(() => { vi.unstubAllEnvs(); h.beta = false; });
+  const page = async () => { vi.resetModules(); return (await import("@/app/kalshi/page")).default; };
+
+  it("a tester with no kalshi.json gets an empty state, not the 404 the nav link would lead to", async () => {
+    h.beta = true;
+    vi.stubEnv("DATA_DIR", "test/fixtures/missing");
+    const el = await (await page())();
+    expect(JSON.stringify(el)).toContain("No Kalshi data yet");
+  });
+
+  it("anyone else still gets the 404", async () => {
+    await expect((await page())()).rejects.toThrow(/NEXT_HTTP_ERROR_FALLBACK;404|NEXT_NOT_FOUND/);
+  });
+});

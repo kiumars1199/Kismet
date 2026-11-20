@@ -1,0 +1,40 @@
+├ ƒ /event/[id]                                    4.53 kB         309 kB
+├ ƒ /ext/connect                                   6.15 kB         144 kB
+├ ○ /icon.svg                                          0 B            0 B
+├ ƒ /journal                                       10.8 kB         275 kB
+├ ƒ /kalshi                                          553 B         138 kB
+├ ƒ /llms.txt                                        180 B         138 kB
+├ ƒ /login                                           123 B         145 kB
+├ ƒ /m/[id]                                        14.2 kB         171 kB
+├ ƒ /m/[id]/opengraph-image                          157 B         138 kB
+├ ƒ /m/[id]/twitter-image                            157 B         138 kB
+├ ƒ /maintenance                                     157 B         138 kB
+├ ƒ /markets                                       6.75 kB         203 kB
+├ ƒ /oauth/consent                                 4.57 kB         142 kB
+├ ƒ /onboarding                                    5.19 kB         150 kB
+├ ○ /opengraph-image                                 157 B         138 kB
+├ ƒ /pricing                                       5.85 kB         144 kB
+├ ƒ /privacy                                         180 B         138 kB
+├ ƒ /refunds                                         180 B         138 kB
+├ ƒ /reset-password                                5.34 kB         143 kB
+├ ○ /robots.txt                                      157 B         138 kB
+├ ƒ /settings                                      4.89 kB         150 kB
+├ ƒ /signup                                          120 B         145 kB
+├ ○ /sitemap.xml                                     157 B         138 kB
+├ ƒ /status                                         1.8 kB         143 kB
+├ ƒ /terms                                           180 B         138 kB
+├ ƒ /tools                                         9.68 kB         148 kB
+├ ƒ /track-record                                  8.13 kB         268 kB
+├ ○ /twitter-image                                   157 B         138 kB
+└ ƒ /watchlist                                     7.35 kB         148 kB
++ First Load JS shared by all                       138 kB
+  ├ chunks/165c755f-94d09f1ecde08930.js            54.2 kB
+  ├ chunks/6876-3cc8713425764ebb.js                77.2 kB
+  └ other shared chunks (total)                    6.37 kB
+
+
+ƒ Middleware                                        305 kB
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

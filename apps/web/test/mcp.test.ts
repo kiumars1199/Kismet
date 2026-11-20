@@ -288,6 +288,52 @@ describe("plan gates", () => {
   });
 });
 
+describe("audit run 3 (MCP-a, MCP-b)", () => {
+  const withOrigin = (origin: string) => {
+    const r = rpcReq({ jsonrpc: "2.0", id: 1, method: "tools/list", params: {} });
+    const headers = new Headers(r.headers);
+    headers.set("origin", origin);
+    return new Request(r.url, { method: "POST", headers, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/list", params: {} }) });
+  };
+
+  it("403 for a browser Origin that isn't Kismet's, even with a valid token; own origin and no Origin pass", async () => {
+    const bad = await POST(withOrigin("http://evil.example"));
+    expect(bad.status).toBe(403);
+    expect(bad.headers.get("cache-control")).toContain("no-store");
+    expect((await POST(withOrigin(ORIGIN))).status).toBe(200);
+    expect((await rpc("tools/list")).res.status).toBe(200);
+  });
+
+  it("MCP_ALLOWED_ORIGINS adds hostnames", async () => {
+    vi.stubEnv("MCP_ALLOWED_ORIGINS", "inspector.example");
+    expect((await POST(withOrigin("https://inspector.example"))).status).toBe(200);
+    vi.unstubAllEnvs();
+  });
+
+  it("modern protocol (2026-07-28): input the SDK rejects still ends with the disclaimer", async () => {
+    const fetchRoute = async (url: string | URL, init?: RequestInit) => {
+      const req = new Request(url, init);
+      return req.method === "POST" ? POST(req) : GET(req);
+    };
+    const client = new Client({ name: "vitest-modern", version: "1" }, { versionNegotiation: { mode: { pin: "2026-07-28" } } });
+    const transport = new StreamableHTTPClientTransport(new URL(`${ORIGIN}/api/mcp`), {
+      fetch: fetchRoute as typeof fetch, requestInit: { headers: { authorization: "Bearer good" } },
+    });
+    await client.connect(transport);
+    const r = (await client.callTool({ name: "best_bets", arguments: { limit: 0 } })) as ToolResult;
+    expect(r.isError).toBe(true);
+    expect(text(r).endsWith(DISCLAIMER)).toBe(true);
+    await client.close();
+  });
+
+  it("input the SDK rejects (limit 0) still ends with the disclaimer", async () => {
+    const raw = await rpc("tools/call", { name: "best_bets", arguments: { limit: 0 } });
+    const r = raw.json.result as ToolResult;
+    expect(r.isError).toBe(true);
+    expect(text(r).endsWith(DISCLAIMER)).toBe(true);
+  });
+});
+
 describe("tools", () => {
   it("best_bets: limit clamped to 25, filters apply, every result shows its basis and ends with the disclaimer", async () => {
     const r = await call("best_bets", { limit: 500, tier: "all" });

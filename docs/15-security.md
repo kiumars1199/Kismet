@@ -24,7 +24,7 @@
 - [ ] Vercel BotID (`checkBotId()`) on `/api/markets`, `/api/flags`, `/api/suggest`, `/api/book`, `/api/auth/*`,
       `/api/stripe/checkout`.
 - [ ] Rate limits (Upstash, sliding window), keyed by user id when signed in, else IP + JA4 where available:
-      markets/flags 60/min, suggest 120/min, book 30/min, auth 5/min/IP and 5/hour/email, checkout 10/hour.
+      markets/flags 60/min, suggest 120/min, book 30/min, auth 5/min/IP and 5 per 15 min per email (emails sent and password tries, separate buckets), checkout 10/hour.
       429 with `Retry-After`.
 - [ ] `robots.txt` disallows `/api/` and blocks AI crawlers (GPTBot, ClaudeBot, CCBot, PerplexityBot, Google-Extended…).
 - [ ] Session limit: 3 active sessions per account; anomaly log when one account pulls > 5,000 rows/hour.

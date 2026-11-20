@@ -3,6 +3,7 @@
 // Simple filters (docs/13 §2, docs/18 §3): Topic · Pays · Chance · Return · Closes as dropdown pills, then Sort and
 // "More filters" (the full panel, as a sheet). Each choice shows how many bets it leaves (facets = every filter
 // but its own). Everything lives in the URL through `onChange`, like the rest of the screener.
+import Link from "next/link";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import type { Facets, MetaResponse } from "@/lib/api";
 import { CHANCE_BANDS, PAYS_BANDS, liftsFloor } from "@/lib/filters/apply";
@@ -234,8 +235,8 @@ export function FilterPills({ state: s, mode, facets, meta, onChange, onReset, c
           <Options opts={pays} onChange={onChange} close={close} />
           {(paysNote || mode === "flags") && (
             <p data-testid="pays-note" className="mt-1 max-w-64 border-t border-border px-3 pt-2 text-xs leading-relaxed text-muted">
-              {paysNote}{paysNote && mode === "flags" ? " " : ""}{mode === "flags" && "Picking a payout includes lower-confidence bets."}{" "}
-              <a href="/track-record#pays" className="text-accent-hover underline-offset-2 hover:underline">See results</a>
+              {paysNote}{paysNote && mode === "flags" ? " " : ""}{mode === "flags" && "Choosing a payout includes lower-confidence bets."}{" "}
+              <Link href="/track-record#pays" className="text-accent-hover underline-offset-2 hover:underline">See results</Link>
             </p>
           )}
         </>

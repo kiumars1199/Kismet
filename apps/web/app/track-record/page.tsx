@@ -98,7 +98,7 @@ export default async function Page() {
       </div>
 
       <Section id="pays" title="By payout"
-        note="Every tested bet grouped by what it paid per $1. Best bets are the main list; lower-confidence bets are the extra ones you see when you pick a payout. The verdict uses whichever group tested more bets, and calls a result only when it is too big to be luck.">
+        note="Every tested bet grouped by what it paid per $1. Best bets are the main list; lower-confidence bets are the extra ones you see when you choose a payout. The verdict uses whichever group tested more bets, and calls a result only when it is too big to be luck.">
         <PaysTable rows={paysRows(r)} />
       </Section>
 

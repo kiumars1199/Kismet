@@ -61,7 +61,13 @@ describe("rate limits", () => {
     await until429(() => suggest(req("/api/suggest?q=a")), 120);
   });
 
-  it("magic link: 5 a minute per IP and 5 an hour per email", async () => {
+  it("auth email window matches docs/15: 5 per 15 minutes per address", () => {
+    expect(abuse.RULES.auth_email).toEqual({ limit: 5, window: "15 m" });
+    expect(abuse.RULES.auth_password).toEqual({ limit: 5, window: "15 m" });
+    expect(abuse.RULES.auth_ip).toEqual({ limit: 5, window: "1 m" });
+  });
+
+  it("magic link: 5 a minute per IP and 5 per 15 minutes per email", async () => {
     await until429(() => magic(post("/api/auth/magic-link", { email: "x@y.test", accept: true }, "2.2.2.2")), 5);
     abuse.setLimiter(abuse.memoryLimiter());
     for (let i = 0; i < 5; i++) expect((await magic(post("/api/auth/magic-link", { email: "v@y.test", accept: true }, `3.3.3.${i}`))).status).toBe(200);
