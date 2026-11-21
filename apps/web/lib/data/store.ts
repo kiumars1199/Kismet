@@ -223,6 +223,11 @@ async function loadFrom(source: DataSource): Promise<RawData> {
     read<EventsFile>("events.json", false),
     read<LedgerSummary>("ledger_summary.json", false),
   ]);
+  // QA-A #46: the publisher uploads markets.json and flags.json about a second apart, so a load that lands between
+  // them would pair one scan's markets with the other scan's flags. Refuse it; the caller keeps its copy and retries.
+  if (markets!.meta.scanned_at !== flags!.meta.scanned_at) {
+    throw new Error(`torn load: markets.json scan ${markets!.meta.scanned_at} vs flags.json scan ${flags!.meta.scanned_at}`);
+  }
   const ledgerSince = ledgerSummary ? await firstFlaggedAt(source).catch(() => null) : null;
   return { markets: markets!, flags: flags!, model: model!, backtest: backtest!, events, ledgerSummary, ledgerSince, source };
 }
@@ -269,6 +274,12 @@ export async function loadRaw(chain = sourceChain(), now = Date.now() / 1000): P
 }
 
 const RETRY_MS = 30_000;
+/** QA-A #46/#60 (Nov 21): stale-while-revalidate had no age limit, so the first request to an instance that sat idle
+ *  for an hour got the hour-old scan (and its header, fetched from a busier instance, a newer one). A copy confirmed
+ *  current in the last SWR_MAX_MS is served at once while it refreshes; an older one waits for the reload, at most
+ *  WAIT_MS (a stuck download can take 35 s), then falls back to the copy in hand. Scans run every ~15 min. */
+export const SWR_MAX_MS = 5 * 60_000;
+export const WAIT_MS = 10_000;
 
 /** Nov 20: the background refresh above ran after the response was sent, and Vercel freezes a function once its response
  *  is out, so the ~20 MB download stalled mid-stream and died as "aborted due to timeout" / "terminated" (about half
@@ -284,12 +295,27 @@ const g = globalThis as unknown as {
 };
 const state = (g.__meStore ??= {});
 
+/** Tests: swap the loader and reset this instance's copies. */
+let loader: () => Promise<RawData> = () => loadRaw();
+export function _resetStore(load?: () => Promise<RawData>) {
+  loader = load ?? (() => loadRaw());
+  for (const k of Object.keys(state) as (keyof typeof state)[]) delete state[k];
+}
+
+/** The reload, or the copy in hand if the reload fails or takes longer than WAIT_MS. */
+function waitOrCopy(load: Promise<Store>, copy: Store): Promise<Store> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<Store>((resolve) => { timer = setTimeout(() => resolve(copy), WAIT_MS); });
+  return Promise.race([load.catch(() => copy), timeout]).finally(() => clearTimeout(timer));
+}
+
 export function getStore(): Promise<Store> {
-  if (state.cache && Date.now() - state.cache.loadedAt < TTL_MS) return Promise.resolve(state.cache);
-  if (state.inflight) return state.cache ? Promise.resolve(state.cache) : state.inflight;
+  const age = state.cache ? Date.now() - state.cache.loadedAt : Infinity;
+  if (state.cache && age < TTL_MS) return Promise.resolve(state.cache);
+  if (state.inflight) return !state.cache ? state.inflight : age < SWR_MAX_MS ? Promise.resolve(state.cache) : waitOrCopy(state.inflight, state.cache);
   // While every source is down, serve the last good copy and retry at most every 30 s.
   if (state.cache && state.failedAt && Date.now() - state.failedAt < RETRY_MS) return Promise.resolve(state.cache);
-  state.inflight = loadRaw()
+  state.inflight = loader()
     .then((raw) => {
       state.failedAt = undefined;
       // #46: never swap the copy in hand for an older scan (a lagging source or a stale object)
@@ -297,16 +323,27 @@ export function getStore(): Promise<Store> {
         state.cache.loadedAt = Date.now();
         return state.cache;
       }
+      if (state.cache && raw.markets.meta.scanned_at === state.cache.meta.scanned_at) {
+        state.cache.loadedAt = Date.now();   // same scan: keep the parsed copy (and its derived indexes)
+        return state.cache;
+      }
       const next = buildStore(raw);
-      if (state.cache && state.cache.meta.scanned_at !== next.meta.scanned_at) [state.prev2, state.prev] = [state.prev, state.cache];
+      // QA-A #46: a copy kept as `prev` feeds the Free delay. Only one confirmed current recently is a scan or two
+      // behind; one that sat unrefreshed may be many scans back, so drop it and let the published *-prev files decide.
+      if (state.cache && state.cache.meta.scanned_at !== next.meta.scanned_at) {
+        if (Date.now() - state.cache.loadedAt < SWR_MAX_MS) [state.prev2, state.prev] = [state.prev, state.cache];
+        else [state.prev2, state.prev, state.delayed] = [undefined, undefined, undefined];
+      }
       return (state.cache = next);
     })
     .catch((e) => { state.failedAt = Date.now(); throw e; })
     .finally(() => (state.inflight = undefined));
-  // Stale-while-revalidate (docs/19 P6): with a copy in hand, answer now and let the ~20 MB reload finish in the
+  if (!state.cache) return state.inflight;
+  // Stale-while-revalidate (docs/19 P6): with a recent copy in hand, answer now and let the ~20 MB reload finish in the
   // background, so no request waits on it. A failed refresh keeps serving the previous copy.
-  if (state.cache) { state.inflight.catch(() => {}); keepAlive(state.inflight); return Promise.resolve(state.cache); }
-  return state.inflight;
+  state.inflight.catch(() => {});
+  keepAlive(state.inflight);
+  return age < SWR_MAX_MS ? Promise.resolve(state.cache) : waitOrCopy(state.inflight, state.cache);
 }
 
 /** One delayed copy (`*-prev.json` or `*-prev2.json`, which the publishers keep: engine scan_keeping_prev,
@@ -320,6 +357,7 @@ async function loadCopy(s: Store, suffix: "prev" | "prev2"): Promise<Store | und
   };
   const [markets, flags] = await Promise.all([read<MarketsFile>(`markets-${suffix}.json`), read<FlagsFile>(`flags-${suffix}.json`)]);
   if (!markets || !flags || !(markets.meta.scanned_at < s.meta.scanned_at)) return undefined;
+  if (flags.meta.scanned_at !== markets.meta.scanned_at) return undefined;   // QA-A #46: a torn pair, mid-upload
   // #46: a delayed copy is a scan or two behind, never a day-old one from a stale fallback source
   if (s.meta.scanned_at - markets.meta.scanned_at > FALLBACK_MAX_AGE_S) return undefined;
   return buildStore({ markets, flags, model: s.model, backtest: s.backtest, events: s.events, ledgerSummary: s.ledgerSummary, ledgerSince: s.ledgerSince, source: s.source });

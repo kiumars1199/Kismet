@@ -19,6 +19,7 @@ import { MarketTable, type Item } from "./MarketTable";
 import { EmptyState, ErrorState, StaleBanner } from "./States";
 import { useDesktop } from "./useDesktop";
 import { useMeta, useScreener } from "./useScreener";
+import { usePublishScan } from "@/lib/scanClock";
 
 type Expanded = Record<string, { rows?: ApiRow[]; loading?: boolean }>;
 
@@ -61,7 +62,9 @@ export function MarketsScreener({ initial, scannedAt }: { initial?: MarketsRespo
     });
   }, [data, expanded]);
 
-  const scanned = meta?.meta.scanned_at ?? scannedAt;
+  // QA-A #46: the scan the rows on screen come from; the header pill names the same one
+  const scanned = data?.scanned_at ?? scannedAt ?? meta?.meta.scanned_at;
+  usePublishScan(scanned);
   return (
     <div className="mx-auto flex w-full max-w-[1600px] gap-6">
       <div className="flex min-w-0 flex-1 flex-col gap-4">

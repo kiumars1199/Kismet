@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { fetchMeta } from "@/lib/api-core";   // not @/lib/api: zod on every page (T-295)
 import { ago, behindWords } from "@/lib/format";
 import { REFRESH_WORDS, freshness } from "@/lib/freshness";
+import { usePageScan } from "@/lib/scanClock";
 
 const DOT = { fresh: "bg-accent", amber: "bg-warning", red: "bg-negative" } as const;
 const TEXT = { fresh: "text-muted", amber: "text-warning", red: "text-negative" } as const;
@@ -24,9 +25,11 @@ export function FreshnessPill({ scannedAt: initial }: { scannedAt?: number }) {
     return () => { clearInterval(tick); clearInterval(refetch); };
   }, [initial]);
 
-  if (scannedAt === undefined || now === null) return null;
-  const level = freshness(scannedAt, now);
-  const when = ago(scannedAt, now);
+  // QA-A #46: on a page built from a scan, name that scan (the body's), not whatever /api/meta's server holds
+  const shown = usePageScan() ?? scannedAt;
+  if (shown === undefined || now === null) return null;
+  const level = freshness(shown, now);
+  const when = ago(shown, now);
   const behind = delay > 0 ? ` On the Free plan you see prices ${behindWords(delay)}.` : "";
   const title = level === "fresh"
     ? `Prices and win chances were last checked ${when}. Prices refresh ${REFRESH_WORDS}.${behind}`

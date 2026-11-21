@@ -77,9 +77,11 @@ describe("data source chain", () => {
 
   it("serves the expired copy at once and reloads in the background (stale-while-revalidate)", async () => {
     const old = await getStore();
-    old.loadedAt = 0; // expired
+    const expired = Date.now() - 150_000;   // past the 120 s TTL, inside SWR_MAX_MS (QA-A #46: older copies wait)
+    old.loadedAt = expired;
     expect(await getStore()).toBe(old);   // no request waits for the reload
-    await vi.waitFor(async () => expect(await getStore()).not.toBe(old));
+    // same scan reloaded: the parsed copy is kept and marked current again
+    await vi.waitFor(() => expect(old.loadedAt).toBeGreaterThan(expired));
   });
 
   it("keeps serving the last good copy when a refresh fails", async () => {

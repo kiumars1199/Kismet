@@ -16,6 +16,7 @@ import type { FilterState } from "@/lib/filters/state";
 import { ago, formatCount } from "@/lib/format";
 import { REFRESH_WORDS, freshness } from "@/lib/freshness";
 import { savePresetFromState } from "@/lib/presets";
+import { usePublishScan } from "@/lib/scanClock";
 import { timeWindow } from "@/lib/search/parse";
 import { TAXONOMY } from "@/lib/taxonomy";
 import { BetCard } from "@/components/market/BetCard";
@@ -148,7 +149,9 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
   const rows = data ? [...data.rows, ...view!.more] : [];
   const slots = data ? slotsOf(rows, data.groups ? [...data.groups, ...view!.moreGroups] : undefined) : [];
   const left = data ? (data.total_groups ?? data.total) - slots.length : 0;
-  const scanned = meta?.meta.scanned_at ?? initial?.scanned_at;   // server value first: the stale banner paints with the cards
+  // QA-A #46: the scan the cards on screen come from, never /api/meta's (another server may answer that one)
+  const scanned = data?.scanned_at ?? initial?.scanned_at ?? meta?.meta.scanned_at;
+  usePublishScan(scanned);   // the header pill names this same scan
   // §G2: the "On Polymarket US" chip exists once the scan carries US quotes (older scans: the filter is a no-op)
   const usOn = meta ? meta.meta.us?.ok === true : rows.some((r) => !!r.market.us);
   const win = useMemo(() => ({ today: windowFor("today", scanned), week: windowFor("week", scanned) }), [scanned]);
