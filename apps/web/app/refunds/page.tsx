@@ -21,7 +21,7 @@ export default function Page() {
     {
       id: "cancel", title: "Cancel any time",
       body: <p>
-        Open your <Link href="/account">account page</Link> and choose <strong>Manage billing</strong>. Cancelling takes a minute
+        Open your <Link href="/account">account page</Link> and choose <strong>Manage billing or cancel</strong>. Cancelling takes a minute
         and there&apos;s nothing to call or email. Pro and Premium both start with a 7-day free trial: cancel during it and you aren&apos;t charged.
       </p>,
     },
