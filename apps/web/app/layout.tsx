@@ -37,7 +37,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   // T-295: accounts on and no session cookie (every prerendered page): the header renders signed out from the first
   // paint, so the landing never ships search and alerts code it would hide once /api/me answers.
   const signedOut = authEnabled() && !session;
-  const hint = authEnabled() && session ? await headerHint() : null;
+  // Nov 21: demo mode too (getMe answers from config there), so Combos/Kalshi don't pop into the header after /api/me
+  const hint = (authEnabled() && session) || DEMO_MODE ? await headerHint() : null;
   const now = Date.now();   // one clock for the server render and the hydration render (components/clock.tsx)
   const banner = settings.banner_on && settings.banner_text ? settings.banner_text : null;
   return (
@@ -65,13 +66,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   );
 }
 
-/** #17/#73 (Nov 20): with a session cookie, the header renders signed in from the first HTML (Account, Admin for admins,
+/** Demo mode counts as signed in (accounts off: /api/me says auth=false, the app view). #17/#73 (Nov 20): with a session cookie, the header renders signed in from the first HTML (Account, Admin for admins,
  *  Combos/Kalshi when they show), the same on every page, instead of filling in when /api/me answers. getMe() is
  *  cache()d, so a page that reads it too doesn't check the session twice. A failed read falls back to /api/me. */
 async function headerHint(): Promise<HeaderHint | null> {
   try {
     const me = await getMe();
-    return { signedIn: !!me.user, admin: isAdminEmail(me.user, process.env.ADMIN_EMAILS, DEMO_MODE), nav: navFeatures(me) };
+    return { signedIn: DEMO_MODE || !!me.user, admin: isAdminEmail(me.user, process.env.ADMIN_EMAILS, DEMO_MODE), nav: navFeatures(me) };
   } catch (e) {
     unstable_rethrow(e);
     return null;
