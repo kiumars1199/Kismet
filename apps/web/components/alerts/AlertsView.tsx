@@ -4,6 +4,7 @@
 // /alerts?filters=<screener query> offers "Current filters" as a view. /alerts?tab=inbox opens the inbox.
 // #23/#64 (Marc, Nov 20): delivery is said plainly. The open tab checks every 2 minutes (bell + browser notification);
 // email is the server cron (/api/alerts/run, daily on the current Vercel plan), paid plans only, never in demo.
+import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { runAlertsNow } from "@/components/alerts/AlertRunner";
@@ -16,6 +17,7 @@ import { parse } from "@/lib/filters/url";
 import { askPermission } from "@/lib/notify";
 import { can as tierCan, useEntitlements } from "@/lib/entitlements";
 import { currentMe } from "@/lib/me";
+import { track } from "@/lib/telemetry";
 import { DEMO_MODE, getRepo, repoReady } from "@/lib/repo";
 import { useCollection } from "@/lib/repo/hooks";
 import type { AlertChannel, AlertRule } from "@/lib/repo/types";
@@ -78,7 +80,8 @@ export function AlertsView() {
   const pathname = usePathname();
   const rules = useCollection("alert_rules");
   const loaded = useRepoLoaded();
-  const { can } = useEntitlements();
+  const { can, known } = useEntitlements();
+  const freeNote = !DEMO && known && !can("alerts");   // Nov 21 (Q): Free sees a short upgrade note, never a blank page
   const email = !DEMO && can("alerts");   // the server cron emails paid plans only
   const { events, unread } = useInbox();
   const [tab, setTab] = useState<"rules" | "inbox">(params.get("tab") === "inbox" ? "inbox" : "rules");
@@ -115,6 +118,12 @@ export function AlertsView() {
         <button type="button" className={btnPrimary} onClick={() => setDraft({ ...blank(email), view_id: filters ? "current" : "builtin:best" })}>New alert</button>
       </PageTitle>
       {runMsg && <p role="status" className="-mt-3 text-sm text-muted">{runMsg}</p>}
+      {freeNote && (
+        <p data-testid="alerts-free-note" className={`${card} -mt-2 px-4 py-3 text-sm text-muted`}>
+          On Free, alerts reach you only while Kismet is open in a tab. Pro adds email, checked once a day even when Kismet is closed.{" "}
+          <Link href="/pricing" onClick={() => track("upgrade_clicked", { feature: "alerts" })} className="font-medium text-emerald-400 hover:underline">See plans</Link>
+        </p>
+      )}
       <Tabs label="Alerts" value={tab} onChange={setTab} tabs={[{ value: "rules", label: `Rules (${rules.length})` }, { value: "inbox", label: unread ? `Inbox (${formatCount(unread)} new)` : "Inbox" }]} />
 
       {tab === "rules" ? (
