@@ -58,7 +58,8 @@ test("combos page: payout tabs, each card pays at least the floor, Build this co
   await expect(page.getByRole("heading", { level: 1, name: "Combos" })).toBeVisible();
   // beta (lib/beta.ts; demo mode counts as a tester): banner on the page, pill on the nav link
   await expect(page.getByTestId("beta-banner")).toHaveText("Beta: only visible to admins and testers. Not live for customers.");
-  await expect(page.locator("header").getByRole("link", { name: /^Combos/ }).getByTestId("beta-badge")).toBeVisible();
+  // #17/#73: the nav link carries the Beta tag (the full pill from 2xl, an amber dot below, so the nav fits)
+  await expect(page.locator("header").getByRole("link", { name: /^Combos/ }).getByText("Beta")).toHaveCount(2);
   for (const p of [2, 3, 5, 10]) {
     await page.getByRole("button", { name: `Pays ${p}x+` }).click();
     await expect(page).toHaveURL(new RegExp(`pays=${p}$`));
