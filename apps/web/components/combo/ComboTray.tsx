@@ -1,6 +1,8 @@
 "use client";
 // Combo builder tray (docs/18 §5.1): the user's own calculator, pinned to the bottom of every page once a leg is
-// added. Shows combo chance, Pays Nx, return, the cautious check and a same-event warning. Venue actions:
+// added. Shows combo chance, Pays Nx, return and the cautious check, all at one chance: the cautious one (Marc #74).
+// A leg from an event already in the combo is refused (by event id); saved legs that closed or whose date has
+// passed are dropped on load, with a note (Marc #42). Venue actions:
 // Polymarket has no combo contract, so each leg opens its own page; Kalshi (behind its data-permission flag) can
 // quote a real combo, and in paper mode that combo can go to the demo order ticket. No "safe" combos, ever.
 import { ExternalLink } from "@/components/kit/icons";
@@ -8,7 +10,7 @@ import { useEffect, useState } from "react";
 import { btn, btnGhost, btnPrimary } from "@/components/kit";
 import { useBacktest } from "@/components/market/TierNote";
 import { combo, kalshiComboEdge, MIN_LEGS, type Leg } from "@/lib/combos";
-import { LONG_SHOT_LINE, odds, pct, ret, testedLine, winsAbout } from "@/lib/format";
+import { LONG_SHOT_LINE, pays, pct, ret, testedLine, winsAbout } from "@/lib/format";
 import { noLiveRecord } from "@/lib/proof";
 import { openTicket, useTradeConfig } from "@/lib/trade/ext";
 import { useCombo } from "./useCombo";
@@ -32,15 +34,25 @@ function useKalshiCheck(): boolean {
 
 export function ComboTray() {
   const { legs, open, remove, clear, setOpen } = useCombo();
-  const allowed = useEntitlements().canBeta("combos");   // beta (lib/beta.ts): a saved combo stays hidden without access
-  useEffect(() => void useCombo.persist.rehydrate(), []);
+  const allowed = useEntitlements().canBeta("combos");   // Premium (lib/beta.ts): a saved combo stays hidden without it
+  const [dropped, setDropped] = useState(0);
+  useEffect(() => {
+    void Promise.resolve(useCombo.persist.rehydrate()).then(() => setDropped(useCombo.getState().prune()));
+  }, []);
   useEffect(() => {
     if (!open) return;
     const esc = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
     window.addEventListener("keydown", esc);
     return () => window.removeEventListener("keydown", esc);
   }, [open, setOpen]);
-  if (!legs.length || !allowed) return null;
+  if (!allowed) return null;
+  if (!legs.length) {
+    return dropped ? (
+      <p role="status" data-testid="combo-dropped" className="fixed inset-x-3 bottom-[calc(68px+env(safe-area-inset-bottom))] z-30 mx-auto max-w-[760px] rounded-card border border-border bg-surface px-4 py-3 text-[13px] text-soft md:bottom-4">
+        Your saved combo was cleared: its bets have closed. <button type="button" onClick={() => setDropped(0)} className="ml-1 text-accent hover:underline">OK</button>
+      </p>
+    ) : null;
+  }
 
   const c = combo(legs);
   const ready = legs.length >= MIN_LEGS;
@@ -56,7 +68,7 @@ export function ComboTray() {
           <button type="button" aria-expanded={open} aria-controls="combo-body" onClick={() => setOpen(!open)} className="flex min-h-11 min-w-0 flex-1 flex-col items-start text-left">
             <span className="flex items-center gap-2"><span className="text-xs text-muted">Your combo · {legs.length} {legs.length === 1 ? "leg" : "legs"}</span><BetaBadge /></span>
             <span data-testid="combo-summary" className="truncate font-heading text-[17px] font-bold">
-              {ready ? <>Pays {paysX(c.pays)} <span className="font-sans text-sm font-medium text-soft">· wins about {winsAbout(c.q)}</span></> : <span className="font-sans text-sm font-medium text-soft">Add one more bet to see the combo</span>}
+              {ready ? <>Pays {paysX(c.pays)} <span className="font-sans text-sm font-medium text-soft">· wins about {winsAbout(c.q_low)}</span></> : <span className="font-sans text-sm font-medium text-soft">Add one more bet to see the combo</span>}
             </span>
           </button>
           {ready && (
@@ -71,6 +83,11 @@ export function ComboTray() {
             </svg>
           </button>
         </div>
+        {dropped > 0 && (
+          <p role="status" data-testid="combo-dropped" className="mx-4 mb-3 text-[13px] text-muted">
+            {dropped === 1 ? "One bet" : `${dropped} bets`} left your combo: closed, or its date has passed.
+          </p>
+        )}
         {c.same_event.length > 0 && (
           <p role="alert" data-testid="same-event" className="mx-4 mb-3 rounded-input border border-warning/30 bg-warning/5 px-3 py-2 text-[13px] text-warning">
             Two legs come from the same event ({c.same_event.join(", ")}). Their results move together, so these numbers are off. Use legs from different events.
@@ -107,15 +124,15 @@ function Body({ id, legs, onRemove, onClear }: { id: string; legs: Leg[]; onRemo
       setChecking(false);
     }
   };
-  const k = quote?.ok ? kalshiComboEdge(c.q, quote.ask_cents) : null;
+  const k = quote?.ok ? kalshiComboEdge(c.q_low, quote.ask_cents) : null;
   const paper = () =>
     openTicket({
       title: `Combo: ${legs.map((l) => `${l.outcome} (${l.question})`).join(" + ")}`,
       ticker: quote?.ok ? quote.ticker : null,
       side: 0,
       sides: [
-        { label: "Yes, every leg wins", winProb: c.q, ask: quote?.ok ? quote.ask_cents / 100 : null },
-        { label: "No", winProb: 1 - c.q, ask: null },
+        { label: "Yes, every leg wins", winProb: c.q_low, ask: quote?.ok ? quote.ask_cents / 100 : null },
+        { label: "No", winProb: 1 - c.q_low, ask: null },
       ],
       journal: {
         market_id: quote?.ok ? `kalshi-${quote.ticker.replace(/[^\w-]/g, "_")}` : `combo-${legs.map((l) => l.market_id).join("-")}`.slice(0, 120),
@@ -132,7 +149,7 @@ function Body({ id, legs, onRemove, onClear }: { id: string; legs: Leg[]; onRemo
             <span className="flex size-6 flex-none items-center justify-center rounded-full bg-muted-bg text-xs tabular-nums text-muted">{i + 1}</span>
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium">{l.question}</p>
-              <p className="text-xs text-muted">Bet {l.outcome} · pays {odds(l.ask)} · won {pct(l.q)} before</p>
+              <p className="text-xs text-muted">Bet {l.outcome} · Pays {pays(l.ask + l.fee)} after fee · {pct(l.q_low)} chance to win (cautious)</p>
             </div>
             <a href={l.url} target="_blank" rel="noopener noreferrer" className="flex min-h-11 flex-none items-center px-2 text-[13px] text-accent-hover hover:text-accent-soft">
               Open<span className="sr-only"> {l.question} on Polymarket</span> <ExternalLink size={13} className="inline-block align-[-2px]" />
@@ -147,17 +164,18 @@ function Body({ id, legs, onRemove, onClear }: { id: string; legs: Leg[]; onRemo
       {ready && (
         <>
           <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm sm:grid-cols-4">
-            <div><dt className="text-xs text-muted">Wins about</dt><dd className="font-semibold">{winsAbout(c.q)} <span className="font-normal text-muted">({pct(c.q)})</span></dd></div>
+            <div><dt className="text-xs text-muted">Chance to win</dt><dd data-testid="combo-chance" className="font-semibold">{pct(c.q_low)} <span className="font-normal text-muted">(about {winsAbout(c.q_low)})</span></dd></div>
             <div><dt className="text-xs text-muted">Pays</dt><dd className="font-semibold">{paysX(c.pays)}</dd></div>
-            <div><dt className="text-xs text-muted">Estimated return</dt><dd className={`font-semibold ${c.ret >= 0 ? "text-accent" : "text-negative"}`}>{ret(c.ret * 100)}</dd></div>
-            <div title="Our cautious chance for every leg, multiplied. The combo only counts as a better price than usual if this still beats the price.">
-              <dt className="text-xs text-muted">Cautious chance</dt>
-              <dd className={`font-semibold ${c.has_edge ? "text-accent-softer" : "text-warning"}`}>{pct(c.q_low)} {c.has_edge ? "· still beats the price" : "· doesn't beat the price"}</dd>
+            <div><dt className="text-xs text-muted">Estimated return at {pct(c.q_low)}</dt><dd data-testid="combo-return" className={`font-semibold ${c.ret >= 0 ? "text-accent" : "text-negative"}`}>{ret(c.ret * 100)}</dd></div>
+            <div title="The chance to win, against the combo's price after fees. The combo only counts as a better price than usual if the chance still beats the price.">
+              <dt className="text-xs text-muted">Against the price</dt>
+              <dd className={`font-semibold ${c.has_edge ? "text-accent-softer" : "text-warning"}`}>{c.has_edge ? "Beats it" : "Doesn't beat it"}</dd>
             </div>
           </dl>
           <p className="text-xs leading-relaxed text-muted">
-            Price = every leg bought and the winnings rolled into the next, fees included. Prices are from when you added each leg.
-            {c.q < 0.25 && <> {LONG_SHOT_LINE}</>} Small errors in each leg multiply in a combo.
+            Chances are our cautious ones (each leg&apos;s, multiplied; our central estimate is {pct(c.q)}). Payouts include each
+            leg&apos;s fee: every leg bought and the winnings rolled into the next. Prices are from when you added each leg.
+            {c.q_low < 0.25 && <> {LONG_SHOT_LINE}</>} Small errors in each leg multiply in a combo.
             {tested && <> <span className={(record?.roi_pct ?? 0) < 0 ? "text-warning" : "text-soft"}>{tested}.</span> {noLiveRecord("combos")}</>}
           </p>
           {k && quote?.ok && (

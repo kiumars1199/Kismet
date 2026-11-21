@@ -1,6 +1,12 @@
 // docs/18 (Lane C): the long-shot fixture (id 9900010: Yes at 10¢, wins 14%, +4 pts, tier "edge"), the 10x+ chip,
-// and building a 2-leg combo from one event (same-event warning).
-import { expect, test } from "@playwright/test";
+// and the combo leg rules (Marc #15, #42, #65, #74).
+import { expect, test, type Page } from "@playwright/test";
+import { readFileSync } from "node:fs";
+
+// The fixtures are one old scan (DATA_CLOCK=scan on the server). The combo tray checks legs against the browser's
+// clock (closed or past-dated legs can't be added), so these tests set the browser to the scan's time.
+const SCAN_S: number = JSON.parse(readFileSync("test/fixtures/flags.json", "utf8")).meta.scanned_at;
+const atScan = (page: Page) => page.clock.setFixedTime(SCAN_S * 1000);
 
 // T-302: Best bets no longer has "Big payouts" / "More bets with an edge" rows or Pays chips (one chip row, docs/OVERHAUL.md
 // §B). The long shot is lower confidence and not on Polymarket US, so it shows only with a payout filter (which widens
@@ -24,23 +30,28 @@ test("drawer: long-shot line under 25% chance", async ({ page }) => {
   await expect(drawer.getByTestId("long-shot-line")).toContainText("Most of the time this loses.");
 });
 
-test("combo: two legs from one event show the same-event warning", async ({ page }) => {
+test("combo #15: a second leg from the same event (by event id) is refused", async ({ page }) => {
+  await atScan(page);
   await page.goto("/");
   await page.evaluate(() => localStorage.removeItem("me-combo-v1"));
-  for (const id of ["6674492", "6674493"]) {
-    await page.goto(`/?m=${id}`);
-    const drawer = page.getByRole("dialog", { name: "Market details" });
-    const add = drawer.getByRole("button", { name: "Add to combo" });
-    await expect(add.getByTestId("beta-badge")).toHaveCount(0);   // live since Nov 21: no Beta tag
-    await add.click();
-    await expect(drawer.getByRole("button", { name: "In combo ✓" })).toBeVisible();
-  }
+  // two markets of event 1313371 ("Denmark vs. Norway - More Markets"), different questions
+  await page.goto("/?m=6674492");
+  let drawer = page.getByRole("dialog", { name: "Market details" });
+  const add = drawer.getByRole("button", { name: "Add to combo" });
+  await expect(add.getByTestId("beta-badge")).toHaveCount(0);   // live since Nov 21: no Beta tag
+  await add.click();
+  await expect(drawer.getByRole("button", { name: "In combo ✓" })).toBeVisible();
+  await page.goto("/?m=6674493");
+  drawer = page.getByRole("dialog", { name: "Market details" });
+  await drawer.getByRole("button", { name: "Add to combo" }).click();
+  await expect(drawer.getByRole("alert")).toContainText("already has a bet from this event");
+  await expect(drawer.getByRole("button", { name: "Add to combo" })).toBeVisible();
+
   const tray = page.getByTestId("combo-tray");
   await expect(tray).toBeVisible();
   await expect(tray.getByTestId("beta-badge")).toHaveCount(0);
-  await expect(tray.getByText("Your combo · 2 legs")).toBeVisible();
-  await expect(tray.getByTestId("combo-summary")).toContainText(/Pays \d/);
-  await expect(tray.getByTestId("same-event")).toContainText("same event");
+  await expect(tray.getByText("Your combo · 1 leg")).toBeVisible();
+  await expect(tray.getByTestId("same-event")).toHaveCount(0);
 
   // Persisted locally: survives a reload; Clear empties it.
   await page.goto("/");
@@ -70,6 +81,33 @@ test("combos page: payout tabs, each card pays at least the floor, Build this co
     for (const v of await cards.evaluateAll((els) => els.map((e) => Number(e.getAttribute("data-pays"))))) expect(v).toBeGreaterThanOrEqual(p);
   }
   await page.getByRole("button", { name: "Pays 2x+" }).click();
-  await page.getByTestId("combo-card").first().getByRole("button", { name: /Build this combo/ }).click();
-  await expect(page.getByTestId("combo-tray")).toBeVisible();
+  await expect(page.getByTestId("combo-card").first()).toBeVisible();
+  // #65: the intro names the leg counts and payouts of the combos on screen
+  const shown = await page.getByTestId("combo-card").evaluateAll((els) => els.map((e) => Number(e.getAttribute("data-pays"))));
+  const x = (p: number) => `${p >= 10 ? Math.round(p) : p.toFixed(1)}x`;
+  await expect(page.getByTestId("combos-range")).toContainText(x(Math.min(...shown)));
+  await expect(page.getByTestId("combos-range")).toContainText(x(Math.max(...shown)));
+  // #74: every number on a leg is labelled; the return sits at the chance beside it
+  const card = page.getByTestId("combo-card").first();
+  for (const l of await card.getByTestId("combo-leg").all()) await expect(l).toContainText(/· Pays [\d.]+x after fee · \d+% chance to win \(cautious\)/);
+  await expect(card).toContainText(/Estimated return [+−][\d.]+% at a \d+% chance to win/);
+
+  await card.getByRole("button", { name: /Build this combo/ }).click();
+  const tray = page.getByTestId("combo-tray");
+  await expect(tray).toBeVisible();
+  // the tray's return and chance are the card's (one chance: the cautious one)
+  const chance = (await tray.getByTestId("combo-chance").innerText()).match(/^\d+%/)![0];
+  await expect(tray.getByText(`Estimated return at ${chance}`)).toBeVisible();
+});
+
+test("combo #42: a saved leg that has closed leaves the tray, with a note", async ({ page }) => {
+  await atScan(page);
+  await page.goto("/");
+  await page.evaluate((closed) => localStorage.setItem("me-combo-v1", JSON.stringify({ state: { legs: [{
+    market_id: "x1", side_index: 0, question: "Old game", outcome: "Yes", event_id: "ex", event: "Old game",
+    url: "https://polymarket.com/event/x", ask: 0.5, fee: 0.01, q: 0.6, q_low: 0.55, closes_at: closed,
+  }] }, version: 0 })), SCAN_S - 3600);
+  await page.reload();
+  await expect(page.getByTestId("combo-dropped")).toContainText("its bets have closed");
+  await expect(page.getByTestId("combo-tray")).toHaveCount(0);
 });

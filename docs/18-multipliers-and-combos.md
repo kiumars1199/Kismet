@@ -56,8 +56,10 @@ How combos work at each venue:
 
 The math (legs from **different events only**; same-event legs are correlated and the simple product is wrong):
 - Combo chance `Q = Π q_i` (our chance per leg). Payout `= 1 / combo price`.
-- Kalshi combo: `edge = Q − combo_ask − fee(combo_ask)`. Use Kalshi's quote.
-- Without a combo quote: show the "fair combo price" `Π (ask_i + fee_i)` and its return `Π(1 + r_i) − 1`.
+- Kalshi combo: `edge = Q_low − combo_ask − fee(combo_ask)`. Use Kalshi's quote.
+- Without a combo quote: show the "fair combo price" `Π (ask_i + fee_i)` and its return `Q_low / price − 1`.
+  **One chance on screen (Marc #15/#74, Nov 21):** the return, "wins about" and each leg's "N% chance to win" all use
+  the cautious chance, so the return is positive exactly when the combo beats its price. `Q` is in the details.
 - When every leg has an edge and the legs are independent, the combo has an edge too, and its return is bigger.
   But its chance of winning drops fast, and model errors multiply: if each of 3 legs is 2 points too optimistic,
   the combo can flip from +20% to negative. Show a "Combo confidence" that uses each leg's low estimate:
@@ -68,10 +70,11 @@ The math (legs from **different events only**; same-event legs are correlated an
 
 What we build:
 1. **Combo builder** (drawer → "Add to combo"; a tray at the bottom of the screen, 2–6 legs). It shows combo
-   chance, pays Nx, return, confidence, and a warning if two legs share an event. It is the user's own calculator:
-   they pick the legs.
+   chance, pays Nx, return and whether it beats the price. It is the user's own calculator: they pick the legs. It
+   refuses a leg from an event (by event id) already in the combo, a closed market, and a market whose title names a
+   day that is over everywhere (UTC−12); saved legs that closed or went past-dated leave the tray with a note.
 2. **Suggested combos** on Best bets: the same for everyone, built from tier-"best" bets on different events
-   that close within 24 h: the top 5 two-leg and three-leg combos by return whose `Q_low` still beats the price.
+   that close within 24 h of the request (never a past-dated title): the top 5 two-leg and three-leg combos by return whose `Q_low` still beats the price.
    Label "Combo · 3 legs · pays 4.1x · wins about 1 in 3".
 3. **Kalshi combo check** (behind the docs/16 Kalshi data permission; off by default): when legs map to Kalshi
    markets, look up the combo quote and show the true edge.

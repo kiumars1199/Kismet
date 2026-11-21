@@ -13,7 +13,7 @@ export function AddToCombo({ m, s, className }: { m: StoreMarket; s: Side; class
   const remove = useCombo((c) => c.remove);
   const [error, setError] = useState<string | null>(null);
   const inCombo = leg?.side_index === s.side_index;
-  // combos are in beta (lib/beta.ts): testers only, nothing for anyone else (no upsell for a feature that isn't live)
+  // Combos are Premium (lib/beta.ts live rule; out of beta since Nov 21)
   const allowed = useEntitlements().canBeta("combos");
   if (!allowed) return null;
   return (
