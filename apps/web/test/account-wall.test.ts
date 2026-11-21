@@ -1,7 +1,9 @@
 // T-276: an account is required. Signed out, only the public pages, files and APIs answer; every other page
 // redirects to /signup?next=<page> (OAuth consent pages to /login), every other API route is a 401 JSON.
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { signedOutAccess } from "@/lib/auth/public-paths";
+import { readdirSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { APP_PAGES, LOGIN_FIRST, PUBLIC_FILES, PUBLIC_PAGES, SELF_GUARDED, signedOutAccess } from "@/lib/auth/public-paths";
 
 const q = (s: string) => new URLSearchParams(s);
 
@@ -16,10 +18,26 @@ describe("signedOutAccess (lib/auth/public-paths.ts)", () => {
 
   it("the app pages need an account: sign-up, or log-in for the OAuth consent pages", () => {
     for (const p of ["/bets", "/markets", "/watchlist", "/journal", "/tools", "/tools/kelly", "/alerts", "/dashboards", "/settings",
-      "/account", "/onboarding", "/combos", "/kalshi", "/ext/connect", "/pricingx", "/aboutus", "/m", "/mx/1"])
-      expect(signedOutAccess(p), p).toBe(p === "/m" ? "public" : "signup");
+      "/account", "/onboarding", "/combos", "/kalshi", "/ext/connect", "/bets/x", "/dashboards/abc"])
+      expect(signedOutAccess(p), p).toBe("signup");
     expect(signedOutAccess("/oauth/authorize")).toBe("login");
     expect(signedOutAccess("/oauth")).toBe("login");
+  });
+
+  it("#33: a URL that is no page gets the 404 page signed out, not the sign-up wall", () => {
+    for (const p of ["/pricingx", "/aboutus", "/m", "/mx/1", "/nope-xyz", "/some/deep/path", "/betsx", "/accounts"])
+      expect(signedOutAccess(p), p).toBe("public");
+  });
+
+  it("every page folder in app/ is classified, so a new page can't go public by being forgotten (#33)", () => {
+    const app = fileURLToPath(new URL("../app", import.meta.url));
+    const routes = readdirSync(app, { withFileTypes: true })
+      .filter((d) => d.isDirectory() && !/^[_([.]/.test(d.name) && d.name !== "api")
+      .map((d) => `/${d.name}`);
+    const known = [...PUBLIC_PAGES, ...PUBLIC_FILES, ...APP_PAGES, ...LOGIN_FIRST, ...SELF_GUARDED, "/signed-in"];   // twins: 404 in middleware
+    const missing = routes.filter((r) => !known.some((k) => r === k || r.startsWith(`${k}/`)));
+    expect(missing, "add each to APP_PAGES (needs an account) or PUBLIC_PAGES in lib/auth/public-paths.ts").toEqual([]);
+    for (const r of APP_PAGES) expect(signedOutAccess(r), r).toBe("signup");
   });
 
   it("/admin and the e2e mock guard themselves (404 to non-admins), so they aren't redirected", () => {
