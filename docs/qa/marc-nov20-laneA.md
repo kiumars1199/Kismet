@@ -16,6 +16,14 @@ proof on kismetodds.com needs the deploy, a paid login, or both.
 - **Vercel runtime logs for the last 55 min.** No `[store]` load failures. Hobby keeps only 1 h of logs, so nothing older
   can be checked.
 
+## Summary
+
+1. Scan freshness: one request uses one scan, there are no torn or hour-old copies, and the header pill shows the cards' own scan (46/60, PR #11). Every "N min ago" ticks from the page's one clock (2, 34, 44, 67).
+2. Counts: one shared count per bet. The Free count is tier-aware, numbers have thousands separators, "Show more" counts correctly, and the /status record is in plain words (6, 25, 26, 49, 56, 57, 59, 63, 70, 71).
+3. Sort and search: "Biggest payout" sorts by the after-fee payout and keeps the same set as other sorts. A bad sort link says so. Search folds ø, æ, ß and similar letters (47, 50, 68, 69).
+4. Plan: the plan stays "unknown" and /api/me is retried until it answers, so no Pro upsell appears on a guess (13, 40). The landing JS budget fell from 150.2 to 141.9 kB (PR #14).
+5. Open: sortPays moves to B's betQuote (US price on US cards) once B's return branch merges. The paid-only fixes are not verified live.
+
 ## Teaser test clock (main's request, branch `claude/qa-a-teaser-clock`)
 
 `test/teaser.test.ts` "signed-out landing" failed from Nov 21 on ("one bet per game: expected 3 to be 4"). Cause: the Free
