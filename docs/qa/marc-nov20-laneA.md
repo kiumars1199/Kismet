@@ -16,6 +16,15 @@ proof on kismetodds.com needs the deploy, a paid login, or both.
 - **Vercel runtime logs for the last 55 min.** No `[store]` load failures. Hobby keeps only 1 h of logs, so nothing older
   can be checked.
 
+## Teaser test clock (main's request, branch `claude/qa-a-teaser-clock`)
+
+`test/teaser.test.ts` "signed-out landing" failed from Nov 21 on ("one bet per game: expected 3 to be 4"). Cause: the Free
+daily sample is seeded by the UTC day, so the test's result moved with the calendar date. The describe block now fakes
+`Date` at the fixture scan plus Free's delay plus 5 min (`DELAY_MIN.free`), so Free's delayed copy is ready and the day
+is fixed. It passes (11/11), and the full vitest run passes (`api.test` timing flaked under load, then passed alone).
+Live check, Nov 21 at about 02:30 UTC: kismetodds.com/ shows 1 hero card plus 3 more (4 distinct markets: 6827615,
+6834474, 6840961, 6970279), with no placeholders.
+
 ## Items
 
 | # | Status | Evidence |

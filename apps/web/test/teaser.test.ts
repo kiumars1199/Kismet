@@ -4,7 +4,7 @@
 import type { ReactElement } from "react";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import type { ApiRow } from "@/lib/api";
 
 vi.mock("@/lib/auth/server", async (orig) => ({
@@ -35,6 +35,7 @@ const event = await import("@/app/event/[id]/page");
 const { HEADLINE, Landing, LANDING_HERO, LANDING_MORE, LANDING_SAMPLE, landingBets } = await import("@/components/landing/Landing");
 const { bannedHits } = await import("@/lib/banned");
 const { freeSample } = await import("@/lib/data/respond");
+const { DELAY_MIN } = await import("@/lib/entitlements");
 
 const html = async (el: Promise<unknown>) => renderToStaticMarkup((await el) as ReactElement);
 /** Words and keys that only come from the model or the scan's prices. */
@@ -76,6 +77,15 @@ describe("signed-out market and event pages are teasers", async () => {
 });
 
 describe("signed-out landing (T-301)", () => {
+  // QA-A: the Free daily sample is seeded by the UTC day (lib/data/respond.ts freeSample), so pin "now" to just after
+  // the fixture scan. Unpinned, the sample (and whether it held 4 games) changed with the calendar date. "Just after" =
+  // Free's delay plus 5 min, so the fixture scan is old enough for Free's delayed copy.
+  beforeAll(async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(((await getStore()).meta.scanned_at + (DELAY_MIN.free + 5) * 60) * 1000);
+  });
+  afterAll(() => { vi.useRealTimers(); });
+
   it(`shows ${LANDING_HERO} + ${LANDING_MORE} real bets from the Free daily sample, one per game, clean titles`, async () => {
     const out = await html(Landing());
     const real = [...out.matchAll(/data-market-id="([^"]+)"/g)].map((x) => x[1]!);
