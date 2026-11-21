@@ -9,6 +9,7 @@ import { tierOf, type FilterState, type SortKey } from "./state";
 import { PAYS_BANDS, band, paysBand } from "./bands";
 export { PAYS_BANDS, paysBand };   // T-295: moved to ./bands (light, for the bet cards)
 import { onUs, usActive, usRoi } from "./us";
+import { betQuote } from "@/lib/betFigures";
 
 export const GROUP_ROWS = 4;
 export interface UserCtx { watchlist: Set<string>; favoriteTopics: string[] }
@@ -135,7 +136,7 @@ const SORT_VALUE: Record<SortKey, (r: Row) => number | null | undefined> = {
   evidence: (r) => r.side.model_events,
   competitive: (r) => r.market.competitive,
   newest: (r) => r.market.created_at,
-  pays: (r) => sortPays(r.side),   // QA-A #69: after the fee
+  pays: (r) => betQuote(r.market, r.side).pays,   // QA-A #69: the after-fee payout the card shows (US price on a US card)
 };
 
 /** Missing values last in either direction; ties by closes_at asc, then id. `us`: the "On Polymarket US" filter is on,

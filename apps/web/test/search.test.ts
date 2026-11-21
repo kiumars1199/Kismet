@@ -2,7 +2,8 @@
 import { describe, expect, it } from "vitest";
 import { marketsPage } from "@/lib/data/respond";
 import { getStore } from "@/lib/data/store";
-import { CHANCE_BANDS, PAYS_BANDS, apply, paysOf, sortPays } from "@/lib/filters/apply";
+import { CHANCE_BANDS, PAYS_BANDS, apply, paysOf } from "@/lib/filters/apply";
+import { betQuote } from "@/lib/betFigures";
 import { buildSearch, tokenize } from "@/lib/search/index";
 import type { StoreMarket } from "@/lib/types";
 import { FilterState, type FilterInput } from "@/lib/filters/state";
@@ -67,7 +68,7 @@ describe("search on the fixture", async () => {
     expect(p.rows.every((r) => paysOf(r.side)! >= 3)).toBe(true);
     expect(p.rows.some((r) => r.side.win_prob < 0.4)).toBe(true);
     const s = apply(store, st({ sort: { key: "pays", dir: "desc" } }));
-    for (let i = 1; i < s.rows.length; i++) expect(sortPays(s.rows[i - 1]!.side)!).toBeGreaterThanOrEqual(sortPays(s.rows[i]!.side)!);
+    for (let i = 1; i < s.rows.length; i++) expect(betQuote(s.rows[i - 1]!.market, s.rows[i - 1]!.side).pays!).toBeGreaterThanOrEqual(betQuote(s.rows[i]!.market, s.rows[i]!.side).pays!);
     // every sort shows the same bets, only in another order
     const ids = (q: Parameters<typeof st>[0]) => apply(store, { ...st({ view: "flags", ...q }), page_size: Number.MAX_SAFE_INTEGER }).rows.map((r) => r.market.id + r.side.side_index).sort();
     const base = ids({});
