@@ -24,3 +24,23 @@ affected e2e and the Vercel preview all green.
     "(lost money)". Assertion updated.
   - `multipliers.spec` combo #42 was flaky (seeded localStorage after load, the tray's own save raced it). Seeded
     with addInitScript instead.
+  - iPhone (WebKit, first real run in CI): the "If you bet" stake label was an inline 15 px line around a 44 px
+    input, flagged as a small tap target on /, /bets, /about. The label is now a 44 px flex row.
+
+## Q's answers (Nov 21, before going away)
+
+- Alerts email check: throwaway Pro test account, mail to Resend's test inbox (delivered@resend.dev), deleted after.
+- Backtest headline: ship whatever the engine's even-weeks run computes (no hard-coded figure).
+- Production writes OK without asking: test account, test alert rule, merging green PRs.
+- D: leave the thresholds as they are and document them. /api/health (and admin health) use
+  HEALTH_MAX_DATA_AGE_MIN = 60 min on the live scan. /status says "late" after 45 min (+ the plan's delay, so 60 for
+  Free), `lib/freshness.ts` SCAN_LATE_MIN. The stale-alarm email (ops/stale_alarm.mjs, GitHub, every 15 min) fires
+  at 45 min on the anonymous /api/meta, which serves the newest scan at least 15 min old; healthy that copy is at
+  most 15 + scan gap, so 40 min at a 25-min gap. Prod at 17:20 UTC: /api/health ok, /api/meta 19 min old.
+- 6: keep the hidden same-width slot. On prerendered pages (/, /about) the server can't know the visitor's zone, so
+  the clock time is an invisible placeholder until load; "closes in" text is identical server and client (checked
+  on kismetodds.com with JS off vs on, no hydration errors). Dynamic pages use the tz cookie / Vercel IP zone.
+
+## Decided without Q
+
+(Safest reading taken when the list left a choice.)
