@@ -54,6 +54,7 @@ export interface MarketsResponse {
   facets: Facets;                          // counts for the current filter minus that facet
   search?: { chips: Chip[]; relaxed?: string };   // how q was understood; relaxed = "No bets match … Showing …"
   free_daily?: number;                     // Free Best bets only: the page is the day's sample of this many (docs/19 P3)
+  scanned_at?: number;                     // the scan these rows come from (unix s); the header shows it (QA-A #46)
 }
 
 export interface MarketResponse {

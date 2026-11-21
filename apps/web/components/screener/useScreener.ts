@@ -117,6 +117,12 @@ export function useScreener(mode: Mode, initial?: MarketsResponse) {
     setLoadingMore(true);
     try {
       const next = await load({ ...query, page: shown + 1 });
+      // QA-A #46: a page from another scan (a new scan landed, or another server answered) would skip or repeat bets.
+      // Start the list again from page 1 of one scan instead of appending.
+      if (next.scanned_at !== undefined && res.data.scanned_at !== undefined && next.scanned_at !== res.data.scanned_at) {
+        setRetry((n) => n + 1);
+        return;
+      }
       setRes((r) => {
         if (r.key !== fetchKey) return r;
         const offset = (r.data?.rows.length ?? 0) + (r.more?.length ?? 0);   // next page's group starts shift past the rows already held

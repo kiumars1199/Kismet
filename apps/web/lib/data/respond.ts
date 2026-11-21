@@ -232,6 +232,11 @@ const quoteSource = () => repriceForced ?? livePrices;
  *  Best bets (firstPage) so the first paint and the API return the same rows and count.
  *  null = a paid page past the last one. */
 export async function listBody(store: Store, f: FilterState, tier: Tier, sampleKey: string): Promise<MarketsResponse | null> {
+  const body = await listBodyOf(store, f, tier, sampleKey);
+  return body && { ...body, scanned_at: store.meta.scanned_at };   // QA-A #46: rows carry their scan
+}
+
+async function listBodyOf(store: Store, f: FilterState, tier: Tier, sampleKey: string): Promise<MarketsResponse | null> {
   const live = can(tier, "live_data");
   const page = live ? marketsPage(store, f) : f.view === "flags" ? freeFlagsPage(store, f, sampleKey) : marketsPage(store, { ...f, page: 1 });
   if (live && f.page > Math.max(1, page.pages)) return null;

@@ -12,6 +12,7 @@ import { DASH, ago, delayWords, formatCount } from "@/lib/format";
 import { REFRESH_WORDS, freshness } from "@/lib/freshness";
 import { delayMin } from "@/lib/settings-core";
 import { SITE } from "@/lib/site";
+import { ScanStamp } from "@/lib/scanClock";
 
 export const metadata = { title: "Status", description: "When Kismet data last refreshed." };
 export const dynamic = "force-dynamic";
@@ -46,6 +47,7 @@ export default async function Page() {
 
   return (
     <article className="mx-auto flex max-w-4xl flex-col gap-10 pb-8">
+      <ScanStamp at={meta.scanned_at} />
       <header className="flex flex-col gap-3">
         <h1 className="text-[32px] font-bold leading-[1.05] tracking-[-0.02em] md:text-[40px]">Status</h1>
         <p className={`flex items-center gap-2 text-[15px] ${level === "fresh" ? "text-soft" : level === "amber" ? "text-warning" : "text-negative"}`}>
