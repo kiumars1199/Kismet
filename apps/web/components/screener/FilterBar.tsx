@@ -6,6 +6,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { MarketsResponse } from "@/lib/api";
 import type { FilterState } from "@/lib/filters/state";
+import { SortNote } from "./SortNote";
 import { TAXONOMY, TAXONOMY_TREE } from "@/lib/taxonomy";
 import { formatCount, plural } from "@/lib/format";
 
@@ -130,6 +131,8 @@ export function FilterBar({ state, facets, win, total, shown, onChange }: {
           </span>
         </label>
       </div>
+      <SortNote />
     </div>
   );
 }
+
