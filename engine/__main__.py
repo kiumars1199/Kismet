@@ -63,7 +63,7 @@ def scan_keeping_prev(cfg, run=None):
 def main():
     ap = argparse.ArgumentParser(prog="python -m engine")
     ap.add_argument("--config", default="config/demo.json")
-    ap.add_argument("cmd", choices=["update", "fit", "backtest", "scan", "all", "grade"])
+    ap.add_argument("cmd", choices=["update", "fit", "backtest", "scan", "all", "grade", "kalshi"])
     a = ap.parse_args()
     cfg = config.load(a.config)
     if a.cmd in ("update", "all"):
@@ -74,7 +74,10 @@ def main():
         fit(cfg)
     if a.cmd in ("scan", "all"):
         scan_keeping_prev(cfg)
-        __import__("pipeline.fetch_kalshi").fetch_kalshi.run_if_enabled(cfg.path("output", "kalshi.json"), cfg.path("data", "kalshi_cache"))  # no-op unless KALSHI_DATA_PERMISSION=true
+    if a.cmd in ("kalshi", "all"):
+        # Nov 21: its own step, run by ops/scheduler.py AFTER the Polymarket upload, so a long Kalshi crawl never
+        # delays fresh best bets. No-op unless KALSHI_DATA_PERMISSION=true.
+        __import__("pipeline.fetch_kalshi").fetch_kalshi.run_if_enabled(cfg.path("output", "kalshi.json"), cfg.path("data", "kalshi_cache"))
     if a.cmd == "grade":
         from . import ledger
         ledger.grade(cfg)

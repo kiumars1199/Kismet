@@ -285,3 +285,21 @@ def test_static_pages_match_the_web_list():
     src = open(os.path.join(os.path.dirname(__file__), "..", "..", "apps", "web", "lib", "static-routes.ts")).read()
     block = src.split("export const STATIC_PAGES", 1)[1].split("];", 1)[0]
     assert tuple(re.findall(r'"(/[^"]*)"', block)) == upload.STATIC_PAGES
+
+
+def test_upload_only_sends_one_file_and_tolerates_missing(tmp_path):
+    p = tmp_path / "kalshi.json"
+    p.write_text('{"markets": []}')
+    http = FakeHttp(prev=None)
+    assert upload.publish_one(str(p), upload.Storage("https://x.supabase.co/", "svc", http), log=lambda *_: None)
+    posts = [c for c in http.calls if c[0] == "POST"]
+    assert [c[1].rsplit("/", 1)[1] for c in posts] == ["kalshi.json"]
+    assert not [c for c in http.calls if c[0] == "GET"]  # no scan checks, no rotation
+    http2 = FakeHttp(prev=None)
+    assert upload.publish_one(str(tmp_path / "missing.json"), upload.Storage("https://x.supabase.co/", "svc", http2), log=lambda *_: None)
+    assert http2.calls == []
+
+
+def test_scheduler_runs_kalshi_after_the_polymarket_upload():
+    steps = [" ".join(a) for a in scheduler.CMDS["scan"]]
+    assert steps.index("ops/upload.py output") < steps.index("-m engine kalshi") < steps.index("ops/upload.py --only output/kalshi.json")

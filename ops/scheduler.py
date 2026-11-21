@@ -41,7 +41,9 @@ CMDS = {
     "fit": [["-m", "engine", "fit"]],
     "backtest": [["-m", "engine", "backtest"]],
     "grade": [["-m", "engine", "grade"]],  # settles the live flag ledger (ledger_summary.json)
-    "scan": [["-m", "engine", "scan"], ["ops/upload.py", "output"]],
+    # Nov 21: Kalshi runs after the Polymarket upload (fresh best bets first), then only kalshi.json is uploaded.
+    "scan": [["-m", "engine", "scan"], ["ops/upload.py", "output"],
+             ["-m", "engine", "kalshi"], ["ops/upload.py", "--only", "output/kalshi.json"]],
 }
 
 

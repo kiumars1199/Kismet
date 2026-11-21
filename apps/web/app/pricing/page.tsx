@@ -18,7 +18,7 @@ export const metadata = { title: "Pricing", description: "Free, Pro and Premium 
 const up = (s: string) => s.replace(/^./, (c) => c.toUpperCase());
 const rows = (delay: number): [string, string, string, string][] => [
   ["Best bets", "10 a day, chosen at random", "All", "All"],
-  ["Prices", behindWords(delay).replace(/^./, (c) => c.toUpperCase()), "Live", "Live"],
+  ["Prices", behindWords(delay).replace(/^./, (c) => c.toUpperCase()), "Updated every ~15 min", "Updated every ~15 min"],
   ["All open markets", "Top 10 rows", "Unlimited", "Unlimited"],
   ["Estimated return on each bet", "As a range (exact on 3 a day)", "Exact", "Exact"],
   ["Combos: 2- and 3-leg bets from Best bets, and your own combo builder", "—", "—", "Yes"],
