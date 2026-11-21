@@ -25,8 +25,10 @@ import time
 sys.path.insert(0, os.path.dirname(__file__))
 from common import GAMMA, SAMPLE_TAGS, classify, http, parse_ts  # noqa: E402
 
-OUT = os.path.join(os.path.dirname(__file__), "..", "data", "markets.jsonl")
-STATE = os.path.join(os.path.dirname(__file__), "..", "data", "fetch_closed_state.json")
+# KISMET_DATA_DIR (relative to the repo root): the even-weeks backtest keeps its own sample in data/even (Nov 21).
+_D = os.path.join(os.path.dirname(__file__), "..", os.environ.get("KISMET_DATA_DIR") or "data")
+OUT = os.path.join(_D, "markets.jsonl")
+STATE = os.path.join(_D, "fetch_closed_state.json")
 DAY = 86400
 
 

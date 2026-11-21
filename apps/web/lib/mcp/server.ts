@@ -19,7 +19,7 @@ import { BEST_BETS_VERDICTS, FilterState } from "@/lib/filters/state";
 import { Category } from "@/lib/schemas";
 import { basis, betLine, closesLine, edge, formatCount, money, pct, price, ret, testedLine } from "@/lib/format";
 import { betFigures, RETURN_LABEL_LONG, sideRecord } from "@/lib/betFigures";
-import { HIT_RATE_VS_PROFIT, liveBase, siteProof } from "@/lib/proof";
+import { HIT_RATE_VS_PROFIT, evenNote, liveBase, siteProof } from "@/lib/proof";
 import { PAYS_READ_TEXT, fmtRecord, paysRows, recordRows, tiles } from "@/lib/trackRecord";
 import { siteUrl } from "@/lib/site";
 import type { MarketsResponse } from "@/lib/api";
@@ -208,6 +208,7 @@ export async function trackRecord(_args: unknown, _me: Me, store: Store): Promis
   const once = liveBase(ledger);   // QA-A #49: each bet once, like /status and /track-record
   return done([
     "How Kismet's Best bets did in a walk-forward test (each week judged only on what came before):",
+    ...(evenNote(b) ? [`  ${evenNote(b)}`] : []),   // Nov 21: which history the figures come from
     ...tiles(b).map((t) => `  ${t.label}: ${t.text} (every bet, no filter: ${t.baseline})`),
     "",
     "By payout (1 ÷ price):",

@@ -10,6 +10,7 @@ import { getSettings } from "@/lib/settings";
 import type { Tier } from "@/lib/entitlements";
 import type { BacktestFile, CountsFile, LedgerSummary, ModelFile, ScanMeta, TopFile } from "@/lib/types";
 import { buildStore, firstFlaggedAt, getStoreFor, readSource, sourceChain, type Store } from "./store";
+import { headlineBacktest } from "./model";
 import { DATA_SOURCE } from "@/lib/config";
 
 /** Small files: re-read often, so a regeneration right after an upload (ops/upload.py → /api/revalidate) sees the new scan. */
@@ -72,7 +73,7 @@ export async function getResults(): Promise<Results> {
     throw new Error("[top] model.json or backtest.json missing");
   }
   const ledgerSince = ledgerSummary ? await firstFlaggedAt(sourceChain(DATA_SOURCE)[0]!).catch(() => null) : null;
-  return { model, backtest, ledgerSummary, ledgerSince, meta };
+  return { model, backtest: headlineBacktest(backtest), ledgerSummary, ledgerSince, meta };   // Nov 21: even-weeks run first
 }
 
 /** Free tier: the newest copy whose scan is at least the delay old (same rule as getStoreFor). */

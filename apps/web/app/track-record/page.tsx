@@ -13,7 +13,7 @@ import {
   biggestGroup, compareSentence, intlOnlyNote, liveHeadline, paysHeadline, ratedHigher, samePayoutHeadline, samePayoutRows,
   testHeadline, usHeadline, weeksHeadline, type Headline,
 } from "@/components/results/summary";
-import { liveBase, liveReturn, siteProof, sinceDay, testSpan, testWeeks, usEvents } from "@/lib/proof";
+import { liveBase, liveReturn, evenNote, siteProof, sinceDay, testSpan, testWeeks, usEvents } from "@/lib/proof";
 import { DASH, edge, exactCount, formatCount, pct, ret } from "@/lib/format";
 import { TAXONOMY } from "@/lib/taxonomy";
 import { PAYS_READ_TEXT, bucketRows, foldRows, paysRows, recordRows, tiles } from "@/lib/trackRecord";
@@ -111,6 +111,7 @@ export default async function Page() {
                   without a filter. Confidence (t-stat): how far the result sits from zero given its noise; above 2 is unlikely to be
                   luck alone.{span ? ` Test covers ${span}.` : ""} Test last run {date(b.ran_at)}.
                 </p>
+                {evenNote(b) && <p data-testid="even-note" className="text-xs leading-relaxed text-muted">{evenNote(b)}</p>}
               </div>
             </Details>
           </Card>

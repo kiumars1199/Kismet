@@ -169,6 +169,7 @@ def test_upload_skips_when_checks_fail(tmp_path):
 
 def test_scheduler_plan(monkeypatch):
     monkeypatch.setattr(scheduler.os.path, "exists", lambda p: True)
+    monkeypatch.setattr(scheduler, "even_due", lambda now, last: False)
     t = calendar.timegm((2026, 11, 17, 7, 20, 0))
     assert scheduler.plan(t, {"backtest": t - 600, "fit": t - 600}) == ["scan"]
     assert scheduler.plan(t, {"backtest": t - 600, "fit": t - 3600}) == ["update", "fit", "grade", "scan"]
@@ -177,6 +178,28 @@ def test_scheduler_plan(monkeypatch):
     assert scheduler.plan(early, {"backtest": early - 86400, "fit": early}) == ["scan"]
     monkeypatch.setattr(scheduler.os.path, "exists", lambda p: False)
     assert scheduler.plan(t, {})[:2] == ["bootstrap", "backtest"]
+
+
+def test_scheduler_even_weeks(monkeypatch, tmp_path):
+    """Nov 21: the even-weeks job runs weekly from its file's ran_at, never twice at once, never retried within a day;
+    a finished run is attached to backtest.json from the main loop."""
+    monkeypatch.setattr(scheduler, "ROOT", str(tmp_path))
+    (tmp_path / "output").mkdir()
+    t = calendar.timegm((2026, 11, 17, 7, 20, 0))
+    assert scheduler.even_due(t, {})  # no file yet
+    assert not scheduler.even_due(t, {"even_running": True})
+    assert not scheduler.even_due(t, {"backtest_even": t - 3600})  # tried an hour ago (maybe failed)
+    assert not scheduler.even_due(calendar.timegm((2026, 11, 17, 5, 0, 0)), {})  # before the backtest hour
+    (tmp_path / "output" / "backtest_even.json").write_text(json.dumps({"ran_at": t - 2 * 86400}))
+    assert not scheduler.even_due(t, {})
+    (tmp_path / "output" / "backtest_even.json").write_text(json.dumps({"ran_at": t - 8 * 86400}))
+    assert scheduler.even_due(t, {})
+    monkeypatch.setattr(scheduler.os.path, "exists", lambda p: True)
+    monkeypatch.setattr(scheduler, "even_due", lambda now, last: False)
+    last = {"backtest": t, "fit": t, "even_done": True}
+    assert scheduler.plan(t, last) == ["attach_even", "scan"]
+    assert scheduler.plan(t, last) == ["scan"]  # attached once
+    assert scheduler.CMDS["backtest_even"][-1] == ["-m", "engine", "backtest-even"]
 
 
 class GapHttp(FakeHttp):

@@ -175,6 +175,12 @@ that closed the same day; Q = product of leg chances, price = product of all-in 
 Tier "edge" in the backtest = edge ≥ 2¢ after fee and spread, price ≥ `edge_tier.price_min` (0.03), model node
 neff ≥ `edge_tier.min_neff` (40), not tier "best" (no order book in history, so the live-book rule is scan-only).
 Also top-level `tested_bets` (every bet scored out of sample across all folds) and `folds` (52 weekly).
+Nov 21 (Q on #6): optional top-level `even_weeks`, the same walk-forward test on a history sampled evenly over
+the year (`data/even`, written by `python -m engine backtest-even` to `output/backtest_even.json`, weekly on Railway).
+Same shape as a whole `backtest.json` run (`results`, `chosen_half_life_days`, `combos`, `tested_bets`, `folds`,
+`test_days`, `data`, `ran_at`) plus `sample = {days, window_days, per_window, per_niche_month}`. When present the web
+store serves it AS the backtest (`lib/data/model.ts headlineBacktest`), so every headline, table and card reads one
+run; the production-history run stays reachable as `concentrated` for the method note.
 `flags.json` holds both tiers, Best bets first; `ledger.jsonl` records tier "best" only.
 
 A zod schema mirrors these types; the data layer validates `meta` and a 1% sample of rows on load

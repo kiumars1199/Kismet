@@ -90,6 +90,20 @@ export function testSpan(b: Span | null | undefined): string | null {
   return `past markets from ${day(w.first)} to ${day(w.last)} (bets in ${w.withBets} of ${w.weeks} weeks${two})`;
 }
 
+/** Nov 21 (Q on #6): the method note when the site leads with the even-weeks run (store: headlineBacktest). Says how
+ *  its history was drawn and what the production-history run, densest in its last weeks, gave. null otherwise. */
+export function evenNote(b: BacktestFile | null | undefined): string | null {
+  const c = b?.concentrated;
+  if (!b || !c) return null;
+  const per = (b as { sample?: { per_window?: number } }).sample?.per_window;
+  const head = `This test replays past markets sampled evenly across the year${per ? ` (up to ${exactCount(per)} games or events per topic each month)` : ""}, so no few weeks dominate it.`;
+  const t = chosenResult(c)?.taker;
+  if (!t || !t.flags || !ok(t.roi_pct)) return head;
+  const w = testWeeks(c);
+  const two = w.lastTwoShare !== null && w.weeks > 2 ? `, where ${pct(w.lastTwoShare)} of the bets fall in the last 2 weeks` : "";
+  return `${head} On the price history our live model trains on${two}, the same test gives ${ret(t.roi_pct)} per bet over ${exactCount(t.flags)} bets.`;
+}
+
 export interface Proof {
   test: string | null;      // "In testing on past markets from Aug 29 to Nov 14 (bets in 8 of 52 weeks, 95% in the last 2): +9.5% per bet."
   live: string;             // "Live since Nov 17: 593 settled bets, −0.7%; on Polymarket US 40 settled bets in 9 events, …"

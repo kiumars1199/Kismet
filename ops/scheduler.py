@@ -7,10 +7,12 @@ the output is checked and uploaded (ops/upload.py); a failed check keeps the pre
     python ops/scheduler.py --once     # one tick (for a smoke test)
 """
 import argparse
+import json
 import os
 import shutil
 import subprocess
 import sys
+import threading
 import time
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -18,6 +20,10 @@ SCAN_EVERY = int(os.environ.get("SCAN_EVERY_SEC") or 120)
 # Free stays at least 15 min behind: upload.py rotates its *-prev copies only this far apart (see ROTATE_MIN_SEC there).
 ROTATE_MIN_SEC = max(0, 900 - SCAN_EVERY)
 BACKTEST_HOUR_UTC = int(os.environ.get("BACKTEST_HOUR_UTC", "6"))
+# Nov 21 (Q on #6): the site leads with the walk-forward test on an evenly sampled year (data/even). Its fetch and
+# test take a long while, so they run in a background thread beside the scans, at most once a week (EVEN_EVERY_DAYS).
+EVEN_EVERY_DAYS = float(os.environ.get("EVEN_EVERY_DAYS") or 7)
+EVEN_DIR = os.path.join("data", "even")
 
 
 def plan(now, last):
@@ -29,10 +35,27 @@ def plan(now, last):
     if not os.path.exists(os.path.join(ROOT, "output", "backtest.json")) or (
             int(last.get("backtest", 0) // 86400) < day and time.gmtime(now).tm_hour >= BACKTEST_HOUR_UTC):
         jobs.append("backtest")
+    if even_due(now, last):
+        jobs.append("backtest_even")
+    if last.pop("even_done", False):
+        jobs.append("attach_even")  # into backtest.json from the main loop; the scan's upload publishes it
     if int(last.get("fit", -1) // 3600) < hour:
         jobs += ["update", "fit", "grade"]
     jobs.append("scan")
     return jobs
+
+
+def even_due(now, last):
+    """The even-weeks job is due when its output is missing or a week old, no copy is running, and the last try (even
+    a failed one) was over a day ago. Its file's ran_at survives restarts, so a redeploy doesn't refetch."""
+    if last.get("even_running") or now - last.get("backtest_even", 0) < 86400:
+        return False
+    try:
+        with open(os.path.join(ROOT, "output", "backtest_even.json")) as f:
+            ran = json.load(f).get("ran_at", 0)
+    except (FileNotFoundError, ValueError):
+        ran = 0
+    return now - ran >= EVEN_EVERY_DAYS * 86400 and time.gmtime(now).tm_hour >= BACKTEST_HOUR_UTC
 
 
 CMDS = {
@@ -40,7 +63,12 @@ CMDS = {
     "update": [["-m", "engine", "update"]],
     "fit": [["-m", "engine", "fit"]],
     "backtest": [["-m", "engine", "backtest"]],
-    "grade": [["-m", "engine", "grade"]],  # settles the live flag ledger (ledger_summary.json)
+    "grade": [["-m", "engine", "grade"]],
+    # Even sample (docs/qa/nov21.md): same flags as engine.__main__.EVEN_SAMPLE, in data/even (KISMET_DATA_DIR).
+    "backtest_even": [["pipeline/fetch_closed.py", "--days", "365", "--window-days", "30", "--per-window", "150"],
+                      ["pipeline/fetch_prices.py", "--extend", "--per-niche-month", "300", "--threads", "4"],
+                      ["-m", "engine", "backtest-even"]],
+    "attach_even": [["-m", "engine", "attach-even"]],  # settles the live flag ledger (ledger_summary.json)
     # Nov 21: Kalshi runs after the Polymarket upload (fresh best bets first), then only kalshi.json is uploaded.
     "scan": [["-m", "engine", "scan"], ["ops/upload.py", "output"],
              ["-m", "engine", "kalshi"], ["ops/upload.py", "--only", "output/kalshi.json"]],
@@ -52,20 +80,37 @@ def run(job):
         print(f"[scheduler] {job}: python {' '.join(args)}", flush=True)
         env = {**os.environ, "ROTATE_MIN_SEC": os.environ.get("ROTATE_MIN_SEC") or str(ROTATE_MIN_SEC),
                "PYTHONUNBUFFERED": "1"}  # job output reaches the logs even if the job is killed
+        if job == "backtest_even":
+            env["KISMET_DATA_DIR"] = EVEN_DIR
         if subprocess.run([sys.executable, *args], cwd=ROOT, env=env).returncode != 0:
             print(f"[scheduler] {job} failed; previous data stays live", flush=True)
             return False
-    if job == "bootstrap":
-        try:
-            os.remove(os.path.join(ROOT, "data", "markets.jsonl"))
+    for d in (("data",) if job == "bootstrap" else (EVEN_DIR,) if job == "backtest_even" else ()):
+        try:  # raw closed markets: only the priced sample is kept (disk)
+            os.remove(os.path.join(ROOT, d, "markets.jsonl"))
         except FileNotFoundError:
             pass
     return True
 
 
+def start_even(last):
+    """Run the even-weeks job in a thread; the main loop attaches its result on the tick after it succeeds."""
+    def work():
+        try:
+            last["even_done"] = run("backtest_even")
+        finally:
+            last["even_running"] = False
+    last["even_running"] = True
+    threading.Thread(target=work, name="backtest_even", daemon=True).start()
+
+
 def tick(last):
     now = time.time()
     for job in plan(now, last):
+        if job == "backtest_even":
+            last[job] = now
+            start_even(last)
+            continue
         ok = run(job)
         last[job] = now  # a failed job waits for its next slot instead of retrying every tick
         if job == "bootstrap" and not ok:

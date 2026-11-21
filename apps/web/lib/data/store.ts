@@ -13,6 +13,7 @@ import { delayMin } from "@/lib/settings-core";
 import { Flag as FlagSchema, Market as MarketSchema, ScanMeta as MetaSchema } from "@/lib/schemas";
 import type { BacktestFile, EventsFile, FlagsFile, KalshiFile, LedgerSummary, MarketsFile, ModelFile, ScanMeta, StoreMarket } from "@/lib/types";
 import { derive } from "./derive";
+import { headlineBacktest } from "./model";
 import { buildSearch, type SearchIndex } from "@/lib/search/index";
 import { DELAYED_PENDING } from "@/lib/api";
 
@@ -129,7 +130,7 @@ export function buildStore(raw: RawData, loadedAt = Date.now()): Store {
     facets,
     search: buildSearch(markets, bySlug),
     model: raw.model,
-    backtest: raw.backtest,
+    backtest: headlineBacktest(raw.backtest),   // Nov 21: the even-weeks run when backtest.json has one
     events: raw.events,
     ledgerSummary: raw.ledgerSummary,
     ledgerSince: raw.ledgerSince ?? null,

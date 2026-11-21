@@ -20,7 +20,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 sys.path.insert(0, os.path.dirname(__file__))
 from common import CLOB, HORIZONS_H, http, jl_read, jl_write  # noqa: E402
 
-D = os.path.join(os.path.dirname(__file__), "..", "data")
+# KISMET_DATA_DIR (relative to the repo root): the even-weeks backtest keeps its own sample in data/even (Nov 21).
+D = os.path.join(os.path.dirname(__file__), "..", os.environ.get("KISMET_DATA_DIR") or "data")
 MARKETS, SAMPLE, SNAPS, DONE = (os.path.join(D, f) for f in
                                 ("markets.jsonl", "sample.jsonl", "snapshots.jsonl", "done.txt"))
 lock = threading.Lock()
