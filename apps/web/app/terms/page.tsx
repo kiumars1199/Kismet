@@ -58,7 +58,7 @@ export default function Page() {
           Payments are handled by Stripe.
         </p>
         <p>
-          You can cancel any time from your <Link href="/account">account page</Link>. You keep your plan until the end of the period
+          You can cancel any time: open your <Link href="/account">account page</Link> and choose <strong>Manage billing or cancel</strong> (Stripe&apos;s billing page). You keep your plan until the end of the period
           you paid for; it does not renew after that. Refunds follow our <Link href="/refunds">refund policy</Link>.
         </p>
       </>,
