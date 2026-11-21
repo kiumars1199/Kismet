@@ -41,3 +41,42 @@ label is chance-based (Lane A filters).
 | 36, 35 ("52 weeks") | fixed | `testSpan` always names the weeks that had bets and their concentration: "past markets from Feb 25 to Nov 18 (bets in N of 52 weeks, 81% in the last 2)". /track-record's method note says "replays 52 weeks one at a time, but only N of them had best bets, with X% of all test bets in the last two". e2e `proof.spec.ts` asserts the clause on /track-record, /about, /pricing. |
 
 Gates: typecheck, lint clean; vitest green except the pre-existing teaser test; e2e proof, s6, s1-landing, a11y 14 + 41 passed; check:js 149.6 kB.
+
+## Engine: same-payout control count (`claude/qa-b-ledger`, from origin/final)
+
+`engine/ledger.py` `same_payout`: picks now count only when a comparison bet names them (control `pick_id`), so
+rows logged before `control.jsonl` existed (no event_id, no pair) no longer inflate the picks' entries and events.
+Output shape unchanged; `docs/03-data-model.md` comment updated. New pytest
+`test_same_payout_counts_only_picks_with_a_comparison_bet`; engine suite 106 passed. Not verified live: the next
+graded scan rewrites `ledger_summary.json`. Once it has, `components/results/summary.ts` could show the picks'
+event count again (it hides it because of this bug). Left for Q/main.
+
+## #35: walk-forward backtest re-run on evenly spread weeks (local rebuild, NOT production)
+
+Production's price history is in the Actions cache and can't be rebuilt here, so this is a fresh local sample with
+the same code and `config/demo.json`: `fetch_closed.py --days 365 --window-days 30 --per-window 150` (449,282 closed
+markets), `fetch_prices.py --extend --per-niche-month 300` (151,345 snapshots), then `python -m engine backtest`
+(52 weekly folds, ran Nov 21).
+
+| | this even rebuild | production (kismetodds.com, Nov 21) |
+|---|---|---|
+| weeks with best bets | 42 of 52 (Dec 3, 2025 to Nov 11, 2026) | most bets in a few recent weeks |
+| share in last 2 weeks | 8.3% (busiest week 7.4%) | 81–87% |
+| best bets (taker) | 3,098 bets in 1,606 events, won 78.7% | |
+| return per bet | +6.4%, t 5.5 (event-clustered) | +11% |
+| weeks that made money | 32 of 42 | |
+
+Half-life sweep (taker): 21 d +4.8% t 1.75 (494 bets); 45 d +4.9% t 2.3 (911); 90 d +7.4% t 4.0 (1,404);
+180 d +7.4% t 4.8 (1,859); none +6.4% t 5.5 (3,098, chosen). The half-life is picked in-sample among five, so
+read the chosen t as a little optimistic; every setting is positive. By payout (best bets): <1.5x +5.4% (2,566),
+1.5–2x +7.2% (270), 2–3x +11.9% (72), 3–5x +48.9% (148), 5–10x −36.7% (28), 10x+ −16.3% (14): the last two are
+under the 30-bet floor and show as "too few tested bets".
+
+For Q: the earlier even rebuild (previous session) gave about +2% with t < 1; this larger sample gives +6.4%,
+t 5.5, spread over 42 weeks. Either way production's +11% leans on its last 2 weeks; a bigger, evenly spread
+price history for production would make the shown test number less concentrated. Raw output:
+scratchpad `bt/output/backtest.json` (not committed).
+
+## #69
+
+Not touched: Lane A owns the sort. `BetQuote.pays` (after the fee, the card's figure) is exported for it.
