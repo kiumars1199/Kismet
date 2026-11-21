@@ -157,7 +157,7 @@ export const STEPS: [string, string][] = [
 /** Five questions, plain answers (R1-7). */
 export const faq = (delay: string) => [
   { q: "Is it really free?", a: `Yes. A free account shows ${FREE_BEST_BETS_A_DAY} bets a day, ${delay}, with no card. Pro and Premium show every bet, live, and start with 7 days free. Cancel any time.` },
-  { q: "Does Kismet place bets for me?", a: "No. Kismet shows bets; you decide and place them yourself on Polymarket, or not at all. Everyone sees the same bets: it's market analytics, not advice." },
+  { q: "Does Kismet place bets for me?", a: "No. Kismet shows bets; you decide and place them yourself on Polymarket, or not at all. The bets are picked the same way for everyone: it's market analytics, not advice." },
   { q: "What does “wins about 7 in 10” mean?", a: "Out of 10 past bets like this one, about 7 won. It comes from how similar markets settled. It's a guide, not a promise." },
   { q: "Can I lose money?", a: "Yes. Any single bet can lose, including good-value ones, and past results don't promise future ones. Only bet what you can afford to lose." },
   { q: "Who can use it?", a: `Adults ${SITE.minAge}+ in the ${SITE.countries}. Polymarket US isn't open in every state, so check your local rules before you bet.` },

@@ -29,3 +29,15 @@ not downloaded in this container).
 Left for other lanes: the Pro "Edge" column and server-side sorts use international numbers while US cards show
 US numbers (Lane A, relevant to #69); My list uses the international return; the "Leans your way (55–80%)" filter
 label is chance-based (Lane A filters).
+
+## Group 2: FAQ and test vs live (`claude/qa-b-faq`, on top of `claude/qa-b-return`, "QA-B: 4, 48, 3, 36, 35")
+
+| item | status | evidence |
+|---|---|---|
+| 4 (FAQ "win often" vs "won 90%" vs losing money) | fixed (not verified live) | `HIT_RATE_VS_PROFIT` now says most best bets win because most pay under 1.5x, and that a record can win most bets and still lose money. On /about and /pricing it is followed by the live facts (`hitRateLive`: "Live so far: 78% of 1,155 settled best bets won, and together they returned −1.3%."). |
+| 48 ("everyone sees the same numbers") | fixed | Free sees bands, so that claim was false. `SAME_FOR_EVERYONE`: bets picked the same way for everyone, never from your bets; Free sees fewer, later, as ranges. Used on /about and /pricing; /terms, /disclaimer and the landing FAQ reworded to match. |
+| 48 (cancel path) | fixed | /pricing "Can I cancel any time?" links to /account and names the **Manage billing or cancel** button (exists in `components/auth/AccountActions.tsx`, shown to users with a Stripe customer; /terms, /refunds, /contact already said this). |
+| 3 (no reason given for test vs live gap) | already on final | `calibration()` in `lib/proof.ts` appends "Why live trails testing: our win chances have run high, bets we gave X% won Y%" to every proof line once 50+ bets settled (seen on kismetodds.com Nov 21: "87% won 78%"). Why this bet?'s "Live record so far" now carries it too (group 1). |
+| 36, 35 ("52 weeks") | fixed | `testSpan` always names the weeks that had bets and their concentration: "past markets from Feb 25 to Nov 18 (bets in N of 52 weeks, 81% in the last 2)". /track-record's method note says "replays 52 weeks one at a time, but only N of them had best bets, with X% of all test bets in the last two". e2e `proof.spec.ts` asserts the clause on /track-record, /about, /pricing. |
+
+Gates: typecheck, lint clean; vitest green except the pre-existing teaser test; e2e proof, s6, s1-landing, a11y 14 + 41 passed; check:js 149.6 kB.

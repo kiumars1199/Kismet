@@ -109,7 +109,7 @@ export default async function Page() {
                 <p className="text-xs leading-relaxed text-muted">
                   &ldquo;Every bet, no filter&rdquo; buys every side of every market in the same weeks: what the fee and the spread cost
                   without a filter. Confidence (t-stat): how far the result sits from zero given its noise; above 2 is unlikely to be
-                  luck alone. {tw.withBets} of {tw.weeks} test weeks had best bets{span ? ` (${span})` : ""}. Test last run {date(b.ran_at)}.
+                  luck alone.{span ? ` Test covers ${span}.` : ""} Test last run {date(b.ran_at)}.
                 </p>
               </div>
             </Details>
@@ -186,7 +186,8 @@ export default async function Page() {
               markets), so a few lucky results can&apos;t drive it alone.</p>
             <p>Older results count less than recent ones, and bets from one game or one weather day are treated as one piece of
               evidence, not many.</p>
-            <p>The test replays {(b.folds as number | undefined) ?? DASH} weeks one at a time: each week the model only knows what
+            <p>The test replays {(b.folds as number | undefined) ?? DASH} weeks one at a time, but only {tw.withBets} of them had best
+              bets{tw.lastTwoShare !== null ? `, with ${pct(tw.lastTwoShare)} of all test bets in the last two` : ""}: each week the model only knows what
               happened before it, chooses its best bets, and we check how they settled, paying the estimated asking price plus Polymarket&apos;s fee.</p>
             <p>A bet is a best bet when its win chance beats the asking price plus the fee by at least {edge(store.meta.rule?.min_edge)} per $1
               share, still beats it on a pessimistic estimate, and its category and timing made money in this test.</p>

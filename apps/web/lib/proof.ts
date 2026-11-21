@@ -78,19 +78,20 @@ export function testWeeks(b: Span | null | undefined): TestWeeks {
   };
 }
 
-/** The test's real span in words: "past markets from Aug 29 to Nov 14, 95% of bets in the last 2 weeks" (years named
- *  when it crosses New Year). null when no week had a best bet. */
+/** The test's real span in words, with how many of its weeks had bets and how concentrated they are (Marc #36/#35:
+ *  never "52 weeks" alone): "past markets from Aug 29 to Nov 14 (bets in 6 of 52 weeks, 95% in the last 2)" (years
+ *  named when it crosses New Year). null when no week had a best bet. */
 export function testSpan(b: Span | null | undefined): string | null {
   const w = testWeeks(b);
   if (w.first === null || w.last === null) return null;
   const y = (t: number) => new Date(t * 1000).getUTCFullYear();
   const day = (t: number) => (y(w.first!) === y(w.last!) ? sinceDay(t) : `${sinceDay(t)}, ${y(t)}`);
-  const tail = w.lastTwoShare !== null && w.lastTwoShare >= 0.5 ? `, ${pct(w.lastTwoShare)} of bets in the last 2 weeks` : "";
-  return `past markets from ${day(w.first)} to ${day(w.last)}${tail}`;
+  const two = w.lastTwoShare !== null && w.weeks > 2 ? `, ${pct(w.lastTwoShare)} in the last 2` : "";
+  return `past markets from ${day(w.first)} to ${day(w.last)} (bets in ${w.withBets} of ${w.weeks} weeks${two})`;
 }
 
 export interface Proof {
-  test: string | null;      // "In testing on past markets from Aug 29 to Nov 14, 95% of bets in the last 2 weeks: +9.5% per bet."
+  test: string | null;      // "In testing on past markets from Aug 29 to Nov 14 (bets in 8 of 52 weeks, 95% in the last 2): +9.5% per bet."
   live: string;             // "Live since Nov 17: 593 settled bets, −0.7%; on Polymarket US 40 settled bets in 9 events, …"
   line: string;             // both, one sentence each
   help: string;             // the basis, for the hover
@@ -176,6 +177,25 @@ export const noLiveRecord = (group: string) => `No live record for ${group} yet:
 /** The payout-band notes: the ledger is not split by payout, so its one line lives on Results, not beside each band. */
 export const LIVE_NOT_BY_BAND = "No live record by payout band yet: the live record covers best bets as a whole.";
 
-/** T-290: hit rate is not profit. The one answer to "do best bets win / can I lose", used by every FAQ. */
+/** T-290 / Marc #4 (Nov 20): hit rate is not profit. The one answer to "do best bets win / can I lose", used by every
+ *  FAQ. It must agree with a live record that wins most bets and still loses money, so it says both. */
 export const HIT_RATE_VS_PROFIT =
-  "Most best bets win often but pay little; the edge is that over many bets the wins should cover the losses. Any single bet can lose.";
+  "Most do, because most best bets pay less than 1.5x. But winning often isn't profit: at those payouts one loss undoes several wins, so a record can win most of its bets and still lose money. Judge them by the return, which Results shows with how many bets it covers. Any single bet can lose.";
+
+/** The live facts behind HIT_RATE_VS_PROFIT: "Live so far: 78% of 1,155 settled best bets won, and together they
+ *  returned −1.3%." null with nothing settled. */
+export function hitRateLive(l: LedgerSummary | null | undefined): string | null {
+  const b = liveBase(l);
+  if (!b || !b.graded) return null;
+  return `Live so far: ${pct(b.wins / b.graded)} of ${exactCount(b.graded)} settled best bet${b.graded === 1 ? "" : "s"} won, and together they returned ${ret(liveReturn(b))}.`;
+}
+
+/** FAQ items with the live facts appended to the hit-rate answer, so "most win" and "lost money" sit in one answer. */
+export function withLiveHitRate<T extends { a: unknown }>(items: T[], live: string | null): T[] {
+  return live ? items.map((x) => (x.a === HIT_RATE_VS_PROFIT ? { ...x, a: `${HIT_RATE_VS_PROFIT} ${live}` } : x)) : items;
+}
+
+/** Marc #48: the bets are the same for everyone (no personal picks, CLAUDE.md rule 4), but the numbers are not: Free
+ *  sees ranges, fewer bets and a delay. Every "is this advice?" answer uses this. */
+export const SAME_FOR_EVERYONE =
+  "The bets are picked the same way for everyone, never from your own bets. Free shows fewer of them, a little later, with ranges instead of exact figures.";

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Faq, Plans } from "@/components/pricing/Plans";
 import { ProofLine } from "@/components/results/ProofLine";
 import { getResults } from "@/lib/data/top";
-import { HIT_RATE_VS_PROFIT, siteProof } from "@/lib/proof";
+import { HIT_RATE_VS_PROFIT, SAME_FOR_EVERYONE, hitRateLive, siteProof, withLiveHitRate } from "@/lib/proof";
 import { planCtx } from "@/lib/billing/planCtx";
 import { getSettings } from "@/lib/settings";
 import { tradingEnv } from "@/lib/trade/server";
@@ -35,9 +35,9 @@ const rows = (delay: number): [string, string, string, string][] => [
 
 const PRICING_FAQ: { q: string; a: React.ReactNode }[] = [
   { q: "What happens after the free trial?", a: "Pro and Premium start with 7 days free. Cancel before day 7 and you pay nothing. After that the plan renews monthly or yearly until you cancel." },
-  { q: "Can I cancel any time?", a: "Yes. Cancel from your account page and you keep your plan until the end of the period you paid for." },
+  { q: "Can I cancel any time?", a: <>Yes. Open your <Link href="/account" className="text-accent-hover underline-offset-4 hover:underline">account page</Link> and choose <strong>Manage billing or cancel</strong>. You keep your plan until the end of the period you paid for.</> },
   { q: "Do best bets usually win?", a: HIT_RATE_VS_PROFIT },
-  { q: "Is this betting advice?", a: "No. Kismet is market analytics: everyone sees the same numbers, based on how past markets settled. It never looks at your bets to tell you what to buy, and any single bet can lose." },
+  { q: "Is this betting advice?", a: `No. Kismet is market analytics, based on how past markets settled. ${SAME_FOR_EVERYONE} Any single bet can lose.` },
   { q: "Do you place bets for me?", a: tradingEnv()
     ? "No. Each market links to Polymarket or Kalshi, where you decide and bet yourself. Paper trading on Kalshi's demo exchange (fake money) sends an order only after you confirm it, every time."
     : "No. Kismet never places orders. Each market links to Polymarket, where you decide and bet yourself." },
@@ -47,7 +47,9 @@ const PRICING_FAQ: { q: string; a: React.ReactNode }[] = [
 export default async function Page() {
   const [delay, ctx] = await Promise.all([getSettings().then((s) => s.free_delay_min), planCtx()]);   // Free delay from site settings, the one place it is set
   // T-290: the test result never stands alone; no engine output yet → no line (the page still sells the plans)
-  const proof = await getResults().then((s) => siteProof({ backtest: s.backtest, ledger: s.ledgerSummary, since: s.ledgerSince }), () => null);
+  const res = await getResults().catch(() => null);
+  const proof = res ? siteProof({ backtest: res.backtest, ledger: res.ledgerSummary, since: res.ledgerSince }) : null;
+  const faq = withLiveHitRate(PRICING_FAQ, hitRateLive(res?.ledgerSummary));
   return (
     <article className="mx-auto flex max-w-6xl flex-col gap-14 pb-8">
       <header className="flex max-w-2xl flex-col gap-3">
@@ -87,7 +89,7 @@ export default async function Page() {
 
       <section aria-labelledby="faq-h" className="flex flex-col gap-4">
         <h2 id="faq-h" className="text-2xl font-semibold">Questions</h2>
-        <Faq items={PRICING_FAQ} />
+        <Faq items={faq} />
       </section>
     </article>
   );

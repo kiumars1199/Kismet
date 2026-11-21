@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Faq, Plans } from "@/components/pricing/Plans";
 import { Tiles } from "@/components/results/Tiles";
 import { ProofLine } from "@/components/results/ProofLine";
-import { HIT_RATE_VS_PROFIT, siteProof } from "@/lib/proof";
+import { HIT_RATE_VS_PROFIT, SAME_FOR_EVERYONE, hitRateLive, siteProof, withLiveHitRate } from "@/lib/proof";
 import { planCtx } from "@/lib/billing/planCtx";
 import { getSettings } from "@/lib/settings";
 import { chosenResult } from "@/lib/data/model";
@@ -39,7 +39,7 @@ const FAQ: { q: string; a: React.ReactNode; id?: string; open?: boolean }[] = [
     {" "}&ldquo;Why this bet?&rdquo; adds two other numbers, each labelled with how many bets it counts: <strong>similar past bets in testing</strong> (best bets at the same payout, tested week by week on markets the estimate had never seen) and the <strong>live record so far</strong> (every best bet since launch, all payouts together).
     {" "}They answer different questions, so they can differ; when the tested group has too few bets, it says so instead of showing a number. All of them are past results, not a promise. </> },
   { q: "Do best bets usually win?", a: HIT_RATE_VS_PROFIT },
-  { q: "Is this betting advice?", a: "No. It's market analytics. Everyone sees the same numbers, based on how past markets settled. Kismet never looks at your bets to tell you what to buy, and any single bet can lose." },
+  { q: "Is this betting advice?", a: `No. It's market analytics, based on how past markets settled. ${SAME_FOR_EVERYONE} Any single bet can lose.` },
   { q: "How is it tested?", a: <>Week by week, on markets the model had never seen: each week it only knows what happened before, and we check how its best bets settled. Losing weeks and limits are shown on <Link href="/track-record" className="text-accent-hover underline-offset-4 hover:underline">Results</Link>.</> },
   { q: "Which markets do you cover?", a: "Polymarket today. Kalshi later, once we have their permission to use the data." },
 ];
@@ -129,7 +129,7 @@ export default async function Page() {
 
       <section aria-labelledby="faq-h" className="flex flex-col gap-6">
         <h2 id="faq-h" className="text-[28px] font-semibold tracking-[-0.01em]">Questions</h2>
-        <Faq items={FAQ} />
+        <Faq items={withLiveHitRate(FAQ, hitRateLive(store.ledgerSummary))} />
       </section>
     </article>
   );
