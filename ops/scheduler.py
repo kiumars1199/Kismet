@@ -150,15 +150,43 @@ def start_even(last):
     threading.Thread(target=work, name="backtest_even", daemon=True).start()
 
 
-def tick(last):
+# Nov 21: last-run times survive a restart (on the data volume), so a redeploy resumes the schedule instead of
+# rerunning backtest, update, fit and grade before its first scan (~10 min staler bets after every deploy).
+STATE = os.path.join(ROOT, "data", "scheduler_state.json")
+
+
+def load_state(path=None):
+    try:
+        with open(path or STATE) as f:
+            raw = json.load(f)
+        return {k: float(v) for k, v in raw.items() if isinstance(k, str) and isinstance(v, (int, float)) and not isinstance(v, bool)} if isinstance(raw, dict) else {}
+    except (OSError, ValueError):
+        return {}   # missing or unreadable: start from empty, as before
+
+
+def save_state(last, path=None):
+    path = path or STATE
+    try:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        tmp = path + ".tmp"
+        with open(tmp, "w") as f:
+            json.dump({k: v for k, v in last.items() if isinstance(v, (int, float)) and not isinstance(v, bool)}, f)   # times only; the even job's run flags stay in memory
+        os.replace(tmp, path)   # atomic: a kill mid-write never leaves half a file
+    except OSError as e:
+        print(f"[scheduler] could not save state: {e}", flush=True)
+
+
+def tick(last, save=save_state):
     now = time.time()
     for job in plan(now, last):
         if job == "backtest_even":
             last[job] = now
+            save(last)
             start_even(last)
             continue
         ok = run(job)
         last[job] = now  # a failed job waits for its next slot instead of retrying every tick
+        save(last)
         if job == "bootstrap" and not ok:
             return  # no history yet: nothing else can run
 
@@ -196,8 +224,10 @@ def main(argv=None):
     once = a.parse_args(argv).once
     drop_root()
     seed_ledger()
-    last = {}
     housekeep(force_report=True)
+    last = load_state()
+    if last:
+        print(f"[scheduler] resumed: {', '.join(f'{k} {int(time.time() - v)}s ago' for k, v in sorted(last.items()))}", flush=True)
     while True:
         start = time.time()
         housekeep()

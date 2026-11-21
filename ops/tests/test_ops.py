@@ -2,6 +2,7 @@ import calendar
 import gzip
 import json
 import os
+import time
 import sys
 import time
 
@@ -239,6 +240,23 @@ def test_upload_rotates_prev_only_when_far_enough_apart(tmp_path):
     far = GapHttp(live_at="2026-11-19T10:13:00Z", prev_at="2026-11-19T10:00:00Z")    # 780 s apart
     assert upload.publish(out, upload.Storage("https://x.supabase.co", "svc", far), log=lambda *_: None, rotate_min_sec=780)
     assert len(_copies(far)) == 8
+
+
+def test_scheduler_state_survives_restart(monkeypatch, tmp_path):
+    """Nov 21: a restart reloads the last-run times, so a redeploy within the hour goes straight to the scan."""
+    path = str(tmp_path / "data" / "scheduler_state.json")
+    monkeypatch.setattr(scheduler, "run", lambda job: True)
+    monkeypatch.setattr(scheduler.os.path, "exists", lambda p: True)
+    last = {}
+    scheduler.tick(last, save=lambda l: scheduler.save_state(l, path))
+    assert set(last) >= {"update", "fit", "grade", "scan"}
+    resumed = scheduler.load_state(path)
+    assert resumed == {k: v for k, v in last.items() if not isinstance(v, bool)}   # times only; even-job flags stay in memory
+    assert scheduler.plan(time.time(), resumed) == ["scan"]
+    with open(path, "w") as f:
+        f.write("{not json")
+    assert scheduler.load_state(path) == {}
+    assert scheduler.load_state(str(tmp_path / "missing.json")) == {}
 
 
 def test_scheduler_cadence_from_env(monkeypatch):
