@@ -152,7 +152,8 @@ export interface LedgerSummary extends LedgerStats {
   us?: LedgerStats & { by_category: Record<string, LedgerStats> };   // US-listed bets, at US price and fee
   intl_only?: LedgerStats;  // bets US users could not place
   // Picks (each bet once) vs one random other bet logged per new pick at the same payout (output/control.jsonl),
-  // keyed by band ("<1.5x", "1.5-2x", "2-3x", "3-5x", "5-10x", "10x+") and "all". The honest claim:
+  // keyed by band ("<1.5x", "1.5-2x", "2-3x", "3-5x", "5-10x", "10x+") and "all". Paired: `picks` holds only picks
+  // that have a comparison bet (control row pick_id), so both sides cover the same scans. The honest claim:
   // "beats another bet at the multiplier you wanted anyway".
   vs_same_payout?: Record<string, { picks: PayoutStats; others: PayoutStats }>;
 }

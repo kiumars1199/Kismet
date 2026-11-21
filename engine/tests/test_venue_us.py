@@ -214,3 +214,18 @@ def test_grade_reports_picks_vs_same_payout(tmp_path):
     assert v["all"]["picks"]["avg_pnl"] == pytest.approx(1 - 0.80 - 0.01)
     assert v["all"]["others"]["avg_pnl"] == pytest.approx(0 - 0.78 - 0.01)
     assert s["entries"] == 1   # the comparison bets never enter the track record itself
+
+
+def test_same_payout_counts_only_picks_with_a_comparison_bet():
+    # QA-B (Marc, Nov 20): rows logged before control.jsonl existed (no event_id, no pair) must not join the picks
+    old = [dict(id=f"old{i}", side_index=0, ask=0.8, fee=0.01, result="won", pnl=0.19) for i in range(5)]
+    paired = [dict(id="p", side_index=0, ask=0.8, fee=0.01, result="lost", pnl=-0.81, event_id="e1"),
+              dict(id="p", side_index=0, ask=0.78, fee=0.01, result="lost", pnl=-0.79, event_id="e1")]   # re-flag
+    unpaired = [dict(id="q", side_index=0, ask=0.8, fee=0.01, result="won", pnl=0.19, event_id="e2")]
+    control = [dict(id="a", side_index=0, ask=0.79, fee=0.01, result="won", pnl=0.2, event_id="e9",
+                    band="<1.5x", pick_id="p")]
+    v = ledger.same_payout(old + paired + unpaired, control)
+    assert v["all"]["picks"]["entries"] == 1 and v["all"]["others"]["entries"] == 1
+    assert v["all"]["picks"]["events"] == 1 and v["all"]["picks"]["wins"] == 0
+    assert v["<1.5x"]["picks"]["graded"] == v["<1.5x"]["others"]["graded"] == 1
+    assert ledger.same_payout(old, [])  == {}
