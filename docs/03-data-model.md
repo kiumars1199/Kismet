@@ -279,6 +279,7 @@ export interface KalshiFile {
     n_markets_open?: number; n_events?: number; complete?: boolean; n_settled?: number; pages?: number;
     notes?: string[]; seconds?: number;
     complete_at?: number | null;   // fetched_at of the last complete crawl (a partial crawl within 30 min of it keeps its other markets)
+    filled?: Record<string, number | null>;   // Nov 21: share (0-1) of kept markets with no_bid/no_ask/last price/24 h volume/open interest/status non-null; also in the scan log
   };
   markets: KalshiMarket[];
   combos: KalshiCombo[];
