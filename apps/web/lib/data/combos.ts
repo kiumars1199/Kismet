@@ -28,7 +28,7 @@ function* choose<T>(xs: T[], k: number, start = 0, acc: T[] = []): Generator<T[]
 /** Every leg still closes within a day of `now` and names no day that is over. Re-checked per request: the cached
  *  combos live as long as the store, and the clock moves on. */
 const legOk = (l: Pick<Leg, "question" | "event">, closesAt: number, now: number) =>
-  closesWithinDay(closesAt, now) && !pastDated(`${l.question} ${l.event}`, now);
+  closesWithinDay(closesAt, now) && !pastDated(`${l.question} ${l.event}`, now, closesAt);
 const open = (store: Store, groups: ComboGroup[], now: number) =>
   groups.map((g) => ({ ...g, combos: g.combos.filter((c) => c.items.every((l) => legOk(l, store.byId.get(l.market_id)?.closes_at ?? 0, now))) })).filter((g) => g.combos.length);
 

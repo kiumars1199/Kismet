@@ -89,7 +89,7 @@ test("combos page: payout tabs, each card pays at least the floor, Build this co
   await expect(page.getByTestId("combos-range")).toContainText(x(Math.max(...shown)));
   // #74: every number on a leg is labelled; the return sits at the chance beside it
   const card = page.getByTestId("combo-card").first();
-  for (const l of await card.getByTestId("combo-leg").all()) await expect(l).toContainText(/· Pays [\d.]+x · \d+% chance to win/);
+  for (const l of await card.getByTestId("combo-leg").all()) await expect(l).toContainText(/· Pays [\d.]+x after fee · \d+% chance to win \(cautious\)/);
   await expect(card).toContainText(/Estimated return [+−][\d.]+% at a \d+% chance to win/);
 
   await card.getByRole("button", { name: /Build this combo/ }).click();

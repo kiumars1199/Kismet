@@ -131,8 +131,8 @@ function Body({ id, legs, onRemove, onClear }: { id: string; legs: Leg[]; onRemo
       ticker: quote?.ok ? quote.ticker : null,
       side: 0,
       sides: [
-        { label: "Yes, every leg wins", winProb: c.q, ask: quote?.ok ? quote.ask_cents / 100 : null },
-        { label: "No", winProb: 1 - c.q, ask: null },
+        { label: "Yes, every leg wins", winProb: c.q_low, ask: quote?.ok ? quote.ask_cents / 100 : null },
+        { label: "No", winProb: 1 - c.q_low, ask: null },
       ],
       journal: {
         market_id: quote?.ok ? `kalshi-${quote.ticker.replace(/[^\w-]/g, "_")}` : `combo-${legs.map((l) => l.market_id).join("-")}`.slice(0, 120),
@@ -149,7 +149,7 @@ function Body({ id, legs, onRemove, onClear }: { id: string; legs: Leg[]; onRemo
             <span className="flex size-6 flex-none items-center justify-center rounded-full bg-muted-bg text-xs tabular-nums text-muted">{i + 1}</span>
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium">{l.question}</p>
-              <p className="text-xs text-muted">Bet {l.outcome} · Pays {pays(l.ask + l.fee)} · {pct(l.q_low)} chance to win</p>
+              <p className="text-xs text-muted">Bet {l.outcome} · Pays {pays(l.ask + l.fee)} after fee · {pct(l.q_low)} chance to win (cautious)</p>
             </div>
             <a href={l.url} target="_blank" rel="noopener noreferrer" className="flex min-h-11 flex-none items-center px-2 text-[13px] text-accent-hover hover:text-accent-soft">
               Open<span className="sr-only"> {l.question} on Polymarket</span> <ExternalLink size={13} className="inline-block align-[-2px]" />

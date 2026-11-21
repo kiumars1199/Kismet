@@ -67,9 +67,10 @@ const MONTH_RE = /\b(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|
 const ISO_RE = /\b(\d{4})-(\d{2})-(\d{2})\b/g;
 
 /** The last calendar day a title names ("November 18", "Nov 17-23", "Dec 5, 2026", "on 2026-11-21"), as the unix
- *  time that day ends everywhere on Earth (UTC−12). A date without a year takes the year that puts it nearest `now`.
+ *  time that day ends everywhere on Earth (UTC−12). A date without a year takes the year that puts it nearest
+ *  `anchor`: the market's close time when known ("by June 30?" closing July 2027 is June 2027), else now.
  *  null when the title names no date. */
-export function titleDateEnds(title: string, now: number): number | null {
+export function titleDateEnds(title: string, anchor: number): number | null {
   const ends: number[] = [];
   const end = (y: number, m: number, d: number) => Date.UTC(y, m, d + 1) / 1000 + 12 * 3600;
   for (const [, y, m, d] of title.matchAll(ISO_RE)) ends.push(end(+y!, +m! - 1, +d!));
@@ -78,28 +79,28 @@ export function titleDateEnds(title: string, now: number): number | null {
     const d = +(d2 ?? d1!);
     if (m < 0 || d < 1 || d > 31) continue;
     if (y) { ends.push(end(+y, m, d)); continue; }
-    const yr = new Date(now * 1000).getUTCFullYear();
-    ends.push([yr - 1, yr, yr + 1].map((c) => end(c, m, d)).sort((a, b) => Math.abs(a - now) - Math.abs(b - now))[0]!);
+    const yr = new Date(anchor * 1000).getUTCFullYear();
+    ends.push([yr - 1, yr, yr + 1].map((c) => end(c, m, d)).sort((a, b) => Math.abs(a - anchor) - Math.abs(b - anchor))[0]!);
   }
   return ends.length ? Math.max(...ends) : null;
 }
 /** Marc #42/#52: an open market whose title names a day that is over everywhere ("… on November 15?" on Nov 21). */
-export const pastDated = (title: string, now: number): boolean => {
-  const e = titleDateEnds(title, now);
+export const pastDated = (title: string, now: number, closesAt?: number): boolean => {
+  const e = titleDateEnds(title, closesAt ?? now);
   return e !== null && e <= now;
 };
 
 /** Why a leg can't join these legs (null = it can). Same market again is a side switch, not a problem. */
 export function legProblem(leg: Pick<Leg, "market_id" | "event_id" | "event" | "question" | "closes_at">, legs: Pick<Leg, "market_id" | "event_id">[], now: number): string | null {
   if (leg.closes_at !== undefined && leg.closes_at <= now) return "This market has closed, so it can't go in a combo.";
-  if (pastDated(`${leg.question} ${leg.event}`, now)) return "This market's date has passed, so it can't go in a combo.";
+  if (pastDated(`${leg.question} ${leg.event}`, now, leg.closes_at)) return "This market's date has passed, so it can't go in a combo.";
   if (legs.some((l) => l.market_id !== leg.market_id && l.event_id === leg.event_id))
     return "Your combo already has a bet from this event. Results in one event move together, so pick a different event.";
   return null;
 }
 /** A saved leg that can no longer be bet: closed, or its date has passed. */
 export const legGone = (l: Pick<Leg, "closes_at" | "question" | "event">, now: number) =>
-  (l.closes_at !== undefined && l.closes_at <= now) || pastDated(`${l.question} ${l.event}`, now);
+  (l.closes_at !== undefined && l.closes_at <= now) || pastDated(`${l.question} ${l.event}`, now, l.closes_at);
 
 const x = (p: number) => `${p >= 10 ? Math.round(p) : p.toFixed(1)}x`;
 const words = ["", "One", "Two", "Three", "Four", "Five", "Six"];

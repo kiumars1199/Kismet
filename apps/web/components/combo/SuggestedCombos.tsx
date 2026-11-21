@@ -62,7 +62,7 @@ export function ComboCard({ c, wide = false }: { c: SuggestedCombo; wide?: boole
           <li key={l.market_id} data-testid="combo-leg" className="flex flex-col">
             <span className="line-clamp-1 text-soft">{l.question}</span>
             <span className="text-xs tabular-nums text-muted">
-              <span className="font-medium text-soft">{l.outcome}</span> · Pays {pays(l.ask + l.fee)} · {pct(l.q_low)} chance to win
+              <span className="font-medium text-soft">{l.outcome}</span> · Pays {pays(l.ask + l.fee)} after fee · {pct(l.q_low)} chance to win (cautious)
             </span>
           </li>
         ))}

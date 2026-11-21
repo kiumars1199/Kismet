@@ -80,6 +80,13 @@ describe("leg rules", () => {
     expect(legGone(leg({ closes_at: NOW - 60 }), NOW)).toBe(true);
     expect(legGone(leg(), NOW)).toBe(false);
   });
+  it("a yearless date is read against the market's close: \"by June 30?\" closing July 2027 is not past", () => {
+    const jul27 = Date.UTC(2027, 6, 1) / 1000;
+    expect(legProblem(leg({ question: "Will X happen by June 30?", closes_at: jul27 }), [], NOW)).toBeNull();
+    expect(legGone(leg({ question: "Will X happen by June 30?", closes_at: jul27 }), NOW)).toBe(false);
+    // and the #42 case still holds: a Nov 18 game that closes Nov 22 is past-dated on Nov 21
+    expect(legGone(leg({ question: "Highest temperature in Dallas on November 18?", closes_at: NOW + 24 * H }), NOW)).toBe(true);
+  });
 });
 
 describe("dates in titles", () => {
