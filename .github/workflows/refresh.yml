@@ -158,6 +158,7 @@ jobs:
             python ops/upload.py --revalidate-only   # the live branch was just published
           else
             python ops/upload.py output
+            python ops/upload.py --only output/kalshi.json   # Nov 21: side file, not in the main upload
           fi
 
       - name: Open an issue when the refresh fails

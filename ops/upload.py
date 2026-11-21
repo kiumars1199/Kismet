@@ -109,6 +109,9 @@ def _rotate(storage, prev_at, gap, log):
     return False
 
 
+SIDE_FILES = ("kalshi.json",)   # uploaded on their own with --only
+
+
 def publish(out_dir, storage, log=print, rotate_min_sec=None):
     prev = storage.get_json("flags.json")
     prev_at = (prev or {}).get("meta", {}).get("scanned_at")
@@ -129,6 +132,9 @@ def publish(out_dir, storage, log=print, rotate_min_sec=None):
     # Local *-prev / *-prev2 copies (engine scan_keeping_prev rotates every scan) are never uploaded: the bucket's own
     # copies, rotated above, are the ones kept far enough apart for the Free delay (T-295: -prev2 was uploaded before).
     files = [p for p in files if not p.endswith(("-prev.json", "-prev2.json"))]
+    # Nov 21: kalshi.json goes up only through --only, after the Kalshi crawl. Taken here, it was the PREVIOUS
+    # crawl's copy (the crawl runs after this upload), uploaded again over the fresh one's slot.
+    files = [p for p in files if os.path.basename(p) not in SIDE_FILES]
     # flags.json last: it carries the scanned_at that the next run compares against.
     files.sort(key=lambda p: os.path.basename(p) == "flags.json")
     for p in files:
