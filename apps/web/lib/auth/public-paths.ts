@@ -1,4 +1,4 @@
-// T-276: what a signed-out visitor may reach. Everything else needs an account: pages redirect to
+// T-276: what a signed-out visitor may reach. The app pages (APP_PAGES) need an account: they redirect to
 // /signup?next=<page> (or /login for the OAuth consent pages), API routes answer 401 JSON. Pure (no Node or
 // Next imports) so the middleware and tests share it. Extend the lists here, nowhere else.
 
@@ -40,6 +40,15 @@ export const PUBLIC_API: readonly string[] = [
   "/api/funnel",              // T-299: same-origin POST of a funnel step; signed-out steps count too
 ];
 
+/** #33 (Nov 20): the app's own pages, which need an account. A signed-out request for one goes to sign-up; a path that
+ *  is in no list here is no page at all, so it gets the 404 page instead of a sign-up wall for a page that doesn't
+ *  exist. test/account-wall.test.ts reads app/ and fails if a page folder is in no list, so a new page can't go
+ *  public by being forgotten here. */
+export const APP_PAGES: readonly string[] = [
+  "/bets", "/markets", "/watchlist", "/journal", "/tools", "/alerts", "/dashboards", "/settings",
+  "/account", "/onboarding", "/combos", "/kalshi", "/ext",
+];
+
 /** Signed-out visitors here go to /login (an existing account is expected), not /signup. */
 export const LOGIN_FIRST: readonly string[] = ["/oauth"];
 
@@ -63,5 +72,6 @@ export function signedOutAccess(path: string, search: URLSearchParams = new URLS
   if (under(path, PUBLIC_PAGES) || under(path, PUBLIC_FILES) || under(path, SELF_GUARDED)) return "public";
   if (path.startsWith("/_next/")) return "public";
   if (under(path, LOGIN_FIRST)) return "login";
-  return "signup";
+  if (under(path, APP_PAGES)) return "signup";
+  return "public";   // #33: no such page; Next answers with the 404 page (app/[...missing], app/not-found.tsx)
 }
