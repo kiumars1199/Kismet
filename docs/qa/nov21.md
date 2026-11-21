@@ -50,6 +50,10 @@ affected e2e and the Vercel preview all green.
   with a See plans link; no email switch in the editor. e2e-paid covers Free (note shown) and Pro (no note).
 - Pro email end to end: see "Alerts email check" below (after deploy).
 
+## 4. Combos ("Nov21: combo legs multiply")
+- One line in the combo tray and suggested combos: "The combo wins only if every leg wins, so the legs' chances
+  multiply: 80% × 70% ≈ 56%." Unit test in lib/combos.test.ts.
+
 ## Q's answers (Nov 21, before going away)
 
 - Alerts email check: throwaway Pro test account, mail to Resend's test inbox (delivered@resend.dev), deleted after.
