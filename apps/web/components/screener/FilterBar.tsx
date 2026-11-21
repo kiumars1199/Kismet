@@ -6,6 +6,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { MarketsResponse } from "@/lib/api";
 import type { FilterState } from "@/lib/filters/state";
+import { SortNote } from "./SortNote";
 import { TAXONOMY, TAXONOMY_TREE } from "@/lib/taxonomy";
 
 type Change = (p: Partial<FilterState>, opts?: { replace?: boolean }) => void;
@@ -129,6 +130,8 @@ export function FilterBar({ state, facets, win, total, onChange }: {
           </span>
         </label>
       </div>
+      <SortNote />
     </div>
   );
 }
+

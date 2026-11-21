@@ -7,7 +7,7 @@ export const SortKey = z.enum([
   "edge", "edge_low", "realistic_edge", "roi", "win_prob", "price", "closes",
   "volume", "volume_24h", "liquidity", "spread", "capacity", "retention",
   "evidence", "competitive", "newest",
-  "pays",                                            // 1 / ask; "Biggest payout" (docs/18 §3), edge >= 2¢ only
+  "pays",                                            // 1 / (ask + fee); "Biggest payout" (docs/18 §3); reorders only (QA-A #68)
 ]);
 export type SortKey = z.infer<typeof SortKey>;
 
@@ -58,7 +58,7 @@ export type FilterInput = z.input<typeof FilterState>;
 /** docs/18 §3: on the flags view, a Pays filter or the "Biggest payout" sort searches both tiers, so asking for
  *  10x finds the lower-confidence bets too. An explicit tier=edge stays as asked. */
 export const tierOf = (f: Pick<FilterState, "tier" | "pays_min" | "pays_max" | "sort">): FilterState["tier"] =>
-  f.tier === "best" && (f.pays_min !== undefined || f.pays_max !== undefined || f.sort.key === "pays") ? "all" : f.tier;
+  f.tier === "best" && (f.pays_min !== undefined || f.pays_max !== undefined) ? "all" : f.tier;   // QA-A #68: a sort never widens the set
 
 export const defaultState = (): FilterState => FilterState.parse({});
 

@@ -2,7 +2,9 @@
 import { describe, expect, it } from "vitest";
 import { marketsPage } from "@/lib/data/respond";
 import { getStore } from "@/lib/data/store";
-import { CHANCE_BANDS, PAYS_BANDS, apply, paysOf } from "@/lib/filters/apply";
+import { CHANCE_BANDS, PAYS_BANDS, apply, paysOf, sortPays } from "@/lib/filters/apply";
+import { buildSearch, tokenize } from "@/lib/search/index";
+import type { StoreMarket } from "@/lib/types";
 import { FilterState, type FilterInput } from "@/lib/filters/state";
 
 const st = (p: FilterInput) => FilterState.parse({ group_by_event: false, page_size: 200, ...p });
@@ -59,14 +61,17 @@ describe("search on the fixture", async () => {
     expect(marketsPage(store, st({ q: "barcelona" })).search!.relaxed).toBeUndefined();
   });
 
-  it("pays filter lifts the long-shot floor; Biggest payout sorts by 1/ask with edge ≥ 2¢", () => {
+  it("pays filter lifts the long-shot floor; Biggest payout reorders the same set by the after-fee payout (QA-A #68/#69)", () => {
     const p = apply(store, st({ pays_min: 3 }));
     expect(p.total).toBeGreaterThan(0);
     expect(p.rows.every((r) => paysOf(r.side)! >= 3)).toBe(true);
     expect(p.rows.some((r) => r.side.win_prob < 0.4)).toBe(true);
     const s = apply(store, st({ sort: { key: "pays", dir: "desc" } }));
-    expect(s.rows.every((r) => r.side.edge >= 0.02)).toBe(true);
-    for (let i = 1; i < s.rows.length; i++) expect(paysOf(s.rows[i - 1]!.side)!).toBeGreaterThanOrEqual(paysOf(s.rows[i]!.side)!);
+    for (let i = 1; i < s.rows.length; i++) expect(sortPays(s.rows[i - 1]!.side)!).toBeGreaterThanOrEqual(sortPays(s.rows[i]!.side)!);
+    // every sort shows the same bets, only in another order
+    const ids = (q: Parameters<typeof st>[0]) => apply(store, { ...st({ view: "flags", ...q }), page_size: Number.MAX_SAFE_INTEGER }).rows.map((r) => r.market.id + r.side.side_index).sort();
+    const base = ids({});
+    for (const key of ["pays", "win_prob", "closes", "roi"] as const) expect(ids({ sort: { key, dir: "desc" } })).toEqual(base);
   });
 
   it("pill counts match what picking the choice shows (pays bands lift the floor; chance/return/closes)", () => {
@@ -112,5 +117,20 @@ describe("/api/suggest", async () => {
     expect(n.markets[0].pays).toBeGreaterThan(1);
     expect(await get("")).toEqual({ q: "", line: "", entities: [], topics: [], markets: [] });
     await get("x".repeat(121), 400);
+  });
+});
+
+describe("accent-aware search (QA-A #47)", () => {
+  const m = (id: string, question: string) => ({ id, question, event: question, sides: [{ outcome: "Yes" }, { outcome: "No" }], tags: [], niche: "other", category: "other", market_type: "binary", derived: {} }) as unknown as StoreMarket;
+  const idx = buildSearch([m("1", "Will Bodø/Glimt win the league?"), m("2", "Will The Body top the charts?")], new Map());
+
+  it("spells out letters NFKD keeps whole", () => {
+    expect(tokenize("Bodø/Glimt Æsir Straße Łódź")).toEqual(["bodo", "glimt", "aesir", "strasse", "lodz"]);
+    expect(tokenize("Atlético Málaga")).toEqual(["atletico", "malaga"]);
+  });
+
+  it("'Bodø' and 'bodo' find Bodø/Glimt, never The Body", () => {
+    for (const q of ["Bodø", "bodo", "Bodø/Glimt"]) expect([...idx.find(q)!.keys()]).toEqual(["1"]);
+    expect([...idx.find("body")!.keys()]).toEqual(["2"]);
   });
 });

@@ -20,6 +20,7 @@ import { EmptyState, ErrorState, StaleBanner } from "./States";
 import { useDesktop } from "./useDesktop";
 import { useMeta, useScreener } from "./useScreener";
 import { usePublishScan } from "@/lib/scanClock";
+import { SortNote } from "./SortNote";
 
 type Expanded = Record<string, { rows?: ApiRow[]; loading?: boolean }>;
 
@@ -85,6 +86,7 @@ export function MarketsScreener({ initial, scannedAt }: { initial?: MarketsRespo
         <QuickChips state={state} onChange={set} />
         <SearchChips q={state.q} search={data?.search} onChange={set} />
         <AppliedPills state={state} mode="markets" onChange={set} onReset={reset} />
+        <SortNote />
         <StaleBanner scannedAt={scanned} />
 
         {error && !data ? (
