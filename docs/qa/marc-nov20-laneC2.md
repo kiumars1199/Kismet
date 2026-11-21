@@ -33,3 +33,19 @@ No migration: `alert_rules.channels` is `text[]`, user-writable under own-row RL
 3. Existing rules have no email channel (the editor never saved it). Not backfilled; Q decides whether to.
 4. Only once a day is honest today. For faster email (for example after each 30-minute scan), options: Vercel Pro and a sub-daily cron in vercel.json, or a step in `.github/workflows/refresh.yml` that POSTs `/api/alerts/run` with a `CRON_SECRET` Actions secret (scheduled runs use the default branch's copy). Either way, change the "once a day" copy (/alerts, /pricing) with it.
 5. Not in scope, noted: Free users can open /alerts and the editor; creating a rule fails at the plan quota (0 rules on Free) with no upgrade message.
+
+## QA-C2 2: #38, #58, #72 AI connector allowance (branch claude/qa-c2-connector, stacked on claude/qa-c2-alerts)
+
+What the code enforces (`lib/abuse.ts` RULES, `lib/mcp/server.ts` gate): Free none; Pro 3 tool calls per rolling 24 h
+(`mcp_pro_daily`); Premium no daily cap, 60 calls a minute (`mcp_premium`). The rate limiter never fails open (Upstash
+down → the same limits per instance). Before: compare table "3 calls a day" / "Yes"; Pro card silent; Premium card
+"(read-only connector)"; /account "up to 60 calls a minute" / "Premium has no daily cap"; consent page and llms.txt
+each worded it their own way.
+
+| Item | Status | Evidence |
+|---|---|---|
+| 38/58/72 one statement everywhere | Fixed, verified in mock + unit | New `lib/connector-plan.ts` (client-safe) holds the numbers and the words; `lib/abuse.ts` RULES read the same constants, so copy and limits can't drift. Statement: **Pro: 3 calls a day. Premium: no daily cap (up to 60 calls a minute). Not on Free.** Compare table: Pro "3 calls a day", Premium "No daily cap (up to 60 calls a minute)". Pro card (new line) "Use Kismet in Claude, ChatGPT and Cursor: 3 calls a day"; Premium card "Use Kismet in Claude, ChatGPT and Cursor: no daily cap (up to 60 calls a minute)". /account: "Your Pro plan: 3 calls a day. Premium: no daily cap (up to 60 calls a minute)." / "Your Premium plan: no daily cap (up to 60 calls a minute)." / Free "Not on Free. Pro: … Premium: …". OAuth consent page, llms.txt and the connector's Free refusal / Pro used-up messages use the same line. `test/connector-plan.test.ts` (RULES = constants, /account per plan, and a source scan: no page words the allowance by hand); `e2e-paid/qa-c2-alerts.spec.ts` checks /pricing's table and cards. |
+
+Changed /pricing lines: `app/pricing/page.tsx` the connector compare row only (plus a one-line `up()` helper above
+`rows`); `components/pricing/Plans.tsx` one string added to the Pro card points (after the alerts string) and the
+Premium card's first connector string replaced. `components/account/McpSetup.tsx` plan paragraph.

@@ -59,3 +59,12 @@ test("#64 /pricing sells no Telegram or Discord alerts and says email is checked
   expect(html).toContain("Email (checked once a day) + browser while Kismet is open, 20 rules");
   expect(html).toContain("Alerts by email (checked once a day) and in the browser while Kismet is open, 20 rules");
 });
+
+test("#38/#58/#72 /pricing states the AI connector allowance the same way on the table and the cards", async ({ request }) => {
+  const html = await (await request.get("/pricing")).text();
+  expect(html).toContain("Use Kismet in Claude, ChatGPT and Cursor: 3 calls a day");
+  expect(html).toContain("Use Kismet in Claude, ChatGPT and Cursor: no daily cap (up to 60 calls a minute)");
+  expect(html).toContain(">3 calls a day<");
+  expect(html).toContain(">No daily cap (up to 60 calls a minute)<");
+  expect(html).not.toContain("read-only connector)");
+});

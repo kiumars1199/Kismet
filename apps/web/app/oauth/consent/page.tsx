@@ -4,6 +4,7 @@
 import { redirect } from "next/navigation";
 import { PageTitle, btnGhost, btnPrimary, card } from "@/components/kit";
 import { authEnabled, getUser, supabaseServer } from "@/lib/auth/server";
+import { CONNECTOR_PLANS_LINE } from "@/lib/connector-plan";
 
 export const metadata = { title: "Connect an app", robots: { index: false } };
 export const dynamic = "force-dynamic";
@@ -47,7 +48,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ a
         </p>
         <p className="text-sm text-muted">After you approve, you&apos;ll go back to <span className="font-medium text-text">{host(data.redirect_uri)}</span>.
           Only approve if you started this from that app.</p>
-        <p className="text-sm text-muted">Using Kismet in an AI assistant is part of Premium; Pro includes 3 calls a day.</p>
+        <p className="text-sm text-muted">{CONNECTOR_PLANS_LINE}</p>
         <form method="post" action="/api/oauth/decision" className="flex flex-wrap gap-3">
           <input type="hidden" name="authorization_id" value={data.authorization_id} />
           <button type="submit" name="decision" value="approve" className={btnPrimary}>Approve</button>
