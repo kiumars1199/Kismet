@@ -72,11 +72,30 @@ read the chosen t as a little optimistic; every setting is positive. By payout (
 1.5–2x +7.2% (270), 2–3x +11.9% (72), 3–5x +48.9% (148), 5–10x −36.7% (28), 10x+ −16.3% (14): the last two are
 under the 30-bet floor and show as "too few tested bets".
 
-For Q: the earlier even rebuild (previous session) gave about +2% with t < 1; this larger sample gives +6.4%,
-t 5.5, spread over 42 weeks. Either way production's +11% leans on its last 2 weeks; a bigger, evenly spread
-price history for production would make the shown test number less concentrated. Raw output:
-scratchpad `bt/output/backtest.json` (not committed).
+For Q: an earlier even rebuild (previous session, parameters not recorded in this log) gave about +2% with t < 1;
+this one gives +6.4%, t 5.5. The two are not reconciled: don't read the difference as sample size alone. Raw
+output (not committed):
+`/tmp/claude-0/-home-user-MarketEdge/5dc80970-cb59-531c-a07f-e3685e3d0674/scratchpad/bt/output/backtest.json`.
 
 ## #69
 
 Not touched: Lane A owns the sort. `BetQuote.pays` (after the fee, the card's figure) is exported for it.
+
+## Follow-ups after review
+
+- #5 per-fixture check: `quoteStars()` puts stars on the quote's own return, so an exact 0% return no longer gets
+  "Fair value". `one-return.test.tsx` checks every fixture bet: at an exact return ≤ 0 there are no stars and no
+  "Better price than usual"; above 0 there are stars; a Free quote never carries the arithmetic (`betQuote().math`
+  is null, and it's the only source for the drawer, table and compact-card hovers). Points are measured before the
+  fee by design, so "+0.8 pts" beside a return ≤ 0 is expected; the verdict then says "not by enough to cover the fee".
+- iPhone spec (`e2e/overhaul-iphone.spec.ts`, WebKit projects): **not run in WebKit**, because WebKit isn't
+  installed here. I ran it in Chromium with iPhone viewport and touch emulation at 390×844 and 430×932: 48 passed,
+  6 failed. Every failure is "input 148×15" small tap targets: the stake input inside the closed "Why this bet?"
+  details, one per card. origin/final da64226 fails the same way under the same emulation (/ and /bets), so it
+  isn't from this branch. It needs a real WebKit run.
+- Combined tree (`qa-b-faq` + `qa-b-ledger` merged with origin/final da64226): tsc and lint clean; vitest green
+  except the teaser test, which I confirmed fails on da64226 itself (`funnel-db` and `api` timing flake under load
+  and pass on rerun); pytest 106 passed; full chromium e2e 80 passed, 1 failed (trading-paper, missing extension
+  deps); check:js 142.1 kB vs 141.9 kB on da64226 (+0.2 kB).
+- Branch history: a force push was refused, so `qa-b-return` stays on its original base and `qa-b-faq` merges it in.
+  Both merge cleanly with origin/final.
