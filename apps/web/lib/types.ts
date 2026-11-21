@@ -218,7 +218,10 @@ export interface KalshiMarket {
   ticker: string; event_ticker: string; series_ticker: string;
   title: string; subtitle: string;
   yes_bid_cents: number | null; yes_ask_cents: number | null;
+  // added Nov 2026 (optional: files written before then lack them; null = Kalshi sent no value)
+  no_bid_cents?: number | null; no_ask_cents?: number | null; last_price_cents?: number | null;
   volume: number;
+  volume_24h?: number | null; open_interest?: number | null; status?: string | null;
   close_time: string | null;
   url: string;
   source: "Kalshi";
@@ -237,8 +240,21 @@ export interface KalshiCombo {
   price_basis: "kalshi_quote" | "legs_product";
   volume: number; close_time: string | null; url: string; source: "Kalshi";
 }
+export interface KalshiSettled {
+  ticker: string; event_ticker: string; title: string; subtitle: string;
+  result: "yes" | "no";
+  status: string | null;
+  close_time: string | null;
+  settled_seen_at: number;
+  url: string; source: "Kalshi";
+}
 export interface KalshiFile {
-  meta: { source: "Kalshi"; attribution: string; fetched_at: number; api: string; n_markets: number; n_combos: number };
+  meta: {
+    source: "Kalshi"; attribution: string; fetched_at: number; api: string; n_markets: number; n_combos: number;
+    n_markets_open?: number; n_events?: number; complete?: boolean; n_settled?: number; pages?: number;
+    notes?: string[]; seconds?: number;
+  };
   markets: KalshiMarket[];
   combos: KalshiCombo[];
+  settled?: KalshiSettled[];
 }

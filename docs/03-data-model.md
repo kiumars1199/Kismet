@@ -216,12 +216,25 @@ Kalshi lists its Combos (multivariate markets) publicly (`GET /markets?mve_filte
 but in our sample none carried a resting ask (Kalshi's RFQ endpoints need a member key), so `price_basis` says which number a combo has: Kalshi's own quote
 (`kalshi_quote`) or only the product of its legs' own Kalshi asks (`legs_product`; `null` when legs share an event).
 
+Since Nov 2026 the fetch crawls every open event (`GET /events?status=open&with_nested_markets=true`, every cursor page)
+within a time budget (`KALSHI_BUDGET_SEC`, default 45 s; 70% for the crawl, the rest for combos and settlements), each
+stage on its own so one failing never loses the others. `fetched_at` is the time of the oldest response used (a cache hit
+counts at its cache time). Settlements: every market seen open is remembered (`data/kalshi_known.json`); once it is no
+longer open and its close time has passed, the fetch asks for it by ticker (100 per run, oldest first) and a `result` of
+`yes`/`no` makes a `settled` row (also appended to `data/kalshi_settled.jsonl`); a market with no result 30 days after its
+close is dropped. Every open market crawled, slimmed to its quote fields, is written to `data/kalshi_markets.json` (not
+uploaded). New fields read both of Kalshi's encodings (`*_dollars` / `*_fp` strings and the older integer cents and counts).
+
 ```ts
 export interface KalshiMarket {
   ticker: string; event_ticker: string; series_ticker: string;
   title: string; subtitle: string;                       // event title, market's yes label
   yes_bid_cents: number | null; yes_ask_cents: number | null;
+  no_bid_cents?: number | null; no_ask_cents?: number | null;   // added Nov 2026; optional for older files
+  last_price_cents?: number | null;                      // last trade
   volume: number;                                        // contracts traded
+  volume_24h?: number | null; open_interest?: number | null;   // contracts
+  status?: string | null;                                // Kalshi's market status, as sent
   close_time: string | null;                             // ISO 8601
   url: string;                                           // https://kalshi.com/markets/<series ticker>
   source: "Kalshi";
@@ -240,10 +253,25 @@ export interface KalshiCombo {
   price_basis: "kalshi_quote" | "legs_product";
   volume: number; close_time: string | null; url: string; source: "Kalshi";
 }
+export interface KalshiSettled {
+  ticker: string; event_ticker: string; title: string; subtitle: string;
+  result: "yes" | "no";
+  status: string | null;
+  close_time: string | null;
+  settled_seen_at: number;                               // unix s, the scan that first saw the result
+  url: string; source: "Kalshi";
+}
 export interface KalshiFile {
-  meta: { source: "Kalshi"; attribution: string; fetched_at: number; api: string; n_markets: number; n_combos: number };
+  meta: {
+    source: "Kalshi"; attribution: string; fetched_at: number; api: string; n_markets: number; n_combos: number;
+    // n_markets = rows in `markets` (the 2,000 with the most volume); n_markets_open = every open market crawled.
+    // complete = false when the crawl stopped early (time budget, error, repeated cursor): see notes.
+    n_markets_open?: number; n_events?: number; complete?: boolean; n_settled?: number; pages?: number;
+    notes?: string[]; seconds?: number;
+  };
   markets: KalshiMarket[];
   combos: KalshiCombo[];
+  settled?: KalshiSettled[];                             // results seen in the last 7 days, newest first, max 500
 }
 ```
 
