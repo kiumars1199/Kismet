@@ -8,12 +8,13 @@
 // until the new one arrives (no skeleton flash). The old Big payouts / More bets with an edge / Combos rows, closing-soon
 // strip and results ticker are gone: "Bigger payouts" is a chip (best bets that win less often), lower-confidence
 // bets come in through a payout filter (tierOf), Combos has its own page, results are one link away.
+import { Ago } from "@/components/clock";   // QA-A #34: ticks, same clock on server and hydration
 import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
 import type { ApiGroup, ApiRow, MarketsResponse } from "@/lib/api";
 import { cardVenue, plainTitle, priceText, sideLabel } from "@/lib/card";
 import type { FilterState } from "@/lib/filters/state";
-import { ago, formatCount } from "@/lib/format";
+import { formatCount } from "@/lib/format";
 import { REFRESH_WORDS, freshness } from "@/lib/freshness";
 import { savePresetFromState } from "@/lib/presets";
 import { usePublishScan } from "@/lib/scanClock";
@@ -22,6 +23,8 @@ import { TAXONOMY } from "@/lib/taxonomy";
 import { BetCard } from "@/components/market/BetCard";
 import { drawerHref, useOpenDrawer } from "@/components/market/drawer";
 import { SaveViewDialog } from "@/components/presets/SaveViewDialog";
+import { SavedViews } from "@/components/presets/SavedViews";
+import { suggestViewName } from "@/lib/presets-name";
 import { Count } from "@/components/kit";
 import { CardSkeleton } from "@/components/market/bits";
 import { SearchChips } from "@/components/search/SearchChips";
@@ -148,7 +151,9 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
 
   const rows = data ? [...data.rows, ...view!.more] : [];
   const slots = data ? slotsOf(rows, data.groups ? [...data.groups, ...view!.moreGroups] : undefined) : [];
-  const left = data ? (data.total_groups ?? data.total) - slots.length : 0;
+  // QA-A #70/#71: bets left, in bets (`total` counts bets; a game slot holds `size` of them), never below 0. Live
+  // re-pricing can drop rows from a page, so whether a button shows comes from the pages held (sc.hasMore), not this.
+  const left = data ? Math.max(0, data.total - slots.reduce((a, x) => a + x.size, 0)) : 0;
   // QA-A #46: the scan the cards on screen come from, never /api/meta's (another server may answer that one)
   const scanned = data?.scanned_at ?? initial?.scanned_at ?? meta?.meta.scanned_at;
   usePublishScan(scanned);   // the header pill names this same scan
@@ -179,7 +184,7 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
         <p className="max-w-[760px] text-sm leading-normal text-muted">
           Each one has won more often in the past than its price suggests, after the fee.
           {/* P9: when the stale banner shows, it carries the scan age; saying it here too was the third stale notice */}
-          {scanned && freshness(scanned) === "fresh" && <span suppressHydrationWarning className="whitespace-nowrap"> Updated {ago(scanned)}.</span>}{" "}
+          {scanned && freshness(scanned) === "fresh" && <span className="whitespace-nowrap"> Updated <Ago at={scanned} />.</span>}{" "}
           <Link href="/track-record" className="inline-flex min-h-11 items-center text-accent-hover underline-offset-4 hover:underline">See how we track results</Link>
         </p>
       </section>
@@ -187,7 +192,7 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
       <TodayCard />
 
       {/* Mark's filter bar (Nov 20): Sport · Multiplier · Date · Apply, then count and Sort */}
-      <FilterBar state={state} facets={sc.facets} win={win} total={total} onChange={set} />
+      <FilterBar state={state} facets={sc.facets} win={win} total={total} shown={sample ? rows.length : undefined} onChange={set} />
       <div role="group" aria-label="More filters" className="flex flex-wrap items-center gap-2">
         {usOn && (
           <button type="button" aria-pressed={state.us} data-testid="us-chip" className={chip(state.us)}
@@ -199,9 +204,10 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
         )}
         <FilterPanel state={state} mode="flags" facets={sc.facets} meta={meta} onChange={set} onReset={reset} />
         <button type="button" onClick={() => (setSaved(null), setSaving(true))} className="inline-flex min-h-11 flex-none items-center whitespace-nowrap px-2 text-[13px] text-muted hover:text-text">+ Save this view</button>
+        <SavedViews onApply={set} className="inline-flex min-h-11 flex-none items-center whitespace-nowrap px-2 text-[13px] text-muted hover:text-text" />
         <span role="status" className="text-[13px] text-accent-softer empty:hidden">{saved?.ok ? saved.msg : ""}</span>
       </div>
-      <SaveViewDialog open={saving} title="Save this view" error={saved && !saved.ok ? saved.msg : null} onSubmit={save} onClose={() => setSaving(false)} />
+      <SaveViewDialog open={saving} title="Save this view" name={suggestViewName(state)} error={saved && !saved.ok ? saved.msg : null} onSubmit={save} onClose={() => setSaving(false)} />
       <SearchChips q={state.q} search={data?.search} onChange={set} />
       <AppliedPills state={state} mode="flags" onChange={set} onReset={reset} omit={barPills(state, win)} />
       <StaleBanner scannedAt={scanned} />
@@ -236,14 +242,14 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
             </>
           )}
           {sample && <LockedBets total={data.total} shown={rows.length} daily={daily} />}
-          {!sample && left > 0 && (
+          {!sample && sc.hasMore && (
             <button
               type="button"
               onClick={sc.loadMore}
               disabled={sc.loadingMore}
               className="mx-auto min-h-11 rounded-xl border border-border bg-surface px-5 text-sm hover:border-accent-border"
             >
-              {sc.loadingMore ? "Loading…" : `Show more (${nf(left)} left)`}
+              {sc.loadingMore ? "Loading…" : left > 0 ? `Show more (${nf(left)} left)` : "Show more"}
             </button>
           )}
         </div>

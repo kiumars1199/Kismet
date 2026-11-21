@@ -176,3 +176,29 @@ for (const [w, h] of [[390, 844], [1440, 900]] as const) {
     }
   });
 }
+
+// QA-B (Marc #55): the card's one return figure sits in the value slot; at 390×844 the card still has at most 7 slots,
+// no slot is wider than its card, and the page has no sideways scroll.
+test("390×844: one return figure in the value slot, 7 slots, nothing overflows", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  for (const url of ["/", "/?us=0"]) {
+    await page.goto(url);
+    await expect(page.locator("article[data-testid=bet-card]").first()).toBeVisible();
+    for (const c of await probe(page)) expect(c.slots.length, `${url} ${c.id}`).toBeLessThanOrEqual(7);
+    await expect(page.getByTestId("card-return").first()).toContainText(/est\. return$/);
+    const over = await page.evaluate(() => {
+      const bad: string[] = [];
+      if (document.documentElement.scrollWidth > window.innerWidth) bad.push(`page ${document.documentElement.scrollWidth}`);
+      for (const card of document.querySelectorAll("article[data-testid=bet-card]")) {
+        const cr = card.getBoundingClientRect();
+        for (const el of card.querySelectorAll("[data-slot]")) {
+          if (el.closest("[data-testid=why]")) continue;
+          const r = el.getBoundingClientRect();
+          if (r.width && (r.right > cr.right + 1 || r.left < cr.left - 1)) bad.push(`${card.getAttribute("data-market-id")} ${el.getAttribute("data-slot")}`);
+        }
+      }
+      return bad;
+    });
+    expect(over, url).toEqual([]);
+  }
+});

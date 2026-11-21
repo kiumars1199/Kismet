@@ -1,11 +1,12 @@
 "use client";
 
 // /markets "All markets" (F-01): grouped rows on desktop, compact cards on mobile, URL-driven.
+import { Ago } from "@/components/clock";
 import { useEffect, useMemo, useState } from "react";
 import { fetchEvent, groupRows, type ApiGroup, type ApiRow, type MarketsResponse } from "@/lib/api";
 import { pickSide, sideOk } from "@/lib/filters/apply";
 import { defaultState } from "@/lib/filters/state";
-import { ago, formatCount } from "@/lib/format";
+import { formatCount } from "@/lib/format";
 import { useProfile } from "@/lib/repo/hooks";
 import { PresetBar } from "@/components/presets/PresetBar";
 import { QuickChips } from "@/components/presets/QuickChips";
@@ -20,6 +21,7 @@ import { EmptyState, ErrorState, StaleBanner } from "./States";
 import { useDesktop } from "./useDesktop";
 import { useMeta, useScreener } from "./useScreener";
 import { usePublishScan } from "@/lib/scanClock";
+import { SortNote } from "./SortNote";
 
 type Expanded = Record<string, { rows?: ApiRow[]; loading?: boolean }>;
 
@@ -73,7 +75,7 @@ export function MarketsScreener({ initial, scannedAt }: { initial?: MarketsRespo
             <h1 className="text-[28px] font-bold leading-tight tracking-tight md:text-[34px]">All markets</h1>
             <p className="mt-1 text-sm text-muted">
               {data ? `${formatCount(data.total)} ${data.total === 1 ? "market matches" : "markets match"}` : "Loading markets…"}
-              {meta && ` · ${formatCount(meta.counts.markets)} open · scanned ${ago(scanned)}`}
+              {meta && <> · {formatCount(meta.counts.markets)} open · scanned <Ago at={scanned} /></>}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -85,12 +87,15 @@ export function MarketsScreener({ initial, scannedAt }: { initial?: MarketsRespo
         <QuickChips state={state} onChange={set} />
         <SearchChips q={state.q} search={data?.search} onChange={set} />
         <AppliedPills state={state} mode="markets" onChange={set} onReset={reset} />
+        <SortNote />
         <StaleBanner scannedAt={scanned} />
 
         {error && !data ? (
           <ErrorState onRetry={sc.retry} error={error} />
         ) : !data ? (
           <div className="flex flex-col gap-2" aria-busy="true" aria-label="Loading markets">
+            {/* #9 (Nov 20): a filter change says it is loading, as Best bets' "Updating bets…" does */}
+            <p role="status" data-testid="markets-updating" className="text-sm font-medium text-soft">Loading markets…</p>
             {Array.from({ length: 8 }, (_, i) => <Skeleton key={i} className="h-16" />)}
           </div>
         ) : data.total === 0 ? (

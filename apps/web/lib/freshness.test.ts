@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { freshness, nextScanIn, nextScanMin } from "./freshness";
+import { REFRESH_WORDS, freshness, nextScanIn, nextScanMin, scanLate } from "./freshness";
 
 const now = 1_800_000_000_000;
 const ago = (h: number) => now / 1000 - h * 3600;
@@ -35,5 +35,17 @@ describe("P9: stale notices stay off while scans run", () => {
     expect(freshness(now / 1000 - 30 * 60, now)).toBe("fresh");
     expect(freshness(now / 1000 - 2 * 3600, now)).toBe("fresh");
     expect(freshness(now / 1000 - 3.5 * 3600, now)).toBe("amber");
+  });
+});
+
+describe("scanLate (QA-A #2)", () => {
+  it("says the cadence the engine really runs, and calls a scan late past 45 min plus the viewer's delay", () => {
+    expect(REFRESH_WORDS).toBe("about every 15 minutes");
+    const min = (m: number) => now / 1000 - m * 60;
+    expect(scanLate(min(22), 0, now)).toBe(false);   // the hourly fit pushes one scan to ~22 min
+    expect(scanLate(min(46), 0, now)).toBe(true);
+    expect(scanLate(min(55), 15, now)).toBe(false);  // Free sees each scan 15 min late
+    expect(scanLate(min(61), 15, now)).toBe(true);
+    expect(scanLate(null, 0, now)).toBe(true);
   });
 });

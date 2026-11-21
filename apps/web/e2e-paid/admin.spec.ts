@@ -26,9 +26,11 @@ async function signIn(page: Page, email: string) {
   }).toPass({ timeout: 90_000 });
 }
 
-// Beta features (lib/beta.ts): customers get 404s and no nav link; admins get the pages, marked Beta.
-async function expectNoBeta(page: Page, signedOut = false) {
-  if (signedOut) {   // T-276: signed out, beta pages are behind the account wall like every app page, and their APIs are 401
+// Combos and Kalshi (live since Nov 21, owner decision; KALSHI_DATA_PERMISSION=true in playwright.paid.config.ts).
+// Signed out: the account wall. A signed-in Free customer: the Kalshi page and its nav link (no Beta pill); no Combos
+// link, /combos shows the Premium upgrade, the combos API answers none and the Kalshi combo check is off (Premium only).
+async function expectLaunched(page: Page, signedOut = false) {
+  if (signedOut) {   // T-276: signed out, these pages are behind the account wall like every app page, and their APIs are 401
     for (const p of ["/combos", "/kalshi"]) {
       await page.goto(p);
       await expect(page).toHaveURL(new RegExp(`/signup\\?next=%2F${p.slice(1)}$`));
@@ -39,13 +41,21 @@ async function expectNoBeta(page: Page, signedOut = false) {
     expect((await (await page.request.get("/api/me")).json()).beta).toBeFalsy();
     return;
   }
-  for (const p of ["/combos", "/kalshi"]) expect((await page.goto(p))?.status(), p).toBe(404);
-  await page.goto("/pricing");
-  await expect(page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: /Combos|Kalshi/ })).toHaveCount(0);
+  expect((await page.goto("/kalshi"))?.status(), "/kalshi").toBe(200);
+  await expect(page.getByRole("heading", { name: "Kalshi markets", level: 1 })).toBeVisible();
+  await expect(page.getByTestId("beta-banner")).toHaveCount(0);
+  expect((await page.goto("/combos"))?.status(), "/combos").toBe(200);
+  await expect(page.getByTestId("combos-upgrade")).toBeVisible();
+  const nav = page.locator("header").getByRole("navigation", { name: "Main" });
+  await expect(nav.getByRole("link", { name: /^Kalshi/ })).toBeVisible({ timeout: 15_000 });   // once /api/me answers
+  await expect(nav.getByRole("link", { name: /^Kalshi/ }).getByTestId("beta-badge")).toHaveCount(0);
+  await expect(nav.getByRole("link", { name: /^Combos/ })).toHaveCount(0);
   expect((await (await page.request.get("/api/combos?pays=2")).json()).groups).toEqual([]);
-  expect((await page.request.get("/api/kalshi")).status()).toBe(404);
+  expect((await page.request.get("/api/kalshi")).status()).toBe(200);
   expect((await (await page.request.get("/api/combos/kalshi")).json()).enabled).toBe(false);
-  expect((await (await page.request.get("/api/me")).json()).beta).toBeFalsy();
+  const me = await (await page.request.get("/api/me")).json();
+  expect(me.beta).toBeFalsy();
+  expect(me.nav).toEqual(["kalshi"]);   // Lane C's server-decided nav (lib/beta.ts navFeatures)
 }
 
 /** Wait for the write itself (60 s, cold compiles under load), then the status line: not a fixed 5 s. */
@@ -70,17 +80,19 @@ test("admin: sees /admin with a user count, flips the banner and everyone sees i
   await signIn(page, ADMIN);
   await expect(page.getByRole("link", { name: "Admin panel" })).toBeVisible();
 
-  // beta access: Premium plan, beta pages (Kalshi with KALSHI_DATA_PERMISSION off), each marked Beta
-  expect(await (await page.request.get("/api/me")).json()).toMatchObject({ beta: true, tier: "premium" });
+  // Premium plan: Combos and Kalshi in the nav and on their pages, no Beta marker anywhere (live since Nov 21)
+  expect(await (await page.request.get("/api/me")).json()).toMatchObject({ beta: true, tier: "premium", nav: ["combos", "kalshi"] });
   const nav = page.locator("header").getByRole("navigation", { name: "Main" });
   for (const [label, path] of [["Combos", "/combos"], ["Kalshi", "/kalshi"]] as const) {
     const link = nav.getByRole("link", { name: new RegExp(`^${label}`) });
-    await expect(link).toBeVisible({ timeout: 15_000 });   // beta links appear once /api/me answers after each page load
-    await expect(link.getByTestId("beta-badge")).toHaveText("Beta");
+    await expect(link).toBeVisible({ timeout: 15_000 });   // these links appear once /api/me answers after each page load
+    await expect(link.getByTestId("beta-badge")).toHaveCount(0);
     expect((await page.goto(path))?.status(), path).toBe(200);
-    await expect(page.getByTestId("beta-banner")).toHaveText("Beta: only visible to admins and testers. Not live for customers.");
+    await expect(page.getByTestId("beta-banner")).toHaveCount(0);
   }
+  await expect(page.getByTestId("combos-upgrade")).toHaveCount(0);
   expect((await page.request.get("/api/kalshi")).status()).toBe(200);
+  expect((await (await page.request.get("/api/combos/kalshi")).json()).enabled).toBe(true);
 
   // T-276 activation: a signed-in Best bets render stamps the first visit (after the response, so poll /admin)
   await page.goto("/");
@@ -121,17 +133,17 @@ test("admin: sees /admin with a user count, flips the banner and everyone sees i
   await expect(page.getByTestId("site-banner")).toHaveCount(0);
 });
 
-test("normal user and anonymous visitor: 404 on every admin page and API route, no Admin link, no beta features", async ({ page, browser }) => {
+test("normal user and anonymous visitor: 404 on every admin page and API route, no Admin link; Kalshi yes, Combos Premium only", async ({ page, browser }) => {
   await signIn(page, `user-${Date.now()}@example.com`);
   await expect(page.getByRole("link", { name: "Admin panel" })).toHaveCount(0);
   await expect(page.getByRole("link", { name: "Admin", exact: true })).toHaveCount(0);
   await expectNoAdmin(page);
-  await expectNoBeta(page);
+  await expectLaunched(page);
 
   const ctx = await browser.newContext();
   const anon = await ctx.newPage();
   await anon.goto("/");
   await expectNoAdmin(anon);
-  await expectNoBeta(anon, true);
+  await expectLaunched(anon, true);
   await ctx.close();
 });

@@ -78,7 +78,7 @@ describe("test span from folds[], not folds × days", () => {
     expect(w.lastTwoShare).toBeCloseTo((4532 + 4619) / 9666, 6);
   });
   it("reads as dates, never as '1 year'", () => {
-    expect(testSpan(b)).toBe("past markets from Aug 29 to Nov 14, 95% of bets in the last 2 weeks");
+    expect(testSpan(b)).toBe("past markets from Aug 29 to Nov 14 (bets in 8 of 12 weeks, 95% in the last 2)");
     expect(testHeadline(taker, testSpan(b)).sentence).not.toMatch(/year/);
     expect(testSpan(null)).toBeNull();
     expect(testHeadline(taker, null).sentence).toMatch(/best bets on past markets,/);
@@ -86,7 +86,7 @@ describe("test span from folds[], not folds × days", () => {
     const t = (y: number, m: number, d: number) => Date.UTC(y, m, d) / 1000;
     const ny = { test_days: 7, chosen_half_life_days: null, results: { None: { folds: [
       { start: t(2025, 10, 30), flags: 14 }, { start: t(2026, 10, 1), flags: 43 }, { start: t(2026, 10, 8), flags: 43 }] } } };
-    expect(testSpan(ny)).toBe("past markets from Nov 30, 2025 to Nov 14, 2026, 86% of bets in the last 2 weeks");
+    expect(testSpan(ny)).toBe("past markets from Nov 30, 2025 to Nov 14, 2026 (bets in 3 of 3 weeks, 86% in the last 2)");
   });
 });
 
@@ -94,7 +94,7 @@ describe("proof line for this page", () => {
   it("keeps the test return and the 'Testing: ' basis, judges live on events", () => {
     const l = { ...base, first, us: { ...S(60, 52, 0.03, 20), by_category: {} } };
     const p = siteProof({ backtest: b, ledger: l, since: NOV17 });
-    expect(p.test).toBe(`In testing on past markets from Aug 29 to Nov 14, 95% of bets in the last 2 weeks: best bets, ${ret(taker.roi_pct)} per bet.`);
+    expect(p.test).toBe(`In testing on past markets from Aug 29 to Nov 14 (bets in 8 of 12 weeks, 95% in the last 2): best bets, ${ret(taker.roi_pct)} per bet.`);
     expect(p.help).toMatch(/^Testing: /);
     const need = eventsNeeded(taker)!;
     expect(need).toBe(Math.ceil(1394 * (2 / 18.51) ** 2));

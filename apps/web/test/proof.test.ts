@@ -16,7 +16,7 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push() {}, replace() {}, prefetch() {} }),
 }));
 
-const { eventsNeeded, HIT_RATE_VS_PROFIT, JUDGE_T, liveReturn, proofLine, siteProof, sinceDay, testSpan } = await import("@/lib/proof");
+const { eventsNeeded, HIT_RATE_VS_PROFIT, SAME_FOR_EVERYONE, hitRateLive, withLiveHitRate, JUDGE_T, liveReturn, proofLine, siteProof, sinceDay, testSpan } = await import("@/lib/proof");
 const { ret } = await import("@/lib/format");
 const { chosenResult } = await import("@/lib/data/model");
 
@@ -28,7 +28,7 @@ const day = (m: number, d: number) => Date.UTC(2026, m, d) / 1000;
 const BT = { test_days: 7, folds_run: 52, chosen_half_life_days: null, results: { None: { folds: [
   ...Array.from({ length: 9 }, (_, i) => ({ start: day(7, 22 + 7 * i), flags: 0 })),
   { start: day(9, 24), flags: 10 }, { start: day(9, 31), flags: 40 }, { start: day(10, 7), flags: 50 }] } } };
-const SPAN = "past markets from Oct 24 to Nov 13, 90% of bets in the last 2 weeks";
+const SPAN = "past markets from Oct 24 to Nov 13 (bets in 3 of 12 weeks, 90% in the last 2)";
 const NOV17 = Date.UTC(2026, 10, 17, 1, 0) / 1000;
 
 describe("eventsNeeded: settled events for a return the size of the test's to stand out from zero", () => {
@@ -79,9 +79,9 @@ describe("testSpan: the weeks that actually had best bets (folds[]), never folds
     expect(testSpan(null)).toBeNull();
     expect(testSpan({ ...BT, results: { None: { folds: [{ start: day(9, 24), flags: 0 }] } } })).toBeNull();
   });
-  it("an even spread drops the last-two-weeks clause", () => {
+  it("an even spread still names its weeks and its last-two-weeks share (#36: never \"52 weeks\" alone)", () => {
     const even = { test_days: 7, results: { None: { folds: [10, 10, 10, 10, 10, 10].map((n, i) => ({ start: day(9, 3 + 7 * i), flags: n })) } } };
-    expect(testSpan(even)).toBe("past markets from Oct 3 to Nov 13");
+    expect(testSpan(even)).toBe("past markets from Oct 3 to Nov 13 (bets in 6 of 6 weeks, 33% in the last 2)");
   });
 });
 
@@ -132,8 +132,19 @@ describe("proofLine: the test result, then the live record beside it", () => {
     expect(p.needs).toBeNull();
     expect(p.live).toMatch(/^Live so far: 3 settled bets, [+−][\d.]+%\.$/);
   });
-  it("the hit-rate sentence is verbatim", () => {
-    expect(HIT_RATE_VS_PROFIT).toBe("Most best bets win often but pay little; the edge is that over many bets the wins should cover the losses. Any single bet can lose.");
+  it("the hit-rate answer agrees with a record that wins most bets and loses money (#4)", () => {
+    expect(HIT_RATE_VS_PROFIT).toMatch(/^Most do/);
+    expect(HIT_RATE_VS_PROFIT).toContain("can win most of its bets and still lose money");
+    expect(HIT_RATE_VS_PROFIT).not.toMatch(/should cover the losses/);
+    const l = { entries: 10, graded: 100, wins: 78, losses: 22, avg_pnl: -0.01 } as never;
+    expect(hitRateLive(l)).toMatch(/^Live so far: 78% of 100 settled best bets won, and together they returned [−-]/);
+    expect(hitRateLive({ entries: 3, graded: 0, wins: 0, losses: 0, avg_pnl: null } as never)).toBeNull();
+    const items = [{ q: "x", a: HIT_RATE_VS_PROFIT }, { q: "y", a: "other" }];
+    expect(withLiveHitRate(items, "Live so far: …")[0]!.a).toBe(`${HIT_RATE_VS_PROFIT} Live so far: …`);
+    expect(withLiveHitRate(items, null)).toBe(items);
+  });
+  it("no FAQ says everyone sees the same numbers (#48: Free sees ranges)", () => {
+    expect(SAME_FOR_EVERYONE).toContain("Free shows fewer of them, a little later, with ranges");
   });
 });
 

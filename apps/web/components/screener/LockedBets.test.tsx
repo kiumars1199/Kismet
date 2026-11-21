@@ -11,7 +11,7 @@ afterEach(cleanup);
 describe("LockedBets", () => {
   it("one link to pricing naming the locked count, with no market rows and no fake cards", () => {
     const { container } = render(<LockedBets total={2778} shown={10} daily={10} desktop />);
-    const link = screen.getByRole("link", { name: "Unlock 2.7K more bets" });
+    const link = screen.getByRole("link", { name: "Unlock 2,768 more bets" });
     expect(link.getAttribute("href")).toBe("/pricing");
     expect(container.querySelectorAll("[data-row], [data-market-id], ul, [inert]")).toHaveLength(0);
     expect(container.innerHTML).not.toMatch(/blur|gradient/);
@@ -32,7 +32,7 @@ describe("LockedBets", () => {
   it("T-288: states the daily allowance, never the number of rows on the page", () => {
     const { container } = render(<LockedBets total={1070} shown={4} daily={10} desktop />);
     expect(container.textContent).toContain("Free shows 10 Best bets a day, chosen at random");
-    expect(screen.getByRole("link").textContent).toBe("Unlock 1K more bets");
+    expect(screen.getByRole("link").textContent).toBe("Unlock 1,066 more bets");
     expect(container.textContent).not.toMatch(/Free shows 4\b/);
   });
 

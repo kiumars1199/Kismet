@@ -8,8 +8,10 @@ import { TAXONOMY, topicsOf } from "@/lib/taxonomy";
 import type { StoreMarket } from "@/lib/types";
 import { SLUG_URL } from "./parse";
 
-const tokenize = (s: string) =>
-  s.toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "").split(/[^a-z0-9.]+/).map((t) => t.replace(/^\.+|\.+$/g, "")).filter(Boolean);
+/** QA-A #47: letters NFKD leaves whole, spelled out, so "Bodø" is "bodo" (not "bod", which prefix-matched "The Body"). */
+const FOLD: Record<string, string> = { "ø": "o", "æ": "ae", "œ": "oe", "ß": "ss", "đ": "d", "ð": "d", "ł": "l", "þ": "th", "ı": "i" };
+export const tokenize = (s: string) =>
+  s.toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "").replace(/[øæœßđðłþı]/g, (c) => FOLD[c]!).split(/[^a-z0-9.]+/).map((t) => t.replace(/^\.+|\.+$/g, "")).filter(Boolean);
 
 const fuzzy = (term: string) => (/\d/.test(term) ? false : term.length >= 9 ? 2 : term.length >= 5 ? 1 : false);
 const EXACT: SearchOptions = { combineWith: "AND", prefix: true };

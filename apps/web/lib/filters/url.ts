@@ -52,3 +52,12 @@ export function parse(input: URLSearchParams | string | Record<string, string | 
   }
   return FilterState.parse(obj);
 }
+
+/** QA-A #47: the URL asked for a sort parse() can't use ("s=bogus.up"); the page falls back to its default order and
+ *  says so instead of silently ignoring it. */
+export function sortRejected(input: URLSearchParams): boolean {
+  const raw = input.get("s");
+  if (raw === null) return false;
+  const [key, dir] = raw.split(".");
+  return !FilterState.shape.sort.safeParse({ key, dir }).success;
+}

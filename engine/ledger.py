@@ -194,8 +194,13 @@ def first_rows(entries):
 
 
 def same_payout(entries, control):
-    """Kismet's picks (each bet once) vs the random same-payout bets, per payout band and overall."""
-    picks = first_rows(entries)
+    """Kismet's picks (each bet once) vs the random same-payout bets, per payout band and overall.
+
+    Paired: a pick counts only when a comparison bet was logged for it (its id is a control row's pick_id). Picks
+    logged before control.jsonl existed, or with no same-band bet to pair, are left out on both sides, so the two
+    groups cover the same scans and the picks' event count is not inflated by old rows without an event_id."""
+    paired = {e.get("pick_id") for e in control if e.get("pick_id") is not None}
+    picks = [e for e in first_rows(entries) if e["id"] in paired]
     out = {}
     for b in [b for _, _, b in PAY_BANDS] + [None]:
         pk = [e for e in picks if b is None or pay_band(e["ask"]) == b]

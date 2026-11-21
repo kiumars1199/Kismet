@@ -37,7 +37,7 @@ async function stopEmail(c: UnsubClaims): Promise<void> {
   }
 }
 
-const invalid = () => page(`<h1>This link has expired or is not valid</h1><p>Turn email off for any alert in Settings → Alerts.</p>`, 400);
+const invalid = () => page(`<h1>This link has expired or is not valid</h1><p>Turn email off for any alert on the Alerts page in Kismet.</p>`, 400);
 
 export function GET(req: Request): Response {
   const c = claims(req);

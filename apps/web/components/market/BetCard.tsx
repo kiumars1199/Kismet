@@ -10,9 +10,9 @@
 // Exported for other lanes: <BetCard r={{ market, side }} /> (landing imports it).
 import { useRef } from "react";
 import type { ApiRow } from "@/lib/api";
-import { cardVenue, chanceLine, INTL_ONLY, paysLine, plainTitle, sideLabel, stars, starsHelp, US_SMALL_PRINT } from "@/lib/card";
+import { betQuote, quoteStars, RETURN_HELP_ONE } from "@/lib/betFigures";
+import { cardVenue, chanceLine, INTL_ONLY, plainTitle, sideLabel, starsHelp, US_SMALL_PRINT } from "@/lib/card";
 import { useEntitlements } from "@/lib/entitlements";
-import { odds } from "@/lib/format";
 import { VenueButton } from "@/components/trade/VenueButton";
 import { useWhen } from "./When";
 import { drawerHref, useOpenDrawer } from "./drawer";
@@ -31,9 +31,12 @@ export function BetCard({ r }: { r: ApiRow; pro?: boolean }) {
   const live = useLiveAsk(m.tokens?.[s.side_index], useEntitlements().can("live_data") && v.kind !== "us", ref);
   const dir = live && Math.abs(live.ask - s.ask) >= 0.005 ? (live.ask > s.ask ? "up" : "down") : null;
   const title = plainTitle(m, s);
-  const money10 = paysLine(v);
+  // QA-B #55/#20/#37: the card's one payout and one return, from the same quote as the drawer, table and stake box
+  const q = betQuote(m, s);
+  const money10 = q.paysText && `Pays ${q.paysText}`;
   const noUsPrice = v.kind === "us" && v.ask == null;
-  const st = noUsPrice ? undefined : stars({ roi_pct: v.roi_pct, model_neff: s.model_neff });
+  const st = noUsPrice ? undefined : quoteStars(q, s.model_neff);
+  const nowPays = live && betQuote(null, s, { ask: live.ask }).paysText;
   return (
     <article ref={ref} data-testid="bet-card" data-row data-market-id={m.id} data-tier={m.tier ?? undefined} data-venue={v.kind}
       className="relative flex w-full flex-1 flex-col gap-2.5 rounded-xl border border-border bg-surface p-4 shadow-sm shadow-black/20 transition-colors duration-200 ease-out hover:border-soft/30">
@@ -53,7 +56,13 @@ export function BetCard({ r }: { r: ApiRow; pro?: boolean }) {
       </p>
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5">
         <p data-slot="chance" data-testid="card-chance" className="text-[15px] font-medium text-text">{chanceLine(s.win_prob)}</p>
-        {st !== undefined && <p data-slot="value" data-testid="card-value" className="text-sm"><StarRating st={st} title={starsHelp(st)} /></p>}
+        {st !== undefined && (
+          <p data-slot="value" data-testid="card-value" className="text-sm">
+            <StarRating st={st} title={`${starsHelp(st)} ${RETURN_HELP_ONE}`}>
+              <span data-testid="card-return" className="whitespace-nowrap">{q.retText} est. return</span>
+            </StarRating>
+          </p>
+        )}
       </div>
       <p data-slot="money" data-testid="card-money" className="text-sm">
         {noUsPrice ? <span className="text-muted">No Polymarket US price right now</span>
@@ -72,7 +81,7 @@ export function BetCard({ r }: { r: ApiRow; pro?: boolean }) {
       </div>
       <Why r={r} livePrice={live && (
         <span data-testid="live-price" className="block text-xs text-muted">
-          Now pays {odds(live.ask)}
+          Now pays {nowPays ?? "—"} after the fee
           {dir && <span aria-label={`price ${dir} since ${r.price_at ? "this page loaded" : "the last update"}`} className={dir === "up" ? "text-warning" : "text-accent"}> {dir === "up" ? "▲" : "▼"}</span>}
         </span>
       )} />

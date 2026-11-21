@@ -87,10 +87,10 @@ describe("flag tiers", () => {
     expect(ids(p)).toContain(LONG_SHOT);
     expect(p.rows.every((r) => r.market.tier === "edge")).toBe(true);
   });
-  it("Pays 10x+, a typed '10x' search and Biggest payout hit both tiers", async () => {
+  it("Pays 10x+ and a typed '10x' search hit both tiers; Biggest payout only reorders (QA-A #68)", async () => {
     expect(ids(await run({ pays_min: 10 }))).toContain(LONG_SHOT);
     expect(ids(await run({ q: "10x" }))).toContain(LONG_SHOT);
-    expect(ids(await run({ sort: { key: "pays", dir: "desc" }, win_prob_min: 0 }))).toContain(LONG_SHOT);
+    expect(ids(await run({ sort: { key: "pays", dir: "desc" }, win_prob_min: 0 })).sort()).toEqual(ids(await run({ win_prob_min: 0 })).sort());
   });
   it("the pays facet counts the edge tier", async () => {
     expect((await run({})).facets.pays["10x+"]).toBeGreaterThanOrEqual(1);

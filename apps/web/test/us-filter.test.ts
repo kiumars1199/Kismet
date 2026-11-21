@@ -70,6 +70,9 @@ describe("On Polymarket US filter", () => {
     expect(bestBetsRows(few).length).toBeLessThan(FREE_BEST_BETS_A_DAY);
     expect(freeUsOn(few)).toBe(false);
     expect(freeSample(few, "u:a").size).toBe(FREE_BEST_BETS_A_DAY);
+    // QA-A #26/#57: the Free count follows the Free list (every venue here), the paid count the US set
+    expect(bestBetsCount(few, { free: true }).total).toBe(bestBetsRows(few, { us: false }).length);
+    expect(bestBetsCount(few).total).toBe(bestBetsRows(few).length);
   });
 
   it("is a no-op on a scan without US coverage, so Best bets never empties", () => {

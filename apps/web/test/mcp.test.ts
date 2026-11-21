@@ -410,17 +410,18 @@ describe("tools", () => {
     expect(text(missing).endsWith(DISCLAIMER)).toBe(true);
   });
 
-  it("beta-only data (Kalshi venue) shows for beta testers only", async () => {
+  it("Kalshi venue shows only with KALSHI_DATA_PERMISSION=true (live for every plan since Nov 21)", async () => {
     const store = await getStore();
     const m = store.flags.find((x) => x.execution)!;
     const before = m.kalshi_ticker;
     m.kalshi_ticker = "KXTEST-1";
     try {
-      h.beta = false;
+      vi.stubEnv("KALSHI_DATA_PERMISSION", "");
       expect(text(await call("get_market", { market_id: m.id }))).not.toMatch(/Kalshi|KXTEST/);
-      h.beta = true;
-      expect(text(await call("get_market", { market_id: m.id }))).toMatch(/Kalshi \(KXTEST-1, beta\)/);
+      vi.stubEnv("KALSHI_DATA_PERMISSION", "true");
+      expect(text(await call("get_market", { market_id: m.id }))).toMatch(/Kalshi \(KXTEST-1\)/);
     } finally {
+      vi.unstubAllEnvs();
       m.kalshi_ticker = before;
     }
   });

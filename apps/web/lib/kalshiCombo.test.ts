@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { lookupCombo } from "./kalshiCombo";
 
-const hb = vi.hoisted(() => ({ beta: false }));
-vi.mock("@/lib/auth/server", async (orig) => ({ ...(await orig<object>()), getMe: async () => ({ user: null, tier: "premium", beta: hb.beta }) }));
+const hb = vi.hoisted(() => ({ tier: "premium" as "free" | "pro" | "premium" }));
+vi.mock("@/lib/auth/server", async (orig) => ({ ...(await orig<object>()), getMe: async () => ({ user: null, tier: hb.tier, beta: false }) }));
 
 const BASE = "https://k.test/v2";
 function fake(routes: Record<string, unknown>) {
@@ -48,14 +48,16 @@ describe("Kalshi combo check", () => {
     expect(await lookupCombo({ legs }, down, BASE)).toMatchObject({ ok: false });
   });
 
-  it("route is off for anyone who isn't a tester (beta), even with KALSHI_DATA_PERMISSION=true", async () => {
+  it("route: Premium (Combos) with KALSHI_DATA_PERMISSION=true only; origin-checked and validated", async () => {
     const { GET, POST } = await import("@/app/api/combos/kalshi/route");
-    vi.stubEnv("KALSHI_DATA_PERMISSION", "true");
-    expect(await (await GET()).json()).toEqual({ enabled: false });
     const req = () => new Request("http://localhost/api/combos/kalshi", { method: "POST", headers: { origin: "http://localhost" }, body: JSON.stringify({ legs }) });
+    expect(await (await GET()).json()).toEqual({ enabled: false });   // flag off: off even for Premium
     expect((await POST(req())).status).toBe(404);
-    vi.unstubAllEnvs();
-    hb.beta = true;   // a tester: on with the flag off, still origin-checked and validated
+    hb.tier = "pro";
+    vi.stubEnv("KALSHI_DATA_PERMISSION", "true");
+    expect(await (await GET()).json()).toEqual({ enabled: false });   // no Combos on Pro
+    expect((await POST(req())).status).toBe(404);
+    hb.tier = "premium";
     expect(await (await GET()).json()).toEqual({ enabled: true });
     expect((await POST(new Request("http://localhost/api/combos/kalshi", { method: "POST", headers: { origin: "https://evil.test" }, body: "{}" }))).status).toBe(403);
     expect((await POST(new Request("http://localhost/api/combos/kalshi", { method: "POST", headers: { origin: "http://localhost" }, body: JSON.stringify({ legs: [legs[0]] }) }))).status).toBe(400);

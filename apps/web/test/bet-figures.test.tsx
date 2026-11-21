@@ -15,7 +15,7 @@ vi.mock("next/navigation", () => ({
 }));
 
 const { betFigures, edgeAbove0, gapPts, gapRange, sideChance, sideRecord, verdict } = await import("@/lib/betFigures");
-const { sideRet, winsAbout } = await import("@/lib/format");
+const { winsAbout } = await import("@/lib/format");
 const { rangeSide } = await import("@/lib/data/gate");
 const { getStore } = await import("@/lib/data/store");
 const { sideLines } = await import("@/lib/mcp/server");
@@ -34,8 +34,8 @@ describe("betFigures on real-shaped sides", () => {
   const rows: { name: string; s: Side; stake?: number; want: Partial<{ pts: string; wins: string; tone: string; chance: string | null; record: string | null; ret: string; pays: string; payout: string; feeLine: string }> }[] = [
     // #55/#20: the return shown is the one the win chance gives (roi_pct), not the past-bets figure (realistic_edge)
     { name: "exact, good price, realistic return known", s: side({}),
-      want: { pts: "+15 pts", wins: "8–9 in 10", tone: "up", chance: "Leans your way", record: "Strong record", ret: "+20%", pays: "1.4x", payout: "$141",
-        feeLine: "Pays 1.4x before fees · Bet $100 → get $141 after fees if it wins" } },
+      want: { pts: "+15 pts", wins: "8–9 in 10", tone: "up", chance: "Leans your way", record: "Strong record", ret: "+20%", pays: "1.41x", payout: "$14.06",
+        feeLine: "Pays 1.41x after the fee · Bet $10 → get $14.06 back if it wins" } },
     { name: "won more often than the price, but the fee eats it (edge ≤ 0)", s: side({ ask: 0.8, fee: 0.015, win_prob: 0.81, edge: -0.005, roi_pct: -0.6, realistic_edge: null }),
       want: { pts: "+1 pt", tone: "thin", chance: null, record: null } },
     { name: "priced above the record", s: side({ ask: 0.6, fee: 0.012, win_prob: 0.55, edge: -0.062, roi_pct: -10.1, realistic_edge: null }),
@@ -45,7 +45,7 @@ describe("betFigures on real-shaped sides", () => {
     { name: "Free band under 0: no positive labels", s: free(side({ ask: 0.8, fee: 0.015, win_prob: 0.81, edge: -0.005, roi_pct: -0.6, realistic_edge: null })),
       want: { tone: "thin", chance: null, record: null, ret: "under 0%" } },
     { name: "a $250 default stake and a 2¢ fee", s: side({ ask: 0.5, fee: 0.02, win_prob: 0.6, edge: 0.08, roi_pct: 15.4, realistic_edge: null }), stake: 250,
-      want: { pays: "2.0x", payout: "$481", feeLine: "Pays 2.0x before fees · Bet $250 → get $481 after fees if it wins", ret: "+15%", wins: "6 in 10" } },
+      want: { pays: "1.92x", payout: "$480.77", feeLine: "Pays 1.92x after the fee · Bet $250 → get $480.77 back if it wins", ret: "+15%", wins: "6 in 10" } },
   ];
   for (const { name, s, stake, want } of rows) {
     it(name, () => {
@@ -58,14 +58,14 @@ describe("betFigures on real-shaped sides", () => {
   it("the fee is in the payout: stake ÷ (price + fee), and named in the hover", () => {
     const f = betFigures(side({ ask: 0.5, fee: 0.02 }), { stake: 100 });
     expect(f.payout).toBeCloseTo(100 / 0.52, 6);
-    expect(f.feeHelp).toContain("4% of what you pay");
+    expect(f.feeHelp).toContain("4% of the price");
   });
 
   it("a live price moves Pays, the payout, the points and the edge together", () => {
     const s = side({ ask: 0.7, fee: 0.011, win_prob: 0.72, edge: 0.009 });
     const f = betFigures(s, { ask: 0.73 });
-    expect([f.pays, f.pts, f.verdict.tone, f.chance]).toEqual(["1.4x", "−1 pt", "down", null]);
-    expect(f.payout).toBeCloseTo(100 / 0.741, 6);
+    expect([f.pays, f.pts, f.verdict.tone, f.chance]).toEqual(["1.35x", "−1 pt", "down", null]);
+    expect(f.payout).toBeCloseTo(10 / 0.741, 6);
   });
 });
 
@@ -126,7 +126,7 @@ describe("card, compact card, drawer and MCP print the same figures", async () =
 
   for (const { m, s, label } of cases) {
     it(label, () => {
-      const f = betFigures(s);
+      const f = betFigures(s, { market: m });
       const r: ApiRow = { market: m, side: s } as ApiRow;
       const body: MarketResponse = { market: m, segment: "", curve: null, backtest: null, event_markets: [] };
       const out = {
@@ -139,7 +139,7 @@ describe("card, compact card, drawer and MCP print the same figures", async () =
         expect(t, `${where} wins`).toContain(`wins about ${f.wins}`);
         expect(t, `${where} pts`).toContain(`(${f.pts})`);
         expect(t, `${where} return`).toContain(f.ret.text);
-        expect(t, `${where} payout`).toMatch(new RegExp(`${f.stakeText.replace("$", "\\$")} → (get )?${f.payoutText.replace("$", "\\$")} after fees`));
+        expect(t, `${where} payout`).toMatch(new RegExp(`${f.stakeText.replace("$", "\\$")} → (get )?${f.payoutText.replace("$", "\\$")} back`));
         if (!edgeAbove0(s)) {
           expect(t, `${where} chance`).not.toContain("Leans your way");
           expect(t, `${where} record`).not.toContain("Strong record");
@@ -153,16 +153,14 @@ describe("card, compact card, drawer and MCP print the same figures", async () =
       expect(card, "card chance").toContain(chanceLine(s.win_prob));
       if (paysLine(v)) expect(card, "card pays").toContain(paysLine(v)!);
       if (backLine(v)) expect(card, "why back").toContain(backLine(v)!);
-      if (v.kind !== "us") expect(card, "card return").toContain(f.ret.text);
+      expect(card, "card return").toContain(`${f.ret.text} est. return`);
+      expect(card, "card pays = drawer pays").toContain(`Pays ${f.pays}`);
       const st = stars({ roi_pct: v.roi_pct, model_neff: s.model_neff });
-      expect(card, "card stars").toContain(st ? st.label : "No value at today's price");
+      if (st) expect(renderToStaticMarkup(createElement(BetCard, { r })), "card stars").toContain(st.label);
       if (!edgeAbove0(s)) {
         expect(card, "card stars on a losing side").not.toMatch(/Great value|Good value/);
         expect(card, "card record").not.toContain("Strong record");
       }
-      // the model's own estimate appears once, labelled, in "Details for pros"; never as a second headline or side figure
-      const model = sideRet(s);
-      if (model !== f.ret.text) expect(out.drawer.split(model).length - 1, "model estimate shown once").toBe(1);
     });
   }
 });

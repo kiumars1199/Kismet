@@ -1,5 +1,5 @@
 // Kismet MCP server (T-280): five read-only tools over the same data, gates and wording as the site.
-// Plans (docs/01 § Tiers): Premium unlimited (60 calls a minute), Pro 3 calls a day, Free none. Gating runs per
+// Plans (docs/01 § Tiers, lib/connector-plan.ts): Premium no daily cap (60 calls a minute), Pro 3 calls a day, Free none. Gating runs per
 // tools/call, not per HTTP request: initialize and tools/list are separate requests and stay open to any valid token.
 // No personalized picks (CLAUDE.md rule 4): every verdict is the public one; my_list is the user's own saved order.
 import "server-only";
@@ -19,12 +19,13 @@ import { BEST_BETS_VERDICTS, FilterState } from "@/lib/filters/state";
 import { Category } from "@/lib/schemas";
 import { basis, betLine, closesLine, edge, formatCount, money, pct, price, ret, testedLine } from "@/lib/format";
 import { betFigures, RETURN_LABEL_LONG, sideRecord } from "@/lib/betFigures";
-import { HIT_RATE_VS_PROFIT, siteProof } from "@/lib/proof";
+import { HIT_RATE_VS_PROFIT, liveBase, siteProof } from "@/lib/proof";
 import { PAYS_READ_TEXT, fmtRecord, paysRows, recordRows, tiles } from "@/lib/trackRecord";
 import { siteUrl } from "@/lib/site";
 import type { MarketsResponse } from "@/lib/api";
 import type { Side, StoreMarket } from "@/lib/types";
 import { userOf } from "./auth";
+import { CONNECTOR_PLANS_LINE, connectorAllowance } from "@/lib/connector-plan";
 
 export const MAX_LIMIT = 25;
 const LEVEL: Record<string, string> = { all: "all markets", cat: "category", niche: "niche", nmt: "niche + type" };   // as lib/format basis()
@@ -32,11 +33,11 @@ export const PRO_DAILY = RULES.mcp_pro_daily.limit;
 const pricing = () => `${siteUrl()}/pricing`;
 
 export const FREE_REFUSAL = () =>
-  `Using Kismet in Claude, ChatGPT or Cursor is part of Premium (Pro gets ${PRO_DAILY} calls a day to try it). ` +
-  `Your account is on the Free plan. Upgrade at ${pricing()} and then ask again.`;
+  `Using Kismet in Claude, ChatGPT or Cursor is not on the Free plan. ${CONNECTOR_PLANS_LINE.replace(" Not on Free.", "")} ` +
+  `Upgrade at ${pricing()} and then ask again.`;
 export const PRO_USED_UP = () =>
   `You've used today's Kismet calls: Pro includes ${PRO_DAILY} a day in AI assistants (a rolling 24 hours). ` +
-  `Premium has no daily cap. Upgrade at ${pricing()}, or use the site in the meantime: ${siteUrl()}.`;
+  `Premium: ${connectorAllowance("premium")}. Upgrade at ${pricing()}, or use the site in the meantime: ${siteUrl()}.`;
 
 /** Every tool answer ends with the site disclaimer (CLAUDE.md rule 5). */
 const done = (lines: (string | null | undefined | false)[], isError = false): CallToolResult => ({
@@ -95,13 +96,13 @@ const gated = <A,>(fn: (args: A, me: Me, store: Store) => Promise<CallToolResult
 
 const marketUrl = (m: Pick<StoreMarket, "id">) => `${siteUrl()}/m/${encodeURIComponent(m.id)}`;
 
-/** Where to bet: Kalshi only for beta testers (lib/beta.ts), like the site. */
+/** Where to bet: Kalshi when the site shows it (lib/beta.ts: KALSHI_DATA_PERMISSION=true). */
 const venue = (m: StoreMarket, me: Me) =>
-  m.kalshi_ticker && canBeta(me, "kalshi") ? `Kalshi (${m.kalshi_ticker}, beta)` : `Polymarket ${m.url}`;
+  m.kalshi_ticker && canBeta(me, "kalshi") ? `Kalshi (${m.kalshi_ticker})` : `Polymarket ${m.url}`;
 
 /** One market side, with its basis one line away (CLAUDE.md rule 3). */
 export function sideLines(m: StoreMarket, s: Side, now: number, n?: number): string[] {
-  const f = betFigures(s);   // T-289: the same figures and labels as the site's cards and drawer ($100 stake)
+  const f = betFigures(s, { market: m });   // T-289/QA-B: the same price, payout and return as the site's cards and drawer ($10 stake)
   const verdict = m.execution?.verdict;
   return [
     `${n ? `${n}. ` : ""}${m.question}`,
@@ -204,6 +205,7 @@ export async function getMarket(args: z.infer<typeof GetMarketInput>, me: Me, st
 export async function trackRecord(_args: unknown, _me: Me, store: Store): Promise<CallToolResult> {
   const b = store.backtest, r = chosenResult(b);
   const ledger = store.ledgerSummary;
+  const once = liveBase(ledger);   // QA-A #49: each bet once, like /status and /track-record
   return done([
     "How Kismet's Best bets did in a walk-forward test (each week judged only on what came before):",
     ...tiles(b).map((t) => `  ${t.label}: ${t.text} (every bet, no filter: ${t.baseline})`),
@@ -216,7 +218,7 @@ export async function trackRecord(_args: unknown, _me: Me, store: Store): Promis
     "",
     // T-290: the test return and the live record together, from the same helper as every page
     ...((p) => [p.test ?? "", p.live, `  Basis: ${p.help}`])(siteProof({ backtest: b, ledger, since: store.ledgerSince })),
-    ...(ledger && ledger.graded ? [`  Settled so far: ${formatCount(ledger.wins)} won, ${formatCount(ledger.losses)} lost${typeof ledger.avg_pnl === "number" ? `, ${edge(ledger.avg_pnl)} average profit per $1 share` : ""}.`] : []),
+    ...(once && once.graded ? [`  Settled so far: ${formatCount(once.wins)} won, ${formatCount(once.losses)} lost${typeof once.avg_pnl === "number" ? `, ${edge(once.avg_pnl)} average profit per $1 share` : ""}.`] : []),
     `  ${HIT_RATE_VS_PROFIT}`,
     `Full charts: ${siteUrl()}/track-record`,
   ]);

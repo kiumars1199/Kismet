@@ -6,7 +6,8 @@ import { getMe, type Me } from "@/lib/auth/server";
 import { freeView, gateMarket, gateMarkets } from "./gate";
 import { categoryRecord, curve, segmentOf } from "./model";
 import { FREE_BEST_BETS_A_DAY, can, type Tier } from "@/lib/entitlements";
-import { bestBetsRows } from "./counts";
+import { bestBetsRows, freeUsOn } from "./counts";
+export { freeUsOn };
 import { delayMin, rowCap } from "@/lib/settings-core";
 import { apply, nowFor, openOnly } from "@/lib/filters/apply";
 import { parse } from "@/lib/filters/url";
@@ -200,15 +201,6 @@ export function freeSample(store: Store, key: string, now = Date.now()): Set<str
       .slice(0, FREE_BEST_BETS_A_DAY)
       .map(([, id]) => id),
   );
-}
-
-const usEnough = new WeakMap<Store, boolean>();
-/** T-302 (docs/OVERHAUL.md §G2): Free's daily 10 come from the "On Polymarket US" set when it holds at least 10 bets;
- *  with fewer, the sample (and the Free list it filters) falls back to every Best bet so Free still gets 10. */
-export function freeUsOn(store: Store): boolean {
-  let v = usEnough.get(store);
-  if (v === undefined) usEnough.set(store, (v = bestBetsRows(store).length >= FREE_BEST_BETS_A_DAY));
-  return v;
 }
 
 /** Free Best bets: every match is counted (`total` is the real N for "Unlock all N bets"), but only the day's sample

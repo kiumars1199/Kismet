@@ -2,6 +2,8 @@
 // /alerts (F-11 demo): rule list, rule editor dialog, Inbox tab, dev-only "Run now".
 // /alerts?market=<id>&side=<i> opens the editor pre-filled for that market (the drawer's "Alert me").
 // /alerts?filters=<screener query> offers "Current filters" as a view. /alerts?tab=inbox opens the inbox.
+// #23/#64 (Marc, Nov 20): delivery is said plainly. The open tab checks every 2 minutes (bell + browser notification);
+// email is the server cron (/api/alerts/run, daily on the current Vercel plan), paid plans only, never in demo.
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { runAlertsNow } from "@/components/alerts/AlertRunner";
@@ -12,7 +14,9 @@ import { fetchMarket, fetchMarkets } from "@/lib/api";
 import { ago, formatCount, price, ret } from "@/lib/format";
 import { parse } from "@/lib/filters/url";
 import { askPermission } from "@/lib/notify";
-import { DEMO_MODE, getRepo } from "@/lib/repo";
+import { can as tierCan, useEntitlements } from "@/lib/entitlements";
+import { currentMe } from "@/lib/me";
+import { DEMO_MODE, getRepo, repoReady } from "@/lib/repo";
 import { useCollection } from "@/lib/repo/hooks";
 import type { AlertChannel, AlertRule } from "@/lib/repo/types";
 import type { Market } from "@/lib/types";
@@ -20,11 +24,42 @@ import { allViews, viewById } from "@/lib/views";
 
 const DEV = process.env.NODE_ENV !== "production";
 const DEMO = DEMO_MODE;   // demo runs alerts in the tab; "Run now" is a local test aid
+/** How alerts are delivered, said once (#23/#64). Email: the server check, once a day (vercel.json cron). */
+export const TAB_TEXT = "While Kismet is open in a tab, rules check every 2 minutes and alerts land in the bell (and as browser notifications if you allow them).";
+export const EMAIL_TEXT = "With email on, our servers also check once a day, even when Kismet is closed, and email you what's new. Anything already in your bell isn't emailed again.";
+
+/** Which channels a rule uses, in words: "inbox", "inbox + browser + email". */
+export function channelWords(channels: readonly AlertChannel[]): string {
+  return ["inbox", ...(channels.includes("push") ? ["browser"] : []), ...(channels.includes("email") ? ["email"] : [])].join(" + ");
+}
+
+/** Turns one channel on or off and leaves the others as they are. */
+export function toggleChannel(channels: readonly AlertChannel[], ch: AlertChannel, on: boolean): AlertChannel[] {
+  const rest = channels.filter((c) => c !== ch);
+  return on ? [...rest, ch] : rest;
+}
+
+/** True once the account's data has loaded (paid mode), so an empty list isn't shown before the rules arrive. */
+function useRepoLoaded(): boolean {
+  const [ready, setReady] = useState(DEMO);
+  useEffect(() => {
+    if (DEMO) return;
+    let on = true;
+    const done = () => { if (on) setReady(true); };
+    void repoReady.then(done);
+    const t = setTimeout(done, 8_000);   // a failed load: show what the browser has
+    return () => { on = false; clearTimeout(t); };
+  }, []);
+  return ready;
+}
 type Draft = Omit<AlertRule, "id" | "created_at" | "last_fired_at"> & { id?: string; view_id: string };
 
-const blank = (): Draft => ({
+/** Read at call time (the drawer's "Alert me" pre-fill runs before the plan may be known on first render). */
+const emailNow = () => !DEMO && tierCan(currentMe()?.tier ?? "free", "alerts");
+/** `email`: the plan gets email alerts, so a new rule starts with email on (one tap turns it off). */
+const blank = (email = false): Draft => ({
   name: "", enabled: true, kind: "preset_match", query: null, market_id: null, side_index: null, threshold: 1,
-  channels: [], webhook_url: null, cooldown_minutes: 60, quiet_hours: null, view_id: "builtin:best",
+  channels: email ? ["email"] : [], webhook_url: null, cooldown_minutes: 60, quiet_hours: null, view_id: "builtin:best",
 });
 
 function describe(r: AlertRule): string {
@@ -42,6 +77,9 @@ export function AlertsView() {
   const router = useRouter();
   const pathname = usePathname();
   const rules = useCollection("alert_rules");
+  const loaded = useRepoLoaded();
+  const { can } = useEntitlements();
+  const email = !DEMO && can("alerts");   // the server cron emails paid plans only
   const { events, unread } = useInbox();
   const [tab, setTab] = useState<"rules" | "inbox">(params.get("tab") === "inbox" ? "inbox" : "rules");
   const [draft, setDraft] = useState<Draft | null>(null);
@@ -55,8 +93,8 @@ export function AlertsView() {
     const side = params.get("side") === "1" ? 1 : params.get("side") === "0" ? 0 : null;
     fetchMarket(id).then(({ market: m }) => {
       const s = m.sides[side ?? m.best.side_index] ?? m.best;
-      setDraft({ ...blank(), kind: "market_price", name: `${s.outcome} · ${m.question}`.slice(0, 80), market_id: m.id, side_index: s.side_index, threshold: Math.max(0.01, Math.round((s.ask - 0.02) * 100) / 100), view_id: "" });
-    }, () => setDraft({ ...blank(), kind: "market_price", market_id: id, side_index: side, threshold: null, view_id: "" }));
+      setDraft({ ...blank(emailNow()), kind: "market_price", name: `${s.outcome} · ${m.question}`.slice(0, 80), market_id: m.id, side_index: s.side_index, threshold: Math.max(0.01, Math.round((s.ask - 0.02) * 100) / 100), view_id: "" });
+    }, () => setDraft({ ...blank(emailNow()), kind: "market_price", market_id: id, side_index: side, threshold: null, view_id: "" }));
     const p = new URLSearchParams(params);
     p.delete("market"); p.delete("side");
     router.replace(p.size ? `${pathname}?${p}` : pathname, { scroll: false });
@@ -72,19 +110,21 @@ export function AlertsView() {
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-6">
-      <PageTitle title="Alerts" sub="Rules check while Kismet is open in a tab, every 2 minutes. Alerts land in the bell and, if you allow it, as browser notifications.">
+      <PageTitle title="Alerts" sub={email ? `${TAB_TEXT} ${EMAIL_TEXT}` : TAB_TEXT}>
         {(DEV || DEMO) && <button type="button" className={btn} onClick={runNow} title="Demo and development only">Run now</button>}
-        <button type="button" className={btnPrimary} onClick={() => setDraft({ ...blank(), view_id: filters ? "current" : "builtin:best" })}>New alert</button>
+        <button type="button" className={btnPrimary} onClick={() => setDraft({ ...blank(email), view_id: filters ? "current" : "builtin:best" })}>New alert</button>
       </PageTitle>
       {runMsg && <p role="status" className="-mt-3 text-sm text-muted">{runMsg}</p>}
       <Tabs label="Alerts" value={tab} onChange={setTab} tabs={[{ value: "rules", label: `Rules (${rules.length})` }, { value: "inbox", label: unread ? `Inbox (${formatCount(unread)} new)` : "Inbox" }]} />
 
       {tab === "rules" ? (
-        !rules.length ? (
+        !rules.length && !loaded ? (
+          <div className={`${card} p-6 text-sm text-muted`} role="status" aria-busy="true">Loading your alerts…</div>
+        ) : !rules.length ? (
           <div className={`${card} flex flex-col items-start gap-3 p-6`}>
             <h2 className="text-lg font-semibold">No alert rules yet</h2>
             <p className="max-w-xl text-sm text-muted">Get told when a market enters one of your views, when a price drops to your target, when estimated return moves past a level, or when a saved market is about to close.</p>
-            <button type="button" className={btnPrimary} onClick={() => setDraft(blank())}>Create an alert</button>
+            <button type="button" className={btnPrimary} onClick={() => setDraft(blank(email))}>Create an alert</button>
           </div>
         ) : (
           <ul className={`${card} divide-y divide-border`}>
@@ -94,7 +134,7 @@ export function AlertsView() {
                 <div className="min-w-0 flex-1 basis-60">
                   <div className={`truncate font-medium ${r.enabled ? "" : "text-muted"}`}>{r.name}</div>
                   <div className="text-sm text-muted">{describe(r)}</div>
-                  <div className="text-xs text-muted">{KIND_LABEL[r.kind]} · cooldown {r.cooldown_minutes} min · {r.channels.includes("push") ? "inbox + browser" : "inbox"}{r.last_fired_at ? ` · last alert ${ago(Date.parse(r.last_fired_at) / 1000)}` : ""}</div>
+                  <div className="text-xs text-muted">{KIND_LABEL[r.kind]} · cooldown {r.cooldown_minutes} min · {channelWords(r.channels)}{r.last_fired_at ? ` · last alert ${ago(Date.parse(r.last_fired_at) / 1000)}` : ""}</div>
                 </div>
                 <div className="ml-auto flex gap-1">
                   <button type="button" className={btnGhost} onClick={() => edit(r)}>Edit</button>
@@ -113,7 +153,7 @@ export function AlertsView() {
           <InboxList events={events} />
         </section>
       )}
-      <RuleEditor draft={draft} filters={filters} onClose={() => setDraft(null)} />
+      <RuleEditor draft={draft} filters={filters} email={email} onClose={() => setDraft(null)} />
     </div>
   );
 }
@@ -149,7 +189,7 @@ function MarketPicker({ marketId, onPick }: { marketId: string | null; onPick: (
   );
 }
 
-function RuleEditor({ draft, filters, onClose }: { draft: Draft | null; filters: string | null; onClose: () => void }) {
+function RuleEditor({ draft, filters, email, onClose }: { draft: Draft | null; filters: string | null; email: boolean; onClose: () => void }) {
   const presets = useCollection("presets");
   const [d, setD] = useState<Draft>(blank());
   const [sides, setSides] = useState<string[]>(["Yes", "No"]);
@@ -184,7 +224,7 @@ function RuleEditor({ draft, filters, onClose }: { draft: Draft | null; filters:
   };
 
   const toggleBrowser = async (on: boolean) => {
-    set({ channels: on ? ["push" as AlertChannel] : [] });
+    setD((x) => ({ ...x, channels: toggleChannel(x.channels, "push", on) }));
     if (on) await askPermission();   // only on this user action, never on page load
   };
 
@@ -259,7 +299,8 @@ function RuleEditor({ draft, filters, onClose }: { draft: Draft | null; filters:
 
         <div className="flex flex-col gap-3 rounded-inner border border-border p-3">
           <div className="flex items-center justify-between gap-3 text-sm"><span>In-app inbox (bell)</span><span className="text-muted">Always on</span></div>
-          <div className="flex items-center justify-between gap-3 text-sm"><span>Browser notification</span><Switch label="Browser notification" checked={d.channels.includes("push")} onChange={toggleBrowser} /></div>
+          <div className="flex items-center justify-between gap-3 text-sm"><span>Browser notification<span className="block text-xs text-muted">While Kismet is open in a tab</span></span><Switch label="Browser notification" checked={d.channels.includes("push")} onChange={toggleBrowser} /></div>
+          {email && <div className="flex items-center justify-between gap-3 text-sm"><span>Email<span className="block text-xs text-muted">Checked once a day, even when Kismet is closed</span></span><Switch label="Email" checked={d.channels.includes("email")} onChange={(v) => setD((x) => ({ ...x, channels: toggleChannel(x.channels, "email", v) }))} /></div>}
           <div className="flex items-center justify-between gap-3 text-sm"><span>Rule on</span><Switch label="Rule on" checked={d.enabled} onChange={(v) => set({ enabled: v })} /></div>
         </div>
 

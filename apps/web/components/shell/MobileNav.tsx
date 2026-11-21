@@ -4,23 +4,24 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { BETA_LINKS, MAIN_TABS, MORE_LINKS, SALES_TABS, isActive } from "./nav";
-import { useMe } from "@/lib/me";
+import { headerView, useMe, type HeaderHint } from "@/lib/me";
+import { BETA_FEATURES } from "@/lib/beta-list";
 import { BetaBadge } from "@/components/beta/BetaBadge";
-import { useEntitlements } from "@/lib/entitlements";
 
 // Mobile (<768px) bottom tab bar: Best bets · All markets · My list · More (docs/06 § App shell).
-export function MobileNav({ signedOutHint = false }: { signedOutHint?: boolean }) {
+export function MobileNav({ signedOutHint = false, hint = null }: { signedOutHint?: boolean; hint?: HeaderHint | null }) {
   const pathname = usePathname();
   const dialog = useRef<HTMLDialogElement>(null);
   useEffect(() => dialog.current?.close(), [pathname]);
-  const { canBeta } = useEntitlements();
-  const beta = BETA_LINKS.filter((l) => canBeta(l.feature));
-  const moreActive = [...MORE_LINKS, ...beta].some((l) => isActive(pathname, l.href));
+  const me = useMe();
+  const view = headerView(me, hint);   // #17/#73: the same links as the desktop header, decided on the server
+  const beta = BETA_LINKS.filter((l) => view?.nav.includes(l.feature));
+  const admin = view?.admin ? [{ href: "/admin", label: "Admin" }] : [];   // the header's Admin link is hidden on phones
+  const moreActive = [...MORE_LINKS, ...beta, ...admin].some((l) => isActive(pathname, l.href));
   const tab = "relative flex min-h-11 items-center justify-center py-2.5";
   // P7: the current tab is bright text plus a short accent bar on top, so it reads at a glance
   const on = "font-medium text-text before:absolute before:inset-x-5 before:-top-1 before:h-0.5 before:rounded-full before:bg-accent";
-  const me = useMe();
-  if (me ? me.auth && !me.user : signedOutHint) {   // before /api/me answers: the layout's hint (T-295)
+  if (me ? me.auth && !me.user : hint ? !hint.signedIn : signedOutHint) {   // before /api/me answers: the layout's hint (T-295)
     // T-276: signed out, the app tabs only lead to the sign-up wall; show the sales pages and sign-up instead.
     return (
       <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-border bg-background pb-[max(env(safe-area-inset-bottom),8px)] pt-1 text-[13px] md:hidden">
@@ -69,10 +70,17 @@ export function MobileNav({ signedOutHint = false }: { signedOutHint?: boolean }
               </Link>
             </li>
           ))}
+          {admin.map((l) => (
+            <li key={l.href}>
+              <Link href={l.href} aria-current={isActive(pathname, l.href) ? "page" : undefined} className="block rounded-card px-3 py-3 hover:bg-raised aria-[current=page]:text-accent">
+                {l.label}
+              </Link>
+            </li>
+          ))}
           {beta.map((l) => (
             <li key={l.href}>
               <Link href={l.href} aria-current={isActive(pathname, l.href) ? "page" : undefined} className="flex items-center gap-2 rounded-card px-3 py-3 hover:bg-raised aria-[current=page]:text-accent">
-                {l.label} <BetaBadge variant="pill" />
+                {l.label}{BETA_FEATURES.includes(l.feature) && <BetaBadge variant="pill" />}
               </Link>
             </li>
           ))}

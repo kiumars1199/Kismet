@@ -5,10 +5,11 @@
 // no "edge", "spread", "model", "pts"; counts stay under four digits.
 import { useState, type ReactNode } from "react";
 import type { ApiRow } from "@/lib/api";
-import { backLine, cardVenue, STAKE, INTL_ONLY, NOT_FOR_US, priceText, stars, starsHelp, type CardVenue } from "@/lib/card";
+import { betQuote, quoteStars } from "@/lib/betFigures";
+import { backLine, cardVenue, STAKE, INTL_ONLY, NOT_FOR_US, starsHelp } from "@/lib/card";
 import { paysBand } from "@/lib/filters/bands";   // not ./apply: zod on the landing (T-295)
-import { cardReturn, costPct, ESTIMATE_HELP, money, PAST_RETURN_HELP, pastReturnLine, pct, ret, testedLine } from "@/lib/format";
-import { noLiveRecord } from "@/lib/proof";
+import { costPct, ESTIMATE_HELP, money, pct, ret } from "@/lib/format";
+import { noLiveRecord, type Proof } from "@/lib/proof";
 import type { Execution, Market, Side } from "@/lib/types";
 import dynamic from "next/dynamic";
 // T-295: the star sits inside the closed "Why this bet?" body, so it loads on its own (keeps the landing under 150 kB)
@@ -39,14 +40,33 @@ function basisWords(m: Pick<Market, "category" | "niche" | "tags" | "market_type
 /** "about 240 similar past bets"; never a four-digit count on a card. */
 const pastBets = (n: number) => (n >= 1000 ? "over a thousand similar past bets" : `about ${Math.max(1, Math.round(n))} similar past bets`);
 
-/** Free sees the US return as its band's low end (lib/data/gate.ts ROI cuts): say the band, never a made-up exact. */
-function usReturnText(v: Extract<CardVenue, { kind: "us" }>, banded: boolean): string | null {
-  if (v.roi_pct == null) return null;
-  if (!banded) return ret(v.roi_pct);
-  const cuts = [0, 5, 10, 20, 50];
-  if (v.roi_pct < 0) return "below 0%";
-  const hi = cuts.find((c) => c > v.roi_pct!);
-  return hi === undefined ? `${v.roi_pct}% or more` : `${v.roi_pct}–${hi}%`;
+/** A count in words that never shows four digits on a card (lib/banned.ts): 240 → "240", 8,312 → "over 8 thousand". */
+const countWords = (n: number) => (n >= 1000 ? `over ${Math.floor(n / 1000)} thousand` : `${Math.round(n)}`);
+
+/** The tested record for this bet's payout band, with its sample size (QA-B #14/#51). Under TESTED_MIN bets it says
+ *  so instead of showing a return: one tiny band (5 bets, +372%) next to another (−42%) reads as a contradiction. */
+export const TESTED_MIN = 30;   // the same bar as Results' "Too few bets to tell" (lib/trackRecord paysRead)
+export function bandTested(r: { flags?: number; win_rate?: number; roi_pct?: number } | null | undefined): { text: string; lost: boolean } {
+  const n = r?.flags ?? 0;
+  if (!r || !n || typeof r.roi_pct !== "number") return { text: "no tested bets at this payout yet", lost: false };
+  const bets = `${countWords(n)} tested bet${n === 1 ? "" : "s"}`;
+  if (n < TESTED_MIN) return { text: `too few tested bets to show a return (${bets})`, lost: false };
+  const won = typeof r.win_rate === "number" ? `, won ${pct(r.win_rate)}` : "";
+  return { text: `${ret(r.roi_pct)} over ${bets}${won}${r.roi_pct < 0 ? " (lost money)" : ""}`, lost: r.roi_pct < 0 };
+}
+
+/** The live record beside it: every best bet, all payouts (the ledger isn't split by payout band), with its count. */
+export function liveSoFar(p: Proof | undefined): { text: string; note: string } {
+  if (!p || !p.settled || p.liveRoi === null) return { text: "No settled bets yet", note: "Best bets are logged when shown and graded as their markets settle." };
+  return {
+    text: `${ret(p.liveRoi)} over ${countWords(p.settled)} settled best bet${p.settled === 1 ? "" : "s"}`,
+    note: `All payouts together; not split by payout yet. ${calibrationNote(p.live)}`.trim(),
+  };
+}
+/** lib/proof calibration()'s sentence, when the proof line carries one. */
+function calibrationNote(live: string): string {
+  const why = /Why live trails testing: (.*)$/.exec(live)?.[1];
+  return why ? `Why it trails testing: ${why}` : "";
 }
 
 /** Quiet price warnings, in plain words (lib/data verdicts; no "spread"). */
@@ -92,22 +112,22 @@ export function Why({ r, livePrice }: { r: ApiRow; livePrice?: ReactNode }) {
   const v = cardVenue(m, s);
   const banded = !!s.ranges;
   const back = backLine(v) !== null;
-  const st = stars({ roi_pct: v.roi_pct, model_neff: s.model_neff });
+  const st = quoteStars(betQuote(m, s), s.model_neff);
   const band = paysBand({ ask: v.ask ?? s.ask });
   // #14/#51 (Mark, Nov 20): say which group the test record is (Best bets vs lower-confidence bets, at this payout) so it
   // can't be read as contradicting /track-record, which shows Best bets; and when that group lost money in testing
   // while this bet's estimate is positive, say plainly that the estimate is the less trustworthy of the two.
+  // QA-B #14/#51: one tested figure per payout band, from the same by_pays record as /track-record "By payout"
   const bandRec = band ? bt?.chosen?.by_pays?.[m.tier ?? "best"]?.[band] : undefined;
   const bandWords = band ? ({ "<1.5x": "under 1.5x", "10x+": "10x or more" } as Record<string, string>)[band] ?? band.replace("-", "–") : null;
-  const group = `${m.tier === "edge" ? "Lower-confidence bets" : "Best bets"}${bandWords ? ` paying ${bandWords}` : ""}`;
-  const tested = testedLine(bandRec, group);
-  const estRoi = v.kind === "us" ? v.roi_pct : cardReturn(s).roi;
-  const clash = !!bandRec?.flags && (bandRec.roi_pct ?? 0) < 0 && (estRoi ?? 0) > 0;
+  // bands are 1 ÷ price, before the fee (backtest by_pays), so the label says so and can't contradict the card's after-fee "Pays"
+  const group = `${m.tier === "edge" ? "Lower-confidence bets" : "Best bets"}${bandWords ? ` paying ${bandWords} before the fee` : ""}`;
+  const tested = bt ? bandTested(bandRec) : null;
+  const q = betQuote(m, s);   // the card's one payout and return (QA-B #55/#20/#37/#54)
+  const clash = !!tested?.lost && (q.roi ?? 0) > 0;
+  const live = bt ? liveSoFar(bt.proof) : null;
   const intl = venueOf(m);
   const notes = priceNotes(m.execution);
-  const usRet = v.kind === "us" ? usReturnText(v, banded) : null;
-  // the past-bets figure is priced at the international ask; beside a US price it would compare two different prices
-  const past = v.kind === "us" ? null : pastReturnLine(s);
   return (
     <details data-testid="why" className="group relative z-10 rounded-xl border border-border/70 bg-background/40 open:bg-background/60"
       onClick={(e) => e.stopPropagation()}>
@@ -122,33 +142,36 @@ export function Why({ r, livePrice }: { r: ApiRow; livePrice?: ReactNode }) {
         <dl>
           <Line label="Value" testid="why-value">{st ? st.label : "No value at today's price"}<span className="block text-xs text-muted">{starsHelp(st)}</span></Line>
           <Line label="Our estimate">Wins {pct(s.win_prob)} of the time{banded ? " (rounded down)" : ""}</Line>
-          <Line label="Pays">
-            {v.kind === "us"
-              ? <>{v.ask == null ? "No Polymarket US price right now" : <>{priceText(v.ask)} on Polymarket US, before its {costPct(v.fee, v.ask)} fee</>}</>
-              : <>{priceText(s.ask)} on Polymarket, before its {costPct(s.fee, s.ask)} fee</>}
+          <Line label="Pays" testid="why-pays">
+            {q.paysText === null
+              ? "No Polymarket US price right now"
+              : <><span data-testid="why-pays-x">{q.paysText}</span> after the fee
+                <span className="block text-xs text-muted">Price {pct(q.ask)} plus {v.kind === "us" ? "Polymarket US's" : "Polymarket's"} {costPct(q.fee, q.ask)} fee</span></>}
             {livePrice}
           </Line>
-          <Line label="Estimated return">
-            <span data-testid="why-return">{v.kind === "us" ? (usRet ?? "No Polymarket US price right now") : cardReturn(s).text}</span>
-            <span className="block text-xs text-muted">{ESTIMATE_HELP}</span>
+          <Line label="Estimated return" testid="why-est">
+            <span data-testid="why-return">{q.paysText === null ? "No Polymarket US price right now" : q.retText}</span>
+            <span className="block text-xs text-muted">
+              {q.math ? <span data-testid="why-math">{q.math}. </span> : banded ? "Free shows a range. " : null}
+              {ESTIMATE_HELP} Based on {pastBets(s.model_neff)} in {basisWords(m, s)}.
+            </span>
           </Line>
-          {past && (
-            <Line label="Similar past bets" testid="why-past">
-              <span data-testid="why-past-return">{past}</span>
-              <span className="block text-xs text-muted">{PAST_RETURN_HELP}</span>
-            </Line>
-          )}
+          <Line label="Similar past bets in testing" testid="why-tested">
+            {tested
+              ? <span data-testid="band-record">{group}: {tested.text}</span>
+              : <span className="text-muted">Loading…</span>}
+            {clash && <span data-testid="band-clash" className="block text-xs text-warning">Bets like this lost money in testing, so treat the estimated return above with caution.</span>}
+          </Line>
+          <Line label="Live record so far" testid="why-live">
+            {m.tier === "edge"
+              ? <span data-testid="band-live" className="cursor-help underline decoration-dotted underline-offset-4" title={noLiveRecord("lower-confidence bets")}>No live record for lower-confidence bets yet</span>
+              : live
+                ? <span data-testid="live-record">{live.text}<span className="block text-xs text-muted">{live.note}</span></span>
+                : <span className="text-muted">Loading…</span>}
+          </Line>
           <Line label="How sure we are" testid="why-basis">
             {s.model_neff >= 100 ? "Plenty of history" : "Little history"}: based on {pastBets(s.model_neff)} in {basisWords(m, s)}
           </Line>
-          {tested && (
-            <Line label="In testing" testid="why-tested">
-              <span data-testid="band-record">{tested}</span>
-              {clash && <span data-testid="band-clash" className="block text-xs text-warning">Bets like this lost money in testing, so treat the estimated return above with caution.</span>}
-              {/* T-290: a test record with no live counterpart says so instead of borrowing the best-bets record */}
-              {m.tier === "edge" && <span data-testid="band-live" className="block cursor-help text-xs text-muted underline decoration-dotted underline-offset-4" title={noLiveRecord("lower-confidence bets")}>No live record yet</span>}
-            </Line>
-          )}
           {m.tier === "edge" && <Line label="Confidence">Lower: the price beats past results by less than our cautious estimate needs.</Line>}
         </dl>
         {notes.length > 0 && <ul className="mt-1 space-y-0.5 text-xs text-warning">{notes.map((n) => <li key={n}>{n}</li>)}</ul>}

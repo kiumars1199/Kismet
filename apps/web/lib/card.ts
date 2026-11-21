@@ -281,10 +281,10 @@ export function on10(q: { ask: number | null; fee: number | null }, stake: numbe
 /** The card's money line as the multiplier bettors read (Q, Nov 20): "Pays 1.53x", after the fee. */
 export function paysLine(q: { ask: number | null; fee: number | null }): string | null {
   const r = on10(q);
-  if (!r) return null;
-  const x = r.back / STAKE;
-  return `Pays ${x >= 100 ? Math.round(x) : x >= 10 ? x.toFixed(1).replace(/\.0$/, "") : x.toFixed(2)}x`;
+  return r ? `Pays ${multX(r.back / STAKE)}` : null;
 }
+/** A payout multiplier as every surface prints it: 1.391 → "1.39x", 12.34 → "12.3x", 150 → "150x". */
+export const multX = (x: number) => `${x >= 100 ? Math.round(x) : x >= 10 ? x.toFixed(1).replace(/\.0$/, "") : x.toFixed(2)}x`;
 /** Win chance as a plain percentage: 0.876 → "88% chance to win". */
 export function chanceLine(p: number | null | undefined): string {
   if (!ok(p) || p <= 0) return "—";
@@ -293,7 +293,7 @@ export function chanceLine(p: number | null | undefined): string {
   return `${Math.round(p * 100)}% chance to win`;
 }
 const cents = (x: number) => `$${x.toFixed(2)}`;
-const dollars = (x: number) => (x >= 1000 ? money(x) : cents(x));
+export const dollars = (x: number) => (x >= 1000 ? money(x) : cents(x));
 /** "$10 wins $5.60": profit after fees on a $10 stake (the card's one money line). */
 export function winsLine(q: { ask: number | null; fee: number | null }): string | null {
   const r = on10(q);

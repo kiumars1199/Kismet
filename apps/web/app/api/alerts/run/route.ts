@@ -1,4 +1,6 @@
-// /api/alerts/run — server alert evaluator, Vercel Cron every 5 min (docs/05 F-11, docs/10 T-45, apps/web/vercel.json).
+// /api/alerts/run — server alert evaluator, Vercel Cron (docs/05 F-11, docs/10 T-45, apps/web/vercel.json).
+// Schedule: once a day ("0 13 * * *"), since a Hobby project rejects sub-daily crons (docs/setup-notes/ops.md). The
+// alerts page and /pricing say "once a day" (#23/#64): change that copy if this schedule changes.
 // Vercel Cron sends GET; POST is kept for manual runs and the post-scan trigger. Both need the cron secret.
 // Evaluates every user's enabled Supabase alert_rules with the service role (lib/alerts-server.ts).
 import { runServerAlerts } from "@/lib/alerts-server";

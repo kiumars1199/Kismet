@@ -7,6 +7,7 @@ import { fetchMeta } from "@/lib/api-core";   // not @/lib/api: zod on every pag
 import { ago, behindWords } from "@/lib/format";
 import { REFRESH_WORDS, freshness } from "@/lib/freshness";
 import { usePageScan } from "@/lib/scanClock";
+import { useNow } from "@/components/clock";
 
 const DOT = { fresh: "bg-accent", amber: "bg-warning", red: "bg-negative" } as const;
 const TEXT = { fresh: "text-muted", amber: "text-warning", red: "text-negative" } as const;
@@ -14,20 +15,19 @@ const TEXT = { fresh: "text-muted", amber: "text-warning", red: "text-negative" 
 export function FreshnessPill({ scannedAt: initial }: { scannedAt?: number }) {
   const [scannedAt, setScannedAt] = useState(initial);
   const [delay, setDelay] = useState(0);
-  const [now, setNow] = useState<number | null>(null);
+  const now = useNow(30_000);   // QA-A #34/#67: the page's one clock, so the pill's age and the body's tick together
 
   useEffect(() => {
     const load = () => fetchMeta().then((m) => { setScannedAt(m.meta.scanned_at); setDelay(m.delay_min ?? 0); }).catch(() => {});
     if (initial === undefined) load();
-    setNow(Date.now());
-    const tick = setInterval(() => setNow(Date.now()), 60_000);
     const refetch = setInterval(load, 5 * 60_000);
-    return () => { clearInterval(tick); clearInterval(refetch); };
+    return () => clearInterval(refetch);
   }, [initial]);
 
   // QA-A #46: on a page built from a scan, name that scan (the body's), not whatever /api/meta's server holds
   const shown = usePageScan() ?? scannedAt;
-  if (shown === undefined || now === null) return null;
+  // #17/#73: until /api/meta answers, hold the pill's place, so the header doesn't shift when it appears
+  if (shown === undefined) return <span aria-hidden="true" data-testid="freshness-pending" className="h-11 w-20 flex-none" />;
   const level = freshness(shown, now);
   const when = ago(shown, now);
   const behind = delay > 0 ? ` On the Free plan you see prices ${behindWords(delay)}.` : "";

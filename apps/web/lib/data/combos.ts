@@ -1,7 +1,8 @@
-// Suggested combos (docs/18 §5.2): the same for everyone. Tier-"best" bets on different events that close within
-// 24 h; the top 5 two-leg and three-leg combos by return whose cautious chance Q_low still beats the price.
+// Suggested combos (docs/18 §5.2): the same for everyone. Tier-"best" bets on different events (by event id) that
+// close within a day of the request, never one whose title names a day that is already over (Marc #42/#52); the top 5
+// two-leg and three-leg combos by return whose cautious chance Q_low still beats the price.
 // A leg count whose combo backtest lost money (or was never tested) is left out.
-import { combo, legOf, type Combo, type ComboPays, type Leg } from "@/lib/combos";
+import { closesWithinDay, combo, legOf, pastDated, type Combo, type ComboPays, type Leg } from "@/lib/combos";
 export { COMBO_PAYS, type ComboPays } from "@/lib/combos";
 import { band } from "@/lib/data/gate";
 import { can, type Tier } from "@/lib/entitlements";
@@ -24,8 +25,12 @@ function* choose<T>(xs: T[], k: number, start = 0, acc: T[] = []): Generator<T[]
   for (let i = start; i < xs.length; i++) yield* choose(xs, k, i + 1, [...acc, xs[i]!]);
 }
 
+/** Every leg still closes within a day of `now` and names no day that is over. Re-checked per request: the cached
+ *  combos live as long as the store, and the clock moves on. */
+const legOk = (l: Pick<Leg, "question" | "event">, closesAt: number, now: number) =>
+  closesWithinDay(closesAt, now) && !pastDated(`${l.question} ${l.event}`, now, closesAt);
 const open = (store: Store, groups: ComboGroup[], now: number) =>
-  groups.map((g) => ({ ...g, combos: g.combos.filter((c) => c.items.every((l) => (store.byId.get(l.market_id)?.closes_at ?? 0) > now)) })).filter((g) => g.combos.length);
+  groups.map((g) => ({ ...g, combos: g.combos.filter((c) => c.items.every((l) => legOk(l, store.byId.get(l.market_id)?.closes_at ?? 0, now))) })).filter((g) => g.combos.length);
 
 /** Every combo with an edge, by leg count (best return first), for leg counts whose combo backtest made money. */
 function allCombos(store: Store): ComboGroup[] {
@@ -36,7 +41,7 @@ function allCombos(store: Store): ComboGroup[] {
   const perEvent = new Map<string, Leg & { roi: number }>();
   for (const m of store.flags) {
     const v = m.execution?.verdict;
-    if ((m.tier ?? "best") !== "best" || (v !== "worth it" && v !== "thin") || !(m.hours_to_close > 0 && m.hours_to_close <= 24) || m.closes_at <= now) continue;
+    if ((m.tier ?? "best") !== "best" || (v !== "worth it" && v !== "thin") || !legOk(m, m.closes_at, now)) continue;
     const s = m.best;
     const cur = perEvent.get(m.event_id);
     if (!cur || s.roi_pct > cur.roi) perEvent.set(m.event_id, { ...legOf(m, s), roi: s.roi_pct });
@@ -61,12 +66,11 @@ function allCombos(store: Store): ComboGroup[] {
 
 export function suggestCombos(store: Store): ComboGroup[] {
   const now = nowFor(store);
-  // a leg that closed since the cache was built takes its combos with it (the cache lives as long as the store)
-  const hit = cache.get(store);
-  if (hit) return open(store, hit, now);
-  const groups = allCombos(store).map((g) => ({ ...g, combos: g.combos.slice(0, TOP) }));
-  cache.set(store, groups);
-  return groups;
+  // a leg that closed (or left the day) since the cache was built takes its combos with it; allCombos may have been
+  // built for an earlier request, so the check runs on a fresh build too
+  let groups = cache.get(store);
+  if (!groups) cache.set(store, (groups = allCombos(store).map((g) => ({ ...g, combos: g.combos.slice(0, TOP) }))));
+  return open(store, groups, now);
 }
 
 /** Combos page: the top combos per leg count that pay at least `minPays` (same legs and rules as the Best bets row). */

@@ -5,7 +5,7 @@
 // all (very first request, no Vercel header) clock times render as a hidden same-width placeholder until mount, never
 // as a wrong time. Relative times ("closes in 3h") only need "now", so they always render.
 import { createContext, useContext, useEffect, useState, useSyncExternalStore, type ReactNode } from "react";
-import { closesIn, closesLine, gameTime } from "@/lib/format";
+import { ago, closesIn, closesLine, gameTime } from "@/lib/format";
 import { validZone } from "@/lib/zone";
 
 interface Clock { zone: string | null; now: number | null }
@@ -79,4 +79,10 @@ export function ClosesIn({ at }: { at: number | null | undefined }) {
 /** "closes in 3h" / "Closed" from the shared clock. */
 export function ClosesLine({ at, cap = false }: { at: number | null | undefined; cap?: boolean }) {
   return <>{closesLine(at, useNow(), cap)}</>;
+}
+
+/** QA-A #34/#44/#67: "12 min ago" that keeps counting while the page stays open (a server-rendered age froze at the
+ *  render time). Same clock as every other time on the page. */
+export function Ago({ at }: { at: number | null | undefined }) {
+  return <span data-ago="">{ago(at, useNow(30_000))}</span>;
 }

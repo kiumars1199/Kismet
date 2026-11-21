@@ -6,9 +6,13 @@ import { compLive } from "@/lib/entitlements";
 afterEach(() => { vi.unstubAllEnvs(); vi.resetModules(); vi.doUnmock("@/lib/beta-list"); });
 
 describe("canBeta", () => {
-  it("beta features: testers on any plan, nobody else (not even Premium, not even with Kalshi's flag on)", async () => {
+  it("Nov 21 (owner decision): nothing is in beta any more", async () => {
+    const { BETA_FEATURES } = await import("@/lib/beta");
+    expect(BETA_FEATURES).toEqual([]);
+  });
+  it("while a feature is in beta: testers on any plan, nobody else (not even Premium, not even with Kalshi's flag on)", async () => {
+    vi.doMock("@/lib/beta-list", () => ({ BETA_FEATURES: ["combos", "kalshi"] }));
     const { canBeta, BETA_FEATURES } = await import("@/lib/beta");
-    expect([...BETA_FEATURES].sort()).toEqual(["combos", "kalshi"]);
     vi.stubEnv("KALSHI_DATA_PERMISSION", "true");
     for (const f of BETA_FEATURES) {
       expect(canBeta({ tier: "free", beta: true }, f), f).toBe(true);
@@ -16,14 +20,14 @@ describe("canBeta", () => {
       expect(canBeta({ tier: "premium" }, f), f).toBe(false);
     }
   });
-  it("after launch (removed from the list): combos = Premium, Kalshi = the permission flag", async () => {
-    vi.doMock("@/lib/beta-list", () => ({ BETA_FEATURES: [] }));
+  it("live: combos = Premium, Kalshi = the permission flag on every plan (server only: the nav gets it from /api/me)", async () => {
     const { canBeta } = await import("@/lib/beta");
     expect(canBeta({ tier: "premium" }, "combos")).toBe(true);
     expect(canBeta({ tier: "pro", beta: true }, "combos")).toBe(false);
     expect(canBeta({ tier: "premium", beta: true }, "kalshi")).toBe(false);
     vi.stubEnv("KALSHI_DATA_PERMISSION", "true");
     expect(canBeta({ tier: "free" }, "kalshi")).toBe(true);
+    expect(canBeta({ tier: "pro" }, "kalshi")).toBe(true);
   });
 });
 

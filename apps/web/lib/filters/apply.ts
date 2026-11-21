@@ -9,6 +9,7 @@ import { tierOf, type FilterState, type SortKey } from "./state";
 import { PAYS_BANDS, band, paysBand } from "./bands";
 export { PAYS_BANDS, paysBand };   // T-295: moved to ./bands (light, for the bet cards)
 import { onUs, usActive, usRoi } from "./us";
+import { betQuote } from "@/lib/betFigures";
 
 export const GROUP_ROWS = 4;
 export interface UserCtx { watchlist: Set<string>; favoriteTopics: string[] }
@@ -95,6 +96,10 @@ export function pickSide(m: StoreMarket, side: FilterState["side"]): Side | unde
 /** Payout multiplier per $1 staked, before fee (docs/13): 1 / ask. */
 export const paysOf = (s: Pick<Side, "ask">) => (s.ask > 0 ? 1 / s.ask : null);
 
+/** QA-A #69: what "Biggest payout" sorts by: what $1 really returns after the fee, 1 / (ask + fee), the same after-fee
+ *  multiplier the cards show (lib/betQuote.ts `pays`, lane B; repoint here once it lands). */
+export const sortPays = (s: Pick<Side, "ask" | "fee">) => (s.ask > 0 ? 1 / (s.ask + (s.fee ?? 0)) : null);
+
 /** Asking for long shots (pays >= 2x, price <= 40¢, chance <= 40%) lifts the default 40% floor (docs/13 § Matching). */
 export const liftsFloor = (f: FilterState) =>
   (f.pays_min ?? 0) >= 2 || (f.price_max ?? 1) <= 0.4 || (f.win_prob_max ?? 1) <= 0.4;
@@ -105,7 +110,7 @@ export function sideOk(s: Side, f: FilterState): boolean {
   return gte(s.ask, f.price_min) && lte(s.ask, f.price_max) &&
     gte(pays, f.pays_min) && below(pays, f.pays_max) &&
     gte(s.win_prob, f.win_prob_min ?? (liftsFloor(f) ? 0 : f.win_prob_floor_default)) && lte(s.win_prob, f.win_prob_max) &&
-    gte(s.edge, f.sort.key === "pays" ? Math.max(f.edge_min ?? 0.02, 0.02) : f.edge_min) && (!f.edge_low_positive || s.edge_low > 0) &&
+    gte(s.edge, f.edge_min) && (!f.edge_low_positive || s.edge_low > 0) &&
     gte(s.roi_pct, f.roi_min) && gte(s.model_events, f.min_events);
 }
 
@@ -131,7 +136,7 @@ const SORT_VALUE: Record<SortKey, (r: Row) => number | null | undefined> = {
   evidence: (r) => r.side.model_events,
   competitive: (r) => r.market.competitive,
   newest: (r) => r.market.created_at,
-  pays: (r) => paysOf(r.side),
+  pays: (r) => betQuote(r.market, r.side).pays,   // QA-A #69: the after-fee payout the card shows (US price on a US card)
 };
 
 /** Missing values last in either direction; ties by closes_at asc, then id. `us`: the "On Polymarket US" filter is on,

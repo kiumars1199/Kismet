@@ -33,7 +33,7 @@ describe("about top 3", () => {
     const base = allRows(store, F)[0]!;
     const mk = (id: string, ev: string, roi: number): Row => {
       const side = { ...base.side, roi_pct: roi, realistic_edge: null, ranges: undefined };
-      return { market: { ...base.market, id, event_id: ev, sides: [side], best: side }, side };
+      return { market: { ...base.market, id, event_id: ev, sides: [side], best: side, us: undefined }, side };   // no US twin: the card shows this roi
     };
     const top = topByReturn([mk("a", "e1", 5), mk("b", "e2", 40), mk("c", "e1", 30), mk("d", "e3", 12)], 3, "premium");
     expect(top.map((r) => r.market.id)).toEqual(["b", "c", "d"]);

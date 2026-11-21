@@ -4,6 +4,7 @@ import "server-only";
 import { createServerClient } from "@supabase/ssr";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
+import { cache } from "react";
 import { DEMO_MODE } from "@/lib/config";
 import { FREE_BEST_BETS_A_DAY, compLive, effectiveTier, type Tier } from "@/lib/entitlements";
 import { isAdminEmail } from "@/lib/admin/core";
@@ -86,8 +87,10 @@ export interface Me {
 
 const NO_SUB = { status: null, current_period_end: null, cancel_at_period_end: false };
 
-/** Tier comes only from the webhook-written subscriptions row (docs/15 § Billing). Demo mode = premium. */
-export async function getMe(): Promise<Me> {
+/** Tier comes only from the webhook-written subscriptions row (docs/15 § Billing). Demo mode = premium.
+ *  React cache(): one auth check and one row read per page render, shared by the root layout's header (#17/#73) and
+ *  the page itself. Outside a server render (route handlers) cache() doesn't memoize, so each call reads fresh. */
+export const getMe = cache(async function getMe(): Promise<Me> {
   if (DEMO_MODE) return { user: null, tier: "premium", ...NO_SUB, beta: true };   // demo has no customers
   const user = await getUser();
   if (!user) return { user: null, tier: "free", ...NO_SUB, beta: false };
@@ -99,7 +102,7 @@ export async function getMe(): Promise<Me> {
   if (res.error) res = await sb.from("subscriptions").select("*").eq("user_id", user.id).maybeSingle();
   if (res.error && !isAdminEmail(user, process.env.ADMIN_EMAILS, DEMO_MODE)) throw new Error(`subscriptions read failed: ${res.error.message}`);
   return meOf(user, res.error ? null : res.data);
-}
+});
 
 type SubRow = { tier?: unknown; comp_tier?: unknown; comp_expires_at?: string | null; status?: string | null; current_period_end?: string | null; cancel_at_period_end?: boolean | null };
 

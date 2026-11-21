@@ -12,8 +12,24 @@ for (const path of ["/track-record", "/about", "/pricing"]) {
     await expect(line.getByTestId("proof-test")).toContainText(`${ret(r.roi_pct)} per bet`);
     await expect(line.getByTestId("proof-live")).toContainText(/^Live/);
     await expect(line).toHaveAttribute("title", /^Testing: .*Live: every best bet is logged/);
+    // #36/#35: the test names the weeks that had bets and how concentrated they are, never "N weeks" alone
+    await expect(line.getByTestId("proof-test")).toContainText(/\(bets in \d+ of \d+ weeks, \d+% in the last 2\)/);
   });
 }
+
+// Marc #4/#48: FAQ answers agree with each other and with the account page.
+test("FAQ: cancel names the account button and links to it; no 'same numbers'; hit rate vs profit agree", async ({ page }) => {
+  await page.goto("/pricing");
+  const cancel = page.locator("details", { hasText: "Can I cancel any time?" });
+  await cancel.locator("summary").click();
+  await expect(cancel).toContainText("Manage billing or cancel");
+  await expect(cancel.getByRole("link", { name: "account page" })).toHaveAttribute("href", "/account");
+  for (const path of ["/pricing", "/about", "/terms", "/disclaimer", "/"]) {
+    const html = await (await page.request.get(path)).text();
+    expect(html, path).not.toMatch(/Everyone sees the same numbers/);
+    expect(html, path).not.toMatch(/should cover the losses/);
+  }
+});
 
 // T-302: Best bets has no stat tiles now (plain page, docs/OVERHAUL.md §B); the test return never shows there without
 // the live record, and the page links to the full record.

@@ -15,7 +15,7 @@ describe("track record tiles", () => {
     expect(t.cents.value).toBe(s.pnl_cents_per_share);
     expect(t.t.value).toBe(s.t_stat);
     expect(t.events.value).toBe(s.events);
-    expect([t.bets.text, t.ret.text, t.cents.text, t.t.text, t.events.text]).toEqual(["9.6K", "+9.5%", "+7.4 pts", "18.5", "1.3K"]);
+    expect([t.bets.text, t.ret.text, t.cents.text, t.t.text, t.events.text]).toEqual(["9,666", "+9.5%", "+7.4 pts", "18.5", "1,394"]);
     expect([t.bets.baseline, t.ret.baseline, t.cents.baseline]).toEqual(["394.4K", "−21%", "−13.4 pts"]);   // T-288: one decimal (was "394K")
   });
 

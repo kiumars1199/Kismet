@@ -1,11 +1,12 @@
 // Landing at /about (T-28, F-20; moved from / by T-70, docs/13). Live counters and preview cards come from the store; tiles from backtest.json.
 import { bestBetsCount } from "@/lib/data/counts";
+import { can } from "@/lib/entitlements";
 import { REFRESH_WORDS } from "@/lib/freshness";
 import Link from "next/link";
 import { Faq, Plans } from "@/components/pricing/Plans";
 import { Tiles } from "@/components/results/Tiles";
 import { ProofLine } from "@/components/results/ProofLine";
-import { HIT_RATE_VS_PROFIT, siteProof } from "@/lib/proof";
+import { HIT_RATE_VS_PROFIT, SAME_FOR_EVERYONE, hitRateLive, siteProof, withLiveHitRate } from "@/lib/proof";
 import { planCtx } from "@/lib/billing/planCtx";
 import { getSettings } from "@/lib/settings";
 import { chosenResult } from "@/lib/data/model";
@@ -14,12 +15,11 @@ import type { Store } from "@/lib/data/store";
 import { topOrStore } from "@/lib/data/top";
 import { pendingLine } from "@/lib/data/respond";
 import { PendingState } from "@/components/screener/States";
-import { DASH, RETURN_HELP, closesLine, formatCount, pct, price, recordHelp } from "@/lib/format";
-import { betFigures, RETURN_HELP_ONE, RETURN_LABEL } from "@/lib/betFigures";
-import { VERDICT_TONE, topicLabel } from "@/components/market/labels";
+import { RETURN_HELP, formatCount } from "@/lib/format";
+import { BetCard } from "@/components/market/BetCard";
+import { RETURN_HELP_ONE } from "@/lib/betFigures";
 import { tiles } from "@/lib/trackRecord";
 import { allRows, topByReturn } from "@/lib/topBets";
-import type { Side, StoreMarket } from "@/lib/types";
 
 export const dynamic = "force-static";   // T-295: prerendered + revalidated (lib/static-routes.ts); signed in: app/signed-in/*
 export const revalidate = 300;
@@ -34,14 +34,13 @@ const STEPS: [string, string][] = [
 ];
 
 const FAQ: { q: string; a: React.ReactNode; id?: string; open?: boolean }[] = [
-  { q: "What is estimated return?", a: <>{RETURN_HELP_ONE} A +10% estimated return means bets like it made about +$10 per $100 staked, on average. It is not a promise: any single bet can lose.</> },
+  { q: "What is estimated return?", a: <>{RETURN_HELP_ONE} Example: a 90% chance at a 1.39x payout is 0.90 × 1.39 − 1 ≈ +25%, about +$2.50 per $10 bet on average. It is not a promise: any single bet can lose.</> },
   { id: "returns", open: true, q: "Why do I see more than one return number?", a: <>
-    Each answers a different question. <strong>Estimated return at today&apos;s price</strong> is for this one bet: card, details and the AI connector all show the same figure.
-    {" "}<strong>How bets like this did in testing</strong> is the whole group (a category, or a payout band) over the walk-forward test, so it differs from bet to bet.
-    {" "}The <strong>live record</strong> is every best bet logged since launch and graded as markets settle; until enough have settled it can swing far from the test either way.
-    {" "}All three are past results, not a promise. </> },
+    A bet shows one return on its card: the <strong>estimated return</strong> at today&apos;s price, after the fee. The same figure appears in &ldquo;Why this bet?&rdquo;, the details and the table.
+    {" "}&ldquo;Why this bet?&rdquo; adds two other numbers, each labelled with how many bets it counts: <strong>similar past bets in testing</strong> (best bets at the same payout, tested week by week on markets the estimate had never seen) and the <strong>live record so far</strong> (every best bet since launch, all payouts together).
+    {" "}They answer different questions, so they can differ; when the tested group has too few bets, it says so instead of showing a number. All of them are past results, not a promise. </> },
   { q: "Do best bets usually win?", a: HIT_RATE_VS_PROFIT },
-  { q: "Is this betting advice?", a: "No. It's market analytics. Everyone sees the same numbers, based on how past markets settled. Kismet never looks at your bets to tell you what to buy, and any single bet can lose." },
+  { q: "Is this betting advice?", a: `No. It's market analytics, based on how past markets settled. ${SAME_FOR_EVERYONE} Any single bet can lose.` },
   { q: "How is it tested?", a: <>Week by week, on markets the model had never seen: each week it only knows what happened before, and we check how its best bets settled. Losing weeks and limits are shown on <Link href="/track-record" className="text-accent-hover underline-offset-4 hover:underline">Results</Link>.</> },
   { q: "Which markets do you cover?", a: "Polymarket today. Kalshi later, once we have their permission to use the data." },
 ];
@@ -57,7 +56,7 @@ export default async function Page() {
   }
   // T-291 #13: the top 3 by the return each card shows (the shared cardReturn), across every matching bet
   const top = topByReturn(allRows(store, { view: "flags", verdicts: ["worth it"] }), 3, tier);
-  const bestCount = bestBetsCount(store).total;   // T-288: the one Best bets count (lib/data/counts.ts)
+  const bestCount = bestBetsCount(store, { free: !can(tier, "live_data") }).total;   // T-288 + QA-A #26: the one count, as this tier's list counts
   const tested = chosenResult(store.backtest)?.taker;
 
   return (
@@ -104,7 +103,7 @@ export default async function Page() {
         </div>
         {top.length ? (
           <div className="grid gap-3.5 md:grid-cols-3">
-            {top.map((r) => <PreviewCard key={r.market.id} m={r.market} s={r.side} />)}
+            {top.map((r) => <BetCard key={r.market.id} r={{ market: r.market, side: r.side }} />)}
           </div>
         ) : (
           <p className="rounded-card border border-border bg-surface p-6 text-soft">No best bets in the last scan. The next scan may find some.</p>
@@ -131,7 +130,7 @@ export default async function Page() {
 
       <section aria-labelledby="faq-h" className="flex flex-col gap-6">
         <h2 id="faq-h" className="text-[28px] font-semibold tracking-[-0.01em]">Questions</h2>
-        <Faq items={FAQ} />
+        <Faq items={withLiveHitRate(FAQ, hitRateLive(store.ledgerSummary))} />
       </section>
     </article>
   );
@@ -146,46 +145,3 @@ function Counter({ label, value, accent }: { label: string; value: string; accen
   );
 }
 
-// Server-rendered Best bet card in the BetCard style (docs/18 §6 headline, docs/17 return line). No client JS here.
-function PreviewCard({ m, s }: { m: StoreMarket; s: Side }) {
-  const bar = (p: number) => `${Math.max(0, Math.min(100, p * 100))}%`;
-  const f = betFigures(s);   // T-289: the same figures as BetCard (signed-out: the $100 default stake)
-  return (
-    <Link href={`/m/${m.id}`} data-testid="preview-card"
-      className="flex flex-col gap-3 rounded-card border border-border bg-surface p-4 transition-colors duration-200 ease-out hover:border-accent-border">
-      <div className="flex items-center justify-between gap-2 text-xs text-muted">
-        <span className="truncate rounded-full bg-muted-bg px-2.5 py-[3px]">{topicLabel(m)}</span>
-        <span className="flex-none">{closesLine(m.closes_at, undefined, true)}</span>
-      </div>
-      <p className="line-clamp-3 text-base font-semibold leading-[1.3] md:min-h-[42px]">{m.question}</p>
-      <div>
-        <p className="flex flex-wrap items-baseline gap-x-2">
-          <span className="font-heading text-[32px] font-bold leading-none tracking-[-0.02em]" title={f.feeHelp}>Pays {f.pays}</span>
-          <span className="text-[15px] font-medium text-soft">before fees · <span title={`Won ${f.winPct} of the time in similar past bets`}>wins about {f.wins}</span></span>
-        </p>
-        <p className="mt-2 text-[13px] text-soft">Bet <strong className="font-semibold text-text">{s.outcome}</strong> at {price(s.ask)} <span className={VERDICT_TONE[f.verdict.tone]}>({f.pts})</span></p>
-        <p className="mt-0.5 text-[13px] text-muted" title={RETURN_HELP_ONE}>
-          {RETURN_LABEL} <span className="font-semibold text-accent" data-testid="return">{f.ret.text}</span>
-        </p>
-      </div>
-      <div className="flex flex-col gap-1.5 text-xs">
-        <BarRow label="Market says" value={pct(s.ask)} width={bar(s.ask)} fill="bg-market-bar" />
-        <BarRow label="Won before" value={pct(s.win_prob)} width={bar(s.win_prob)} fill="bg-accent" strong />
-      </div>
-      <div className="mt-auto flex items-center justify-between border-t border-border pt-3 text-[13px]">
-        <span className="text-muted" data-testid="payout" title={f.feeHelp}>Bet {f.stakeText} → get <span className="font-semibold tabular-nums text-text">{f.payoutText}</span> after fees if it wins</span>
-        <span className="rounded-full bg-muted-bg px-2.5 py-[3px] text-xs text-soft" title={recordHelp(s.model_neff)}>{f.record ?? DASH}</span>
-      </div>
-    </Link>
-  );
-}
-
-function BarRow({ label, value, width, fill, strong }: { label: string; value: string; width: string; fill: string; strong?: boolean }) {
-  return (
-    <div className="flex items-center gap-2">
-      <span className="w-[74px] text-muted">{label}</span>
-      <div className="h-2 flex-1 rounded bg-muted-bg"><div className={`h-2 rounded ${fill}`} style={{ width }} /></div>
-      <span className={`w-[34px] text-right ${strong ? "text-accent-soft" : ""}`}>{value}</span>
-    </div>
-  );
-}

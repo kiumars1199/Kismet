@@ -7,6 +7,7 @@ import { parse } from "@/lib/filters/url";
 import { BUILTIN_PRESETS, PresetQuotaError, SHARE_KEY, presetState, replacePatch, sameView, savePresetFromState, shareLink, toQuery } from "@/lib/presets";
 import { getRepo, type Preset } from "@/lib/repo";
 import { useCollection } from "@/lib/repo/hooks";
+import { suggestViewName } from "@/lib/presets-name";
 import { chipClass, SaveViewDialog } from "./SaveViewDialog";
 
 type Item = { id: string; name: string; emoji: string | null; state: FilterState; user?: Preset };
@@ -103,7 +104,7 @@ export function PresetBar({ state, onChange }: { state: FilterState; onChange: (
 
   const saveChanges = async () => {
     if (active?.user) { await getRepo().presets.update(active.user.id, { query: toQuery(state), sort: state.sort }); flash("Saved"); }
-    else setDialog({ mode: "save", name: active ? `${active.name} (my copy)` : "" });
+    else setDialog({ mode: "save", name: active ? `${active.name} (my copy)` : suggestViewName(state) });   // #53
   };
 
   async function setDefault(p: Preset) {

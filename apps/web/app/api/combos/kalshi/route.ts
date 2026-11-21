@@ -1,5 +1,6 @@
 // GET  /api/combos/kalshi → { enabled } (whether the combo tray offers the Kalshi check)
-// POST /api/combos/kalshi { legs: [{ ticker, side }] } → ComboQuote. 404 unless KALSHI_DATA_PERMISSION=true (docs/18 §5.3).
+// POST /api/combos/kalshi { legs: [{ ticker, side }] } → ComboQuote. 404 unless the person has Combos (Premium) and
+// KALSHI_DATA_PERMISSION=true (docs/18 §5.3): the check lives in the combo tray, which only Premium sees.
 import { ComboCheckBody, lookupCombo } from "@/lib/kalshiCombo";
 import { getMe } from "@/lib/auth/server";
 import { canBeta } from "@/lib/beta";
@@ -10,7 +11,7 @@ import { readJson, TOO_LARGE, tooLarge } from "@/lib/body";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const allowed = async () => canBeta(await getMe(), "kalshi");   // beta: testers only (lib/beta.ts)
+const allowed = async () => { const me = await getMe(); return canBeta(me, "combos") && canBeta(me, "kalshi"); };
 export const GET = async () => Response.json({ enabled: await allowed() }, { headers: { "cache-control": "no-store" } });
 
 export async function POST(req: Request): Promise<Response> {

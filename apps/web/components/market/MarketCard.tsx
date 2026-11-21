@@ -5,9 +5,8 @@
 // The question link covers the card (opens the drawer); star and alert sit above it.
 import type { ApiRow } from "@/lib/api";
 import { useWhen } from "./When";
-import { basis, odds, priceAsOf, sideEdge } from "@/lib/format";
+import { basis, pct, priceAsOf, sideEdge } from "@/lib/format";
 import { betFigures, RETURN_HELP_ONE } from "@/lib/betFigures";
-import { useProfile } from "@/lib/repo/hooks";
 import { WatchStar } from "@/components/watch/WatchStar";
 import { VenueIconLink } from "@/components/trade/TradeButton";
 import { drawerHref, useOpenDrawer } from "./drawer";
@@ -20,7 +19,7 @@ export function MarketCard({ r, pro = false, notes = true }: { r: ApiRow; pro?: 
   const { market: m, side: s } = r;
   const when = useWhen(m.closes_at);
   const edgeTier = m.tier === "edge";
-  const f = betFigures(s, { stake: useProfile().default_stake_usd });   // T-289: the same figures as BetCard and the drawer
+  const f = betFigures(s, { market: m });   // T-289/QA-B: the same price, payout, return and $10 stake as BetCard and the drawer
   const ret = f.ret;
   return (
     <div data-row data-market-id={m.id} data-tier={m.tier ?? undefined} className="relative flex gap-3 rounded-inner border border-border bg-surface p-3.5 hover:border-soft/30 focus-within:border-soft/30">
@@ -42,17 +41,17 @@ export function MarketCard({ r, pro = false, notes = true }: { r: ApiRow; pro?: 
         </a>
         {/* no "·" separators: on a 390 px card they wrapped to the start or end of a line */}
         <p data-testid="one-bet" className="mt-1.5 flex flex-wrap items-baseline gap-x-1.5 text-sm" title={basis(m, s)}>
-          <span className="whitespace-nowrap" title={f.feeHelp}><span className="font-heading font-bold">Pays {f.pays}</span> <span className="text-soft">before fees</span></span>
+          <span className="whitespace-nowrap" title={f.feeHelp}><span className="font-heading font-bold">Pays {f.pays}</span> <span className="text-soft">after the fee</span></span>
           <span className="whitespace-nowrap text-soft" title={`Won ${f.winPct} of the time in similar past bets`}>wins about {f.wins}</span>
         </p>
         <div className="mt-0.5 text-xs text-muted">
-          Bet {s.outcome} · pays {odds(s.ask)}
+          Bet {s.outcome} at {pct(f.ask)}
           <span data-testid="verdict" className={`block ${VERDICT_TONE[f.verdict.tone]}`}>{f.verdict.text.toLowerCase()} <span className="whitespace-nowrap" title={PTS_HELP}>({f.pts})</span></span>
           {r.price_at && <span data-testid="price-as-of" className="block" title="Live Polymarket price read when this page loaded; edge, Pays and payout use it.">{priceAsOf(r.price_at)}</span>}
           {f.payout !== null && (
-            <span data-testid="payout" className="block" title={`Your default stake (Settings). ${f.feeHelp}`}>
+            <span data-testid="payout" className="block" title={f.feeHelp}>
               <span className="whitespace-nowrap">Bet <span className="tabular-nums text-soft">{f.stakeText}</span> →</span>{" "}
-              <span className="whitespace-nowrap">get <span className="font-semibold tabular-nums text-text">{f.payoutText}</span> after fees</span>{" "}
+              <span className="whitespace-nowrap">get <span className="font-semibold tabular-nums text-text">{f.payoutText}</span> back</span>{" "}
               <span className="whitespace-nowrap">if it wins</span>
             </span>
           )}
@@ -62,8 +61,8 @@ export function MarketCard({ r, pro = false, notes = true }: { r: ApiRow; pro?: 
       </div>
       <div className="flex flex-none flex-col items-end justify-between gap-1">
         <div className="text-right">
-          <div data-testid="bet-return" className={`font-heading text-lg leading-tight ${returnTone(pro ? s.roi_pct : ret.roi)}`} title={pro ? undefined : RETURN_HELP_ONE}>{pro ? sideEdge(s) : ret.text}</div>
-          <div className="text-[11px] text-muted">{pro ? "edge" : "estimated"}</div>
+          <div data-testid="bet-return" className={`font-heading text-lg leading-tight ${returnTone(ret.roi)}`} title={f.quote.math ?? RETURN_HELP_ONE}>{ret.text}</div>
+          <div className="text-[11px] text-muted">estimated{pro && <> · edge {sideEdge(s)}</>}</div>
         </div>
         <div className="relative z-10 -mb-2 -mr-2 flex">
           <WatchStar marketId={m.id} side={s.side_index} market={m} />
