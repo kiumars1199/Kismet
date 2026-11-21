@@ -32,7 +32,6 @@ const rows = (delay: number): [string, string, string, string][] => [
   ["My bets: profit and closing-price tracking", "—", "Yes", "Yes"],
   ["Results and win-chance charts", "Yes", "Yes", "Yes"],
   [CONNECTOR_NAME, "—", up(connectorAllowance("pro")), up(connectorAllowance("premium"))],   // #38/#58/#72: lib/connector-plan.ts
-  ["Chrome extension", "—", "—", "Coming soon"],
   ["CSV export", "—", "Yes", "Yes"],
 ];
 
