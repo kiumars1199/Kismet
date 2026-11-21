@@ -46,3 +46,13 @@ hint it renders signed in at once instead of after `/api/me`.
 Gates: tsc, lint OK; vitest 1081/1082 (only the known teaser test); `check:js` landing 149.6 kB (budget 150); demo e2e
 s1-landing, s6, s6-tools, t291-ui, headers 13/13; paid qa-c-header 2/2. Paid `admin.spec.ts` timed out here on dev compiles
 (shared container); main's run passes.
+
+## QA-C 4: #9 (branch claude/qa-c-upsell)
+
+| Item | Status | Evidence |
+|---|---|---|
+| 9 Pro upsell modal: close button, Escape, click outside | Fixed, verified in mock | The only upgrade pitch shown in a modal is the "More filters" sheet for Free users: most of it is blurred behind "Upgrade to unlock" (`UpgradeGate`, unchanged), and its only way out was a green "Done" that read as "apply", not "close". The sheet now also has a ✕ ("Close filters"). Escape and backdrop click already came from the native `<dialog>`; now tested. `e2e-paid/qa-c-upsell.spec.ts` (Free user, 1280 px): on /bets and /markets the sheet shows the Pro pitch and closes with ✕, Escape and a click outside. |
+| 9 loading state on filter change | /bets already done (#45 "Updating bets…"); /markets fixed | /markets showed bare skeleton rows with no words. It now also shows "Loading markets…" (`role="status"`). The same e2e delays `/api/markets` 2.5 s, taps "Confident" and sees the status, then sees it go. |
+
+Gates: tsc, lint OK; vitest 1087/1088 (known teaser test); `check:js` 149.6 kB; demo e2e s2-filters, overhaul-cards 10/10;
+paid qa-c-upsell 1/1.
