@@ -1,6 +1,6 @@
 // 404 (T-76): same shell as every page, so the header, footer and disclaimer stay.
 import Link from "next/link";
-import { btnGhost, btnPrimary } from "@/components/kit";
+import { btnGhost, btnPrimary } from "@/components/kit/classes";   // not the kit: its client code would load on every page
 
 export const metadata = { title: "Page not found", robots: { index: false } };
 

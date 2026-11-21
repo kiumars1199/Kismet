@@ -2,7 +2,7 @@
 // 500 (T-76): an error in a page keeps the shell. Lane O's Sentry picks errors up from here.
 import Link from "next/link";
 import { useEffect } from "react";
-import { btnGhost, btnPrimary } from "@/components/kit";
+import { btnGhost, btnPrimary } from "@/components/kit/classes";   // not the kit: its client code would load on every page
 
 export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   useEffect(() => { console.error(error); }, [error]);
