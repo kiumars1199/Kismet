@@ -1,5 +1,5 @@
 // Kismet MCP server (T-280): five read-only tools over the same data, gates and wording as the site.
-// Plans (docs/01 § Tiers): Premium unlimited (60 calls a minute), Pro 3 calls a day, Free none. Gating runs per
+// Plans (docs/01 § Tiers, lib/connector-plan.ts): Premium no daily cap (60 calls a minute), Pro 3 calls a day, Free none. Gating runs per
 // tools/call, not per HTTP request: initialize and tools/list are separate requests and stay open to any valid token.
 // No personalized picks (CLAUDE.md rule 4): every verdict is the public one; my_list is the user's own saved order.
 import "server-only";
@@ -25,6 +25,7 @@ import { siteUrl } from "@/lib/site";
 import type { MarketsResponse } from "@/lib/api";
 import type { Side, StoreMarket } from "@/lib/types";
 import { userOf } from "./auth";
+import { CONNECTOR_PLANS_LINE, connectorAllowance } from "@/lib/connector-plan";
 
 export const MAX_LIMIT = 25;
 const LEVEL: Record<string, string> = { all: "all markets", cat: "category", niche: "niche", nmt: "niche + type" };   // as lib/format basis()
@@ -32,11 +33,11 @@ export const PRO_DAILY = RULES.mcp_pro_daily.limit;
 const pricing = () => `${siteUrl()}/pricing`;
 
 export const FREE_REFUSAL = () =>
-  `Using Kismet in Claude, ChatGPT or Cursor is part of Premium (Pro gets ${PRO_DAILY} calls a day to try it). ` +
-  `Your account is on the Free plan. Upgrade at ${pricing()} and then ask again.`;
+  `Using Kismet in Claude, ChatGPT or Cursor is not on the Free plan. ${CONNECTOR_PLANS_LINE.replace(" Not on Free.", "")} ` +
+  `Upgrade at ${pricing()} and then ask again.`;
 export const PRO_USED_UP = () =>
   `You've used today's Kismet calls: Pro includes ${PRO_DAILY} a day in AI assistants (a rolling 24 hours). ` +
-  `Premium has no daily cap. Upgrade at ${pricing()}, or use the site in the meantime: ${siteUrl()}.`;
+  `Premium: ${connectorAllowance("premium")}. Upgrade at ${pricing()}, or use the site in the meantime: ${siteUrl()}.`;
 
 /** Every tool answer ends with the site disclaimer (CLAUDE.md rule 5). */
 const done = (lines: (string | null | undefined | false)[], isError = false): CallToolResult => ({

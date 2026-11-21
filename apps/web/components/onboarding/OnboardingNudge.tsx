@@ -2,7 +2,8 @@
 // One-time "Choose your topics" prompt for people who haven't onboarded. Mount at the top of / (Best bets).
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useProfile } from "@/lib/repo/hooks";
+import { getRepo } from "@/lib/repo";
+import { useProfile, useRepoReady } from "@/lib/repo/hooks";
 import { Tour } from "./Tour";   // the first-run spotlight tour lives here too: it only shows once started
 
 export const NUDGE_KEY = "me:v1:nudge_dismissed";
@@ -10,17 +11,21 @@ const KEY = NUDGE_KEY;
 
 export function OnboardingNudge() {
   const { onboarded_at, favorite_topics } = useProfile();
-  // shown on the server render: first-time visitors (most of them) see no layout shift; a returning visitor who
-  // dismissed it sees it leave at hydration, before any cards arrive
+  // #22 (Nov 20): only once the account's profile has loaded. Shown on the server render (as before), it flashed for
+  // everyone who had already finished or dismissed setup, on every visit, since /bets is behind the account wall.
+  const ready = useRepoReady();
   const [hidden, setHidden] = useState(false);
   useEffect(() => {
     try { setHidden(localStorage.getItem(KEY) === "1"); } catch { setHidden(false); }
   }, []);
   // P9: someone who already chose topics (here or in Settings) has nothing to choose
-  const show = !hidden && !onboarded_at && !favorite_topics.length;
+  const show = ready && !hidden && !onboarded_at && !favorite_topics.length;
+  // #22: dismissing counts as skipping setup (as /onboarding's "Skip setup" does): saved to the account, so the banner
+  // stays gone on every device, not only in this browser
   const dismiss = () => {
     setHidden(true);
     try { localStorage.setItem(KEY, "1"); } catch { /* storage off */ }
+    getRepo().profile.patch({ onboarded_at: new Date().toISOString() }).catch((e) => console.error("[nudge] could not save:", e));
   };
 
   return (

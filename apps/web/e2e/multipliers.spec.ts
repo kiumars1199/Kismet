@@ -15,7 +15,7 @@ test("long shot: a 10x+ payout filter with international bets brings it in, with
   await expect(card.getByTestId("card-chance")).toHaveText("14% chance to win");
   await card.getByText("Why this bet?").click();
   await expect(card.getByText(/^Lower:/)).toBeVisible();
-  await expect(card.getByTestId("band-record")).toContainText("(lost money)");
+  await expect(card.getByTestId("band-record")).toContainText("lost money in testing");
 });
 
 test("drawer: long-shot line under 25% chance", async ({ page }) => {
@@ -31,7 +31,7 @@ test("combo: two legs from one event show the same-event warning", async ({ page
     await page.goto(`/?m=${id}`);
     const drawer = page.getByRole("dialog", { name: "Market details" });
     const add = drawer.getByRole("button", { name: "Add to combo" });
-    await expect(add.getByTestId("beta-badge")).toHaveCount(0);   // QA-D: Combos is live, no Beta tag
+    await expect(add.getByTestId("beta-badge")).toHaveCount(0);   // live since Nov 21: no Beta tag
     await add.click();
     await expect(drawer.getByRole("button", { name: "In combo ✓" })).toBeVisible();
   }
@@ -51,15 +51,16 @@ test("combo: two legs from one event show the same-event warning", async ({ page
 });
 
 // docs/19 P5: the Combos page browses by payout; every card pays at least the chosen floor.
-// T-302: the Combos row left Best bets (one list for casual bettors); Combos keeps its own page.
+// T-302: the Combos row left Best bets (one list for casual bettors); Combos keeps its own page (live, no Beta tag).
 test("combos page: payout tabs, each card pays at least the floor, Build this combo opens the tray", async ({ page }) => {
   await page.goto("/combos");
   await page.evaluate(() => localStorage.removeItem("me-combo-v1"));
   await expect(page.getByRole("heading", { level: 1, name: "Combos" })).toBeVisible();
-  // QA-D: Combos and Kalshi are live (not beta): no banner, no Beta tag; the nav link comes from the server (#17/#73)
+  // live since Nov 21 (owner decision): no Beta banner on the page, no pill on the nav link
   await expect(page.getByTestId("beta-banner")).toHaveCount(0);
-  await expect(page.locator("header").getByRole("link", { name: /^Combos/ })).toBeVisible();
-  await expect(page.locator("header").getByText("Beta")).toHaveCount(0);
+  const navLink = page.locator("header").getByRole("navigation", { name: "Main" }).getByRole("link", { name: /^Combos/ });
+  await expect(navLink).toBeVisible({ timeout: 15_000 });
+  await expect(navLink.getByText("Beta")).toHaveCount(0);   // neither the pill nor the small-screen dot (qa-c-header)
   for (const p of [2, 3, 5, 10]) {
     await page.getByRole("button", { name: `Pays ${p}x+` }).click();
     await expect(page).toHaveURL(new RegExp(`pays=${p}$`));

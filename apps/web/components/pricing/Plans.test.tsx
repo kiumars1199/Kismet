@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 // T-291 #12, #14, #15: plan buttons are right in the server HTML (no "Coming soon" flash), "Start free" signs up,
 // and the yearly "save N%" labels follow the prices in config/site.json.
+import { readFileSync } from "node:fs";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { renderToString } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
@@ -93,5 +94,22 @@ describe("plan cards: Combos and Kalshi follow the entitlements", () => {
       expect(items.some((t) => /^Kalshi markets/.test(t)) || items.includes("Everything in Pro"), tier).toBe(true);
       for (const t of [...combos, ...items.filter((x) => /Kalshi/.test(x))]) expect(t, tier).not.toMatch(/coming soon/i);
     }
+  });
+});
+
+// #39 (Marc, Nov 20): plan cards and the /pricing compare table list only features that have shipped.
+describe("#39 only shipped features are sold", () => {
+  it("no plan card item is 'coming soon' or names the unreleased Chrome extension", () => {
+    const { container } = render(<Plans delay={15} ctx={ctx} />);
+    const items = [...container.querySelectorAll("li")].map((li) => li.textContent ?? "");
+    expect(items.length).toBeGreaterThan(10);
+    for (const t of items) expect(t).not.toMatch(/coming soon|chrome extension/i);
+  });
+  it("the compare table has no 'Coming soon' row", () => {
+    const src = readFileSync("app/pricing/page.tsx", "utf8");
+    const start = src.indexOf("const rows =");
+    const table = src.slice(start, src.indexOf("];", start));
+    expect(table).toContain("Saved views");
+    expect(table).not.toMatch(/coming soon|chrome extension/i);
   });
 });
