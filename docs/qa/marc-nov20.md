@@ -4,7 +4,7 @@ Orchestrator log for the Nov 21 overnight run. Lane logs: `marc-nov20-lane{A,B,C
 Status: fixed / already fixed / won't fix (why) / not verified live / open.
 
 ## Summary
-**Shipped to kismetodds.com:** every item in the four lane briefs is fixed, already fixed, or hardened. Merges: #11 to #14 one at a time, then batch 1 (#15) and two install fixes (#16, #17). The Kalshi crawl (batch 2) ships as its own PR; see below.
+**Shipped to kismetodds.com:** every item in the four lane briefs is fixed, already fixed, or hardened. Merges: #11 to #14 one at a time, then batch 1 (#15) and two install fixes (#16, #17). Batch 2, the Kalshi full crawl, went out as #18 (b806a66). It deployed READY on Vercel and SUCCESS on Railway.
 - **One return figure everywhere.** Card, drawer, tables, /about Top 3 and MCP all read from `betQuote`. Labels are worked out at the shown price, and "Biggest payout" sorts by the card's after-fee payout.
 - **Fresh data.** Snapshots are never more than 5 minutes stale. Counts come from one source on every page, timestamps tick, and the scan copy says "about every 15 minutes".
 - **Account.** Paid users never see Free upsells. One header everywhere. /account and /settings link to each other, and the onboarding banner no longer flashes. Saved views can be listed, renamed and deleted, with a suggested name. Unknown URLs return 404.
@@ -29,7 +29,8 @@ Status: fixed / already fixed / won't fix (why) / not verified live / open.
 9. **Kalshi combo check.** It needs the engine's `kalshi_match` job, which isn't built.
 10. **Copy changes to review:** /terms and /disclaimer wording (Free sees ranges).
 11. **Out of scope.** Items 1, 7, 12, 16, 24, 43, 45, 62 and 66 weren't in any brief and weren't touched.
-12. **Permission prompts.** Add allow rules for the GitHub and Vercel tools to `.claude/settings.json` so overnight runs don't wait on approval clicks. I wasn't allowed to change this myself.
+12. **Kalshi crawl budget.** At 45 s it reads 116 pages and never finishes (cap: 500 pages, about 0.27 s each). Raising `KALSHI_BUDGET_SEC` on Railway (for example to 180) would finish the crawl. But the Polymarket upload waits for the Kalshi step, so every extra second delays fresh best bets by the same amount. I left it at 45 because freshness (#46) matters more.
+13. **Permission prompts.** Add allow rules for the GitHub and Vercel tools to `.claude/settings.json` so overnight runs don't wait on approval clicks. I wasn't allowed to change this myself.
 
 ## Run notes
 - PR #10 (agent teams settings) merged to `final` as 67faeaf. Agent teams were not active in this
@@ -43,6 +44,7 @@ Status: fixed / already fixed / won't fix (why) / not verified live / open.
 - Batch 1 merges as ONE integration PR (merge commit), not one PR per lane branch. Why: the lane branches only merge cleanly with conflict resolutions (FreshnessPill A/C, multipliers.spec, Plans.tsx) and three orchestrator commits (sort repoint to betQuote, demo AuthBoot loads /api/me, header spec for live Kalshi) that sit on no lane branch, so only the stack tip was ever gated green. "Never merge red" beats "one at a time". Advisor agreed. Rollback is one `git revert -m 1`.
 - Batch 1 = B return/faq/ledger, A counts/sort/freshness/plan/teaser-clock, C header/upsell/views/settings/pricing, C2 alerts/connector, D golive/combos. Gates on the tip: tsc, lint, vitest 1431/1431, pytest 122, check:js 143.2 kB, free + paid e2e (chromium). No DB migration. Alerts env (RESEND_API_KEY, EMAIL_FROM, UNSUBSCRIBE_SECRET, CRON_SECRET) fails closed when unset.
 - Batch 1 merged as #15 (22e79e3). Its prod build then failed twice at `pnpm install` (ERR_PNPM_PACKAGE_MANAGER_CREATE_SLOT_DIR on the vendored picomatch slot in the restored build cache); prod kept serving da64226 the whole time. #16 (remove the slot) did not fix it. #17 (install from an empty node_modules) was proven on a preview build first, then merged; prod went live with batch 1. Smoke on prod: / /pricing /about /status 200, app pages 307 to sign-up when signed out, unknown URL 404, footer disclaimer present, /pricing has no Telegram/Discord and shows "3 calls a day" and Kalshi lines, scan 19 min old, no runtime errors in the first 15 min.
+- Batch 2 (#18) live. First Railway scan on it (09:05 UTC): `kalshi: 86396 markets (11600 events, 116 pages, complete=False), 20 combos, 0 settled, 34.5s; crawl stopped: Deadline`. It used to be 2,251 markets. The crawl hits the 45 s budget before the last page, so `complete` stays False every run. kalshi.json is still written, capped at the 2,000 busiest. 0 settled is expected on the first run: settlements only come from tickers seen open earlier. Scan, upload and revalidate all ran normally afterwards. Not checked: whether the new per-market fields are non-null. kalshi.json sits in the private `scan` bucket, and /api/kalshi needs a signed-in session.
 - Lesson: the preview build of the batch branch (0125ddc) had already failed the same way before #15 merged. Check the preview deploy before every merge to `final`.
 - Batch 2 = D kalshi-fetch (pipeline, runs on Railway; field names unverified because Kalshi's API is blocked from here). Separate PR after batch 1 is live.
 - Not run here: WebKit/iPhone e2e (WebKit not installed), trading-paper (needs full Chromium + extension deps).
