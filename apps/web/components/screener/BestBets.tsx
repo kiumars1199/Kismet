@@ -23,6 +23,8 @@ import { TAXONOMY } from "@/lib/taxonomy";
 import { BetCard } from "@/components/market/BetCard";
 import { drawerHref, useOpenDrawer } from "@/components/market/drawer";
 import { SaveViewDialog } from "@/components/presets/SaveViewDialog";
+import { SavedViews } from "@/components/presets/SavedViews";
+import { suggestViewName } from "@/lib/presets-name";
 import { Count } from "@/components/kit";
 import { CardSkeleton } from "@/components/market/bits";
 import { SearchChips } from "@/components/search/SearchChips";
@@ -202,9 +204,10 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
         )}
         <FilterPanel state={state} mode="flags" facets={sc.facets} meta={meta} onChange={set} onReset={reset} />
         <button type="button" onClick={() => (setSaved(null), setSaving(true))} className="inline-flex min-h-11 flex-none items-center whitespace-nowrap px-2 text-[13px] text-muted hover:text-text">+ Save this view</button>
+        <SavedViews onApply={set} className="inline-flex min-h-11 flex-none items-center whitespace-nowrap px-2 text-[13px] text-muted hover:text-text" />
         <span role="status" className="text-[13px] text-accent-softer empty:hidden">{saved?.ok ? saved.msg : ""}</span>
       </div>
-      <SaveViewDialog open={saving} title="Save this view" error={saved && !saved.ok ? saved.msg : null} onSubmit={save} onClose={() => setSaving(false)} />
+      <SaveViewDialog open={saving} title="Save this view" name={suggestViewName(state)} error={saved && !saved.ok ? saved.msg : null} onSubmit={save} onClose={() => setSaving(false)} />
       <SearchChips q={state.q} search={data?.search} onChange={set} />
       <AppliedPills state={state} mode="flags" onChange={set} onReset={reset} omit={barPills(state, win)} />
       <StaleBanner scannedAt={scanned} />

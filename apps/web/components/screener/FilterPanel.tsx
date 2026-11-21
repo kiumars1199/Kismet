@@ -13,6 +13,7 @@ import { MarketType, Verdict } from "@/lib/schemas";
 import { TAXONOMY, TAXONOMY_TREE, type TaxNode } from "@/lib/taxonomy";
 import { useProfile } from "@/lib/repo/hooks";
 import { savePresetFromState } from "@/lib/presets";
+import { suggestViewName } from "@/lib/presets-name";
 import { UpgradeGate } from "@/components/UpgradeGate";
 import { VERDICT_LABEL } from "@/components/market/labels";
 import { queryFor, type Mode } from "./useScreener";
@@ -97,7 +98,7 @@ function PanelBody({ state: s, mode, facets, meta, onChange, onReset }: Props) {
   const [saved, setSaved] = useState<"idle" | "saved" | "error">("idle");
   const save = async () => {
     try {
-      await savePresetFromState(s);
+      await savePresetFromState(s, suggestViewName(s));   // #53: named after its filters, not "My view 3"
       setSaved("saved");
     } catch {
       setSaved("error");
