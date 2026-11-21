@@ -27,7 +27,8 @@ export function FreshnessPill({ scannedAt: initial }: { scannedAt?: number }) {
 
   // QA-A #46: on a page built from a scan, name that scan (the body's), not whatever /api/meta's server holds
   const shown = usePageScan() ?? scannedAt;
-  if (shown === undefined || now === null) return null;
+  // #17/#73: until /api/meta answers, hold the pill's place, so the header doesn't shift when it appears
+  if (shown === undefined || now === null) return <span aria-hidden="true" data-testid="freshness-pending" className="h-11 w-20 flex-none" />;
   const level = freshness(shown, now);
   const when = ago(shown, now);
   const behind = delay > 0 ? ` On the Free plan you see prices ${behindWords(delay)}.` : "";

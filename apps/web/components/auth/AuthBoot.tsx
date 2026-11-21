@@ -40,7 +40,7 @@ export function AuthBoot() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (DEMO_MODE) return;
+    if (DEMO_MODE) { void loadMe(); return; }   // #17/#73: demo has no layout hint; the header's Combos/Kalshi links come from /api/me
     let live = true;
     (async () => {
       const m = await loadMe();

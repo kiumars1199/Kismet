@@ -16,3 +16,7 @@ export const isBeta = (f: Gated): boolean => BETA_FEATURES.includes(f);
 
 /** May this person use `f`? Beta: testers only (any plan). Live: the feature's own rule. Server routes call this too. */
 export const canBeta = (me: Who, f: Gated): boolean => (isBeta(f) ? !!me.beta : LIVE[f](me));
+
+/** #17/#73 (Nov 20): the gated nav links (Combos, Kalshi) this person sees, decided on the server (/api/me and the root
+ *  layout), so every page's header shows the same links. The Kalshi rule reads a server-only env var the browser can't. */
+export const navFeatures = (me: Who): Gated[] => (Object.keys(LIVE) as Gated[]).filter((f) => canBeta(me, f));
