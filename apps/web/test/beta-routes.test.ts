@@ -1,4 +1,6 @@
-// Beta gates on the server (lib/beta.ts), not just the UI: /api/combos and /combos for testers only, any plan.
+// Combos on the server (lib/beta.ts, lib/entitlements), not just the UI: live since Nov 21 (owner decision) for Premium.
+// /api/combos answers Premium with combos and everyone else with none; /combos shows Free and Pro the upgrade link.
+import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Tier } from "@/lib/entitlements";
 import type { CombosResponse } from "@/lib/data/combos";
@@ -17,17 +19,21 @@ const combos = async (q = "") => (await (await GET(new Request(`http://t/api/com
 
 afterEach(() => { h.tier = "premium"; h.beta = false; });
 
-describe("combos are beta", () => {
-  it("a paying Premium customer who isn't a tester gets none, from the row or the browse page", async () => {
-    expect((await combos()).groups).toEqual([]);
-    expect((await combos("?pays=2")).groups).toEqual([]);
-    await expect(Page()).rejects.toThrow(/NEXT_HTTP_ERROR_FALLBACK;404|NEXT_NOT_FOUND/);
-  });
-  it("a tester on Free gets them (exact numbers stay a paid feature: Free sees bands)", async () => {
-    h.tier = "free"; h.beta = true;
+describe("combos are live for Premium", () => {
+  it("a Premium customer gets them from the row and the browse page, with exact numbers, and no Beta banner", async () => {
     const g = (await combos("?pays=2")).groups;
     expect(g.length).toBeGreaterThan(0);
-    expect(g[0]!.combos[0]!.ret_range).toBeDefined();
-    await expect(Page()).resolves.toBeTruthy();
+    expect(g[0]!.combos[0]!.ret_range).toBeUndefined();
+    const html = JSON.stringify(await Page());
+    expect(html).not.toContain("beta-banner");
+    expect(html).not.toContain("combos-upgrade");
+  });
+  it("Free and Pro (even a tester) get none, and /combos shows the upgrade link instead of a 404", async () => {
+    for (const t of ["free", "pro"] as Tier[]) {
+      h.tier = t; h.beta = true;
+      expect((await combos()).groups, t).toEqual([]);
+      expect((await combos("?pays=2")).groups, t).toEqual([]);
+      expect(renderToStaticMarkup(await Page()), t).toContain('data-testid="combos-upgrade"');
+    }
   });
 });
