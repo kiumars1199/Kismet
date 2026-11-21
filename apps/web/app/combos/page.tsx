@@ -17,9 +17,9 @@ export default async function Page() {
       <div>
         <h1 className="font-heading text-[28px] font-bold leading-tight">Combos</h1>
         <p className="mt-1 max-w-[760px] text-[13px] leading-relaxed text-muted">
-          Two or three Best bets from different events, closing within a day, in one bet. Every leg has to win, so the
-          payout is bigger and the chance is lower. A combo is shown only if it still beats its price when every leg uses
-          our cautious chance.
+          Best bets from different events, closing within a day, in one bet. Every leg has to win, so the payout is bigger
+          and the chance is lower. A combo is shown only if it still beats its price when every leg uses our cautious
+          chance.
         </p>
       </div>
       {allowed ? (

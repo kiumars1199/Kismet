@@ -1,12 +1,13 @@
 "use client";
 // "Combos" row on Best bets (docs/18 §5.2, §6): the same suggestions for everyone, built from Best bets on
-// different events closing within 24 h. Shows the combo backtest record; the server already drops a leg count
+// different events closing within 24 h. Every number is labelled and uses the one (cautious) chance (Marc #74); the
+// intro's leg counts and payouts come from the combos shown (Marc #65). Shows the combo backtest record; the server already drops a leg count
 // that lost money in testing, so an empty answer hides the row.
 import { useEffect, useState } from "react";
 import { fetchCombos } from "@/lib/api";
-import { comboLabel } from "@/lib/combos";
+import { comboLabel, rangeLine } from "@/lib/combos";
 import type { CombosResponse, SuggestedCombo } from "@/lib/data/combos";
-import { pct, price, ret, testedLine, winsAbout } from "@/lib/format";
+import { pays, pct, price, ret, testedLine, winsAbout } from "@/lib/format";
 import { noLiveRecord } from "@/lib/proof";
 import { useCombo } from "./useCombo";
 import { useNear } from "@/components/screener/useNear";
@@ -37,8 +38,8 @@ export function SuggestedCombos() {
           <Link href="/combos" className="text-sm font-medium text-accent hover:underline">See all combos</Link>
         </div>
         <p className="mt-1 max-w-[760px] text-[13px] leading-relaxed text-muted">
-          Two or three Best bets from different events, closing within a day, in one bet. Bigger payout, lower chance:
-          every leg has to win. {groups.map((g) => testedLine(g.record, `${g.size}-leg combos`)).filter(Boolean).join(". ")}. {noLiveRecord("combos")}
+          <span data-testid="combos-range">{rangeLine(combos)}</span>, from Best bets on different events that close within a
+          day. Bigger payout, lower chance: every leg has to win. {groups.map((g) => testedLine(g.record, `${g.size}-leg combos`)).filter(Boolean).join(". ")}. {noLiveRecord("combos")}
         </p>
       </div>
       <ul className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1 md:mx-0 md:px-0">
@@ -54,20 +55,23 @@ export function ComboCard({ c, wide = false }: { c: SuggestedCombo; wide?: boole
     <li data-testid="combo-card" data-pays={c.pays.toFixed(3)} className={`flex flex-col gap-3 rounded-card border border-border bg-surface p-4 ${wide ? "" : "w-[300px] flex-none snap-start"}`}>
       <p className="text-xs text-muted">Combo · {c.legs} legs</p>
       <p className="-mt-2 font-heading text-[22px] font-bold leading-tight">
-        <span title={`Price of the combo: ${price(c.price)} (each leg's price plus fee, multiplied). Wins if every leg wins: our chance ${pct(c.q)}, cautious ${pct(c.q_low)}.`}>Pays</span> {c.pays >= 10 ? Math.round(c.pays) : c.pays.toFixed(1)}x <span className="font-sans text-sm font-medium text-soft">· wins about {winsAbout(c.q)}</span>
+        <span title={`Price of the combo: ${price(c.price)} (each leg's price plus fee, multiplied). Wins if every leg wins: cautious chance ${pct(c.q_low)} (our central estimate ${pct(c.q)}).`}>Pays</span> {c.pays >= 10 ? Math.round(c.pays) : c.pays.toFixed(1)}x <span className="font-sans text-sm font-medium text-soft">· wins about {winsAbout(c.q_low)}</span>
       </p>
       <ol className="flex flex-col gap-1.5 text-[13px]">
         {c.items.map((l) => (
-          <li key={l.market_id} className="flex gap-2">
-            <span className="flex-none font-medium tabular-nums text-soft">{l.outcome} {price(l.ask)}</span>
-            <span className="line-clamp-1 text-muted">{l.question}</span>
+          <li key={l.market_id} data-testid="combo-leg" className="flex flex-col">
+            <span className="line-clamp-1 text-soft">{l.question}</span>
+            <span className="text-xs tabular-nums text-muted">
+              <span className="font-medium text-soft">{l.outcome}</span> · Pays {pays(l.ask + l.fee)} · {pct(l.q_low)} chance to win
+            </span>
           </li>
         ))}
       </ol>
       <p className="mt-auto text-[13px] text-muted">
-        Estimated return <span className="font-semibold text-accent">{retText(c)}</span> · cautious chance {pct(c.q_low)}
+        Estimated return <span className="font-semibold text-accent">{retText(c)}</span> at a {pct(c.q_low)} chance to win
+        <span className="block text-xs">Chances are our cautious ones; payouts include fees.</span>
       </p>
-      <button type="button" onClick={load} aria-label={`Build this combo: ${comboLabel(c, winsAbout(c.q))}`}
+      <button type="button" onClick={load} aria-label={`Build this combo: ${comboLabel(c, winsAbout(c.q_low))}`}
         className="min-h-11 rounded-input border border-border bg-muted-bg px-3 text-sm font-medium hover:border-accent-border">
         Build this combo
       </button>
