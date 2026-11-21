@@ -148,7 +148,9 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
 
   const rows = data ? [...data.rows, ...view!.more] : [];
   const slots = data ? slotsOf(rows, data.groups ? [...data.groups, ...view!.moreGroups] : undefined) : [];
-  const left = data ? (data.total_groups ?? data.total) - slots.length : 0;
+  // QA-A #70/#71: bets left, in bets (`total` counts bets; a game slot holds `size` of them), never below 0. Live
+  // re-pricing can drop rows from a page, so whether a button shows comes from the pages held (sc.hasMore), not this.
+  const left = data ? Math.max(0, data.total - slots.reduce((a, x) => a + x.size, 0)) : 0;
   // QA-A #46: the scan the cards on screen come from, never /api/meta's (another server may answer that one)
   const scanned = data?.scanned_at ?? initial?.scanned_at ?? meta?.meta.scanned_at;
   usePublishScan(scanned);   // the header pill names this same scan
@@ -187,7 +189,7 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
       <TodayCard />
 
       {/* Mark's filter bar (Nov 20): Sport · Multiplier · Date · Apply, then count and Sort */}
-      <FilterBar state={state} facets={sc.facets} win={win} total={total} onChange={set} />
+      <FilterBar state={state} facets={sc.facets} win={win} total={total} shown={sample ? rows.length : undefined} onChange={set} />
       <div role="group" aria-label="More filters" className="flex flex-wrap items-center gap-2">
         {usOn && (
           <button type="button" aria-pressed={state.us} data-testid="us-chip" className={chip(state.us)}
@@ -236,14 +238,14 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
             </>
           )}
           {sample && <LockedBets total={data.total} shown={rows.length} daily={daily} />}
-          {!sample && left > 0 && (
+          {!sample && sc.hasMore && (
             <button
               type="button"
               onClick={sc.loadMore}
               disabled={sc.loadingMore}
               className="mx-auto min-h-11 rounded-xl border border-border bg-surface px-5 text-sm hover:border-accent-border"
             >
-              {sc.loadingMore ? "Loading…" : `Show more (${nf(left)} left)`}
+              {sc.loadingMore ? "Loading…" : left > 0 ? `Show more (${nf(left)} left)` : "Show more"}
             </button>
           )}
         </div>

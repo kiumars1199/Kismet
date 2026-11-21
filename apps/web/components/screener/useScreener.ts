@@ -50,7 +50,9 @@ export function useMeta() {
   return meta;
 }
 
-type Result = { key: string; data?: MarketsResponse; more?: MarketsResponse["rows"]; moreGroups?: NonNullable<MarketsResponse["groups"]>; error?: string };
+/** `extra`: server pages appended by "Show more" after `data` (QA-A #71: counted, not inferred from row counts, which
+ *  live re-pricing can shrink below a full page). */
+type Result = { key: string; data?: MarketsResponse; more?: MarketsResponse["rows"]; moreGroups?: NonNullable<MarketsResponse["groups"]>; extra?: number; error?: string };
 
 /** `initial`: the server-rendered first page for the URL the page loaded with; used instead of the first fetch. */
 export function useScreener(mode: Mode, initial?: MarketsResponse) {
@@ -109,14 +111,14 @@ export function useScreener(mode: Mode, initial?: MarketsResponse) {
 
   /** Append the next page without touching the URL (Best bets "Show more"). */
   const [loadingMore, setLoadingMore] = useState(false);
+  // QA-A #71: the last page the server has is the last "Show more"; asking past it got a 400 (the dead last click)
+  const lastPage = res.data ? res.data.page + (res.extra ?? 0) : 0;
+  const hasMore = !!res.data && lastPage < res.data.pages;
   const loadMore = useCallback(async () => {
-    if (!res.data || loadingMore) return;
-    // pages loaded so far: grouped pages count groups, flat pages count rows
-    const loaded = res.data.groups ? res.data.groups.length + (res.moreGroups?.length ?? 0) : res.data.rows.length + (res.more?.length ?? 0);
-    const shown = res.data.page - 1 + Math.ceil(loaded / res.data.page_size);
+    if (!res.data || loadingMore || !hasMore) return;
     setLoadingMore(true);
     try {
-      const next = await load({ ...query, page: shown + 1 });
+      const next = await load({ ...query, page: lastPage + 1 });
       // QA-A #46: a page from another scan (a new scan landed, or another server answered) would skip or repeat bets.
       // Start the list again from page 1 of one scan instead of appending.
       if (next.scanned_at !== undefined && res.data.scanned_at !== undefined && next.scanned_at !== res.data.scanned_at) {
@@ -127,12 +129,14 @@ export function useScreener(mode: Mode, initial?: MarketsResponse) {
         if (r.key !== fetchKey) return r;
         const offset = (r.data?.rows.length ?? 0) + (r.more?.length ?? 0);   // next page's group starts shift past the rows already held
         const groups = next.groups?.map((g) => ({ ...g, start: g.start + offset }));
-        return { ...r, more: [...(r.more ?? []), ...next.rows], moreGroups: groups ? [...(r.moreGroups ?? []), ...groups] : r.moreGroups };
+        return { ...r, more: [...(r.more ?? []), ...next.rows], moreGroups: groups ? [...(r.moreGroups ?? []), ...groups] : r.moreGroups, extra: (r.extra ?? 0) + 1 };
       });
+    } catch {
+      // a failed page leaves the list as it was; the button stays for another try
     } finally {
       setLoadingMore(false);
     }
-  }, [res, loadingMore, load, query, fetchKey]);
+  }, [res, loadingMore, hasMore, lastPage, load, query, fetchKey]);
 
   const fresh = res.key === fetchKey;
   return {
@@ -147,5 +151,7 @@ export function useScreener(mode: Mode, initial?: MarketsResponse) {
     error: fresh ? res.error : undefined,
     retry: () => setRetry((n) => n + 1),
     loadMore, loadingMore,
+    /** another server page exists after the ones held */
+    hasMore: fresh && !res.error && hasMore,
   };
 }

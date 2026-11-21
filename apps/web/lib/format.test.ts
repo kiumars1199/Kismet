@@ -4,10 +4,11 @@ import { ago, basis, chance, closesIn, countdown, edge, exactCount, expectedProf
 describe("docs/18 numbers", () => {
   it("formatCount rounds down, never up", () => {
     // T-288: one decimal at every size (rounded down, trailing ".0" dropped), was "16K" / "12K" / "778K"
-    expect([999, 1_000, 1_050, 1_099, 1_100, 9_999, 10_000, 999_999].map(formatCount)).toEqual(["999", "1K", "1K", "1K", "1.1K", "9.9K", "10K", "999.9K"]);
-    expect([9_666, 12_340, 16_896, 778_152, 1_240_000, 1_234_567, 1_333_014, 0, 7].map(formatCount)).toEqual(["9.6K", "12.3K", "16.8K", "778.1K", "1.2M", "1.2M", "1.3M", "0", "7"]);
+    // QA-A (Marc #6): exact below 10,000, no "K"
+    expect([999, 1_000, 1_050, 1_099, 1_100, 9_999, 10_000, 999_999].map(formatCount)).toEqual(["999", "1,000", "1,050", "1,099", "1,100", "9,999", "10K", "999.9K"]);
+    expect([9_666, 12_340, 16_896, 778_152, 1_240_000, 1_234_567, 1_333_014, 0, 7].map(formatCount)).toEqual(["9,666", "12.3K", "16.8K", "778.1K", "1.2M", "1.2M", "1.3M", "0", "7"]);
     expect([-16_896, 1_000_000_000, 12_345_678_901].map(formatCount)).toEqual(["−16.8K", "1B", "12.3B"]);
-    expect([1_000_000, 2_300, 9_999_999, null].map(formatCount)).toEqual(["1M", "2.3K", "9.9M", "—"]);
+    expect([1_000_000, 2_300, 9_999_999, null].map(formatCount)).toEqual(["1M", "2,300", "9.9M", "—"]);
     expect(exactCount(1_333_014)).toBe("1,333,014");
   });
   it("wins about, points and the tested line", () => {
@@ -55,9 +56,9 @@ describe("format", () => {
 describe("basis (audit fail 7: counts go through formatCount)", () => {
   it("prints short, rounded-down counts, never the raw number", () => {
     const line = basis({ niche: "nfl", market_type: "moneyline", horizon_h: 24 }, { model_neff: 1313.7, model_events: 9666, model_level: "niche" });
-    expect(line).toContain("1.3K eff. samples");
-    expect(line).toContain("9.6K events");
-    expect(line).not.toMatch(/1,313|1,314|9,666/);
+    expect(line).toContain("1,313 eff. samples");
+    expect(line).toContain("9,666 events");
+    expect(line).not.toMatch(/1313|1314|9666/);
     expect(basis({ niche: "nfl", market_type: "moneyline", horizon_h: 24 }, { model_neff: 42.4, model_events: 57, model_level: "all" })).toContain("42 eff. samples · 57 events");
   });
 });
@@ -83,5 +84,13 @@ describe("docs/19 P4 card numbers", () => {
   it("record label from the sample behind the estimate, never a promise", () => {
     expect([recordLabel(40), recordLabel(99.9), recordLabel(100), recordLabel(2930), recordLabel(undefined)])
       .toEqual(["Thin record", "Thin record", "Strong record", "Strong record", null]);
+  });
+});
+
+describe("plural (QA-A #6)", () => {
+  it("names one thing in the singular and counts through formatCount", async () => {
+    const { plural } = await import("./format");
+    expect([plural(1, "bet"), plural(0, "bet"), plural(2, "bet"), plural(1_066, "bet"), plural(12_340, "bet")]).toEqual(["1 bet", "0 bets", "2 bets", "1,066 bets", "12.3K bets"]);
+    expect(plural(1, "more bet", "more bets")).toBe("1 more bet");
   });
 });

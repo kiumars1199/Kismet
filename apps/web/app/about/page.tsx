@@ -1,5 +1,6 @@
 // Landing at /about (T-28, F-20; moved from / by T-70, docs/13). Live counters and preview cards come from the store; tiles from backtest.json.
 import { bestBetsCount } from "@/lib/data/counts";
+import { can } from "@/lib/entitlements";
 import { REFRESH_WORDS } from "@/lib/freshness";
 import Link from "next/link";
 import { Faq, Plans } from "@/components/pricing/Plans";
@@ -55,7 +56,7 @@ export default async function Page() {
   }
   // T-291 #13: the top 3 by the return each card shows (the shared cardReturn), across every matching bet
   const top = topByReturn(allRows(store, { view: "flags", verdicts: ["worth it"] }), 3, tier);
-  const bestCount = bestBetsCount(store).total;   // T-288: the one Best bets count (lib/data/counts.ts)
+  const bestCount = bestBetsCount(store, { free: !can(tier, "live_data") }).total;   // T-288 + QA-A #26: the one count, as this tier's list counts
   const tested = chosenResult(store.backtest)?.taker;
 
   return (

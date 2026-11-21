@@ -185,3 +185,28 @@ describe("sections and the Free sample on a mixed scan", () => {
     expect([...freeSample(freeView(store), "u:x")].sort()).toEqual([...freeSample(store, "u:x")].sort());
   });
 });
+
+describe("one live-record count (QA-A #49/#63)", () => {
+  it("counts each bet once, like /track-record, and its parts add up", async () => {
+    const { settledCount } = await import("@/lib/data/counts");
+    const stats = (entries: number, graded: number, wins: number, losses: number) => ({ entries, graded, wins, losses, avg_pnl: 0.1, avg_clv: null });
+    const l = { ...stats(2400, 1900, 1460, 440), first: stats(1300, 1155, 900, 255), by_category: {}, updated_at: 1 } as unknown as Parameters<typeof settledCount>[0];
+    const c = settledCount(l)!;
+    expect(c).toEqual({ logged: 1300, settled: 1155, won: 900, lost: 255, void: 0 });
+    expect(c.won + c.lost + c.void).toBe(c.settled);
+    // a summary written before `first` existed falls back to its rows
+    expect(settledCount({ ...stats(5, 3, 2, 1), by_category: {} } as unknown as Parameters<typeof settledCount>[0])).toEqual({ logged: 5, settled: 3, won: 2, lost: 1, void: 0 });
+    expect(settledCount(null)).toBeNull();
+  });
+
+  it("/status prints that count", async () => {
+    tierBox.tier = "pro";
+    const { settledCount } = await import("@/lib/data/counts");
+    const store = await getStoreFor("pro");
+    const out = await html(StatusPage());
+    const c = settledCount(store.ledgerSummary);
+    if (!c) return expect(out).toContain("No live record yet");
+    const { formatCount } = await import("@/lib/format");
+    expect(out).toContain(`${formatCount(c.settled)} settled · ${formatCount(c.won)} won · ${formatCount(c.lost)} lost`);
+  });
+});
