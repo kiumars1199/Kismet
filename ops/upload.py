@@ -138,6 +138,21 @@ def publish(out_dir, storage, log=print, rotate_min_sec=None):
     return True
 
 
+def publish_one(path, storage, log=print):
+    """Upload one file as-is. Missing file (Kalshi off, or its crawl failed) is not an error: the bucket keeps the last one."""
+    if not os.path.exists(path):
+        log(f"{os.path.basename(path)} not found; bucket keeps the previous copy")
+        return True
+    try:
+        with open(path, "rb") as f:
+            storage.put(os.path.basename(path), f.read())
+    except (requests.RequestException, OSError) as e:
+        log(f"upload of {os.path.basename(path)} failed: {type(e).__name__}")
+        return False
+    log(f"uploaded {os.path.basename(path)}")
+    return True
+
+
 # Mirrors apps/web lib/static-routes.ts STATIC_PAGES (ops/tests/test_ops.py checks they match).
 STATIC_PAGES = ("/", "/pricing", "/about", "/track-record", "/terms", "/privacy", "/refunds", "/disclaimer", "/contact")
 
@@ -182,6 +197,8 @@ def main(argv=None):
     if not url or not key:
         print("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required", file=sys.stderr)
         return 1
+    if argv[:1] == ["--only"]:  # Nov 21: one side file (kalshi.json) after the main upload; no checks, no rotation
+        return 0 if publish_one(argv[1], Storage(url, key)) else 1
     try:
         ok = publish(argv[0] if argv else "output", Storage(url, key))
     except (requests.RequestException, OSError, json.JSONDecodeError) as e:
