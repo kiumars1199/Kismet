@@ -121,7 +121,7 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
   const profile = useProfile();
   const pro = profile.numbers_mode === "pro";
   const ent = useEntitlements();
-  const free = ent.tier === "free";   // the Free plan limits this drawer: say so, with a way up
+  const free = ent.known && ent.tier === "free";   // the Free plan limits this drawer: say so, with a way up (QA-A #40: never on the guess before /api/me answers)
   // P9: say how many exact looks are left today instead of restating the rule (the server counts them: reveals_left)
   const looks = ent.quota("flags_revealed");
   const left = data.reveals_left;

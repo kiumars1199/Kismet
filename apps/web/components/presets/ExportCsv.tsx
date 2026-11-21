@@ -13,12 +13,13 @@ import { formatCount, plural } from "@/lib/format";
 const btn = "inline-flex min-h-11 items-center gap-2 rounded-input border border-border bg-input px-3.5 py-2 text-[13px] text-soft hover:border-accent-border hover:text-text disabled:opacity-60";
 
 export function ExportCsv({ state }: { state: FilterState }) {
-  const { can } = useEntitlements();
+  const { can, known } = useEntitlements();
   const { favorite_topics } = useProfile();
   const watchlist = useCollection("watchlist");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
 
+  if (!known) return null;   // QA-A #40: no "· Pro" upsell on the "free" guess before /api/me answers
   if (!can("csv_export")) return <Link href="/pricing" className={btn}>Export CSV · Pro</Link>;
 
   async function run() {
