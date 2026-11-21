@@ -23,12 +23,16 @@ test("landing (/about): headline, counters, preview cards, Open screener", async
   await page.goto("/about");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Same payout. Different odds.");
   await expect(page.getByText("past bets tested")).toBeVisible();
-  await expect(page.getByTestId("preview-card").first()).toBeVisible();
-  // T-291 #13: top 3 sorted by the return each card shows, priced at the Best bets default stake ($100)
-  const rets = (await page.getByTestId("preview-card").getByTestId("return").allTextContents()).map((t) => Number(t.replace(/[^0-9.+-]/g, "")));
+  // Marc #28 (Nov 20): the top 3 are the real Best bets card, sorted by the return each card shows (a band's low end on
+  // Free), with the same payout line and the same $10 stake inside "Why this bet?"
+  const cards = page.locator("article[data-testid=bet-card]");
+  await expect(cards.first()).toBeVisible();
+  const rets = (await cards.getByTestId("card-return").allTextContents()).map((t) => Number(/[+−-]?[\d.]+/.exec(t)![0].replace("−", "-")));
   expect(rets.length).toBeGreaterThan(0);
   expect([...rets].sort((x, y) => y - x)).toEqual(rets);
-  for (const t of await page.getByTestId("preview-card").getByTestId("payout").allTextContents()) expect(t).toMatch(/^Bet \$100 →/);
+  for (const t of await cards.getByTestId("card-money").allTextContents()) expect(t).toMatch(/^Pays [\d.]+x/);
+  await cards.first().getByText("Why this bet?").click();
+  await expect(cards.first().getByTestId("why-back").locator("p")).toHaveText(/^If it wins you get \$[\d,.]+ back \(\$10 \+ \$[\d,.]+\)$/);
   await expect(page.getByTestId("freshness")).toBeVisible();
   await page.getByRole("link", { name: "Open screener", exact: true }).click();
   await expect(page).toHaveURL(/\/markets/);

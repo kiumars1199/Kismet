@@ -20,7 +20,7 @@ in testing" and "Live record so far", each with its count.
 | 28 (/about Top 3) | fixed | `lib/topBets.ts` ranks by the shown return (`betFigures(...).ret.roi`, venue-aware); /about renders the real `BetCard` ($10 stake, one return, same wording) instead of its own preview card. |
 | 69 (Biggest payout sort) | handed to Lane A | `BetQuote.pays` (a number, after the fee) is exported for A's sort. No sort logic changed here. |
 
-Gates: typecheck, lint clean; vitest all green except `test/teaser.test.ts` "one bet per game" (fails identically
+Gates: typecheck, lint clean; full chromium e2e 79 passed, 1 failed (trading-paper: `apps/extension` has no node_modules in this container, so its `pnpm build` fails; the branch does not touch the extension). s6.spec "landing (/about)" updated for the BetCard Top 3; vitest all green except `test/teaser.test.ts` "one bet per game" (fails identically
 on origin/final 67faeaf; date-dependent Free sample, Lane A area); `pnpm build` OK; `pnpm check:js` 149.4 kB
 (budget 150); e2e multipliers, overhaul-cards, proof, s3-drawer, a11y: 49 passed (chromium, port 3102,
 `PW_CHROMIUM_PATH=/opt/pw-browsers/chromium-1243/chrome-linux64/chrome` because Playwright 1.65.1's own build is
