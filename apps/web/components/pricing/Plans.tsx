@@ -13,14 +13,15 @@ import { track } from "@/lib/telemetry";
 import { behindWords, usd } from "@/lib/format";
 import { SITE } from "@/lib/site";
 import { FREE_BEST_BETS_A_DAY } from "@/lib/entitlements";
+import { CONNECTOR_NAME, connectorAllowance } from "@/lib/connector-plan";
 
 const PLANS = [
   { id: "free", name: "Free", monthly: 0, yearly: 0, line: "See how it works.",
     points: [`${FREE_BEST_BETS_A_DAY} Best bets a day, chosen at random`, "Prices {delay}", "Estimated return shown as a range", "Exact numbers on 3 bets a day", "1 saved view · 10 bets in My list", "Results and win-chance charts", "Kalshi markets: prices, volume, Kalshi Combos"] },
   { id: "pro", name: "Pro", monthly: SITE.prices.pro_monthly, yearly: SITE.prices.pro_yearly, line: "For people who bet every week.",
-    points: ["Every Best bet, live prices, no row limit", "Exact estimated return on every bet", "Every best bet, every filter", "Full price check: order book, stake table, how much you can bet", "Alerts by email and browser, 20 rules", "My bets with profit and closing-price tracking", "25 saved views · 3 dashboards · CSV export", "Kalshi markets: prices, volume, Kalshi Combos"] },
+    points: ["Every Best bet, live prices, no row limit", "Exact estimated return on every bet", "Every best bet, every filter", "Full price check: order book, stake table, how much you can bet", "Alerts by email (checked once a day) and in the browser while Kismet is open, 20 rules", `${CONNECTOR_NAME}: ${connectorAllowance("pro")}`, "My bets with profit and closing-price tracking", "25 saved views · 3 dashboards · CSV export", "Kalshi markets: prices, volume, Kalshi Combos"] },
   { id: "premium", name: "Premium", monthly: SITE.prices.premium_monthly, yearly: SITE.prices.premium_yearly, line: "Everything in Pro, plus new features first.",
-    points: ["Everything in Pro", "Use Kismet in Claude, ChatGPT and Cursor (read-only connector)", "Chrome extension: estimated return right on Polymarket (coming soon)", "Combos: 2- and 3-leg bets built from Best bets, plus your own combo builder", "Telegram and Discord alerts, 100 rules", "Unlimited saved views and dashboards"] },
+    points: ["Everything in Pro", `${CONNECTOR_NAME}: ${connectorAllowance("premium")}`, "Chrome extension: estimated return right on Polymarket (coming soon)", "Combos: 2- and 3-leg bets built from Best bets, plus your own combo builder", "100 alert rules", "Unlimited saved views and dashboards"] },
 ] as const;
 
 /** Yearly savings from the prices (T-291 #15): per plan on its card, the largest on the toggle as "up to". */

@@ -9,11 +9,13 @@ import { getSettings } from "@/lib/settings";
 import { tradingEnv } from "@/lib/trade/server";
 import { behindWords, usd } from "@/lib/format";
 import { SITE } from "@/lib/site";
+import { CONNECTOR_NAME, connectorAllowance } from "@/lib/connector-plan";
 
 export const dynamic = "force-static";   // T-295: prerendered + revalidated (lib/static-routes.ts); signed in: app/signed-in/*
 export const revalidate = 300;
 export const metadata = { title: "Pricing", description: "Free, Pro and Premium plans for Kismet. Start free; paid plans include a 7-day trial and cancel any time.", alternates: { canonical: "/pricing" } };
 
+const up = (s: string) => s.replace(/^./, (c) => c.toUpperCase());
 const rows = (delay: number): [string, string, string, string][] => [
   ["Best bets", "10 a day, chosen at random", "All", "All"],
   ["Prices", behindWords(delay).replace(/^./, (c) => c.toUpperCase()), "Live", "Live"],
@@ -25,11 +27,11 @@ const rows = (delay: number): [string, string, string, string][] => [
   ["Saved views", "1", "25", "Unlimited"],
   ["Dashboards", "—", "3", "Unlimited"],
   ["My list", "10 bets", "Unlimited", "Unlimited"],
-  ["Alerts", "—", "Email + browser, 20 rules", "+ Telegram / Discord, 100 rules"],
+  ["Alerts", "—", "Email (checked once a day) + browser while Kismet is open, 20 rules", "Same as Pro, 100 rules"],
   ["Price check (order book, stake table)", "First share only", "Full", "Full"],
   ["My bets: profit and closing-price tracking", "—", "Yes", "Yes"],
   ["Results and win-chance charts", "Yes", "Yes", "Yes"],
-  ["Use Kismet in Claude, ChatGPT and Cursor", "—", "3 calls a day", "Yes"],
+  [CONNECTOR_NAME, "—", up(connectorAllowance("pro")), up(connectorAllowance("premium"))],   // #38/#58/#72: lib/connector-plan.ts
   ["Chrome extension", "—", "—", "Coming soon"],
   ["CSV export", "—", "Yes", "Yes"],
 ];

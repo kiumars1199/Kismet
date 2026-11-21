@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { card, inner } from "@/components/kit";
 import type { Tier } from "@/lib/entitlements";
+import { CONNECTOR_PLANS_LINE, connectorAllowance } from "@/lib/connector-plan";
 
 const code = "rounded-inner border border-border bg-raised px-2 py-1 font-mono text-[13px] text-text break-all";
 
@@ -16,9 +17,9 @@ export function McpSetup({ tier, url }: { tier: Tier; url: string }) {
         read-only: it can&apos;t place bets or change your account, and it shows the same flags everyone sees.
       </p>
       <p className="text-sm text-muted" data-testid="mcp-plan">
-        {tier === "premium" ? "Included in your Premium plan (up to 60 calls a minute)."
-          : tier === "pro" ? <>Pro includes 3 calls a day to try it. <Link href="/pricing" className="text-accent-hover underline-offset-4 hover:underline">Premium</Link> has no daily cap.</>
-          : <>Part of Premium (Pro includes 3 calls a day). <Link href="/pricing" className="text-accent-hover underline-offset-4 hover:underline">See plans</Link>.</>}
+        {/* #38/#58/#72: the same statement as /pricing (lib/connector-plan.ts) */}
+        {tier === "free" ? <>Not on Free. {CONNECTOR_PLANS_LINE.replace(" Not on Free.", "")} <Link href="/pricing" className="text-accent-hover underline-offset-4 hover:underline">See plans</Link>.</>
+          : <>Your {tier === "premium" ? "Premium" : "Pro"} plan: {connectorAllowance(tier)}.{tier === "pro" && <> Premium: {connectorAllowance("premium")}. <Link href="/pricing" className="text-accent-hover underline-offset-4 hover:underline">See plans</Link>.</>}</>}
       </p>
       <div className="flex flex-col gap-1">
         <p className="text-xs font-medium text-muted">Server URL</p>

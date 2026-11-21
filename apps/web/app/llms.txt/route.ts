@@ -4,6 +4,7 @@ import { DISCLAIMER } from "@/components/shell/Footer";
 import { getStore } from "@/lib/data/store";
 import { HIT_RATE_VS_PROFIT, siteProof } from "@/lib/proof";
 import { SITE, siteUrl } from "@/lib/site";
+import { CONNECTOR_PLANS_LINE } from "@/lib/connector-plan";
 
 export const dynamic = "force-dynamic";
 
@@ -41,7 +42,7 @@ ${rec}
 
 - Server URL: ${u}/api/mcp (streamable HTTP, OAuth 2.1 sign-in with your ${SITE.name} account)
 - Read-only tools: best_bets, search_markets, get_market, track_record, my_list
-- Plans: Premium (up to 60 calls a minute); Pro includes 3 calls a day; not on Free
+- Plans: ${CONNECTOR_PLANS_LINE}
 - Setup steps for Claude, ChatGPT and Cursor: ${u}/account (signed in)
 
 ## For crawlers
