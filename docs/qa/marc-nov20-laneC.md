@@ -56,3 +56,13 @@ s1-landing, s6, s6-tools, t291-ui, headers 13/13; paid qa-c-header 2/2. Paid `ad
 
 Gates: tsc, lint OK; vitest 1087/1088 (known teaser test); `check:js` 149.6 kB; demo e2e s2-filters, overhaul-cards 10/10;
 paid qa-c-upsell 1/1.
+
+## QA-C 5: #19, #53 (branch claude/qa-c-views)
+
+| Item | Status | Evidence |
+|---|---|---|
+| 19 saved views list (apply, rename, delete) reachable from /bets and /markets | Fixed, verified in demo build | Before: /bets could only save a view (no way to see or use it there); /markets had the preset chips, with rename/delete hidden behind making a view active and opening its ⋯ menu. Now a "Saved views" button sits next to "+ Save this view" on both pages and opens one list: tap a name to apply it, Rename in place, Delete (asks once more). The list loads on the first tap (`next/dynamic`), so the pages' first JS doesn't grow. |
+| 53 save dialog pre-fills a name | Fixed | `lib/presets-name.ts suggestViewName`: up to three plain parts from the filters that are on (topic, payout, chance to win, closing window, Live, Confident, …), e.g. "NFL · 70%+ to win"; "My view" with none. Used by the dialog on /bets, /markets ("+ Save this view" and PresetBar's Save) and by the filter sheet's "Save as preset". `test/presets-name.test.ts` (4); `e2e/qa-c-views.spec.ts`: "My view" on a clean /bets, a filtered name on /markets, then apply from /bets, rename and delete from /markets. |
+
+Gates: tsc, lint OK; vitest 1091/1092 (known teaser test); `check:js` 149.7 kB (+0.1); demo e2e qa-c-views, s4-presets,
+s2-filters 3/3.

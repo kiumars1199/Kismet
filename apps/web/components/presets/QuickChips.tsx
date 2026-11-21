@@ -6,7 +6,9 @@ import type { FilterState } from "@/lib/filters/state";
 import { PresetQuotaError, savePresetFromState } from "@/lib/presets";
 import { useProfile } from "@/lib/repo/hooks";
 import { TAXONOMY } from "@/lib/taxonomy";
+import { suggestViewName } from "@/lib/presets-name";
 import { chipClass, SaveViewDialog } from "./SaveViewDialog";
+import { SavedViews } from "./SavedViews";
 
 type Patch = Partial<FilterState>;
 interface Chip { key: string; label: string; on: (s: FilterState) => boolean; toggle: (s: FilterState) => Patch }
@@ -69,8 +71,9 @@ export function QuickChips({ state, onChange }: { state: FilterState; onChange: 
         );
       })}
       <button type="button" onClick={() => setSaving(true)} className={`${chipClass(false)} flex-none`}>+ Save this view</button>
+      <SavedViews onApply={onChange} className={`${chipClass(false)} flex-none`} />
       <span role="status" className="flex-none text-[13px] text-accent-softer">{note}</span>
-      <SaveViewDialog open={saving} title="Save this view" error={error} onSubmit={save} onClose={() => { setSaving(false); setError(null); }} />
+      <SaveViewDialog open={saving} title="Save this view" name={suggestViewName(state)} error={error} onSubmit={save} onClose={() => { setSaving(false); setError(null); }} />
     </div>
   );
 }
