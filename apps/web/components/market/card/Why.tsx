@@ -95,7 +95,7 @@ function StakeBack({ q }: { q: { ask: number | null; fee: number | null } }) {
   const [n, setN] = useState(STAKE);
   return (
     <div data-testid="why-back" className="pb-2 font-medium text-text">
-      <label className="text-xs text-muted">If you bet ${" "}
+      <label className="flex min-h-11 items-center gap-1.5 text-xs text-muted">If you bet $
         <input type="number" defaultValue={STAKE}
           onChange={(e) => setN(+e.target.value > 0 ? +e.target.value : STAKE)}
           className="h-11 w-20 rounded-input border border-border bg-raised px-2 text-text" />

@@ -9,7 +9,7 @@ import { Tour } from "./Tour";   // the first-run spotlight tour lives here too:
 export const NUDGE_KEY = "me:v1:nudge_dismissed";
 const KEY = NUDGE_KEY;
 
-export function OnboardingNudge() {
+export function OnboardingNudge({ initial = null }: { initial?: boolean | null }) {
   const { onboarded_at, favorite_topics } = useProfile();
   // #22 (Nov 20): only once the account's profile has loaded. Shown on the server render (as before), it flashed for
   // everyone who had already finished or dismissed setup, on every visit, since /bets is behind the account wall.
@@ -19,13 +19,23 @@ export function OnboardingNudge() {
     try { setHidden(localStorage.getItem(KEY) === "1"); } catch { setHidden(false); }
   }, []);
   // P9: someone who already chose topics (here or in Settings) has nothing to choose
-  const show = ready && !hidden && !onboarded_at && !favorite_topics.length;
+  // Nov 21: until the profile loads, the server's answer (from the account's profile) decides, so the nudge is in the
+  // first HTML and doesn't push the cards down a second later. null: unknown, wait for the profile as before.
+  const show = !hidden && (ready ? !onboarded_at && !favorite_topics.length : initial === true);
   // #22: dismissing counts as skipping setup (as /onboarding's "Skip setup" does): saved to the account, so the banner
   // stays gone on every device, not only in this browser
+  // Nov 21: the nudge can now be tapped before the profile has loaded (it is in the first HTML); the save waits for
+  // the account's repo, or it would go nowhere and the banner would come back on the next device.
+  const [pending, setPending] = useState(false);
+  useEffect(() => {
+    if (!pending || !ready) return;
+    setPending(false);
+    getRepo().profile.patch({ onboarded_at: new Date().toISOString() }).catch((e) => console.error("[nudge] could not save:", e));
+  }, [pending, ready]);
   const dismiss = () => {
     setHidden(true);
     try { localStorage.setItem(KEY, "1"); } catch { /* storage off */ }
-    getRepo().profile.patch({ onboarded_at: new Date().toISOString() }).catch((e) => console.error("[nudge] could not save:", e));
+    setPending(true);
   };
 
   return (

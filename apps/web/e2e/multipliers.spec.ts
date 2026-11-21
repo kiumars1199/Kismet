@@ -21,7 +21,7 @@ test("long shot: a 10x+ payout filter with international bets brings it in, with
   await expect(card.getByTestId("card-chance")).toHaveText("14% chance to win");
   await card.getByText("Why this bet?").click();
   await expect(card.getByText(/^Lower:/)).toBeVisible();
-  await expect(card.getByTestId("band-record")).toContainText("lost money in testing");
+  await expect(card.getByTestId("band-record")).toContainText("(lost money)");
 });
 
 test("drawer: long-shot line under 25% chance", async ({ page }) => {
@@ -102,12 +102,12 @@ test("combos page: payout tabs, each card pays at least the floor, Build this co
 
 test("combo #42: a saved leg that has closed leaves the tray, with a note", async ({ page }) => {
   await atScan(page);
-  await page.goto("/");
-  await page.evaluate((closed) => localStorage.setItem("me-combo-v1", JSON.stringify({ state: { legs: [{
+  // seeded before the app loads: written after goto, the tray's own save during hydration could overwrite it
+  await page.addInitScript((closed) => localStorage.setItem("me-combo-v1", JSON.stringify({ state: { legs: [{
     market_id: "x1", side_index: 0, question: "Old game", outcome: "Yes", event_id: "ex", event: "Old game",
     url: "https://polymarket.com/event/x", ask: 0.5, fee: 0.01, q: 0.6, q_low: 0.55, closes_at: closed,
   }] }, version: 0 })), SCAN_S - 3600);
-  await page.reload();
+  await page.goto("/");
   await expect(page.getByTestId("combo-dropped")).toContainText("its bets have closed");
   await expect(page.getByTestId("combo-tray")).toHaveCount(0);
 });

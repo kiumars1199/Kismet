@@ -73,6 +73,8 @@ test("#22 onboarding banner: never flashes once setup is done; dismissing is sav
   const first = await secondDevice(browser, email, false);
   await first.page.goto("/bets");
   await expect(banner(first.page)).toBeVisible({ timeout: 60_000 });
+  // Nov 21: the banner is in the first HTML now; tap Dismiss once the page has hydrated (its handler is attached)
+  await expect(first.page.locator("html")).toHaveAttribute("data-theme", /.+/, { timeout: 60_000 });
   const write = first.page.waitForResponse((r) => r.request().method() === "PATCH" && new URL(r.url()).pathname === "/api/data/profile", { timeout: 60_000 });
   await banner(first.page).getByRole("button", { name: "Dismiss" }).click();
   expect((await write).status()).toBe(200);
