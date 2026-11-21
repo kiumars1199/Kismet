@@ -10,8 +10,8 @@
 // Exported for other lanes: <BetCard r={{ market, side }} /> (landing imports it).
 import { useRef } from "react";
 import type { ApiRow } from "@/lib/api";
-import { betQuote, RETURN_HELP_ONE } from "@/lib/betFigures";
-import { cardVenue, chanceLine, INTL_ONLY, plainTitle, sideLabel, stars, starsHelp, US_SMALL_PRINT } from "@/lib/card";
+import { betQuote, quoteStars, RETURN_HELP_ONE } from "@/lib/betFigures";
+import { cardVenue, chanceLine, INTL_ONLY, plainTitle, sideLabel, starsHelp, US_SMALL_PRINT } from "@/lib/card";
 import { useEntitlements } from "@/lib/entitlements";
 import { VenueButton } from "@/components/trade/VenueButton";
 import { useWhen } from "./When";
@@ -35,7 +35,7 @@ export function BetCard({ r }: { r: ApiRow; pro?: boolean }) {
   const q = betQuote(m, s);
   const money10 = q.paysText && `Pays ${q.paysText}`;
   const noUsPrice = v.kind === "us" && v.ask == null;
-  const st = noUsPrice ? undefined : stars({ roi_pct: v.roi_pct, model_neff: s.model_neff });
+  const st = noUsPrice ? undefined : quoteStars(q, s.model_neff);
   const nowPays = live && betQuote(null, s, { ask: live.ask }).paysText;
   return (
     <article ref={ref} data-testid="bet-card" data-row data-market-id={m.id} data-tier={m.tier ?? undefined} data-venue={v.kind}

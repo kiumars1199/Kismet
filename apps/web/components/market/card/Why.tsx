@@ -5,8 +5,8 @@
 // no "edge", "spread", "model", "pts"; counts stay under four digits.
 import { useState, type ReactNode } from "react";
 import type { ApiRow } from "@/lib/api";
-import { betQuote } from "@/lib/betFigures";
-import { backLine, cardVenue, STAKE, INTL_ONLY, NOT_FOR_US, stars, starsHelp } from "@/lib/card";
+import { betQuote, quoteStars } from "@/lib/betFigures";
+import { backLine, cardVenue, STAKE, INTL_ONLY, NOT_FOR_US, starsHelp } from "@/lib/card";
 import { paysBand } from "@/lib/filters/bands";   // not ./apply: zod on the landing (T-295)
 import { costPct, ESTIMATE_HELP, money, pct, ret } from "@/lib/format";
 import { noLiveRecord, type Proof } from "@/lib/proof";
@@ -112,7 +112,7 @@ export function Why({ r, livePrice }: { r: ApiRow; livePrice?: ReactNode }) {
   const v = cardVenue(m, s);
   const banded = !!s.ranges;
   const back = backLine(v) !== null;
-  const st = stars({ roi_pct: v.roi_pct, model_neff: s.model_neff });
+  const st = quoteStars(betQuote(m, s), s.model_neff);
   const band = paysBand({ ask: v.ask ?? s.ask });
   // #14/#51 (Mark, Nov 20): say which group the test record is (Best bets vs lower-confidence bets, at this payout) so it
   // can't be read as contradicting /track-record, which shows Best bets; and when that group lost money in testing

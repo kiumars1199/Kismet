@@ -3,7 +3,7 @@
 // drawer says another, and a label can't contradict its number (outside tester, Nov 20).
 // QA-B (Marc, Nov 20, #55/#31/#20/#37/#54/#5): one payout and one return per bet. Both come from betQuote, at the
 // price the card shows (the US price on a US card): payout = 1 ÷ (price + fee), return = win chance × payout − 1.
-import { cardVenue, dollars, multX, STAKE, type CardVenue } from "@/lib/card";
+import { cardVenue, dollars, multX, STAKE, stars, type CardVenue, type Stars } from "@/lib/card";
 import { chance, costPct, money, pct, recordLabel, ret, sideRet, winsAbout, type Chance, type RecordLabel } from "@/lib/format";
 import type { Market, Side } from "@/lib/types";
 
@@ -109,6 +109,14 @@ const pctFine = (p: number) => `${(Math.round(p * 1000) / 10).toFixed(1).replace
 
 /** Everything a bet's payout and return come from, at the price its card shows: the US price on a US card
  *  (lib/card cardVenue), else the international price, or `opts.ask` (a live international price, exact tiers only). */
+/** #5 (Marc, Nov 20): the value label comes from the quote's own return, so a label never disagrees with the figure
+ *  beside it: an exact return of 0 or below gets no stars (stars() alone gives 0% one star). A Free band whose low end
+ *  is 0 is 0–5%, so it keeps its star. */
+export function quoteStars(q: Pick<BetQuote, "roi" | "banded">, neff: number | null | undefined): Stars | null {
+  if (!ok(q.roi) || (!q.banded && q.roi <= 0)) return null;
+  return stars({ roi_pct: q.roi, model_neff: neff });
+}
+
 export function betQuote(m: Pick<Market, "us" | "best"> | null | undefined, s: Side, opts: { ask?: number; fee?: number } = {}): BetQuote {
   const v = m ? cardVenue(m, s) : { kind: "intl" as const, ask: s.ask, fee: s.fee, roi_pct: s.roi_pct };
   const banded = !!s.ranges;
