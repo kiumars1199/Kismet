@@ -17,7 +17,7 @@ vi.mock("next/navigation", () => ({
 
 const { BetCard } = await import("@/components/market/BetCard");
 const { MarketCard } = await import("@/components/market/MarketCard");
-const { betQuote, betFigures } = await import("@/lib/betFigures");
+const { atQuote, betQuote, betFigures, verdict } = await import("@/lib/betFigures");
 const { gateMarket } = await import("@/lib/data/gate");
 const { getStore } = await import("@/lib/data/store");
 const store = await getStore();
@@ -63,6 +63,22 @@ describe("one payout and one return per bet, on every fixture best bet", () => {
       expect(compact, "compact pays").toContain(`Pays ${q.paysText}`);
       expect(compact, "compact return").toContain(q.retText.replace("–", "–"));
       expect(betFigures(s, { market: m }).ret.text).toBe(q.retText);
+
+      // #5: labels come from the same number they sit beside. An exact return of 0 or below gets no stars and no
+      // positive verdict; Free never gets the exact arithmetic, in any text or hover (betQuote().math is its only source).
+      const at = atQuote(s, q);
+      if (tier === "exact") {
+        const nonPos = q.roi !== null && q.roi <= 0;
+        if (nonPos) {
+          expect(html, "no stars beside a return ≤ 0").not.toMatch(/aria-label="Value:/);
+          expect(verdict(at).tone, "no positive verdict beside a return ≤ 0").not.toBe("up");
+        } else if (q.roi !== null) {
+          expect(html, "stars beside a positive return").toMatch(/aria-label="Value: (Great|Good|Fair) value/);
+          expect(verdict(at).tone).toBe("up");
+        }
+      } else {
+        expect(q.math, "Free: no exact arithmetic").toBeNull();
+      }
 
       if (/Over|Under/.test(chance)) return;   // "Over 99%": no exact chance printed to multiply
       const c = num(chance) / 100;
