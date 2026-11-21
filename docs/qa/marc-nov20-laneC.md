@@ -66,3 +66,13 @@ paid qa-c-upsell 1/1.
 
 Gates: tsc, lint OK; vitest 1091/1092 (known teaser test); `check:js` 149.7 kB (+0.1); demo e2e qa-c-views, s4-presets,
 s2-filters 3/3.
+
+## QA-C 6: #21, #22 (branch claude/qa-c-settings)
+
+| Item | Status | Evidence |
+|---|---|---|
+| 21 /settings linked from /account (and the account menu) | Fixed, verified in mock | Signed in, /account had no way to Settings (the link existed only when accounts are off). It now has a "Settings" button at the top, and /settings has "Plan and billing" back to /account. On phones the More sheet already lists Settings. The desktop header has no account *menu* (Account is a plain link, and at 1280 px the header has no room for another item); **Q decides** whether Account should become a menu. |
+| 22 settings and journal sync to the account | Already true in code; copy fixed; verified in mock | Signed in, profile (settings), saved views, My list, My bets and alerts go through `SupabaseRepo` → `/api/data` (Supabase, RLS as the user). But /settings said "Saved in this browser… Nothing is sent to a server", /journal "Stored on this device only", and the log-a-bet form "Saved on this device only". Now one module (`lib/saved-where.ts`) says "Saved to your account" when accounts are on, and keeps the local wording in demo mode. "Clear local data" (it cleared only this browser, not the account) is replaced by a pointer to Account, where deleting the account deletes the data. e2e: a setting changed on one device shows on a second one signed in as the same user. No migration needed. |
+| 22 onboarding banner hides once onboarding is done or dismissed | Fixed, verified in mock | It rendered on the server before the profile loaded, so it flashed for everyone who had finished setup; its dismissal was kept only in this browser. Now it waits for the account's profile (`useRepoReady`), and dismissing it saves `onboarded_at` to the account (as /onboarding's "Skip setup" does). e2e: not in the first HTML for an onboarded user, never visible while `/api/data` is slow; dismissed on one device, gone on a second. |
+
+Gates: tsc, lint OK; paid e2e qa-c-settings 2/2, s7-upgrade, overhaul-funnel pass (7/7 with these).
