@@ -10,6 +10,7 @@ _(filled at the end of the run)_
 - PR #10 (agent teams settings) merged to `final` as 67faeaf. Agent teams were not active in this
   session, so the lanes run as 4 parallel subagents in their own worktrees. Only the orchestrator merges.
 - Marc's original list is not in the repo. Item descriptions below come from the lane briefs only.
+- Lane B one-return plan (Nov 21): roi_pct already equals win% x after-fee pays - 1 (fixture max diff 0.03pp); the bug is presentation. New lib/betQuote.ts feeds card, drawer, tables, /about. Advisor was rate-limited, so the orchestrator reviewed it and approved with notes: export numeric pays for A's #69 sort, Free tier sees bands only, every drawer figure shows its n, card stays 7 slots at 390px.
 - Shared items: 69 (A, then B if still wrong), 48 (B: FAQ copy, C: cancel path).
 
 ## Items
