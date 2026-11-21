@@ -31,6 +31,17 @@ affected e2e and the Vercel preview all green.
   could land before the profile loaded and the save went nowhere. Dismiss now waits for the profile, then saves. The
   test also waits for hydration before tapping.
 
+## 2. Backtest headline leads with even weeks ("Nov21: backtest even weeks")
+- Engine: `python -m engine backtest-even` samples closed markets evenly over the year (data/even), runs the same
+  walk-forward test, writes output/backtest_even.json; `attach-even` copies it into backtest.json as `even_weeks`.
+  Railway runs it at most weekly in a background thread, so scans keep their 15 min cadence.
+- Site: when `even_weeks` has best bets it is the headline everywhere (cards, /track-record, MCP, llms.txt), with one
+  line: "Bets in N of 52 weeks", plus how the sample was drawn and what the production-history run gave.
+- Local run (Nov 21): +6.45% per bet, t 2.41, 302 bets over 204 events, bets in 25 of 52 weeks. Lane B's note had
+  3,098 bets in 42 weeks; I could not reconcile the two (different sample: Lane B's set is not in the repo). Per Q,
+  the site ships whatever the engine computes; production shows the figure from Railway's first weekly run, and keeps
+  the old headline until then.
+
 ## Q's answers (Nov 21, before going away)
 
 - Alerts email check: throwaway Pro test account, mail to Resend's test inbox (delivered@resend.dev), deleted after.
