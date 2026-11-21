@@ -60,5 +60,15 @@ export const publicSegment = (segment: string) => segment === "all" || segment.s
 /** Walk-forward result for the chosen half-life (results are keyed "21" | ... | "None"). */
 export const chosenResult = (b: BacktestFile) => b.results[String(b.chosen_half_life_days ?? "None")];
 
+/** Nov 21 (Q on #6): the run the site leads with. backtest.json's `even_weeks` (the walk-forward test on an evenly
+ *  sampled year) when it has best bets, with the production-history run kept as `concentrated`; else the file as is.
+ *  The store applies this once, so every headline, table and card reads the same run. */
+export function headlineBacktest(b: BacktestFile): BacktestFile {
+  const e = b?.even_weeks;
+  if (!e || typeof e !== "object" || !e.results || !(chosenResult(e)?.taker?.flags ?? 0)) return b;
+  const { even_weeks: _, ...concentrated } = b;
+  return { ...e, concentrated };
+}
+
 export const categoryRecord = (b: BacktestFile, category: string): BacktestRecord | null =>
   chosenResult(b)?.by_category?.[category] ?? null;

@@ -143,7 +143,15 @@ export interface ComboBacktestRecord {
 export interface BacktestFile {
   chosen_half_life_days: number | null; results: Record<string, BacktestResult>;
   combos?: Record<string, ComboBacktestRecord>;
+  /** Nov 21 (docs/03): the same test on an evenly sampled year; the store serves it as the backtest when present. */
+  even_weeks?: EvenWeeksRun;
+  /** Set by the store when it serves `even_weeks`: the production-history run it replaced (no `even_weeks`). */
+  concentrated?: BacktestFile;
   [k: string]: unknown;
+}
+export interface EvenWeeksRun extends BacktestFile {
+  sample?: { days: number; window_days: number; per_window: number; per_niche_month: number };
+  ran_at?: number;
 }
 
 // Derived at load (lib/data/derive.ts, docs/03 §2).
