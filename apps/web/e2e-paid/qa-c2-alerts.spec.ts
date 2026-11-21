@@ -1,0 +1,61 @@
+// Marc's QA list, Nov 20 (lane C2): #23 /alerts never renders blank on first load; #23/#64 the page says plainly
+// where alerts go, a Pro rule can turn email on (the server cron emails it), and /pricing no longer sells
+// Telegram/Discord alerts. Supabase and Stripe are the in-app mock (app/e2e-mock).
+import { expect, test, type Page } from "@playwright/test";
+
+async function signUpPro(page: Page, email: string) {
+  await page.goto("/login?next=/pricing");
+  await expect(async () => {
+    await page.getByRole("tab", { name: "Email link" }).click();
+    await expect(page.getByRole("button", { name: "Email me a sign-in link" })).toBeVisible({ timeout: 2_000 });
+  }).toPass({ timeout: 60_000 });
+  await page.getByLabel("Email", { exact: true }).fill(email);
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "Email me a sign-in link" }).click();
+  await expect(page.getByRole("heading", { name: "Check your email" })).toBeVisible({ timeout: 30_000 });
+  const { url } = await (await page.request.get(`/e2e-mock/supabase/_inbox?email=${encodeURIComponent(email)}`)).json();
+  await page.goto(url);
+  await expect(async () => {
+    if (new URL(page.url()).pathname === "/onboarding") await page.getByRole("button", { name: "Skip setup" }).click({ timeout: 10_000 });
+    await expect(page).toHaveURL(/\/pricing$/, { timeout: 10_000 });
+  }).toPass({ timeout: 90_000 });
+  await page.getByTestId("checkout-pro").click();
+  await expect(page).toHaveURL(/\/account\?checkout=success/, { timeout: 45_000 });
+  await expect(page.getByTestId("checkout-status")).toHaveText("Payment confirmed. Your plan is active.", { timeout: 30_000 });
+}
+
+test("#23/#64 Pro: /alerts has content in its first HTML, says where alerts go, and a new rule can email", async ({ page }) => {
+  await signUpPro(page, `qa-c2-alerts-${Date.now()}@example.com`);
+
+  // First HTML, before any script runs.
+  const html = await (await page.request.get("/alerts")).text();
+  // AlertsView reads the URL, so this HTML stops at its Suspense boundary (BAILOUT_TO_CLIENT_SIDE_RENDERING); with no
+  // fallback that was an empty page until the script ran (#23).
+  // loading.tsx streams one skeleton first; the page boundary must hold its own until the script renders the view
+  // (before the fix: 1, the streamed page replaced it with nothing).
+  expect(html.split("data-skeleton").length - 1, "first HTML of /alerts is not blank").toBeGreaterThanOrEqual(2);
+
+  await page.goto("/alerts");
+  await expect(page.getByText(/While Kismet is open in a tab, rules check every 2 minutes/)).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByText(/our servers also check once a day, even when Kismet is closed/)).toBeVisible();
+  await expect(page.getByRole("heading", { name: "No alert rules yet" })).toBeVisible({ timeout: 30_000 });
+
+  await page.getByRole("button", { name: "New alert" }).click();
+  const dialog = page.getByRole("dialog");
+  const emailSwitch = dialog.getByRole("switch", { name: "Email" });
+  await expect(emailSwitch).toBeChecked();   // Pro: a new rule starts with email on
+  await expect(dialog.getByText("Checked once a day, even when Kismet is closed")).toBeVisible();
+  await dialog.getByRole("button", { name: "Create alert" }).click();
+  await expect(dialog).toBeHidden();
+  await expect(page.getByText(/inbox \+ email/)).toBeVisible();
+  const { alert_rules } = await (await page.request.get("/api/data")).json();
+  expect(alert_rules).toHaveLength(1);
+  expect(alert_rules[0].channels).toEqual(["email"]);
+});
+
+test("#64 /pricing sells no Telegram or Discord alerts and says email is checked once a day", async ({ request }) => {
+  const html = await (await request.get("/pricing")).text();
+  expect(html).not.toMatch(/Telegram|Discord/);
+  expect(html).toContain("Email (checked once a day) + browser while Kismet is open, 20 rules");
+  expect(html).toContain("Alerts by email (checked once a day) and in the browser while Kismet is open, 20 rules");
+});

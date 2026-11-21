@@ -29,7 +29,7 @@ price says, after fees, and whether you can actually get that price right now."
 | Saved presets | 1 | 25 | Unlimited |
 | Dashboards (multi-panel) | — | 3 | Unlimited |
 | Watchlist / saved bets | 10 | Unlimited | Unlimited |
-| Alerts | — | Email + web push, 20 rules | + Telegram/Discord webhook, 100 rules |
+| Alerts | — | Email (server check once a day) + browser while the tab is open, 20 rules | Same as Pro, 100 rules. Telegram/Discord not sold: the editor can't store a webhook (#64, Nov 20) |
 | Execution check (order book, stake table, capacity) | First-share verdict only | Full | Full |
 | Bet journal + CLV + P&L | — | Yes | Yes |
 | Track record / calibration pages | Yes | Yes | Yes |

@@ -24,7 +24,7 @@ const rows = (delay: number): [string, string, string, string][] => [
   ["Saved views", "1", "25", "Unlimited"],
   ["Dashboards", "—", "3", "Unlimited"],
   ["My list", "10 bets", "Unlimited", "Unlimited"],
-  ["Alerts", "—", "Email + browser, 20 rules", "+ Telegram / Discord, 100 rules"],
+  ["Alerts", "—", "Email (checked once a day) + browser while Kismet is open, 20 rules", "Same as Pro, 100 rules"],
   ["Price check (order book, stake table)", "First share only", "Full", "Full"],
   ["My bets: profit and closing-price tracking", "—", "Yes", "Yes"],
   ["Results and win-chance charts", "Yes", "Yes", "Yes"],
