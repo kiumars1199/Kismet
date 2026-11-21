@@ -62,13 +62,14 @@ test("#17/#73 admin: Combos, Kalshi, Admin, Account on every page without waitin
   await expect(page.getByRole("link", { name: "Account" }).first()).toBeVisible();
 });
 
-test("#17/#73 normal user: Account everywhere, no Admin, no beta links", async ({ page }) => {
+test("#17/#73 normal user: Account everywhere, no Admin, Kalshi (live for every plan), no Combos (Premium)", async ({ page }) => {
   test.setTimeout(240_000);
   await signIn(page, `qa-c-hdr-${Date.now()}@example.com`);
   for (const p of ["/bets", "/pricing"]) {
     const h = await firstHeader(page, p);
     expect(has(h, "/account"), p).toBe(true);
-    for (const href of ["/admin", "/combos", "/kalshi"]) expect(has(h, href), `${p} ${href}`).toBe(false);
+    for (const href of ["/admin", "/combos"]) expect(has(h, href), `${p} ${href}`).toBe(false);
+    expect(has(h, "/kalshi"), `${p} /kalshi`).toBe(true);   // QA-D: Kalshi is live for every signed-in plan
   }
-  await headerWithoutMe(page, "/nope-xyz", ["Account"], /^(Admin|Combos|Kalshi)/);
+  await headerWithoutMe(page, "/nope-xyz", ["Account", "Kalshi"], /^(Admin|Combos)/);
 });
