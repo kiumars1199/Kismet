@@ -3,7 +3,7 @@
 // Telegram/Discord alerts. Supabase and Stripe are the in-app mock (app/e2e-mock).
 import { expect, test, type Page } from "@playwright/test";
 
-async function signUpPro(page: Page, email: string) {
+async function signUp(page: Page, email: string) {
   await page.goto("/login?next=/pricing");
   await expect(async () => {
     await page.getByRole("tab", { name: "Email link" }).click();
@@ -19,6 +19,10 @@ async function signUpPro(page: Page, email: string) {
     if (new URL(page.url()).pathname === "/onboarding") await page.getByRole("button", { name: "Skip setup" }).click({ timeout: 10_000 });
     await expect(page).toHaveURL(/\/pricing$/, { timeout: 10_000 });
   }).toPass({ timeout: 90_000 });
+}
+
+async function signUpPro(page: Page, email: string) {
+  await signUp(page, email);
   await page.getByTestId("checkout-pro").click();
   await expect(page).toHaveURL(/\/account\?checkout=success/, { timeout: 45_000 });
   await expect(page.getByTestId("checkout-status")).toHaveText("Payment confirmed. Your plan is active.", { timeout: 30_000 });
@@ -42,6 +46,7 @@ test("#23/#64 Pro: /alerts renders before its scripts load, says where alerts go
   await expect(page.getByText(/While Kismet is open in a tab, rules check every 2 minutes/)).toBeVisible({ timeout: 30_000 });
   await expect(page.getByText(/our servers also check once a day, even when Kismet is closed/)).toBeVisible();
   await expect(page.getByRole("heading", { name: "No alert rules yet" })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByTestId("alerts-free-note")).toHaveCount(0);   // Nov 21: the upgrade note is Free only
 
   await page.getByRole("button", { name: "New alert" }).click();
   const dialog = page.getByRole("dialog");
@@ -54,6 +59,17 @@ test("#23/#64 Pro: /alerts renders before its scripts load, says where alerts go
   const { alert_rules } = await (await page.request.get("/api/data")).json();
   expect(alert_rules).toHaveLength(1);
   expect(alert_rules[0].channels).toEqual(["email"]);
+});
+
+test("Nov 21: Free sees a short upgrade note on /alerts, and no email switch", async ({ page }) => {
+  await signUp(page, `nov21-free-alerts-${Date.now()}@example.com`);
+  await page.goto("/alerts");
+  const note = page.getByTestId("alerts-free-note");
+  await expect(note).toBeVisible({ timeout: 30_000 });
+  await expect(note).toContainText("Pro adds email");
+  await expect(note.getByRole("link", { name: "See plans" })).toHaveAttribute("href", "/pricing");
+  await page.getByRole("button", { name: "New alert" }).click();
+  await expect(page.getByRole("dialog").getByRole("switch", { name: "Email" })).toHaveCount(0);
 });
 
 test("#64 /pricing sells no Telegram or Discord alerts and says email is checked once a day", async ({ request }) => {

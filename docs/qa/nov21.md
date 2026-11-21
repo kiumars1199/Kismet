@@ -42,6 +42,14 @@ affected e2e and the Vercel preview all green.
   the site ships whatever the engine computes; production shows the figure from Railway's first weekly run, and keeps
   the old headline until then.
 
+## 3. Alerts ("Nov21: alerts Free note")
+- Email on by default for new rules on paid plans: already in place (AlertsView `blank(emailNow())`); existing rules
+  are not touched (no migration), so they keep their channels.
+- Cron stays daily (vercel.json, 13:00 UTC).
+- Free: a short note under the title ("On Free, alerts reach you only while Kismet is open in a tab. Pro adds email…")
+  with a See plans link; no email switch in the editor. e2e-paid covers Free (note shown) and Pro (no note).
+- Pro email end to end: see "Alerts email check" below (after deploy).
+
 ## Q's answers (Nov 21, before going away)
 
 - Alerts email check: throwaway Pro test account, mail to Resend's test inbox (delivered@resend.dev), deleted after.
