@@ -4,12 +4,19 @@ Orchestrator log for the Nov 21 overnight run. Lane logs: `marc-nov20-lane{A,B,C
 Status: fixed / already fixed / won't fix (why) / not verified live / open.
 
 ## Summary
-**Shipped to kismetodds.com:** every item in the four lane briefs is fixed, already fixed, or hardened. Merges: #11 to #14 one at a time, then batch 1 (#15) and two install fixes (#16, #17). The Kalshi crawl (batch 2) ships as its own PR; see below.
+**Shipped to kismetodds.com:** every item in the four lane briefs is now fixed, already fixed, or hardened, with three exceptions: #27 and #29 are partly fixed, and #23 was hardened but never reproduced. Merges: #11 to #14 one at a time, then batch 1 (#15) and two install fixes (#16, #17). Batch 2, the Kalshi full crawl, went out as #18 (b806a66). It deployed READY on Vercel and SUCCESS on Railway.
 - **One return figure everywhere.** Card, drawer, tables, /about Top 3 and MCP all read from `betQuote`. Labels are worked out at the shown price, and "Biggest payout" sorts by the card's after-fee payout.
 - **Fresh data.** Snapshots are never more than 5 minutes stale. Counts come from one source on every page, timestamps tick, and the scan copy says "about every 15 minutes".
 - **Account.** Paid users never see Free upsells. One header everywhere. /account and /settings link to each other, and the onboarding banner no longer flashes. Saved views can be listed, renamed and deleted, with a suggested name. Unknown URLs return 404.
 - **Selling only what works.** Pricing lists only shipped features: no extension "coming soon", no Telegram or Discord. The connector allowance is worded the same everywhere: Pro 3 calls a day, Premium no daily cap. /alerts says plainly how alerts are delivered.
 - **Combos and Kalshi out of beta.** /kalshi is open to every signed-in plan. Combo legs come one per event, never closed or past, with labelled numbers and the cautious chance.
+
+**What's left:**
+- **#27/#29 hydration flashes.** Partly fixed; a few may remain in the header and on Kalshi.
+- **#23.** If Marc still sees a blank /alerts, note the browser, plan and console error.
+- **Kalshi data.** Check that the new per-market fields (no bid/ask, last price, 24 h volume, open interest, status) are non-null in kalshi.json; their names are unverified. Settlements do work: 100, then 200, then 247 rows over the first three scans.
+- **Railway disk.** Check that the `data/` volume isn't growing every scan; the crawl cache is now about 110 pages.
+- **Install command.** It now wipes node_modules on every build (about 1 minute slower). The root cause is unknown (the pnpm 12 slot collision on the vendored picomatch). The `pwd; ls` debug prefix is still in it; drop it once builds stay green.
 
 **Not verified live (needs a signed-in check):** paid-plan views of counts, upsells and header; Pro email alerts; #23 (a blank /alerts was never reproduced); the WebKit/iPhone e2e and trading-paper specs (they can't run in this sandbox); the 30-minute /api/meta freshness sample for #46/#60.
 
@@ -29,7 +36,11 @@ Status: fixed / already fixed / won't fix (why) / not verified live / open.
 9. **Kalshi combo check.** It needs the engine's `kalshi_match` job, which isn't built.
 10. **Copy changes to review:** /terms and /disclaimer wording (Free sees ranges).
 11. **Out of scope.** Items 1, 7, 12, 16, 24, 43, 45, 62 and 66 weren't in any brief and weren't touched.
-12. **Permission prompts.** Add allow rules for the GitHub and Vercel tools to `.claude/settings.json` so overnight runs don't wait on approval clicks. I wasn't allowed to change this myself.
+12. **Kalshi crawl budget.** At 45 s it reads 116 pages and never finishes (cap: 500 pages, about 0.27 s each). Raising `KALSHI_BUDGET_SEC` on Railway (for example to 180) would finish the crawl. But the Polymarket upload waits for the Kalshi step, so every extra second delays fresh best bets by the same amount. I left it at 45 because freshness (#46) matters more.
+13. **#68 sort.** The pays sort no longer widens tiers; sorting only reorders.
+14. **/combos for Free and Pro.** They now get an upgrade prompt instead of a 404.
+15. **Kalshi board.** Should it show the new fields and recent settlements?
+16. **Permission prompts.** Add allow rules for the GitHub and Vercel tools to `.claude/settings.json` so overnight runs don't wait on approval clicks. I wasn't allowed to change this myself.
 
 ## Run notes
 - PR #10 (agent teams settings) merged to `final` as 67faeaf. Agent teams were not active in this
@@ -43,6 +54,7 @@ Status: fixed / already fixed / won't fix (why) / not verified live / open.
 - Batch 1 merges as ONE integration PR (merge commit), not one PR per lane branch. Why: the lane branches only merge cleanly with conflict resolutions (FreshnessPill A/C, multipliers.spec, Plans.tsx) and three orchestrator commits (sort repoint to betQuote, demo AuthBoot loads /api/me, header spec for live Kalshi) that sit on no lane branch, so only the stack tip was ever gated green. "Never merge red" beats "one at a time". Advisor agreed. Rollback is one `git revert -m 1`.
 - Batch 1 = B return/faq/ledger, A counts/sort/freshness/plan/teaser-clock, C header/upsell/views/settings/pricing, C2 alerts/connector, D golive/combos. Gates on the tip: tsc, lint, vitest 1431/1431, pytest 122, check:js 143.2 kB, free + paid e2e (chromium). No DB migration. Alerts env (RESEND_API_KEY, EMAIL_FROM, UNSUBSCRIBE_SECRET, CRON_SECRET) fails closed when unset.
 - Batch 1 merged as #15 (22e79e3). Its prod build then failed twice at `pnpm install` (ERR_PNPM_PACKAGE_MANAGER_CREATE_SLOT_DIR on the vendored picomatch slot in the restored build cache); prod kept serving da64226 the whole time. #16 (remove the slot) did not fix it. #17 (install from an empty node_modules) was proven on a preview build first, then merged; prod went live with batch 1. Smoke on prod: / /pricing /about /status 200, app pages 307 to sign-up when signed out, unknown URL 404, footer disclaimer present, /pricing has no Telegram/Discord and shows "3 calls a day" and Kalshi lines, scan 19 min old, no runtime errors in the first 15 min.
+- Batch 2 (#18) live. First Railway scan on it (09:05 UTC): `kalshi: 86396 markets (11600 events, 116 pages, complete=False), 20 combos, 0 settled, 34.5s; crawl stopped: Deadline`. It used to be 2,251 markets. The crawl hits the 45 s budget before the last page, so `complete` stays False every run. kalshi.json is still written, capped at the 2,000 busiest. 0 settled is expected on the first run: settlements only come from tickers seen open earlier. Scan, upload and revalidate all ran normally afterwards. Next scans: 09:16 (106 pages, 100 settled, 35.6 s), 09:26 (110 pages, 200 settled, 36.0 s), 09:41 (106 pages, 247 settled, 35.5 s). No errors, no skipped stages. Vercel runtime errors since 08:40 UTC: none. Not checked: whether the new per-market fields are non-null. kalshi.json sits in the private `scan` bucket, and /api/kalshi needs a signed-in session.
 - Lesson: the preview build of the batch branch (0125ddc) had already failed the same way before #15 merged. Check the preview deploy before every merge to `final`.
 - Batch 2 = D kalshi-fetch (pipeline, runs on Railway; field names unverified because Kalshi's API is blocked from here). Separate PR after batch 1 is live.
 - Not run here: WebKit/iPhone e2e (WebKit not installed), trading-paper (needs full Chromium + extension deps).
@@ -85,10 +97,10 @@ Status: fixed / already fixed / won't fix (why) / not verified live / open.
 | 38 | C2 | AI connector allowance | fixed, verified in mock | one statement from lib/connector-plan.ts, also read by the rate limiter: Pro 3 calls a day; Premium no daily cap (60/min); not on Free | qa-c2-connector → #15 |
 | 39 | C | plan cards list only shipped features | fixed | Chrome extension "coming soon" removed from Premium card and compare table; Combos/Kalshi lines from D | qa-c-pricing → #15 |
 | 40 | A | paid users see signed-out view | fixed, not verified live | /api/me retried with backoff; no paid upsell until plan known | qa-a-plan → #15 |
-| 41 | C | /status data-source spacing | already fixed (per brief; to verify) | | |
+| 41 | C | /status data-source spacing | already fixed, verified live | prod /status at 390 px: heading, line and footer evenly spaced (screenshot Nov 21) | — |
 | 42 | D | combo legs from closed/past markets | fixed, not verified live | closed or past-dated legs dropped on every request; tray refuses them; yearless dates read against close date | qa-d-combos → #15 |
 | 44 | A | timestamps freeze | fixed | <Ago> ticks every 30 s off the shared clock; pill, Best bets, markets, /status, /kalshi | qa-a-freshness → #15 |
-| 46 | A | CRITICAL stale snapshots | fixed (prod check pending 30-min sample) | SWR limited to copies <5 min old; torn markets/flags loads refused; page publishes its own scanned_at | #11 |
+| 46 | A | CRITICAL stale snapshots | fixed, verified live | SWR limited to copies <5 min old; torn loads refused. Prod sample, 30 polls of /api/meta 1 min apart (Nov 21 ~09:25-09:55 UTC): scanned_at never went backwards, 3 scans seen, age 15-25 min | #11 |
 | 47 | A | search accent matching | fixed | invalid ?s= falls back with a note; search folds ø/æ/ß/ł so 'Bodø' doesn't match 'The Body' | qa-a-sort → #15 |
 | 48 | B+C | FAQ / cancel path | fixed | 'everyone sees the same numbers' reworded (Free sees ranges) on /about, /pricing, /terms, /disclaimer, landing; cancel answer links /account 'Manage billing or cancel' | #12 + qa-b-faq → #15 |
 | 49 | A | counts | fixed, paid views not verified live | lib/data/counts.ts settledCount/bestBetsCount shared by /status, /about, /api/meta, MCP; exact below 10,000; plural(); Show more counts and hides at end | qa-a-counts → #15 |
@@ -102,7 +114,7 @@ Status: fixed / already fixed / won't fix (why) / not verified live / open.
 | 57 | A | counts | fixed, paid views not verified live | lib/data/counts.ts settledCount/bestBetsCount shared by /status, /about, /api/meta, MCP; exact below 10,000; plural(); Show more counts and hides at end | qa-a-counts → #15 |
 | 58 | C2 | AI connector allowance | fixed, verified in mock | same as 38 | qa-c2-connector → #15 |
 | 59 | A | counts | fixed, paid views not verified live | lib/data/counts.ts settledCount/bestBetsCount shared by /status, /about, /api/meta, MCP; exact below 10,000; plural(); Show more counts and hides at end | qa-a-counts → #15 |
-| 60 | A | CRITICAL stale snapshots | fixed (prod check pending) | same as 46 | #11 |
+| 60 | A | CRITICAL stale snapshots | fixed, verified live | same as 46 | #11 |
 | 61 | B | (already fixed by #5/#6 per brief; to verify) | fixed (superseded by one-return change) | card, drawer and stake box show one after-fee payout | qa-b-return → #15 |
 | 63 | A | counts | fixed, paid views not verified live | lib/data/counts.ts settledCount/bestBetsCount shared by /status, /about, /api/meta, MCP; exact below 10,000; plural(); Show more counts and hides at end | qa-a-counts → #15 |
 | 64 | C2 | alerts sold vs delivered | fixed, not verified live | Pro/Premium Email switch, on by default; daily cron (401 without CRON_SECRET); Telegram/Discord removed from /pricing (no way to store a webhook) | qa-c2-alerts → #15 |
@@ -115,6 +127,6 @@ Status: fixed / already fixed / won't fix (why) / not verified live / open.
 | 72 | C2 | AI connector allowance | fixed, verified in mock | same as 38 | qa-c2-connector → #15 |
 | 73 | C | header on /kalshi, 404 | fixed, not verified live | nav links from server (me.nav); same header incl. /kalshi and 404; e2e-paid qa-c-header | qa-c-header → #15 |
 | 74 | D | label every leg number | fixed | leg reads "Yes · Pays 1.6x after fee · 64% chance to win (cautious)" | qa-d-combos → #15 |
-| 8 | C | /about "Coming soon" (part 1) | already fixed (per brief; to verify) | | |
+| 8 | C | /about "Coming soon" (part 1) | already fixed, verified live | prod /about HTML has no "coming soon" (Nov 21) | — |
 
 Items 1, 7, 12, 16, 24, 43, 45, 62, 66 are not in any lane brief and are not tracked here.
