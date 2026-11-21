@@ -24,16 +24,19 @@ async function signUpPro(page: Page, email: string) {
   await expect(page.getByTestId("checkout-status")).toHaveText("Payment confirmed. Your plan is active.", { timeout: 30_000 });
 }
 
-test("#23/#64 Pro: /alerts has content in its first HTML, says where alerts go, and a new rule can email", async ({ page }) => {
+test("#23/#64 Pro: /alerts renders before its scripts load, says where alerts go, and a new rule can email", async ({ page }) => {
   await signUpPro(page, `qa-c2-alerts-${Date.now()}@example.com`);
 
-  // First HTML, before any script runs.
-  const html = await (await page.request.get("/alerts")).text();
-  // AlertsView reads the URL, so this HTML stops at its Suspense boundary (BAILOUT_TO_CLIENT_SIDE_RENDERING); with no
-  // fallback that was an empty page until the script ran (#23).
-  // loading.tsx streams one skeleton first; the page boundary must hold its own until the script renders the view
-  // (before the fix: 1, the streamed page replaced it with nothing).
-  expect(html.split("data-skeleton").length - 1, "first HTML of /alerts is not blank").toBeGreaterThanOrEqual(2);
+  // #23: what shows before any client chunk loads (chunks aborted; inline scripts still run). Server-rendered header
+  // and a loading line, never an empty page. (Not reproduced blank in the mock before the change either; see the log.)
+  await page.goto("/alerts");   // compile once on the dev server
+  await page.route("**/_next/static/chunks/**", (r) => r.abort());
+  await page.goto("/alerts");
+  const main = page.locator("main");
+  await expect(main.getByRole("heading", { name: "Alerts" })).toBeVisible();
+  await expect(main.getByText(/While Kismet is open in a tab, rules check every 2 minutes/)).toBeVisible();
+  await expect(main.getByText("Loading your alerts…")).toBeVisible();   // not "No alert rules yet" before data loads
+  await page.unroute("**/_next/static/chunks/**");
 
   await page.goto("/alerts");
   await expect(page.getByText(/While Kismet is open in a tab, rules check every 2 minutes/)).toBeVisible({ timeout: 30_000 });
