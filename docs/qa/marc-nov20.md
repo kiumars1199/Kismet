@@ -11,6 +11,10 @@ _(filled at the end of the run)_
   session, so the lanes run as 4 parallel subagents in their own worktrees. Only the orchestrator merges.
 - Marc's original list is not in the repo. Item descriptions below come from the lane briefs only.
 - Lane B one-return plan (Nov 21): roi_pct already equals win% x after-fee pays - 1 (fixture max diff 0.03pp); the bug is presentation. New lib/betQuote.ts feeds card, drawer, tables, /about. Advisor was rate-limited, so the orchestrator reviewed it and approved with notes: export numeric pays for A's #69 sort, Free tier sees bands only, every drawer figure shows its n, card stays 7 slots at 390px.
+- Gate note: PRs #11-#13 merged while `check:js` read 150.4-150.8 kB here; origin/final itself was already 150.2-150.6 (over). Cause found by Lane A (not-found/error pulled the client kit into every page); #14 took landing JS to 142.6 kB. Gate is OK from #14 on.
+- Pre-existing red test: test/teaser.test.ts "one bet per game" depends on today's UTC date; fails on final before tonight. Lane A asked to pin its clock. test/api.test.ts timing flakes under parallel load and passes alone.
+- Lane D's first agent stalled on an MCP permission prompt and made no commits; stopped and respawned with no-MCP rules.
+- Merged in order: #10 settings, #11 QA-A 46/60, #12 QA-C 18/48/32/30, #13 QA-C 33, #14 QA-A JS budget. Each deploy READY before the next merge.
 - Shared items: 69 (A, then B if still wrong), 48 (B: FAQ copy, C: cancel path).
 
 ## Items
@@ -28,7 +32,7 @@ _(filled at the end of the run)_
 | 14 | B | similar past bets vs testing figure | open | | |
 | 15 | D | combo legs same event; cautious chance | open | | |
 | 17 | C | signed-in header consistent | open | | |
-| 18 | C | /account plan, renewal, manage billing | open | | |
+| 18 | C | /account plan, renewal, manage billing | fixed / not verified live | /account shows plan, trial end, 'Manage billing or cancel'; e2e-paid qa-c-billing 2/2 | #12 |
 | 19 | C | saved views list | open | | |
 | 20 | B | return/payout disagree | open | | |
 | 21 | C | /settings links, account sync | open | | |
@@ -39,10 +43,10 @@ _(filled at the end of the run)_
 | 27 | A | hydration flashes | open | | |
 | 28 | B | /about Top 3 sort | open | | |
 | 29 | A | hydration flashes | open | | |
-| 30 | C | Free "Start free" goes to signup | open | | |
+| 30 | C | Free "Start free" goes to signup | fixed | Start free -> signup, covered in qa-c-billing | #12 |
 | 31 | B | return/payout disagree | open | | |
-| 32 | C | trial plan kept through signup | open | | |
-| 33 | C | 404 for signed-out visitors | open | | |
+| 32 | C | trial plan kept through signup | fixed (already worked; now proven) | e2e-paid qa-c-billing: trial keeps plan/period through signup into checkout | #12 |
+| 33 | C | 404 for signed-out visitors | fixed | prod: /no-such-page-xyz -> 404 (was 307 /signup) | #13 |
 | 34 | A | timestamps lag | open | | |
 | 35 | B | "52 weeks" framing; backtest weeks | open | | |
 | 36 | B | backtest vs live | open | | |
@@ -53,9 +57,9 @@ _(filled at the end of the run)_
 | 41 | C | /status data-source spacing | already fixed (per brief; to verify) | | |
 | 42 | D | combo legs from closed/past markets | open | | |
 | 44 | A | timestamps freeze | open | | |
-| 46 | A | CRITICAL stale snapshots | open | | |
+| 46 | A | CRITICAL stale snapshots | fixed (prod check pending 30-min sample) | SWR limited to copies <5 min old; torn markets/flags loads refused; page publishes its own scanned_at | #11 |
 | 47 | A | search accent matching | open | | |
-| 48 | B+C | FAQ / cancel path | open | | |
+| 48 | B+C | FAQ / cancel path | cancel part fixed; FAQ copy in B's queue | Terms/Refunds name the button | #12 |
 | 49 | A | counts | open | | |
 | 50 | A | "Show every bet" when all show | open | | |
 | 51 | B | similar past bets vs testing | open | | |
@@ -67,7 +71,7 @@ _(filled at the end of the run)_
 | 57 | A | counts | open | | |
 | 58 | C | AI connector allowance | open | | |
 | 59 | A | counts | open | | |
-| 60 | A | CRITICAL stale snapshots | open | | |
+| 60 | A | CRITICAL stale snapshots | fixed (prod check pending) | same as 46 | #11 |
 | 61 | B | (already fixed by #5/#6 per brief; to verify) | open | | |
 | 63 | A | counts | open | | |
 | 64 | C | alerts sold vs delivered | open | | |
