@@ -32,3 +32,17 @@ change. It depends on the fixture date, not on these files; left for its owner.
 Note: `e2e-paid/admin.spec.ts` "normal user and anonymous visitor" failed twice here, at the **signed-in** non-tester check
 `/api/combos/kalshi → enabled false` (line 47), which this change doesn't touch (signedOutAccess only runs with no
 session). The signed-out part (`/combos`, `/kalshi` → sign-up) passes in qa-c-404.spec.ts. Flagged to main.
+
+## QA-C 3: #17, #73 (branch claude/qa-c-header)
+
+| Item | Status | Evidence |
+|---|---|---|
+| 17/73 signed-in header the same on every page (Combos, Kalshi, Account, Admin for admins, Updated clock), /kalshi and 404 included | Fixed, verified in mock | Cause: the header was signed out in the server HTML and filled in Account, Admin and the beta links only when `/api/me` answered, so pages looked different while loading, and at 1280 px the nav overflowed (Kalshi clipped, search squashed). Now the root layout passes a server hint (`getMe`, React `cache()`d) to Header, MobileNav and AccountLink; the gated links come from `lib/beta.ts navFeatures` on the server (the Kalshi rule reads a server-only env var, so the browser can't decide it); beta pill is a dot below 2xl; the Updated pill holds its space while loading. Measured at 1280 px: nav 591/591 on /bets, /kalshi, /nope-xyz and after a soft navigation. `e2e-paid/qa-c-header.spec.ts`: admin sees Combos, Kalshi, Admin, Account in the first HTML of /bets, /kalshi, /pricing, and on /nope-xyz and /kalshi with `/api/me` blocked; a normal user sees Account, no Admin or beta links. Fails on the old layout. |
+
+Note: the 404 page's body (header included) streams from the RSC payload, not the first HTML, in production too
+(`curl https://kismetodds.com/nope-xyz` has no `<header>`); that is Next's not-found rendering, unchanged here. With the
+hint it renders signed in at once instead of after `/api/me`.
+
+Gates: tsc, lint OK; vitest 1081/1082 (only the known teaser test); `check:js` landing 149.6 kB (budget 150); demo e2e
+s1-landing, s6, s6-tools, t291-ui, headers 13/13; paid qa-c-header 2/2. Paid `admin.spec.ts` timed out here on dev compiles
+(shared container); main's run passes.

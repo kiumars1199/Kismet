@@ -2,6 +2,7 @@
 // Client copy of /api/me (session + plan). Display only: every gate is enforced again on the server.
 import { useSyncExternalStore } from "react";
 import type { Tier } from "@/lib/entitlements";
+import type { Gated } from "@/lib/beta-list";
 
 export interface MeResponse {
   user: { id: string; email: string } | null;
@@ -14,7 +15,16 @@ export interface MeResponse {
   billing: boolean;    // Stripe configured
   admin?: boolean;     // server-decided; shows the Admin link only
   beta?: boolean;      // admin or live comp grant: sees beta features (lib/beta.ts); routes check again
+  nav?: Gated[];       // #17/#73: gated nav links (Combos, Kalshi) to show, decided on the server (lib/beta.ts navFeatures)
 }
+
+/** #17/#73: what the root layout already knows about a signed-in visitor, so the header renders signed in from the
+ *  first HTML on every page instead of filling in when /api/me answers. */
+export interface HeaderHint { signedIn: boolean; admin: boolean; nav: Gated[] }
+
+/** The header's view: /api/me once it answers, else the layout's hint (null: unknown yet). */
+export const headerView = (me: MeResponse | null, hint: HeaderHint | null | undefined): HeaderHint | null =>
+  me ? { signedIn: !!me.user, admin: !!me.admin, nav: me.nav ?? [] } : hint ?? null;
 
 let me: MeResponse | null = null;
 let inflight: Promise<MeResponse | null> | null = null;
