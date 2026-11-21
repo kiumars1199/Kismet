@@ -21,7 +21,7 @@ const { JournalView } = await import("./JournalView");
 describe("JournalView counts", () => {
   it("formats the bet and open counts with formatCount", () => {
     render(<JournalView />);
-    expect(screen.getByText("1.2K · 1K open")).toBeTruthy();
+    expect(screen.getByText("1,200 · 1,000 open")).toBeTruthy();   // QA-A #6: exact below 10,000
     expect(document.body.textContent).not.toContain("1200");
   }, 30_000);   // 1,200 table rows in jsdom; slow when the whole suite runs in parallel
 });

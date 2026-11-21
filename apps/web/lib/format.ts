@@ -165,19 +165,22 @@ export function basis(m: { niche: string; market_type: string; horizon_h: number
   return `Model: ${m.niche.toUpperCase()} · ${m.market_type} · ~${m.horizon_h} h · ${formatCount(s.model_neff)} eff. samples · ${formatCount(s.model_events)} events (${lvl} level)`;
 }
 
-/** docs/18 §4: counts of bets, markets, events. Under 1,000 exact; above, ROUNDED DOWN to one decimal so a count is
- *  never overstated, with a trailing ".0" dropped: 999 → "999", 1,000 → "1K", 1,050 → "1K", 9,666 → "9.6K",
- *  16,896 → "16.8K", 778,152 → "778.1K", 1,000,000 → "1M", 1,234,567 → "1.2M". The exact number goes in the hover
+/** docs/18 §4: counts of bets, markets, events. Under 10,000 exact with a comma (QA-A, Marc #6: "8.3K bets" read as
+ *  vague next to an exact 8,323 elsewhere); above, ROUNDED DOWN to one decimal so a count is never overstated, with a
+ *  trailing ".0" dropped: 999 → "999", 1,050 → "1,050", 9,666 → "9,666", 10,000 → "10K", 16,896 → "16.8K",
+ *  778,152 → "778.1K", 1,000,000 → "1M", 1,234,567 → "1.2M". The exact number goes in the hover
  *  (<Count> in components/kit does both). */
 export function formatCount(n: number | null | undefined): string {
   if (!ok(n)) return DASH;
   const a = Math.floor(Math.abs(n));
   const sign = n < 0 ? "−" : "";
-  if (a < 1000) return `${sign}${a}`;
+  if (a < 10_000) return `${sign}${a.toLocaleString("en-US")}`;
   const [d, u] = a >= 1e9 ? [1e9, "B"] : a >= 1e6 ? [1e6, "M"] : [1e3, "K"];
   const tenths = Math.floor(a / (d / 10));   // integer math: no 2.3 * 10 = 22.999… surprises
   return `${sign}${Math.floor(tenths / 10)}${tenths % 10 ? `.${tenths % 10}` : ""}${u}`;
 }
+/** "1 bet", "2 bets", "12.3K bets": a count with its noun in the right number (QA-A, Marc #6). `many` defaults to one + "s". */
+export const plural = (n: number, one: string, many = `${one}s`) => `${formatCount(n)} ${Math.abs(n) === 1 ? one : many}`;
 /** exact count for the hover: 9666 → "9,666" */
 export const exactCount = (n: number | null | undefined) => (ok(n) ? Math.round(n).toLocaleString("en-US") : DASH);
 

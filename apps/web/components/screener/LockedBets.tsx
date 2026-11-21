@@ -4,7 +4,7 @@
 // locked rows (lib/data/respond.ts freeFlagsPage), and the card says so plainly. It sits inline in the list, so it
 // covers nothing and needs no close button (the T-291 #11 overlay it replaces did).
 import Link from "next/link";
-import { formatCount } from "@/lib/format";
+import { plural } from "@/lib/format";
 import { track } from "@/lib/telemetry";
 
 /** `total`: every Best bet matching the filters (the real N, lib/data/counts.ts); `shown`: how many of the day's
@@ -12,7 +12,7 @@ import { track } from "@/lib/telemetry";
 export function LockedBets({ total, shown, daily }: { total: number; shown: number; daily: number; desktop?: boolean }) {
   const locked = total - shown;
   if (locked <= 0) return null;
-  const label = `Unlock ${formatCount(locked)} more ${locked === 1 ? "bet" : "bets"}`;
+  const label = `Unlock ${plural(locked, "more bet", "more bets")}`;
   return (
     <section aria-label={label} data-testid="locked-bets"
       className="flex flex-col items-start gap-3 rounded-xl border border-accent-border bg-surface p-5 shadow-sm shadow-black/20 sm:flex-row sm:items-center sm:gap-5">

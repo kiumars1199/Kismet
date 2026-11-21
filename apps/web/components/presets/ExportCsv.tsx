@@ -8,7 +8,7 @@ import { useEntitlements } from "@/lib/entitlements";
 import type { FilterState } from "@/lib/filters/state";
 import { resolveUserFilters } from "@/lib/filters/user";
 import { useCollection, useProfile } from "@/lib/repo/hooks";
-import { formatCount } from "@/lib/format";
+import { formatCount, plural } from "@/lib/format";
 
 const btn = "inline-flex min-h-11 items-center gap-2 rounded-input border border-border bg-input px-3.5 py-2 text-[13px] text-soft hover:border-accent-border hover:text-text disabled:opacity-60";
 
@@ -30,7 +30,7 @@ export function ExportCsv({ state }: { state: FilterState }) {
       const a = Object.assign(document.createElement("a"), { href: url, download: `kismet-${new Date().toISOString().slice(0, 10)}.csv` });
       a.click();
       URL.revokeObjectURL(url);
-      setMsg(rows.length >= MAX_ROWS ? `First ${formatCount(MAX_ROWS)} rows exported` : `${formatCount(rows.length)} rows exported`);
+      setMsg(rows.length >= MAX_ROWS ? `First ${formatCount(MAX_ROWS)} rows exported` : `${plural(rows.length, "row")} exported`);
     } catch {
       setMsg("Export failed. Try again.");
     } finally {

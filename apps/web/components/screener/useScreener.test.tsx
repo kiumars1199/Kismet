@@ -43,3 +43,24 @@ describe("useScreener while a filter loads", () => {
     expect(result.current.data).toBeUndefined();
   });
 });
+
+describe("useScreener Show more (QA-A #71)", () => {
+  const pageN = (n: number, pages: number, rows = 1) => ({ ...page(`p${n}`), rows: Array.from({ length: rows }, (_, i) => ({ market: { id: `p${n}-${i}` }, side: { side_index: 0 } })), page: n, pages, page_size: 2, total: 99 }) as unknown as MarketsResponse;
+
+  it("asks for each next page by count, even when live prices left a page short, and stops at the last one", async () => {
+    const { result } = renderHook(() => useScreener("flags", pageN(1, 3, 1)));   // page 1 of 3 came back with 1 of 2 rows
+    expect(result.current.hasMore).toBe(true);
+    let done: Promise<void>;
+    act(() => { done = result.current.loadMore(); });
+    await waitFor(() => expect(pending).toHaveLength(1));
+    await act(async () => { pending[0]!.resolve(pageN(2, 3, 1)); await done; });
+    expect(result.current.more.map((r) => r.market.id)).toEqual(["p2-0"]);
+    expect(result.current.hasMore).toBe(true);
+    act(() => { done = result.current.loadMore(); });
+    await waitFor(() => expect(pending).toHaveLength(2));
+    await act(async () => { pending[1]!.resolve(pageN(3, 3, 2)); await done; });
+    expect(result.current.hasMore).toBe(false);   // no button left to click, so no dead click past the last page
+    await act(async () => { await result.current.loadMore(); });
+    expect(pending).toHaveLength(2);
+  });
+});

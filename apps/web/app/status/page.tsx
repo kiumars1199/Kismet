@@ -3,9 +3,10 @@ import { DATA_SOURCE } from "@/lib/config";
 import { zonedTime } from "@/lib/zone";
 import { requestZone } from "@/lib/zone-server";
 import { getTier } from "@/lib/auth/server";
+import { can } from "@/lib/entitlements";
 import { pendingLine } from "@/lib/data/respond";
 import { getStoreFor, type Store } from "@/lib/data/store";
-import { bestBetsCount } from "@/lib/data/counts";
+import { bestBetsCount, settledCount } from "@/lib/data/counts";
 import { Count } from "@/components/kit";
 import { PendingState } from "@/components/screener/States";
 import { DASH, ago, delayWords, formatCount } from "@/lib/format";
@@ -37,7 +38,10 @@ export default async function Page() {
   const level = freshness(meta.scanned_at);
   // T-288: the same count as Best bets and the landing (lib/data/counts.ts): open best-tier bets that pass the price
   // check, at the default chance floor. Its price-check sections below add up to it. (meta.flags counted both tiers.)
-  const best = bestBetsCount(s);
+  // QA-A #26/#57: counted the way this tier's Best bets list counts (Free widens past US when it holds under 10).
+  const best = bestBetsCount(s, { free: !can(tier, "live_data") });
+  // QA-A #49/#63: each bet once, the same base as /track-record (was every logged row: "1.9K settled" vs "1,155")
+  const rec = settledCount(l);
   const times: [string, unknown, string][] = [
     ["Last market scan", meta.scanned_at, "Prices, win chances and best bets"],
     ["Last model fit", model.fitted_at, "Win-chance curves from settled markets"],
@@ -77,7 +81,8 @@ export default async function Page() {
           <Stat label="Markets scanned" value={n(meta.markets_scanned)} />
           <Stat label="Best bets" value={<Count n={best.total} />} testId="status-best-bets" />
           <Stat label="Events" value={n(s.byEvent.size)} />
-          <Stat label="Live record" value={l ? `${n(l.entries)} logged` : DASH} sub={l ? `${n(l.graded)} settled · ${n(l.wins)} won · ${n(l.losses)} lost` : "No live record yet"} />
+          <Stat label="Live record" value={rec ? `${n(rec.logged)} logged` : DASH} testId="status-record"
+            sub={rec ? `${n(rec.settled)} settled · ${n(rec.won)} won · ${n(rec.lost)} lost${rec.void ? ` · ${n(rec.void)} void` : ""}` : "No live record yet"} />
         </dl>
       </section>
 

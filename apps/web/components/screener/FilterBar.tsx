@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { MarketsResponse } from "@/lib/api";
 import type { FilterState } from "@/lib/filters/state";
 import { TAXONOMY, TAXONOMY_TREE } from "@/lib/taxonomy";
+import { formatCount, plural } from "@/lib/format";
 
 type Change = (p: Partial<FilterState>, opts?: { replace?: boolean }) => void;
 type Win = { closes_after_h: number | undefined; closes_within_h: number };
@@ -74,8 +75,8 @@ const ICON = {
   date: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" /></svg>,
 };
 
-export function FilterBar({ state, facets, win, total, onChange }: {
-  state: FilterState; facets?: MarketsResponse["facets"]; win: { today: Win; week: Win }; total?: number; onChange: Change;
+export function FilterBar({ state, facets, win, total, shown, onChange }: {
+  state: FilterState; facets?: MarketsResponse["facets"]; win: { today: Win; week: Win }; total?: number; shown?: number; onChange: Change;
 }) {
   const applied = barValues(state, win);
   const [draft, setDraft] = useState(applied);
@@ -115,7 +116,7 @@ export function FilterBar({ state, facets, win, total, onChange }: {
       </form>
       <div className="flex items-center justify-between gap-3">
         <p data-testid="bar-count" className="text-sm font-medium text-soft" aria-live="polite">
-          {total === undefined ? " " : `${total.toLocaleString("en-US")} ${total === 1 ? "bet" : "bets"}`}
+          {total === undefined ? " " : shown !== undefined ? `Showing ${formatCount(shown)} of ${plural(total, "bet")}` : plural(total, "bet")}
         </p>
         <label className="flex items-center gap-2 text-sm text-muted">
           Sort by
