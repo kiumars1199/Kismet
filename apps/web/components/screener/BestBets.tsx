@@ -8,12 +8,13 @@
 // until the new one arrives (no skeleton flash). The old Big payouts / More bets with an edge / Combos rows, closing-soon
 // strip and results ticker are gone: "Bigger payouts" is a chip (best bets that win less often), lower-confidence
 // bets come in through a payout filter (tierOf), Combos has its own page, results are one link away.
+import { Ago } from "@/components/clock";   // QA-A #34: ticks, same clock on server and hydration
 import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
 import type { ApiGroup, ApiRow, MarketsResponse } from "@/lib/api";
 import { cardVenue, plainTitle, priceText, sideLabel } from "@/lib/card";
 import type { FilterState } from "@/lib/filters/state";
-import { ago, formatCount } from "@/lib/format";
+import { formatCount } from "@/lib/format";
 import { REFRESH_WORDS, freshness } from "@/lib/freshness";
 import { savePresetFromState } from "@/lib/presets";
 import { usePublishScan } from "@/lib/scanClock";
@@ -179,7 +180,7 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
         <p className="max-w-[760px] text-sm leading-normal text-muted">
           Each one has won more often in the past than its price suggests, after the fee.
           {/* P9: when the stale banner shows, it carries the scan age; saying it here too was the third stale notice */}
-          {scanned && freshness(scanned) === "fresh" && <span suppressHydrationWarning className="whitespace-nowrap"> Updated {ago(scanned)}.</span>}{" "}
+          {scanned && freshness(scanned) === "fresh" && <span className="whitespace-nowrap"> Updated <Ago at={scanned} />.</span>}{" "}
           <Link href="/track-record" className="inline-flex min-h-11 items-center text-accent-hover underline-offset-4 hover:underline">See how we track results</Link>
         </p>
       </section>

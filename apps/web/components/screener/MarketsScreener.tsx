@@ -1,11 +1,12 @@
 "use client";
 
 // /markets "All markets" (F-01): grouped rows on desktop, compact cards on mobile, URL-driven.
+import { Ago } from "@/components/clock";
 import { useEffect, useMemo, useState } from "react";
 import { fetchEvent, groupRows, type ApiGroup, type ApiRow, type MarketsResponse } from "@/lib/api";
 import { pickSide, sideOk } from "@/lib/filters/apply";
 import { defaultState } from "@/lib/filters/state";
-import { ago, formatCount } from "@/lib/format";
+import { formatCount } from "@/lib/format";
 import { useProfile } from "@/lib/repo/hooks";
 import { PresetBar } from "@/components/presets/PresetBar";
 import { QuickChips } from "@/components/presets/QuickChips";
@@ -73,7 +74,7 @@ export function MarketsScreener({ initial, scannedAt }: { initial?: MarketsRespo
             <h1 className="text-[28px] font-bold leading-tight tracking-tight md:text-[34px]">All markets</h1>
             <p className="mt-1 text-sm text-muted">
               {data ? `${formatCount(data.total)} ${data.total === 1 ? "market matches" : "markets match"}` : "Loading markets…"}
-              {meta && ` · ${formatCount(meta.counts.markets)} open · scanned ${ago(scanned)}`}
+              {meta && <> · {formatCount(meta.counts.markets)} open · scanned <Ago at={scanned} /></>}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
