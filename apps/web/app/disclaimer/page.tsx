@@ -14,7 +14,7 @@ export default function Page() {
     {
       id: "not-advice", title: "Not financial or betting advice",
       body: <p>
-        {SITE.name} is market analytics. Everyone sees the same numbers, and they don&apos;t take your situation into
+        {SITE.name} is market analytics. The bets are picked the same way for everyone, and they don&apos;t take your situation into
         account. Nothing here tells you what you should buy or sell. Decide for yourself, and get professional advice if you need it.
       </p>,
     },

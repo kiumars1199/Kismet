@@ -22,7 +22,7 @@ export default function Page() {
         </p>
         <p>
           We are <strong>not a broker, exchange or adviser</strong>. Nothing on the site is financial, investment or betting
-          advice. Everyone sees the same numbers; we never look at your own bets to tell you what to buy. Estimates come
+          advice. The bets are picked the same way for everyone (Free sees fewer, later, as ranges); we never look at your own bets to tell you what to buy. Estimates come
           from past data and can be wrong. Any single bet can lose.
         </p>
         {tradingEnabled()
