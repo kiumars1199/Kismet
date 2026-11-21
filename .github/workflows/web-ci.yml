@@ -38,7 +38,7 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm test
       - run: pnpm build && pnpm check:bundle && pnpm check:js   # docs/15: no secrets in .next/static; T-295: landing JS <= 150 kB gzipped
-      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm exec playwright install --with-deps chromium webkit
       - run: pnpm i --frozen-lockfile   # e2e/trading-paper builds the extension
         working-directory: apps/extension
       - run: pnpm e2e

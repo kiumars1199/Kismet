@@ -95,8 +95,8 @@ test("dry run reads only; --yes creates everything once; a second --yes changes 
     const first = await run("--yes");
     assert.equal(state.products.length, 2);
     assert.deepEqual(state.prices.map((p) => [p.lookup_key, p.unit_amount, p.recurring.interval, p.metadata.tier]), [
-      ["kismet_pro_monthly", 1199, "month", "pro"], ["kismet_pro_yearly", 9999, "year", "pro"],
-      ["kismet_premium_monthly", 1999, "month", "premium"], ["kismet_premium_yearly", 16999, "year", "premium"]]);
+      ["kismet_pro_monthly", 1199, "month", "pro"], ["kismet_pro_yearly", 11999, "year", "pro"],
+      ["kismet_premium_monthly", 1999, "month", "premium"], ["kismet_premium_yearly", 19999, "year", "premium"]]);
     assert.equal(state.hooks[0].url, "https://kismetodds.example/api/stripe/webhook");
     assert.deepEqual(state.hooks[0].enabled_events, webhookEvents());
     const portal = state.portals[0].features;
