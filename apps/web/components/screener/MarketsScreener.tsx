@@ -94,6 +94,8 @@ export function MarketsScreener({ initial, scannedAt }: { initial?: MarketsRespo
           <ErrorState onRetry={sc.retry} error={error} />
         ) : !data ? (
           <div className="flex flex-col gap-2" aria-busy="true" aria-label="Loading markets">
+            {/* #9 (Nov 20): a filter change says it is loading, as Best bets' "Updating bets…" does */}
+            <p role="status" data-testid="markets-updating" className="text-sm font-medium text-soft">Loading markets…</p>
             {Array.from({ length: 8 }, (_, i) => <Skeleton key={i} className="h-16" />)}
           </div>
         ) : data.total === 0 ? (
