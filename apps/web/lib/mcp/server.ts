@@ -19,7 +19,7 @@ import { BEST_BETS_VERDICTS, FilterState } from "@/lib/filters/state";
 import { Category } from "@/lib/schemas";
 import { basis, betLine, closesLine, edge, formatCount, money, pct, price, ret, testedLine } from "@/lib/format";
 import { betFigures, RETURN_LABEL_LONG, sideRecord } from "@/lib/betFigures";
-import { HIT_RATE_VS_PROFIT, siteProof } from "@/lib/proof";
+import { HIT_RATE_VS_PROFIT, liveBase, siteProof } from "@/lib/proof";
 import { PAYS_READ_TEXT, fmtRecord, paysRows, recordRows, tiles } from "@/lib/trackRecord";
 import { siteUrl } from "@/lib/site";
 import type { MarketsResponse } from "@/lib/api";
@@ -204,6 +204,7 @@ export async function getMarket(args: z.infer<typeof GetMarketInput>, me: Me, st
 export async function trackRecord(_args: unknown, _me: Me, store: Store): Promise<CallToolResult> {
   const b = store.backtest, r = chosenResult(b);
   const ledger = store.ledgerSummary;
+  const once = liveBase(ledger);   // QA-A #49: each bet once, like /status and /track-record
   return done([
     "How Kismet's Best bets did in a walk-forward test (each week judged only on what came before):",
     ...tiles(b).map((t) => `  ${t.label}: ${t.text} (every bet, no filter: ${t.baseline})`),
@@ -216,7 +217,7 @@ export async function trackRecord(_args: unknown, _me: Me, store: Store): Promis
     "",
     // T-290: the test return and the live record together, from the same helper as every page
     ...((p) => [p.test ?? "", p.live, `  Basis: ${p.help}`])(siteProof({ backtest: b, ledger, since: store.ledgerSince })),
-    ...(ledger && ledger.graded ? [`  Settled so far: ${formatCount(ledger.wins)} won, ${formatCount(ledger.losses)} lost${typeof ledger.avg_pnl === "number" ? `, ${edge(ledger.avg_pnl)} average profit per $1 share` : ""}.`] : []),
+    ...(once && once.graded ? [`  Settled so far: ${formatCount(once.wins)} won, ${formatCount(once.losses)} lost${typeof once.avg_pnl === "number" ? `, ${edge(once.avg_pnl)} average profit per $1 share` : ""}.`] : []),
     `  ${HIT_RATE_VS_PROFIT}`,
     `Full charts: ${siteUrl()}/track-record`,
   ]);
