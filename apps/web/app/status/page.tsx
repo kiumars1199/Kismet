@@ -9,8 +9,9 @@ import { getStoreFor, type Store } from "@/lib/data/store";
 import { bestBetsCount, settledCount } from "@/lib/data/counts";
 import { Count } from "@/components/kit";
 import { PendingState } from "@/components/screener/States";
-import { DASH, ago, delayWords, formatCount } from "@/lib/format";
-import { REFRESH_WORDS, freshness } from "@/lib/freshness";
+import { DASH, delayWords, formatCount } from "@/lib/format";
+import { REFRESH_WORDS, freshness, scanLate } from "@/lib/freshness";
+import { Ago } from "@/components/clock";
 import { delayMin } from "@/lib/settings-core";
 import { SITE } from "@/lib/site";
 import { ScanStamp } from "@/lib/scanClock";
@@ -36,6 +37,7 @@ export default async function Page() {
   const delay = delayMin(tier);
   const { meta, model, backtest, ledgerSummary: l } = s;
   const level = freshness(meta.scanned_at);
+  const late = scanLate(meta.scanned_at, delay);   // QA-A #2: "current" only while the scan is as new as the cadence allows
   // T-288: the same count as Best bets and the landing (lib/data/counts.ts): open best-tier bets that pass the price
   // check, at the default chance floor. Its price-check sections below add up to it. (meta.flags counted both tiers.)
   // QA-A #26/#57: counted the way this tier's Best bets list counts (Free widens past US when it holds under 10).
@@ -56,7 +58,11 @@ export default async function Page() {
         <h1 className="text-[32px] font-bold leading-[1.05] tracking-[-0.02em] md:text-[40px]">Status</h1>
         <p className={`flex items-center gap-2 text-[15px] ${level === "fresh" ? "text-soft" : level === "amber" ? "text-warning" : "text-negative"}`}>
           <span className={`size-2 rounded-full ${level === "fresh" ? "bg-accent" : level === "amber" ? "bg-warning" : "bg-negative"}`} aria-hidden="true" />
-          {level === "fresh" ? `Data is current. Last scan ${ago(meta.scanned_at)}.` : `Data may be stale. Last scan ${ago(meta.scanned_at)}; prices normally refresh ${REFRESH_WORDS}.`}
+          {level !== "fresh"
+            ? <>Data may be stale. Last scan <Ago at={meta.scanned_at} />; prices normally refresh {REFRESH_WORDS}.</>
+            : late
+              ? <>Last scan <Ago at={meta.scanned_at} />. Scans normally run {REFRESH_WORDS}, so the next one is late.</>
+              : <>Data is current. Last scan <Ago at={meta.scanned_at} />. Scans run {REFRESH_WORDS}.</>}
         </p>
         {delay > 0 && <p className="text-sm text-muted">On the Free plan and when signed out, you see each scan {delayWords(delay)} after it runs: the scan above is the one you see. Paid plans see the newest scan.</p>}
       </header>
@@ -68,7 +74,7 @@ export default async function Page() {
             <li key={label} className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-t border-border px-4 py-3 first:border-t-0 md:px-5">
               <span><span className="font-medium">{label}</span><span className="block text-xs text-muted">{what}</span></span>
               <span className="tabular-nums text-soft" title={typeof t === "number" ? undefined : "not available"}>
-                {when(t, zone)}{typeof t === "number" && <span className="text-muted"> · {ago(t)}</span>}
+                {when(t, zone)}{typeof t === "number" && <span className="text-muted"> · <Ago at={t} /></span>}
               </span>
             </li>
           ))}

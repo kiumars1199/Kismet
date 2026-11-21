@@ -1,8 +1,8 @@
 "use client";
 
+import { Ago } from "@/components/clock";
 import Link from "next/link";
 import { PENDING_PREFIX } from "@/lib/api";
-import { ago } from "@/lib/format";
 import { freshness } from "@/lib/freshness";
 import { Inbox } from "@/components/kit/icons";
 
@@ -13,7 +13,7 @@ export function StaleBanner({ scannedAt }: { scannedAt?: number }) {
   if (!scannedAt || freshness(scannedAt) === "fresh") return null;
   return (
     <p role="status" suppressHydrationWarning className="rounded-input border border-warning/40 bg-warning/10 px-4 py-2.5 text-sm text-warning">
-      The last price scan was {ago(scannedAt)}, so these prices may have moved. Check the live price on the market before you bet.
+      The last price scan was <Ago at={scannedAt} />, so these prices may have moved. Check the live price on the market before you bet.
     </p>
   );
 }

@@ -1,8 +1,9 @@
 // Kalshi markets and Kalshi Combos (docs/03 § kalshi.json). Server component. Every number is Kalshi's and carries a
 // visible "Kalshi" credit; every link goes to kalshi.com in a new tab.
 import type { ReactNode } from "react";
-import { DASH, ago, closesIn, formatCount, pays, price } from "@/lib/format";
+import { DASH, closesIn, formatCount, pays, price } from "@/lib/format";
 import type { KalshiCombo, KalshiFile, KalshiMarket } from "@/lib/types";
+import { Ago } from "@/components/clock";   // QA-A #44: the age keeps counting
 
 const cents = (c: number | null | undefined) => (typeof c === "number" ? price(c / 100) : DASH);
 const closes = (iso: string | null) => (iso ? closesIn(Date.parse(iso) / 1000) : DASH);
@@ -111,7 +112,7 @@ export function KalshiBoard({ data, limit = 100 }: { data: KalshiFile; limit?: n
           has no win-chance estimate on them yet.
         </p>
         <p className="text-sm text-soft">
-          Data: <KalshiLink href="https://kalshi.com">Kalshi</KalshiLink> · updated {ago(data.meta.fetched_at)}
+          Data: <KalshiLink href="https://kalshi.com">Kalshi</KalshiLink> · updated <Ago at={data.meta.fetched_at} />
         </p>
       </header>
 

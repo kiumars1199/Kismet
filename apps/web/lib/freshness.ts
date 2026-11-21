@@ -2,11 +2,17 @@
 // One threshold for every stale notice (pill, banner, status): the banner shows when this is not "fresh".
 export type Freshness = "fresh" | "amber" | "red";
 
-/** How often prices refresh, in words, for copy. The engine host scans every SCAN_EVERY_SEC (ops/scheduler.py, 120 s
- *  by default); without it the GitHub fallback scans every 30 min (.github/workflows/refresh.yml). Quote the slower
- *  one so the copy stays true either way; both stay well inside the 3 h "fresh" window, so no stale notice shows
- *  while either runs. */
-export const REFRESH_WORDS = "at least every 30 minutes";
+/** How often prices refresh, in words, for copy. QA-A #2: what the engine really does. Railway's deploy logs (Nov 21)
+ *  show a scan every 900 s (SCAN_EVERY_SEC), pushed to about 22 min once an hour by the update, fit and grade; the GitHub
+ *  fallback (.github/workflows/refresh.yml) runs only when that host is down. */
+export const REFRESH_WORDS = "about every 15 minutes";
+/** The longest normal gap between scans (the hourly fit pushes one to ~22 min), with room for one missed scan. */
+export const SCAN_LATE_MIN = 45;
+
+/** QA-A #2: this scan is older than the cadence explains, for a viewer who sees scans `delayMin` late (Free). The
+ *  colours (freshness) stay on their 3 h / 6 h rule; this only stops /status calling late data "current". */
+export const scanLate = (scannedAt: number | null | undefined, delayMin = 0, now = Date.now()) =>
+  typeof scannedAt !== "number" || (now - scannedAt * 1000) / 60_000 > SCAN_LATE_MIN + delayMin;
 
 export function freshness(scannedAt: number | null | undefined, now = Date.now()): Freshness {
   if (typeof scannedAt !== "number" || !Number.isFinite(scannedAt)) return "red";
