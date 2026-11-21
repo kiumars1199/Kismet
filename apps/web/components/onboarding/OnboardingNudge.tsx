@@ -24,10 +24,18 @@ export function OnboardingNudge({ initial = null }: { initial?: boolean | null }
   const show = !hidden && (ready ? !onboarded_at && !favorite_topics.length : initial === true);
   // #22: dismissing counts as skipping setup (as /onboarding's "Skip setup" does): saved to the account, so the banner
   // stays gone on every device, not only in this browser
+  // Nov 21: the nudge can now be tapped before the profile has loaded (it is in the first HTML); the save waits for
+  // the account's repo, or it would go nowhere and the banner would come back on the next device.
+  const [pending, setPending] = useState(false);
+  useEffect(() => {
+    if (!pending || !ready) return;
+    setPending(false);
+    getRepo().profile.patch({ onboarded_at: new Date().toISOString() }).catch((e) => console.error("[nudge] could not save:", e));
+  }, [pending, ready]);
   const dismiss = () => {
     setHidden(true);
     try { localStorage.setItem(KEY, "1"); } catch { /* storage off */ }
-    getRepo().profile.patch({ onboarded_at: new Date().toISOString() }).catch((e) => console.error("[nudge] could not save:", e));
+    setPending(true);
   };
 
   return (

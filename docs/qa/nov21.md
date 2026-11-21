@@ -27,6 +27,10 @@ affected e2e and the Vercel preview all green.
   - iPhone (WebKit, first real run in CI): the "If you bet" stake label was an inline 15 px line around a 44 px
     input, flagged as a small tap target on /, /bets, /about. The label is now a 44 px flex row.
 
+- Paid #22 (onboarding banner dismiss saved to the account) failed on CI: the nudge is now in the first HTML, so a tap
+  could land before the profile loaded and the save went nowhere. Dismiss now waits for the profile, then saves. The
+  test also waits for hydration before tapping.
+
 ## Q's answers (Nov 21, before going away)
 
 - Alerts email check: throwaway Pro test account, mail to Resend's test inbox (delivered@resend.dev), deleted after.
@@ -42,5 +46,8 @@ affected e2e and the Vercel preview all green.
   on kismetodds.com with JS off vs on, no hydration errors). Dynamic pages use the tz cookie / Vercel IP zone.
 
 ## Decided without Q
+
+- Nudge dismiss: save deferred until the profile is ready (safest: never drops the save, no UI change).
+- Demo header renders signed-in from the server (demo always acts signed in), so no 62px shift after hydration.
 
 (Safest reading taken when the list left a choice.)
