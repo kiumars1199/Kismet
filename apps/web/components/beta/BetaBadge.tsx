@@ -3,9 +3,12 @@
 //   pill   next to a nav link
 //   banner top of the feature's own page
 //   tag    on a card, button or section from a beta feature shown on a live page
+import { BETA_FEATURES } from "@/lib/beta-list";
+
 const BANNER = "Beta: only visible to admins and testers. Not live for customers.";
 
 export function BetaBadge({ variant = "tag", className = "" }: { variant?: "pill" | "banner" | "tag"; className?: string }) {
+  if (!BETA_FEATURES.length) return null;   // nothing in beta (Nov 21: Combos and Kalshi launched): no marker anywhere
   if (variant === "banner") {
     return (
       <p role="note" data-testid="beta-banner" className={`rounded-input border border-warning/50 bg-warning/10 px-4 py-2.5 text-sm font-medium text-warning ${className}`}>

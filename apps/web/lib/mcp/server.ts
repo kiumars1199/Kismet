@@ -95,9 +95,9 @@ const gated = <A,>(fn: (args: A, me: Me, store: Store) => Promise<CallToolResult
 
 const marketUrl = (m: Pick<StoreMarket, "id">) => `${siteUrl()}/m/${encodeURIComponent(m.id)}`;
 
-/** Where to bet: Kalshi only for beta testers (lib/beta.ts), like the site. */
+/** Where to bet: Kalshi when the site shows it (lib/beta.ts: KALSHI_DATA_PERMISSION=true). */
 const venue = (m: StoreMarket, me: Me) =>
-  m.kalshi_ticker && canBeta(me, "kalshi") ? `Kalshi (${m.kalshi_ticker}, beta)` : `Polymarket ${m.url}`;
+  m.kalshi_ticker && canBeta(me, "kalshi") ? `Kalshi (${m.kalshi_ticker})` : `Polymarket ${m.url}`;
 
 /** One market side, with its basis one line away (CLAUDE.md rule 3). */
 export function sideLines(m: StoreMarket, s: Side, now: number, n?: number): string[] {

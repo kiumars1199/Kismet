@@ -5,6 +5,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { renderToString } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 import { yearlySavingPct, yearlySavings } from "@/lib/billing/plans";
+import { can } from "@/lib/entitlements";
 import { SITE } from "@/lib/site";
 import type { PlanCtx } from "./Plans";
 
@@ -76,5 +77,21 @@ describe("yearly savings follow the prices", () => {
   it("changing a price moves the label", () => {
     expect(yearlySavings({ ...SITE.prices, pro_yearly: SITE.prices.pro_monthly * 6 }).pro).toBe(50);
     expect(yearlySavings({ ...SITE.prices, premium_monthly: 20, premium_yearly: 180 }).premium).toBe(25);
+  });
+});
+
+// QA-D (Nov 21): Combos and Kalshi are live; each plan card lists them where lib/entitlements and lib/beta grant them
+// (Combos: Premium; Kalshi markets: every signed-in plan). Neither says "coming soon".
+describe("plan cards: Combos and Kalshi follow the entitlements", () => {
+  it("Combos on Premium only, Kalshi on every card (Premium via 'Everything in Pro'), neither 'coming soon'", () => {
+    const { container } = render(<Plans delay={15} ctx={ctx} />);
+    for (const tier of ["free", "pro", "premium"] as const) {
+      const card = container.querySelector(`section[aria-labelledby="plan-${tier}"]`)!;
+      const items = [...card.querySelectorAll("li")].map((li) => li.textContent ?? "");
+      const combos = items.filter((t) => /^Combos/.test(t));
+      expect(combos.length, tier).toBe(can(tier, "combos") ? 1 : 0);
+      expect(items.some((t) => /^Kalshi markets/.test(t)) || items.includes("Everything in Pro"), tier).toBe(true);
+      for (const t of [...combos, ...items.filter((x) => /Kalshi/.test(x))]) expect(t, tier).not.toMatch(/coming soon/i);
+    }
   });
 });
