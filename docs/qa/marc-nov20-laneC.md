@@ -76,3 +76,13 @@ s2-filters 3/3.
 | 22 onboarding banner hides once onboarding is done or dismissed | Fixed, verified in mock | It rendered on the server before the profile loaded, so it flashed for everyone who had finished setup; its dismissal was kept only in this browser. Now it waits for the account's profile (`useRepoReady`), and dismissing it saves `onboarded_at` to the account (as /onboarding's "Skip setup" does). e2e: not in the first HTML for an onboarded user, never visible while `/api/data` is slow; dismissed on one device, gone on a second. |
 
 Gates: tsc, lint OK; paid e2e qa-c-settings 2/2, s7-upgrade, overhaul-funnel pass (7/7 with these).
+
+## QA-C 7: #39 (branch claude/qa-c-pricing)
+
+Stacked on claude/qa-d-golive (e25342d: Combos and Kalshi live), with claude/qa-c2-connector (a335f8e: alerts and the connector allowance) and claude/qa-c-settings (c965d9c) merged in.
+
+| Item | Status | Evidence |
+|---|---|---|
+| 39 plan cards and compare table list only shipped features | Fixed | The only unshipped feature still sold was the Chrome extension: Premium card "Chrome extension: estimated return right on Polymarket (coming soon)" and the /pricing compare row "Chrome extension / — / — / Coming soon". Both are removed until it ships (**Q**: put it back at launch). Combos/Kalshi lines (lane D), alert strings and the connector rows (lane C2, built from `connectorAllowance`) are unchanged. Kept: the "Coming soon" plan button when billing is off (a real state) and the Chrome Web Store note on /ext/connect. `components/pricing/Plans.test.tsx`: no plan-card item says coming soon or names the extension; the compare table has no such row. |
+
+Gates: tsc, lint OK; vitest 1105/1106 (known teaser test; c2's connector source scan passes); `check:js` 141.6 kB; demo e2e s1-landing 3/3; paid e2e t291-plans passes (it timed out twice on the /signup click while the shared dev server was compiling, then passed on the rebuilt branch).
