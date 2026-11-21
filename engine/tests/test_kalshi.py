@@ -322,3 +322,23 @@ def test_a_partial_crawl_keeps_a_recent_complete_crawl():
     late = k.build(PagedClient({"": {"cursor": "c1", "events": [ev(3, 1)]}}, fail={"c1": RuntimeError("502")}),
                    prev=part, now=t0 + 1900)
     assert len(late["markets"]) == 1 and not any("kept" in n for n in late["meta"]["notes"])
+
+
+def test_prune_keeps_only_files_still_inside_the_ttl(tmp_path):
+    """Nov 21: a file past TTL_S is never served again, so it is deleted after the run (disk on Railway)."""
+    clock = [10 ** 6]
+    c = k.Client(str(tmp_path), now=lambda: clock[0])
+    stale, fresh = tmp_path / ("c" * 40 + ".json"), tmp_path / ("d" * 40 + ".json")
+    for p in (stale, fresh):
+        p.write_text("{}")
+    os.utime(stale, (clock[0] - k.TTL_S - 1,) * 2)
+    os.utime(fresh, (clock[0] - 10,) * 2)
+    assert c.prune() == 1
+    assert fresh.exists() and not stale.exists()
+
+
+def test_filled_shares():
+    rows = [{"no_bid_cents": 30, "status": "active"}, {"no_bid_cents": None, "status": "active"}]
+    f = k.filled(rows)
+    assert f["no_bid_cents"] == 0.5 and f["status"] == 1.0 and f["open_interest"] == 0.0
+    assert k.filled([])["status"] is None
