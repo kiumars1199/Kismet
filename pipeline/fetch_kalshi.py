@@ -52,6 +52,7 @@ SETTLE_PER_RUN = 100        # closed tickers re-asked for a result per run (olde
 SETTLE_GIVE_UP_S = 30 * 86_400   # stop asking about a ticker this long after its close
 SETTLED_KEEP_S = 7 * 86_400      # settlements kept in kalshi.json
 SETTLED_MAX = 500
+KEEP_FULL_S = 1800      # a partial crawl keeps the last complete crawl's other markets for up to 30 min
 TRIES = 5
 
 
@@ -326,8 +327,9 @@ def settle(client, known, open_tickers, now, deadline=None):
     "yes" or "no" (its `status` is passed through as Kalshi sends it). Mutates `known` (settled and given-up
     tickers leave it); returns the new settlement rows."""
     client.deadline = deadline
+    # least recently asked first, then oldest close: a backlog of unresolved tickers can't starve newer ones
     due = sorted((t for t, k in known.items() if t not in open_tickers and (epoch(k.get("close_time")) or 0) <= now),
-                 key=lambda t: epoch(known[t].get("close_time")) or 0)[:SETTLE_PER_RUN]
+                 key=lambda t: (known[t].get("asked_at") or 0, epoch(known[t].get("close_time")) or 0))[:SETTLE_PER_RUN]
     rows = []
     try:
         for i in range(0, len(due), TICKER_BATCH):
@@ -346,6 +348,8 @@ def settle(client, known, open_tickers, now, deadline=None):
     finally:
         for t in due:   # no result a month after the close: stop asking
             k = known.get(t)
+            if k is not None:
+                k["asked_at"] = int(now)
             if k is not None and now - (epoch(k.get("close_time")) or 0) > SETTLE_GIVE_UP_S:   # no close time: ask once
                 known.pop(t, None)
     return rows
@@ -412,15 +416,31 @@ def build(client, state=None, prev=None, now=None, budget=BUDGET_S):
                if r.get("ticker") not in fresh and t0 - (r.get("settled_seen_at") or 0) <= SETTLED_KEEP_S]
     settled = (new_settled + carried)[:SETTLED_MAX]
 
+    # A crawl cut short (time budget, a failed page) must not replace a fuller recent file with a fraction of it: keep
+    # the last complete crawl's other markets for up to KEEP_FULL_S, and say so (fetched_at = the older of the two).
+    fetched_at = int(getattr(client, "oldest", None) or t0)
+    crawled = len(markets)
+    pm = (prev or {}).get("meta") or {}
+    complete_at = fetched_at if info["complete"] else pm.get("complete_at")
+    if (not info["complete"] and complete_at and t0 - complete_at <= KEEP_FULL_S
+            and crawled < 0.8 * (pm.get("n_markets_open") or 0)):
+        seen = {m["ticker"] for m in markets}
+        kept = [m for m in (prev or {}).get("markets") or []
+                if m.get("ticker") not in seen and (epoch(m.get("close_time")) or math.inf) > t0]
+        markets += kept
+        fetched_at = min(fetched_at, int(pm.get("fetched_at") or fetched_at))
+        notes.append(f"partial crawl: kept {len(kept)} markets from the last complete crawl")
+
     markets.sort(key=lambda m: m["volume"], reverse=True)
     return {
         "meta": {
             "source": "Kalshi",
             "attribution": "Market data from Kalshi (kalshi.com)",
-            "fetched_at": int(getattr(client, "oldest", None) or t0),
+            "fetched_at": fetched_at,
+            "complete_at": complete_at,
             "api": BASE,
             "n_markets": min(len(markets), KEEP_MARKETS),
-            "n_markets_open": len(markets),
+            "n_markets_open": crawled,
             "n_events": info["events"],
             "complete": info["complete"],
             "n_combos": len(combos),

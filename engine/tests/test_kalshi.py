@@ -289,3 +289,36 @@ def test_settlements_from_result_with_history_and_carry_over(tmp_path):
     assert dump["complete"] and [m["ticker"] for m in dump["markets"]] == ["KXE-1-0"]
     asked = [p["tickers"] for path, p in c.calls if "tickers" in p]
     assert asked == ["KXG-3-A,KXG-1-A,KXG-2-A"]   # oldest close first, open tickers never asked
+
+
+def test_an_unresolved_backlog_does_not_starve_newer_tickers(monkeypatch):
+    monkeypatch.setattr(k, "SETTLE_PER_RUN", 2)
+    monkeypatch.setattr(k, "TICKER_BATCH", 2)
+    now = 1_795_219_200
+    known = {f"KXB-{i}": {"event_ticker": "KXB", "title": "B", "close_time": f"2026-11-1{i}T00:00:00Z"} for i in range(4)}
+    asked = []
+
+    class C:
+        deadline = None
+
+        def get(self, path, **p):
+            asked.append(p["tickers"])
+            return {"markets": []}   # nothing has a result yet
+
+    k.settle(C(), known, set(), now)
+    k.settle(C(), known, set(), now + 120)
+    assert asked == ["KXB-0,KXB-1", "KXB-2,KXB-3"]   # the second run asks the two not asked yet
+
+
+def test_a_partial_crawl_keeps_a_recent_complete_crawl():
+    t0 = 1_795_219_200
+    full = k.build(PagedClient({"": {"cursor": "", "events": [ev(1, 5), ev(2, 5)]}}), now=t0)
+    assert full["meta"]["complete"] and full["meta"]["complete_at"] == t0
+    part = k.build(PagedClient({"": {"cursor": "c1", "events": [ev(3, 1)]}}, fail={"c1": RuntimeError("502")}),
+                   prev=full, now=t0 + 120)
+    assert not part["meta"]["complete"] and part["meta"]["n_markets_open"] == 1 and len(part["markets"]) == 11
+    assert part["meta"]["complete_at"] == t0 and any("kept 10 markets" in n for n in part["meta"]["notes"])
+    # after 30 minutes without a complete crawl, a partial one publishes as it is
+    late = k.build(PagedClient({"": {"cursor": "c1", "events": [ev(3, 1)]}}, fail={"c1": RuntimeError("502")}),
+                   prev=part, now=t0 + 1900)
+    assert len(late["markets"]) == 1 and not any("kept" in n for n in late["meta"]["notes"])

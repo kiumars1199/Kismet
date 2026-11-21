@@ -49,6 +49,15 @@ describe("/api/kalshi", () => {
       }
     }
   });
+
+  it("passes the Nov 2026 fields through: quote fields, crawl meta and settlements (fixture, not the live API)", async () => {
+    vi.stubEnv("KALSHI_DATA_PERMISSION", "true");
+    vi.stubEnv("DATA_DIR", "test/fixtures/kalshi-v2");
+    const body = (await (await (await load())()).json()) as KalshiFile;
+    expect(body.meta).toMatchObject({ complete: true, n_markets_open: 1, n_events: 1, pages: 1, n_settled: 1, notes: [] });
+    expect(body.markets[0]).toMatchObject({ no_ask_cents: 60, last_price_cents: 41, volume_24h: 90, open_interest: 300, status: "active" });
+    expect(body.settled).toEqual([expect.objectContaining({ ticker: "KXG-1-A", result: "no", source: "Kalshi" })]);
+  });
 });
 
 describe("/kalshi page", () => {

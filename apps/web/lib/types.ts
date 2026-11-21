@@ -252,7 +252,7 @@ export interface KalshiFile {
   meta: {
     source: "Kalshi"; attribution: string; fetched_at: number; api: string; n_markets: number; n_combos: number;
     n_markets_open?: number; n_events?: number; complete?: boolean; n_settled?: number; pages?: number;
-    notes?: string[]; seconds?: number;
+    notes?: string[]; seconds?: number; complete_at?: number | null;
   };
   markets: KalshiMarket[];
   combos: KalshiCombo[];

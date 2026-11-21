@@ -218,7 +218,10 @@ but in our sample none carried a resting ask (Kalshi's RFQ endpoints need a memb
 
 Since Nov 2026 the fetch crawls every open event (`GET /events?status=open&with_nested_markets=true`, every cursor page)
 within a time budget (`KALSHI_BUDGET_SEC`, default 45 s; 70% for the crawl, the rest for combos and settlements), each
-stage on its own so one failing never loses the others. `fetched_at` is the time of the oldest response used (a cache hit
+stage on its own so one failing never loses the others. The budget is checked before each request and caps each request's
+timeout (a per-read timeout, so a very slow trickling response can still overrun a little). A crawl cut short within 30 min
+of the last complete one keeps that crawl's other (still open) markets, with a note, and `fetched_at` becomes the older time.
+Settlement lookups go least recently asked first, so unresolved tickers never block newer ones. `fetched_at` is the time of the oldest response used (a cache hit
 counts at its cache time). Settlements: every market seen open is remembered (`data/kalshi_known.json`); once it is no
 longer open and its close time has passed, the fetch asks for it by ticker (100 per run, oldest first) and a `result` of
 `yes`/`no` makes a `settled` row (also appended to `data/kalshi_settled.jsonl`); a market with no result 30 days after its
@@ -268,6 +271,7 @@ export interface KalshiFile {
     // complete = false when the crawl stopped early (time budget, error, repeated cursor): see notes.
     n_markets_open?: number; n_events?: number; complete?: boolean; n_settled?: number; pages?: number;
     notes?: string[]; seconds?: number;
+    complete_at?: number | null;   // fetched_at of the last complete crawl (a partial crawl within 30 min of it keeps its other markets)
   };
   markets: KalshiMarket[];
   combos: KalshiCombo[];
