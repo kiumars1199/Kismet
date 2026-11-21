@@ -25,10 +25,10 @@ function snapshotOf(m: Market, side?: 0 | 1): WatchSnapshot {
 
 export function WatchStar({ marketId, side, market, tipAlign = "right" }: { marketId: string; side?: 0 | 1; market?: Market; tipAlign?: "left" | "right" }) {
   const list = useCollection("watchlist");
-  const { quota } = useEntitlements();
+  const { quota, known } = useEntitlements();
   const sideIndex = side ?? null;
   const item = list.find((w) => w.market_id === marketId && w.side_index === sideIndex);
-  const full = !item && list.length >= quota("watchlist");
+  const full = known && !item && list.length >= quota("watchlist");   // QA-A #40: Free's cap only once the plan is known
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedNote, setSavedNote] = useState(false);   // P9: a star alone gave no sign of where the bet went
