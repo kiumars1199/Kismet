@@ -101,7 +101,7 @@ const venue = (m: StoreMarket, me: Me) =>
 
 /** One market side, with its basis one line away (CLAUDE.md rule 3). */
 export function sideLines(m: StoreMarket, s: Side, now: number, n?: number): string[] {
-  const f = betFigures(s);   // T-289: the same figures and labels as the site's cards and drawer ($100 stake)
+  const f = betFigures(s, { market: m });   // T-289/QA-B: the same price, payout and return as the site's cards and drawer ($10 stake)
   const verdict = m.execution?.verdict;
   return [
     `${n ? `${n}. ` : ""}${m.question}`,

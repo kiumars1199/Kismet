@@ -15,7 +15,7 @@ test("long shot: a 10x+ payout filter with international bets brings it in, with
   await expect(card.getByTestId("card-chance")).toHaveText("14% chance to win");
   await card.getByText("Why this bet?").click();
   await expect(card.getByText(/^Lower:/)).toBeVisible();
-  await expect(card.getByTestId("band-record")).toContainText("lost money in testing");
+  await expect(card.getByTestId("band-record")).toContainText("(lost money)");
 });
 
 test("drawer: long-shot line under 25% chance", async ({ page }) => {
