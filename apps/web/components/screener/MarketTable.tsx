@@ -10,13 +10,13 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { ApiGroup, ApiRow } from "@/lib/api";
 import type { SortKey } from "@/lib/filters/state";
 import type { FilterState } from "@/lib/filters/state";
-import { basis, DASH, edge, money, pays, PAYS_HELP, pct, price, RETURN_HELP, sideRet, sideEdge, formatCount } from "@/lib/format";
+import { basis, DASH, edge, money, pct, price, RETURN_HELP, sideEdge, formatCount } from "@/lib/format";
 import { WatchStar } from "@/components/watch/WatchStar";
 import { drawerHref, useOpenDrawer } from "@/components/market/drawer";
 import { AlertLink, Notes, Val } from "@/components/market/bits";
 import { VenueIconLink } from "@/components/trade/TradeButton";
 import { VERDICT_LABEL, chanceTone, returnTone, rowNotes, topicLabel } from "@/components/market/labels";
-import { sideChance } from "@/lib/betFigures";
+import { betFigures, betQuote, PAYS_AFTER_FEE_HELP } from "@/lib/betFigures";
 
 export type Item =
   | { kind: "group"; g: ApiGroup }
@@ -37,19 +37,19 @@ function columns(pro: boolean): Col[] {
       header: "Market",
       cell: ({ row: { original: r } }) => <MarketCell r={r} />,
     }),
-    h.display({ id: "bet", header: "Bet", meta: { label: "Bet" }, cell: ({ row: { original: r } }) => <span className="whitespace-nowrap font-medium">{r.side.outcome} · {price(r.side.ask)} <span className="text-xs font-normal tabular-nums text-muted" title={PAYS_HELP}>· pays {pays(r.side.ask)}</span></span> }),
+    h.display({ id: "bet", header: "Bet", meta: { label: "Bet" }, cell: ({ row: { original: r } }) => { const q = betQuote(r.market, r.side); return <span className="whitespace-nowrap font-medium">{r.side.outcome} · {pct(q.ask)} <span className="text-xs font-normal tabular-nums text-muted" title={PAYS_AFTER_FEE_HELP}>· pays {q.paysText ?? DASH}</span></span>; } }),
     h.display({
       id: "return", meta: { label: pro ? "Edge" : "Estimated return", sort: pro ? "edge" : "roi", right: true, help: RETURN_HELP },
       header: pro ? "Edge" : "Estimated return",
       cell: ({ row: { original: r } }) => pro
         ? <Val v={sideEdge(r.side)} className={`font-heading text-base ${returnTone(r.side.roi_pct)}`} title={basis(r.market, r.side)} />
-        : <Val v={sideRet(r.side)} className={`font-heading text-base ${returnTone(r.side.roi_pct)}`} title={basis(r.market, r.side)} />,
+        : (() => { const q = betQuote(r.market, r.side); return <Val v={q.retText} className={`font-heading text-base ${returnTone(q.roi)}`} title={q.math ?? basis(r.market, r.side)} />; })(),
     }),
     h.display({ id: "won", header: "Won before", meta: { label: "Won before", sort: "win_prob", right: true }, cell: ({ row: { original: r } }) => <Val v={pct(r.side.win_prob)} className="text-accent-soft" title={basis(r.market, r.side)} /> }),
-    h.display({ id: "says", header: "Market says", meta: { label: "Market says", sort: "price", right: true }, cell: ({ row: { original: r } }) => <Val v={pct(r.side.ask)} /> }),
+    h.display({ id: "says", header: "Market says", meta: { label: "Market says", sort: "price", right: true }, cell: ({ row: { original: r } }) => <Val v={pct(betQuote(r.market, r.side).ask)} /> }),
     h.display({
       id: "chance", header: "Chance", meta: { label: "Chance" },
-      cell: ({ row: { original: r } }) => { const c = sideChance(r.side); return <span className={`whitespace-nowrap ${chanceTone(c)}`}>{c ?? <Val v={DASH} />}</span>; },
+      cell: ({ row: { original: r } }) => { const c = betFigures(r.side, { market: r.market }).chance; return <span className={`whitespace-nowrap ${chanceTone(c)}`}>{c ?? <Val v={DASH} />}</span>; },
     }),
     h.display({ id: "closes", header: "Closes", meta: { label: "Closes", sort: "closes", right: true }, cell: ({ row: { original: r } }) => <span className="whitespace-nowrap"><ClosesIn at={r.market.closes_at} /></span> }),
     h.display({ id: "topic", header: "Topic", meta: { label: "Topic" }, cell: ({ row: { original: r } }) => <span className="whitespace-nowrap text-xs text-muted">{topicLabel(r.market)}</span> }),

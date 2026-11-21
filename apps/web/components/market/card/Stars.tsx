@@ -9,14 +9,15 @@ function Star({ on }: { on: boolean }) {
   );
 }
 
-export function StarRating({ st, title }: { st: StarsT | null; title?: string }) {
-  if (!st) return <span className="text-muted" title={title}>No value at today&apos;s price</span>;
+/** `children` replaces the word label (the card puts its one return figure there; the word stays in the aria label). */
+export function StarRating({ st, title, children }: { st: StarsT | null; title?: string; children?: React.ReactNode }) {
+  if (!st) return <span className="text-muted" title={title}>{children ?? <>No value at today&apos;s price</>}</span>;
   return (
     <span className="inline-flex items-center gap-1.5" title={title}>
-      <span role="img" aria-label={`Value: ${st.n} of 3 stars`} className="inline-flex">
+      <span role="img" aria-label={`Value: ${st.label}, ${st.n} of 3 stars`} className="inline-flex">
         {[1, 2, 3].map((i) => <Star key={i} on={i <= st.n} />)}
       </span>
-      <span className={st.n === 3 ? "font-semibold text-accent" : "text-soft"}>{st.label}</span>
+      <span className={st.n === 3 ? "font-semibold text-accent" : "text-soft"}>{children ?? st.label}</span>
     </span>
   );
 }

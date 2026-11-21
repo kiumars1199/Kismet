@@ -8,8 +8,8 @@ import { softNav } from "@/lib/softNav";
 import { useEffect, useRef, useState } from "react";
 import { fetchBook, fetchMarket, type BookResponse, type MarketResponse } from "@/lib/api";
 import { useWhen } from "./When";
-import { ago, basis, cardReturn, edge, pastReturnLine, money, odds, pct, points, price, ret, sideEdge, formatCount, LONG_SHOT_LINE } from "@/lib/format";
-import { betFigures, edgeAbove0, PTS_HELP, RETURN_HELP_ONE, RETURN_LABEL_LONG, RETURNS_FAQ } from "@/lib/betFigures";
+import { ago, basis, edge, money, pct, points, price, ret, sideEdge, formatCount, LONG_SHOT_LINE } from "@/lib/format";
+import { betFigures, betQuote, edgeAbove0, PTS_HELP, RETURN_HELP_ONE, RETURN_LABEL_LONG, RETURNS_FAQ } from "@/lib/betFigures";
 import { useProfile } from "@/lib/repo/hooks";
 import { useEntitlements } from "@/lib/entitlements";
 import type { Execution, Side, StoreMarket } from "@/lib/types";
@@ -24,7 +24,7 @@ import { AddToCombo } from "@/components/combo/AddToCombo";
 import { drawerHref } from "./drawer";
 import { TradeButton, VenueLink } from "@/components/trade/TradeButton";
 import { VenueButton, primaryVenue } from "@/components/trade/VenueButton";
-import { INTL_ONLY, NOT_FOR_US, US_SMALL_PRINT } from "@/lib/card";
+import { INTL_ONLY, NOT_FOR_US, STAKE, US_SMALL_PRINT } from "@/lib/card";
 import { Count } from "@/components/kit";
 import { ProofLine } from "@/components/results/ProofLine";
 
@@ -137,7 +137,9 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
   const x: Execution | undefined = liveX ?? (live.book ? undefined : scanX);
   const bookState = live.book && !live.book.book_ok ? live.book.verdict : undefined;
   // T-289: the headline's figures come from the same helper as the cards, at the live price once the book answers
-  const f = betFigures(s, { ask: liveX?.best_ask, stake: profile.default_stake_usd });
+  // QA-B #37/#54: the card's price (the US price on a US card; the live international book only moves an international
+  // card), its one payout (after the fee) and the cards' $10 stake, so headline, card and "If you bet" box agree
+  const f = betFigures(s, { market: m, ask: liveX?.best_ask, fee: liveX?.fee_at_ask ?? undefined, stake: STAKE });
   const c = f.chance;
 
   const pickSide = (i: 0 | 1) => (onClose ? softNav(pathname + drawerHref(m.id, i, params), { replace: true }) : router.replace(`${pathname}?side=${i}`, { scroll: false }));
@@ -159,23 +161,23 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
 
       <section aria-label="Headline" className="rounded-inner border border-accent-border bg-accent-bg p-[18px]">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <LiveBet s={s} ask={liveX?.best_ask} />
+          <LiveBet s={s} pays={f.pays} ask={f.quote.venue === "us" ? undefined : liveX?.best_ask} />
           {m.tier === "edge" && <LowerConfidence />}
         </div>
         <p data-testid="one-bet" className="mt-2 font-heading text-[26px] font-bold leading-tight text-text" title={basis(m, s)}>
-          <span title={f.feeHelp}>Pays {f.pays}</span> <span className="font-sans text-base font-medium text-accent-soft">before fees · <span className="whitespace-nowrap" title={`Won ${f.winPct} of the time in similar past bets`}>wins about {f.wins}</span></span>
+          <span title={f.feeHelp}>Pays {f.pays}</span> <span className="font-sans text-base font-medium text-accent-soft">after the fee · <span className="whitespace-nowrap" title={`Won ${f.winPct} of the time in similar past bets`}>wins about {f.wins}</span></span>
         </p>
         <p data-testid="verdict" className={`text-[13px] ${f.verdict.tone === "up" ? "text-accent-softer" : VERDICT_TONE[f.verdict.tone]}`}>{f.verdict.text} <span className="font-semibold" title={PTS_HELP}>({f.pts})</span></p>
         {s.win_prob < 0.25 && <p data-testid="long-shot-line" className="mt-2 text-[13px] leading-relaxed text-text">{edgeAbove0(s) ? LONG_SHOT_LINE : "Most of the time this loses."}</p>}
         <div className="mt-2 flex items-baseline gap-2.5">
-          <div data-testid="bet-return" className={`font-heading text-[30px] font-bold leading-none tracking-tight ${(pro ? s.roi_pct : f.ret.roi ?? 0) >= 0 ? "text-accent-soft" : "text-negative"}`} title={basis(m, s)}>
-            {pro ? sideEdge(s) : f.ret.text}
+          <div data-testid="bet-return" className={`font-heading text-[30px] font-bold leading-none tracking-tight ${(f.ret.roi ?? 0) >= 0 ? "text-accent-soft" : "text-negative"}`} title={f.quote.math ?? basis(m, s)}>
+            {f.ret.text}
           </div>
           <div className="flex items-center gap-1 text-[13px] text-accent-soft">
-            {pro ? "edge per share" : RETURN_LABEL_LONG}<InfoTip text={RETURN_HELP_ONE} className="text-accent-softer" />
+            {RETURN_LABEL_LONG}{pro && <span className="text-accent-softer">· edge {sideEdge(s)} per share</span>}<InfoTip text={RETURN_HELP_ONE} className="text-accent-softer" />
           </div>
         </div>
-        <p className={`mt-1.5 text-[13px] ${chanceTone(c)}`}>{c ?? ""}{c && " · "}<span data-testid="payout" className="text-accent-soft" title={f.feeHelp}>Bet {f.stakeText} → get {f.payoutText} after fees if it wins</span></p>
+        <p className={`mt-1.5 text-[13px] ${chanceTone(c)}`}>{c ?? ""}{c && " · "}<span data-testid="payout" className="text-accent-soft" title={f.feeHelp}>Bet {f.stakeText} → get {f.payoutText} back if it wins</span></p>
         {m.tier === "edge" && <TierNote s={s} className="mt-1.5 !text-accent-soft" />}
         {free && (
           <p data-testid="upgrade-note" className="mt-3 border-t border-accent-border pt-3 text-[13px] text-accent-softer">
@@ -195,18 +197,19 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
         <div role="group" aria-label="Both sides" className="grid grid-cols-2 gap-2">
           {[...m.sides].map((x) => {
             const on = x === s;
+            const xq = betQuote(m, x);   // the same payout and return the card would show for this side
             return (
               <button key={x.side_index} type="button" aria-pressed={on} onClick={() => pickSide(x.side_index)}
                 className={`flex min-h-11 flex-col rounded-input border p-3 text-left ${on ? "border-accent-border bg-accent-bg/60" : "border-border bg-raised hover:border-accent-border"}`}>
                 <div className="flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-2">
                   <span className="min-w-0 break-words font-semibold leading-snug sm:truncate">{x.outcome}</span>
-                  <span className="shrink-0 whitespace-nowrap tabular-nums">pays {odds(x.ask)}</span>
+                  <span className="shrink-0 whitespace-nowrap tabular-nums">pays {xq.paysText ?? "—"}</span>
                 </div>
                 <div className="mt-1 flex flex-wrap justify-between gap-x-2 whitespace-nowrap text-xs text-muted">
                   <span title={basis(m, x)}>won {pct(x.win_prob)} before</span>
                   {/* docs/17 fix 11: no scary negative return on the other side; just say so */}
-                  {x.ranges || x.roi_pct >= 0
-                    ? <span className={returnTone(pro ? x.roi_pct : cardReturn(x).roi)}>{pro ? sideEdge(x) : cardReturn(x).text}</span>
+                  {x.ranges || (xq.roi ?? 0) >= 0
+                    ? <span className={returnTone(xq.roi)}>{xq.retText}</span>
                     : <span>Not recommended</span>}
                 </div>
               </button>
@@ -238,7 +241,6 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
             ["Ask", price(x?.best_ask ?? s.ask)], ["Mid", price(x?.book_mid ?? s.mid)],
             ["Spread", price(x?.spread ?? m.spread)], ["Fee", price(x?.fee_at_ask ?? s.fee)],
             ["Edge", edge(x?.net_edge ?? s.edge)], ["Cautious edge", edge(s.edge_low)],
-            ["Similar past bets returned", pastReturnLine(s) ?? "—"],
             ["Edge kept after spread", pct(x?.retention)], ["Win chance range", `${pct(s.win_prob_low)}–${pct(s.win_prob)}`],
             ["Model level", LEVEL[s.model_level] ?? s.model_level], ["Samples", `${formatCount(s.model_neff)} eff. · ${formatCount(s.model_events)} events`],
           ] as const).map(([k, v]) => (
@@ -262,7 +264,7 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
                 <Link href={onClose ? drawerHref(o.id, undefined, params) : `/m/${o.id}`} replace={!!onClose} scroll={!onClose}
                   className="flex min-h-11 items-center justify-between gap-3 border-t border-border py-2 text-[13px] hover:text-accent-hover">
                   <span className="line-clamp-2">{o.question}</span>
-                  <span className={`flex-none tabular-nums ${returnTone(pro ? o.best.roi_pct : cardReturn(o.best).roi)}`}>{pro ? sideEdge(o.best) : cardReturn(o.best).text}</span>
+                  <span className={`flex-none tabular-nums ${returnTone(betQuote(o, o.best).roi)}`}>{betQuote(o, o.best).retText}</span>
                 </Link>
               </li>
             ))}
@@ -275,7 +277,7 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
 }
 
 /** "Bet Yes · pays 1.43x" with the live price; the number briefly highlights when the live book moves it (docs/17). */
-function LiveBet({ s, ask }: { s: Side; ask?: number }) {
+function LiveBet({ s, pays, ask }: { s: Side; pays: string; ask?: number }) {
   const prev = useRef(ask);
   const [pulse, setPulse] = useState(0);
   useEffect(() => {
@@ -285,7 +287,7 @@ function LiveBet({ s, ask }: { s: Side; ask?: number }) {
   return (
     <div className="text-[13px] text-accent-softer">
       Bet <strong className="font-semibold text-accent-soft">{s.outcome}</strong> · pays{" "}
-      <span key={pulse} data-testid="live-price" className={`rounded px-0.5 tabular-nums text-accent-soft ${pulse ? "price-pulse" : ""}`}>{odds(ask ?? s.ask)}</span>
+      <span key={pulse} data-testid="live-price" className={`rounded px-0.5 tabular-nums text-accent-soft ${pulse ? "price-pulse" : ""}`}>{pays}</span>
       {ask !== undefined && <span className="text-accent-softer"> live</span>}
     </div>
   );
@@ -313,7 +315,7 @@ function Actions({ m, s }: { m: StoreMarket; s: Side }) {
         : primaryVenue(m, s)
           ? <div className="flex flex-col gap-1">
               <VenueButton m={m} s={s} className="w-full" />
-              {m.us && m.us.ask != null && <p data-testid="us-price" className="text-center text-xs text-muted">Pays {odds(m.us.ask)} on Polymarket US · {US_SMALL_PRINT}</p>}
+              {m.us && m.us.ask != null && <p data-testid="us-price" className="text-center text-xs text-muted">Pays {betQuote(m, m.best).paysText} on Polymarket US · {US_SMALL_PRINT}</p>}
             </div>
           : <div className="flex flex-col gap-1">
               <p data-testid="intl-only" className="flex min-h-11 items-center justify-center rounded-input border border-border bg-raised/60 px-3 text-center text-xs text-muted">{INTL_ONLY}</p>
