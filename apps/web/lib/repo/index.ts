@@ -40,12 +40,16 @@ export function getRepo(): Repo {
 export const getLocalRepo = (): LocalRepo => (local ??= new LocalRepo());
 
 let markReady = () => {};
+let ready = false;
+/** #22: has AuthBoot picked the store yet (so the profile is the account's, not the default)? Demo mode: always. */
+export const isRepoReady = () => DEMO_MODE || ready;
 /** Resolves once AuthBoot has picked the store (account or guest). Never resolves in demo mode: race it with a timeout. */
 export const repoReady = new Promise<void>((r) => { markReady = r; });
 
 /** Switch the backing store (AuthBoot does this after /api/me). */
 export function setRepo(next: Repo) {
   impl = next;
+  ready = true;
   current();
   emit();
   markReady();

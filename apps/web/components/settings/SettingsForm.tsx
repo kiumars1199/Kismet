@@ -6,7 +6,9 @@ import { TopicsPicker } from "@/components/settings/TopicsPicker";
 import { money } from "@/lib/format";
 import { askPermission, browserAlertsOn, notifyState, setBrowserAlerts, type NotifyState } from "@/lib/notify";
 import { ODDS_CHOICES, ODDS_LABEL, formatOdds } from "@/lib/odds";
+import Link from "next/link";
 import { getRepo } from "@/lib/repo";
+import { accountsOn, savedWhere } from "@/lib/saved-where";
 import { useProfile } from "@/lib/repo/hooks";
 import type { CollectionName, Profile } from "@/lib/repo/types";
 
@@ -72,7 +74,7 @@ export function SettingsForm() {
       </Section>
 
       <Section id="s-sizing" title="Sizing" sub="Used by the sizing card in the market drawer. This is math on your own numbers, not advice.">
-        <Row title="Bankroll" sub="Money you set aside for betting. Stays on this device.">
+        <Row title="Bankroll" sub={savedWhere().bankroll}>
           <div className="md:w-48">
             <NumberInput ariaLabel="Bankroll in dollars" prefix="$" min={0} step="1" value={profile.bankroll_usd}
               onChange={(v) => patch({ bankroll_usd: v !== null && v >= 0 ? v : null })} placeholder="e.g. 1000" />
@@ -149,13 +151,20 @@ function DataSection() {
     location.reload();
   };
   return (
-    <Section id="s-data" title="Your data" sub="Everything is stored in this browser only. Nothing is sent to a server.">
+    <Section id="s-data" title="Your data" sub={savedWhere().data}>
       <Row title="Export" sub="Download all your settings, saves, bets and alerts as one JSON file.">
         <button type="button" className={btn} onClick={exportAll}>Export my data</button>
       </Row>
-      <Row title="Clear local data" sub="Removes everything above from this browser.">
-        <button type="button" className={btnDanger} onClick={clear} disabled={cleared}>Clear local data</button>
-      </Row>
+      {/* #22: signed in, the data is in the account; clearing this browser would delete nothing, so point to /account */}
+      {accountsOn() ? (
+        <Row title="Delete your data" sub="Deleting your account removes your settings, saved views, My list, My bets and alerts.">
+          <Link href="/account" className={btn}>Go to Account</Link>
+        </Row>
+      ) : (
+        <Row title="Clear local data" sub="Removes everything above from this browser.">
+          <button type="button" className={btnDanger} onClick={clear} disabled={cleared}>Clear local data</button>
+        </Row>
+      )}
     </Section>
   );
 }

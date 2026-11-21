@@ -9,6 +9,7 @@ import { edge, money, pct, price, ret } from "@/lib/format";
 import { kelly } from "@/lib/kelly";
 import { getRepo } from "@/lib/repo";
 import { useProfile } from "@/lib/repo/hooks";
+import { savedWhere } from "@/lib/saved-where";
 import type { Execution, Market } from "@/lib/types";
 
 type Book = (Execution & { fetched_at: number }) | { verdict: string; book_ok: false };
@@ -134,7 +135,7 @@ function LogBet({ market, side }: { market: Market; side: 0 | 1 }) {
         </p>
       ) : (
         <>
-          <p className="text-xs text-muted">For bets you placed on Polymarket. Saved on this device only.</p>
+          <p className="text-xs text-muted">For bets you placed on Polymarket. {savedWhere().log}</p>
           <div className="grid grid-cols-2 gap-3">
             <label className="flex flex-col gap-1.5 text-xs font-medium text-muted">
               Price you paid
