@@ -1,6 +1,41 @@
 # Nov 21, 2026: Q's decision list, run log
 
-Summary: (filled in at the end)
+## Handoff (Nov 22, 18:00 UTC, wrapping up for a new session)
+
+PRs opened in this run:
+- Merged: #21 CI install, #22 backtest even weeks, #23 alerts Free note, #25 S7 checkout wait, #27 checkout-status
+  race, #28 disk-full fix, #30 e2e races (iPhone /markets, funnel), #32 volume check, #34 upload skips kalshi.json,
+  #36 scheduler keeps last-run times (merged 17:57 UTC, green, preview READY).
+- Closed, not merged: #24 combos (closed after the S7 flake, to be reopened fresh; never reopened), #26 disk-full fix
+  (red on unrelated e2e-paid races; reshipped as #28 after #27), #29 volume check (red on the iPhone race; reshipped
+  as #32 after #30).
+
+Items:
+- 1 CI install: done. 2 Backtest even weeks: done (production shows the engine's figure after Railway's weekly run).
+- 3 Alerts: done, Pro email verified end to end (13:45 UTC Nov 22).
+- 4 Combos multiply line: partly done. Code and unit test exist (combo tray + suggested combos, lib/combos.ts and
+  test; tsc, lint, vitest pass locally) but no PR was opened. Left: open "Nov21: combos multiply line" from commit
+  "Nov21: combo Why says the legs' chances multiply" (6c16976, alone on branch claude/friendly-maxwell-h8n5nj, on top
+  of final abacce7, no PR open), run CI, merge. Its log lines are already in "4. Combos" above.
+- 5 Kalshi: done (complete=True, fill rates logged, cache prune live).
+- 6 Hydration leftovers: done.
+- A (#20 verified): done. B upload skips kalshi.json: done (#34). C scheduler state: done (#36; check the Railway log for "[scheduler] resumed:" after the next engine deploy).
+- D health thresholds: done (documented, no code change). E smoke flows: done except S3 drawer and S5 live prices,
+  which Vercel BotID blocks for headless browsers (covered by CI e2e). Test account deleted.
+
+Broken or half-finished on final: nothing known broken. Production healthy at 17:23 UTC (volume 0.72 of 5 GB).
+Open notes, not fixed: My list shows "Closed" on any fetch error (see "Found, not fixed"); phones see the desktop
+table until scripts run on /markets (see the iPhone race note).
+
+Needs Q: nothing blocking. Decide whether to allow a BotID bypass for smoke scripts (would let S3/S5 run against
+production), and whether to fix the "Closed on fetch error" copy.
+
+Summary:
+1. Merged green: CI install #21, backtest even weeks #22, alerts note #23, CI race fixes #25 #27 #30, disk-full fix #28, volume check #32, upload skips kalshi.json #34, scheduler resume #36. Combos line (item 4) not merged; see Handoff.
+2. Outage: the Railway volume filled at 21:49 UTC Nov 21 and the site went about 12.5 h stale; recovered 10:26 UTC Nov 22. Cache pruning, atomic writes and a real volume check now guard against a repeat.
+3. Verified live: a Pro alert email was delivered (cron 13:45 UTC Nov 22), Kalshi runs complete with fill rates, and smoke S1, S2, S4 and S6 pass on kismetodds.com.
+4. Not verified by script: S3 drawer and S5 live prices (Vercel BotID blocks headless browsers; CI e2e covers them). Found, not fixed: My list says "Closed" on any fetch error.
+5. Test account and its data deleted. D documented, the hidden time slot kept, deferred items untouched. Choices made while Q was away are under "Decided without Q".
 
 Rules followed: one fix group per PR ("Nov21: <topic>"), merged only with tsc, lint, vitest, pytest, check:js,
 affected e2e and the Vercel preview all green.
@@ -48,7 +83,7 @@ affected e2e and the Vercel preview all green.
 - Cron stays daily (vercel.json, 13:00 UTC).
 - Free: a short note under the title ("On Free, alerts reach you only while Kismet is open in a tab. Pro adds email…")
   with a See plans link; no email switch in the editor. e2e-paid covers Free (note shown) and Pro (no note).
-- Pro email end to end: see "Alerts email check" below (after deploy).
+- Pro email end to end: verified, see "Alerts email check" below.
 
 ## CI flake: S7 checkout wait ("Nov21: S7 checkout wait")
 - PR #24 (combos) went red on e2e-paid S7: "Confirming your payment with Stripe…" still showing at 30 s. Unrelated to
@@ -91,10 +126,56 @@ affected e2e and the Vercel preview all green.
   3147.64 GB used (73% free)": on Railway, disk usage on the volume reports the host disk, not the 5 GB volume, so the
   10% low-disk log could never fire. Follow-up "Nov21: measure the volume, not the host" works the share free out from
   what data/ holds against VOLUME_GB (default 5).
+- Volume check live (#32, Railway 17:23 UTC Nov 22): "volume data/ 0.72 of 5 GB (84% free)". The 84% is the host's
+  share, which is lower than the volume's 86% at that moment; the check takes whichever is lower.
 - Recovered 10:26 UTC Nov 22 (about 12.5 h stale): update added 42,997 snapshots, "model fitted" (510 nodes), grade,
   then scan (18,467 markets, 2,991 flags) and upload all succeeded; /api/health ok.
 - Item 5 closed: kalshi run complete=True, 189,446 markets in 67.8 s; fill rates no_bid 79%, no_ask 55%, last_price
   84%, volume_24h / open_interest / status 100%.
+
+## 4. Combos ("Nov21: combo legs multiply") (NOT merged, see Handoff)
+- One line in the combo tray and suggested combos: "The combo wins only if every leg wins, so the legs' chances
+  multiply: 80% × 70% ≈ 56%." Unit test in lib/combos.test.ts.
+
+## Alerts email check (item 3, end to end)
+- Throwaway Pro test account (comped Pro, no Stripe objects), one rule on a soccer spread, email on.
+- Real cron at 13:45:19 UTC Nov 22: rules 1, users 1, emails 1, errors 0. alert_events row 1 sent on in_app + email.
+- Resend: "Alert: SOCCER · Spread: Real Betis Balompié (-2.5)" status delivered to Resend's test inbox.
+
+## B. Main upload skips kalshi.json ("Nov21: main upload skips kalshi.json")
+- The main upload ran before the Kalshi crawl and re-sent the previous crawl's kalshi.json. Now only
+  `upload.py --only output/kalshi.json` sends it (scheduler already did; refresh.yml fallback now does too; a
+  missing file is a no-op). Test added.
+
+## C. Scheduler resumes after a redeploy ("Nov21: scheduler keeps last-run times")
+- Last-run times are saved to data/scheduler_state.json (atomic write) after every job and loaded at start, so a
+  redeploy no longer reruns backtest, update, fit and grade before its first scan. Unreadable file = start empty.
+
+## E. Smoke flows on kismetodds.com (Nov 22, Playwright, desktop 1280 px)
+- Signed out: / loads with bets. /markets and /tools redirect to /signup?next=… (by design, sign-in wall).
+- Signed in (Pro test account):
+  - S1 pass: 14 rows, "Updated 4 min ago".
+  - S2 pass: filters in the URL survive reload (13 rows, same order); Reset goes back to /markets.
+  - S3 blocked: the drawer shows "Couldn't load this market". /api/markets/:id answers 403 "Automated access is
+    not allowed" to headless Chromium (Vercel BotID). Not an app bug; the same flow passes in CI e2e (S3).
+  - S4 pass: saved view re-applies the same 13 rows; view deleted after.
+  - S5 partial: save and unsave work (POST /api/data/watchlist 200, 2 rows). Live price and since-saved are
+    blocked by the same BotID 403, so My list showed both rows as "Closed".
+  - S6 pass: /track-record loads; Kelly q 0.6, p 0.5 gives full Kelly 20%.
+  - No page errors.
+
+## Found, not fixed
+- My list marks a saved market "Closed" on any fetch error (403, 429, network), not only when it closed
+  (apps/web/components/watch/MyList.tsx line 140 sets "gone" on any failure). The drawer's "Couldn't load this market… may have closed" is
+  just as misleading when the fetch was blocked. Suggest: "Closed" only on 404; otherwise "Couldn't refresh, try
+  again".
+
+## Cleanup
+- Test account deleted Nov 22 17:12 UTC with its rows (alert rule and event, watchlist 2, funnel event,
+  subscription, profile, auth user). No Stripe customer existed. Local password and cookie files deleted.
+
+## Time lost
+- The session worker restarted several times, costing a few hours of wall clock; no work was lost (all on branches).
 
 ## Q's answers (Nov 21, before going away)
 
@@ -122,5 +203,9 @@ affected e2e and the Vercel preview all green.
 - PR #24 (combos) was closed after the S7 checkout flake and is reopened as a fresh PR once the S7 wait fix is in.
 - Scheduler state file (item C) saves only last-run times; the in-memory flags (true/false) are left out, so a
   restart never carries a stale "already done" flag.
+
+- Smoke S3/S5: left Vercel BotID on and logged the gap instead of adding a bypass for the test (production
+  firewall change; the flows are covered by CI e2e).
+- Test account deleted with SQL (rows, then the auth user) since it had no Stripe objects to cancel.
 
 (Safest reading taken when the list left a choice.)
