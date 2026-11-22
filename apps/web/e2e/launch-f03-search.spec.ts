@@ -80,19 +80,28 @@ for (const [name, size] of [["390", { width: 390, height: 844 }], ["1440", { wid
     await expect(page.getByRole("button", { name: /^Pays/ }).first()).toBeVisible();
   });
 
-  test(`layout shift on /markets at ${name}px stays under 0.1 (chips are in the first paint)`, async ({ page }) => {
+  test(`the venue chip row never shifts on /markets at ${name}px (it is in the server HTML)`, async ({ page }) => {
     await page.setViewportSize(size);
     await page.addInitScript(() => {
-      (window as unknown as { __cls: number }).__cls = 0;
+      const w = window as unknown as { __cls: number; __chips: number };
+      w.__cls = 0;
+      w.__chips = 0;
       new PerformanceObserver((list) => {
-        for (const e of list.getEntries() as unknown as { value: number; hadRecentInput: boolean }[]) if (!e.hadRecentInput) (window as unknown as { __cls: number }).__cls += e.value;
+        for (const e of list.getEntries() as unknown as { value: number; hadRecentInput: boolean; sources: { node?: Element }[] }[]) {
+          if (e.hadRecentInput) continue;
+          w.__cls += e.value;
+          // a shift whose moved node is the chip row (or inside it): the row mounted late or changed height
+          if (e.sources.some((s) => s.node && (s.node as Element).closest?.('[data-testid="venue-chips"]'))) w.__chips += e.value;
+        }
       }).observe({ type: "layout-shift", buffered: true });
     });
     await page.goto("/markets");
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(1500);
-    const cls = await page.evaluate(() => (window as unknown as { __cls: number }).__cls);
-    console.log(`CLS /markets ${name}px: ${cls.toFixed(4)}`);
+    const { cls, chips } = await page.evaluate(() => ({ cls: (window as unknown as { __cls: number }).__cls, chips: (window as unknown as { __chips: number }).__chips }));
+    // origin/final measured 0.27 at 390 and 0.23 at 1440 in this harness; the page must now stay under the 0.1 budget
+    console.log(`CLS /markets ${name}px: total ${cls.toFixed(4)}, chip row ${chips.toFixed(4)}`);
+    expect(chips).toBe(0);
     expect(cls).toBeLessThan(0.1);
   });
 }

@@ -108,9 +108,13 @@ export function MarketsScreener({ initial, scannedAt, kalshiOn }: { initial?: Ma
                 : <> · {formatCount(meta.counts.markets)} open · scanned <Ago at={scanned} /></>)}
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            {!kalshiView && <ExportCsv state={state} />}
-          </div>
+          {/* the button mounts after /api/me answers: its row is reserved (min-h-11, own line on a phone), so the filter rows
+              below don't jump 56 px (CLS, F3 review). The Kalshi view has no export, so it has no row. */}
+          {!kalshiView && (
+            <div className="flex min-h-11 w-full flex-wrap items-center gap-2 md:w-auto">
+              <ExportCsv state={state} />
+            </div>
+          )}
         </header>
         {showVenues && (
           <div role="group" aria-label="Venue" className="flex flex-wrap items-center gap-2" data-testid="venue-chips">
