@@ -19,7 +19,7 @@ file after every merge. "Review result" says "passed review" only after the revi
 |---|---|---|---|---|
 | F1 Bet checker | checker | in review (2 open items: signed-out search, Kalshi price) | kiumars1199/Kismet#43 | not reviewed |
 | F2 Combo checker | checker | in review (stacked on #43; 2 open items after BetCard) | kiumars1199/Kismet#45 | not reviewed |
-| F3 Every market searchable | data | in review | kiumars1199/Kismet#42 | not reviewed |
+| F3 Every market searchable | data | review FAIL (direct-load search drops Kalshi; topic substring misfires; chip-row CLS; Kalshi header counts; ven=kalshi off-state); fixing | kiumars1199/Kismet#42 | not reviewed |
 | F4 Three venues side by side | data | built locally; PR after F3 merges | — | not reviewed |
 | F5 Topics at signup | onboarding-invites | PR open; fixture Politics + 390/1440 + CLS being added; migration topics_off (lead applies before merge) | kiumars1199/Kismet#47 | not reviewed |
 | F6 How to place this bet | checker | PR open (stacked on #45); 2 unsourced guide steps being fixed | kiumars1199/Kismet#46 | not reviewed |
@@ -51,9 +51,12 @@ Status: not yet walked.
 Problems:
 - not walked yet
 
+## Found in review, outside a lane
+- /markets at 390 px: CLS 0.27 on `final` from the "Quick filters" row shifting (reviewer, F3 review). Owner: assigned when a lane frees up; must be fixed before walk-throughs.
+
 ## Fixed log
 (empty)
 
 ## What Q must do
 - Add repo secret `VERCEL_AUTOMATION_BYPASS_SECRET` (Vercel → Settings → Deployment Protection) for preview smoke S3/S5.
-- Live Stripe keys and price IDs (see `go-live.md` once F7 lands).
+- Live Stripe keys and price IDs: follow `docs/launch/go-live.md` (F7 merged).
