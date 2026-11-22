@@ -42,3 +42,57 @@ test("the venue chip switches to Kalshi and the URL round-trips", async ({ page 
   await expect.poll(() => new URL(page.url()).searchParams.get("ven")).toBe("kalshi");
   await expect(page.getByTestId("kalshi-results")).toBeVisible();
 });
+
+// ---- review fixes (F3 round 2)
+
+test("a direct load of /markets?q=<word> carries the Kalshi matches in the server HTML and on screen", async ({ page, request }) => {
+  const html = await (await request.get("/markets?q=Jokic")).text();
+  expect(html).toContain("Also on Kalshi");   // server-rendered, no client fetch needed
+  expect(html).toContain("Nikola Jokic points");
+  await page.goto("/markets?q=Jokic");
+  await expect(page.getByTestId("kalshi-results")).toContainText("Also on Kalshi");
+  await expect(page.getByTestId("kalshi-row").first()).toContainText("Nikola Jokic points");
+});
+
+test("a direct load of the Kalshi view ships its rows and chips in the server HTML", async ({ request }) => {
+  const html = await (await request.get("/markets?ven=kalshi&t=sports.nfl")).text();
+  expect(html).toContain('data-testid="venue-chips"');   // decided on the server: present in the first paint
+  expect(html).toContain("4 Kalshi markets match");
+  expect(html).not.toContain("0 markets match");
+});
+
+for (const [name, size] of [["390", { width: 390, height: 844 }], ["1440", { width: 1440, height: 900 }]] as const) {
+  test(`Kalshi view at ${name}px: the header counts Kalshi rows and the Polymarket-only controls are gone`, async ({ page }) => {
+    await page.setViewportSize(size);
+    await page.goto("/markets?ven=kalshi&t=sports.nfl");
+    await expect(page.getByTestId("kalshi-row")).toHaveCount(4);
+    const header = page.getByRole("heading", { name: "All markets" }).locator("xpath=ancestor::header[1]");
+    await expect(header).toContainText("4 Kalshi markets match");
+    await expect(header).toContainText("open on Kalshi");
+    await expect(header).not.toContainText("0 markets match");
+    await expect(header).not.toContainText("Export");
+    for (const label of ["Pays", "Chance", "Return", "Closes", "Sort", "Filters", "Best bets only", "Hiding long shots"]) {
+      await expect(page.getByRole("button", { name: new RegExp(label) })).toHaveCount(0);
+    }
+    await expect(page.getByRole("group", { name: "Quick filters" }).getByRole("button").first()).toBeVisible();
+    // back to All: the Polymarket controls return
+    await page.getByTestId("venue-chips").getByRole("button", { name: "All" }).click();
+    await expect(page.getByRole("button", { name: /^Pays/ }).first()).toBeVisible();
+  });
+
+  test(`layout shift on /markets at ${name}px stays under 0.1 (chips are in the first paint)`, async ({ page }) => {
+    await page.setViewportSize(size);
+    await page.addInitScript(() => {
+      (window as unknown as { __cls: number }).__cls = 0;
+      new PerformanceObserver((list) => {
+        for (const e of list.getEntries() as unknown as { value: number; hadRecentInput: boolean }[]) if (!e.hadRecentInput) (window as unknown as { __cls: number }).__cls += e.value;
+      }).observe({ type: "layout-shift", buffered: true });
+    });
+    await page.goto("/markets");
+    await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(1500);
+    const cls = await page.evaluate(() => (window as unknown as { __cls: number }).__cls);
+    console.log(`CLS /markets ${name}px: ${cls.toFixed(4)}`);
+    expect(cls).toBeLessThan(0.1);
+  });
+}

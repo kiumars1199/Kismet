@@ -103,9 +103,15 @@ describe("/api/markets and /api/meta with Kalshi (fixture)", () => {
     expect(b.rows.length).toBeGreaterThan(0);
   });
 
-  it("without KALSHI_DATA_PERMISSION: venue=kalshi is 404 and q adds no Kalshi rows", async () => {
+  it("without KALSHI_DATA_PERMISSION: an old venue=kalshi link gets the normal Polymarket list (not an error) and q adds no Kalshi rows", async () => {
     const { markets } = await load();
-    expect((await markets(req("/api/markets?venue=kalshi"))).status).toBe(404);
+    for (const url of ["/api/markets?venue=kalshi", "/api/markets?ven=kalshi&t=sports.nfl"]) {
+      const res = await markets(req(url));
+      expect(res.status).toBe(200);
+      const b = (await res.json()) as MarketsResponse;
+      expect(b.kalshi).toBeUndefined();
+      expect(b.rows.length).toBeGreaterThan(0);
+    }
     const b = (await (await markets(req("/api/markets?q=Jokic"))).json()) as MarketsResponse;
     expect(b.kalshi).toBeUndefined();
   });
