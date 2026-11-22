@@ -75,7 +75,7 @@ Kalshi rows with no price show "No price yet" and are excluded from Best bets.
 **User sees.** In the drawer and on `/m/<id>`: the same outcome's price on Polymarket, Polymarket US and Kalshi
 side by side (multiplier and %), with "Pays most here" on the highest payout after fees. Missing venue: "Not listed".
 **Done when**
-- The engine emits `venues: [{ venue, price, multiplier, url }]` per matched market; `lib/types.ts` and `docs/03-data-model.md` updated in the same PR.
+- The engine emits `venues: [{ venue, price, multiplier, url }]` per matched market (in `output/venues.json`, written after the Kalshi crawl and merged into markets by id on load); `lib/types.ts` and `docs/03-data-model.md` updated in the same PR.
 - Matching precision ≥ 95% on a hand-labeled fixture of ≥ 40 pairs (pytest).
 - e2e `launch-f04-venues.spec.ts`: a fixture market with 3 venues shows 3 rows and exactly one "Pays most here".
 - No cents anywhere in the block.
