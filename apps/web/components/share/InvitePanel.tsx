@@ -29,17 +29,24 @@ export function useInvite(active = true) {
   return { info, error, off, retry: load };
 }
 
+/** The QR code as one SVG path (drawn with React: no injected markup). Black on white with a 4-module quiet zone. */
 function Qr({ url }: { url: string }) {
-  const [svg, setSvg] = useState<string | null>(null);
+  const [d, setD] = useState<{ path: string; size: number } | null>(null);
   useEffect(() => {
     let live = true;
-    import("qrcode").then((m) => m.toString(url, { type: "svg", margin: 1, width: 160, color: { dark: "#000000", light: "#ffffff" } }))
-      .then((s) => live && setSvg(s)).catch(() => {});
+    import("qrcode").then((m) => {
+      const { modules } = m.create(url, { errorCorrectionLevel: "M" });
+      const n = modules.size;
+      let path = "";
+      for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (modules.get(r, c)) path += `M${c + 4} ${r + 4}h1v1h-1z`;
+      if (live) setD({ path, size: n + 8 });
+    }).catch(() => {});
     return () => { live = false; };
   }, [url]);
   return (
-    <div role="img" aria-label="QR code that opens your invite page" data-testid="invite-qr"
-      className="size-40 flex-none overflow-hidden rounded-input bg-white [&>svg]:size-full" dangerouslySetInnerHTML={svg ? { __html: svg } : undefined} />
+    <div role="img" aria-label="QR code that opens your invite page" data-testid="invite-qr" className="size-40 flex-none overflow-hidden rounded-input bg-white">
+      {d && <svg viewBox={`0 0 ${d.size} ${d.size}`} className="size-full" shapeRendering="crispEdges" aria-hidden="true"><path d={d.path} fill="#000" /></svg>}
+    </div>
   );
 }
 

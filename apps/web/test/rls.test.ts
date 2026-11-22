@@ -113,11 +113,14 @@ describe("RLS (supabase/migrations)", () => {
       plan_grants: `insert into plan_grants (email, tier, created_by, updated_by) values ('later@x.test', 'pro', '${A}', '${A}')`,
       funnel_events: `insert into funnel_events (user_id, event) values ('${A}', 'signup_done')`,
       lifecycle_emails: `insert into lifecycle_emails (user_id, kind) values ('${A}', 'welcome')`,
+      invite_codes: `insert into invite_codes (user_id, code) values ('${A}', 'aaaa1111')`,
+      invites: `insert into invites (inviter_id, invitee_id, code, status) values ('${A}', '${B}', 'aaaa1111', 'verified')`,
+      invite_rewards: `insert into invite_rewards (inviter_id, outcome) values ('${A}', 'granted')`,
     };
     for (const sql of Object.values(seed)) await db.exec(sql);
     const tables = (await db.query<{ tablename: string }>("select tablename from pg_tables where schemaname = 'public'")).rows.map((r) => r.tablename);
     expect(tables.sort()).toEqual(["admin_audit_log", "alert_events", "alert_rules", "app_settings", "dashboards", "drawer_reveals",
-      "funnel_events", "journal", "lifecycle_emails", "plan_grants", "presets", "profiles", "push_subscriptions", "stripe_events", "subscriptions", "watchlist"]);   // a new table must be added here, and to seed
+      "funnel_events", "invite_codes", "invite_rewards", "invites", "journal", "lifecycle_emails", "plan_grants", "presets", "profiles", "push_subscriptions", "stripe_events", "subscriptions", "watchlist"]);   // a new table must be added here, and to seed
 
     for (const t of tables) {
       const total = Number((await db.query<{ n: number }>(`select count(*)::int as n from ${t}`)).rows[0].n);
@@ -161,7 +164,7 @@ describe("RLS (supabase/migrations)", () => {
         has_function_privilege('anon', p.oid, 'execute') as anon, has_function_privilege('authenticated', p.oid, 'execute') as auth
       from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public' and p.prosecdef`)).rows;
     expect(fns.map((f) => f.name).sort()).toEqual(["admin_activation", "admin_funnel", "admin_grant_plan", "admin_overview", "admin_revoke_grant", "admin_revoke_sessions",
-      "admin_user_detail", "admin_users", "apply_pending_plan_grant", "enforce_session_limit", "handle_new_user"]);
+      "admin_user_detail", "admin_users", "apply_pending_plan_grant", "enforce_session_limit", "grant_invite_reward", "handle_new_user"]);
     for (const f of fns) {
       expect(f.config, f.name).toContain("search_path=\"\"");
       expect([f.anon, f.auth], f.name).toEqual([false, false]);

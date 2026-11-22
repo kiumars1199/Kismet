@@ -50,6 +50,18 @@ create policy "own reward read" on public.invite_rewards for select to authentic
 revoke all on public.invite_rewards from anon, authenticated;
 grant select on public.invite_rewards to authenticated;
 
+-- T-280 (20261120000000_oauth_clients_no_tables.sql): an OAuth app's token never reads or writes these tables.
+do $$
+declare t text;
+begin
+  foreach t in array array['invite_codes', 'invites', 'invite_rewards'] loop
+    execute format('drop policy if exists "no oauth clients" on public.%I', t);
+    execute format(
+      'create policy "no oauth clients" on public.%I as restrictive for all to anon, authenticated '
+      'using ((select auth.jwt() ->> ''client_id'') is null) with check ((select auth.jwt() ->> ''client_id'') is null)', t);
+  end loop;
+end $$;
+
 -- Grant the reward once, when the inviter's 5th sign-up is verified. Never lowers anything:
 --   * paid Premium active: nothing to add, recorded as skipped;
 --   * a live comp with no end date: can't be stacked on, recorded as skipped;

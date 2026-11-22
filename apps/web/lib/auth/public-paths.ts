@@ -8,6 +8,7 @@ export const PUBLIC_PAGES: readonly string[] = [
   "/terms", "/privacy", "/refunds", "/disclaimer", "/contact",
   "/login", "/signup", "/reset-password", "/auth", "/maintenance",
   "/m", "/event",
+  "/invite",   // F13: /invite/<code> remembers the code and goes to /signup
 ];
 
 /** Static and discovery files: search engines, OAuth discovery, share images, icons, manifest. */
