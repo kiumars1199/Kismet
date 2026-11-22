@@ -5,7 +5,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { fetchSuggest, type SuggestResponse } from "@/lib/api";
+import type { CheckSearchResponse } from "@/app/api/check/search/route";
 import { compute, ERROR_TEXT } from "@/lib/check/compute";
 import { parseLink } from "@/lib/check/parse-link";
 import type { CheckResponse } from "@/lib/check/response";
@@ -22,7 +22,7 @@ export function CheckClient() {
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const [found, setFound] = useState<Found>(null);
-  const [hits, setHits] = useState<SuggestResponse["markets"]>([]);
+  const [hits, setHits] = useState<CheckSearchResponse["markets"]>([]);
   const [side, setSide] = useState<0 | 1>(0);
   const [priceText, setPriceText] = useState("");
   const [stakeText, setStakeText] = useState("100");
@@ -59,7 +59,13 @@ export function CheckClient() {
     if (!q) return;
     if (parseLink(q)) return void run({ link: q });
     setBusy(true); setFound(null);
-    try { setHits((await fetchSuggest(q, "markets")).markets); } catch { setFound({ kind: "error", text: "Search is unavailable right now." }); }
+    try {
+      const r = await fetch(`/api/check/search?${new URLSearchParams({ q })}`);
+      if (!r.ok) throw new Error(String(r.status));
+      const list = ((await r.json()) as CheckSearchResponse).markets;
+      setHits(list);
+      if (!list.length) setFound({ kind: "error", text: "No open markets match those words. Try fewer or different words." });
+    } catch { setFound({ kind: "error", text: "Search is unavailable right now." }); }
     finally { setBusy(false); }
   }
 

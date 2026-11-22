@@ -62,3 +62,19 @@ test("signed out: /check?m=<id>&side=0 stays on /check", async ({ page }) => {
   expect(await page.locator("[inert]").count()).toBe(0);
   await expect(page.getByRole("heading", { name: "Bet checker" })).toBeVisible();
 });
+
+// Signed-out word search: a public, minimal lookup (id, title, side, payout multiplier only).
+test("signed out: /api/check/search finds markets and leaks nothing else", async ({ page, request }) => {
+  const r = await request.get("/api/check/search?q=nfl");
+  expect(r.status()).toBe(200);
+  const { markets } = await r.json();
+  expect(markets.length).toBeGreaterThan(0);
+  for (const m of markets) expect(Object.keys(m).sort()).toEqual(["id", "outcome", "pays", "question", "side_index"]);
+  expect((await request.get("/api/check/search?q=a")).status()).toBe(400);
+  await page.goto("/check");
+  await page.getByLabel("Market link or words").fill("nfl");
+  await page.getByRole("button", { name: "Check", exact: true }).click();
+  await expect(page.getByTestId("check-hits").locator("li").first()).toBeVisible({ timeout: 30_000 });
+  await page.getByTestId("check-hits").locator("li button").first().click();
+  await expect(page.getByTestId("chk-score")).toBeVisible({ timeout: 30_000 });
+});
