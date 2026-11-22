@@ -74,6 +74,8 @@ affected e2e and the Vercel preview all green.
   before measuring. Passed 3/3 locally with the same viewport in Chromium (WebKit isn't installed here).
 - Found, not fixed (product change, for Q): on a slow phone, /markets shows the desktop table until the scripts run,
   then switches to cards. Rendering cards below md with CSS instead of a JS switch would remove that.
+- The same PR's first run went red on e2e-paid funnel: "Execution context was destroyed". That is the checkout-status
+  reload again, landing mid page.evaluate. The funnel spec now waits for it with `expectPlanActive` too (2/2 locally).
 
 ## Outage: Railway disk full (Nov 21 21:49 UTC to the hotfix, "Nov21: disk-full fix")
 - What broke: the 5 GB Railway volume filled (Errno 28 from 21:49). Kalshi's response cache was never pruned, so it
