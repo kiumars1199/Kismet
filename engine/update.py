@@ -15,6 +15,7 @@ from pipeline.common import SAMPLE_TAGS, jl_write
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "pipeline"))
 import fetch_closed  # noqa: E402
 import fetch_prices  # noqa: E402
+from .jsonio import dump_atomic
 
 
 def _ids(path):
@@ -55,5 +56,5 @@ def run(cfg, log=print):
     from pipeline.common import jl_read
     added = fetch_prices.fetch_pending(jl_read(sample_p), threads=8, log=log)
     state.update(last_update_ts=time.time(), last_new_markets=len(new), last_new_snapshots=added)
-    json.dump(state, open(state_p, "w"))
+    dump_atomic(state_p, state)
     return len(new)

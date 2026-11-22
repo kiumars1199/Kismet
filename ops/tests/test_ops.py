@@ -3,6 +3,7 @@ import gzip
 import json
 import os
 import sys
+import time
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
@@ -326,3 +327,40 @@ def test_upload_only_sends_one_file_and_tolerates_missing(tmp_path):
 def test_scheduler_runs_kalshi_after_the_polymarket_upload():
     steps = [" ".join(a) for a in scheduler.CMDS["scan"]]
     assert steps.index("ops/upload.py output") < steps.index("-m engine kalshi") < steps.index("ops/upload.py --only output/kalshi.json")
+
+
+def test_housekeep_prunes_stale_kalshi_cache_and_reports_disk(monkeypatch, tmp_path, capsys):
+    """Nov 22: a full volume (Kalshi cache pages kept 24 h) left a truncated model.json and 4 h of failed scans. The
+    scheduler now prunes stale cache pages before every tick, even while the scan keeps failing, and logs disk use."""
+    cache = tmp_path / "data" / "kalshi_cache"
+    cache.mkdir(parents=True)
+    stale, fresh = cache / ("a" * 40 + ".json"), cache / ("b" * 40 + ".json")
+    for p in (stale, fresh):
+        p.write_text("{}")
+    old = time.time() - 3600
+    os.utime(stale, (old, old))
+    monkeypatch.setattr(scheduler, "ROOT", str(tmp_path))
+    monkeypatch.setattr(scheduler, "KALSHI_CACHE", str(cache))
+    scheduler.housekeep(force_report=True)
+    assert fresh.exists() and not stale.exists()
+    out = capsys.readouterr().out
+    assert "pruned 1 stale Kalshi cache files" in out and "disk " in out and "data/kalshi_cache" in out
+
+
+def test_engine_json_writes_are_atomic(tmp_path):
+    """Nov 22: a write that fails (full disk) raises and leaves the previous file whole, with no temp file behind."""
+    from engine.jsonio import dump_atomic
+    p = str(tmp_path / "model.json")
+    dump_atomic(p, {"ok": 1})
+
+    class Boom:
+        pass
+    try:
+        dump_atomic(p, {"bad": Boom()})   # fails mid-write, like ENOSPC
+    except TypeError:
+        pass
+    assert json.load(open(p)) == {"ok": 1} and os.listdir(tmp_path) == ["model.json"]
+    import glob
+    src = "".join(open(f).read() for f in glob.glob(os.path.join(os.path.dirname(__file__), "..", "..", "engine", "*.py")))
+    import re
+    assert not re.search(r'json\.dump\([^\n]*open\(', src.replace('json.dump(x, open(p, "w"))', ""))   # no in-place writes left

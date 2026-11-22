@@ -40,7 +40,9 @@ UA = "Kismet scanner"
 PAGE = 100          # rows per call (Kalshi allows up to 1000; we ask for less)
 DELAY_S = 0.25      # pause between network calls (4 a second; Kalshi's public tier allows more)
 TTL_S = 90          # on-disk cache lifetime: below the 120 s scan cadence, so every scan sees fresh pages
-CACHE_MAX_AGE_S = 86_400   # cache files older than this are deleted after each run
+# Nov 21: cache files older than this are deleted after each run. A file past TTL_S is never read again, and the
+# crawl's cursor pages get new names every scan, so a day's retention grew the Railway volume ~0.7 GB per full crawl.
+CACHE_MAX_AGE_S = TTL_S
 BUDGET_S = float(os.environ.get("KALSHI_BUDGET_SEC") or 180)   # whole run, hard wall clock. Nov 21: runs after the upload now, so a full crawl (~500 pages x 0.27 s) fits
 CRAWL_SHARE = 0.7   # the event crawl may use this share of the budget; combos and settlements get the rest
 MAX_PAGES = 500     # safety stop for the event crawl (50,000 events)
@@ -198,6 +200,16 @@ def epoch(iso):
         return int(datetime.fromisoformat(iso.replace("Z", "+00:00")).timestamp())
     except ValueError:
         return None
+
+
+FILLED_FIELDS = ("no_bid_cents", "no_ask_cents", "last_price_cents", "volume_24h", "open_interest", "status")
+
+
+def filled(rows):
+    """Share of rows (0-1, 2 dp) where each newer field is non-null: the scan log shows it, so a renamed Kalshi field
+    shows up as 0 without anyone reading the private kalshi.json (Nov 21)."""
+    n = len(rows)
+    return {f: round(sum(r.get(f) is not None for r in rows) / n, 2) if n else None for f in FILLED_FIELDS}
 
 
 def market_row(m, title, series):
@@ -432,6 +444,7 @@ def build(client, state=None, prev=None, now=None, budget=BUDGET_S):
         notes.append(f"partial crawl: kept {len(kept)} markets from the last complete crawl")
 
     markets.sort(key=lambda m: m["volume"], reverse=True)
+    kept_rows = markets[:KEEP_MARKETS]
     return {
         "meta": {
             "source": "Kalshi",
@@ -447,8 +460,9 @@ def build(client, state=None, prev=None, now=None, budget=BUDGET_S):
             "n_settled": len(settled),
             "pages": info["pages"],
             "notes": notes,
+            "filled": filled(kept_rows),
         },
-        "markets": markets[:KEEP_MARKETS],
+        "markets": kept_rows,
         "combos": combos,
         "settled": settled,
     }
@@ -475,7 +489,8 @@ def run_if_enabled(out_path, cache_dir, log=print):
         m = data["meta"]
         log(f"kalshi: {m['n_markets_open']} markets ({m['n_events']} events, {m['pages']} pages, complete={m['complete']}), "
             f"{m['n_combos']} combos, {m['n_settled']} settled, {m['seconds']}s"
-            + (f"; {'; '.join(m['notes'])}" if m["notes"] else ""))
+            + (f"; {'; '.join(m['notes'])}" if m["notes"] else "")
+            + (f"; filled: {', '.join(f'{k} {v:.0%}' for k, v in m['filled'].items() if v is not None)}" if m.get("filled") else ""))
         return data
     except Exception as e:  # noqa: BLE001 — optional source; the main scan must still publish
         log(f"kalshi: skipped ({e})")

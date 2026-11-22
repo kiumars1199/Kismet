@@ -24,6 +24,47 @@ BACKTEST_HOUR_UTC = int(os.environ.get("BACKTEST_HOUR_UTC", "6"))
 # test take a long while, so they run in a background thread beside the scans, at most once a week (EVEN_EVERY_DAYS).
 EVEN_EVERY_DAYS = float(os.environ.get("EVEN_EVERY_DAYS") or 7)
 EVEN_DIR = os.path.join("data", "even")
+KALSHI_CACHE = os.path.join(ROOT, "data", "kalshi_cache")
+LOW_DISK = 0.10   # below this share free, every tick logs what uses the volume
+
+
+def dir_bytes(path):
+    total = 0
+    for base, _, files in os.walk(path):
+        for n in files:
+            try:
+                total += os.path.getsize(os.path.join(base, n))
+            except OSError:
+                pass
+    return total
+
+
+def housekeep(force_report=False):
+    """Nov 22: runs before every tick's jobs, so it still frees space when the scan itself keeps failing. Deletes
+    Kalshi cache pages past their TTL (never read again), then logs disk use when the volume is low (or at start)."""
+    try:
+        sys.path.insert(0, ROOT)
+        from pipeline.fetch_kalshi import Client, TTL_S
+        gone = Client(KALSHI_CACHE).prune(TTL_S)
+        if gone:
+            print(f"[scheduler] pruned {gone} stale Kalshi cache files", flush=True)
+    except Exception as e:  # never let housekeeping stop the scans
+        print(f"[scheduler] Kalshi cache prune failed: {e}", flush=True)
+    try:
+        du = shutil.disk_usage(ROOT)
+        free = du.free / du.total if du.total else 1.0
+        if force_report or free < LOW_DISK:
+            parts = []
+            for top in ("data", "output"):
+                d = os.path.join(ROOT, top)
+                for n in sorted(os.listdir(d)) if os.path.isdir(d) else []:
+                    parts.append((dir_bytes(os.path.join(d, n)) if os.path.isdir(os.path.join(d, n))
+                                  else os.path.getsize(os.path.join(d, n)), f"{top}/{n}"))
+            biggest = ", ".join(f"{name} {size / 1e9:.2f} GB" for size, name in sorted(parts, reverse=True)[:6])
+            print(f"[scheduler] disk {du.used / 1e9:.2f} of {du.total / 1e9:.2f} GB used ({free:.0%} free); "
+                  f"largest: {biggest}", flush=True)
+    except OSError as e:
+        print(f"[scheduler] disk report failed: {e}", flush=True)
 
 
 def plan(now, last):
@@ -151,8 +192,10 @@ def main(argv=None):
     drop_root()
     seed_ledger()
     last = {}
+    housekeep(force_report=True)
     while True:
         start = time.time()
+        housekeep()
         tick(last)
         if once:
             return 0
