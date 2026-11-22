@@ -10,6 +10,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type Stripe from "stripe";
 import type { BillingDb } from "@/lib/billing/stripe";
+import { adminEmails } from "@/lib/admin/core";
 import { adminEnabled, supabaseAdmin } from "@/lib/auth/server";
 import { recordFunnel, type FunnelDeps } from "@/lib/funnel-server";
 import { sendEmail, unsubscribeUrl, type Email } from "./index";
@@ -42,6 +43,38 @@ export interface LifecycleDeps {
   /** null = no lifecycle email. Default: Supabase service role + Resend (defaultMail). */
   mail?: MailDeps | null;
   now?: () => number;
+  /** Owner alerts (Marc, Nov 22: "why don't we get notified who paid?"). Default: email every ADMIN_EMAILS address. */
+  notifyOwners?: ((subject: string, text: string) => Promise<void>) | null;
+}
+
+
+async function defaultNotifyOwners(subject: string, text: string) {
+  for (const to of adminEmails(process.env.ADMIN_EMAILS)) {
+    await sendEmail({ to, subject: `[Kismet] ${subject}`, text, html: `<p>${text.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]!)}</p>` });
+  }
+}
+
+/** The owner alert for a billing event, or null when the event isn't one owners want to hear about. Pure, tested. */
+export function ownerAlert(event: Stripe.Event, email: string | null): { subject: string; text: string } | null {
+  const who = email ?? "unknown user";
+  const live = event.livemode ? "" : " (Stripe test mode)";
+  switch (event.type) {
+    case "customer.subscription.created": {
+      const sub = event.data.object;
+      const amt = sub.items?.data?.[0]?.price;
+      const plan = amt?.unit_amount != null ? `$${(amt.unit_amount / 100).toFixed(2)}/${amt.recurring?.interval ?? "period"}` : "a plan";
+      return { subject: `New ${sub.status === "trialing" ? "trial" : "subscription"}: ${who}`, text: `${who} started ${sub.status === "trialing" ? "a free trial of" : ""} ${plan}${live}.`.replace(/\s+/g, " ") };
+    }
+    case "invoice.paid": {
+      const inv = event.data.object;
+      if (!(inv.amount_paid > 0)) return null;
+      return { subject: `Payment: $${(inv.amount_paid / 100).toFixed(2)} from ${who}`, text: `${who} paid $${(inv.amount_paid / 100).toFixed(2)} ${inv.currency.toUpperCase()}${live}.` };
+    }
+    case "customer.subscription.deleted":
+      return { subject: `Subscription ended: ${who}`, text: `${who}'s subscription ended${live}.` };
+    default:
+      return null;
+  }
 }
 
 export function supabaseClaims(db: SupabaseClient): ClaimStore {
@@ -104,6 +137,17 @@ export async function onFirstSignIn(user: { id: string; email?: string | null; c
 
 /** lib/billing/stripe.ts handleWebhook, after an event was applied (once per event id). */
 export async function afterBillingEvent(event: Stripe.Event, db: Pick<BillingDb, "userForCustomer" | "emailFor">, deps: LifecycleDeps = {}): Promise<void> {
+  try {
+    const notify = deps.notifyOwners === undefined ? defaultNotifyOwners : deps.notifyOwners;
+    if (notify && ownerAlert(event, null)) {
+      const obj = event.data.object as { customer?: string | { id: string } | null; metadata?: Record<string, string> | null };
+      const uid = obj.metadata?.user_id || (await userOf(db, obj.customer));
+      const a = ownerAlert(event, uid ? await db.emailFor(uid) : null);
+      if (a) await notify(a.subject, a.text);
+    }
+  } catch (e) {
+    log("owner alert", e);
+  }
   try {
     const now = (deps.now ?? Date.now)();
     switch (event.type) {
