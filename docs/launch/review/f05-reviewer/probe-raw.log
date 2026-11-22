@@ -1,0 +1,4 @@
+GET /bets (signed in, topics saved): HTTP 200 location=- bytes=249047
+  body has NEXT_REDIRECT: true; meta refresh: true; "Your topics": false; data-row: 0
+   NEXT_REDIRECT;replace;/bets?fav=1&amp;t=sports.nfl%2Cpolitics.elections;307;
+GET /bets?fav=1&t=…: HTTP 200 "Your topics": true data-row: 1

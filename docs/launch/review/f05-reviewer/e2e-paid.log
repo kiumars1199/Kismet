@@ -1,0 +1,13 @@
+Running 3 tests using 1 worker
+[1/3] [chromium] › ../../docs/launch/review/f05-reviewer/run/f05.spec.ts:40:3 › picks NFL + Politics at 390px: / and /bets open filtered with a Your topics pill; one tap clears it
+[WebServer] [abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+[chromium] › ../../docs/launch/review/f05-reviewer/run/f05.spec.ts:40:3 › picks NFL + Politics at 390px: / and /bets open filtered with a Your topics pill; one tap clears it
+CLS /bets with topics saved at 390px: 0.0540
+[2/3] [chromium] › ../../docs/launch/review/f05-reviewer/run/f05.spec.ts:40:3 › picks NFL + Politics at 1440px: / and /bets open filtered with a Your topics pill; one tap clears it
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+[chromium] › ../../docs/launch/review/f05-reviewer/run/f05.spec.ts:40:3 › picks NFL + Politics at 1440px: / and /bets open filtered with a Your topics pill; one tap clears it
+CLS /bets with topics saved at 1440px: 0.0195
+[3/3] [chromium] › ../../docs/launch/review/f05-reviewer/run/f05.spec.ts:88:1 › skipping setup keeps / and /bets unfiltered; topics are editable in /settings
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+  3 passed (4.6m)

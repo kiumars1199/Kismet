@@ -1,0 +1,15 @@
+$ node scripts/perf/landing-js.mjs --route / --budget-kb 150
+   54.2 kB  static/chunks/a9b5e390-e79471b6b30cbf24.js
+   48.9 kB  static/chunks/8701-95c158389b996b37.js
+    7.7 kB  static/chunks/1271-e9f2afe2b5a05d9f.js
+    5.7 kB  static/chunks/3294-b69554b0a2906757.js
+    5.3 kB  static/chunks/app/layout-5c7a3233ccdc5ef6.js
+    4.9 kB  static/chunks/6232-340eb45b4952ae13.js
+    3.9 kB  static/chunks/8650-6b99d058edd23c0c.js
+    3.5 kB  static/chunks/324-ebf4c05d32e9a13a.js
+    2.6 kB  static/chunks/main-app-963c6e50a7c1113d.js
+    2.5 kB  static/chunks/webpack-9f604334e0149506.js
+    1.4 kB  static/chunks/app/page-2aa65a86c30f5153.js
+    1.0 kB  static/chunks/app/error-7cb650ed6e58b956.js
+    0.9 kB  static/chunks/4744-37403b0c20e80c56.js
+/: first-load JS 142.5 kB gzipped (456 kB raw, 13 files); budget 150 kB: OK

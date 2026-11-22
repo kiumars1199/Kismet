@@ -1,0 +1,13 @@
+cookies: tz,sb-localhost-auth-token-flow-fbcb80344bdc5e87e5b5a752ee6ca04a-code-verifier,sb-localhost-auth-token-flows-code-verifier,sb-localhost-auth-token
+goto /bets: documents=[200 /bets ; 200 /bets?fav=1&t=sports.nfl%2Cpolitics.elections] final=/bets?fav=1&t=sports.nfl%2Cpolitics.elections cls=0.203 0.054@2315:FOOTER | 0.030@3326:DIV | 0.021@3341:DIV | 0.033@3375:DIV | 0.012@3397:DIV | 0.028@3445:DIV
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+page.evaluate: Execution context was destroyed, most likely because of a navigation
+    at /tmp/claude-0/-home-user-MarketEdge/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/probe-f05b.mjs:32:24 {
+  log: [],
+  name: 'Error'
+}
+
+Node.js v22.23.5

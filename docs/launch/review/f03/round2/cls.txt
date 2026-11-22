@@ -1,0 +1,4 @@
+mine (data-f03 merged with origin/final d02ea98): 390px median 0.2695 (runs .269 .269 .071 .269 .269 .185 .269), 1440px median 0.2346
+final d02ea98: 390px median 0.2730, 1440px median 0.2346
+Harness: 7 fresh contexts per cell, PerformanceObserver layout-shift (no recent input), networkidle + 1.5 s, fixture data, same machine, next start.
+Not comparable to the earlier 0.005/0.028 figures (different method). The venue chip row is in the server HTML (e2e asserts it) and no shift source in the run is the chip row.

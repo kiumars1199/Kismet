@@ -1,0 +1,12 @@
+390 landing after onboarding: url=/?view=flags&fav=1 cls=0.241 0.062@6866:FIELDSET,BUTTON,BUTTON,BUTTON,BUTTON | 0.010@11712:FIELDSET,FIELDSET | 0.084@15474:FOOTER | 0.084@17124:FOOTER
+390 GET / -> 200 location=-
+390 GET /bets -> 200 location=-
+390 /bets final url=/bets firstHTML has "Your topics": false cards=0
+390 /bets load: url=/bets?fav=1&t=sports.nfl%2Cpolitics.elections cls=0.054 pill=true disclaimer=true hscroll=false 0.038@2834:FOOTER | 0.015@4630:BUTTON,BUTTON,BUTTON#saved-views
+1440 GET / -> 200 location=-
+1440 GET /bets -> 200 location=-
+1440 /bets final url=/bets firstHTML has "Your topics": false cards=0
+1440 /bets load: url=/bets?fav=1&t=sports.nfl%2Cpolitics.elections cls=0.020 pill=true disclaimer=true hscroll=false 0.017@1947:FOOTER
+1440 after clearing: url=/bets
+other device after clearing: url=/bets pill=0
+flags signed-in vs signed-out (/api/flags?topics=sports.nfl,politics.elections): same=false n=10/0 total=34/undefined
