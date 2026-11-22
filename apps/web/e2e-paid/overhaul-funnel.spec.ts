@@ -3,6 +3,7 @@
 // in the in-app Supabase mock (read with the mock's service key); the server sends PostHog exactly the rows it inserts
 // (lib/funnel-server.ts, unit-tested), and no PostHog key is set here, so nothing leaves the machine.
 import { expect, test, type Page } from "@playwright/test";
+import { expectPlanActive } from "./checkout";
 import Stripe from "stripe";
 
 const SERVICE = "e2e-service";       // playwright.paid.config.ts SUPABASE_SERVICE_ROLE_KEY
@@ -86,6 +87,7 @@ test("funnel: every step fires exactly once per user (signed-out steps once per 
   expect((await visit(page, "/pricing", "upgrade_view")).counted).toBe(false);
   await page.getByTestId("checkout-pro").click();
   await expect(page).toHaveURL(/\/account\?checkout=success/, { timeout: 45_000 });
+  await expectPlanActive(page);   // let the status poll's reload of /account land before page.evaluate below (Nov 22 CI)
 
   // Paid: the first invoice with money, sent twice (and a renewal) by Stripe → one "paid".
   const sub = (await table(page, "subscriptions")).find((r) => r.user_id === uid)!;
