@@ -27,6 +27,7 @@
 import type { Curve } from "@/lib/data/model";
 import type { Proof } from "@/lib/proof";
 import type { Counts, Facets, Group } from "@/lib/filters/apply";
+import type { KalshiPage } from "@/lib/data/kalshi-index";
 import type { FilterInput } from "@/lib/filters/state";
 import type { Chip } from "@/lib/search/parse";
 import type { BacktestFile, BacktestRecord, BacktestResult, Execution, ScanMeta, Side, SideRanges, StoreMarket } from "@/lib/types";
@@ -36,7 +37,9 @@ export type { Curve, Facets, StoreMarket };
 export interface MetaResponse {
   meta: ScanMeta;
   loaded_at: number;                       // ms, when this server instance loaded the data
-  counts: { markets: number; flags: number; events: number };
+  // markets/flags/events: the Polymarket scan. polymarket (= markets) and kalshi: open markets by venue (F3); kalshi is 0
+  // until KALSHI_DATA_PERMISSION is on and a scan wrote kalshi_index.json or kalshi.json.
+  counts: { markets: number; flags: number; events: number; polymarket: number; kalshi: number };
   facets: { categories: Counts; niches: Counts; market_types: Counts; periods: Counts; frequency: Counts; topics: Counts };
   results?: { graded: number; wins: number; losses: number; avg_pnl: number | null } | null;   // live ledger totals (ledger_summary.json)
   delay_min?: number;                      // the plan's minimum delay in minutes (Free 15, paid 0); `meta` is the scan served, at least that old (RT3-03)
@@ -55,6 +58,9 @@ export interface MarketsResponse {
   search?: { chips: Chip[]; relaxed?: string };   // how q was understood; relaxed = "No bets match … Showing …"
   free_daily?: number;                     // Free Best bets only: the page is the day's sample of this many (docs/19 P3)
   scanned_at?: number;                     // the scan these rows come from (unix s); the header shows it (QA-A #46)
+  // F3: Kalshi matches (venue=kalshi: the only rows, `rows` is empty; venue=all with q: the top 5 beside the Polymarket
+  // rows). Absent when Kalshi data is off or not asked for.
+  kalshi?: KalshiPage;
 }
 
 export interface MarketResponse {

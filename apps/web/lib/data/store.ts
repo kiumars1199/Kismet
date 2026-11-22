@@ -11,8 +11,9 @@ import type { Tier } from "@/lib/entitlements";
 import { getSettings } from "@/lib/settings";
 import { delayMin } from "@/lib/settings-core";
 import { Flag as FlagSchema, Market as MarketSchema, ScanMeta as MetaSchema } from "@/lib/schemas";
-import type { BacktestFile, EventsFile, FlagsFile, KalshiFile, LedgerSummary, MarketsFile, ModelFile, ScanMeta, StoreMarket } from "@/lib/types";
+import type { BacktestFile, EventsFile, FlagsFile, KalshiFile, KalshiIndexFile, LedgerSummary, MarketsFile, ModelFile, ScanMeta, StoreMarket } from "@/lib/types";
 import { derive } from "./derive";
+import { indexFromFile, indexFromKalshi, type KalshiIndex } from "./kalshi-index";
 import { headlineBacktest } from "./model";
 import { buildSearch, type SearchIndex } from "@/lib/search/index";
 import { DELAYED_PENDING } from "@/lib/api";
@@ -419,4 +420,21 @@ export function getKalshi(): Promise<KalshiFile | undefined> {
     })
     .catch((e) => { console.warn(`[store] kalshi.json failed: ${(e as Error).message}`); return kalshi.data; })
     .finally(() => { kalshi.at = Date.now(); kalshi.inflight = undefined; }));
+}
+
+/** F3: every open Kalshi market as a searchable index (lib/data/kalshi-index.ts). Reads output/kalshi_index.json (all
+ *  open markets, written by the scan); a scan without it falls back to the top markets in kalshi.json. Own 120 s cache,
+ *  concurrent loads de-duplicated, a failed refresh keeps the last good index. Callers check canBeta(me, "kalshi") first. */
+const kalshiIx: { at?: number; data?: KalshiIndex; inflight?: Promise<KalshiIndex | undefined> } = {};
+export function getKalshiIndex(): Promise<KalshiIndex | undefined> {
+  if (kalshiIx.at && Date.now() - kalshiIx.at < TTL_MS) return Promise.resolve(kalshiIx.data);
+  return (kalshiIx.inflight ??= (async () => {
+    const text = await readSource("kalshi_index.json");
+    if (text !== undefined) return indexFromFile(JSON.parse(text) as KalshiIndexFile);
+    const f = await getKalshi();
+    return f && indexFromKalshi(f);
+  })()
+    .then((ix) => (kalshiIx.data = ix))
+    .catch((e) => { console.warn(`[store] kalshi index failed: ${(e as Error).message}`); return kalshiIx.data; })
+    .finally(() => { kalshiIx.at = Date.now(); kalshiIx.inflight = undefined; }));
 }
