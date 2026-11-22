@@ -2,6 +2,7 @@ import calendar
 import gzip
 import json
 import os
+import time
 import sys
 import time
 
@@ -83,6 +84,16 @@ def write(tmp_path, m, f):
     (tmp_path / "model.json").write_text("{}")
     (tmp_path / "ledger.jsonl").write_text("{}\n")
     return str(tmp_path)
+
+
+def test_upload_skips_kalshi_json(tmp_path):
+    """Nov 21: kalshi.json is uploaded only by --only after the crawl; the main upload would send the previous one."""
+    out = write(tmp_path, *good())
+    (tmp_path / "kalshi.json").write_text("{}")
+    http = FakeHttp(prev=None)
+    assert upload.publish(out, upload.Storage("https://x.supabase.co/", "svc", http), log=lambda *_: None)
+    names = [c[1].rsplit("/", 1)[1] for c in http.calls if c[0] == "POST"]
+    assert "kalshi.json" not in names and names[-1] == "flags.json"
 
 
 def test_upload_all_files_flags_last(tmp_path):
@@ -231,6 +242,23 @@ def test_upload_rotates_prev_only_when_far_enough_apart(tmp_path):
     assert len(_copies(far)) == 8
 
 
+def test_scheduler_state_survives_restart(monkeypatch, tmp_path):
+    """Nov 21: a restart reloads the last-run times, so a redeploy within the hour goes straight to the scan."""
+    path = str(tmp_path / "data" / "scheduler_state.json")
+    monkeypatch.setattr(scheduler, "run", lambda job: True)
+    monkeypatch.setattr(scheduler.os.path, "exists", lambda p: True)
+    last = {}
+    scheduler.tick(last, save=lambda l: scheduler.save_state(l, path))
+    assert set(last) >= {"update", "fit", "grade", "scan"}
+    resumed = scheduler.load_state(path)
+    assert resumed == {k: v for k, v in last.items() if not isinstance(v, bool)}   # times only; even-job flags stay in memory
+    assert scheduler.plan(time.time(), resumed) == ["scan"]
+    with open(path, "w") as f:
+        f.write("{not json")
+    assert scheduler.load_state(path) == {}
+    assert scheduler.load_state(str(tmp_path / "missing.json")) == {}
+
+
 def test_scheduler_cadence_from_env(monkeypatch):
     import importlib
     monkeypatch.setenv("SCAN_EVERY_SEC", "300")
@@ -344,7 +372,21 @@ def test_housekeep_prunes_stale_kalshi_cache_and_reports_disk(monkeypatch, tmp_p
     scheduler.housekeep(force_report=True)
     assert fresh.exists() and not stale.exists()
     out = capsys.readouterr().out
-    assert "pruned 1 stale Kalshi cache files" in out and "disk " in out and "data/kalshi_cache" in out
+    assert "pruned 1 stale Kalshi cache files" in out and "volume data/ " in out and "data/kalshi_cache" in out
+
+
+def test_housekeep_measures_the_volume_not_the_host(monkeypatch, tmp_path, capsys):
+    """Nov 22: on Railway, disk_usage() on the volume reports the 3 TB host, so "73% free" hid a full 5 GB volume. The
+    share free comes from what data/ holds against the volume size, and a nearly full volume logs every tick."""
+    data = tmp_path / "data"
+    data.mkdir()
+    (data / "sample.jsonl").write_bytes(b"x" * 950)
+    monkeypatch.setattr(scheduler, "ROOT", str(tmp_path))
+    monkeypatch.setattr(scheduler, "KALSHI_CACHE", str(data / "kalshi_cache"))
+    monkeypatch.setattr(scheduler, "VOLUME_BYTES", 1000.0)
+    scheduler.housekeep()   # not forced: logs only because the volume is 95% full
+    out = capsys.readouterr().out
+    assert "volume data/ 0.00 of 0 GB (5% free)" in out and "data/sample.jsonl" in out
 
 
 def test_engine_json_writes_are_atomic(tmp_path):
