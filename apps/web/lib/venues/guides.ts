@@ -65,3 +65,21 @@ export function venueLinks(m: M): { venue: VenueId; url: string | null }[] {
   if (m.venues?.some((v) => v.venue === "kalshi")) out.push({ venue: "kalshi", url: deepLink(m, "kalshi") });
   return out;
 }
+
+/** Thin adapter over F9 (trust lane, lib/venues/availability.ts: statusesFor(state) with kalshi | polymarket_us | polymarket_intl).
+ *  Until F9 merges nothing is known, so every venue is "unverified". After the merge this is the one place to change. */
+export type AvailStatus = "available" | "restricted" | "unverified";
+export const venueStatus = (_venue: VenueId, _state: string | null = null): AvailStatus => "unverified";
+
+/** The venue to preselect: the first one known available, else null (the user picks; we never assume). */
+export function defaultVenue(links: { venue: VenueId }[], status: (v: VenueId) => AvailStatus): VenueId | null {
+  return links.find((l) => status(l.venue) === "available")?.venue ?? null;
+}
+
+/** The one line shown above the link, same wording as F9. */
+export function availabilityNote(venue: VenueId, status: AvailStatus, stateName: string | null): string {
+  const name = GUIDES[venue].name;
+  if (status === "available" && stateName) return `${name}: available in ${stateName}`;
+  if (status === "restricted" && stateName) return `${name}: not available in ${stateName}`;
+  return `Check ${name} for ${stateName ?? "your state"}`;
+}

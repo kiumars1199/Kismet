@@ -182,7 +182,6 @@ export function CheckClient() {
             <p data-testid="check-venue" className="text-xs text-muted">{cur.base.venue === "us" ? US_SMALL_PRINT : INTL_ONLY}</p>
           )}
           <HowToBet links={data.market.links} />
-          <p className="text-[12px] text-muted">Bet only what you can afford to lose.</p>
         </section>
       )}
     </div>

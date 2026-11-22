@@ -54,3 +54,17 @@ describe("venueLinks", () => {
     expect(venueLinks(fx[0]!)[0]!.url).toMatch(/^https:\/\/polymarket\.com\//);
   });
 });
+
+import { availabilityNote, defaultVenue } from "./guides";
+describe("venue availability in the guide (F9 adapter)", () => {
+  const links = [{ venue: "polymarket" as const, url: "https://polymarket.com/e/x" }, { venue: "kalshi" as const, url: null }];
+  it("nothing known available: no default venue", () => expect(defaultVenue(links, () => "unverified")).toBeNull());
+  it("restricted is never the default", () => expect(defaultVenue(links, () => "restricted")).toBeNull());
+  it("the first venue known available is the default", () => expect(defaultVenue(links, (v) => (v === "kalshi" ? "available" : "unverified"))).toBe("kalshi"));
+  it("note text", () => {
+    expect(availabilityNote("kalshi", "unverified", null)).toBe("Check Kalshi for your state");
+    expect(availabilityNote("kalshi", "unverified", "Texas")).toBe("Check Kalshi for Texas");
+    expect(availabilityNote("kalshi", "available", "Texas")).toBe("Kalshi: available in Texas");
+    expect(availabilityNote("polymarket-us", "restricted", "Texas")).toBe("Polymarket US: not available in Texas");
+  });
+});
