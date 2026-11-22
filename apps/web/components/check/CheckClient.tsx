@@ -12,6 +12,7 @@ import type { CheckResponse } from "@/lib/check/response";
 import { SCORE_FORMULA } from "@/lib/check/score";
 import { payoutMoney, pct, ret } from "@/lib/format";
 import { multX } from "@/lib/card";
+import { HowToBet } from "./HowToBet";
 
 type Found = { kind: "ok"; data: CheckResponse } | { kind: "limit" } | { kind: "missing" } | { kind: "error"; text: string } | null;
 const pts = (e: number) => { const v = Math.round(e * 100); return `${v < 0 ? "−" : v > 0 ? "+" : ""}${Math.abs(v)} ${Math.abs(v) === 1 ? "point" : "points"}`; };
@@ -171,6 +172,7 @@ export function CheckClient() {
             <summary className="min-h-11 cursor-pointer py-2">Why this number?</summary>
             <p data-testid="check-basis" className="pb-2">{cur.basis}</p>
           </details>
+          <HowToBet links={data.market.links} />
           <p className="text-[12px] text-muted">Bet only what you can afford to lose.</p>
         </section>
       )}
