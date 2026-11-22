@@ -2,6 +2,7 @@
 // where alerts go, a Pro rule can turn email on (the server cron emails it), and /pricing no longer sells
 // Telegram/Discord alerts. Supabase and Stripe are the in-app mock (app/e2e-mock).
 import { expect, test, type Page } from "@playwright/test";
+import { expectPlanActive } from "./checkout";
 
 async function signUp(page: Page, email: string) {
   await page.goto("/login?next=/pricing");
@@ -25,7 +26,7 @@ async function signUpPro(page: Page, email: string) {
   await signUp(page, email);
   await page.getByTestId("checkout-pro").click();
   await expect(page).toHaveURL(/\/account\?checkout=success/, { timeout: 45_000 });
-  await expect(page.getByTestId("checkout-status")).toHaveText("Payment confirmed. Your plan is active.", { timeout: 60_000 });   // the page polls for up to 60 s
+  await expectPlanActive(page);   // confirmed text, or the poll already reloaded /account
 }
 
 test("#23/#64 Pro: /alerts renders before its scripts load, says where alerts go, and a new rule can email", async ({ page }) => {

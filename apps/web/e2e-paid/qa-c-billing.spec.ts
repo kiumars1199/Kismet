@@ -2,6 +2,7 @@
 // #18/#48 /account shows the plan, the trial-end date and "Manage billing or cancel" (Stripe portal), and Terms and
 // Refunds point there. Supabase and Stripe are the in-app mock (app/e2e-mock).
 import { expect, test } from "@playwright/test";
+import { expectPlanActive } from "./checkout";
 
 test("#32 → #18: Start trial (Premium, yearly) signed out → sign-up → checkout → /account shows plan, trial end, cancel", async ({ page }) => {
   const email = `qa-c-trial-${Date.now()}@example.com`;
@@ -30,7 +31,7 @@ test("#32 → #18: Start trial (Premium, yearly) signed out → sign-up → chec
     if (new URL(page.url()).pathname === "/onboarding") await page.getByRole("button", { name: "Skip setup" }).click({ timeout: 10_000 });
     await expect(page).toHaveURL(/\/account\?checkout=success/, { timeout: 20_000 });
   }).toPass({ timeout: 120_000 });
-  await expect(page.getByTestId("checkout-status")).toHaveText("Payment confirmed. Your plan is active.", { timeout: 60_000 });
+  await expectPlanActive(page);   // confirmed text, or the poll already reloaded /account
 
   await page.goto("/account");
   await expect(page.getByTestId("plan-name")).toHaveText("Premium");
