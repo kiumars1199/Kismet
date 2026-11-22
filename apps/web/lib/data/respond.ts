@@ -263,9 +263,7 @@ async function kalshiPage(f: FilterState, store: Store): Promise<MarketsResponse
  *  Best bets are the day's sample (freeSample). Paid: a page past the last one is refused (docs/15 § pagination cap). */
 export const listRoute = (req: Request, view?: "flags") =>
   withTier(req, "markets", async (store, tier, me) => {
-    const sp = new URL(req.url).searchParams;
-    for (const [long, short] of [["topic", "t"], ["venue", "ven"]] as const) if (sp.has(long) && !sp.has(short)) sp.set(short, sp.get(long)!);   // F3: the spec's long names
-    const f = { ...parse(sp), ...(view ? { view } : {}) };
+    const f = { ...parse(new URL(req.url).searchParams), ...(view ? { view } : {}) };
     const live = can(tier, "live_data");
     // F3: Kalshi rows (no model chance: never flags) come from their own index, behind the same permission as /api/kalshi.
     const kalshiOk = !view && canBeta(me, "kalshi");
@@ -302,7 +300,7 @@ export const listRoute = (req: Request, view?: "flags") =>
  *  "Closing soon" strip. undefined (the client fetches as before) for "Mine" filters, which resolve in the browser,
  *  or on any error. Free page loads count every row shown against the row budget, like the API. */
 export async function firstPage(params: URLSearchParams, view: "flags" | "markets"): Promise<{ main: MarketsResponse; soon?: MarketsResponse; scanned_at: number } | undefined> {
-  if (params.has("fav") || params.has("wl") || params.get("ven") === "kalshi") return undefined;   // venue=kalshi: the client fetches the Kalshi page
+  if (params.has("fav") || params.has("wl") || parse(params).venue === "kalshi") return undefined;   // venue=kalshi: the client fetches the Kalshi page
   try {
     const ctx = await pageStore();
     const store = can(ctx.tier, "exact_edge") ? ctx.store : freeView(ctx.store);

@@ -22,6 +22,9 @@ import { useDesktop } from "./useDesktop";
 import { useMeta, useScreener } from "./useScreener";
 import { usePublishScan } from "@/lib/scanClock";
 import { SortNote } from "./SortNote";
+import { KalshiResults } from "./KalshiResults";
+
+const VENUES = [["all", "All"], ["polymarket", "Polymarket"], ["kalshi", "Kalshi"]] as const;
 
 type Expanded = Record<string, { rows?: ApiRow[]; loading?: boolean }>;
 
@@ -82,6 +85,16 @@ export function MarketsScreener({ initial, scannedAt }: { initial?: MarketsRespo
             <ExportCsv state={state} />
           </div>
         </header>
+        {(meta?.counts.kalshi ?? 0) > 0 && (
+          <div role="group" aria-label="Venue" className="flex flex-wrap items-center gap-2" data-testid="venue-chips">
+            {VENUES.map(([v, label]) => (
+              <button key={v} type="button" aria-pressed={state.venue === v} onClick={() => set({ venue: v })}
+                className={`min-h-11 rounded-full border px-4 text-sm ${state.venue === v ? "border-accent-border bg-accent-bg text-accent-soft" : "border-border bg-surface text-soft hover:border-accent-border"}`}>
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
         <FilterPills state={state} mode="markets" facets={sc.facets} meta={meta} onChange={set} onReset={reset} />
         <PresetBar state={state} onChange={set} />
         <QuickChips state={state} onChange={set} />
@@ -92,12 +105,23 @@ export function MarketsScreener({ initial, scannedAt }: { initial?: MarketsRespo
 
         {error && !data ? (
           <ErrorState onRetry={sc.retry} error={error} />
+        ) : data?.kalshi && state.venue === "kalshi" ? (
+          data.kalshi.total === 0 ? (
+            <EmptyState title="No Kalshi markets match" line="Try other words or clear the topic." onReset={() => set({ q: undefined, topics: undefined, categories: undefined })} resetLabel="Clear search and topics" />
+          ) : (
+            <>
+              <KalshiResults page={data.kalshi} />
+              <Pager page={data.kalshi.page} pages={data.kalshi.pages} onPage={(page) => set({ page })} />
+            </>
+          )
         ) : !data ? (
           <div className="flex flex-col gap-2" aria-busy="true" aria-label="Loading markets">
             {/* #9 (Nov 20): a filter change says it is loading, as Best bets' "Updating bets…" does */}
             <p role="status" data-testid="markets-updating" className="text-sm font-medium text-soft">Loading markets…</p>
             {Array.from({ length: 8 }, (_, i) => <Skeleton key={i} className="h-16" />)}
           </div>
+        ) : data.total === 0 && data.kalshi?.total ? (
+          <KalshiResults page={data.kalshi} />
         ) : data.total === 0 ? (
           <EmptyState
             title={state.q ? "No matches in open markets" : "No markets match these filters"}
@@ -128,6 +152,7 @@ export function MarketsScreener({ initial, scannedAt }: { initial?: MarketsRespo
               </ul>
             )}
             <Pager page={data.page} pages={data.pages} onPage={(page) => set({ page })} />
+            {data.kalshi && <KalshiResults page={data.kalshi} also />}
           </>
         )}
       </div>
