@@ -67,6 +67,17 @@ affected e2e and the Vercel preview all green.
   is now retried until the URL is /settings.
 - App behaviour unchanged. Fixed in its own PR ahead of the disk fix; #26 closed and reopened after.
 
+## Outage: Railway disk full (Nov 21 21:49 UTC to the hotfix, "Nov21: disk-full fix")
+- What broke: the 5 GB Railway volume filled (Errno 28 from 21:49). Kalshi's response cache was never pruned, so it
+  grew until the disk was full. The next fit wrote a truncated model.json (cut at 552,960 bytes), and every scan
+  after that failed with a JSON decode error, so the site kept serving the last good scan and went stale.
+- Fix: the scheduler prunes Kalshi cache files older than their TTL before every tick, and logs disk use (largest
+  data/ and output/ entries) at start and whenever free space drops under 10%. Every engine JSON write now goes
+  through `dump_atomic` (temp file, then rename), so a full disk leaves the old file whole instead of a broken one.
+  A test fails if any engine file goes back to `json.dump(..., open(...))`.
+- Item 5 (Kalshi): cache max age now equals the fetch TTL; the scan log and meta show per-field fill rates.
+- Recovery check (Railway logs after deploy): see below.
+
 ## Q's answers (Nov 21, before going away)
 
 - Alerts email check: throwaway Pro test account, mail to Resend's test inbox (delivered@resend.dev), deleted after.
@@ -85,5 +96,13 @@ affected e2e and the Vercel preview all green.
 
 - Nudge dismiss: save deferred until the profile is ready (safest: never drops the save, no UI change).
 - Demo header renders signed-in from the server (demo always acts signed in), so no 62px shift after hydration.
+
+- Outage hotfix shipped ahead of the other open PRs (production was down; smallest fix that stops the disk filling
+  and stops a full disk from corrupting model.json).
+- Alerts email check runs on the real 13:00 UTC cron: CRON_SECRET is stored as sensitive and can't be read, so the
+  endpoint can't be called by hand. Safest: wait for the scheduled run instead of rotating the secret.
+- PR #24 (combos) was closed after the S7 checkout flake and is reopened as a fresh PR once the S7 wait fix is in.
+- Scheduler state file (item C) saves only last-run times; the in-memory flags (true/false) are left out, so a
+  restart never carries a stale "already done" flag.
 
 (Safest reading taken when the list left a choice.)
