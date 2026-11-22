@@ -1,5 +1,6 @@
 // F5: pick topics at signup. New account picks NFL + Politics -> / and /bets open filtered with a visible "Your topics"
 // pill that clears in one tap (and stays cleared). Skipping setup leaves the views unfiltered. Filters only, never picks.
+import path from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 
 async function signUp(page: Page, email: string) {
@@ -17,47 +18,83 @@ async function signUp(page: Page, email: string) {
   await page.waitForURL(/\/onboarding/, { timeout: 60_000 });
 }
 
+/** Free's Best bets are a random daily sample, so a topic filter can leave it empty. These tests are about the filter and
+ *  the layout, so the new account gets a Premium comp through the mock database (service role): every matching bet lists. */
+async function makePremium(page: Page) {
+  const me = await (await page.request.get("/api/me")).json();
+  const res = await page.request.patch(`/e2e-mock/supabase/rest/v1/subscriptions?user_id=eq.${me.user.id}`, {
+    headers: { authorization: "Bearer e2e-service", apikey: "e2e-service", "content-type": "application/json" }, data: { comp_tier: "premium" },
+  });
+  expect(res.status()).toBeLessThan(300);
+  expect((await (await page.request.get("/api/me")).json()).tier).toBe("premium");
+}
+
 const pill = (page: Page) => page.getByRole("button", { name: "Remove filter: Your topics" });
 
-const SHOTS = "/home/user/MarketEdge/.claude/worktrees/agent-afda8a27944e228d2/docs/launch/review/f05";
+const SHOTS = path.resolve(process.cwd(), "../../docs/launch/review/f05");   // repo-relative: <repo>/docs/launch/review/f05
 const SIZES = [{ w: 390, h: 844 }, { w: 1440, h: 900 }];
 
-/** Layout shift of the next full load of `path`, from buffered layout-shift entries (input-driven shifts excluded). */
-async function cls(page: Page, path: string) {
+/** Sum of layout-shift entries (input-driven shifts excluded) since the last resetCls(); survives client navigation. */
+async function observeCls(page: Page) {
   await page.addInitScript(() => {
     (window as unknown as { __cls: number }).__cls = 0;
     new PerformanceObserver((l) => { for (const e of l.getEntries() as unknown as { value: number; hadRecentInput: boolean }[]) if (!e.hadRecentInput) (window as unknown as { __cls: number }).__cls += e.value; })
       .observe({ type: "layout-shift", buffered: true });
   });
-  await page.goto(path);
-  await expect(pill(page)).toBeVisible({ timeout: 30_000 });
-  await page.waitForLoadState("networkidle");
-  await page.waitForTimeout(1_500);
-  return page.evaluate(() => (window as unknown as { __cls: number }).__cls);
 }
+const resetCls = (page: Page) => page.evaluate(() => { (window as unknown as { __cls: number }).__cls = 0; });
+const readCls = async (page: Page) => { await page.waitForLoadState("networkidle"); await page.waitForTimeout(1_500); return page.evaluate(() => (window as unknown as { __cls: number }).__cls); };
+
+// next dev compiles a route on its first hit (seconds of unstyled, shifting layout). This throwaway user hits the routes
+// the measured tests land on, so those measure the page, not the compiler.
+test("warm-up: first hits compile the routes", async ({ page }) => {
+  test.setTimeout(300_000);
+  await signUp(page, `f05-warm-${Date.now()}@example.com`);
+  await page.getByRole("button", { name: "Skip setup" }).click();
+  await page.waitForURL((u) => u.pathname === "/" || u.pathname === "/bets", { timeout: 120_000 });
+  for (const u of ["/bets", "/bets?fav=1&t=sports.nfl", "/settings", "/account"]) { await page.goto(u); await page.waitForLoadState("networkidle"); }
+});
 
 for (const { w, h } of SIZES) {
   test(`picks NFL + Politics at ${w}px: / and /bets open filtered with a Your topics pill; one tap clears it`, async ({ page }) => {
     test.setTimeout(300_000);
     await page.setViewportSize({ width: w, height: h });
+    await observeCls(page);
     await signUp(page, `f05-pick-${w}-${Date.now()}@example.com`);
+    await makePremium(page);
     const nfl = page.getByRole("button", { name: /^NFL/ });
     const politics = page.getByRole("button", { name: /^Elections/ });   // Politics & Elections > Elections: the fixture's one open Politics market
+    await expect(nfl).toContainText("open", { timeout: 60_000 });   // the tile counts arrive after first paint and move the grid
+    await page.waitForTimeout(500);
     await nfl.click();   // each tap waits for the account store, then saves; the tile shows chosen once it has
     await expect(nfl).toHaveAttribute("aria-pressed", "true", { timeout: 30_000 });
     await politics.click();
     await expect(politics).toHaveAttribute("aria-pressed", "true", { timeout: 30_000 });
     await page.screenshot({ path: `${SHOTS}/${w}-1-pick-topics.png` });
+    await resetCls(page);   // measure the exact landing after onboarding
     await page.getByRole("button", { name: "Skip setup" }).click();   // finishing from any step saves; lands on Best bets
     await expect(page).toHaveURL(/fav=1/, { timeout: 60_000 });
     await expect(pill(page)).toBeVisible({ timeout: 30_000 });
+    expect(await page.locator("article[data-row]").count()).toBeGreaterThan(0);
+    const landing = await readCls(page);
+    console.log(`CLS post-onboarding landing at ${w}px: ${landing.toFixed(4)}  (${page.url()})`);
+    expect(landing).toBeLessThan(0.1);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(w);   // no horizontal scroll
 
-    // a later visit to / and /bets: the server redirects before rendering, so the pill is in the first HTML
-    for (const path of ["/", "/bets"]) {
-      const res = await page.request.get(path, { maxRedirects: 0 });
-      expect([200, 307, 308]).toContain(res.status());
-      await page.goto(path);
+    // a later visit to / and /bets: a real 307 (no page body), then ONE document that already holds the pill and the cards
+    for (const route of ["/", "/bets"]) {
+      const hop = await page.request.get(route, { maxRedirects: 0 });
+      expect(hop.status(), route).toBe(307);
+      expect(hop.headers().location, route).toMatch(/\/bets\?fav=1&t=/);
+      expect((await hop.text()).length, "the 307 carries no page").toBeLessThan(2_000);
+      const doc = await page.request.get(route);   // follows the redirect
+      expect(doc.status()).toBe(200);
+      expect(doc.url()).toMatch(/fav=1&t=/);
+      const html = await doc.text();
+      expect(html).not.toContain("NEXT_REDIRECT");
+      expect(html).toContain("Remove filter: Your topics");
+      expect(html).toMatch(/<article[^>]*data-row/);
+      await page.goto(route);
       await expect(page).toHaveURL(/fav=1/);
       await expect(pill(page)).toBeVisible({ timeout: 30_000 });
     }
@@ -66,7 +103,10 @@ for (const { w, h } of SIZES) {
     await page.screenshot({ path: `${SHOTS}/${w}-2-bets-filtered.png` });
 
     // CLS of a fresh /bets load with topics saved (spec: < 0.1)
-    const shift = await cls(page, "/bets");
+    await resetCls(page);
+    await page.goto("/bets");
+    await expect(pill(page)).toBeVisible({ timeout: 30_000 });
+    const shift = await readCls(page);
     console.log(`CLS /bets with topics saved at ${w}px: ${shift.toFixed(4)}`);
     expect(shift).toBeLessThan(0.1);
     await page.waitForLoadState("networkidle");

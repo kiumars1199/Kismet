@@ -1,7 +1,9 @@
 // /api/data/* handlers: the signed-in user's rows via Supabase with RLS (SupabaseRepo's backend).
 // Quotas per tier are enforced here, not only in the UI (docs/08 LIMITS).
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { authEnabled, getTier, sameOrigin, supabaseServer } from "@/lib/auth/server";
+import { cookies } from "next/headers";
+import { COOKIE_OPTIONS, authEnabled, getTier, sameOrigin, supabaseServer } from "@/lib/auth/server";
+import { TOPICS_COOKIE, TOPICS_COOKIE_MAX_AGE, topicsCookieValue } from "@/lib/filters/default-topics";
 import { readJson } from "@/lib/body";
 import { isAppToken } from "@/lib/auth/app-token";
 import { can, quota, type QuotaKey } from "@/lib/entitlements";
@@ -102,7 +104,18 @@ export async function patchProfile({ db, userId }: Ctx, body: unknown): Promise<
   if (!parsed.success) return err(400, "Invalid settings");
   const { data, error } = await db.from("profiles").update(parsed.data).eq("user_id", userId).select("*").maybeSingle();
   if (error) return err(400, "Couldn't save");
+  await syncTopicsCookie(data);
   return Response.json(profileOut(data));
+}
+
+/** F5: remember the saved topics (and whether the "Your topics" pill was cleared) in a server-set cookie, so middleware
+ *  can send a bare /bets to the filtered view without a database call (lib/filters/default-topics.ts). */
+export async function syncTopicsCookie(row: Record<string, unknown> | null): Promise<void> {
+  if (!row) return;
+  try {
+    const fav = Array.isArray(row.favorite_topics) ? (row.favorite_topics as unknown[]).filter((x): x is string => typeof x === "string") : [];
+    (await cookies()).set(TOPICS_COOKIE, topicsCookieValue(fav, row.topics_off === true), { ...COOKIE_OPTIONS, maxAge: TOPICS_COOKIE_MAX_AGE });
+  } catch { /* not in a request context (tests): nothing to set */ }
 }
 
 /** First sign-in import of localStorage data (docs/08). Rows that clash or break a quota are skipped. */

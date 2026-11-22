@@ -16,7 +16,8 @@ import { BEST_BETS_VERDICTS, CLOSING_SOON, tierOf, type FilterState } from "@/li
 import { DELAYED_PENDING, delayedPendingLine, type EventResponse, type MarketResponse, type MarketsResponse } from "@/lib/api";
 import type { LedgerStats, StoreMarket } from "@/lib/types";
 import { proofLine, type Proof } from "@/lib/proof";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
+import { TOPICS_COOKIE, parseTopicsCookie } from "@/lib/filters/default-topics";
 
 /** RT-15: tier-shaped bodies must never sit in a shared cache. A route's own private Cache-Control is kept. */
 export function noStore(res: Response): Response {
@@ -277,7 +278,13 @@ export const listRoute = (req: Request, view?: "flags") =>
  *  "Closing soon" strip. undefined (the client fetches as before) for "Mine" filters, which resolve in the browser,
  *  or on any error. Free page loads count every row shown against the row budget, like the API. */
 export async function firstPage(params: URLSearchParams, view: "flags" | "markets"): Promise<{ main: MarketsResponse; soon?: MarketsResponse; scanned_at: number } | undefined> {
-  if (params.has("wl") || (params.has("fav") && !params.has("t"))) return undefined;   // F5: fav=1 with t=<ids> (the redirect) is rendered here
+  if (params.has("wl")) return undefined;
+  if (params.has("fav") && !params.has("t")) {   // F5: "Your topics" without ids (an old link, onboarding): resolve them here, like a bare /bets
+    const { favorites } = parseTopicsCookie((await cookies()).get(TOPICS_COOKIE)?.value);
+    if (!favorites.length) return undefined;
+    params = new URLSearchParams(params);
+    params.set("t", favorites.join(","));
+  }
   try {
     const ctx = await pageStore();
     const store = can(ctx.tier, "exact_edge") ? ctx.store : freeView(ctx.store);

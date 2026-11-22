@@ -69,7 +69,10 @@ export function Onboarding({ next }: { next?: string }) {
       console.error("[onboarding] could not save:", e);
       setError("Couldn't save your setup. You can change it any time in Settings.");
     }
-    const to = next && next !== "/" ? next : `/${toQuery(FilterState.parse({ view: "flags", favorites_only: topics ? true : undefined }))}`;
+    const to = next && next !== "/" ? next : `/${toQuery(FilterState.parse({ view: "flags", favorites_only: topics ? true : undefined, topics }))}`;
+    // F5: to land on the filtered Best bets, load the page fresh. A client navigation shows the route's loading
+    // skeleton first and then swaps in the cards (layout shift); a full load arrives with the cards and the pill.
+    if (topics && !(next && next !== "/")) { location.assign(to); return; }
     router.push(to);
     // A client navigation can stall (e.g. a route still compiling); fall back to a full page load.
     setTimeout(() => { if (location.pathname === "/onboarding") location.assign(to); }, 10_000);
