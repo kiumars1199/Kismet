@@ -220,7 +220,7 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
         </ul>
       ) : data.total === 0 ? (
         <EmptyState
-          title={topic ? `Nothing in ${topic} right now` : "No best bets match these filters"}
+          title={topic ? `No edge right now in ${topic}` : "No best bets match these filters"}
           line={`No bet with these filters is good value right now${state.us && usOn ? " on Polymarket US" : ""}. Prices refresh ${REFRESH_WORDS}.`}
           onReset={reset}
           link={state.us && usOn
