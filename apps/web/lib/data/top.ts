@@ -8,7 +8,7 @@ import "server-only";
 import { delayMin } from "@/lib/settings-core";
 import { getSettings } from "@/lib/settings";
 import type { Tier } from "@/lib/entitlements";
-import type { BacktestFile, CountsFile, LedgerSummary, ModelFile, ScanMeta, TopFile } from "@/lib/types";
+import type { BacktestFile, CountsFile, LedgerSummary, ModelFile, ScanMeta, TopFile, VenuesFile } from "@/lib/types";
 import { buildStore, firstFlaggedAt, getStoreFor, readSource, sourceChain, type Store } from "./store";
 import { headlineBacktest } from "./model";
 import { DATA_SOURCE } from "@/lib/config";
@@ -111,12 +111,13 @@ async function storeOf(file: TopFile): Promise<Store> {
   const hit = stores.get(key);
   if (hit) return hit;
   const results = await getResults().catch(() => undefined);
+  const venues = await cachedJson<VenuesFile>("venues.json");   // F4: the same quotes the full store merges (missing = none)
   const rows = file.rows.map((r) => r.market);
   const store = buildStore({
     markets: { meta: file.meta, markets: rows }, flags: { meta: file.meta, flags: rows },
     model: results?.model ?? ({ half_life_days: null, fitted_at: 0, nodes: [] } as ModelFile),
     backtest: results?.backtest ?? ({} as BacktestFile),
-    ledgerSummary: results?.ledgerSummary, ledgerSince: results?.ledgerSince ?? null,
+    ledgerSummary: results?.ledgerSummary, ledgerSince: results?.ledgerSince ?? null, venues,
   });
   if (stores.size > 8) stores.clear();
   stores.set(key, store);

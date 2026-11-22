@@ -11,7 +11,7 @@ import type { Tier } from "@/lib/entitlements";
 import { getSettings } from "@/lib/settings";
 import { delayMin } from "@/lib/settings-core";
 import { Flag as FlagSchema, Market as MarketSchema, ScanMeta as MetaSchema } from "@/lib/schemas";
-import type { BacktestFile, EventsFile, FlagsFile, KalshiFile, KalshiIndexFile, LedgerSummary, MarketsFile, ModelFile, ScanMeta, StoreMarket } from "@/lib/types";
+import type { BacktestFile, EventsFile, FlagsFile, KalshiFile, KalshiIndexFile, VenuesFile, LedgerSummary, MarketsFile, ModelFile, ScanMeta, StoreMarket } from "@/lib/types";
 import { derive } from "./derive";
 import { indexFromFile, indexFromKalshi, type KalshiIndex } from "./kalshi-index";
 import { headlineBacktest } from "./model";
@@ -33,6 +33,7 @@ export interface RawData {
   ledgerSummary?: LedgerSummary;    // output/ledger_summary.json (T-04), optional
   ledgerSince?: number | null;      // first flagged_at in output/ledger.jsonl (T-290), the live record's start
   source?: DataSource;              // which source served this copy
+  venues?: VenuesFile;              // output/venues.json (F4), optional
 }
 
 type Counts = Record<string, number>;
@@ -54,6 +55,7 @@ export interface Store {
   ledgerSummary?: LedgerSummary;
   ledgerSince?: number | null;
   source?: DataSource;
+  venuesFile?: VenuesFile;
 }
 
 const github = () => ({
@@ -92,13 +94,25 @@ function validate(file: string, meta: unknown, rows: unknown[], schema: typeof M
   }
 }
 
+/** F4: venues.json older or newer than the scan by more than this is not trusted: no venues, never an error. */
+const VENUES_MAX_SKEW_S = 3 * 3600;
+/** The venue quotes for this scan, or undefined (missing, malformed or stale file = "no venues"). */
+export function usableVenues(v: VenuesFile | undefined, scannedAt: number): VenuesFile["venues"] | undefined {
+  if (!v || typeof v.venues !== "object" || !v.venues) return undefined;
+  if (process.env.DATA_CLOCK !== "scan" && !(Math.abs((v.meta?.generated_at ?? 0) - scannedAt) <= VENUES_MAX_SKEW_S)) return undefined;
+  return v.venues;
+}
+
 export function buildStore(raw: RawData, loadedAt = Date.now()): Store {
   validate("markets.json", raw.markets.meta, raw.markets.markets, MarketSchema);
   validate("flags.json", raw.flags.meta, raw.flags.flags, FlagSchema);
+  const vq = usableVenues(raw.venues, raw.markets.meta.scanned_at);
+  const withVenues = <T extends { id: string }>(m: T): T => (vq?.[m.id] ? { ...m, venues: vq[m.id]!.venues } : m);
 
-  const flags: StoreMarket[] = raw.flags.flags.map((f) => ({ ...f, derived: derive(f) }));
+  const flags: StoreMarket[] = raw.flags.flags.map((f) => ({ ...withVenues(f), derived: derive(f) }));
   const flagsById = new Map(flags.map((f) => [f.id, f]));
-  const markets: StoreMarket[] = raw.markets.markets.map((m) => {
+  const markets: StoreMarket[] = raw.markets.markets.map((m0) => {
+    const m = withVenues(m0);
     const flag = flagsById.get(m.id);
     const execution = (m as StoreMarket).execution ?? flag?.execution;
     return { ...m, ...(execution ? { execution } : {}), ...(flag ? { tier: flag.tier ?? "best" } : {}), derived: derive(m) };
@@ -136,6 +150,7 @@ export function buildStore(raw: RawData, loadedAt = Date.now()): Store {
     ledgerSummary: raw.ledgerSummary,
     ledgerSince: raw.ledgerSince ?? null,
     source: raw.source,
+    venuesFile: raw.venues,
   };
 }
 
@@ -231,7 +246,8 @@ async function loadFrom(source: DataSource): Promise<RawData> {
     throw new Error(`torn load: markets.json scan ${markets!.meta.scanned_at} vs flags.json scan ${flags!.meta.scanned_at}`);
   }
   const ledgerSince = ledgerSummary ? await firstFlaggedAt(source).catch(() => null) : null;
-  return { markets: markets!, flags: flags!, model: model!, backtest: backtest!, events, ledgerSummary, ledgerSince, source };
+  const venues = await read<VenuesFile>("venues.json", false).catch(() => undefined);   // F4: a missing or broken file = no venues
+  return { markets: markets!, flags: flags!, model: model!, backtest: backtest!, events, ledgerSummary, ledgerSince, source, venues };
 }
 
 const sinceMemo = new Map<DataSource, number>();
@@ -362,7 +378,7 @@ async function loadCopy(s: Store, suffix: "prev" | "prev2"): Promise<Store | und
   if (flags.meta.scanned_at !== markets.meta.scanned_at) return undefined;   // QA-A #46: a torn pair, mid-upload
   // #46: a delayed copy is a scan or two behind, never a day-old one from a stale fallback source
   if (s.meta.scanned_at - markets.meta.scanned_at > FALLBACK_MAX_AGE_S) return undefined;
-  return buildStore({ markets, flags, model: s.model, backtest: s.backtest, events: s.events, ledgerSummary: s.ledgerSummary, ledgerSince: s.ledgerSince, source: s.source });
+  return buildStore({ markets, flags, model: s.model, backtest: s.backtest, events: s.events, ledgerSummary: s.ledgerSummary, ledgerSince: s.ledgerSince, venues: s.venuesFile, source: s.source });
 }
 
 /** Newest of the stores at or before `cutoff` (unix s). */

@@ -43,6 +43,9 @@ export const Market = z.object({
   sides: z.array(Side), best: Side,
   volume_24h: opt.nullable(), created_at: opt.nullable(), competitive: opt,
   kalshi_ticker: z.string().nullable().optional(), kalshi_match_conf: opt,
+  venues: z.array(z.object({
+    venue: z.enum(["polymarket", "us", "kalshi"]), price: z.number().nullable(), multiplier: z.number().nullable(), url: z.string(),
+  })).optional(),
 });
 
 export const StakeRow = z.object({

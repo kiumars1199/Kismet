@@ -75,6 +75,22 @@ export interface Market {
   // slug = US event slug, market_slug = US market slug, url = its polymarket.us/event page, tokens ["", ""]
   // (no CLOB book; the US book is read server-side). Absent = a Polymarket (international) market.
   venue?: "us";
+  // F4: the same outcome on each venue it is listed on (engine/venues.py -> output/venues.json, merged by id on load).
+  // Absent = listed on one venue only, or no venues.json for this scan.
+  venues?: VenueQuote[];
+}
+// F4: one venue's price for the market's best side. `url` is the venue's plain market page (F6 reuses it for deep links).
+// multiplier = 1 / (price + fee) with the venue's own fee; null = no sourced fee formula yet (Kalshi), show the % only.
+export interface VenueQuote {
+  venue: "polymarket" | "us" | "kalshi";
+  price: number | null;       // 0..1
+  multiplier: number | null;
+  url: string;
+}
+// output/venues.json: only markets on 2+ venues. generated_at: unix s, when the engine wrote it.
+export interface VenuesFile {
+  meta: { n: number; kalshi: boolean; generated_at: number };
+  venues: Record<string, { venues: VenueQuote[]; kalshi_ticker?: string; kalshi_match_conf?: number }>;
 }
 // Polymarket US (docs/research/polymarket-us.md): the best side priced on the CFTC-regulated US venue, the only
 // Polymarket US users can trade. null = not listed on Polymarket US. ask/fee/edge null = listed, no live book.

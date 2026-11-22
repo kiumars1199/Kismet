@@ -1,0 +1,69 @@
+{
+ "meta": {
+  "n": 3,
+  "kalshi": true,
+  "generated_at": 1794873437
+ },
+ "venues": {
+  "6674492": {
+   "venues": [
+    {
+     "venue": "polymarket",
+     "price": 0.68,
+     "multiplier": 1.4474,
+     "url": "https://polymarket.com/event/unl-den-nor-2026-11-17-more-markets"
+    },
+    {
+     "venue": "us",
+     "price": 0.66,
+     "multiplier": 1.4905,
+     "url": "https://polymarket.us/event/unl-den-nor-2026-11-17-more-markets"
+    },
+    {
+     "venue": "kalshi",
+     "price": 0.69,
+     "multiplier": null,
+     "url": "https://kalshi.com/markets/kxfixture"
+    }
+   ]
+  },
+  "7077573": {
+   "venues": [
+    {
+     "venue": "polymarket",
+     "price": 0.75,
+     "multiplier": 1.3168,
+     "url": "https://polymarket.com/event/cfb-miaoh-kentst-2026-11-17"
+    },
+    {
+     "venue": "us",
+     "price": 0.73,
+     "multiplier": 1.3524,
+     "url": "https://polymarket.us/event/cfb-miaoh-kentst-2026-11-17"
+    },
+    {
+     "venue": "kalshi",
+     "price": 0.76,
+     "multiplier": null,
+     "url": "https://kalshi.com/markets/kxfixture"
+    }
+   ]
+  },
+  "7078474": {
+   "venues": [
+    {
+     "venue": "polymarket",
+     "price": 0.72,
+     "multiplier": 1.3697,
+     "url": "https://polymarket.com/event/cfb-ballst-ohio-2026-11-17"
+    },
+    {
+     "venue": "us",
+     "price": 0.7,
+     "multiplier": 1.4083,
+     "url": "https://polymarket.us/event/cfb-ballst-ohio-2026-11-17"
+    }
+   ]
+  }
+ }
+}

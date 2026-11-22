@@ -80,6 +80,26 @@ export interface Market {
   // slug = US event slug, market_slug = US market slug, url = its polymarket.us/event page, tokens ["", ""]
   // (no CLOB book; the US book is read server-side). Absent = a Polymarket (international) market.
   venue?: "us";
+  // F4: the same outcome (the side `best`) on each venue it is listed on, merged by id from output/venues.json.
+  // Absent = listed on one venue only, or no venues.json for this scan (a missing, malformed or stale file is "no venues").
+  venues?: VenueQuote[];
+}
+// F4: one venue's price for the market's best side. `url` = the venue's plain market page (the "How to bet this" deep links
+// of F6 reuse it, so the name is stable). multiplier = 1 / (price + fee) with that venue's own fee; null = no sourced fee
+// formula yet (Kalshi: engine/venues.py TODO), the UI shows the % only and never marks that venue "Pays most here".
+export interface VenueQuote {
+  venue: "polymarket" | "us" | "kalshi";
+  price: number | null;       // 0..1; null = listed, no price
+  multiplier: number | null;
+  url: string;
+}
+// output/venues.json (side file, written by `python -m engine kalshi` after the crawl, uploaded with kalshi.json). Only
+// markets on 2+ venues. Kalshi matches need hard gates (category, close within 48 h, same numbers, side name in Kalshi's
+// label) and a score >= 0.9; no match = not listed. `kalshi_ticker` here is informational: it is NOT copied onto
+// Market.kalshi_ticker, which would switch the bet button to Kalshi.
+export interface VenuesFile {
+  meta: { n: number; kalshi: boolean; generated_at: number };   // generated_at: unix s; > 3 h from the scan = ignored
+  venues: Record<string, { venues: VenueQuote[]; kalshi_ticker?: string; kalshi_match_conf?: number }>;
 }
 // Polymarket US (docs/research/polymarket-us.md): the best side priced on the CFTC-regulated US venue, the only
 // Polymarket US users can trade. null = not listed on Polymarket US. ask/fee/edge null = listed, no live book.
