@@ -1,6 +1,7 @@
 "use client";
 
 // /markets "All markets" (F-01): grouped rows on desktop, compact cards on mobile, URL-driven.
+import { RiskNote } from "@/components/trade/RiskNote";
 import { Ago } from "@/components/clock";
 import { useEffect, useMemo, useState } from "react";
 import { fetchEvent, groupRows, type ApiGroup, type ApiRow, type MarketsResponse } from "@/lib/api";
@@ -108,6 +109,7 @@ export function MarketsScreener({ initial, scannedAt }: { initial?: MarketsRespo
         ) : (
           <>
             {error && <ErrorState onRetry={sc.retry} error={error} />}
+            <RiskNote className="text-left" />   {/* F8: the icon links on rows are too small for text */}
             {desktop ? (
               <MarketTable items={items} sort={state.sort} onSort={(sort) => set({ sort })} onToggleGroup={toggle} pro={pro} loading={loading} />
             ) : (
