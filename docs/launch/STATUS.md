@@ -17,19 +17,19 @@ file after every merge. "Review result" says "passed review" only after the revi
 ## Features
 | Feature | Owner | Status | PR | Review result |
 |---|---|---|---|---|
-| F1 Bet checker | checker | review FAIL (no card Check link; result CLS 0.374@390; closed markets scored; paid limit e2e isolation; e2e gaps; price range; venue line); fixing | kiumars1199/Kismet#43 | not reviewed |
-| F2 Combo checker | checker | review FAIL (leg route bypasses Free limit; no basis on combo result); fixing after F1 | kiumars1199/Kismet#45 | not reviewed |
-| F3 Every market searchable | data | fixes pushed (2b6c784: all 5 findings + /markets CLS 0.273→0.004@390); re-review next after F8 | kiumars1199/Kismet#42 | not reviewed |
+| F1 Bet checker | checker | fixes pushed (8818178); re-review queued; Kalshi own price after F3 merge | kiumars1199/Kismet#43 | not reviewed |
+| F2 Combo checker | checker | fixes pushed (leg route lookup only, combo counted once, "Why these numbers?"); re-review queued | kiumars1199/Kismet#45 | not reviewed |
+| F3 Every market searchable | data | merged (9ad7713); reviewer round 2 PASS on preview; prod post-merge check pending | kiumars1199/Kismet#42 | preview PASS; prod check pending |
 | F4 Three venues side by side | data | built locally; PR after F3 merges | — | not reviewed |
-| F5 Topics at signup | onboarding-invites | review FAIL (post-onboarding CLS 1.848@390; redirect is a meta refresh, not HTTP; hard-coded screenshot path); fixing; migration topics_off (lead applies before merge) | kiumars1199/Kismet#47 | not reviewed |
-| F6 How to place this bet | checker | PR open (stacked on #45); 2 unsourced guide steps being fixed | kiumars1199/Kismet#46 | not reviewed |
+| F5 Topics at signup | onboarding-invites | fixes pushed (2325297: HTTP 307, CLS 0.051/0.017); re-review queued; migration topics_off | kiumars1199/Kismet#47 | not reviewed |
+| F6 How to place this bet | checker | review FAIL (no How-to-bet on cards; intl default without availability; step sources not shown; duplicate afford note); fixing | kiumars1199/Kismet#46 | not reviewed |
 | F7 Live payments by config | trust | merged (cd9f672), prod READY, health ok | kiumars1199/Kismet#41 | passed review |
-| F8 Responsible betting | trust | PR open (head f1d4e3e; RiskNote by every bet button, icon links via aria); in review queue; migration paused_until (lead applies before merge) | kiumars1199/Kismet#44 | not reviewed |
-| F9 Venue availability | trust | PR open, stacked on #44 (Kalshi/Polymarket US unverified per state, intl restricted); in review queue; check:js trimmed to 143.8 kB (09d9ca1) | kiumars1199/Kismet#48 | not reviewed |
+| F8 Responsible betting | trust | review PASS (f1d4e3e); migration applied; merging after F3 rebase. Follow-up: /api/trade/config 423 while paused | kiumars1199/Kismet#44 | not reviewed |
+| F9 Venue availability | trust | review FAIL (/markets icon links lack availability note; Kalshi/PM US all unverified so never "available"); fixing | kiumars1199/Kismet#48 | not reviewed |
 | F10 Install and web push | alerts | not started | | not reviewed |
 | F11 Bet tracker | tracker | not started | | not reviewed |
 | F12 Morning digest | onboarding-invites | not started | | not reviewed |
-| F13 Share and invite | onboarding-invites | plan approved; building | | not reviewed |
+| F13 Share and invite | onboarding-invites | PR open (cf5f783); evidence + check:js pending; migration 20261122000200 | kiumars1199/Kismet#51 | not reviewed |
 | F14 Price history chart | data | built locally (stacked on F4); PR after F3 + F4 | not reviewed |
 | F15 Admin metrics | trust | PR open (head c8d68a1); in review queue; migration 20261122000300 (lead applies before merge) | kiumars1199/Kismet#49 | not reviewed |
 | F16 Big trade alert | alerts | not started | | not reviewed |
