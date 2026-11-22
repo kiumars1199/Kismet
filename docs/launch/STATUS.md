@@ -17,7 +17,7 @@ file after every merge. "Review result" says "passed review" only after the revi
 ## Features
 | Feature | Owner | Status | PR | Review result |
 |---|---|---|---|---|
-| F1 Bet checker | checker | not started | | not reviewed |
+| F1 Bet checker | checker | in review (2 open items: signed-out search, Kalshi price) | kiumars1199/Kismet#43 | not reviewed |
 | F2 Combo checker | checker | not started | | not reviewed |
 | F3 Every market searchable | data | in review | kiumars1199/Kismet#42 | not reviewed |
 | F4 Three venues side by side | data | not started | | not reviewed |

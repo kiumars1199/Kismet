@@ -1,7 +1,8 @@
 # checker progress
 
-Update after every task: task · status · evidence (commands + last output lines, PR, preview URL) · next step.
-
-- F1 bet checker · plan sent to main, awaiting "yes" · no code yet · next: write failing tests (parse-link, score, compute) once approved.
-- F2, F6 · not started.
-- Note: worktree lacked docs/launch; read from /home/user/MarketEdge. TaskList tool not available to me.
+- F1 bet checker · PR up, awaiting lead review · https://github.com/kiumars1199/Kismet/pull/43 (branch launch/checker-f01)
+  Evidence: typecheck/lint clean; vitest 1471 pass (only api.test.ts p95 timing flaked under load, passes alone); check:js "142.5 kB ... budget 150 kB: OK";
+  e2e launch-f01-checker 6 passed; e2e-paid launch-f01-limit 2 passed. No preview URL checked yet (lead).
+  Shared files touched: entitlements.ts (checks_day), DrawerGate.tsx (/check exact path), public-paths.ts (/check, /api/check), sitemap.ts.
+  Not done: Kalshi's own price (needs F3/F4), signed-out word search (/api/suggest needs account).
+- F2 combo checker · next (needs plan to main first). F6 · after F2.
