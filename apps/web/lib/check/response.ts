@@ -5,7 +5,7 @@ import { baseOf, compute, type CheckBase, type CheckResult } from "./compute";
 import type { StoreMarket } from "@/lib/types";
 
 export interface CheckResponse {
-  market: { id: string; question: string; event: string; url: string; closes_at: number; category: string; niche: string; market_type: string; horizon_h: number; venue: "polymarket" | "polymarket-us" };
+  market: { id: string; question: string; event: string; event_id: string; url: string; closes_at: number; category: string; niche: string; market_type: string; horizon_h: number; venue: "polymarket" | "polymarket-us" };
   /** Both sides' inputs, so switching side recomputes in the browser. */
   sides: { index: 0 | 1; outcome: string; base: CheckBase; basis: string }[];
   side: 0 | 1;
@@ -18,7 +18,7 @@ export function buildCheck(m: StoreMarket, sideIndex: 0 | 1, price: number | und
   const base = baseOf(m, s);
   return {
     market: {
-      id: m.id, question: m.question, event: m.event, url: m.url, closes_at: m.closes_at, category: m.category, niche: m.niche,
+      id: m.id, question: m.question, event: m.event, event_id: m.event_id, url: m.url, closes_at: m.closes_at, category: m.category, niche: m.niche,
       market_type: m.market_type, horizon_h: m.horizon_h, venue: m.venue === "us" ? "polymarket-us" : "polymarket",
     },
     sides: m.sides.map((x) => ({ index: x.side_index, outcome: x.outcome, base: baseOf(m, x), basis: basis(m, x) })),
