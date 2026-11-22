@@ -12,6 +12,15 @@ describe("venueRows", () => {
     expect(rows.map((r) => r.pays)).toEqual(["1.55x", "1.64x", null]);
   });
 
+  it("badge text: qualified when a listed venue has no multiplier, plain when every listed venue has one", () => {
+    const withKalshi = venueRows([q("polymarket", 0.62, 1.55), q("us", 0.6, 1.64), q("kalshi", 0.6, null)]).find((r) => r.best)!;
+    expect(withKalshi.bestLabel).toBe("Pays most here (Kalshi fee not counted)");
+    const plain = venueRows([q("polymarket", 0.62, 1.55), q("us", 0.6, 1.64)]);
+    expect(plain.find((r) => r.best)!.bestLabel).toBe("Pays most here");   // Kalshi not listed is not "uncounted"
+    expect(plain.filter((r) => r.bestLabel).length).toBe(1);
+    expect(venueRows([q("polymarket", 0.6, 1.6), q("kalshi", 0.5, null)]).filter((r) => !r.best).every((r) => r.bestLabel === null)).toBe(true);
+  });
+
   it("Kalshi has a % and no payout, and is never 'Pays most here', even at the lowest price", () => {
     const rows = venueRows([q("polymarket", 0.7, 1.4), q("kalshi", 0.2, null)]);
     const k = rows.find((r) => r.venue === "kalshi")!;

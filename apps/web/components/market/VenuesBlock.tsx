@@ -14,7 +14,7 @@ export function VenuesBlock({ market }: { market: Pick<Market, "venues" | "best"
           <li key={r.venue} data-venue={r.venue} className="flex items-center justify-between gap-3 border-t border-border py-2 first:border-t-0">
             <span className="flex flex-wrap items-center gap-2 text-sm">
               {r.label}
-              {r.best && <span className="rounded-sm bg-accent-bg px-1.5 py-0.5 text-[11px] font-semibold text-accent-soft" data-testid="pays-most">Pays most here</span>}
+              {r.best && <span className="rounded-sm bg-accent-bg px-1.5 py-0.5 text-[11px] font-semibold text-accent-soft" data-testid="pays-most">{r.bestLabel}</span>}
             </span>
             {r.listed ? (
               <span className="text-right text-sm tabular-nums">

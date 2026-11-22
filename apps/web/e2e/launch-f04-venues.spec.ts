@@ -9,6 +9,7 @@ for (const [name, size] of [["390", { width: 390, height: 844 }], ["1440", { wid
     await expect(block).toBeVisible();
     await expect(block.locator("li[data-venue]")).toHaveCount(3);
     await expect(block.getByTestId("pays-most")).toHaveCount(1);
+    await expect(block.getByTestId("pays-most")).toHaveText("Pays most here (Kalshi fee not counted)");
     await expect(block.locator('li[data-venue="us"]').getByTestId("pays-most")).toBeVisible();   // US has the lower price, the highest payout
     // Kalshi: a % and no payout, and never the marked one
     const kalshi = block.locator('li[data-venue="kalshi"]');
@@ -24,7 +25,7 @@ test("a market on 2 venues shows Kalshi as Not listed", async ({ page }) => {
   await page.goto("/m/7078474");
   const block = page.getByTestId("venues-block");
   await expect(block.locator('li[data-venue="kalshi"]')).toContainText("Not listed");
-  await expect(block.getByTestId("pays-most")).toHaveCount(1);
+  await expect(block.getByTestId("pays-most")).toHaveText("Pays most here");   // every listed venue has a multiplier: unqualified
 });
 
 test("a market on one venue has no block", async ({ page }) => {
