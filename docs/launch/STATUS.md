@@ -25,13 +25,13 @@ file after every merge. "Review result" says "passed review" only after the revi
 | F6 How to place this bet | checker | PR open (stacked on #45); 2 unsourced guide steps being fixed | kiumars1199/Kismet#46 | not reviewed |
 | F7 Live payments by config | trust | merged (cd9f672), prod READY, health ok | kiumars1199/Kismet#41 | passed review |
 | F8 Responsible betting | trust | PR open (head f1d4e3e; RiskNote by every bet button, icon links via aria); in review queue; migration paused_until (lead applies before merge) | kiumars1199/Kismet#44 | not reviewed |
-| F9 Venue availability | trust | PR open, stacked on #44 (Kalshi/Polymarket US unverified per state, intl restricted); in review queue; check:js 145.3 kB being trimmed | kiumars1199/Kismet#48 | not reviewed |
+| F9 Venue availability | trust | PR open, stacked on #44 (Kalshi/Polymarket US unverified per state, intl restricted); in review queue; check:js trimmed to 143.8 kB (09d9ca1) | kiumars1199/Kismet#48 | not reviewed |
 | F10 Install and web push | alerts | not started | | not reviewed |
 | F11 Bet tracker | tracker | not started | | not reviewed |
 | F12 Morning digest | onboarding-invites | not started | | not reviewed |
 | F13 Share and invite | onboarding-invites | plan approved; building | | not reviewed |
 | F14 Price history chart | data | built locally (stacked on F4); PR after F3 + F4 | not reviewed |
-| F15 Admin metrics | trust | plan next (new additive RPC) | | not reviewed |
+| F15 Admin metrics | trust | plan approved; building (migration 20261122000300, stripe_events.amount_cents for daily revenue) | | not reviewed |
 | F16 Big trade alert | alerts | not started | | not reviewed |
 
 Merge order: F3, F1, F2, F5, F7, F8, F9, then F4, F6, F10–F16.
