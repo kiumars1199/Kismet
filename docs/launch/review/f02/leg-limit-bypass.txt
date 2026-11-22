@@ -1,0 +1,10 @@
+signed out, one device, demo server (memory limiter), same UTC day
+POST /api/check/leg m=6674492: HTTP 200 score=100 chance=0.916 edge=0.2251 
+POST /api/check/leg m=6674485: HTTP 200 score=91 chance=0.8647 edge=0.1737 
+POST /api/check/leg m=6674493: HTTP 200 score=0 chance=0.0601 edge=-0.2299 
+POST /api/check/leg m=6674473: HTTP 200 score=3 chance=0.0408 edge=-0.1981 
+POST /api/check/leg m=7077574: HTTP 200 score=89 chance=0.8975 edge=0.1872 
+POST /api/check/leg m=7077573: HTTP 200 score=88 chance=0.9618 edge=0.1845 
+POST /api/check/leg m=6820715: HTTP 200 score=44 chance=0.7544 edge=-0.0244 
+POST /api/check/leg m=6820745: HTTP 200 score=25 chance=0.1577 edge=-0.1222 
+then POST /api/check m=6674492: HTTP 200 {"market":{"id":"6674492","question":"Denmark vs. Norway: Both Teams to Score","

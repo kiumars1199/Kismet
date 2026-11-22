@@ -190,3 +190,10 @@ Open (not findings): signed-out word search, Kalshi links use Kalshi's own price
 ## F7 post-merge (final cd9f672): PASS
 go-live.md present; mode+invoice-events 10/10; price IDs env-only; scan 0 real (12 fake in ops/tests). review/f07/postmerge-*.
 Queue: F2 #45 da631bb, F5 #47, F8 #44, F9 #48 (8434b9e), F6 #46 (b9051cb..c68d2b7); F3 returns later.
+
+## F2 #45 (da631bb only): FAIL
+Green: typecheck, lint; lib/check + check-api vitest 47/47; e2e launch-f02-combo 3/3 + f01 6/6; /check/combo 390/1440 no hscroll, CLS ≤ 0.004, disclaimer, no cents.
+Math: the 3-leg hand calc (0.6/0.4/0.8, ask+fee 0.51/0.32/0.71) gives chance 0.192, ×8.6302, edge +0.0761, score 69, the same as the test and combo(). Live 3 legs match the leg pays product (1.16×1.14×1.45 = 1.92x).
+1. Free-limit bypass: /api/check/leg counts the fixed key "combo:0", so after the first leg every further leg (any market) is free all day. Each answer is a full single-market check (result.score, chance, edge), which gets around F1's 1-a-day. Fix: count per combo, or strip result from the leg response.
+2. Combined numbers have no basis one tap away (no smallest-leg n or model level). Leg basis is in the response but not shown.
+Open (not counted): add 3 legs from cards; paid e2e for the Free combo limit.
