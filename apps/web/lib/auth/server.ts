@@ -83,6 +83,8 @@ export interface Me {
   cancel_at_period_end: boolean;
   /** Admin (ADMIN_EMAILS) or a live comp grant: sees beta features (lib/beta.ts). Demo mode: everyone. */
   beta: boolean;
+  /** F8 self-pause: ISO end time (may be in the past), set only by the server. Null when never paused. */
+  paused_until: string | null;
 }
 
 const NO_SUB = { status: null, current_period_end: null, cancel_at_period_end: false };
@@ -91,18 +93,32 @@ const NO_SUB = { status: null, current_period_end: null, cancel_at_period_end: f
  *  React cache(): one auth check and one row read per page render, shared by the root layout's header (#17/#73) and
  *  the page itself. Outside a server render (route handlers) cache() doesn't memoize, so each call reads fresh. */
 export const getMe = cache(async function getMe(): Promise<Me> {
-  if (DEMO_MODE) return { user: null, tier: "premium", ...NO_SUB, beta: true };   // demo has no customers
+  if (DEMO_MODE) return { user: null, tier: "premium", ...NO_SUB, beta: true, paused_until: null };   // demo has no customers
   const user = await getUser();
-  if (!user) return { user: null, tier: "free", ...NO_SUB, beta: false };
+  if (!user) return { user: null, tier: "free", ...NO_SUB, beta: false, paused_until: null };
   // "*" so a deploy that runs before the T-140 migration (comp columns) still reads the paid tier.
   // #40 (Nov 20): a failed read used to come back as "no subscription", so a paying user saw the Free view until the
   // next load. Retry once; if it still fails, throw rather than quietly downgrade (pages show their error state).
   const sb = await supabaseServer();
-  let res = await sb.from("subscriptions").select("*").eq("user_id", user.id).maybeSingle();
+  const [first, paused] = await Promise.all([
+    sb.from("subscriptions").select("*").eq("user_id", user.id).maybeSingle(),
+    pausedUntilOf(sb, user.id),
+  ]);
+  let res = first;
   if (res.error) res = await sb.from("subscriptions").select("*").eq("user_id", user.id).maybeSingle();
   if (res.error && !isAdminEmail(user, process.env.ADMIN_EMAILS, DEMO_MODE)) throw new Error(`subscriptions read failed: ${res.error.message}`);
-  return meOf(user, res.error ? null : res.data);
+  return { ...meOf(user, res.error ? null : res.data), paused_until: paused };
 });
+
+/** profiles.paused_until (F8). A failed read (before the migration, or a hiccup) reads as not paused. */
+async function pausedUntilOf(db: SupabaseClient, userId: string): Promise<string | null> {
+  try {
+    const { data, error } = await db.from("profiles").select("paused_until").eq("user_id", userId).maybeSingle();
+    return error ? null : ((data as { paused_until?: string | null } | null)?.paused_until ?? null);
+  } catch {
+    return null;
+  }
+}
 
 type SubRow = { tier?: unknown; comp_tier?: unknown; comp_expires_at?: string | null; status?: string | null; current_period_end?: string | null; cancel_at_period_end?: boolean | null };
 
@@ -115,6 +131,7 @@ export function meOf(user: SessionUser, data: SubRow | null | undefined): Me {
     status: data?.status ?? null,
     current_period_end: data?.current_period_end ?? null,
     cancel_at_period_end: !!data?.cancel_at_period_end,
+    paused_until: null,
   };
 }
 
@@ -124,7 +141,7 @@ export function meOf(user: SessionUser, data: SubRow | null | undefined): Me {
 export async function getMeForUser(user: SessionUser): Promise<Me> {
   const { data, error } = await supabaseAdmin().from("subscriptions").select("*").eq("user_id", user.id).maybeSingle();
   if (error) throw new Error(`subscriptions read failed: ${error.message}`);
-  return meOf(user, data);
+  return { ...meOf(user, data), paused_until: await pausedUntilOf(supabaseAdmin(), user.id) };
 }
 
 export const getTier = async (): Promise<Tier> => (await getMe()).tier;

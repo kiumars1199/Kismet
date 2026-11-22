@@ -17,6 +17,7 @@ import { DELAYED_PENDING, delayedPendingLine, type EventResponse, type MarketRes
 import type { LedgerStats, StoreMarket } from "@/lib/types";
 import { proofLine, type Proof } from "@/lib/proof";
 import { headers } from "next/headers";
+import { pausedResponse } from "@/lib/account/pause";
 
 /** RT-15: tier-shaped bodies must never sit in a shared cache. A route's own private Cache-Control is kept. */
 export function noStore(res: Response): Response {
@@ -59,6 +60,8 @@ export async function withTier(
   { headers, bot = true }: { headers?: HeadersInit; bot?: boolean } = {},
 ): Promise<Response> {
   const me = await getMe();
+  const paused = pausedResponse(me);   // F8: a paused account gets no data
+  if (paused) return paused;
   // P6: BotID and the rate limit run side by side; the store loads only after both pass (a refused request costs nothing)
   const [botRefused, limited] = await Promise.all([bot ? botCheck() : null, rateLimit(rule, clientKey(req, me.user?.id))]);
   const refused = botRefused ?? limited;

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { BETA_FEATURES } from "@/lib/beta-list";
 import { LEGAL_PAGES } from "@/components/legal/Legal";
 import { SITE } from "@/lib/site";
+import { HelpLine } from "@/components/shell/HelpLine";
 
 export const DISCLAIMER = "Market analytics, not financial advice. Based on past results. 18+.";
 
@@ -12,6 +13,7 @@ export function Footer() {
       <div className="flex flex-col gap-1">
         <p className="font-heading text-sm font-bold tracking-[-0.01em] text-text">Kismet. Good-value bets on Polymarket, in plain words.</p>
         <p>{DISCLAIMER}</p>
+        <HelpLine className="max-w-xl" />
         <p>© {new Date().getFullYear()} {SITE.operator}</p>
       </div>
       <nav aria-label="Site" className="-mx-2 flex flex-wrap gap-x-0.5 md:-mx-1 md:gap-x-2 md:gap-y-1">
