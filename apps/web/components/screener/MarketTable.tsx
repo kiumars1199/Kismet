@@ -12,6 +12,7 @@ import type { SortKey } from "@/lib/filters/state";
 import type { FilterState } from "@/lib/filters/state";
 import { basis, DASH, edge, money, pct, price, RETURN_HELP, sideEdge, formatCount } from "@/lib/format";
 import { WatchStar } from "@/components/watch/WatchStar";
+import { checkHref } from "@/lib/check/href";
 import { drawerHref, useOpenDrawer } from "@/components/market/drawer";
 import { AlertLink, Notes, Val } from "@/components/market/bits";
 import { VenueIconLink } from "@/components/trade/TradeButton";
@@ -67,7 +68,7 @@ function columns(pro: boolean): Col[] {
     h.display({ id: "capacity", header: "Capacity", meta: { label: "Capacity", pro: true, sort: "capacity", right: true }, cell: ({ row: { original: r } }) => <Val v={usd(r.market.execution?.capacity_usd)} /> }),
     h.display({ id: "verdict", header: "Price check", meta: { label: "Price check", pro: true }, cell: ({ row: { original: r } }) => { const v = r.market.execution?.verdict; return <Val v={v ? VERDICT_LABEL[v] : DASH} className="whitespace-nowrap" />; } }),
     h.display({ id: "realistic", header: "Realistic edge", meta: { label: "Realistic edge", pro: true, sort: "realistic_edge", right: true }, cell: ({ row: { original: r } }) => <Val v={edge(r.side.realistic_edge)} /> }),
-    h.display({ id: "alert", header: () => <span className="sr-only">Alert me</span>, meta: { label: "Alert me" }, cell: ({ row: { original: r } }) => <span className="flex"><VenueIconLink m={r.market} /><AlertLink marketId={r.market.id} side={r.side.side_index} /></span> }),
+    h.display({ id: "alert", header: () => <span className="sr-only">Alert me</span>, meta: { label: "Alert me" }, cell: ({ row: { original: r } }) => <span className="flex"><Link href={checkHref(r.market.id, r.side.side_index)} data-testid="check-link" aria-label={`Check this bet: ${r.market.question}`} className="flex min-h-11 items-center px-2 text-xs font-semibold text-accent-hover hover:text-accent-soft">Check</Link><VenueIconLink m={r.market} /><AlertLink marketId={r.market.id} side={r.side.side_index} /></span> }),
   ] as Col[];
 }
 

@@ -21,6 +21,9 @@ async function signIn(page: Page, email: string) {
   }).toPass({ timeout: 90_000 });
 }
 
+/** Each test is its own device for the signed-out daily count (the server honors x-e2e-device only under E2E_MOCK, never in production). */
+const ownDevice = (page: Page) => page.context().setExtraHTTPHeaders({ "x-e2e-device": `t-${Date.now()}-${Math.random().toString(36).slice(2)}` });
+
 const marketIds = async (page: Page, n: number) => {
   const r = await page.request.get("/api/markets?limit=40");
   const ids = ((await r.json()).rows as { market: { id: string } }[]).map((x) => x.market.id);
@@ -30,6 +33,7 @@ const check = (page: Page, m: string) => page.request.post("/api/check", { data:
 
 test("Free: 1 check a day, the second is 429 check_limit; Pro: 20 checks all 200", async ({ page }) => {
   test.setTimeout(300_000);
+  await ownDevice(page);
   await signIn(page, `f01-limit-${Date.now()}@example.com`);
   const ids = await marketIds(page, 20);
   expect(ids.length).toBeGreaterThanOrEqual(2);
@@ -55,6 +59,7 @@ test("Free: 1 check a day, the second is 429 check_limit; Pro: 20 checks all 200
 
 // Signed out (accounts on): /check?m= must not open the drawer, go inert, or redirect to /signup (components/market/DrawerGate.tsx).
 test("signed out: /check?m=<id>&side=0 stays on /check", async ({ page }) => {
+  await ownDevice(page);
   await page.goto("/check?m=6417673&side=0");   // a fixture market (test/fixtures/markets.json)
   await page.waitForTimeout(3_000);   // a redirect would have fired by now
   await expect(page).toHaveURL(/\/check\?m=/);
@@ -64,7 +69,9 @@ test("signed out: /check?m=<id>&side=0 stays on /check", async ({ page }) => {
 });
 
 // Signed-out word search: a public, minimal lookup (id, title, side, payout multiplier only).
-test("signed out: /api/check/search finds markets and leaks nothing else", async ({ page, request }) => {
+test("signed out: /api/check/search finds markets and leaks nothing else", async ({ page }) => {
+  await ownDevice(page);
+  const request = page.request;
   const r = await request.get("/api/check/search?q=nfl");
   expect(r.status()).toBe(200);
   const { markets } = await r.json();
