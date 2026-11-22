@@ -90,14 +90,16 @@ function MoreInGame({ slot }: { slot: Slot }) {
   );
 }
 
-function Cards({ slots, desktop, label }: { slots: Slot[]; desktop: boolean; label: string }) {
+// null = before hydration: CSS picks the layout, so phones get the single column from the first HTML
+const LIST = (desktop: boolean | null) => (desktop === null ? "flex flex-col gap-3 sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 sm:gap-4" : desktop ? GRID : "flex flex-col gap-3");
+function Cards({ slots, desktop, label }: { slots: Slot[]; desktop: boolean | null; label: string }) {
   return (
-    <ul aria-labelledby={label} className={desktop ? GRID : "flex flex-col gap-3"}>
+    <ul aria-labelledby={label} className={LIST(desktop)}>
       {slots.map((s) => {
         const r = s.rows[0]!;
         return (
           // desktop: card and "+N more" sit in two subgrid rows, so a row of cards stays one height
-          <li key={`${r.market.id}:${r.side.side_index}`} className={desktop ? "row-span-2 grid grid-rows-subgrid gap-y-1" : "flex flex-col gap-1"}>
+          <li key={`${r.market.id}:${r.side.side_index}`} className={desktop ? "row-span-2 grid grid-rows-subgrid gap-y-1" : desktop === null ? "flex flex-col gap-1 sm:row-span-2 sm:grid sm:grid-rows-subgrid sm:gap-y-1" : "flex flex-col gap-1"}>
             <BetCard r={r} />
             <MoreInGame slot={s} />
           </li>
@@ -124,7 +126,7 @@ function barPills(s: FilterState, win: Parameters<typeof barValues>[1]) {
   return (key: string) =>
     (!!v.sport && (key === `topics:${v.sport.slice(2)}` || key === `categories:${v.sport.slice(2)}`)) ||
     (!!v.mult && key === "pays") ||
-    (!!v.date && (key === "cw" || key === "ca"));
+    (!!v.date && (key === "cw" || key === "ca" || key === "cf" || key === "ct"));
 }
 
 /** initial: the server's /api/flags page 1 for this URL, so the cards and the headline count are final on first
@@ -215,7 +217,7 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
       {error && !data ? (
         <ErrorState onRetry={sc.retry} what="best bets" error={error} />
       ) : !data ? (
-        <ul className={desktop ? GRID : "flex flex-col gap-3"} aria-busy="true" aria-label="Loading best bets">
+        <ul className={LIST(desktop)} aria-busy="true" aria-label="Loading best bets">
           {Array.from({ length: desktop ? 8 : 4 }, (_, i) => <li key={i} className="flex"><CardSkeleton /></li>)}
         </ul>
       ) : data.total === 0 ? (

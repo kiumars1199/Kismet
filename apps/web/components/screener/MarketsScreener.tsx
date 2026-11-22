@@ -74,6 +74,25 @@ export function MarketsScreener({ initial, scannedAt, kalshiOn }: { initial?: Ma
   // QA-A #46: the scan the rows on screen come from; the header pill names the same one
   const scanned = data?.scanned_at ?? scannedAt ?? meta?.meta.scanned_at;
   usePublishScan(scanned);
+  const table = <MarketTable items={items} sort={state.sort} onSort={(sort) => set({ sort })} onToggleGroup={toggle} pro={pro} loading={loading} />;
+  const cards = (
+              <ul className={`flex flex-col gap-2.5 ${loading ? "opacity-60" : ""}`}>
+                {items.map((it) =>
+                  it.kind === "group" ? (
+                    <li key={`g${it.g.event_id}`} className="px-1 pt-3 font-heading text-sm font-semibold text-soft">{it.g.event}</li>
+                  ) : it.kind === "row" ? (
+                    <li key={`${it.r.market.id}:${it.r.side.side_index}`}><MarketCard r={it.r} pro={pro} /></li>
+                  ) : (
+                    <li key={`m${it.g.event_id}`}>
+                      <button type="button" onClick={() => toggle(it.g)} aria-expanded={it.expanded} className="min-h-11 px-1 text-[13px] text-accent-hover">
+                        {it.loading ? "Loading…" : it.expanded ? "Show fewer" : `+${formatCount(it.hidden)} more in this event`}
+                      </button>
+                    </li>
+                  ),
+                )}
+              </ul>
+  );
+
   return (
     <div className="mx-auto flex w-full max-w-[1600px] gap-6">
       <div className="flex min-w-0 flex-1 flex-col gap-4">
@@ -140,25 +159,8 @@ export function MarketsScreener({ initial, scannedAt, kalshiOn }: { initial?: Ma
         ) : (
           <>
             {error && <ErrorState onRetry={sc.retry} error={error} />}
-            {desktop ? (
-              <MarketTable items={items} sort={state.sort} onSort={(sort) => set({ sort })} onToggleGroup={toggle} pro={pro} loading={loading} />
-            ) : (
-              <ul className={`flex flex-col gap-2.5 ${loading ? "opacity-60" : ""}`}>
-                {items.map((it) =>
-                  it.kind === "group" ? (
-                    <li key={`g${it.g.event_id}`} className="px-1 pt-3 font-heading text-sm font-semibold text-soft">{it.g.event}</li>
-                  ) : it.kind === "row" ? (
-                    <li key={`${it.r.market.id}:${it.r.side.side_index}`}><MarketCard r={it.r} pro={pro} /></li>
-                  ) : (
-                    <li key={`m${it.g.event_id}`}>
-                      <button type="button" onClick={() => toggle(it.g)} aria-expanded={it.expanded} className="min-h-11 px-1 text-[13px] text-accent-hover">
-                        {it.loading ? "Loading…" : it.expanded ? "Show fewer" : `+${formatCount(it.hidden)} more in this event`}
-                      </button>
-                    </li>
-                  ),
-                )}
-              </ul>
-            )}
+            {desktop !== false && <div className={desktop ? undefined : "hidden md:block"}>{table}</div>}
+            {desktop !== true && <div className={desktop === false ? undefined : "md:hidden"}>{cards}</div>}
             <Pager page={data.page} pages={data.pages} onPage={(page) => set({ page })} />
             {data.kalshi && <KalshiResults page={data.kalshi} also />}
           </>
