@@ -3,7 +3,9 @@
 // the plan becomes Premium (comp). The share sheet in the bet drawer shows the card image (1200x630) and the same counter.
 import { expect, test, type Browser, type Page } from "@playwright/test";
 
-const SHOTS = "/home/user/MarketEdge/.claude/worktrees/agent-afda8a27944e228d2/docs/launch/review/f13";
+import path from "node:path";
+
+const SHOTS = path.resolve(__dirname, "../../../docs/launch/review/f13");
 
 async function signIn(page: Page, email: string, next = "/account") {
   await page.goto(`/login?next=${next}`);
@@ -34,6 +36,7 @@ const info = (page: Page) => page.evaluate(async () => (await fetch("/api/invite
 
 test("invite link, QR, live 0..5 counter, reward; share sheet in the drawer", async ({ page, browser }) => {
   test.setTimeout(600_000);
+  await page.setViewportSize({ width: 1440, height: 900 });
   await signIn(page, `f13-inviter-${Date.now()}@example.com`);
   await page.waitForLoadState("networkidle");
   if (new URL(page.url()).pathname === "/onboarding") await page.getByRole("button", { name: "Skip setup" }).click();
@@ -48,7 +51,7 @@ test("invite link, QR, live 0..5 counter, reward; share sheet in the drawer", as
   expect(link).toMatch(/\/invite\/[a-z0-9]{8}$/);
   expect(link.startsWith("http://localhost")).toBe(true);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(await page.evaluate(() => innerWidth));
-  await page.screenshot({ path: `${SHOTS}/account-0-of-5.png`, fullPage: true });
+  await page.screenshot({ path: `${SHOTS}/account-0-of-5-1440.png`, fullPage: true });
 
   // the inviter's own browser opening their own link and signing in again never adds to the count
   // (same account: rejected as "self"; covered in lib/invites/core.test.ts)
@@ -69,7 +72,7 @@ test("invite link, QR, live 0..5 counter, reward; share sheet in the drawer", as
   console.log("OG status", ogRes.status(), ogRes.headers()["content-type"]);
   await expect.poll(() => img.evaluate((el: HTMLImageElement) => [el.naturalWidth, el.naturalHeight]), { timeout: 60_000 }).toEqual([1200, 630]);
   await expect(page.getByRole("dialog").getByTestId("invite-counter")).toContainText("3 of 5", { timeout: 30_000 });
-  await page.screenshot({ path: `${SHOTS}/share-sheet-3-of-5.png` });
+  await page.screenshot({ path: `${SHOTS}/share-sheet-3-of-5-1440.png` });
   await page.keyboard.press("Escape");
 
   for (let n = 4; n <= 5; n++) await joinFrom(browser, link, n);
@@ -77,7 +80,7 @@ test("invite link, QR, live 0..5 counter, reward; share sheet in the drawer", as
   await expect(page.getByTestId("invite-counter")).toContainText("5 of 5", { timeout: 30_000 });
   await expect(page.getByTestId("invite-rewarded")).toBeVisible();
   await expect(page.getByTestId("plan-name")).toHaveText("Premium");
-  await page.screenshot({ path: `${SHOTS}/account-5-of-5-premium.png`, fullPage: true });
+  await page.screenshot({ path: `${SHOTS}/account-5-of-5-premium-1440.png`, fullPage: true });
 
   // a 6th sign-up changes nothing: the reward is once
   const before = await info(page);
