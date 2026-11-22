@@ -133,6 +133,9 @@ def main():
         # Nov 21: its own step, run by ops/scheduler.py AFTER the Polymarket upload, so a long Kalshi crawl never
         # delays fresh best bets. No-op unless KALSHI_DATA_PERMISSION=true.
         __import__("pipeline.fetch_kalshi").fetch_kalshi.run_if_enabled(cfg.path("output", "kalshi.json"), cfg.path("data", "kalshi_cache"))
+        # F4: the same outcome on every venue (output/venues.json); Polymarket + US always, Kalshi when its index exists
+        from . import venues
+        venues.write(cfg)
     if a.cmd == "grade":
         from . import ledger
         ledger.grade(cfg)
