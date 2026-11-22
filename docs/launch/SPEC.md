@@ -107,7 +107,7 @@ Polymarket US, Kalshi) and a deep link that opens the market on the venue.
 
 ## F8 · Responsible betting (lane: trust)
 **User sees.** 18+ confirmation at signup (exists: verify). A "Bet only what you can afford to lose" note next to
-every bet/deep-link button. Help-line links (1-800-GAMBLER, sourced, with date) in the footer and `/account`.
+every bet/deep-link button. Help-line links (the national helpline as NCPG lists it today: 1-800-MY-RESET / 1-800-697-3738, call or text, plus chat; sourced from ncpgambling.org with date) in the footer and `/account`.
 Account self-pause: 24 h, 7 d or 30 d; while paused the app shows only the pause screen with the end time.
 **Done when**
 - e2e `launch-f08-pause.spec.ts`: pause 24 h → every app page shows the pause screen; the API returns 423 for data routes; the end time is shown in the user's time zone.
