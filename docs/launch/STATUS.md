@@ -24,8 +24,8 @@ file after every merge. "Review result" says "passed review" only after the revi
 | F5 Topics at signup | onboarding-invites | fixes pushed (2325297: HTTP 307, CLS 0.051/0.017); re-review queued; migration topics_off | kiumars1199/Kismet#47 | not reviewed |
 | F6 How to place this bet | checker | review FAIL (no How-to-bet on cards; intl default without availability; step sources not shown; duplicate afford note); fixing | kiumars1199/Kismet#46 | not reviewed |
 | F7 Live payments by config | trust | merged (cd9f672), prod READY, health ok | kiumars1199/Kismet#41 | passed review |
-| F8 Responsible betting | trust | review PASS (f1d4e3e); migration applied; merging after F3 rebase. Follow-up: /api/trade/config 423 while paused | kiumars1199/Kismet#44 | not reviewed |
-| F9 Venue availability | trust | review FAIL (/markets icon links lack availability note; Kalshi/PM US all unverified so never "available"); fixing | kiumars1199/Kismet#48 | not reviewed |
+| F8 Responsible betting | trust | merged (651462b; merge of final d37fb2d, suites green 102 e2e, check:js 144.6 kB); migration applied; prod post-merge check queued. Follow-up 423 on /api/trade/config in progress | kiumars1199/Kismet#44 | preview PASS; prod check pending |
+| F9 Venue availability | trust | fixes pushed (9336157: visible availability line on /markets, PM US available except NV per polymarket.us/trust, Kalshi unverified by decision); merging final in, then re-review | kiumars1199/Kismet#48 | not reviewed |
 | F10 Install and web push | alerts | not started | | not reviewed |
 | F11 Bet tracker | tracker | not started | | not reviewed |
 | F12 Morning digest | onboarding-invites | not started | | not reviewed |
