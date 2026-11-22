@@ -105,6 +105,8 @@ jobs:
         run: |
           if git fetch -q --depth 1 origin live; then
             git show FETCH_HEAD:ledger.jsonl > output/ledger.jsonl 2>/dev/null || git checkout -- output/ledger.jsonl
+            # F14: the price-history cache (a held market only refreshes its tail); missing on the first run = a full fetch
+            git show FETCH_HEAD:history.json > data/history.json 2>/dev/null || true
             prev=$(git show FETCH_HEAD:flags.json | python -c 'import json,sys; print(json.load(sys.stdin)["meta"]["scanned_at"])' || true)
             echo "PREV_SCANNED_AT=$prev" >> "$GITHUB_ENV"
             # scan-only runs reuse the model and backtest the last full run published
@@ -118,6 +120,18 @@ jobs:
           if [ "$FULL" = "true" ]; then python -m engine fit; fi
           python -m engine scan
           python -m engine grade
+
+      # F3/F4/F14: what the Railway scheduler runs after the scan (ops/scheduler.py CMDS["scan"]), so this workflow publishes
+      # the same files: kalshi.json + kalshi_index.json (a no-op unless KALSHI_DATA_PERMISSION=true), venues.json (Polymarket
+      # + US always, Kalshi when its index exists) and history.json. Best effort: a failure here never blocks the scan.
+      - name: Kalshi crawl, venues and price history (best effort)
+        continue-on-error: true
+        env:
+          KALSHI_DATA_PERMISSION: ${{ vars.KALSHI_DATA_PERMISSION }}
+        run: |
+          mkdir -p data
+          python -m engine kalshi
+          python -m engine history
 
       - name: Engine and ops tests
         run: python -m pytest -q engine/tests ops/tests
