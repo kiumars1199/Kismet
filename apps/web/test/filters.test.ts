@@ -24,6 +24,7 @@ describe("url round-trip", () => {
     market_types: list(["moneyline", "spreads", "yes/no"] as const),
     periods: list(["full", "1H", "4Q"] as const),
     side: fc.constantFrom("best", "yes", "no", "favorite", "underdog"),
+    venue: fc.constantFrom("all", "polymarket", "kalshi"),
     price_min: o(unit), price_max: o(unit), pays_min: o(finite), pays_max: o(finite),
     win_prob_min: o(finite), win_prob_max: o(finite), tz: o(fc.constantFrom("UTC", "America/New_York", "Etc/GMT+5")), edge_min: o(finite),
     edge_low_positive: o(fc.boolean()), roi_min: o(finite), validated_only: o(fc.boolean()),
@@ -45,6 +46,13 @@ describe("url round-trip", () => {
       }),
       { numRuns: 200 },
     );
+  });
+
+  it("F3: venue round-trips through the ven key, the default is omitted, a bad value falls back", () => {
+    expect(serialize(st({ venue: "kalshi", topics: ["sports.nfl"] })).toString()).toBe("t=sports.nfl&ven=kalshi");
+    expect(parse("ven=kalshi&t=sports.nfl")).toEqual(st({ venue: "kalshi", topics: ["sports.nfl"] }));
+    expect(serialize(st({ venue: "all" })).toString()).toBe("");
+    expect(parse("ven=bogus").venue).toBe("all");
   });
 
   it("omits defaults and ignores unknown keys / bad values", () => {

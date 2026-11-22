@@ -1,6 +1,8 @@
 // Server helpers shared by the API routes.
 import { ctxOf, livePrices, repriceMarkets, repricePage, type QuoteSource } from "@/lib/reprice";
-import { DelayedPending, getStore, getStoreFor, type Store } from "./store";
+import { DelayedPending, getKalshiIndex, getStore, getStoreFor, type Store } from "./store";
+import { searchKalshi } from "./kalshi-index";
+import { canBeta } from "@/lib/beta";
 import { botCheck, clientIp, clientKey, noteRows, rateLimit, rowBudget, verifiedBot, type Rule } from "@/lib/abuse";
 import { getMe, type Me } from "@/lib/auth/server";
 import { freeView, gateMarket, gateMarkets } from "./gate";
@@ -245,12 +247,35 @@ async function listBodyOf(store: Store, f: FilterState, tier: Tier, sampleKey: s
 
 const sampleKeyOf = (req: Request, me: Me) => (me.user?.id ? `u:${me.user.id}` : `ip:${clientIp(req)}`);
 
+const emptyFacets = (): MarketsResponse["facets"] => ({ categories: {}, topics: {}, market_types: {}, periods: {}, verdicts: {}, pays: {}, chance: {}, roi: {}, closes_h: [] });
+
+/** The Kalshi part of a list response. DATA_CLOCK=scan pins "now" to the scan, like the Polymarket closed-market filter.
+ *  Beside Polymarket rows (venue=all) it is the top 5 matches; alone (venue=kalshi) it is a full page. */
+async function kalshiPage(f: FilterState, store: Store): Promise<MarketsResponse["kalshi"]> {
+  const ix = await getKalshiIndex();
+  if (!ix) return undefined;
+  const alone = f.venue === "kalshi";
+  const now = process.env.DATA_CLOCK === "scan" ? store.meta.scanned_at : undefined;
+  return searchKalshi(ix, { q: f.q, topics: f.topics, categories: f.categories, page: alone ? f.page : 1, page_size: alone ? f.page_size : 5 }, now);
+}
+
 /** GET /api/markets and /api/flags. Free: first page only (top 10 rows), exact numbers as ranges (docs/08 LIMITS);
  *  Best bets are the day's sample (freeSample). Paid: a page past the last one is refused (docs/15 § pagination cap). */
 export const listRoute = (req: Request, view?: "flags") =>
   withTier(req, "markets", async (store, tier, me) => {
-    const f = { ...parse(new URL(req.url).searchParams), ...(view ? { view } : {}) };
+    const sp = new URL(req.url).searchParams;
+    for (const [long, short] of [["topic", "t"], ["venue", "ven"]] as const) if (sp.has(long) && !sp.has(short)) sp.set(short, sp.get(long)!);   // F3: the spec's long names
+    const f = { ...parse(sp), ...(view ? { view } : {}) };
     const live = can(tier, "live_data");
+    // F3: Kalshi rows (no model chance: never flags) come from their own index, behind the same permission as /api/kalshi.
+    const kalshiOk = !view && canBeta(me, "kalshi");
+    if (f.venue === "kalshi" && !kalshiOk) return Response.json({ error: "Not available" }, { status: 404 });
+    const kalshi = kalshiOk && (f.venue === "kalshi" || (f.venue === "all" && !!f.q?.trim())) ? await kalshiPage(f, store) : undefined;
+    if (f.venue === "kalshi" && !view) {
+      const refused = await rateLimit(live ? "pages" : "list_free", clientKey(req, me.user?.id));   // no Polymarket page below to count it
+      if (refused) return refused;
+      return Response.json({ total: 0, page: 1, page_size: f.page_size, pages: 1, rows: [], facets: emptyFacets(), scanned_at: store.meta.scanned_at, kalshi });
+    }
     if (live && f.page > 1) {
       const refused = await rateLimit("pages", clientKey(req, me.user?.id));   // max 50 pages a minute
       if (refused) return refused;
@@ -264,7 +289,7 @@ export const listRoute = (req: Request, view?: "flags") =>
     const over = live ? null : await rowBudget(req, me.user?.id, body.rows.map((r) => r.market.id));   // RT-03
     if (over) return over;
     await noteRows(req, me.user?.id, body.rows.length);
-    return Response.json(body);
+    return Response.json(kalshi ? { ...body, kalshi } : body);
   });
 
 /** Best bets page 1 for the first server paint (docs/19 P6): the same body /api/flags returns for this URL (same
@@ -277,7 +302,7 @@ export const listRoute = (req: Request, view?: "flags") =>
  *  "Closing soon" strip. undefined (the client fetches as before) for "Mine" filters, which resolve in the browser,
  *  or on any error. Free page loads count every row shown against the row budget, like the API. */
 export async function firstPage(params: URLSearchParams, view: "flags" | "markets"): Promise<{ main: MarketsResponse; soon?: MarketsResponse; scanned_at: number } | undefined> {
-  if (params.has("fav") || params.has("wl")) return undefined;
+  if (params.has("fav") || params.has("wl") || params.get("ven") === "kalshi") return undefined;   // venue=kalshi: the client fetches the Kalshi page
   try {
     const ctx = await pageStore();
     const store = can(ctx.tier, "exact_edge") ? ctx.store : freeView(ctx.store);

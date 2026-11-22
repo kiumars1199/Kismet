@@ -40,7 +40,8 @@ describe("/api/kalshi", () => {
       expect(res.headers.get("cache-control")).toBe("private, no-store");
       const body = (await res.json()) as KalshiFile;
       expect(body.meta).toMatchObject({ source: "Kalshi", attribution: expect.stringContaining("Kalshi"), fetched_at: expect.any(Number) });
-      expect(body.markets.map((m) => m.ticker)).toEqual(["KXNBAGAME-26NOV19LACSAS-SAS", "KXELONMARS-99"]);
+      expect(body.markets.map((m) => m.ticker)).toEqual(expect.arrayContaining(["KXNBAGAME-26NOV19LACSAS-SAS", "KXELONMARS-99"]));   // F3: the fixture grew to 28 rows
+      expect(body.markets.map((m) => m.volume)).toEqual(body.markets.map((m) => m.volume).sort((a, b) => b - a));
       for (const m of body.markets) expect(m).toMatchObject({ source: "Kalshi", url: expect.stringMatching(/^https:\/\/kalshi\.com\//) });
       for (const c of body.combos) {
         expect(c.source).toBe("Kalshi");
