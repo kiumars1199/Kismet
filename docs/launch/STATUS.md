@@ -24,14 +24,14 @@ file after every merge. "Review result" says "passed review" only after the revi
 | F5 Topics at signup | onboarding-invites | PR open, fixes in (4a93a49; CLS 0.054@390, 0.020@1440); queued for review; migration topics_off (lead applies before merge) | kiumars1199/Kismet#47 | not reviewed |
 | F6 How to place this bet | checker | PR open (stacked on #45); 2 unsourced guide steps being fixed | kiumars1199/Kismet#46 | not reviewed |
 | F7 Live payments by config | trust | merged (cd9f672) after review PASS + full suites on final (e2e 88/88); post-merge check pending | kiumars1199/Kismet#41 | not reviewed |
-| F8 Responsible betting | trust | PR open; afford note being added | kiumars1199/Kismet#44 | not reviewed |
-| F9 Venue availability | trust | not started | | not reviewed |
+| F8 Responsible betting | trust | PR open (head f1d4e3e; RiskNote by every bet button, icon links via aria); in review queue; migration paused_until (lead applies before merge) | kiumars1199/Kismet#44 | not reviewed |
+| F9 Venue availability | trust | PR open, stacked on #44 (Kalshi/Polymarket US unverified per state, intl restricted); in review queue; check:js 145.3 kB being trimmed | kiumars1199/Kismet#48 | not reviewed |
 | F10 Install and web push | alerts | not started | | not reviewed |
 | F11 Bet tracker | tracker | not started | | not reviewed |
 | F12 Morning digest | onboarding-invites | not started | | not reviewed |
 | F13 Share and invite | onboarding-invites | plan approved; building | | not reviewed |
 | F14 Price history chart | data | built locally (stacked on F4); PR after F3 + F4 | not reviewed |
-| F15 Admin metrics | trust | not started | | not reviewed |
+| F15 Admin metrics | trust | plan next (new additive RPC) | | not reviewed |
 | F16 Big trade alert | alerts | not started | | not reviewed |
 
 Merge order: F3, F1, F2, F5, F7, F8, F9, then F4, F6, F10–F16.
