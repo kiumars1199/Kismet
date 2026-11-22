@@ -23,7 +23,7 @@ file after every merge. "Review result" says "passed review" only after the revi
 | F4 Three venues side by side | data | not started | | not reviewed |
 | F5 Topics at signup | onboarding-invites | not started | | not reviewed |
 | F6 How to place this bet | checker | not started | | not reviewed |
-| F7 Live payments by config | trust | in review | kiumars1199/Kismet#41 | not reviewed |
+| F7 Live payments by config | trust | review PASS; CI red (gitleaks on fake test keys), fix requested | kiumars1199/Kismet#41 | not reviewed |
 | F8 Responsible betting | trust | not started | | not reviewed |
 | F9 Venue availability | trust | not started | | not reviewed |
 | F10 Install and web push | alerts | not started | | not reviewed |

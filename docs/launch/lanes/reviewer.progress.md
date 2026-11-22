@@ -141,4 +141,21 @@ Update after every task: task · status · evidence (commands + last output line
 3. Pro (comped test account from lead): combo 2–4 legs, drop weakest, log bet. Screens → `review/walkthrough-<n>/`; problems → STATUS.md.
 
 ## Log
-(no PRs reviewed yet)
+
+
+### F7 · PR #41 (head 3c709f9) · PASS (Nov 22)
+- typecheck OK; lint OK (0 warnings); vitest 115 files / 1445 tests passed; test:ops 36 pass 0 fail; build exit 0;
+  check:js `/: 142.5 kB ... OK` (unchanged from baseline); `/bets` 195.0 kB OVER (same as baseline, pre-existing).
+- Chromium e2e: 82/83 on the first run; trading-paper failed in beforeAll because `apps/extension` had no node_modules in my worktree
+  ("vite: not found"). After `pnpm i` in apps/extension it re-ran: 1 passed. 83/83 in total.
+- Secret scan (git grep for full price IDs, sk/pk/rk live+test keys, whsec, over all tracked files incl. tests/fixtures): 13 hits, all FAKE/mock
+  values in *.test.* or ops/tests. 0 real. Price IDs read from `STRIPE_PRICE_*` (stripe.ts:17-18); `.env.example` values empty.
+- Webhook: stripe.ts cases checkout.session.completed, subscription created/updated/deleted, invoice.payment_failed, invoice.paid;
+  behaviour tests in invoice-events.test.ts and the existing stripe.test.ts.
+- go-live.md: env var table (source + where to paste), receipts sourced with URLs + date, 5-step live charge + refund test, rollback.
+  Referenced scripts exist (ops/stripe-setup.mjs, ops/vercel-env.mjs, `pnpm preflight`).
+- Mode unit test: mode.test.ts. Non-blocking notes: `stripeMode()` is called by no app code (the live gate is ops/preflight `--live`,
+  tested in ops/tests/preflight.test.mjs); the in-test scanner's regex skips sk_test_/rk_test_ and *.test.* files; git history still has the
+  truncated price-ID prefix in docs/qa (removed at HEAD; price IDs aren't secret).
+- No GitHub API access to kiumars1199/Kismet here, so I couldn't read CI or the Vercel comment; F7 has no UI, so no screenshots.
+- Evidence: review/f07/checks.log, review/f07/e2e-chromium.log, review/f07/secret-scan.txt.

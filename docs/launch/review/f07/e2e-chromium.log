@@ -1,0 +1,128 @@
+[WebServer] <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (114kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+
+[WebServer] <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (268kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] responseMode: 'json' drops mid-call notifications. subscriptions/listen streams are always served over SSE regardless; other notifications emitted before a result are dropped.
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+
+Running 83 tests using 2 workers
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] responseMode: 'json' drops mid-call notifications. subscriptions/listen streams are always served over SSE regardless; other notifications emitted before a result are dropped.
+
+[1/83] [chromium] › e2e/a11y.spec.ts:36:28 › axe /
+[2/83] [chromium] › e2e/a11y.spec.ts:36:28 › axe /markets
+[WebServer] [abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+
+[3/83] [chromium] › e2e/a11y.spec.ts:36:28 › axe /about
+[4/83] [chromium] › e2e/a11y.spec.ts:36:28 › axe /pricing
+[5/83] [chromium] › e2e/a11y.spec.ts:36:28 › axe /login
+[6/83] [chromium] › e2e/a11y.spec.ts:36:28 › axe /signup
+[7/83] [chromium] › e2e/a11y.spec.ts:36:28 › axe /onboarding
+[8/83] [chromium] › e2e/a11y.spec.ts:36:28 › axe /account
+[9/83] [chromium] › e2e/a11y.spec.ts:36:28 › axe /watchlist
+[10/83] [chromium] › e2e/a11y.spec.ts:36:28 › axe /journal
+[11/83] [chromium] › e2e/a11y.spec.ts:36:28 › axe /alerts
+[12/83] [chromium] › e2e/a11y.spec.ts:36:28 › axe /dashboards
+[13/83] [chromium] › e2e/a11y.spec.ts:36:28 › axe /settings
+[14/83] [chromium] › e2e/a11y.spec.ts:36:28 › axe /tools
+[15/83] [chromium] › e2e/a11y.spec.ts:36:28 › axe /track-record
+[16/83] [chromium] › e2e/a11y.spec.ts:36:28 › axe /status
+[17/83] [chromium] › e2e/a11y.spec.ts:36:28 › axe /terms
+[18/83] [chromium] › e2e/a11y.spec.ts:36:28 › axe /privacy
+[19/83] [chromium] › e2e/a11y.spec.ts:36:28 › axe /refunds
+[20/83] [chromium] › e2e/a11y.spec.ts:36:28 › axe /disclaimer
+[21/83] [chromium] › e2e/a11y.spec.ts:36:28 › axe /contact
+[22/83] [chromium] › e2e/a11y.spec.ts:36:28 › axe /ext/connect
+[23/83] [chromium] › e2e/a11y.spec.ts:36:28 › axe /combos
+[24/83] [chromium] › e2e/a11y.spec.ts:36:28 › axe /no-such-page
+[25/83] [chromium] › e2e/a11y.spec.ts:38:1 › axe /event, /m and the open drawer
+[26/83] [chromium] › e2e/a11y.spec.ts:49:1 › keyboard: the drawer traps focus and Escape returns it to the opener
+[27/83] [chromium] › e2e/a11y.spec.ts:71:1 › keyboard: Pricing is a visible footer link, not inside a hidden dialog
+[28/83] [chromium] › e2e/alerts.spec.ts:11:1 › Run now fires one alert, running again keeps one
+[29/83] [chromium] › e2e/headers.spec.ts:5:1 › security headers and a strict nonce CSP
+[30/83] [chromium] › e2e/headers.spec.ts:33:1 › prerendered pages: static CSP and a shared cache header
+[31/83] [chromium] › e2e/headers.spec.ts:48:1 › pages hydrate under the CSP
+[32/83] [chromium] › e2e/multipliers.spec.ts:14:1 › long shot: a 10x+ payout filter with international bets brings it in, with its losing band record
+[33/83] [chromium] › e2e/overhaul-cards.spec.ts:29:1 › every card face: at most 7 slots, no loose text, 'Why this bet?' starts with the payout line
+[34/83] [chromium] › e2e/multipliers.spec.ts:27:1 › drawer: long-shot line under 25% chance
+[35/83] [chromium] › e2e/multipliers.spec.ts:33:1 › combo #15: a second leg from the same event (by event id) is refused
+[36/83] [chromium] › e2e/overhaul-cards.spec.ts:51:1 › venue: a US quote gets 'Bet on Polymarket US' to its US link; us null gets no primary button
+[37/83] [chromium] › e2e/overhaul-cards.spec.ts:86:1 › /bets reads plainly: no banned words, Today's top 5 then More bets
+[38/83] [chromium] › e2e/multipliers.spec.ts:66:1 › combos page: payout tabs, each card pays at least the floor, Build this combo opens the tray
+[39/83] [chromium] › e2e/overhaul-cards.spec.ts:101:1 › 'On Polymarket US' is on by default; turning it off includes international bets
+[40/83] [chromium] › e2e/multipliers.spec.ts:103:1 › combo #42: a saved leg that has closed leaves the tray, with a note
+[41/83] [chromium] › e2e/proof.spec.ts:9:3 › /track-record: the test return sits beside the live record
+[42/83] [chromium] › e2e/overhaul-cards.spec.ts:121:1 › filter bar: three dropdowns land in the URL on Apply, and stay after a reload
+[43/83] [chromium] › e2e/proof.spec.ts:9:3 › /about: the test return sits beside the live record
+[44/83] [chromium] › e2e/proof.spec.ts:9:3 › /pricing: the test return sits beside the live record
+[45/83] [chromium] › e2e/proof.spec.ts:21:1 › FAQ: cancel names the account button and links to it; no 'same numbers'; hit rate vs profit agree
+[46/83] [chromium] › e2e/overhaul-cards.spec.ts:144:1 › sort menu changes the order in the URL
+[47/83] [chromium] › e2e/proof.spec.ts:36:1 › Best bets: no test return without its live record; one link to the track record
+[48/83] [chromium] › e2e/proof.spec.ts:43:1 › drawer: the category's test record has its live record beside it
+[49/83] [chromium] › e2e/overhaul-cards.spec.ts:151:1 › a filter set outside the bar keeps its removable pill
+[50/83] [chromium] › e2e/overhaul-cards.spec.ts:157:3 › tap targets at 390px: chips and controls 44px, bet button 48px full width on phones
+[51/83] [chromium] › e2e/proof.spec.ts:51:1 › group records with no live counterpart say so: lower-confidence band and combos
+[52/83] [chromium] › e2e/overhaul-cards.spec.ts:157:3 › tap targets at 1440px: chips and controls 44px, bet button 48px full width on phones
+[53/83] [chromium] › e2e/qa-c-views.spec.ts:5:1 › #19/#53 saved views: suggested name, then apply, rename and delete from /bets and /markets
+[54/83] [chromium] › e2e/overhaul-cards.spec.ts:182:1 › 390×844: one return figure in the value slot, 7 slots, nothing overflows
+[55/83] [chromium] › e2e/s1-landing.spec.ts:5:1 › S1 / is Best bets → All markets rows + freshness pill
+[56/83] [chromium] › e2e/s2-filters.spec.ts:4:1 › S2 filters live in the URL
+[57/83] [chromium] › e2e/s1-landing.spec.ts:16:1 › S1 old landing at /about, linked from the footer; /flags redirects to /
+[58/83] [chromium] › e2e/s3-drawer.spec.ts:13:1 › S3 drawer: price check, stake table, curve, custom stake
+[59/83] [chromium] › e2e/s1-landing.spec.ts:26:1 › S1 /bets is Best bets too
+[60/83] [chromium] › e2e/s4-presets.spec.ts:7:1 › S4 presets: save, switch, re-apply, share
+[61/83] [chromium] › e2e/s3-drawer.spec.ts:37:1 › card's 'Why this bet?' and the drawer show the same return and win chance
+[62/83] [chromium] › e2e/s5-mylist.spec.ts:5:1 › S5 star two markets from the screener
+[63/83] [chromium] › e2e/s6-tools.spec.ts:4:1 › S6 Kelly calculator: q=0.6, p=0.5 gives 20%
+[64/83] [chromium] › e2e/s6.spec.ts:10:1 › S6: Results tiles equal backtest.json
+[65/83] [chromium] › e2e/s6.spec.ts:22:1 › landing (/about): headline, counters, preview cards, Open screener
+[66/83] [chromium] › e2e/s5-mylist.spec.ts:24:1 › S5 My list shows saved markets with since-saved and unstars
+[67/83] [chromium] › e2e/s6.spec.ts:41:1 › pricing: yearly toggle shows the yearly price
+[68/83] [chromium] › e2e/search.spec.ts:34:1 › bar → FC Barcelona suggested on the 3rd letter, within 300 ms
+[69/83] [chromium] › e2e/s6.spec.ts:55:1 › status page lists scan, fit and backtest times
+[70/83] [chromium] › e2e/t291-ui.spec.ts:6:1 › Best bets: Show more appends cards and keeps the scroll position
+[71/83] [chromium] › e2e/search.spec.ts:49:1 › barca 3x → the line says how it's understood
+[72/83] [chromium] › e2e/t291-ui.spec.ts:34:1 › Best bets: a filter change keeps the current list, dimmed and busy, until the new one arrives
+[73/83] [chromium] › e2e/timezone.spec.ts:21:5 › America/New_York › first visit: placeholder, then the cookie makes the next first paint local
+[74/83] [chromium] › e2e/search.spec.ts:55:1 › barcelona 3x good edge → honest fallback, Barcelona rows
+[75/83] [chromium] › e2e/timezone.spec.ts:44:5 › America/New_York › the edge zone header is used when there is no cookie
+[76/83] [chromium] › e2e/search.spec.ts:63:1 › nyc weather → New York weather, shown as chips
+[77/83] [chromium] › e2e/search.spec.ts:74:1 › over 2.5 goals → soccer over/under 2.5
+[78/83] [chromium] › e2e/search.spec.ts:80:1 › safe bets → every row 80%+
+[79/83] [chromium] › e2e/timezone.spec.ts:21:5 › Asia/Tokyo › first visit: placeholder, then the cookie makes the next first paint local
+[80/83] [chromium] › e2e/search.spec.ts:87:1 › pills: Pays 3–5x and Biggest payout land in the URL; long shots toggle
+[81/83] [chromium] › e2e/timezone.spec.ts:44:5 › Asia/Tokyo › the edge zone header is used when there is no cookie
+[82/83] [chromium] › e2e/trading-paper.spec.ts:99:1 › trading-paper: connect key, resting order, cancel, marketable order, fill in My bets
+  1) [chromium] › e2e/trading-paper.spec.ts:99:1 › trading-paper: connect key, resting order, cancel, marketable order, fill in My bets 
+
+    Error: Command failed: pnpm build
+
+      86 |
+      87 | test.beforeAll(async () => {
+    > 88 |   execFileSync("pnpm", ["build"], { cwd: EXT_DIR, env: { ...process.env, KISMET_ORIGIN: ORIGIN, OUT_DIR: "dist-e2e" }, stdio: "ignore" });
+         |   ^
+      89 |   ctx = await chromium.launchPersistentContext("", {
+      90 |     channel: "chromium", baseURL: ORIGIN, viewport: { width: 1280, height: 800 },
+      91 |     args: [`--disable-extensions-except=${OUT}`, `--load-extension=${OUT}`],
+        at /home/user/MarketEdge/.claude/worktrees/agent-ac3ec7df000229278/apps/web/e2e/trading-paper.spec.ts:88:3
+
+    Error Context: test-results/trading-paper-trading-pape-bb1d4-table-order-fill-in-My-bets-chromium/error-context.md
+
+    Error Context: test-results/trading-paper-trading-pape-bb1d4-table-order-fill-in-My-bets-chromium/error-context.md
+
+
+[83/83] [chromium] › e2e/timezone.spec.ts:62:1 › no zone known: times hidden until mount, no hydration error
+  1 failed
+    [chromium] › e2e/trading-paper.spec.ts:99:1 › trading-paper: connect key, resting order, cancel, marketable order, fill in My bets 
+  82 passed (3.4m)
