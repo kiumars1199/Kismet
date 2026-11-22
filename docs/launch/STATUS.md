@@ -20,7 +20,7 @@ file after every merge. "Review result" says "passed review" only after the revi
 | F1 Bet checker | checker | fixes pushed (8818178); re-review queued; Kalshi own price after F3 merge | kiumars1199/Kismet#43 | not reviewed |
 | F2 Combo checker | checker | fixes pushed (leg route lookup only, combo counted once, "Why these numbers?"); re-review queued | kiumars1199/Kismet#45 | not reviewed |
 | F3 Every market searchable | data | merged (9ad7713); reviewer round 2 PASS on preview; prod post-merge check pending | kiumars1199/Kismet#42 | preview PASS; prod check pending |
-| F4 Three venues side by side | data | built locally; PR after F3 merges | — | not reviewed |
+| F4 Three venues side by side | data | PR open (da59363; matcher precision 1.000/50; Kalshi % only, multiplier null pending fee source); in review queue | kiumars1199/Kismet#52 | not reviewed |
 | F5 Topics at signup | onboarding-invites | fixes pushed (2325297: HTTP 307, CLS 0.051/0.017); re-review queued; migration topics_off | kiumars1199/Kismet#47 | not reviewed |
 | F6 How to place this bet | checker | review FAIL (no How-to-bet on cards; intl default without availability; step sources not shown; duplicate afford note); fixing | kiumars1199/Kismet#46 | not reviewed |
 | F7 Live payments by config | trust | merged (cd9f672), prod READY, health ok | kiumars1199/Kismet#41 | passed review |
