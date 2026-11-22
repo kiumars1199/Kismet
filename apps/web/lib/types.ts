@@ -225,6 +225,7 @@ export interface PayoutStats { entries: number; graded: number; wins: number; av
 export interface KalshiMarket {
   ticker: string; event_ticker: string; series_ticker: string;
   title: string; subtitle: string;
+  topic?: string;           // F3: a taxonomy id from lib/taxonomy.ts ("sports.nfl", "crypto.other", "other"); absent in older files
   yes_bid_cents: number | null; yes_ask_cents: number | null;
   // added Nov 2026 (optional: files written before then lack them; null = Kalshi sent no value)
   no_bid_cents?: number | null; no_ask_cents?: number | null; last_price_cents?: number | null;
@@ -255,6 +256,13 @@ export interface KalshiSettled {
   close_time: string | null;
   settled_seen_at: number;
   url: string; source: "Kalshi";
+}
+/** output/kalshi_index.json (F3): every open Kalshi market, one array per row in `meta.columns` order
+ *  ("ticker", "title", "subtitle", "topic", "series", "yes_bid_cents", "yes_ask_cents", "last_price_cents", "volume",
+ *  "close_epoch"). Server only: the browser gets filtered pages from /api/markets?venue=kalshi. */
+export interface KalshiIndexFile {
+  meta: { source: "Kalshi"; attribution: string; fetched_at: number; n: number; columns: string[] };
+  rows: [string, string, string, string, string, number | null, number | null, number | null, number, number | null][];
 }
 export interface KalshiFile {
   meta: {

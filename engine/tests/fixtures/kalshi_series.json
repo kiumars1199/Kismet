@@ -1,0 +1,538 @@
+[
+{
+"series": "KXNFLGAME",
+"title": "NFL game winner"
+},
+{
+"series": "KXNFLSPREAD",
+"title": "NFL point spread"
+},
+{
+"series": "KXNFLTOTAL",
+"title": "NFL total points"
+},
+{
+"series": "KXNFLANYTD",
+"title": "NFL anytime touchdown scorer"
+},
+{
+"series": "KXNFLMVP",
+"title": "NFL MVP"
+},
+{
+"series": "KXSUPERBOWL",
+"title": "Super Bowl winner"
+},
+{
+"series": "KXNCAAFGAME",
+"title": "College football game winner"
+},
+{
+"series": "KXNCAAFSPREAD",
+"title": "College football spread"
+},
+{
+"series": "KXHEISMAN",
+"title": "Heisman Trophy winner"
+},
+{
+"series": "KXNBAGAME",
+"title": "NBA game winner"
+},
+{
+"series": "KXNBASPREAD",
+"title": "NBA spread"
+},
+{
+"series": "KXNBAPTS",
+"title": "NBA player points"
+},
+{
+"series": "KXNBAMVP",
+"title": "NBA MVP"
+},
+{
+"series": "KXNBAFINALS",
+"title": "NBA champion"
+},
+{
+"series": "KXNCAAMBGAME",
+"title": "College basketball game winner"
+},
+{
+"series": "KXMARMAD",
+"title": "March Madness winner"
+},
+{
+"series": "KXNHLGAME",
+"title": "NHL game winner"
+},
+{
+"series": "KXNHLGOAL",
+"title": "NHL player goals"
+},
+{
+"series": "KXMLBGAME",
+"title": "MLB game winner"
+},
+{
+"series": "KXMLBHR",
+"title": "MLB home runs"
+},
+{
+"series": "KXWORLDSERIES",
+"title": "World Series winner"
+},
+{
+"series": "KXEPLGAME",
+"title": "Premier League match"
+},
+{
+"series": "KXEPLWINNER",
+"title": "Premier League winner"
+},
+{
+"series": "KXUCLGAME",
+"title": "Champions League match"
+},
+{
+"series": "KXLALIGAGAME",
+"title": "La Liga match"
+},
+{
+"series": "KXBUNDESLIGAGAME",
+"title": "Bundesliga match"
+},
+{
+"series": "KXLIGUE1GAME",
+"title": "Ligue 1 match"
+},
+{
+"series": "KXSERIEAGAME",
+"title": "Serie A match"
+},
+{
+"series": "KXMLSGAME",
+"title": "MLS match"
+},
+{
+"series": "KXWORLDCUP",
+"title": "World Cup winner"
+},
+{
+"series": "KXATPMATCH",
+"title": "ATP match winner"
+},
+{
+"series": "KXWTAMATCH",
+"title": "WTA match winner"
+},
+{
+"series": "KXUSOPEN",
+"title": "US Open champion"
+},
+{
+"series": "KXCS2GAME",
+"title": "Counter-Strike match"
+},
+{
+"series": "KXLOLGAME",
+"title": "League of Legends match"
+},
+{
+"series": "KXVALORANTGAME",
+"title": "Valorant match"
+},
+{
+"series": "KXUFCFIGHT",
+"title": "UFC fight winner"
+},
+{
+"series": "KXBOXING",
+"title": "Boxing fight winner"
+},
+{
+"series": "KXPGATOUR",
+"title": "PGA Tour winner"
+},
+{
+"series": "KXMASTERS",
+"title": "Masters winner"
+},
+{
+"series": "KXF1RACE",
+"title": "Formula 1 race winner"
+},
+{
+"series": "KXCRICKETMATCH",
+"title": "Cricket match"
+},
+{
+"series": "KXBTC",
+"title": "Bitcoin price range"
+},
+{
+"series": "KXBTCD",
+"title": "Bitcoin price today"
+},
+{
+"series": "KXBTCMAXY",
+"title": "Bitcoin all-time high"
+},
+{
+"series": "KXETH",
+"title": "Ethereum price range"
+},
+{
+"series": "KXETHD",
+"title": "Ethereum price today"
+},
+{
+"series": "KXSOLD",
+"title": "Solana price today"
+},
+{
+"series": "KXXRPD",
+"title": "XRP price today"
+},
+{
+"series": "KXDOGE",
+"title": "Dogecoin price"
+},
+{
+"series": "KXHIGHNY",
+"title": "Highest temperature in NYC"
+},
+{
+"series": "KXHIGHCHI",
+"title": "Highest temperature in Chicago"
+},
+{
+"series": "KXHIGHLAX",
+"title": "Highest temperature in Los Angeles"
+},
+{
+"series": "KXHIGHMIA",
+"title": "Highest temperature in Miami"
+},
+{
+"series": "KXLOWTNYC",
+"title": "Lowest temperature in NYC"
+},
+{
+"series": "KXLOWTCHI",
+"title": "Lowest temperature in Chicago"
+},
+{
+"series": "KXRAINNYC",
+"title": "Rain in New York"
+},
+{
+"series": "KXSNOWNYC",
+"title": "Snow in New York"
+},
+{
+"series": "KXHURCAT",
+"title": "Hurricane category"
+},
+{
+"series": "KXHURRICANEMAJOR",
+"title": "Major hurricane landfall"
+},
+{
+"series": "KXFEDDECISION",
+"title": "Fed decision"
+},
+{
+"series": "KXFED",
+"title": "Fed funds rate"
+},
+{
+"series": "KXRATECUTCOUNT",
+"title": "Number of rate cuts"
+},
+{
+"series": "KXCPI",
+"title": "CPI inflation"
+},
+{
+"series": "KXCPIYOY",
+"title": "CPI year over year"
+},
+{
+"series": "KXPCE",
+"title": "PCE inflation"
+},
+{
+"series": "KXPAYROLLS",
+"title": "Jobs report"
+},
+{
+"series": "KXUNRATE",
+"title": "Unemployment rate"
+},
+{
+"series": "KXINX",
+"title": "S&P 500 close"
+},
+{
+"series": "KXINXU",
+"title": "S&P 500 up or down"
+},
+{
+"series": "KXNASDAQ100",
+"title": "Nasdaq 100 close"
+},
+{
+"series": "KXNASDAQ100U",
+"title": "Nasdaq 100 up or down"
+},
+{
+"series": "KXGOLD",
+"title": "Gold price"
+},
+{
+"series": "KXSILVER",
+"title": "Silver price"
+},
+{
+"series": "KXWTI",
+"title": "Crude oil price"
+},
+{
+"series": "KXGDP",
+"title": "GDP growth"
+},
+{
+"series": "KXRECESSION",
+"title": "US recession"
+},
+{
+"series": "KXEARNINGSMENTIONNVDA",
+"title": "Nvidia earnings call mentions"
+},
+{
+"series": "KXPRESPARTY",
+"title": "Presidential winner party"
+},
+{
+"series": "KXPRESNOMD",
+"title": "Democratic nominee"
+},
+{
+"series": "KXSENATEOH",
+"title": "Ohio Senate"
+},
+{
+"series": "KXHOUSERACE",
+"title": "House race"
+},
+{
+"series": "KXGOVPARTYCA",
+"title": "California governor"
+},
+{
+"series": "KXMAYORNYC",
+"title": "NYC mayor"
+},
+{
+"series": "KXSHUTDOWN",
+"title": "Government shutdown"
+},
+{
+"series": "KXCONGRESSBILL",
+"title": "Will Congress pass the bill"
+},
+{
+"series": "KXSCOTUSCASE",
+"title": "Supreme Court ruling"
+},
+{
+"series": "KXTRUMPAPPROVAL",
+"title": "Trump approval rating"
+},
+{
+"series": "KXTARIFFRATE",
+"title": "Tariff rate"
+},
+{
+"series": "KXEXECORDERS",
+"title": "Executive orders signed"
+},
+{
+"series": "KXCABINET",
+"title": "Cabinet member leaves"
+},
+{
+"series": "KXUKRAINE",
+"title": "Ukraine ceasefire"
+},
+{
+"series": "KXRUSSIAUKRAINE",
+"title": "Russia Ukraine war end"
+},
+{
+"series": "KXISRAELGAZA",
+"title": "Israel Gaza"
+},
+{
+"series": "KXTAIWAN",
+"title": "China Taiwan"
+},
+{
+"series": "KXIRANNUKE",
+"title": "Iran nuclear"
+},
+{
+"series": "KXNATO",
+"title": "NATO members"
+},
+{
+"series": "KXOSCARBESTPIC",
+"title": "Best Picture"
+},
+{
+"series": "KXEMMYDRAMA",
+"title": "Emmy drama series"
+},
+{
+"series": "KXGRAMMYAOTY",
+"title": "Album of the Year"
+},
+{
+"series": "KXTONYBESTMUSICAL",
+"title": "Tony best musical"
+},
+{
+"series": "KXSPOTIFYTOP",
+"title": "Top Spotify song"
+},
+{
+"series": "KXBILLBOARD1",
+"title": "Billboard number one"
+},
+{
+"series": "KXBOXOFFICE",
+"title": "Box office opening weekend"
+},
+{
+"series": "KXNETFLIXRANK",
+"title": "Top Netflix show"
+},
+{
+"series": "KXELONTWEETS",
+"title": "Elon Musk tweets"
+},
+{
+"series": "KXTRUMPTWEETS",
+"title": "Trump posts"
+},
+{
+"series": "KXTAYLORSWIFT",
+"title": "Taylor Swift"
+},
+{
+"series": "KXOPENAI",
+"title": "OpenAI release"
+},
+{
+"series": "KXGPT5",
+"title": "ChatGPT model release"
+},
+{
+"series": "KXANTHROPIC",
+"title": "Anthropic model release"
+},
+{
+"series": "KXGEMINI",
+"title": "Google Gemini release"
+},
+{
+"series": "KXNVDA",
+"title": "Nvidia market cap"
+},
+{
+"series": "KXAPPLE",
+"title": "Apple event"
+},
+{
+"series": "KXTESLA",
+"title": "Tesla deliveries"
+},
+{
+"series": "KXSPACEX",
+"title": "SpaceX launch"
+},
+{
+"series": "KXSTARSHIP",
+"title": "Starship flight"
+},
+{
+"series": "KXMENTIONSNL",
+"title": "What will be said on SNL"
+},
+{
+"series": "KXMENTIONPRESS",
+"title": "What will Trump say"
+},
+{
+"series": "KXELONMARS",
+"title": "Elon Musk visit Mars"
+},
+{
+"series": "KXWEIRDCOUNT",
+"title": "Will the Senate pass a funding bill"
+},
+{
+"series": "KXAAA",
+"title": "Gas prices"
+},
+{
+"series": "KXQZ01",
+"title": "Will it rain in Seattle on Dec 3?"
+},
+{
+"series": "KXQZ02",
+"title": "Ukraine ceasefire agreed by March"
+},
+{
+"series": "KXQZ03",
+"title": "Gold above 3100 on Dec 31"
+},
+{
+"series": "KXQZ04",
+"title": "Will Bitcoin close above 100000?"
+},
+{
+"series": "KXQZ05",
+"title": "Fed holds rates in December"
+},
+{
+"series": "KXQZ06",
+"title": "Who wins the Senate seat in Ohio"
+},
+{
+"series": "KXQZ07",
+"title": "Will it snow in Denver on Dec 10?"
+},
+{
+"series": "KXQZ08",
+"title": "NBA champion this season"
+},
+{
+"series": "KXQZ09",
+"title": "Will Trump sign the order"
+},
+{
+"series": "KXQZ10",
+"title": "Top song on Spotify this week"
+},
+{
+"series": "KXQZ11",
+"title": "Silver above 40 this month"
+},
+{
+"series": "KXQZ12",
+"title": "Hurricane makes landfall in Florida"
+}
+]
