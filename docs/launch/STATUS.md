@@ -8,11 +8,11 @@ file after every merge. "Review result" says "passed review" only after the revi
 ## Phase 0 close-out
 | Item | PR | Status |
 |---|---|---|
-| a. Marc's filters, date range, owner payment alerts | kiumars1199/Kismet#33 | CI re-running on latest final |
-| b. Combos multiply line | kiumars1199/Kismet#37 | CI running |
-| c. My list "Couldn't load, retry" | kiumars1199/Kismet#38 | CI running |
-| d. Phone layout in the first HTML | kiumars1199/Kismet#39 | CI running |
-| e. Smoke S3/S5 on previews | kiumars1199/Kismet#40 | CI running; needs repo secret (Q) |
+| a. Marc's filters, date range, owner payment alerts | kiumars1199/Kismet#33 | merged, prod READY (5a0de12) |
+| b. Combos multiply line | kiumars1199/Kismet#37 | merged, prod READY (bc23e3b) |
+| c. My list "Couldn't load, retry" | kiumars1199/Kismet#38 | merged, prod READY (023f505) |
+| d. Phone layout in the first HTML | kiumars1199/Kismet#39 | merged, prod READY (13303de) |
+| e. Smoke S3/S5 on previews | kiumars1199/Kismet#40 | merged (d02ea98); job skips until Q adds repo secret VERCEL_AUTOMATION_BYPASS_SECRET |
 
 ## Features
 | Feature | Owner | Status | PR | Review result |
