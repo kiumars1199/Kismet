@@ -159,3 +159,18 @@ Update after every task: task · status · evidence (commands + last output line
   truncated price-ID prefix in docs/qa (removed at HEAD; price IDs aren't secret).
 - No GitHub API access to kiumars1199/Kismet here, so I couldn't read CI or the Vercel comment; F7 has no UI, so no screenshots.
 - Evidence: review/f07/checks.log, review/f07/e2e-chromium.log, review/f07/secret-scan.txt.
+
+### F7 re-check · PR #41 (head 549a62b) · PASS
+- Delta from 3c709f9: .gitleaksignore (+10) and mode.test.ts only. 8 fingerprints pinned to 3c709f9:mode.test.ts lines 12/13/14/15/18/22/24/35,
+  each holding only *_FAKEFAKEFAKE0000 / sk_live_x literals; no pattern or path rule. New mode.test.ts has 0 key-shaped literals.
+
+### F3 · PR #42 (head 70fb2fe) · FAIL (sent to lead Nov 22)
+- Findings: (1) direct /markets?q=<word> load drops Kalshi matches (firstPage builds the page without `kalshi`); (2) kalshi_topics.py keyword
+  substrings (rain→Ukraine, gold→Golden State, war→Warriors; KXSOLAR→solana, KXGOVSHUT→elections); (3) venue chips mount after client
+  /api/meta, a new layout shift; (4) Kalshi view header says "0 markets match" above "4 Kalshi markets", and Polymarket-only filters do nothing;
+  (5, low) Kalshi off + old ?ven=kalshi link shows "data server didn't answer".
+- Passing: pytest 153; e2e chromium 89/89 incl. 6 F3; API venue/topic/q/meta; flags never Kalshi; "No price yet"; permission-off 404;
+  types = data model; uploads correct; peak RSS 491 MB and p95 138 ms over 20 local queries on 207K synthetic Kalshi rows; /bets?topic for 10 ids.
+- p95 vitest test fails on final too under load (not a finding); funnel-db file failure is a load flake.
+- Post-merge: production counts. Evidence: review/f03/*.
+- Next: F1 (#43), then F2 (#45, last commit da631bb only).

@@ -1,0 +1,27 @@
+........................................................................ [ 94%]
+.........                                                                [100%]
+153 passed in 4.47s
+$ tsc --noEmit
+$ eslint . --max-warnings 0
+vitest run 1
+     × p95 < 150 ms over 15k rows 14522ms (retry x1)
+ FAIL  test/funnel-db.test.ts [ test/funnel-db.test.ts ]
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  test/api.test.ts > apply() timing > p95 < 150 ms over 15k rows (initial run)
+ FAIL  test/api.test.ts > apply() timing > p95 < 150 ms over 15k rows (1st retry)
+ Test Files  2 failed | 113 passed (115)
+      Tests  1 failed | 1444 passed | 5 skipped (1450)
+vitest run 2
+     × p95 < 150 ms over 15k rows 12459ms (retry x1)
+ FAIL  test/funnel-db.test.ts [ test/funnel-db.test.ts ]
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  test/api.test.ts > apply() timing > p95 < 150 ms over 15k rows (initial run)
+ FAIL  test/api.test.ts > apply() timing > p95 < 150 ms over 15k rows (1st retry)
+ Test Files  2 failed | 113 passed (115)
+      Tests  1 failed | 1444 passed | 5 skipped (1450)
+# pass 36
+# fail 0
+build-exit 0
+/: first-load JS 142.5 kB gzipped (456 kB raw, 13 files); budget 150 kB: OK
+/bets: first-load JS 195.1 kB gzipped (632 kB raw, 16 files); budget 150 kB: OVER
+/markets: first-load JS 218.4 kB gzipped (724 kB raw, 16 files); budget 150 kB: OVER

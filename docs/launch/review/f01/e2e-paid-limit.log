@@ -1,0 +1,25 @@
+[WebServer] <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (268kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+[WebServer] [abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+[2/3] [chromium] › e2e-paid/launch-f01-limit.spec.ts:57:1 › signed out: /check?m=<id>&side=0 stays on /check
+[3/3] [chromium] › e2e-paid/launch-f01-limit.spec.ts:67:1 › signed out: /api/check/search finds markets and leaks nothing else
+  1) [chromium] › e2e-paid/launch-f01-limit.spec.ts:67:1 › signed out: /api/check/search finds markets and leaks nothing else 
+    Error: expect(locator).toBeVisible() failed
+    Locator: getByTestId('chk-score')
+    Expected: visible
+    Timeout: 30000ms
+    Error: element(s) not found
+    Call log:
+      - Expect "toBeVisible" getByTestId('chk-score') with timeout 30000ms
+      - waiting for getByTestId('chk-score')
+      77 |   await expect(page.getByTestId("check-hits").locator("li").first()).toBeVisible({ timeout: 30_000 });
+      78 |   await page.getByTestId("check-hits").locator("li button").first().click();
+    > 79 |   await expect(page.getByTestId("chk-score")).toBeVisible({ timeout: 30_000 });
+         |                                               ^
+      80 | });
+      81 |
+        at /home/user/MarketEdge/.claude/worktrees/agent-ac3ec7df000229278/apps/web/e2e-paid/launch-f01-limit.spec.ts:79:47
+    Error Context: test-results/launch-f01-limit-signed-ou-d76ee-kets-and-leaks-nothing-else-chromium/error-context.md
+  1 failed
+    [chromium] › e2e-paid/launch-f01-limit.spec.ts:67:1 › signed out: /api/check/search finds markets and leaks nothing else 
+  2 passed (2.6m)

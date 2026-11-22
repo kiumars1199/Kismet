@@ -1,0 +1,12 @@
+== final run 1 load 14.71
+      Tests  1438 passed (1438)
+ Test Files  113 passed (113)
+== final run 2 load 15.09
+      Tests  1 failed | 1437 passed (1438)
+     × p95 < 150 ms over 15k rows 18139ms (retry x1)
+ FAIL  test/api.test.ts > apply() timing > p95 < 150 ms over 15k rows (1st retry)
+ FAIL  test/api.test.ts > apply() timing > p95 < 150 ms over 15k rows (initial run)
+ Test Files  1 failed | 112 passed (113)
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+[exited with code 0]

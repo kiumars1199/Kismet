@@ -1,0 +1,15 @@
+Running 6 tests using 1 worker
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] responseMode: 'json' drops mid-call notifications. subscriptions/listen streams are always served over SSE regardless; other notifications emitted before a result are dropped.
+
+[1/6] [chromium] › e2e/launch-f01-checker.spec.ts:7:1 › checker = card = drawer on 3 fixture markets
+[WebServer] [abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+
+[2/6] [chromium] › e2e/launch-f01-checker.spec.ts:37:1 › price 60% → 50% updates multiplier, edge and score with no network call
+[3/6] [chromium] › e2e/launch-f01-checker.spec.ts:54:1 › 0% and 100% are rejected, unknown links say so, the formula is on the page
+[4/6] [chromium] › e2e/launch-f01-checker.spec.ts:74:3 › /check at 390px has no horizontal scroll, empty and with a result
+[5/6] [chromium] › e2e/launch-f01-checker.spec.ts:74:3 › /check at 1440px has no horizontal scroll, empty and with a result
+[6/6] [chromium] › e2e/launch-f01-checker.spec.ts:87:1 › /check?m=<id>&side=0 opens no drawer and the page is not inert
+  6 passed (1.7m)

@@ -1,0 +1,18 @@
+390 /markets CLS=0.482
+   0.024 @783ms FOOTER
+   0.268 @1133ms FOOTER, NAV[Pages]
+   0.186 @1291ms UL, P, DIV[Quick filters], DIV[Saved views], DIV[Quick filters]
+390 /markets?ven=kalshi&t=sports.nfl CLS=0.220
+   0.032 @471ms FOOTER
+   0.184 @732ms DIV[Loading markets], DIV[Quick filters], DIV[Saved views], DIV[Quick filters], UL[Applied filters]
+390 /markets?q=Jokic CLS=0.240
+   0.055 @487ms FOOTER
+   0.182 @546ms UL, P, DIV[Quick filters], DIV[Saved views], DIV[Quick filters]
+1440 /markets CLS=0.265
+   0.233 @676ms FOOTER, NAV[Pages], TH, TH, TH
+   0.030 @833ms DIV, DIV, DIV[Quick filters], DIV[Quick filters], P
+1440 /markets?ven=kalshi&t=sports.nfl CLS=0.084
+   0.023 @541ms FOOTER
+   0.060 @683ms DIV[Loading markets], DIV, DIV[Quick filters], DIV[Quick filters], UL[Applied filters]
+1440 /markets?q=Jokic CLS=0.028
+   0.023 @813ms DIV, DIV, DIV[Quick filters], DIV[Quick filters], P

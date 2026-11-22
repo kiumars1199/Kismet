@@ -1,0 +1,59 @@
+
+ RUN  v5.1.0 /home/user/MarketEdge/.claude/worktrees/agent-ac3ec7df000229278/apps/web
+
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+stdout | test/api.test.ts > apply() timing > p95 < 150 ms over 15k rows
+apply() over 15k rows: p50 46.4 ms, p95 156.0 ms
+
+stdout | test/api.test.ts > apply() timing > p95 < 150 ms over 15k rows
+apply() over 15k rows: p50 76.5 ms, p95 323.7 ms
+
+ ❯ test/api.test.ts (7 tests | 1 failed) 10888ms
+   ❯ apply() timing (1)
+     × p95 < 150 ms over 15k rows 10689ms (retry x1)
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+Not implemented: navigation to another Document
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/api.test.ts > apply() timing > p95 < 150 ms over 15k rows (initial run)
+AssertionError: expected 156.03756500000054 to be less than 150
+ ❯ test/api.test.ts:119:17
+    117|     const p95 = times[Math.floor(times.length * 0.95)];
+    118|     console.log(`apply() over 15k rows: p50 ${times[15].toFixed(1)} ms…
+    119|     expect(p95).toBeLessThan(150);
+       |                 ^
+    120|   });
+    121| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  test/api.test.ts > apply() timing > p95 < 150 ms over 15k rows (1st retry)
+AssertionError: expected 323.7185530000006 to be less than 150
+ ❯ test/api.test.ts:119:17
+    117|     const p95 = times[Math.floor(times.length * 0.95)];
+    118|     console.log(`apply() over 15k rows: p50 ${times[15].toFixed(1)} ms…
+    119|     expect(p95).toBeLessThan(150);
+       |                 ^
+    120|   });
+    121| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 114 passed (115)
+      Tests  1 failed | 1449 passed (1450)
+   Start at  18:57:31
+   Duration  86.72s (tests 54%, import 29%, environment 14%, transform 2%, worker 1%)
+
+     Import  365 modules were evaluated 803 times · 58.84s total, 29% of tracked time
+             ~6.20s faster with isolate: false — shared modules are evaluated once per worker instead of once per file
+             learn more: https://vitest.dev/guide/improving-performance#test-isolation
+

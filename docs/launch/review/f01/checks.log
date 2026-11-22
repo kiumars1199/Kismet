@@ -1,0 +1,15 @@
+$ tsc --noEmit
+$ eslint . --max-warnings 0
+      Tests  1 failed | 1471 passed (1472)
+     × p95 < 150 ms over 15k rows 14725ms (retry x1)
+ FAIL  test/api.test.ts > apply() timing > p95 < 150 ms over 15k rows (1st retry)
+ FAIL  test/api.test.ts > apply() timing > p95 < 150 ms over 15k rows (initial run)
+ Test Files  1 failed | 115 passed (116)
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+# pass 36
+# fail 0
+build-exit 0
+/: first-load JS 142.5 kB gzipped (456 kB raw, 13 files); budget 150 kB: OK
+/check: first-load JS 129.1 kB gzipped (424 kB raw, 8 files); budget 150 kB: OK
+/bets: first-load JS 195.0 kB gzipped (632 kB raw, 16 files); budget 150 kB: OVER
+/markets: first-load JS 217.4 kB gzipped (720 kB raw, 16 files); budget 150 kB: OVER
