@@ -29,3 +29,22 @@ test("how to bet this at 390px: 3 steps, the venue link, close", async ({ page }
   await guide.getByRole("button", { name: "Close" }).click();
   await expect(page.getByTestId("howto")).toHaveCount(0);
 });
+
+test("how to bet this from a card at 390px: pick a venue, 3 steps, sources, link, close", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/bets");
+  const card = page.locator("[data-testid=bet-card]").first();
+  await expect(card).toBeVisible({ timeout: 20_000 });
+  await card.getByRole("button", { name: "How to bet this" }).click();
+  const guide = card.getByTestId("howto");
+  await expect(page.locator("[data-testid=drawer], [role=dialog]")).toHaveCount(0);   // the tap did not open the drawer
+  await expect(guide.getByTestId("howto-steps")).toHaveCount(0);                       // no venue assumed
+  await guide.locator("[data-testid^=howto-venue-]").first().click();
+  await expect(guide.locator("[data-testid=howto-steps] li")).toHaveCount(3);
+  await guide.getByTestId("howto-sources").locator("summary").click();
+  await expect(guide.getByTestId("howto-sources").locator("a")).toHaveCount(3);
+  await expect(guide.getByTestId("howto-link")).toHaveAttribute("href", /^https:\/\//);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await guide.getByRole("button", { name: "Close" }).click();
+  await expect(card.getByTestId("howto")).toHaveCount(0);
+});

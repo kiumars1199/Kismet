@@ -2,6 +2,7 @@
 // F6: "How to bet this": a 3-step guide for the venue and a link that opens the market there. Used on /check; the BetCard
 // button is a separate task (BetCard is shared). Steps and sources: lib/venues/guides.ts.
 import { useState } from "react";
+import { RiskNote } from "@/components/trade/RiskNote";
 import { availabilityNote, defaultVenue, GUIDES, venueStatus, type AvailStatus, type VenueId } from "@/lib/venues/guides";
 
 export function HowToBet({ links, status = venueStatus, stateName = null }: { links: { venue: VenueId; url: string | null }[]; status?: (venue: VenueId) => AvailStatus; stateName?: string | null }) {
@@ -51,12 +52,10 @@ export function HowToBet({ links, status = venueStatus, stateName = null }: { li
               </details>
               <p data-testid="howto-avail-line" className="text-[13px] text-soft">{availabilityNote(cur.venue, status(cur.venue), stateName)}</p>
               {cur.url
-                ? <a data-testid="howto-link" href={cur.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center self-start rounded-input bg-accent px-4 text-sm font-semibold text-on-accent hover:bg-accent-hover">Open on {g.name}</a>
+                ? <><a data-testid="howto-link" href={cur.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center self-start rounded-input bg-accent px-4 text-sm font-semibold text-on-accent hover:bg-accent-hover">Open on {g.name}</a><RiskNote className="!text-left" /></>
                 : <p data-testid="howto-nolink" className="text-[13px] text-muted">We don&apos;t have a direct link to this market on {g.name}. Search for it there.</p>}
             </>
           )}
-          {/* One afford note for the whole guide; after F8 (#44) lands, swap this line for trust's <RiskNote />. */}
-          <p data-testid="howto-risk" className="text-[12px] text-muted">Bet only what you can afford to lose.</p>
           <button type="button" onClick={() => setOpen(false)} className="min-h-11 self-start rounded-input border border-border px-4 text-sm text-soft">Close</button>
         </section>
       )}
