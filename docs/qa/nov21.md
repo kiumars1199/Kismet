@@ -50,6 +50,12 @@ affected e2e and the Vercel preview all green.
   with a See plans link; no email switch in the editor. e2e-paid covers Free (note shown) and Pro (no note).
 - Pro email end to end: see "Alerts email check" below (after deploy).
 
+## CI flake: S7 checkout wait ("Nov21: S7 checkout wait")
+- PR #24 (combos) went red on e2e-paid S7: "Confirming your payment with Stripe…" still showing at 30 s. Unrelated to
+  combos; passed 3/3 locally. A rerun wasn't possible (the GitHub integration can't rerun jobs: 403), so per Q's rule
+  it's fixed in its own PR: the checkout-status waits now match the page's own 60 s poll window (S7 and the alerts
+  spec; billing already used 60 s). #24 was closed and reopened as a fresh PR after this merged (one working branch).
+
 ## Q's answers (Nov 21, before going away)
 
 - Alerts email check: throwaway Pro test account, mail to Resend's test inbox (delivered@resend.dev), deleted after.
