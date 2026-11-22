@@ -67,6 +67,14 @@ affected e2e and the Vercel preview all green.
   is now retried until the URL is /settings.
 - App behaviour unchanged. Fixed in its own PR ahead of the disk fix; #26 closed and reopened after.
 
+## CI race: iPhone /markets before hydration ("Nov21: iPhone /markets waits for the phone layout")
+- PR #29 (Python only) went red on the WebKit iPhone check for /markets: the page was 743 px wide with the desktop
+  table. /markets server-renders the table (useDesktop's server snapshot assumes desktop) and swaps to cards when
+  React hydrates; on CI that landed after networkidle + 300 ms. The check now waits (up to 30 s) for the table to go
+  before measuring. Passed 3/3 locally with the same viewport in Chromium (WebKit isn't installed here).
+- Found, not fixed (product change, for Q): on a slow phone, /markets shows the desktop table until the scripts run,
+  then switches to cards. Rendering cards below md with CSS instead of a JS switch would remove that.
+
 ## Outage: Railway disk full (Nov 21 21:49 UTC to the hotfix, "Nov21: disk-full fix")
 - What broke: the 5 GB Railway volume filled (Errno 28 from 21:49). Kalshi's response cache was never pruned, so it
   grew until the disk was full. The next fit wrote a truncated model.json (cut at 552,960 bytes), and every scan
