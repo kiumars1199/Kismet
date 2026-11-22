@@ -274,6 +274,26 @@ async function rpc(req: Request, fn: string) {
       first_bets_7d: profiles.filter((p) => p.first_bets_at && Date.parse(String(p.first_bets_at)) > week).length,
       first_bets_total: profiles.filter((p) => p.first_bets_at).length });
   }
+  if (fn === "admin_metrics") {   // supabase/migrations/20261122000300_admin_metrics.sql over the mock tables
+    const dayStart = Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate());
+    const events = table("stripe_events");
+    const at = (e: Row) => Date.parse(String(e.processed_at ?? e.created_at));
+    const withAmount = events.filter((e) => e.amount_cents != null);
+    const since = withAmount.length ? new Date(Math.min(...withAmount.map(at))).toISOString().slice(0, 10) : null;
+    const days = Array.from({ length: 30 }, (_, i) => {
+      const from = dayStart - (29 - i) * 86_400_000, to = from + 86_400_000;
+      const inDay = (t: unknown) => t != null && Date.parse(String(t)) >= from && Date.parse(String(t)) < to;
+      const ev = (type: string) => events.filter((e) => e.type === type && at(e) >= from && at(e) < to);
+      const day = new Date(from).toISOString().slice(0, 10);
+      return { day, signups: users.filter((u) => inDay(u.created_at)).length, trials: subs.filter((s) => inDay(s.trialed_at)).length,
+        payments: ev("invoice.paid").filter((e) => (e.amount_cents == null ? 1 : Number(e.amount_cents)) > 0).length,
+        revenue_cents: since === null || day < since ? null : ev("invoice.paid").reduce((n, e) => n + Number(e.amount_cents ?? 0), 0),
+        churned: ev("customer.subscription.deleted").length, invites_sent: 0, invites_verified: 0 };
+    });
+    const paying = (t: string) => subs.filter((s) => s.tier === t && ["active", "past_due"].includes(String(s.status)) && !!s.stripe_subscription_id).length;
+    return json({ days, revenue_since: since, paying: { pro: paying("pro"), premium: paying("premium") },
+      mrr_cents: paying("pro") * Number(a.pro_cents ?? 0) + paying("premium") * Number(a.premium_cents ?? 0) });
+  }
   if (fn === "admin_users") {
     const q = String(a.q ?? "").toLowerCase();
     const hit = users.filter((u) => u.email.toLowerCase().includes(q));
