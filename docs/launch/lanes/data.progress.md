@@ -10,6 +10,9 @@ Evidence (full detail in the PR body):
 - Late fix (70fb2fe): the Railway scheduler now uploads kalshi_index.json too (the PR first only had refresh.yml).
 Caveats: topic-map 95% is from a hand-written fixture (stated in the PR body); ops/upload.py, scheduler.py and refresh.yml touched.
 
+### F3 review round 2 (fixes as new commits on launch/data-f03; evidence in docs/launch/review/f03/round2/)
+1 server page carries Kalshi (firstPage), e2e direct load /markets?q=Jokic sees "Also on Kalshi" in the HTML. 2 kalshi_topics whole-word keywords, SOL/GOV prefixes, pytest cases + 12 fallback-only fixture series. 3 chip row decided on the server (page.tsx kalshiOn). 4 Kalshi view header counts Kalshi rows, Polymarket-only controls hidden. 5 ven=kalshi with Kalshi off = normal list. 6 CLS: Export CSV row mounted after /api/me and pushed the filter rows 56 px at 390: its row is reserved. Merged origin/final (d02ea98) into the branch.
+
 ### Owed to main after F3 merges
 - [ ] After the first real Kalshi crawl: share of kalshi_index.json rows with topic "other" and with "<cat>.other" (count per topic too).
 - [ ] After the first scheduled refresh following merge: size of the live-branch commit (kalshi_index.json plain size, push size).

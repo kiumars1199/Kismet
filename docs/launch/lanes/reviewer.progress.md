@@ -197,3 +197,10 @@ Math: the 3-leg hand calc (0.6/0.4/0.8, ask+fee 0.51/0.32/0.71) gives chance 0.1
 1. Free-limit bypass: /api/check/leg counts the fixed key "combo:0", so after the first leg every further leg (any market) is free all day. Each answer is a full single-market check (result.score, chance, edge), which gets around F1's 1-a-day. Fix: count per combo, or strip result from the leg response.
 2. Combined numbers have no basis one tap away (no smallest-leg n or model level). Leg basis is in the response but not shown.
 Open (not counted): add 3 legs from cards; paid e2e for the Free combo limit.
+
+## F5 #47 (head 4a93a49): FAIL
+Evidence: review/f05-reviewer/ (e2e-paid.log 3/3, probe*.log, bets-signedin-raw.html, screenshots). The spec was run from a copy with SHOTS repointed (the PR's SHOTS path is another agent's worktree).
+1. The onboarding landing /?view=flags&fav=1 (no t=) isn't server-filtered: CLS 1.848 at 390 on a fresh load, the cards churn in after the profile loads. Onboarding.tsx now sends fav only.
+2. The "server redirect" is not an HTTP redirect when signed in: GET /bets gives 200 with NEXT_REDIRECT plus a meta refresh (249 KB, 0 cards). Then a second document loads /bets?fav=1&t=… (that one has the pill in its HTML). Seen on next dev with the mock; check on the preview.
+3. The spec's SHOTS is an absolute path into another agent's worktree (agent-afda8a27944e228d2), so it would write outside the repo in CI.
+OK: the pill clears, and stays cleared on a second device (topics_off). CLS /bets 0.054 at 390 and 0.020 at 1440. Disclaimer, no hscroll, typecheck, lint, unit tests pass. Same-for-all unit test is present (two anonymous callers only).

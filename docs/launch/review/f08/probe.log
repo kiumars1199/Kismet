@@ -1,0 +1,47 @@
+/bets: venue-buttons=0 paired-notes=0 notes=0 venue-links=0 with-note/label=0 helpline=true disclaimer=true
+/markets: venue-buttons=0 paired-notes=0 notes=0 venue-links=0 with-note/label=0 helpline=true disclaimer=true
+/m/undefined: venue-buttons=0 paired-notes=0 notes=0 venue-links=0 with-note/label=0 helpline=true disclaimer=true
+/combos: venue-buttons=0 paired-notes=0 notes=0 venue-links=0 with-note/label=0 helpline=true disclaimer=true
+/account: venue-buttons=0 paired-notes=0 notes=0 venue-links=0 with-note/label=0 helpline=true disclaimer=true
+paused_until 2026-11-23T20:01:17.011Z
+GET /api/markets?limit=1 -> 423
+GET /api/markets/undefined -> 423
+GET /api/flags -> 423
+GET /api/meta -> 503
+GET /api/backtest -> 503
+GET /api/model/curve -> 423
+GET /api/book?m=undefined -> 400
+GET /api/events/undefined -> 423
+GET /api/suggest?q=nfl -> 423
+GET /api/kalshi -> 423
+GET /api/data -> 200
+GET /api/combos -> 423
+GET /api/alerts -> 200
+GET /api/trade/config -> 200
+GET /api/me -> 200
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+page.goto: Page crashed
+Call log:
+[2m  - navigating to "http://localhost:3297/bets", waiting until "load"[22m
+
+    at /tmp/claude-0/-home-user-MarketEdge/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/probe-f08.mjs:48:16 {
+  log: [
+    '  - navigating to "http://localhost:3297/bets", waiting until "load"'
+  ]
+}
+
+Node.js v22.23.5
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+page.waitForTimeout: Page crashed
+    at signIn (/tmp/claude-0/-home-user-MarketEdge/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/probe-f08b.mjs:15:45)
+    at async file:///tmp/claude-0/-home-user-MarketEdge/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/probe-f08b.mjs:20:1 {
+  log: []
+}
+
+Node.js v22.23.5

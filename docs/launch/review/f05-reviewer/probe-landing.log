@@ -1,0 +1,5 @@
+cookies: tz,sb-localhost-auth-token-flow-cd5005092ef6b085fc5c7de250ab512d-code-verifier,sb-localhost-auth-token-flows-code-verifier,sb-localhost-auth-token
+goto /bets: documents=[200 /bets ; 200 /bets?fav=1&t=sports.nfl%2Cpolitics.elections] final=/bets?fav=1&t=sports.nfl%2Cpolitics.elections cls=0.054 0.038@1559:FOOTER | 0.015@3557:BUTTON,BUTTON,BUTTON#saved-views
+first HTML of /bets?fav=1&t=… has "Your topics": true cards=0
+fresh load of the onboarding landing /?view=flags&fav=1: documents=[200 /?view=flags&fav=1] final=/?view=flags&fav=1 cls=1.848 0.084@1223:FOOTER | 0.025@4629:BUTTON,BUTTON,LABEL,BUTTON#saved-views,P#bar-count | 0.105@4736:DIV | 0.012@4745:DIV | 0.024@4809:DIV | 0.036@5596:DIV#bets-list | 0.127@5616:DIV | 0.092@5638:DIV | 0.074@5651:DIV | 0.063@5666:DIV | 0.054@5683:DIV | 0.021@5699:DIV | 0.018@5716:DIV | 0.015@5733:DIV | 0.013@5749:DIV | 0.011@5767:DIV | 0.688@6002:DIV#bets-list,FOOTER,SECTION#locked-bets | 0.063@6049:DIV | 0.046@6066:DIV | 0.037@6116:DIV | 0.080@6149:DIV | 0.020@6150:DIV | 0.017@6197:DIV | 0.027@6227:DIV | 0.010@6228:DIV
+first HTML of /?view=flags&fav=1 has "Your topics": true cards=0

@@ -31,7 +31,7 @@ file after every merge. "Review result" says "passed review" only after the revi
 | F12 Morning digest | onboarding-invites | not started | | not reviewed |
 | F13 Share and invite | onboarding-invites | plan approved; building | | not reviewed |
 | F14 Price history chart | data | built locally (stacked on F4); PR after F3 + F4 | not reviewed |
-| F15 Admin metrics | trust | plan approved; building (migration 20261122000300, stripe_events.amount_cents for daily revenue) | | not reviewed |
+| F15 Admin metrics | trust | PR open (head c8d68a1); in review queue; migration 20261122000300 (lead applies before merge) | kiumars1199/Kismet#49 | not reviewed |
 | F16 Big trade alert | alerts | not started | | not reviewed |
 
 Merge order: F3, F1, F2, F5, F7, F8, F9, then F4, F6, F10–F16.
@@ -53,6 +53,7 @@ Problems:
 
 ## Found in review, outside a lane
 - /markets at 390 px: CLS 0.27 on `final` from the "Quick filters" row shifting (reviewer, F3 review). Owner: data, in the F3 fix PR (same page, same kind of shift).
+- e2e-paid/admin.spec.ts fails on clean `final` (page.goto ERR_ABORTED) (trust, F15). Owner: trust, separate fix PR.
 
 ## Fixed log
 - F7: passed review (pre-merge PASS + post-merge PASS on cd9f672; evidence review/f07/).

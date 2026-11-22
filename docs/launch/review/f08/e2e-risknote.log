@@ -1,0 +1,5 @@
+Running 2 tests using 1 worker
+[1/2] [chromium] › e2e/launch-f08-risknote.spec.ts:6:3 › /bets: a risk note next to every bet button at 390 px, CLS < 0.1
+[WebServer] [abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+[2/2] [chromium] › e2e/launch-f08-risknote.spec.ts:6:3 › /bets: a risk note next to every bet button at 1440 px, CLS < 0.1
+  2 passed (1.7m)
