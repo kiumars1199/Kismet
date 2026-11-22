@@ -1,4 +1,5 @@
-mine (data-f03 merged with origin/final d02ea98): 390px median 0.2695 (runs .269 .269 .071 .269 .269 .185 .269), 1440px median 0.2346
-final d02ea98: 390px median 0.2730, 1440px median 0.2346
-Harness: 7 fresh contexts per cell, PerformanceObserver layout-shift (no recent input), networkidle + 1.5 s, fixture data, same machine, next start.
-Not comparable to the earlier 0.005/0.028 figures (different method). The venue chip row is in the server HTML (e2e asserts it) and no shift source in the run is the chip row.
+CLS /markets (layout-shift, fresh context, networkidle + 1.5 s, fixture data, next start)
+Before (origin/final d02ea98, 7 runs): 390px median 0.2730, 1440px median 0.2346.
+Cause 1 (390): Export CSV mounts after /api/me and wraps to its own line: the filter rows jumped 56 px. Fix: its row is reserved (min-h-11, w-full on a phone), none in the Kalshi view.
+Cause 2 (390 and 1440): the loading skeleton was short, so the persistent footer (and at 1440 the pager) were pushed out of the viewport when the page streamed in. Fix: PageSkeleton min-h-[100svh]; and the virtual table reserved no height before measuring (spacer for the estimated total).
+After (this branch): see the CLS lines in e2e.txt: asserted < 0.1 and chip-row share == 0 at both widths (launch-f03-search.spec.ts). Debug run of shift sources: 390px total 0.003; 1440px total 0.011.

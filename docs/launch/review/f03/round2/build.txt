@@ -2,7 +2,7 @@ $ next build
    ▲ Next.js 15.5.29
 
    Creating an optimized production build ...
- ✓ Compiled successfully in 36.6s
+ ✓ Compiled successfully in 89s
    Linting and checking validity of types ...
    Collecting page data ...
 <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
@@ -10,11 +10,11 @@ responseMode: 'json' drops mid-call notifications. subscriptions/listen streams 
 <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
 <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
    Generating static pages (0/29) ...
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
    Generating static pages (7/29) 
-<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
    Generating static pages (14/29) 
-   Generating static pages (21/29) 
 <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+   Generating static pages (21/29) 
  ✓ Generating static pages (29/29)
    Finalizing page optimization ...
    Collecting build traces ...

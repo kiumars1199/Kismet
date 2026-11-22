@@ -45,3 +45,15 @@ page.waitForTimeout: Page crashed
 }
 
 Node.js v22.23.5
+page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3297/settings
+Call log:
+[2m  - navigating to "http://localhost:3297/settings", waiting until "load"[22m
+
+    at /tmp/claude-0/-home-user-MarketEdge/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/probe-f08b.mjs:28:16 {
+  log: [
+    '  - navigating to "http://localhost:3297/settings", waiting until "load"'
+  ],
+  name: 'Error'
+}
+
+Node.js v22.23.5

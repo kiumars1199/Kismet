@@ -41,3 +41,10 @@ CLS /markets 1440px: total 0.0113, chip row 0.0000
   ✓  24 [chromium] › e2e/qa-c-views.spec.ts:5:1 › #19/#53 saved views: suggested name, then apply, rename and delete from /bets and /markets (6.1s)
   ✓  26 [chromium] › e2e/search.spec.ts:34:1 › bar → FC Barcelona suggested on the 3rd letter, within 300 ms (2.3s)
   ✓  27 [chromium] › e2e/search.spec.ts:49:1 › barca 3x → the line says how it's understood (1.6s)
+  ✓  28 [chromium] › e2e/search.spec.ts:55:1 › barcelona 3x good edge → honest fallback, Barcelona rows (2.0s)
+  ✓  29 [chromium] › e2e/search.spec.ts:63:1 › nyc weather → New York weather, shown as chips (2.1s)
+  ✓  30 [chromium] › e2e/search.spec.ts:74:1 › over 2.5 goals → soccer over/under 2.5 (1.7s)
+  ✓  31 [chromium] › e2e/search.spec.ts:80:1 › safe bets → every row 80%+ (1.7s)
+  ✓  32 [chromium] › e2e/search.spec.ts:87:1 › pills: Pays 3–5x and Biggest payout land in the URL; long shots toggle (2.7s)
+
+  32 passed (3.6m)
