@@ -76,7 +76,11 @@ affected e2e and the Vercel preview all green.
   through `dump_atomic` (temp file, then rename), so a full disk leaves the old file whole instead of a broken one.
   A test fails if any engine file goes back to `json.dump(..., open(...))`.
 - Item 5 (Kalshi): cache max age now equals the fetch TTL; the scan log and meta show per-field fill rates.
-- Recovery check (Railway logs after deploy): see below.
+- Recovery check (Railway logs after deploy, 10:11 UTC Nov 22): the first tick pruned 2,052 stale Kalshi cache files;
+  the largest entries left were data/sample.jsonl 0.29 GB and data/output 0.15 GB. The disk line said "851.91 of
+  3147.64 GB used (73% free)": on Railway, disk usage on the volume reports the host disk, not the 5 GB volume, so the
+  10% low-disk log could never fire. Follow-up "Nov21: measure the volume, not the host" works the share free out from
+  what data/ holds against VOLUME_GB (default 5).
 
 ## Q's answers (Nov 21, before going away)
 

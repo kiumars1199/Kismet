@@ -26,6 +26,9 @@ EVEN_EVERY_DAYS = float(os.environ.get("EVEN_EVERY_DAYS") or 7)
 EVEN_DIR = os.path.join("data", "even")
 KALSHI_CACHE = os.path.join(ROOT, "data", "kalshi_cache")
 LOW_DISK = 0.10   # below this share free, every tick logs what uses the volume
+# The Railway volume (mounted at data/) is 5 GB, but statvfs there reports the host disk (3 TB), so the share free is
+# worked out from what data/ actually holds. Change VOLUME_GB if the volume is resized.
+VOLUME_BYTES = float(os.environ.get("VOLUME_GB", "5")) * 1e9
 
 
 def dir_bytes(path):
@@ -51,8 +54,10 @@ def housekeep(force_report=False):
     except Exception as e:  # never let housekeeping stop the scans
         print(f"[scheduler] Kalshi cache prune failed: {e}", flush=True)
     try:
-        du = shutil.disk_usage(ROOT)
-        free = du.free / du.total if du.total else 1.0
+        data = os.path.join(ROOT, "data")
+        used = dir_bytes(data)
+        du = shutil.disk_usage(data if os.path.isdir(data) else ROOT)
+        free = min(1 - used / VOLUME_BYTES, du.free / du.total if du.total else 1.0)
         if force_report or free < LOW_DISK:
             parts = []
             for top in ("data", "output"):
@@ -61,7 +66,7 @@ def housekeep(force_report=False):
                     parts.append((dir_bytes(os.path.join(d, n)) if os.path.isdir(os.path.join(d, n))
                                   else os.path.getsize(os.path.join(d, n)), f"{top}/{n}"))
             biggest = ", ".join(f"{name} {size / 1e9:.2f} GB" for size, name in sorted(parts, reverse=True)[:6])
-            print(f"[scheduler] disk {du.used / 1e9:.2f} of {du.total / 1e9:.2f} GB used ({free:.0%} free); "
+            print(f"[scheduler] volume data/ {used / 1e9:.2f} of {VOLUME_BYTES / 1e9:.0f} GB ({free:.0%} free); "
                   f"largest: {biggest}", flush=True)
     except OSError as e:
         print(f"[scheduler] disk report failed: {e}", flush=True)
