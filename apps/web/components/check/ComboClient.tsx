@@ -1,46 +1,51 @@
 "use client";
-// /check/combo (SPEC F2). Add legs by words or by pasted link (and, later, "Add to combo" on a card: ?m=<id>&side=<0|1>).
-// Each leg is looked up once (/api/check/leg; the whole combo is one Free check); the numbers are computed here.
+// /check/combo (SPEC F2). Add legs by words or by pasted link (or a card link: ?m=<id>&side=<0|1>). A leg is looked up without
+// any model numbers (/api/check/leg). With 2+ legs the whole set is scored once (/api/check/combo, ONE Free check for that
+// set; the same set again is free), and the numbers are computed here from what it returns.
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CheckSearchResponse } from "@/app/api/check/search/route";
-import { addLeg, checkCombo, MAX_COMBO_LEGS, MIN_COMBO_LEGS, type ComboLeg } from "@/lib/check/combo";
+import { checkCombo, MAX_COMBO_LEGS, MIN_COMBO_LEGS, type ComboLeg } from "@/lib/check/combo";
 import { parseLink } from "@/lib/check/parse-link";
-import type { CheckResponse } from "@/lib/check/response";
+import type { CheckResponse, LegLookup } from "@/lib/check/response";
 import { SCORE_FORMULA } from "@/lib/check/score";
 import { multX } from "@/lib/card";
 import { pct } from "@/lib/format";
 
 const pts = (e: number) => { const v = Math.round(e * 100); return `${v < 0 ? "−" : v > 0 ? "+" : ""}${Math.abs(v)} ${Math.abs(v) === 1 ? "point" : "points"}`; };
-const legOf = (d: CheckResponse): ComboLeg => {
-  const s = d.sides.find((x) => x.index === d.side)!;
-  return { key: `${d.market.id}:${d.side}`, marketId: d.market.id, side: d.side, question: d.market.question, outcome: s.outcome, eventId: d.market.event_id, event: d.market.event, base: s.base };
-};
+
+type Listed = { key: string; marketId: string; side: 0 | 1; question: string; outcome: string; eventId: string; event: string; price: number };
+type Scored = { setKey: string; legs: Map<string, { base: ComboLeg["base"]; basis: string }> };
+const listed = (d: LegLookup): Listed => ({ key: `${d.market.id}:${d.side}`, marketId: d.market.id, side: d.side, question: d.market.question, outcome: d.outcome, eventId: d.market.event_id, event: d.market.event, price: d.price });
+const setKeyOf = (legs: Listed[]) => legs.map((l) => l.key).sort().join("|");
 
 export function ComboClient() {
   const sp = useSearchParams();
-  const [legs, setLegs] = useState<ComboLeg[]>([]);
+  const [legs, setLegs] = useState<Listed[]>([]);
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
+  const [scoring, setScoring] = useState(false);
   const [note, setNote] = useState("");
   const [limit, setLimit] = useState(false);
+  const [scored, setScored] = useState<Scored | null>(null);
   const [hits, setHits] = useState<CheckSearchResponse["markets"]>([]);
   const legsRef = useRef(legs);
   legsRef.current = legs;
   const started = useRef("");
+  const seq = useRef(0);
 
   async function add(body: { m?: string; link?: string; side?: 0 | 1 }) {
     setBusy(true); setNote(""); setHits([]);
     try {
       const r = await fetch("/api/check/leg", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-      if (r.status === 429) return setLimit(true);
       if (r.status === 404) return setNote("We couldn't find an open market at that link.");
       if (!r.ok) return setNote("Something went wrong. Try again in a moment.");
-      const out = addLeg(legsRef.current, legOf((await r.json()) as CheckResponse));
-      if (out.refused === "duplicate") setNote("That bet is already in your combo.");
-      else if (out.refused === "full") setNote(`A combo holds at most ${MAX_COMBO_LEGS} legs.`);
-      else { setLegs(out.legs); setText(""); }
+      const l = listed((await r.json()) as LegLookup);
+      const cur = legsRef.current;
+      if (cur.some((x) => x.marketId === l.marketId)) return setNote("That bet is already in your combo.");
+      if (cur.length >= MAX_COMBO_LEGS) return setNote(`A combo holds at most ${MAX_COMBO_LEGS} legs.`);
+      setLegs([...cur, l]); setText("");
     } catch { setNote("Couldn't reach Kismet. Check your connection and try again."); }
     finally { setBusy(false); }
   }
@@ -52,6 +57,33 @@ export function ComboClient() {
     started.current = key;
     void add({ m, side: sp.get("side") === "1" ? 1 : 0 });
   }, [sp]);
+
+  // Score the set when it has 2+ legs and hasn't been scored yet (one check for the set on the server).
+  const setKey = useMemo(() => setKeyOf(legs), [legs]);
+  useEffect(() => {
+    if (legs.length < MIN_COMBO_LEGS || scored?.setKey === setKey) return;
+    const mine = ++seq.current;
+    setScoring(true); setLimit(false);
+    (async () => {
+      try {
+        const r = await fetch("/api/check/combo", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ legs: legs.map((l) => ({ m: l.marketId, side: l.side })) }) });
+        if (mine !== seq.current) return;
+        if (r.status === 429) { setLimit(true); setScored(null); return; }
+        if (!r.ok) { setNote("Couldn't score this combo. Try again in a moment."); return; }
+        const out = ((await r.json()) as { legs: CheckResponse[] }).legs;
+        const map = new Map<string, { base: ComboLeg["base"]; basis: string }>();
+        for (const d of out) { const s = d.sides.find((x) => x.index === d.side)!; map.set(`${d.market.id}:${d.side}`, { base: s.base, basis: s.basis }); }
+        setScored({ setKey, legs: map });
+      } catch { if (mine === seq.current) setNote("Couldn't reach Kismet. Check your connection and try again."); }
+      finally { if (mine === seq.current) setScoring(false); }
+    })();
+  }, [legs, setKey, scored?.setKey]);
+
+  const ready = scored?.setKey === setKey;
+  const combos: ComboLeg[] = useMemo(() => (ready ? legs.map((l) => ({ ...l, base: scored!.legs.get(l.key)!.base })) : []), [ready, legs, scored]);
+  const c = useMemo(() => checkCombo(combos), [combos]);
+  const n = ready ? c.numbers : null;
+  const dropLeg = c.drop ? legs[c.drop.index] : null;
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -69,9 +101,7 @@ export function ComboClient() {
     finally { setBusy(false); }
   }
 
-  const c = useMemo(() => checkCombo(legs), [legs]);
-  const n = c.numbers;
-  const dropLeg = c.drop ? legs[c.drop.index] : null;
+  const smallest = ready ? Math.min(...combos.map((l) => l.base.n ?? 0)) : null;
 
   return (
     <div className="flex flex-col gap-5" data-testid="combo-check">
@@ -81,7 +111,7 @@ export function ComboClient() {
           className="min-h-11 min-w-0 flex-1 rounded-input border border-border bg-surface px-3 text-sm text-text placeholder:text-muted" />
         <button type="submit" disabled={busy} className="min-h-11 rounded-input bg-accent px-4 text-sm font-semibold text-on-accent hover:bg-accent-hover disabled:opacity-60">Add</button>
       </form>
-      <div className="min-h-6 text-[13px] text-muted" role="status" aria-live="polite" data-testid="combo-note">{busy ? "Looking it up…" : note}</div>
+      <div className="min-h-6 text-[13px] text-muted" role="status" aria-live="polite" data-testid="combo-note">{busy ? "Looking it up…" : scoring ? "Scoring your combo…" : note}</div>
 
       {hits.length > 0 && (
         <ul data-testid="combo-hits" className="flex flex-col gap-2">
@@ -104,21 +134,25 @@ export function ComboClient() {
       )}
 
       <ul data-testid="combo-legs" className="flex flex-col gap-2">
-        {legs.map((l, i) => (
-          <li key={l.key} data-testid="combo-leg" className="flex items-center gap-3 rounded-card border border-border bg-surface p-3">
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold">{l.question}</p>
-              <p className="text-[12px] text-muted">Bet {l.outcome} · {l.base.winProb === null ? "No model chance" : `${pct(l.base.winProb)} chance`} · pays {multX(1 / (l.base.ask + l.base.fee))}</p>
-            </div>
-            <button type="button" aria-label={`Remove ${l.question}`} onClick={() => setLegs(legs.filter((_, j) => j !== i))} className="min-h-11 min-w-11 rounded-input border border-border text-soft">✕</button>
-          </li>
-        ))}
+        {legs.map((l, i) => {
+          const b = ready ? scored!.legs.get(l.key)?.base : undefined;
+          return (
+            <li key={l.key} data-testid="combo-leg" className="flex items-center gap-3 rounded-card border border-border bg-surface p-3">
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-semibold">{l.question}</p>
+                <p className="text-[12px] text-muted">Bet {l.outcome} at {pct(l.price)}{b ? ` · ${b.winProb === null ? "No model chance" : `${pct(b.winProb)} chance`} · pays ${multX(1 / (b.ask + b.fee))}` : ""}</p>
+              </div>
+              <button type="button" aria-label={`Remove ${l.question}`} onClick={() => setLegs(legs.filter((_, j) => j !== i))} className="min-h-11 min-w-11 rounded-input border border-border text-soft">✕</button>
+            </li>
+          );
+        })}
       </ul>
 
       <section aria-label="Combo result" className="flex flex-col gap-3 rounded-card border border-border bg-surface p-4 md:p-5">
-        {c.error === "too_few" && <p data-testid="combo-msg" className="text-sm text-soft">{legs.length === 0 ? "Add at least two bets to check a combo." : "Add at least one more leg."}</p>}
-        {c.error === "no_model" && <p data-testid="combo-msg" className="text-sm text-soft">No model chance for &ldquo;{c.noModel}&rdquo;, so this combo can&apos;t be scored. Remove that leg.</p>}
-        {c.sameEvent.length > 0 && (
+        {legs.length < MIN_COMBO_LEGS && <p data-testid="combo-msg" className="text-sm text-soft">{legs.length === 0 ? "Add at least two bets to check a combo." : "Add at least one more leg."}</p>}
+        {legs.length >= MIN_COMBO_LEGS && !ready && !limit && <p data-testid="combo-msg" className="text-sm text-soft">Scoring your combo…</p>}
+        {ready && c.error === "no_model" && <p data-testid="combo-msg" className="text-sm text-soft">No model chance for &ldquo;{c.noModel}&rdquo;, so this combo can&apos;t be scored. Remove that leg.</p>}
+        {ready && c.sameEvent.length > 0 && (
           <p data-testid="combo-same-event" className="rounded-input border border-border bg-bg p-3 text-[13px] text-soft">
             Same event ({c.sameEvent.join(", ")}): these legs move together, the combined chance is likely off.
           </p>
@@ -138,6 +172,17 @@ export function ComboClient() {
                 <button type="button" onClick={() => setLegs(legs.filter((_, j) => j !== c.drop!.index))} className="min-h-11 self-start rounded-input bg-accent px-4 text-sm font-semibold text-on-accent hover:bg-accent-hover">Drop that leg</button>
               </div>
             )}
+            <details data-testid="combo-why" className="text-[13px] text-muted">
+              <summary className="min-h-11 cursor-pointer py-2">Why these numbers?</summary>
+              <div className="flex flex-col gap-2 pb-2">
+                <p data-testid="combo-why-pays">Pays {combos.map((l) => multX(1 / (l.base.ask + l.base.fee))).join(" × ")} = {multX(n.multiplier)}: each leg&apos;s payout after its fee, multiplied.</p>
+                <p data-testid="combo-why-chance">Combined chance {combos.map((l) => pct(l.base.winProb)).join(" × ")} = {pct(n.chance)}.</p>
+                <p data-testid="combo-why-sample">Score sample: the smallest leg, about {smallest === null ? "—" : Math.round(smallest).toLocaleString("en-US")} similar past bets.</p>
+                <ul className="flex flex-col gap-1">
+                  {legs.map((l) => <li key={l.key} data-testid="combo-why-leg"><span className="text-soft">{l.question} ({l.outcome}):</span> {scored!.legs.get(l.key)?.basis}</li>)}
+                </ul>
+              </div>
+            </details>
           </>
         )}
         <p className="text-[12px] text-muted">{MIN_COMBO_LEGS} to {MAX_COMBO_LEGS} legs. Bet only what you can afford to lose.</p>

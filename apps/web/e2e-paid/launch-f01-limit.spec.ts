@@ -85,3 +85,37 @@ test("signed out: /api/check/search finds markets and leaks nothing else", async
   await page.getByTestId("check-hits").locator("li button").first().click();
   await expect(page.getByTestId("chk-score")).toBeVisible({ timeout: 30_000 });
 });
+
+// F2: a combo is ONE check, shared with F1's allowance; the leg lookup is not a check and carries no model numbers.
+test("Free: scoring a combo uses the day's check; the same set is free; another combo and a single check get 429", async ({ page }) => {
+  test.setTimeout(240_000);
+  await ownDevice(page);
+  await signIn(page, `f02-limit-${Date.now()}@example.com`);
+  const ids = await marketIds(page, 4);
+  expect(ids.length).toBeGreaterThanOrEqual(3);
+  const post = (path: string, data: unknown) => page.request.post(path, { data, headers: { Origin: new URL(page.url()).origin } });
+
+  // lookups are free and say nothing about the model
+  for (const m of ids.slice(0, 3)) {
+    const r = await post("/api/check/leg", { m, side: 0 });
+    expect(r.status()).toBe(200);
+    expect(Object.keys(await r.json()).sort()).toEqual(["market", "outcome", "price", "side", "venue"]);
+  }
+  const A = [{ m: ids[0], side: 0 }, { m: ids[1], side: 0 }];
+  expect((await post("/api/check/combo", { legs: A })).status()).toBe(200);
+  expect((await post("/api/check/combo", { legs: [...A].reverse() })).status()).toBe(200);   // same set again: free
+  const single = await post("/api/check", { m: ids[2], side: 0 });
+  expect(single.status()).toBe(429);
+  expect((await single.json()).code).toBe("check_limit");
+  const other = await post("/api/check/combo", { legs: [{ m: ids[0], side: 0 }, { m: ids[2], side: 0 }] });
+  expect(other.status()).toBe(429);
+  expect((await other.json()).code).toBe("check_limit");
+
+  // the page shows the upgrade card for the second combo
+  await page.goto(`/check/combo?m=${ids[0]}&side=0`);
+  await expect(page.getByTestId("combo-leg")).toHaveCount(1, { timeout: 30_000 });
+  await page.evaluate(([m]) => window.history.pushState(null, "", `/check/combo?m=${m}&side=0`), [ids[2]!]);
+  await expect(page.getByTestId("combo-leg")).toHaveCount(2, { timeout: 30_000 });
+  await expect(page.getByTestId("check-upgrade")).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByTestId("combo-mult")).toHaveCount(0);
+});

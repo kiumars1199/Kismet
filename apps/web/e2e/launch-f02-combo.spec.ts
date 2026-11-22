@@ -28,6 +28,12 @@ test("3 legs: combined numbers, drop the weakest with one tap, numbers update", 
   const before = { chance: await page.getByTestId("combo-chance").innerText(), mult: await page.getByTestId("combo-mult").innerText() };
   await expect(page.getByTestId("combo-formula")).toContainText("independent");
   await expect(page.getByTestId("combo-same-event")).toHaveCount(0);
+  // basis one tap away: each leg's basis, the smallest sample, how pays is computed
+  await page.getByTestId("combo-why").locator("summary").click();
+  await expect(page.getByTestId("combo-why-pays")).toContainText("×");
+  await expect(page.getByTestId("combo-why-sample")).toContainText("similar past bets");
+  await expect(page.getByTestId("combo-why-leg")).toHaveCount(3);
+  await expect(page.getByTestId("combo-why-leg").first()).toContainText("eff. samples");
   const drop = page.getByTestId("combo-drop");
   if (await drop.count()) {
     await drop.getByRole("button", { name: "Drop that leg" }).click();

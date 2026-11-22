@@ -1,13 +1,12 @@
-// POST /api/check/leg { m | link, side? } (SPEC F2): looks up one leg for the combo checker. A whole combo counts as ONE check
-// against the same daily Free allowance as /api/check (one fixed id for the day), so adding or changing legs is free once
-// the combo is open; Free's second distinct check of the day, combo or single, answers 429 { code: "check_limit" }.
+// POST /api/check/leg { m | link, side? } (SPEC F2): looks up one leg for the combo checker. It returns lookup data only
+// (title, side, price, venue): no chance, edge, score or sample, so it is not a free check. Scoring is POST /api/check/combo.
 import { z } from "zod";
 import { sameOrigin } from "@/lib/auth/server";
 import { readJson, TOO_LARGE, tooLarge } from "@/lib/body";
-import { notFound, liveMarketBody, withTier } from "@/lib/data/respond";
-import { countCheck } from "@/lib/check/limit";
+import { notFound, withTier } from "@/lib/data/respond";
+import { isOpenIn, NOT_OPEN } from "@/lib/check/open";
 import { parseLink, resolveLink } from "@/lib/check/parse-link";
-import { buildCheck } from "@/lib/check/response";
+import { buildLeg } from "@/lib/check/response";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -26,20 +25,14 @@ export async function POST(req: Request) {
   if (!parsed.success) return Response.json({ error: "Send a market id or a link", code: "bad_request" }, { status: 400 });
   const { m: id, link, side } = parsed.data;
 
-  return withTier(req, "markets", async (store, tier, me) => {
+  return withTier(req, "markets", (store) => {
     let market = id ? (store.byId.get(id) ?? store.flagsById.get(id)) : undefined;
     if (link) {
       const p = parseLink(link);
       market = p ? (resolveLink(p, store) ?? undefined) : undefined;
     }
-    if (!market) return Response.json({ error: "We couldn't find an open market at that link", code: "not_found" }, { status: 404 });
-    if (!market.sides.some((s) => s.side_index === side)) return notFound("Side");
-
-    const c = await countCheck(req, tier, me.user?.id, "combo", 0);
-    if (!c.ok) return Response.json({ error: "Free includes 1 check a day. Upgrade for unlimited checks.", code: "check_limit", left: 0 }, { status: 429 });
-
-    const body = await liveMarketBody(store, market, tier, "pro");
-    const out = buildCheck(body.market, side, undefined, 100);
+    if (!market || !isOpenIn(market, store)) return Response.json({ error: NOT_OPEN, code: "not_found" }, { status: 404 });
+    const out = buildLeg(market, side);
     return out ? Response.json(out) : notFound("Side");
   });
 }

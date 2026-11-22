@@ -26,3 +26,19 @@ export function buildCheck(m: StoreMarket, sideIndex: 0 | 1, price: number | und
     result: compute(base, price ?? base.ask, stake),
   };
 }
+
+/** What the combo checker needs to list a leg before it is scored: title, side, price, venue. No model numbers, so a lookup is not a check. */
+export interface LegLookup {
+  market: { id: string; question: string; event: string; event_id: string };
+  side: 0 | 1;
+  outcome: string;
+  price: number;                       // the card's price for this side (a fraction)
+  venue: CheckBase["venue"];
+}
+
+export function buildLeg(m: StoreMarket, sideIndex: 0 | 1): LegLookup | null {
+  const s = m.sides.find((x) => x.side_index === sideIndex);
+  if (!s) return null;
+  const base = baseOf(m, s);
+  return { market: { id: m.id, question: m.question, event: m.event, event_id: m.event_id }, side: sideIndex, outcome: s.outcome, price: base.ask, venue: base.venue };
+}
