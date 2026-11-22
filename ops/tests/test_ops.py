@@ -85,6 +85,16 @@ def write(tmp_path, m, f):
     return str(tmp_path)
 
 
+def test_upload_skips_kalshi_json(tmp_path):
+    """Nov 21: kalshi.json is uploaded only by --only after the crawl; the main upload would send the previous one."""
+    out = write(tmp_path, *good())
+    (tmp_path / "kalshi.json").write_text("{}")
+    http = FakeHttp(prev=None)
+    assert upload.publish(out, upload.Storage("https://x.supabase.co/", "svc", http), log=lambda *_: None)
+    names = [c[1].rsplit("/", 1)[1] for c in http.calls if c[0] == "POST"]
+    assert "kalshi.json" not in names and names[-1] == "flags.json"
+
+
 def test_upload_all_files_flags_last(tmp_path):
     out = write(tmp_path, *good())
     http = FakeHttp(prev=None)
