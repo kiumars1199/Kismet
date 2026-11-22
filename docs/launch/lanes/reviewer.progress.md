@@ -174,3 +174,19 @@ Update after every task: task · status · evidence (commands + last output line
 - p95 vitest test fails on final too under load (not a finding); funnel-db file failure is a load flake.
 - Post-merge: production counts. Evidence: review/f03/*.
 - Next: F1 (#43), then F2 (#45, last commit da631bb only).
+
+## F1 #43 (head c83a7cf): FAIL
+Evidence in review/f01/ (checks.log, e2e-checker.log, e2e-paid-limit.log, probe.log, cls-result.log, closed-market-repro.txt, screenshots signedout-{390,1440}-{empty,result,price-0.5,missing}.png).
+Green: typecheck, lint, test:ops 36/36, build, check:js / 142.5 kB, /check 129.1 kB; vitest 1471/1472 (only the known apply() p95 load flake, same as final); checker e2e 6/6; shared-file edits OK.
+Findings:
+1. No "Check" link on any card: 0 links to /check?m= on / (12 cards), /bets (12), /markets (15).
+2. Layout jump: CLS 0.374 at 390 px (0.016 at 1440) on /check?m=…, the footer moves when the result arrives.
+3. A closed market is still scored: with the real clock, 6674492 (closed 5 days earlier) returns 200 and score 100. The spec wants "We couldn't find an open market".
+4. The paid launch-f01-limit spec fails 1 of 3: signed-out search test gets the upgrade card because the previous test used the device's daily check.
+5. The e2e doesn't compare market % or edge with the card/drawer, and its timing check is < 1000 ms, not 100 ms. Measured in the page: 3–10 ms.
+6. Low: price 0.5 is accepted (shows "1%", "191x") while the message says 1%–99%. The checker shows no venue availability: card says "International only, not on Polymarket US"; the API has venue "intl-only" but the UI drops it.
+Open (not findings): signed-out word search, Kalshi links use Kalshi's own price.
+
+## F7 post-merge (final cd9f672): PASS
+go-live.md present; mode+invoice-events 10/10; price IDs env-only; scan 0 real (12 fake in ops/tests). review/f07/postmerge-*.
+Queue: F2 #45 da631bb, F5 #47, F8 #44, F9 #48 (8434b9e), F6 #46 (b9051cb..c68d2b7); F3 returns later.

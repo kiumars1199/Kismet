@@ -1,1 +1,23 @@
 /: cards=12 checkLinks=0
+/bets: cards=12 checkLinks=0
+/markets: cards=15 checkLinks=0
+card text: Denmark vs Norway: both teams to score Bet Yes 92% chance to win +33% est. return Pays 1.45x After Polymarket's fee Tue 7:45 PM · Closed International only, not on Polymarket US Why this bet? If you bet $ If it wins you get $14.47 back ($10 + $4.47) Value Great value Great value: an estimated return of 20% or more, backed by 100+ similar past bets. Our estimate Wins 92% of the time Pays 1.45x after the fee Price 68% plus Polymarket's 1.6% fee Estimated return +33% 91.6% × 1.45x − 1 ≈ +33%. Win chance × payout, minus the stake, at today's price after the fee. Per bet, on average; any single bet can lose. Based on about 519 similar past bets in UEFA Nations League in-game bets. Similar past bets in testing Best bets paying under 1.5x before the fee: +12% over over 13 thousand tested bets, won 92% Live record so far No settled bets yet Best bets are logged when shown and graded as their mar
+checker: {
+  chance: '92%',
+  market: '68%',
+  mult: '1.45x',
+  edge: '+23 points',
+  ret: '+33%',
+  score: '100'
+}
+price edit -> multiplier DOM update ms: [ 10, 4, 3, 4, 3 ]
+390 empty: hscroll=false cls=0.004 disclaimer=true cents=false
+390 result: hscroll=false cls=0.374 disclaimer=true cents=false
+390 price 0 error: "Price must be between 1% and 99%." score="—"
+390 price 0.5 error: "" market="1%" mult="191x"
+390 missing: hscroll=false cls=0.003 disclaimer=true cents=false
+1440 empty: hscroll=false cls=0.002 disclaimer=true cents=false
+1440 result: hscroll=false cls=0.016 disclaimer=true cents=false
+1440 price 0 error: "Price must be between 1% and 99%." score="—"
+1440 price 0.5 error: "" market="1%" mult="191x"
+1440 missing: hscroll=false cls=0.001 disclaimer=true cents=false

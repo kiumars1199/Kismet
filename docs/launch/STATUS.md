@@ -23,7 +23,7 @@ file after every merge. "Review result" says "passed review" only after the revi
 | F4 Three venues side by side | data | built locally; PR after F3 merges | — | not reviewed |
 | F5 Topics at signup | onboarding-invites | PR open, fixes in (4a93a49; CLS 0.054@390, 0.020@1440); queued for review; migration topics_off (lead applies before merge) | kiumars1199/Kismet#47 | not reviewed |
 | F6 How to place this bet | checker | PR open (stacked on #45); 2 unsourced guide steps being fixed | kiumars1199/Kismet#46 | not reviewed |
-| F7 Live payments by config | trust | merged (cd9f672) after review PASS + full suites on final (e2e 88/88); post-merge check pending | kiumars1199/Kismet#41 | not reviewed |
+| F7 Live payments by config | trust | merged (cd9f672), prod READY, health ok | kiumars1199/Kismet#41 | passed review |
 | F8 Responsible betting | trust | PR open (head f1d4e3e; RiskNote by every bet button, icon links via aria); in review queue; migration paused_until (lead applies before merge) | kiumars1199/Kismet#44 | not reviewed |
 | F9 Venue availability | trust | PR open, stacked on #44 (Kalshi/Polymarket US unverified per state, intl restricted); in review queue; check:js 145.3 kB being trimmed | kiumars1199/Kismet#48 | not reviewed |
 | F10 Install and web push | alerts | not started | | not reviewed |
@@ -55,7 +55,7 @@ Problems:
 - /markets at 390 px: CLS 0.27 on `final` from the "Quick filters" row shifting (reviewer, F3 review). Owner: assigned when a lane frees up; must be fixed before walk-throughs.
 
 ## Fixed log
-(empty)
+- F7: passed review (pre-merge PASS + post-merge PASS on cd9f672; evidence review/f07/).
 
 ## What Q must do
 - Add repo secret `VERCEL_AUTOMATION_BYPASS_SECRET` (Vercel → Settings → Deployment Protection) for preview smoke S3/S5.
