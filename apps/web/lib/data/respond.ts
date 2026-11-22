@@ -1,6 +1,8 @@
 // Server helpers shared by the API routes.
 import { ctxOf, livePrices, repriceMarkets, repricePage, type QuoteSource } from "@/lib/reprice";
-import { DelayedPending, getStore, getStoreFor, type Store } from "./store";
+import { DelayedPending, getKalshiIndex, getStore, getStoreFor, type Store } from "./store";
+import { searchKalshi } from "./kalshi-index";
+import { canBeta } from "@/lib/beta";
 import { botCheck, clientIp, clientKey, noteRows, rateLimit, rowBudget, verifiedBot, type Rule } from "@/lib/abuse";
 import { getMe, type Me } from "@/lib/auth/server";
 import { freeView, gateMarket, gateMarkets } from "./gate";
@@ -17,6 +19,7 @@ import { DELAYED_PENDING, delayedPendingLine, type EventResponse, type MarketRes
 import type { LedgerStats, StoreMarket } from "@/lib/types";
 import { proofLine, type Proof } from "@/lib/proof";
 import { headers } from "next/headers";
+import { pausedResponse } from "@/lib/account/pause";
 
 /** RT-15: tier-shaped bodies must never sit in a shared cache. A route's own private Cache-Control is kept. */
 export function noStore(res: Response): Response {
@@ -59,6 +62,8 @@ export async function withTier(
   { headers, bot = true }: { headers?: HeadersInit; bot?: boolean } = {},
 ): Promise<Response> {
   const me = await getMe();
+  const paused = pausedResponse(me);   // F8: a paused account gets no data
+  if (paused) return paused;
   // P6: BotID and the rate limit run side by side; the store loads only after both pass (a refused request costs nothing)
   const [botRefused, limited] = await Promise.all([bot ? botCheck() : null, rateLimit(rule, clientKey(req, me.user?.id))]);
   const refused = botRefused ?? limited;
@@ -245,12 +250,33 @@ async function listBodyOf(store: Store, f: FilterState, tier: Tier, sampleKey: s
 
 const sampleKeyOf = (req: Request, me: Me) => (me.user?.id ? `u:${me.user.id}` : `ip:${clientIp(req)}`);
 
+const emptyFacets = (): MarketsResponse["facets"] => ({ categories: {}, topics: {}, market_types: {}, periods: {}, verdicts: {}, pays: {}, chance: {}, roi: {}, closes_h: [] });
+
+/** The Kalshi part of a list response. DATA_CLOCK=scan pins "now" to the scan, like the Polymarket closed-market filter.
+ *  Beside Polymarket rows (venue=all) it is the top 5 matches; alone (venue=kalshi) it is a full page. */
+async function kalshiPage(f: FilterState, store: Store): Promise<MarketsResponse["kalshi"]> {
+  const ix = await getKalshiIndex();
+  if (!ix) return undefined;
+  const alone = f.venue === "kalshi";
+  const now = process.env.DATA_CLOCK === "scan" ? store.meta.scanned_at : undefined;
+  return searchKalshi(ix, { q: f.q, topics: f.topics, categories: f.categories, page: alone ? f.page : 1, page_size: alone ? f.page_size : 5 }, now);
+}
+
 /** GET /api/markets and /api/flags. Free: first page only (top 10 rows), exact numbers as ranges (docs/08 LIMITS);
  *  Best bets are the day's sample (freeSample). Paid: a page past the last one is refused (docs/15 § pagination cap). */
 export const listRoute = (req: Request, view?: "flags") =>
   withTier(req, "markets", async (store, tier, me) => {
     const f = { ...parse(new URL(req.url).searchParams), ...(view ? { view } : {}) };
     const live = can(tier, "live_data");
+    // F3: Kalshi rows (no model chance: never flags) come from their own index, behind the same permission as /api/kalshi.
+    const kalshiOk = !view && canBeta(me, "kalshi");
+    if (f.venue === "kalshi" && !kalshiOk) f.venue = "all";   // an old ?ven=kalshi link with Kalshi off: the normal list, not an error
+    const kalshi = kalshiOk && (f.venue === "kalshi" || (f.venue === "all" && !!f.q?.trim())) ? await kalshiPage(f, store) : undefined;
+    if (f.venue === "kalshi" && !view) {
+      const refused = await rateLimit(live ? "pages" : "list_free", clientKey(req, me.user?.id));   // no Polymarket page below to count it
+      if (refused) return refused;
+      return Response.json({ total: 0, page: 1, page_size: f.page_size, pages: 1, rows: [], facets: emptyFacets(), scanned_at: store.meta.scanned_at, kalshi });
+    }
     if (live && f.page > 1) {
       const refused = await rateLimit("pages", clientKey(req, me.user?.id));   // max 50 pages a minute
       if (refused) return refused;
@@ -264,7 +290,7 @@ export const listRoute = (req: Request, view?: "flags") =>
     const over = live ? null : await rowBudget(req, me.user?.id, body.rows.map((r) => r.market.id));   // RT-03
     if (over) return over;
     await noteRows(req, me.user?.id, body.rows.length);
-    return Response.json(body);
+    return Response.json(kalshi ? { ...body, kalshi } : body);
   });
 
 /** Best bets page 1 for the first server paint (docs/19 P6): the same body /api/flags returns for this URL (same
@@ -281,7 +307,15 @@ export async function firstPage(params: URLSearchParams, view: "flags" | "market
   try {
     const ctx = await pageStore();
     const store = can(ctx.tier, "exact_edge") ? ctx.store : freeView(ctx.store);
+    const kalshiOk = view === "markets" && canBeta(ctx.me, "kalshi");
     const f = parse(params);
+    if (f.venue === "kalshi" && !kalshiOk) f.venue = "all";   // Kalshi off: ignore the param, like /api/markets
+    if (kalshiOk && f.venue === "kalshi") {   // the Kalshi page ships with the HTML too
+      const kalshi = await kalshiPage(f, store);
+      if (!kalshi) return undefined;
+      const main: MarketsResponse = { total: 0, page: 1, page_size: f.page_size, pages: 1, rows: [], facets: emptyFacets(), scanned_at: store.meta.scanned_at, kalshi };
+      return { main, scanned_at: store.meta.scanned_at };
+    }
     const key = sampleKeyOf(ctx.req, ctx.me);
     const state = view === "flags"
       ? { ...f, view: "flags" as const, verdicts: params.has("vd") ? f.verdicts : BEST_BETS_VERDICTS, page: 1 }
@@ -292,7 +326,9 @@ export async function firstPage(params: URLSearchParams, view: "flags" | "market
     ]);
     if (!main) return undefined;
     await pageBudget(ctx, [...main.rows, ...(soon?.rows ?? [])].map((r) => r.market.id));
-    return { main, soon: soon ?? undefined, scanned_at: store.meta.scanned_at };   // the scan this tier sees, like /api/meta
+    // F3: a direct load of /markets?q=word carries the "Also on Kalshi" matches, as /api/markets does
+    const kalshi = kalshiOk && f.venue === "all" && f.q?.trim() ? await kalshiPage(f, store) : undefined;
+    return { main: kalshi ? { ...main, kalshi } : main, soon: soon ?? undefined, scanned_at: store.meta.scanned_at };   // the scan this tier sees, like /api/meta
   } catch {
     return undefined;
   }

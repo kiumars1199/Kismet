@@ -117,7 +117,8 @@ CMDS = {
     "attach_even": [["-m", "engine", "attach-even"]],  # settles the live flag ledger (ledger_summary.json)
     # Nov 21: Kalshi runs after the Polymarket upload (fresh best bets first), then only kalshi.json is uploaded.
     "scan": [["-m", "engine", "scan"], ["ops/upload.py", "output"],
-             ["-m", "engine", "kalshi"], ["ops/upload.py", "--only", "output/kalshi.json"]],
+             ["-m", "engine", "kalshi"], ["ops/upload.py", "--only", "output/kalshi.json"],
+             ["ops/upload.py", "--only", "output/kalshi_index.json"]],   # F3: every open Kalshi market (skipped when the crawl wrote none)
 }
 
 

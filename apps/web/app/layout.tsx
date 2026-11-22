@@ -14,6 +14,8 @@ import { DEMO_MODE } from "@/lib/config";
 import type { HeaderHint } from "@/lib/me";
 import { unstable_rethrow } from "next/navigation";
 import { ClockProvider } from "@/components/clock";
+import { PauseScreen } from "@/components/account/PauseScreen";
+import { isPaused } from "@/lib/account/pause";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
@@ -39,6 +41,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const signedOut = authEnabled() && !session;
   // Nov 21: demo mode too (getMe answers from config there), so Combos/Kalshi don't pop into the header after /api/me
   const hint = (authEnabled() && session) || DEMO_MODE ? await headerHint() : null;
+  const pausedUntil = (authEnabled() && session) ? await pausedUntilOf() : null;   // F8: getMe() is cached, no second read
   const now = Date.now();   // one clock for the server render and the hydration render (components/clock.tsx)
   const banner = settings.banner_on && settings.banner_text ? settings.banner_text : null;
   return (
@@ -53,13 +56,22 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             {banner}
           </div>
         )}
-        <Header signedOutHint={signedOut} hint={hint} />
-        <main id="main" className="flex-1 px-4 py-6 md:px-8">
-          {children}
-        </main>
-        <Footer />
-        <MobileNav signedOutHint={signedOut} hint={hint} />
-        <LazyHosts />
+        {pausedUntil ? (
+          <>
+            <main id="main" className="flex-1 px-4 py-10 md:px-8"><PauseScreen until={pausedUntil} /></main>
+            <Footer />
+          </>
+        ) : (
+          <>
+            <Header signedOutHint={signedOut} hint={hint} />
+            <main id="main" className="flex-1 px-4 py-6 md:px-8">
+              {children}
+            </main>
+            <Footer />
+            <MobileNav signedOutHint={signedOut} hint={hint} />
+            <LazyHosts />
+          </>
+        )}
         </ClockProvider>
       </body>
     </html>
@@ -73,6 +85,17 @@ async function headerHint(): Promise<HeaderHint | null> {
   try {
     const me = await getMe();
     return { signedIn: DEMO_MODE || !!me.user, admin: isAdminEmail(me.user, process.env.ADMIN_EMAILS, DEMO_MODE), nav: navFeatures(me) };
+  } catch (e) {
+    unstable_rethrow(e);
+    return null;
+  }
+}
+
+/** F8: the end of an active self-pause, else null. A failed read shows the page (data routes check again). */
+async function pausedUntilOf(): Promise<string | null> {
+  try {
+    const me = await getMe();
+    return isPaused(me.paused_until) ? me.paused_until : null;
   } catch (e) {
     unstable_rethrow(e);
     return null;
