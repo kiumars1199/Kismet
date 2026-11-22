@@ -124,7 +124,7 @@ function barPills(s: FilterState, win: Parameters<typeof barValues>[1]) {
   return (key: string) =>
     (!!v.sport && (key === `topics:${v.sport.slice(2)}` || key === `categories:${v.sport.slice(2)}`)) ||
     (!!v.mult && key === "pays") ||
-    (!!v.date && (key === "cw" || key === "ca"));
+    (!!v.date && (key === "cw" || key === "ca" || key === "cf" || key === "ct"));
 }
 
 /** initial: the server's /api/flags page 1 for this URL, so the cards and the headline count are final on first
