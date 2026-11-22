@@ -18,13 +18,13 @@ file after every merge. "Review result" says "passed review" only after the revi
 | Feature | Owner | Status | PR | Review result |
 |---|---|---|---|---|
 | F1 Bet checker | checker | in review (2 open items: signed-out search, Kalshi price) | kiumars1199/Kismet#43 | not reviewed |
-| F2 Combo checker | checker | not started | | not reviewed |
+| F2 Combo checker | checker | in review (stacked on #43; 2 open items after BetCard) | kiumars1199/Kismet#45 | not reviewed |
 | F3 Every market searchable | data | in review | kiumars1199/Kismet#42 | not reviewed |
-| F4 Three venues side by side | data | not started | | not reviewed |
+| F4 Three venues side by side | data | built locally; PR after F3 merges | — | not reviewed |
 | F5 Topics at signup | onboarding-invites | not started | | not reviewed |
 | F6 How to place this bet | checker | not started | | not reviewed |
 | F7 Live payments by config | trust | review PASS; CI red (gitleaks on fake test keys), fix requested | kiumars1199/Kismet#41 | not reviewed |
-| F8 Responsible betting | trust | not started | | not reviewed |
+| F8 Responsible betting | trust | PR open; afford note being added | kiumars1199/Kismet#44 | not reviewed |
 | F9 Venue availability | trust | not started | | not reviewed |
 | F10 Install and web push | alerts | not started | | not reviewed |
 | F11 Bet tracker | tracker | not started | | not reviewed |

@@ -9,3 +9,8 @@
 - F1 fix (a) signed-out word search: pushed to PR #43. /api/check/search (id, question, side, outcome, pays only). e2e-paid launch-f01-limit: 3 tests (2 signed-out incl. search) passed; typecheck/lint clean.
 - F1 fix (b) Kalshi own price: waiting for "F3 merged".
 - F2: plan approved; branch launch/checker-f02 from launch/checker-f01; not started.
+- F2 combo checker · PR up (stacked on #43), https://github.com/kiumars1199/Kismet/pull/45 (branch launch/checker-f02).
+  Evidence: combo.test.ts 9 pass; e2e launch-f02-combo 3 passed; typecheck/lint clean; vitest only api.test.ts timing flake; check:js 142.6 kB OK.
+  Open: "from cards" e2e + Free combo limit paid e2e after BetCard (#44); rebase onto final after #43 merges.
+- F6 how to bet · not started (guides.ts config, then BetCard link after #44).
+- F1(b) Kalshi own price: waiting for "F3 merged".
