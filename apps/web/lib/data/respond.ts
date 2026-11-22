@@ -277,11 +277,11 @@ export const listRoute = (req: Request, view?: "flags") =>
  *  "Closing soon" strip. undefined (the client fetches as before) for "Mine" filters, which resolve in the browser,
  *  or on any error. Free page loads count every row shown against the row budget, like the API. */
 export async function firstPage(params: URLSearchParams, view: "flags" | "markets"): Promise<{ main: MarketsResponse; soon?: MarketsResponse; scanned_at: number } | undefined> {
-  if (params.has("fav") || params.has("wl")) return undefined;
+  if (params.has("wl") || (params.has("fav") && !params.has("t"))) return undefined;   // F5: fav=1 with t=<ids> (the redirect) is rendered here
   try {
     const ctx = await pageStore();
     const store = can(ctx.tier, "exact_edge") ? ctx.store : freeView(ctx.store);
-    const f = parse(params);
+    const f = { ...parse(params), favorites_only: undefined };   // the "Your topics" flag is only the pill; t=<ids> is the filter
     const key = sampleKeyOf(ctx.req, ctx.me);
     const state = view === "flags"
       ? { ...f, view: "flags" as const, verdicts: params.has("vd") ? f.verdicts : BEST_BETS_VERDICTS, page: 1 }

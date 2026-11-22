@@ -8,7 +8,8 @@ export function defaultTopicsHref(search: string, favorites: string[], dismissed
   if (dismissed || !favorites.length) return null;
   const p = new URLSearchParams(search);
   for (const k of p.keys()) if (!DRAWER.has(k)) return null;
-  const out = new URLSearchParams({ fav: "1" });
+  // fav=1 is the "Your topics" pill; t=<ids> carries the same topics so the server renders the filtered list (no refetch after the profile loads)
+  const out = new URLSearchParams({ fav: "1", t: favorites.join(",") });
   p.forEach((v, k) => out.set(k, v));
   return `?${out.toString()}`;
 }

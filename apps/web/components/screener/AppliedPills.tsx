@@ -29,7 +29,7 @@ function pillsFor(s: FilterState, mode: Mode): Pill[] {
   // the search itself shows as parsed chips (components/search/SearchChips.tsx)
   out.push(...each("categories", s.categories, catLabel));
   out.push(...each("exclude_categories", s.exclude_categories, (x) => `Hide ${catLabel(x)}`));
-  out.push(...each("topics", s.topics, (x) => TAXONOMY[x]?.label ?? x));
+  if (!s.favorites_only) out.push(...each("topics", s.topics, (x) => TAXONOMY[x]?.label ?? x));   // under "Your topics" they are that one pill
   out.push(...each("market_types", s.market_types, (x) => x));
   out.push(...each("periods", s.periods, (x) => (x === "full" ? "Full game" : x)));
   if (s.side !== "best") one("side", true, `Side: ${s.side}`, { side: "best" });
@@ -57,7 +57,7 @@ function pillsFor(s: FilterState, mode: Mode): Pill[] {
   if (s.liquidity_min !== undefined) one("liq", true, `Liquidity ≥ ${money(s.liquidity_min)}`, { liquidity_min: undefined });
   if (s.spread_max !== undefined) one("sp", true, `Buy/sell gap ≤ ${c(s.spread_max)}`, { spread_max: undefined });
   one("wl", s.watchlisted_only, "My list only", { watchlisted_only: undefined });
-  if (s.favorites_only) out.push({ key: "fav", label: "Your topics", patch: { favorites_only: undefined }, onRemove: () => getRepo().profile.patch({ topics_off: true }).catch(() => {}) });   // F5: stays cleared on every device
+  if (s.favorites_only) out.push({ key: "fav", label: "Your topics", patch: { favorites_only: undefined, topics: undefined }, onRemove: () => getRepo().profile.patch({ topics_off: true }).catch(() => {}) });   // F5: stays cleared on every device
   if (!s.group_by_event) one("g", true, mode === "markets" ? "Not grouped by event" : "Every bet, not one per game", { group_by_event: true });
   return out;
 }
