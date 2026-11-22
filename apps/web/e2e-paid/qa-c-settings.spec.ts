@@ -34,8 +34,10 @@ test("#21/#22 settings: linked from /account, saved to the account, seen on a se
   test.setTimeout(300_000);
   const email = `qa-c-set-${Date.now()}@example.com`;
   await signIn(page, email);
-  await page.getByTestId("account-settings").click();
-  await expect(page).toHaveURL(/\/settings$/);
+  await expect(async () => {   // a click right after sign-in can land before /account hydrates (Nov 22 CI)
+    if (new URL(page.url()).pathname !== "/settings") await page.getByTestId("account-settings").click({ timeout: 5_000 });
+    await expect(page).toHaveURL(/\/settings$/, { timeout: 5_000 });
+  }).toPass({ timeout: 30_000 });
   await expect(page.getByText("Saved to your account, so they follow you to any device.")).toBeVisible();
   await expect(page.getByRole("link", { name: "Plan and billing" })).toHaveAttribute("href", "/account");
   await expect(page.getByRole("button", { name: "Clear local data" })).toHaveCount(0);   // would delete nothing in the account

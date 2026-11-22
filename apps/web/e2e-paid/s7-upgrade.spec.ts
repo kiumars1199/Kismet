@@ -1,6 +1,7 @@
 // S7 (docs/12): sign up → upgrade (Stripe mocked) → gated feature unlocks. Plus account delete.
 // Supabase and Stripe are the in-app mock (app/e2e-mock); the magic link is read from its inbox.
 import { expect, test, type Page } from "@playwright/test";
+import { expectPlanActive } from "./checkout";
 import type { MarketsResponse } from "@/lib/api";
 
 async function signIn(page: Page, email: string) {
@@ -56,7 +57,7 @@ test("S7 sign up → upgrade with Stripe → Pro unlocks live data and exact num
   await page.goto("/pricing");
   await page.getByTestId("checkout-pro").click();
   await expect(page).toHaveURL(/\/account\?checkout=success/, { timeout: 45_000 });   // checkout → mock Stripe → signed webhooks
-  await expect(page.getByTestId("checkout-status")).toHaveText("Payment confirmed. Your plan is active.", { timeout: 60_000 });   // the page polls /api/me every 2 s for up to 60 s; wait as long as it does (Nov 21: 30 s flaked on CI)
+  await expectPlanActive(page);   // confirmed text, or the poll already reloaded /account
   await expect(page.getByText("Pro", { exact: true }).first()).toBeVisible();
 
   const pro = await rows(page);

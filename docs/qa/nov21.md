@@ -56,6 +56,17 @@ affected e2e and the Vercel preview all green.
   it's fixed in its own PR: the checkout-status waits now match the page's own 60 s poll window (S7 and the alerts
   spec; billing already used 60 s). #24 was closed and reopened as a fresh PR after this merged (one working branch).
 
+## CI race: checkout status after mock Stripe ("Nov21: checkout-status race")
+- The disk-fix PR (#26) went red on e2e-paid billing and settings, neither touched by it. The 60 s wait from #25 was the
+  wrong fix: after checkout, CheckoutStatus shows "Payment confirmed" only if /api/me already says paid on its first
+  load. If its 2 s poll sees the plan change first, it reloads plain /account, which has no status line, so a test
+  waiting for the text fails no matter how long it waits. S7, alerts and billing now use one helper
+  (`e2e-paid/checkout.ts`) that accepts either the confirmed text or the reload to /account. If the page gives up after
+  60 s, the test still fails.
+- Settings: the "Settings" click right after sign-in sometimes did nothing (it landed before /account hydrated), so it
+  is now retried until the URL is /settings.
+- App behaviour unchanged. Fixed in its own PR ahead of the disk fix; #26 closed and reopened after.
+
 ## Q's answers (Nov 21, before going away)
 
 - Alerts email check: throwaway Pro test account, mail to Resend's test inbox (delivered@resend.dev), deleted after.
