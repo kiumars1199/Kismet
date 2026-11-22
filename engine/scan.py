@@ -16,6 +16,7 @@ import numpy as np
 from pipeline.common import GAMMA, SAMPLE_TAGS, classify, http, parse_ts, taker_fee
 from .dataset import HORIZONS, market_type
 from .model import Model
+from .jsonio import dump_atomic
 
 
 def nearest_h(hours):
@@ -286,8 +287,8 @@ def run(cfg, log=print):
                         best_us_edge=sum(1 for r in best_flags
                                          if (r.get("us") or {}).get("edge") is not None
                                          and r["us"]["edge"] >= cfg.flag_min_edge)))
-    json.dump(dict(meta=meta, markets=rows), open(cfg.path("output", "markets.json"), "w"))
-    json.dump(dict(meta=meta, flags=flags), open(cfg.path("output", "flags.json"), "w"), indent=1)
+    dump_atomic(cfg.path("output", "markets.json"), dict(meta=meta, markets=rows))
+    dump_atomic(cfg.path("output", "flags.json"), dict(meta=meta, flags=flags), indent=1)
     # track record = Best bets only; plus one random same-payout bet per new pick (control.jsonl)
     log(f"ledger: {ledger.append(cfg, best_flags, now, rows=rows)} new rows")
     # slug -> event index, so the extension can look up a Polymarket page by its URL slug
@@ -302,10 +303,10 @@ def run(cfg, log=print):
     for r in best_flags:  # flag_ids = Best bets only (the extension badges these)
         if r.get("venue") != "us":
             events[r["slug"]]["flag_ids"].append(r["id"])
-    json.dump(events, open(cfg.path("output", "events.json"), "w"))
+    dump_atomic(cfg.path("output", "events.json"), events)
     sp = {f"{k[0]}|{k[1]}": dict(n=len(v), median=round(float(np.median(v)), 4),
                                   p75=round(float(np.percentile(v, 75)), 4))
           for k, v in spreads.items() if len(v) >= 5}
-    json.dump(sp, open(cfg.path("output", "spreads.json"), "w"), indent=1)
+    dump_atomic(cfg.path("output", "spreads.json"), sp, indent=1)
     log(f"scanned {len(rows)} markets, {len(flags)} flags")
     return meta

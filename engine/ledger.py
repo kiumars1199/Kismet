@@ -40,6 +40,7 @@ import time
 from pipeline.common import CLOB, GAMMA, http, jl_read, jl_write, parse_ts
 from pipeline.venue_us import US_GATEWAY
 from pipeline.fetch_closed import resolved_yes
+from .jsonio import dump_atomic
 
 
 def _path(cfg):
@@ -275,7 +276,7 @@ def grade(cfg, get_market=get_market, get_history=get_history, now=None, log=pri
     control, _ = _grade_file(_control_path(cfg), markets, get_market, get_history, now, log, get_us_settlement)
     s = summarize(entries, now)
     s["vs_same_payout"] = same_payout(entries, control)
-    json.dump(s, open(cfg.path("output", "ledger_summary.json"), "w"), indent=1)
+    dump_atomic(cfg.path("output", "ledger_summary.json"), s, indent=1)
     log(f"ledger: graded {graded} now, {s['graded']}/{s['entries']} graded in total")
     return s
 

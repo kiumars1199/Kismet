@@ -6,6 +6,7 @@ import time
 
 from . import backtest, config, dataset, precompute, scan, update
 from .model import Model
+from .jsonio import dump_atomic
 
 
 def fit(cfg, log=print):
@@ -20,7 +21,7 @@ def fit(cfg, log=print):
     m = Model(cfg, b.vocab, hl).fit(b, asof=asof)
     out = m.to_json()
     out.update(instance=cfg.instance, fitted_at=int(asof), data=dataset.summary(b))
-    json.dump(out, open(cfg.path("output", "model.json"), "w"))
+    dump_atomic(cfg.path("output", "model.json"), out)
     log(f"model fitted: half-life={hl or 'no decay'} nodes={len(m.nodes)} bets={b.n}")
 
 
@@ -35,7 +36,7 @@ def run_backtest(cfg, log=print):
     even = _read(cfg.path("output", "backtest_even.json"))
     if even:  # carry the even-weeks run forward: the site leads with it (Nov 21, Q's decision on #6)
         bt["even_weeks"] = even
-    json.dump(bt, open(cfg.path("output", "backtest.json"), "w"), indent=1)
+    dump_atomic(cfg.path("output", "backtest.json"), bt, indent=1)
     log(f"chosen half-life: {bt['chosen_half_life_days']}")
 
 
@@ -60,7 +61,7 @@ def attach_even(cfg, log=print):
         log("attach-even: nothing to attach")
         return False
     main["even_weeks"] = even
-    json.dump(main, open(main_p, "w"), indent=1)
+    dump_atomic(main_p, main, indent=1)
     log(f"attach-even: even_weeks from {even.get('ran_at')}")
     return True
 
@@ -81,7 +82,7 @@ def run_backtest_even(cfg, log=print):
     bt["data"] = dataset.summary(b)
     bt["sample"] = dict(EVEN_SAMPLE)
     bt["ran_at"] = int(time.time())
-    json.dump(bt, open(cfg.path("output", "backtest_even.json"), "w"), indent=1)
+    dump_atomic(cfg.path("output", "backtest_even.json"), bt, indent=1)
     t = bt["results"].get(str(bt["chosen_half_life_days"]), {}).get("taker", {})
     log(f"even weeks: half-life {bt['chosen_half_life_days']}, {t.get('flags')} bets, roi {t.get('roi_pct')}%, t {t.get('t_stat')}")
 
