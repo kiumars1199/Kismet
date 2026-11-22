@@ -13,9 +13,16 @@ import { formatCount, plural } from "@/lib/format";
 type Change = (p: Partial<FilterState>, opts?: { replace?: boolean }) => void;
 type Win = { closes_after_h: number | undefined; closes_within_h: number };
 
-const SPORTS = (TAXONOMY_TREE.find((n) => n.id === "sports")?.children ?? []).map((n) => n.id);
-/** Non-sport categories Best bets carry, with their plain names. */
-const OTHER: Record<string, string> = { weather: "Weather", politics: "Politics", crypto: "Crypto", finance: "Finance", culture: "Culture", tech: "Tech", geopolitics: "World" };
+/** Every category and its topics, always listed (Marc, Nov 22: tennis, cricket, politics, stocks, culture must be
+ *  pickable even when they have no best bets right now; the count says so). "Other" buckets are left out. */
+const GROUPS = TAXONOMY_TREE.filter((n) => n.id !== "other").map((n) => ({
+  id: n.id, label: n.label, topics: (n.children ?? []).filter((c) => !c.id.endsWith(".other")).map((c) => ({ id: c.id, label: c.label })),
+}));
+
+/** Local calendar day "YYYY-MM-DD" <-> unix s at its start / end, in the visitor's own time zone. */
+export const dayStart = (d: string) => { const [y, m, dd] = d.split("-").map(Number); return new Date(y!, m! - 1, dd!).getTime() / 1000; };
+export const dayEnd = (d: string) => dayStart(d) + 86400 - 1;
+export const dayOf = (unix: number) => { const t = new Date(unix * 1000); return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, "0")}-${String(t.getDate()).padStart(2, "0")}`; };
 
 export const MULTIPLIERS: { key: string; label: string; min?: number; max?: number }[] = [
   { key: "lt1.5", label: "Under 1.5x", max: 1.5 },
@@ -31,20 +38,29 @@ export const SORTS: { key: string; label: string; sort: FilterState["sort"] }[] 
   { key: "closes", label: "Closing soonest", sort: { key: "closes", dir: "asc" } },
 ];
 
-/** The bar's three values read from a FilterState ("" = any). */
-export function barValues(s: FilterState, win: { today: Win; week: Win }) {
+type Bar = { sport: string; mult: string; date: string; from: string; to: string };
+
+/** The bar's values read from a FilterState ("" = any). date "custom" = the From/To days below. */
+export function barValues(s: FilterState, win: { today: Win; week: Win }): Bar {
   const sport = s.topics?.length === 1 ? `t:${s.topics[0]}` : s.categories?.length === 1 && !s.topics?.length ? `c:${s.categories[0]}` : "";
   const mult = MULTIPLIERS.find((m) => m.min === s.pays_min && m.max === s.pays_max)?.key ?? "";
   const near = (w: Win) => s.closes_within_h !== undefined && Math.abs(s.closes_within_h - w.closes_within_h) <= 0.25;
-  const date = near(win.today) ? "today" : near(win.week) ? "week" : "";
-  return { sport, mult, date };
+  const custom = s.closes_from !== undefined || s.closes_to !== undefined;
+  const date = custom ? "custom" : near(win.today) ? "today" : near(win.week) ? "week" : "";
+  const from = s.closes_from !== undefined ? dayOf(s.closes_from) : "";
+  const to = s.closes_to !== undefined ? dayOf(s.closes_to) : "";
+  return { sport, mult, date, from, to };
 }
 
 /** The FilterState patch for three bar values. */
-export function barPatch(v: { sport: string; mult: string; date: string }, win: { today: Win; week: Win }): Partial<FilterState> {
+export function barPatch(v: Bar, win: { today: Win; week: Win }): Partial<FilterState> {
   const m = MULTIPLIERS.find((x) => x.key === v.mult);
   const w = v.date === "today" ? win.today : v.date === "week" ? win.week : null;
+  // Airline-style range: one day picked = that day only; To before From is swapped.
+  const [a, b] = [v.from, v.to || v.from].sort();
+  const custom = v.date === "custom" && !!a;
   return {
+    closes_from: custom ? dayStart(a!) : undefined, closes_to: custom ? dayEnd(b!) : undefined,
     topics: v.sport.startsWith("t:") ? [v.sport.slice(2)] : undefined,
     categories: v.sport.startsWith("c:") ? [v.sport.slice(2) as never] : undefined,
     pays_min: m?.min, pays_max: m?.max,
@@ -83,22 +99,26 @@ export function FilterBar({ state, facets, win, total, shown, onChange }: {
   const [draft, setDraft] = useState(applied);
   const key = `${applied.sport}|${applied.mult}|${applied.date}`;
   useEffect(() => setDraft(applied), [key]);   // eslint-disable-line react-hooks/exhaustive-deps -- follow the URL (back, pills, reset)
-  const dirty = draft.sport !== applied.sport || draft.mult !== applied.mult || draft.date !== applied.date;
+  const dirty = (Object.keys(draft) as (keyof Bar)[]).some((k) => draft[k] !== applied[k]);
 
-  const sports = useMemo(() => SPORTS.filter((id) => (facets?.topics[id] ?? 0) > 0 || applied.sport === `t:${id}`)
-    .sort((a, b) => (facets?.topics[b] ?? 0) - (facets?.topics[a] ?? 0)), [facets, applied.sport]);
-  const others = useMemo(() => Object.keys(OTHER).filter((c) => (facets?.categories[c] ?? 0) > 0 || applied.sport === `c:${c}`), [facets, applied.sport]);
-  const n = (x: number | undefined) => (x ? ` (${x})` : "");
+  // Topics with bets first, then the rest; each group keeps every topic so nothing "disappears".
+  const groups = useMemo(() => GROUPS.map((g) => ({ ...g, topics: [...g.topics].sort((a, b) => (facets?.topics[b.id] ?? 0) - (facets?.topics[a.id] ?? 0)) })), [facets]);
+  const n = (x: number | undefined) => (facets ? (x ? ` (${x})` : " (0 now)") : "");
   const sortKey = SORTS.find((o) => o.sort.key === state.sort.key && o.sort.dir === state.sort.dir)?.key ?? "";
 
   return (
     <div className="flex flex-col gap-3">
       <form data-testid="filter-bar" className="grid grid-cols-2 gap-2 rounded-2xl border border-border bg-raised p-2 md:flex md:flex-row md:items-stretch"
         onSubmit={(e) => { e.preventDefault(); onChange(barPatch(draft, win)); }}>
-        <Field wide label="Sport" icon={ICON.sport} value={draft.sport} testid="bar-sport" onChange={(sport) => setDraft((d) => ({ ...d, sport }))}>
-          <option value="">All sports and topics</option>
-          {sports.length > 0 && <optgroup label="Sports">{sports.map((id) => <option key={id} value={`t:${id}`}>{TAXONOMY[id]?.label ?? id}{n(facets?.topics[id])}</option>)}</optgroup>}
-          {others.length > 0 && <optgroup label="Other topics">{others.map((c) => <option key={c} value={`c:${c}`}>{OTHER[c]}{n(facets?.categories[c])}</option>)}</optgroup>}
+        <Field wide label="Sport or topic" icon={ICON.sport} value={draft.sport} testid="bar-sport" onChange={(sport) => setDraft((d) => ({ ...d, sport }))}>
+          <option value="">Everything</option>
+          {groups.map((g) => (
+            <optgroup key={g.id} label={g.label}>
+              <option value={`t:${g.id}`}>All {g.label}{n(facets?.topics[g.id] ?? facets?.categories[g.id])}</option>
+              {g.topics.map((t) => <option key={t.id} value={`t:${t.id}`}>{t.label}{n(facets?.topics[t.id])}</option>)}
+            </optgroup>
+          ))}
+          {draft.sport.startsWith("c:") && <option value={draft.sport}>{TAXONOMY[draft.sport.slice(2)]?.label ?? draft.sport.slice(2)}</option>}
         </Field>
         <Field label="Multiplier" icon={ICON.mult} value={draft.mult} testid="bar-mult" onChange={(mult) => setDraft((d) => ({ ...d, mult }))}>
           <option value="">Any</option>
@@ -108,7 +128,22 @@ export function FilterBar({ state, facets, win, total, shown, onChange }: {
           <option value="">Any</option>
           <option value="today">Closes today</option>
           <option value="week">Closes this week</option>
+          <option value="custom">Pick dates…</option>
         </Field>
+        {draft.date === "custom" && (
+          <div data-testid="bar-dates" className="col-span-2 grid grid-cols-2 gap-2 md:contents">
+            {(["from", "to"] as const).map((k) => (
+              <label key={k} className={`${box} min-w-0`}>
+                <span className="relative flex min-w-0 flex-1 flex-col">
+                  <span className="-mb-1 pt-1 text-xs text-muted">{k === "from" ? "Closes from" : "To (optional)"}</span>
+                  <input type="date" data-testid={`bar-${k}`} value={draft[k]} min={k === "to" ? draft.from || undefined : undefined}
+                    onChange={(e) => setDraft((d) => ({ ...d, [k]: e.target.value }))}
+                    className="min-h-11 w-full bg-transparent text-[15px] font-medium text-text outline-none [color-scheme:dark]" />
+                </span>
+              </label>
+            ))}
+          </div>
+        )}
         <button type="submit" data-testid="bar-apply"
           className={`col-span-2 flex min-h-12 flex-none items-center justify-center gap-2 rounded-xl px-6 font-semibold md:min-h-16 ${dirty ? "bg-accent text-on-accent hover:bg-accent-hover" : "border border-border bg-muted-bg text-soft"}`}>
           <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>

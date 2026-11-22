@@ -39,6 +39,7 @@ export interface CheckResult {
   marketPct: number;            // the price as a chance
   multiplier: number | null;    // payout per $1 if it wins, after fee
   edge: number | null;          // our chance − price − fee, as a fraction (×100 for points)
+  gap: number | null;           // our chance − price (before the fee): the points the card and drawer show
   score: number | null;
   payout: number | null;        // stake × multiplier
   profit: number | null;        // estimated: stake × multiplier × chance − stake
@@ -46,7 +47,7 @@ export interface CheckResult {
 }
 
 export function validate(price: number, stake: number): CheckError | null {
-  if (!Number.isFinite(price) || price <= 0 || price >= 1) return "price_range";
+  if (!Number.isFinite(price) || price < 0.01 - 1e-9 || price > 0.99 + 1e-9) return "price_range";
   if (!Number.isFinite(stake) || stake < MIN_STAKE || stake > MAX_STAKE) return "stake_range";
   return null;
 }
@@ -59,7 +60,7 @@ export const ERROR_TEXT: Record<CheckError, string> = {
 
 export function compute(b: CheckBase, price: number, stake: number): CheckResult {
   const bad = validate(price, stake);
-  const empty: CheckResult = { price, stake, chance: b.winProb, marketPct: price, multiplier: null, edge: null, score: null, payout: null, profit: null, error: bad };
+  const empty: CheckResult = { price, stake, chance: b.winProb, marketPct: price, multiplier: null, edge: null, gap: null, score: null, payout: null, profit: null, error: bad };
   if (bad) return empty;
   const own = price === b.ask;   // the card's own price: the card's own fee and edge, so the figures are identical
   const fee = own && Number.isFinite(b.fee) ? b.fee : feePerShare(price, b.feeRate);
@@ -67,5 +68,5 @@ export function compute(b: CheckBase, price: number, stake: number): CheckResult
   const base: CheckResult = { ...empty, multiplier: mult, payout: stake * mult };
   if (b.winProb === null) return { ...base, error: "no_model" };
   const edge = own && b.edge !== null ? b.edge : b.winProb - price - fee;
-  return { ...base, edge, score: score(edge, b.n), profit: stake * mult * b.winProb - stake };
+  return { ...base, edge, gap: b.winProb - price, score: score(edge, b.n), profit: stake * mult * b.winProb - stake };
 }

@@ -19,3 +19,13 @@ aaf1c720647144ac4e82c04912ee09fb48353f91:ops/tests/preflight.test.mjs:stripe-acc
 aaf1c720647144ac4e82c04912ee09fb48353f91:ops/tests/preflight.test.mjs:stripe-access-token:59
 aaf1c720647144ac4e82c04912ee09fb48353f91:ops/tests/preflight.test.mjs:jwt:14
 aaf1c720647144ac4e82c04912ee09fb48353f91:ops/tests/preflight.test.mjs:jwt:15
+
+# F7: fake test values (FAKE strings) in commit 3c709f9, which a later commit fixed (keys are now built at runtime).
+3c709f96ee994e0b9a7f435abb2b753f44333d9f:apps/web/lib/billing/mode.test.ts:stripe-access-token:12
+3c709f96ee994e0b9a7f435abb2b753f44333d9f:apps/web/lib/billing/mode.test.ts:stripe-access-token:13
+3c709f96ee994e0b9a7f435abb2b753f44333d9f:apps/web/lib/billing/mode.test.ts:stripe-access-token:14
+3c709f96ee994e0b9a7f435abb2b753f44333d9f:apps/web/lib/billing/mode.test.ts:stripe-access-token:15
+3c709f96ee994e0b9a7f435abb2b753f44333d9f:apps/web/lib/billing/mode.test.ts:stripe-access-token:18
+3c709f96ee994e0b9a7f435abb2b753f44333d9f:apps/web/lib/billing/mode.test.ts:stripe-access-token:22
+3c709f96ee994e0b9a7f435abb2b753f44333d9f:apps/web/lib/billing/mode.test.ts:stripe-access-token:24
+3c709f96ee994e0b9a7f435abb2b753f44333d9f:apps/web/lib/billing/mode.test.ts:stripe-access-token:35

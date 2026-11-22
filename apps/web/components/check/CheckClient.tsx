@@ -11,7 +11,8 @@ import { parseLink } from "@/lib/check/parse-link";
 import type { CheckResponse } from "@/lib/check/response";
 import { SCORE_FORMULA } from "@/lib/check/score";
 import { payoutMoney, pct, ret } from "@/lib/format";
-import { multX } from "@/lib/card";
+import { multX, INTL_ONLY, US_SMALL_PRINT } from "@/lib/card";
+import { gapPts } from "@/lib/betFigures";
 
 type Found = { kind: "ok"; data: CheckResponse } | { kind: "limit" } | { kind: "missing" } | { kind: "error"; text: string } | null;
 const pts = (e: number) => { const v = Math.round(e * 100); return `${v < 0 ? "−" : v > 0 ? "+" : ""}${Math.abs(v)} ${Math.abs(v) === 1 ? "point" : "points"}`; };
@@ -70,13 +71,15 @@ export function CheckClient() {
   }
 
   const data = found?.kind === "ok" ? found.data : null;
+  const deepLink = !!sp.get("m");
+  const loading = busy || (deepLink && found === null);
   const cur = data?.sides.find((s) => s.index === side) ?? null;
   const price = priceText.trim() === "" ? NaN : Number(priceText) / 100;
   const stake = stakeText.trim() === "" ? NaN : Number(stakeText);
   const r = useMemo(() => (cur ? compute(cur.base, Number.isNaN(price) ? 0 : price, Number.isNaN(stake) ? 0 : stake) : null), [cur, price, stake]);
 
   return (
-    <div className="flex flex-col gap-5" data-testid="check-page">
+    <div className="flex flex-col gap-5 [--check-h:1000px] md:[--check-h:700px]" data-testid="check-page">
       <form onSubmit={submit} className="flex flex-col gap-2 sm:flex-row">
         <label className="sr-only" htmlFor="check-q">Market link or words</label>
         <input id="check-q" value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste a Polymarket or Kalshi link, or type a team or topic"
@@ -112,8 +115,10 @@ export function CheckClient() {
         </div>
       )}
 
+      {!data && deepLink && loading && <div data-testid="check-skeleton" aria-hidden="true" className="min-h-[var(--check-h)] animate-pulse rounded-card border border-border bg-surface" />}
+
       {data && cur && r && (
-        <section aria-label="Check result" className="flex flex-col gap-4 rounded-card border border-border bg-surface p-4 shadow-sm md:p-5">
+        <section aria-label="Check result" style={{ minHeight: "var(--check-h)" }} className="flex flex-col gap-4 rounded-card border border-border bg-surface p-4 shadow-sm md:p-5">
           <div>
             <h2 className="font-heading text-[20px] font-bold leading-tight">{data.market.question}</h2>
             <p className="mt-1 text-[13px] text-muted">{data.market.event}</p>
@@ -149,7 +154,7 @@ export function CheckClient() {
               <Stat id="chance" label="Our chance" value={pct(r.chance)} />
               <Stat id="market" label="Market says" value={r.error ? "—" : pct(r.marketPct)} />
               <Stat id="mult" label="Pays" value={r.multiplier === null ? "—" : multX(r.multiplier)} />
-              <Stat id="edge" label="Edge after fee" value={r.edge === null ? "—" : pts(r.edge)} />
+              <Stat id="edge" label="Edge (points)" value={r.gap === null || r.chance === null ? "—" : gapPts({ ask: r.price, win_prob: r.chance, fee: 0, edge: 0 })} />
               <Stat id="return" label="Estimated return" value={r.multiplier === null || r.chance === null || r.error ? "—" : ret((r.chance * r.multiplier - 1) * 100)} />
             </dl>
           )}
@@ -160,6 +165,7 @@ export function CheckClient() {
                 <span data-testid="chk-score" className="font-heading text-[40px] font-bold leading-none text-accent-soft">{r.score === null ? "—" : r.score}</span>
                 <span className="text-sm text-muted">out of 100</span>
               </div>
+              {r.edge !== null && !r.error && <p data-testid="chk-netedge" className="mt-1 text-[13px] text-soft">After the fee: {pts(r.edge)} of win chance over the price.</p>}
               <p data-testid="check-formula" className="mt-2 text-[13px] leading-relaxed text-muted">{SCORE_FORMULA}</p>
               {r.payout !== null && !r.error && (
                 <p className="mt-2 text-[13px] text-soft">A {payoutMoney(r.stake)} bet brings back {payoutMoney(r.payout)} if it wins{r.profit !== null ? `; estimated return ${r.profit >= 0 ? "+" : "−"}${payoutMoney(Math.abs(r.profit))} on average` : ""}. Any single bet can lose.</p>
@@ -171,6 +177,9 @@ export function CheckClient() {
             <summary className="min-h-11 cursor-pointer py-2">Why this number?</summary>
             <p data-testid="check-basis" className="pb-2">{cur.basis}</p>
           </details>
+          {cur.base.venue !== "intl" && (
+            <p data-testid="check-venue" className="text-xs text-muted">{cur.base.venue === "us" ? US_SMALL_PRINT : INTL_ONLY}</p>
+          )}
           <p className="text-[12px] text-muted">Bet only what you can afford to lose.</p>
         </section>
       )}

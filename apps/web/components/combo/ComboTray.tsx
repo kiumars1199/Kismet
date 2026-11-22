@@ -9,7 +9,7 @@ import { ExternalLink } from "@/components/kit/icons";
 import { useEffect, useState } from "react";
 import { btn, btnGhost, btnPrimary } from "@/components/kit";
 import { useBacktest } from "@/components/market/TierNote";
-import { combo, kalshiComboEdge, MIN_LEGS, type Leg } from "@/lib/combos";
+import { combo, kalshiComboEdge, MIN_LEGS, multiplyLine, type Leg } from "@/lib/combos";
 import { LONG_SHOT_LINE, pays, pct, ret, testedLine, winsAbout } from "@/lib/format";
 import { noLiveRecord } from "@/lib/proof";
 import { openTicket, useTradeConfig } from "@/lib/trade/ext";
@@ -173,7 +173,7 @@ function Body({ id, legs, onRemove, onClear }: { id: string; legs: Leg[]; onRemo
             </div>
           </dl>
           <p className="text-xs leading-relaxed text-muted">
-            Chances are our cautious ones (each leg&apos;s, multiplied; our central estimate is {pct(c.q)}). Payouts include each
+            {multiplyLine(legs)} Chances are our cautious ones (our central estimate is {pct(c.q)}). Payouts include each
             leg&apos;s fee: every leg bought and the winnings rolled into the next. Prices are from when you added each leg.
             {c.q_low < 0.25 && <> {LONG_SHOT_LINE}</>} Small errors in each leg multiply in a combo.
             {tested && <> <span className={(record?.roi_pct ?? 0) < 0 ? "text-warning" : "text-soft"}>{tested}.</span> {noLiveRecord("combos")}</>}

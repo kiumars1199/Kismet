@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { closesWithinDay, combo, comboLabel, kalshiComboEdge, legGone, legProblem, pastDated, rangeLine, titleDateEnds } from "./combos";
+import { closesWithinDay, combo, comboLabel, kalshiComboEdge, legGone, legProblem, multiplyLine, pastDated, rangeLine, titleDateEnds } from "./combos";
 import { winsAbout } from "./format";
 
 // Hand-computed (docs/18 §5): A 60¢+1¢ fee, q 70%, low 65%; B 50¢+1¢, q 58%, low 54%; C 80¢+0.8¢, q 86%, low 82%.
@@ -123,5 +123,13 @@ describe("intro line from the combos shown (#65)", () => {
     expect(rangeLine([{ legs: 2, pays: 3.21 }])).toBe("A two-leg combo paying 3.2x");
     expect(rangeLine([{ legs: 2, pays: 2.14 }, { legs: 2, pays: 4.5 }])).toBe("Two-leg combos paying 2.1x to 4.5x");
     expect(rangeLine([{ legs: 3, pays: 12.4 }, { legs: 2, pays: 2.14 }])).toBe("Two- and three-leg combos paying 2.1x to 12x");
+  });
+});
+
+describe("multiplyLine (Nov 21, Q on #8)", () => {
+  it("shows the legs' cautious chances multiplying to the combo's", () => {
+    const legs = [{ q_low: 0.8 }, { q_low: 0.7 }];
+    expect(multiplyLine(legs)).toBe("The combo wins only if every leg wins, so the legs' chances multiply: 80% × 70% ≈ 56%.");
+    expect(multiplyLine([{ q_low: 0.8 }])).toBeNull();
   });
 });

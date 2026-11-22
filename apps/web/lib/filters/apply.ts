@@ -219,7 +219,8 @@ export function apply(store: Store, f0: FilterState, user?: UserCtx, parsed?: Pa
     if (!gte(pays, f.pays_min) || !below(pays, f.pays_max)) mask |= PAYS;
     if (!gte(s.win_prob, floor) || !lte(s.win_prob, f.win_prob_max)) mask |= CHANCE;
     if (!gte(s.roi_pct, f.roi_min)) mask |= ROI;
-    if (!gte(m.hours_to_close, f.closes_after_h) || !lte(m.hours_to_close, f.closes_within_h)) mask |= CLOSES;
+    if (!gte(m.hours_to_close, f.closes_after_h) || !lte(m.hours_to_close, f.closes_within_h) ||
+        !gte(m.closes_at, f.closes_from) || !lte(m.closes_at, f.closes_to)) mask |= CLOSES;
     const other =
       !sideOk(s, fSide) ||
       (f.exclude_categories?.includes(m.category) ?? false) ||

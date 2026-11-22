@@ -9,8 +9,8 @@ const PAGES = ["/", "/bets", "/markets", "/combos", "/watchlist", "/journal", "/
 
 for (const url of PAGES) test(`iPhone ${url}`, async ({ page }, info) => {
   await checkPage(page, url, info, url === "/no-such-page" ? { status: 404 }
-    // /markets renders the desktop table on the server (useDesktop assumes desktop) and swaps to cards once React
-    // hydrates; on a slow CI runner that came after networkidle + 300 ms (Nov 22), so check the phone layout itself.
+    // /markets: the server sends both layouts and CSS shows cards on phones (e2e/phone-first-html.spec.ts); after
+    // hydration only the cards stay in the DOM. Check the phone layout itself rather than a fixed delay.
     : url === "/markets" ? { settle: (p) => expect(p.locator("main table")).toHaveCount(0, { timeout: 30_000 }) }
     : {});   // the not-found page must say 404
 });

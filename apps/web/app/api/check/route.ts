@@ -7,6 +7,7 @@ import { readJson, TOO_LARGE, tooLarge } from "@/lib/body";
 import { notFound, liveMarketBody, withTier } from "@/lib/data/respond";
 import { MAX_STAKE, MIN_STAKE, validate } from "@/lib/check/compute";
 import { countCheck } from "@/lib/check/limit";
+import { isOpenIn, NOT_OPEN } from "@/lib/check/open";
 import { parseLink, resolveLink } from "@/lib/check/parse-link";
 import { buildCheck } from "@/lib/check/response";
 
@@ -37,7 +38,7 @@ export async function POST(req: Request) {
       const p = parseLink(link);
       market = p ? (resolveLink(p, store) ?? undefined) : undefined;
     }
-    if (!market) return Response.json({ error: "We couldn't find an open market at that link", code: "not_found" }, { status: 404 });
+    if (!market || !isOpenIn(market, store)) return Response.json({ error: NOT_OPEN, code: "not_found" }, { status: 404 });
     if (!market.sides.some((s) => s.side_index === side)) return notFound("Side");
 
     const c = await countCheck(req, tier, me.user?.id, market.id, side);
