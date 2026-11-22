@@ -7,6 +7,7 @@
 import type { Market, Side } from "@/lib/types";
 import { funnel } from "@/lib/telemetry";
 import { venueOf } from "@/lib/trade/venue";
+import { RiskNote } from "./RiskNote";
 
 type VenueMarket = Pick<Market, "url" | "kalshi_ticker" | "id"> & Partial<Pick<Market, "us" | "best">>;
 
@@ -24,10 +25,13 @@ export function VenueButton({ m, s, className = "" }: { m: VenueMarket; s?: Pick
   const v = primaryVenue(m, s);
   if (!v) return null;
   return (
+    <>
     <a data-venue={v.key} data-testid="venue-button" href={v.href} target="_blank" rel="noopener noreferrer"
       onClick={(e) => { e.stopPropagation(); funnel("first_bet_click"); }}
       className={`relative z-10 inline-flex min-h-11 items-center justify-center rounded-xl bg-accent px-4 text-sm font-semibold text-on-accent hover:bg-accent-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${className}`}>
       Bet on {v.name}
     </a>
+    <RiskNote className="mt-1" />
+    </>
   );
 }

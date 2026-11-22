@@ -3,6 +3,7 @@
 // words. First line is the payout with the stake added back (Polymarket's own sheet says "To win $X" meaning the total
 // payout; the card says "$10 wins $5.60" for the profit, so this line spells out both). No banned words (lib/banned.ts):
 // no "edge", "spread", "model", "pts"; counts stay under four digits.
+import { RiskNote } from "@/components/trade/RiskNote";
 import { useState, type ReactNode } from "react";
 import type { ApiRow } from "@/lib/api";
 import { betQuote, quoteStars } from "@/lib/betFigures";
@@ -182,6 +183,7 @@ export function Why({ r, livePrice }: { r: ApiRow; livePrice?: ReactNode }) {
               className="inline-flex min-h-11 items-center text-soft underline underline-offset-4 hover:text-text">
               Open on international Polymarket
             </a>{" "}
+            <RiskNote className="mt-1 text-left" />
             <span className="font-medium text-warning">{NOT_FOR_US}.</span>
           </p>
         )}
