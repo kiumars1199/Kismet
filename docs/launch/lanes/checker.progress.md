@@ -14,3 +14,7 @@
   Open: "from cards" e2e + Free combo limit paid e2e after BetCard (#44); rebase onto final after #43 merges.
 - F6 how to bet · not started (guides.ts config, then BetCard link after #44).
 - F1(b) Kalshi own price: waiting for "F3 merged".
+- F6 how to bet · PR up (stacked on #45), https://github.com/kiumars1199/Kismet/pull/46 (branch launch/checker-f06).
+  Evidence: guides.test.ts 11 pass; e2e launch-f06-howto 1 passed (390px); launch-f01-checker still 6 passed; typecheck/lint clean.
+  Sources fetched 2026-11-22 (URLs in guides.ts). Partly unverified: Polymarket intl step 3 "enter amount and confirm"; Kalshi step 1 signup wording.
+  Open: BetCard buttons ("Check", "How to bet this", "Add to combo") + card e2e after #44; F9 availability + RiskNote slots; F1(b) Kalshi price after "F3 merged"; rebases as #43/#45 merge.
