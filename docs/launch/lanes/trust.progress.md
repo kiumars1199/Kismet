@@ -7,3 +7,4 @@
 - All four lane features have PRs. Remaining: review fixes on request.
 - fix: admin e2e-paid ERR_ABORTED · PR #50 https://github.com/kiumars1199/Kismet/pull/50 head 850bdd3. Cause: 120 s per-test timeout vs cold next dev compiles (~70 s for admin routes alone). Fix: test.setTimeout(300_000) on the two tests; both pass (2.9m, 2.6m). Idle until review findings.
 - F9 fix round (Nov 22) · launch/trust-f9 pushed (still stacked on #44; rebase on final after F8 merges). Polymarket US: NV restricted, others available (polymarket.us/trust). Kalshi unverified everywhere (no official list; see decisions.md). Visible availability bar above /markets, labels on icon links, line on event page. Evidence: tsc, lint clean; vitest 115/116 files (api.test.ts timing flake only); check:js 144.1 kB OK; chromium e2e launch-f09 6/6 pass.
+- F9: lead confirmed Kalshi stays unverified (decisions.md). Waiting for F8 on final to rebase F9 and do the trade-config 423 branch.
