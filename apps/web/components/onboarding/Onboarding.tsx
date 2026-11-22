@@ -69,7 +69,7 @@ export function Onboarding({ next }: { next?: string }) {
       console.error("[onboarding] could not save:", e);
       setError("Couldn't save your setup. You can change it any time in Settings.");
     }
-    const to = next && next !== "/" ? next : `/${toQuery(FilterState.parse({ view: "flags", topics }))}`;
+    const to = next && next !== "/" ? next : `/${toQuery(FilterState.parse({ view: "flags", favorites_only: topics ? true : undefined }))}`;
     router.push(to);
     // A client navigation can stall (e.g. a route still compiling); fall back to a full page load.
     setTimeout(() => { if (location.pathname === "/onboarding") location.assign(to); }, 10_000);
