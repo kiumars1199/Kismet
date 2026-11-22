@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AccountActions, CheckoutStatus, DeleteAccount } from "@/components/auth/AccountActions";
 import { PageTitle, card } from "@/components/kit";
+import { InvitePanel } from "@/components/share/InvitePanel";
 import { McpSetup } from "@/components/account/McpSetup";
 import { siteUrl } from "@/lib/site";
 import { isAdminEmail } from "@/lib/admin/core";
@@ -68,6 +69,11 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ c
         <p className="text-sm text-soft">Signed in as <span className="font-medium text-text">{me.user.email}</span>, with Google or an email link.</p>
         <p className="text-sm text-muted">An account can be signed in on up to 3 devices. Signing in on a 4th signs out the oldest.</p>
         <AccountActions kind="signout" tier={me.tier} billing={billing} hasCustomer={!!me.status} />
+      </section>
+
+      <section aria-labelledby="invite-h" className={`${card} flex flex-col gap-4 p-5 md:p-6`}>
+        <h2 id="invite-h" className="text-lg font-semibold">Invite friends, earn a free month</h2>
+        <InvitePanel />
       </section>
 
       <McpSetup tier={me.tier} url={`${siteUrl()}/api/mcp`} />
