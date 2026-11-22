@@ -9,7 +9,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { sendEmail, unsubscribeUrl, type Email } from "./index";
 import { DISCLAIMER } from "./templates";
 import { amount, cancelEmail, receiptEmail, trialEndingEmail, welcomeEmail } from "./lifecycle-templates";
-import { afterBillingEvent, onFirstSignIn, runTrialReminders, sendOnce, trialsDue, type ClaimStore, type LifecycleKind, type MailDeps, type TrialRow } from "./lifecycle";
+import { afterBillingEvent, onFirstSignIn, ownerAlert, runTrialReminders, sendOnce, trialsDue, type ClaimStore, type LifecycleKind, type MailDeps, type TrialRow } from "./lifecycle";
 import { PROFIT_CLAIM } from "@/test/profit-claim";
 import { GET as lifecycleGet } from "@/app/api/lifecycle/run/route";
 import { handleWebhook, type BillingDb } from "@/lib/billing/stripe";
@@ -212,6 +212,23 @@ describe("triggers", () => {
     for (const m of [mail, broken]) {
       await expect(onFirstSignIn({ id: U, email: "a@x.test", created_at: new Date(NOW).toISOString() }, { mail: m, funnel: noFunnel, now: () => NOW })).resolves.toBeUndefined();
     }
+    err.mockRestore();
+  });
+
+  it("owner alert: who started a trial, who paid, who left (Marc, Nov 22)", async () => {
+    const got: string[] = [];
+    const d = { mail: null, funnel: noFunnel, now: () => NOW, notifyOwners: async (s: string) => { got.push(s); } };
+    const sub = { id: "sub_1", customer: "cus_1", status: "trialing", metadata: {}, items: { data: [{ price: { unit_amount: 1199, recurring: { interval: "month" } } }] } };
+    await afterBillingEvent(ev("customer.subscription.created", sub), billing, d);
+    await afterBillingEvent(ev("invoice.paid", { id: "in_0", customer: "cus_1", amount_paid: 0, currency: "usd" }), billing, d);   // trial's $0: no alert
+    await afterBillingEvent(ev("invoice.paid", { id: "in_1", customer: "cus_1", amount_paid: 1199, currency: "usd" }), billing, d);
+    await afterBillingEvent(ev("customer.subscription.deleted", { ...sub, status: "canceled" }), billing, d);
+    expect(got).toEqual(["New trial: a@x.test", "Payment: $11.99 from a@x.test", "Subscription ended: a@x.test"]);
+    expect(ownerAlert(ev("customer.subscription.updated", sub), "a@x.test")).toBeNull();
+    // an owner-alert failure never blocks the customer's own emails
+    const err = quiet();
+    await expect(afterBillingEvent(ev("invoice.paid", { id: "in_2", customer: "cus_1", amount_paid: 900, currency: "usd" }), billing,
+      { ...d, notifyOwners: async () => { throw new Error("resend down"); } })).resolves.toBeUndefined();
     err.mockRestore();
   });
 

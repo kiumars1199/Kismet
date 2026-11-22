@@ -172,7 +172,9 @@ function TopicPill({ s, facets, onChange }: { s: FilterState; facets?: Facets; o
   );
 }
 
-export function FilterPills({ state: s, mode, facets, meta, onChange, onReset, children }: {
+export function FilterPills({ state: s, mode, facets, meta, onChange, onReset, children, kalshiView }: {
+  /** F3: the Kalshi list has no model numbers, so only Topic applies: no Pays, Chance, Return, Closes, Filters, long-shot note or Sort. */
+  kalshiView?: boolean;
   children?: ReactNode; state: FilterState; mode: Mode; facets?: Facets; meta?: MetaResponse | null; onChange: Change; onReset: () => void;
 }) {
   // Pays (docs/18 §3)
@@ -231,6 +233,7 @@ export function FilterPills({ state: s, mode, facets, meta, onChange, onReset, c
   return (
     <div role="group" aria-label="Quick filters" className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:flex-wrap md:overflow-visible md:px-0 md:pb-0 [&>*]:shrink-0">
       <TopicPill s={s} facets={facets} onChange={onChange} />
+      {kalshiView ? children : <>
       <Pill name="Pays" value={paysValue}>{(close) => (
         <>
           <Options opts={pays} onChange={onChange} close={close} />
@@ -255,6 +258,7 @@ export function FilterPills({ state: s, mode, facets, meta, onChange, onReset, c
       <div className="md:ml-auto">
         <Pill name="Sort" value={sortLabel} right>{(close) => <Options opts={sorts} onChange={onChange} close={close} />}</Pill>
       </div>
+      </>}
     </div>
   );
 }

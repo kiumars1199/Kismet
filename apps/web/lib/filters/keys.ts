@@ -12,6 +12,7 @@ export const KEYS = {
   conf: ["edge_low_positive", "bool"], roi: ["roi_min", "num"], val: ["validated_only", "bool"],
   vd: ["verdicts", "list"], us: ["us", "bool"], ret: ["retention_min", "num"], cap: ["capacity_min_usd", "num"],
   ev: ["min_events", "num"], cw: ["closes_within_h", "num"], ca: ["closes_after_h", "num"],
+  cf: ["closes_from", "num"], ct: ["closes_to", "num"],
   live: ["live_only", "bool"], fq: ["frequency", "list"], vol: ["volume_min", "num"],
   v24: ["volume_24h_min", "num"], liq: ["liquidity_min", "num"], sp: ["spread_max", "num"],
   wl: ["watchlisted_only", "bool"], fav: ["favorites_only", "bool"], g: ["group_by_event", "bool"],

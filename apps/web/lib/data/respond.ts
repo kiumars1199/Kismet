@@ -267,7 +267,7 @@ export const listRoute = (req: Request, view?: "flags") =>
     const live = can(tier, "live_data");
     // F3: Kalshi rows (no model chance: never flags) come from their own index, behind the same permission as /api/kalshi.
     const kalshiOk = !view && canBeta(me, "kalshi");
-    if (f.venue === "kalshi" && !kalshiOk) return Response.json({ error: "Not available" }, { status: 404 });
+    if (f.venue === "kalshi" && !kalshiOk) f.venue = "all";   // an old ?ven=kalshi link with Kalshi off: the normal list, not an error
     const kalshi = kalshiOk && (f.venue === "kalshi" || (f.venue === "all" && !!f.q?.trim())) ? await kalshiPage(f, store) : undefined;
     if (f.venue === "kalshi" && !view) {
       const refused = await rateLimit(live ? "pages" : "list_free", clientKey(req, me.user?.id));   // no Polymarket page below to count it
@@ -300,11 +300,19 @@ export const listRoute = (req: Request, view?: "flags") =>
  *  "Closing soon" strip. undefined (the client fetches as before) for "Mine" filters, which resolve in the browser,
  *  or on any error. Free page loads count every row shown against the row budget, like the API. */
 export async function firstPage(params: URLSearchParams, view: "flags" | "markets"): Promise<{ main: MarketsResponse; soon?: MarketsResponse; scanned_at: number } | undefined> {
-  if (params.has("fav") || params.has("wl") || parse(params).venue === "kalshi") return undefined;   // venue=kalshi: the client fetches the Kalshi page
+  if (params.has("fav") || params.has("wl")) return undefined;
   try {
     const ctx = await pageStore();
     const store = can(ctx.tier, "exact_edge") ? ctx.store : freeView(ctx.store);
+    const kalshiOk = view === "markets" && canBeta(ctx.me, "kalshi");
     const f = parse(params);
+    if (f.venue === "kalshi" && !kalshiOk) f.venue = "all";   // Kalshi off: ignore the param, like /api/markets
+    if (kalshiOk && f.venue === "kalshi") {   // the Kalshi page ships with the HTML too
+      const kalshi = await kalshiPage(f, store);
+      if (!kalshi) return undefined;
+      const main: MarketsResponse = { total: 0, page: 1, page_size: f.page_size, pages: 1, rows: [], facets: emptyFacets(), scanned_at: store.meta.scanned_at, kalshi };
+      return { main, scanned_at: store.meta.scanned_at };
+    }
     const key = sampleKeyOf(ctx.req, ctx.me);
     const state = view === "flags"
       ? { ...f, view: "flags" as const, verdicts: params.has("vd") ? f.verdicts : BEST_BETS_VERDICTS, page: 1 }
@@ -315,7 +323,9 @@ export async function firstPage(params: URLSearchParams, view: "flags" | "market
     ]);
     if (!main) return undefined;
     await pageBudget(ctx, [...main.rows, ...(soon?.rows ?? [])].map((r) => r.market.id));
-    return { main, soon: soon ?? undefined, scanned_at: store.meta.scanned_at };   // the scan this tier sees, like /api/meta
+    // F3: a direct load of /markets?q=word carries the "Also on Kalshi" matches, as /api/markets does
+    const kalshi = kalshiOk && f.venue === "all" && f.q?.trim() ? await kalshiPage(f, store) : undefined;
+    return { main: kalshi ? { ...main, kalshi } : main, soon: soon ?? undefined, scanned_at: store.meta.scanned_at };   // the scan this tier sees, like /api/meta
   } catch {
     return undefined;
   }

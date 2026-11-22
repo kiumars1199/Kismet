@@ -486,5 +486,53 @@
 {
 "series": "KXAAA",
 "title": "Gas prices"
+},
+{
+"series": "KXQZ01",
+"title": "Will it rain in Seattle on Dec 3?"
+},
+{
+"series": "KXQZ02",
+"title": "Ukraine ceasefire agreed by March"
+},
+{
+"series": "KXQZ03",
+"title": "Gold above 3100 on Dec 31"
+},
+{
+"series": "KXQZ04",
+"title": "Will Bitcoin close above 100000?"
+},
+{
+"series": "KXQZ05",
+"title": "Fed holds rates in December"
+},
+{
+"series": "KXQZ06",
+"title": "Who wins the Senate seat in Ohio"
+},
+{
+"series": "KXQZ07",
+"title": "Will it snow in Denver on Dec 10?"
+},
+{
+"series": "KXQZ08",
+"title": "NBA champion this season"
+},
+{
+"series": "KXQZ09",
+"title": "Will Trump sign the order"
+},
+{
+"series": "KXQZ10",
+"title": "Top song on Spotify this week"
+},
+{
+"series": "KXQZ11",
+"title": "Silver above 40 this month"
+},
+{
+"series": "KXQZ12",
+"title": "Hurricane makes landfall in Florida"
 }
 ]

@@ -29,12 +29,16 @@ const VENUES = [["all", "All"], ["polymarket", "Polymarket"], ["kalshi", "Kalshi
 type Expanded = Record<string, { rows?: ApiRow[]; loading?: boolean }>;
 
 /** initial: the server's /api/markets page 1 for this URL (no first fetch). */
-export function MarketsScreener({ initial, scannedAt }: { initial?: MarketsResponse; scannedAt?: number } = {}) {
+export function MarketsScreener({ initial, scannedAt, kalshiOn }: { initial?: MarketsResponse; scannedAt?: number; kalshiOn?: boolean } = {}) {
   const sc = useScreener("markets", initial);
   const { state, set, reset, data, loading, error } = sc;
   const meta = useMeta();
   const desktop = useDesktop();
   const pro = useProfile().numbers_mode === "pro";
+  // F3: the venue chips are decided on the server (kalshiOn: permission on and a Kalshi index loaded), so the row is in the
+  // first paint and nothing shifts when /api/meta lands; the meta count is only the fallback when the page gave no answer.
+  const showVenues = kalshiOn ?? (meta?.counts.kalshi ?? 0) > 0;
+  const kalshiView = showVenues && state.venue === "kalshi";
 
   const [expanded, setExpanded] = useState<Expanded>({});
   useEffect(() => setExpanded({}), [data]);
@@ -70,6 +74,25 @@ export function MarketsScreener({ initial, scannedAt }: { initial?: MarketsRespo
   // QA-A #46: the scan the rows on screen come from; the header pill names the same one
   const scanned = data?.scanned_at ?? scannedAt ?? meta?.meta.scanned_at;
   usePublishScan(scanned);
+  const table = <MarketTable items={items} sort={state.sort} onSort={(sort) => set({ sort })} onToggleGroup={toggle} pro={pro} loading={loading} />;
+  const cards = (
+              <ul className={`flex flex-col gap-2.5 ${loading ? "opacity-60" : ""}`}>
+                {items.map((it) =>
+                  it.kind === "group" ? (
+                    <li key={`g${it.g.event_id}`} className="px-1 pt-3 font-heading text-sm font-semibold text-soft">{it.g.event}</li>
+                  ) : it.kind === "row" ? (
+                    <li key={`${it.r.market.id}:${it.r.side.side_index}`}><MarketCard r={it.r} pro={pro} /></li>
+                  ) : (
+                    <li key={`m${it.g.event_id}`}>
+                      <button type="button" onClick={() => toggle(it.g)} aria-expanded={it.expanded} className="min-h-11 px-1 text-[13px] text-accent-hover">
+                        {it.loading ? "Loading…" : it.expanded ? "Show fewer" : `+${formatCount(it.hidden)} more in this event`}
+                      </button>
+                    </li>
+                  ),
+                )}
+              </ul>
+  );
+
   return (
     <div className="mx-auto flex w-full max-w-[1600px] gap-6">
       <div className="flex min-w-0 flex-1 flex-col gap-4">
@@ -77,15 +100,23 @@ export function MarketsScreener({ initial, scannedAt }: { initial?: MarketsRespo
           <div>
             <h1 className="text-[28px] font-bold leading-tight tracking-tight md:text-[34px]">All markets</h1>
             <p className="mt-1 text-sm text-muted">
-              {data ? `${formatCount(data.total)} ${data.total === 1 ? "market matches" : "markets match"}` : "Loading markets…"}
-              {meta && <> · {formatCount(meta.counts.markets)} open · scanned <Ago at={scanned} /></>}
+              {kalshiView
+                ? (data?.kalshi ? `${formatCount(data.kalshi.total)} ${data.kalshi.total === 1 ? "Kalshi market matches" : "Kalshi markets match"}` : "Loading markets…")
+                : data ? `${formatCount(data.total)} ${data.total === 1 ? "market matches" : "markets match"}` : "Loading markets…"}
+              {meta && (kalshiView
+                ? <> · {formatCount(meta.counts.kalshi)} open on Kalshi</>
+                : <> · {formatCount(meta.counts.markets)} open · scanned <Ago at={scanned} /></>)}
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <ExportCsv state={state} />
-          </div>
+          {/* the button mounts after /api/me answers: its row is reserved (min-h-11, own line on a phone), so the filter rows
+              below don't jump 56 px (CLS, F3 review). The Kalshi view has no export, so it has no row. */}
+          {!kalshiView && (
+            <div className="flex min-h-11 w-full flex-wrap items-center gap-2 md:w-auto">
+              <ExportCsv state={state} />
+            </div>
+          )}
         </header>
-        {(meta?.counts.kalshi ?? 0) > 0 && (
+        {showVenues && (
           <div role="group" aria-label="Venue" className="flex flex-wrap items-center gap-2" data-testid="venue-chips">
             {VENUES.map(([v, label]) => (
               <button key={v} type="button" aria-pressed={state.venue === v} onClick={() => set({ venue: v })}
@@ -95,12 +126,12 @@ export function MarketsScreener({ initial, scannedAt }: { initial?: MarketsRespo
             ))}
           </div>
         )}
-        <FilterPills state={state} mode="markets" facets={sc.facets} meta={meta} onChange={set} onReset={reset} />
-        <PresetBar state={state} onChange={set} />
-        <QuickChips state={state} onChange={set} />
+        <FilterPills state={state} mode="markets" facets={kalshiView ? undefined : sc.facets} meta={meta} onChange={set} onReset={reset} kalshiView={kalshiView} />
+        {!kalshiView && <PresetBar state={state} onChange={set} />}
+        {!kalshiView && <QuickChips state={state} onChange={set} />}
         <SearchChips q={state.q} search={data?.search} onChange={set} />
         <AppliedPills state={state} mode="markets" onChange={set} onReset={reset} />
-        <SortNote />
+        {!kalshiView && <SortNote />}
         <StaleBanner scannedAt={scanned} />
 
         {error && !data ? (
@@ -132,25 +163,8 @@ export function MarketsScreener({ initial, scannedAt }: { initial?: MarketsRespo
         ) : (
           <>
             {error && <ErrorState onRetry={sc.retry} error={error} />}
-            {desktop ? (
-              <MarketTable items={items} sort={state.sort} onSort={(sort) => set({ sort })} onToggleGroup={toggle} pro={pro} loading={loading} />
-            ) : (
-              <ul className={`flex flex-col gap-2.5 ${loading ? "opacity-60" : ""}`}>
-                {items.map((it) =>
-                  it.kind === "group" ? (
-                    <li key={`g${it.g.event_id}`} className="px-1 pt-3 font-heading text-sm font-semibold text-soft">{it.g.event}</li>
-                  ) : it.kind === "row" ? (
-                    <li key={`${it.r.market.id}:${it.r.side.side_index}`}><MarketCard r={it.r} pro={pro} /></li>
-                  ) : (
-                    <li key={`m${it.g.event_id}`}>
-                      <button type="button" onClick={() => toggle(it.g)} aria-expanded={it.expanded} className="min-h-11 px-1 text-[13px] text-accent-hover">
-                        {it.loading ? "Loading…" : it.expanded ? "Show fewer" : `+${formatCount(it.hidden)} more in this event`}
-                      </button>
-                    </li>
-                  ),
-                )}
-              </ul>
-            )}
+            {desktop !== false && <div className={desktop ? undefined : "hidden md:block"}>{table}</div>}
+            {desktop !== true && <div className={desktop === false ? undefined : "md:hidden"}>{cards}</div>}
             <Pager page={data.page} pages={data.pages} onPage={(page) => set({ page })} />
             {data.kalshi && <KalshiResults page={data.kalshi} also />}
           </>

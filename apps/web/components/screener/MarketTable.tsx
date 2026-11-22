@@ -143,7 +143,9 @@ export function MarketTable({ items, sort, onSort, onToggleGroup, pro = false, l
   });
   const virtual = v.getVirtualItems();
   const top = virtual.length ? virtual[0]!.start - margin : 0;
-  const bottom = virtual.length ? v.getTotalSize() - (virtual.at(-1)!.end - margin) : 0;
+  // Before the window is measured (server HTML, first hydration) no row is virtual yet: reserve the table's estimated height,
+  // so the pager and footer don't jump from the first paint to the measured one (CLS, F3 review).
+  const bottom = virtual.length ? v.getTotalSize() - (virtual.at(-1)!.end - margin) : v.getTotalSize();
 
   const sortBy = (key?: SortKey) => {
     if (!key) return;

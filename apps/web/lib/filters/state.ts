@@ -43,6 +43,7 @@ export const FilterState = z.object({
   retention_min: z.number().optional(), capacity_min_usd: z.number().optional(),
   min_events: z.number().int().optional(),           // evidence size
   closes_within_h: z.number().optional(), closes_after_h: z.number().optional(),
+  closes_from: z.number().optional(), closes_to: z.number().optional(),   // absolute close window, unix s (Marc, Nov 22: pick dates)
   live_only: z.boolean().optional(),
   frequency: z.array(FrequencyEnum).optional(),
   volume_min: z.number().optional(), volume_24h_min: z.number().optional(),
