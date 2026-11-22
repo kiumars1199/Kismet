@@ -1,5 +1,6 @@
 "use client";
 // "Open on Kalshi / Polymarket" (every bet, on by default) and the paper "Trade" button (docs/16 §2, §4).
+import { VenueAvailability } from "@/components/venues/VenueAvailability";
 import { ExternalLink } from "@/components/kit/icons";
 import { openTicket, useTradeConfig } from "@/lib/trade/ext";
 import type { Market, Side } from "@/lib/types";
@@ -13,6 +14,7 @@ export function VenueLink({ m, className = "" }: { m: Pick<Market, "url" | "kals
   const v = venueOf(m);
   return (
     <>
+    <VenueAvailability venue={v.name === "Kalshi" ? "kalshi" : "polymarket_intl"} className="mb-1" />
     <a href={v.href} target="_blank" rel="noopener noreferrer" className={className} onClick={(e) => e.stopPropagation()}>
       Open on {v.name} <ExternalLink size={15} className="inline-block align-[-2px]" />
     </a>

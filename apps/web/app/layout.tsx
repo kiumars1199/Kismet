@@ -1,4 +1,6 @@
 import type { Metadata, Viewport } from "next";
+import { AvailabilityProvider } from "@/components/venues/VenueAvailability";
+import { requestAvailability } from "@/lib/venues/state-server";
 import { Inter, Space_Grotesk } from "next/font/google";
 import { Header } from "@/components/shell/Header";
 import { Footer } from "@/components/shell/Footer";
@@ -42,12 +44,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   // Nov 21: demo mode too (getMe answers from config there), so Combos/Kalshi don't pop into the header after /api/me
   const hint = (authEnabled() && session) || DEMO_MODE ? await headerHint() : null;
   const pausedUntil = (authEnabled() && session) ? await pausedUntilOf() : null;   // F8: getMe() is cached, no second read
+  const avail = await requestAvailability();   // F9: the visitor's chosen state
   const now = Date.now();   // one clock for the server render and the hydration render (components/clock.tsx)
   const banner = settings.banner_on && settings.banner_text ? settings.banner_text : null;
   return (
     <html lang="en" className={`${inter.variable} ${grotesk.variable}`}>
       <body className="flex min-h-dvh flex-col bg-background text-text">
         <ClockProvider zone={clock.zone} saved={clock.saved} now={now}>
+        <AvailabilityProvider value={avail}>
         <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:rounded-input focus:bg-accent focus:px-3 focus:py-2 focus:text-on-accent">
           Skip to content
         </a>
@@ -72,6 +76,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <LazyHosts />
           </>
         )}
+        </AvailabilityProvider>
         </ClockProvider>
       </body>
     </html>

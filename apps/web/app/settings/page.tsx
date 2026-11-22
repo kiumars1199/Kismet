@@ -1,4 +1,5 @@
 // Owner: Lane D2 (T-34).
+import { StatePicker } from "@/components/venues/StatePicker";
 import Link from "next/link";
 import { PageTitle } from "@/components/kit";
 import { accountsOn, savedWhere } from "@/lib/saved-where";
@@ -13,6 +14,7 @@ export default function Page() {
         {/* #21: plan, billing and cancel live on /account (and /account links back here) */}
         {accountsOn() && <Link href="/account" className="inline-flex min-h-11 items-center rounded-input px-3 text-sm text-muted hover:text-text">Plan and billing</Link>}
       </PageTitle>
+      <StatePicker />
       <SettingsForm />
     </div>
   );
