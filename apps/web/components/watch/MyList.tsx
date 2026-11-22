@@ -13,11 +13,15 @@ import { useCollection } from "@/lib/repo/hooks";
 import { WatchStar, type WatchSnapshot } from "./WatchStar";
 import { sideChance } from "@/lib/betFigures";
 
-type Live = StoreMarket | "gone" | undefined; // undefined = loading
+// undefined = loading; "gone" = the server says the market no longer exists (404); "error" = any other failure
+type Live = StoreMarket | "gone" | "error" | undefined;
+/** Only a 404 means the market is gone. 403, 429, 5xx and network errors are "Couldn't load, retry". */
+export const failureKind = (e: unknown): "gone" | "error" => (e instanceof Error && /HTTP 404$/.test(e.message) ? "gone" : "error");
 const SOON_H = 24;
 
-function status(m: Live, snap: WatchSnapshot | null): { label: string; tone: string } {
-  const closesAt = m && m !== "gone" ? m.closes_at : snap?.closes_at;
+export function status(m: Live, snap: WatchSnapshot | null): { label: string; tone: string } {
+  const closesAt = m && m !== "gone" && m !== "error" ? m.closes_at : snap?.closes_at;
+  if (m === "error" && !(closesAt !== undefined && closesAt * 1000 <= Date.now())) return { label: "Couldn't load", tone: "text-warning bg-muted-bg" };
   if (m === "gone" || (closesAt !== undefined && closesAt * 1000 <= Date.now())) return { label: "Closed", tone: "text-muted bg-muted-bg" };
   if (closesAt !== undefined && closesAt * 1000 - Date.now() < SOON_H * 3600e3) return { label: "Closing soon", tone: "text-warning bg-muted-bg" };
   return { label: "Open", tone: "text-accent-soft bg-accent-bg" };
@@ -45,10 +49,10 @@ async function setTarget(item: WatchlistItem, cents: number | null, question: st
   });
 }
 
-function Row({ item, live, selected, onSelect }: { item: WatchlistItem; live: Live; selected: boolean; onSelect: (on: boolean) => void }) {
+function Row({ item, live, selected, onSelect, onRetry }: { item: WatchlistItem; live: Live; selected: boolean; onSelect: (on: boolean) => void; onRetry: () => void }) {
   const params = useSearchParams();
   const snap = item.snapshot as WatchSnapshot | null;
-  const m = live && live !== "gone" ? live : null;
+  const m = live && live !== "gone" && live !== "error" ? live : null;
   const sideIndex = (item.side_index ?? snap?.saved_side ?? m?.best.side_index ?? 0) as 0 | 1;
   const s = m ? m.sides[sideIndex] ?? m.best : null;
   const question = m?.question ?? snap?.question ?? "Market no longer listed";
@@ -82,6 +86,11 @@ function Row({ item, live, selected, onSelect }: { item: WatchlistItem; live: Li
             </div>
             <div className="flex items-center gap-3">
               <span className={`rounded-full px-2.5 py-1 text-xs ${st.tone}`}>{st.label}</span>
+              {live === "error" && (
+                <button type="button" onClick={onRetry} className="min-h-11 rounded-input border border-border px-3 text-xs text-soft hover:border-accent-border hover:text-accent-hover">
+                  Retry
+                </button>
+              )}
               <WatchStar marketId={item.market_id} side={item.side_index ?? undefined} />
             </div>
           </div>
@@ -131,15 +140,20 @@ export function MyList() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const ids = [...new Set(items.map((i) => i.market_id))].sort().join(",");
 
+  const load = (id: string, signal?: AbortSignal) =>
+    fetchMarket(id, { signal }).then(
+      (r) => setLive((l) => ({ ...l, [id]: r.market })),
+      (e) => !signal?.aborted && setLive((l) => ({ ...l, [id]: failureKind(e) })),
+    );
+  const retry = (id: string) => {
+    setLive((l) => ({ ...l, [id]: undefined }));
+    load(id);
+  };
+
   useEffect(() => {
     if (!ids) return;
     const ac = new AbortController();
-    for (const id of ids.split(",")) {
-      fetchMarket(id, { signal: ac.signal }).then(
-        (r) => setLive((l) => ({ ...l, [id]: r.market })),
-        () => !ac.signal.aborted && setLive((l) => ({ ...l, [id]: "gone" })),
-      );
-    }
+    for (const id of ids.split(",")) load(id, ac.signal);
     return () => ac.abort();
   }, [ids]);
 
@@ -183,7 +197,7 @@ export function MyList() {
       ) : (
         <ul className="flex flex-col gap-3">
           {sorted.map((i) => (
-            <Row key={i.id} item={i} live={live[i.market_id]} selected={selected.has(i.id)}
+            <Row key={i.id} item={i} live={live[i.market_id]} selected={selected.has(i.id)} onRetry={() => retry(i.market_id)}
               onSelect={(on) => setSelected((s) => { const n = new Set(s); if (on) n.add(i.id); else n.delete(i.id); return n; })} />
           ))}
         </ul>

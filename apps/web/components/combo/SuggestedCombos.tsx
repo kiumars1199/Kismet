@@ -5,7 +5,7 @@
 // that lost money in testing, so an empty answer hides the row.
 import { useEffect, useState } from "react";
 import { fetchCombos } from "@/lib/api";
-import { comboLabel, rangeLine } from "@/lib/combos";
+import { comboLabel, multiplyLine, rangeLine } from "@/lib/combos";
 import type { CombosResponse, SuggestedCombo } from "@/lib/data/combos";
 import { pays, pct, price, ret, testedLine, winsAbout } from "@/lib/format";
 import { noLiveRecord } from "@/lib/proof";
@@ -69,7 +69,7 @@ export function ComboCard({ c, wide = false }: { c: SuggestedCombo; wide?: boole
       </ol>
       <p className="mt-auto text-[13px] text-muted">
         Estimated return <span className="font-semibold text-accent">{retText(c)}</span> at a {pct(c.q_low)} chance to win
-        <span className="block text-xs">Chances are our cautious ones; payouts include fees.</span>
+        <span className="block text-xs">Chances are our cautious ones; payouts include fees. {multiplyLine(c.items)}</span>
       </p>
       <button type="button" onClick={load} aria-label={`Build this combo: ${comboLabel(c, winsAbout(c.q_low))}`}
         className="min-h-11 rounded-input border border-border bg-muted-bg px-3 text-sm font-medium hover:border-accent-border">
