@@ -1,12 +1,13 @@
 "use client";
 // "Open on Kalshi / Polymarket" (every bet, on by default) and the paper "Trade" button (docs/16 §2, §4).
-import { VenueAvailability } from "@/components/venues/VenueAvailability";
+import { VenueAvailability, useAvailability } from "@/components/venues/VenueAvailability";
 import { ExternalLink } from "@/components/kit/icons";
 import { openTicket, useTradeConfig } from "@/lib/trade/ext";
 import type { Market, Side } from "@/lib/types";
 
 /** Kalshi when the market has a mapped ticker, else Polymarket. */
 import { venueOf } from "@/lib/trade/venue";
+import { availabilityLine } from "@/lib/venues/availability-text";
 import { RISK_NOTE, RiskNote } from "./RiskNote";
 export { venueOf };
 
@@ -26,10 +27,13 @@ export function VenueLink({ m, className = "" }: { m: Pick<Market, "url" | "kals
 /** Icon-size venue link for cards; sits above the card's full-cover link like the alert bell. */
 export function VenueIconLink({ m, className = "" }: { m: Pick<Market, "url" | "kalshi_ticker">; className?: string }) {
   const v = venueOf(m);
+  const { stateName, statuses } = useAvailability();
+  const key = v.name === "Kalshi" ? "kalshi" : "polymarket_intl";
+  const label = `Open on ${v.name}. ${availabilityLine(key, stateName, statuses?.[key] ?? null)}. ${RISK_NOTE}`;
   return (
     <a
       data-venue={v.name.toLowerCase()} href={v.href} target="_blank" rel="noopener noreferrer"
-      aria-label={`Open on ${v.name}. ${RISK_NOTE}`} title={`Open on ${v.name}. ${RISK_NOTE}`} onClick={(e) => e.stopPropagation()}
+      aria-label={label} title={label} onClick={(e) => e.stopPropagation()}
       className={`relative z-10 flex size-11 flex-none items-center justify-center rounded-input text-muted hover:bg-raised hover:text-text ${className}`}
     >
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

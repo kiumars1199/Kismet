@@ -33,6 +33,15 @@ describe("venue-availability.json", () => {
   });
 });
 
+describe("Polymarket US", () => {
+  it("is restricted only in Nevada (polymarket.us/trust) and available elsewhere, citing that page", () => {
+    for (const [st, e] of Object.entries(AVAILABILITY.venues.polymarket_us.entries)) {
+      expect(e.status, st).toBe(st === "NV" ? "restricted" : "available");
+      expect(e.source_url).toBe("https://polymarket.us/trust");
+    }
+  });
+});
+
 describe("wording", () => {
   it("says available, not available, check the venue, or check your state", () => {
     expect(availabilityLine("kalshi", "Texas", "available")).toBe("Kalshi: available in Texas");
@@ -41,7 +50,8 @@ describe("wording", () => {
     expect(availabilityLine("kalshi", null, null)).toBe("Check your state");
   });
   it("statusesFor knows a state and nothing else", () => {
-    expect(statusesFor("NV")).toEqual({ kalshi: "unverified", polymarket_us: "unverified", polymarket_intl: "restricted" });
+    expect(statusesFor("NV")).toEqual({ kalshi: "unverified", polymarket_us: "restricted", polymarket_intl: "restricted" });
+    expect(statusesFor("TX")).toEqual({ kalshi: "unverified", polymarket_us: "available", polymarket_intl: "restricted" });
     expect(statusesFor(null)).toBeNull();
     expect(statusesFor("ZZ")).toBeNull();
   });

@@ -24,3 +24,15 @@ export function VenueAvailability({ venue, className = "" }: { venue: VenueKey; 
     </span>
   );
 }
+
+/** One visible line (or two) above a list whose rows only have icon links: what each venue's availability is in your state. */
+export function VenueAvailabilityBar({ venues, className = "" }: { venues: VenueKey[]; className?: string }) {
+  const { stateName, statuses } = useAvailability();
+  return (
+    <div data-testid="markets-availability" className={`flex flex-col gap-0.5 text-xs text-muted ${className}`}>
+      {stateName && statuses
+        ? venues.map((v) => <span key={v} className={statuses[v] === "restricted" ? "text-warning" : undefined}>{availabilityLine(v, stateName, statuses[v])}</span>)
+        : <Link href="/settings#state" className="underline underline-offset-2 hover:text-text">Check your state</Link>}
+    </div>
+  );
+}
