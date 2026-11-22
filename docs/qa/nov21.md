@@ -81,6 +81,10 @@ affected e2e and the Vercel preview all green.
   3147.64 GB used (73% free)": on Railway, disk usage on the volume reports the host disk, not the 5 GB volume, so the
   10% low-disk log could never fire. Follow-up "Nov21: measure the volume, not the host" works the share free out from
   what data/ holds against VOLUME_GB (default 5).
+- Recovered 10:26 UTC Nov 22 (about 12.5 h stale): update added 42,997 snapshots, "model fitted" (510 nodes), grade,
+  then scan (18,467 markets, 2,991 flags) and upload all succeeded; /api/health ok.
+- Item 5 closed: kalshi run complete=True, 189,446 markets in 67.8 s; fill rates no_bid 79%, no_ask 55%, last_price
+  84%, volume_24h / open_interest / status 100%.
 
 ## Q's answers (Nov 21, before going away)
 
