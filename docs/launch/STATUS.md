@@ -28,8 +28,8 @@ file after every merge. "Review result" says "passed review" only after the revi
 | F9 Venue availability | trust | fixes pushed (9336157: visible availability line on /markets, PM US available except NV per polymarket.us/trust, Kalshi unverified by decision); merging final in, then re-review | kiumars1199/Kismet#48 | not reviewed |
 | F10 Install and web push | alerts | wave 2 started (alerts lane); plan pending | | not reviewed |
 | F11 Bet tracker | tracker | not started | | not reviewed |
-| F12 Morning digest | onboarding-invites | not started | | not reviewed |
-| F13 Share and invite | onboarding-invites | PR open (cf5f783); evidence + check:js pending; migration 20261122000200 | kiumars1199/Kismet#51 | not reviewed |
+| F12 Morning digest | onboarding-invites | plan approved; building | | not reviewed |
+| F13 Share and invite | onboarding-invites | PR ready (cd2e444; check:js 142.6 kB; e2e 3 pass, CLS 0); in review queue; migration 20261122000200 (lead applies before merge) | kiumars1199/Kismet#51 | not reviewed |
 | F14 Price history chart | data | PR open (05e7f98, stacked on #52; Polymarket history only; ~0.85 MB gz at full scale); in review queue | kiumars1199/Kismet#53 |
 | F15 Admin metrics | trust | PR open (head c8d68a1); in review queue; migration 20261122000300 (lead applies before merge) | kiumars1199/Kismet#49 | not reviewed |
 | F16 Big trade alert | alerts | not started | | not reviewed |
