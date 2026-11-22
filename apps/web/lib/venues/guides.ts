@@ -1,54 +1,42 @@
 // F6: "How to bet this": 3 steps per venue and a link that opens the market on the venue. One config, so a card, the checker
-// and the tests read the same text. Steps are taken from each venue's own help pages (fetched Nov 22, 2026); sources below.
+// and the tests read the same text. Steps are taken from each venue's own help pages (fetched Nov 22, 2026); each step carries its source URL and date.
 import type { StoreMarket } from "@/lib/types";
 
 export type VenueId = "polymarket" | "polymarket-us" | "kalshi";
 
+/** One step and the fetched page that says it: `checked` = the day we read it, `printed` = the date the page shows, if any. */
+export interface Step { text: string; source: { url: string; checked: string; printed?: string } }
+
 export interface Guide {
   name: string;
-  steps: readonly [string, string, string];
-  /** Where each fact came from: the venue's own page and its date as printed there (fetched 2026-11-22). */
-  sources: readonly { url: string; page: string }[];
+  steps: readonly [Step, Step, Step];
 }
+
+const C = "2026-11-22";   // every page below was fetched (curl) on this day
 
 export const GUIDES: Record<VenueId, Guide> = {
   polymarket: {
     name: "Polymarket",
     steps: [
-      "Sign up: click Sign Up, then continue with Google or your email address.",
-      "Add money: click Deposit and choose a method, such as transferring crypto.",
-      "Open the market with the link below, choose Buy Yes or Buy No for your side, enter the amount and confirm.",
-    ],
-    sources: [
-      { url: "https://help.polymarket.com/en/articles/13369877-how-to-sign-up", page: "How to sign up (Jan 12, 2026)" },
-      { url: "https://help.polymarket.com/en/articles/13369887-how-to-deposit", page: "How to deposit (Jun 8, 2026)" },
-      { url: "https://docs.polymarket.com/polymarket-101", page: "Polymarket 101: Buy Yes / Buy No" },
+      { text: "Sign up: click Sign Up, then continue with Google or your email address.", source: { url: "https://help.polymarket.com/en/articles/13369877-how-to-sign-up", checked: C, printed: "2026-01-12" } },
+      { text: "Add money: click Deposit and choose a method, such as transferring crypto.", source: { url: "https://help.polymarket.com/en/articles/13369887-how-to-deposit", checked: C, printed: "2026-06-08" } },
+      { text: "Open the market with the link below and tap Buy Yes or Buy No, then follow Polymarket's prompts.", source: { url: "https://docs.polymarket.com/polymarket-101", checked: C } },
     ],
   },
   "polymarket-us": {
     name: "Polymarket US",
     steps: [
-      "Create your account with Google or Apple ID, then enter your details so Polymarket US can verify your identity.",
-      "Add money from the app: debit card, bank transfer, Apple Pay, PayPal, Venmo, USDC or wire.",
-      "Open the market with the link below, choose Yes or No, enter the dollar amount and swipe up to confirm.",
-    ],
-    sources: [
-      { url: "https://docs.polymarket.us/learn/get-started/signup.md", page: "Create an Account" },
-      { url: "https://docs.polymarket.us/learn/get-started/fund-account.md", page: "Fund Your Account" },
-      { url: "https://docs.polymarket.us/learn/get-started/place-order.md", page: "Place a Trade" },
+      { text: "Create your account with Google or Apple ID, then enter your details so Polymarket US can verify your identity.", source: { url: "https://docs.polymarket.us/learn/get-started/signup.md", checked: C } },
+      { text: "Add money from the app: debit card, bank transfer, Apple Pay, PayPal, Venmo, USDC or wire.", source: { url: "https://docs.polymarket.us/learn/get-started/fund-account.md", checked: C } },
+      { text: "Open the market with the link below, choose Yes or No, enter the dollar amount and swipe up to confirm.", source: { url: "https://docs.polymarket.us/learn/get-started/place-order.md", checked: C } },
     ],
   },
   kalshi: {
     name: "Kalshi",
     steps: [
-      "Sign up on Kalshi and verify your identity. You confirm your country of residence during signup.",
-      "Add money: Kalshi takes debit card (including Apple Pay and Google Pay), bank transfer, PayPal, Venmo, Cash App, crypto or wire.",
-      "Open the market with the link below, pick Yes or No, then enter a dollar amount or a number of contracts. Your order fills at the best available price.",
-    ],
-    sources: [
-      { url: "https://help.kalshi.com/en/articles/14026044-can-i-trade-on-kalshi-from-outside-the-united-states", page: "Mar 20, 2026" },
-      { url: "https://help.kalshi.com/en/articles/13823791-transfers-faq", page: "Transfers FAQ (Aug 24, 2026)" },
-      { url: "https://help.kalshi.com/en/articles/13823812-quick-order-purchase", page: "Quick Order Purchase (Mar 17, 2026)" },
+      { text: "Sign up on Kalshi. You'll be asked to verify your identity and confirm your country of residence.", source: { url: "https://help.kalshi.com/en/articles/14026044-can-i-trade-on-kalshi-from-outside-the-united-states", checked: C, printed: "2026-03-20" } },
+      { text: "Add money: Kalshi takes debit card (including Apple Pay and Google Pay), bank transfer, PayPal, Venmo, Cash App, crypto or wire.", source: { url: "https://help.kalshi.com/en/articles/13823791-transfers-faq", checked: C, printed: "2026-08-24" } },
+      { text: "Open the market with the link below, pick Yes or No, then enter a dollar amount or a number of contracts. Your order fills at the best available price.", source: { url: "https://help.kalshi.com/en/articles/13823812-quick-order-purchase", checked: C, printed: "2026-03-17" } },
     ],
   },
 };

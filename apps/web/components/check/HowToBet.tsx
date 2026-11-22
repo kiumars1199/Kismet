@@ -30,7 +30,7 @@ export function HowToBet({ links, availability }: { links: { venue: VenueId; url
           )}
           <h3 className="font-heading text-[17px] font-bold">Bet on {g.name}</h3>
           <ol data-testid="howto-steps" className="flex list-decimal flex-col gap-2 pl-5 text-sm text-soft">
-            {g.steps.map((s) => <li key={s}>{s}</li>)}
+            {g.steps.map((s) => <li key={s.text}>{s.text}</li>)}
           </ol>
           {/* F9 slot: the trust lane's "available in your state" line goes here, above the link (pass `availability`). */}
           {availability?.(cur.venue)}

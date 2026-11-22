@@ -10,13 +10,18 @@ describe("guides", () => {
     expect(VENUE_IDS.sort()).toEqual(["kalshi", "polymarket", "polymarket-us"]);
     for (const id of VENUE_IDS) {
       expect(GUIDES[id].steps).toHaveLength(3);
-      for (const s of GUIDES[id].steps) expect(s.length).toBeGreaterThan(10);
+      for (const s of GUIDES[id].steps) expect(s.text.length).toBeGreaterThan(10);
       expect(GUIDES[id].name.length).toBeGreaterThan(2);
-      expect(GUIDES[id].sources.length).toBeGreaterThan(0);
-      for (const s of GUIDES[id].sources) expect(s.url).toMatch(/^https:\/\//);
     }
   });
-  it("no cents in the steps", () => { for (const id of VENUE_IDS) expect(GUIDES[id].steps.join(" ")).not.toMatch(/\d¢|cents? /i); });
+  it("every step names the page it came from: an https URL and the day it was checked", () => {
+    for (const id of VENUE_IDS) for (const s of GUIDES[id].steps) {
+      expect(s.source.url, s.text).toMatch(/^https:\/\/[^\s]+$/);
+      expect(s.source.checked, s.text).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      if (s.source.printed) expect(s.source.printed).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    }
+  });
+  it("no cents in the steps", () => { for (const id of VENUE_IDS) expect(GUIDES[id].steps.map((x) => x.text).join(" ")).not.toMatch(/\d¢|cents? /i); });
 });
 
 describe("deepLink", () => {
