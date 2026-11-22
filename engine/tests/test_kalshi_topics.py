@@ -41,3 +41,35 @@ def test_known_series():
     assert topic_of("KXBTCD") == "crypto.bitcoin"
     assert topic_of("KXNEWTHING", "Will the Senate pass a bill") == "politics.elections"
     assert topic_of("KXQQQ", "nothing") == "other"
+
+
+def test_keyword_fallback_matches_whole_words_only():
+    # substrings that used to misfire: rain in Ukraine, snow in Snowden, gold in Golden, war in Warriors
+    assert topic_of("KXQ1", "Will Snowden be pardoned?") == "other"
+    assert topic_of("KXQ2", "Will Ukraine and Russia sign a ceasefire?") == "geopolitics"
+    assert topic_of("KXQ3", "Golden State Warriors win the title") != "finance.commodities"
+    assert topic_of("KXQ3", "Golden State Warriors win the title") != "geopolitics"
+    assert topic_of("KXQ4", "Golden Globe Best Drama") != "finance.commodities"
+    assert topic_of("KXQ5", "Gold above 3000 on Dec 31") == "finance.commodities"
+    assert topic_of("KXQ6", "Will it rain in Seattle?") == "weather.precipitation"
+    assert topic_of("KXQ6", "Will it rains again") == "weather.precipitation"
+    assert topic_of("KXQ7", "War in Taiwan by June") == "geopolitics"
+    assert topic_of("KXQ8", "Brain scan startup raises money") == "other"   # brain is not rain
+    assert topic_of("KXQ9", "Warriors at Lakers") != "geopolitics"
+
+
+def test_short_prefixes_no_longer_swallow_other_series():
+    assert topic_of("KXSOLAR", "Solar capacity added this year") == "other"       # was crypto.solana (SOL prefix)
+    assert topic_of("KXGOVSHUT", "Government shutdown before January") == "politics.congress"   # was politics.elections (GOV)
+    assert topic_of("KXSOLD", "Solana price today") == "crypto.solana"
+    assert topic_of("KXGOVPARTYCA", "California governor party") == "politics.elections"
+    assert topic_of("KXWARRIORS", "Warriors at Lakers") != "geopolitics"
+
+
+def test_fixture_has_series_that_only_the_keyword_fallback_can_place():
+    from engine import kalshi_topics as k
+    prefixes = [p for p, _ in k.SERIES]
+    missed = [x for x in SERIES if not any(x["series"].upper()[2:].startswith(p) for p in prefixes)]
+    assert len(missed) >= 10
+    assert all(topic_of(x["series"], x["title"]) in IDS for x in missed)
+    assert sum(topic_of(x["series"], x["title"]) != "other" for x in missed) >= 0.9 * len(missed)

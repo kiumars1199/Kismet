@@ -28,7 +28,7 @@ SERIES = [
     ("SUPERBOWL", "sports.nfl"), ("HEISMAN", "sports.cfb"), ("NBAFINALS", "sports.nba"), ("NBAMVP", "sports.nba"),
     ("WORLDSERIES", "sports.mlb"), ("STANLEY", "sports.nhl"), ("OLYMPIC", "sports.other"), ("RUGBY", "sports.other"),
     # crypto
-    ("BTC", "crypto.bitcoin"), ("ETH", "crypto.ethereum"), ("SOL", "crypto.solana"), ("XRP", "crypto.xrp"),
+    ("BTC", "crypto.bitcoin"), ("ETH", "crypto.ethereum"), ("SOLD", "crypto.solana"), ("SOLANA", "crypto.solana"), ("SOLUSD", "crypto.solana"), ("XRP", "crypto.xrp"),
     ("DOGE", "crypto.other"), ("CRYPTO", "crypto.other"), ("BNB", "crypto.other"),
     # weather
     ("HIGHT", "weather.highest-temperature"), ("HIGH", "weather.highest-temperature"), ("LOWT", "weather.lowest-temperature"),
@@ -46,14 +46,14 @@ SERIES = [
     ("GDP", "finance.other"), ("RECESSION", "finance.other"), ("TREASURY", "finance.other"), ("MORTGAGE", "finance.other"),
     ("GAS", "finance.commodities"), ("AAA", "finance.commodities"), ("USDJPY", "finance.other"), ("EURUSD", "finance.other"), ("TNOTE", "finance.other"),
     # politics
-    ("PRES", "politics.elections"), ("SENATE", "politics.elections"), ("HOUSE", "politics.elections"), ("GOV", "politics.elections"),
+    ("PRES", "politics.elections"), ("SENATE", "politics.elections"), ("HOUSE", "politics.elections"), ("GOVPARTY", "politics.elections"), ("GOVRACE", "politics.elections"), ("GOVERNOR", "politics.elections"), ("GOVSHUT", "politics.congress"),
     ("MAYOR", "politics.elections"), ("ELECT", "politics.elections"), ("PRIMARY", "politics.elections"), ("NOMINEE", "politics.elections"),
     ("CONGRESS", "politics.congress"), ("SHUTDOWN", "politics.congress"), ("DEBT", "politics.congress"), ("BILL", "politics.congress"),
     ("SCOTUS", "politics.courts"), ("COURT", "politics.courts"), ("TRUMP", "politics.trump"), ("EXECORDER", "politics.trump"),
-    ("TARIFF", "politics.trump"), ("APPROVAL", "politics.trump"), ("CABINET", "politics.trump"), ("DOGE", "politics.us-politics"),
+    ("TARIFF", "politics.trump"), ("APPROVAL", "politics.trump"), ("CABINET", "politics.trump"), 
     ("POLITICS", "politics.other"), ("POTUS", "politics.us-politics"), ("VANCE", "politics.us-politics"),
     # world
-    ("WAR", "geopolitics"), ("UKRAINE", "geopolitics"), ("RUSSIA", "geopolitics"), ("CHINA", "geopolitics"), ("ISRAEL", "geopolitics"),
+    ("UKRAINE", "geopolitics"), ("RUSSIA", "geopolitics"), ("CHINA", "geopolitics"), ("ISRAEL", "geopolitics"),
     ("GAZA", "geopolitics"), ("IRAN", "geopolitics"), ("TAIWAN", "geopolitics"), ("NATO", "geopolitics"), 
     # culture
     ("OSCAR", "culture.awards"), ("EMMY", "culture.awards"), ("GRAMMY", "culture.awards"), ("GOLDENGLOBE", "culture.awards"),
@@ -72,23 +72,31 @@ SERIES = [
     ("MENTION", "mentions"),
 ]
 
-# Title keywords, used when the series prefix is unknown. Order matters: first hit wins.
+# Title keywords, used when the series prefix is unknown. Whole words only (an optional plural "s"): "rain" must not
+# match Ukraine, "gold" must not match Golden State, "war" must not match Warriors. First hit wins, so order matters.
+def _kw(*terms):
+    return re.compile(r"\b(?:" + "|".join(re.escape(t) for t in terms) + r")s?\b")
+
+
 KEYWORDS = [
-    (r"\bnfl\b|super bowl|touchdown", "sports.nfl"), (r"\bnba\b|basketball", "sports.nba"), (r"\bnhl\b|stanley cup", "sports.nhl"),
-    (r"\bmlb\b|world series", "sports.mlb"), (r"premier league", "sports.soccer.premier-league"),
-    (r"champions league", "sports.soccer.ucl"), (r"\bsoccer\b|\bfifa\b", "sports.soccer"), (r"\batp\b", "sports.tennis.atp"),
-    (r"\bwta\b", "sports.tennis.wta"), (r"\btennis\b", "sports.tennis"), (r"\bufc\b", "sports.ufc"), (r"\bgolf\b|\bpga\b", "sports.golf"),
-    (r"formula 1|\bf1\b", "sports.f1"), (r"bitcoin|\bbtc\b", "crypto.bitcoin"), (r"ethereum|\beth\b", "crypto.ethereum"),
-    (r"solana", "crypto.solana"), (r"\bxrp\b", "crypto.xrp"), (r"highest temp|high temp", "weather.highest-temperature"),
-    (r"lowest temp|low temp", "weather.lowest-temperature"), (r"rain|snow|precipitation", "weather.precipitation"),
-    (r"hurricane", "weather.hurricanes"), (r"\bfed\b|interest rate|fomc", "finance.fed"), (r"inflation|\bcpi\b", "finance.inflation"),
-    (r"unemployment|payroll|jobs report", "finance.jobs"), (r"gold|silver|crude|oil price", "finance.commodities"),
-    (r"s&p|nasdaq|dow jones", "finance.daily-close"), (r"election|senate|governor|president|primary", "politics.elections"),
-    (r"supreme court|scotus", "politics.courts"), (r"trump", "politics.trump"), (r"congress|shutdown", "politics.congress"),
-    (r"oscar|emmy|grammy|award", "culture.awards"), (r"album|song|billboard|spotify", "culture.music"),
-    (r"box office|movie", "culture.movies"), (r"netflix", "culture.top-netflix"), (r"openai|chatgpt", "tech.openai"),
-    (r"anthropic|claude", "tech.anthropic"), (r"nvidia", "tech.nvda"), (r"\bai\b|artificial intelligence", "tech.ai"),
-    (r"war|ceasefire|russia|ukraine|china|israel|iran", "geopolitics"),
+    (_kw("nfl", "super bowl", "touchdown"), "sports.nfl"), (_kw("nba", "basketball"), "sports.nba"),
+    (_kw("nhl", "stanley cup"), "sports.nhl"), (_kw("mlb", "world series"), "sports.mlb"),
+    (_kw("premier league"), "sports.soccer.premier-league"), (_kw("champions league"), "sports.soccer.ucl"),
+    (_kw("soccer", "fifa"), "sports.soccer"), (_kw("atp"), "sports.tennis.atp"), (_kw("wta"), "sports.tennis.wta"),
+    (_kw("tennis"), "sports.tennis"), (_kw("ufc"), "sports.ufc"), (_kw("golf", "pga"), "sports.golf"),
+    (_kw("formula 1", "f1"), "sports.f1"), (_kw("bitcoin", "btc"), "crypto.bitcoin"), (_kw("ethereum", "eth"), "crypto.ethereum"),
+    (_kw("solana"), "crypto.solana"), (_kw("xrp"), "crypto.xrp"), (_kw("highest temp", "high temp", "highest temperature"), "weather.highest-temperature"),
+    (_kw("lowest temp", "low temp", "lowest temperature"), "weather.lowest-temperature"),
+    (_kw("rain", "snow", "precipitation"), "weather.precipitation"), (_kw("hurricane"), "weather.hurricanes"),
+    (_kw("fed", "interest rate", "fomc"), "finance.fed"), (_kw("inflation", "cpi"), "finance.inflation"),
+    (_kw("unemployment", "payroll", "jobs report"), "finance.jobs"), (_kw("gold", "silver", "crude", "oil price"), "finance.commodities"),
+    (_kw("s&p", "nasdaq", "dow jones"), "finance.daily-close"),
+    (_kw("election", "senate", "governor", "president", "primary"), "politics.elections"),
+    (_kw("supreme court", "scotus"), "politics.courts"), (_kw("trump"), "politics.trump"), (_kw("congress", "shutdown"), "politics.congress"),
+    (_kw("oscar", "emmy", "grammy", "award"), "culture.awards"), (_kw("album", "song", "billboard", "spotify"), "culture.music"),
+    (_kw("box office", "movie"), "culture.movies"), (_kw("netflix"), "culture.top-netflix"), (_kw("openai", "chatgpt"), "tech.openai"),
+    (_kw("anthropic", "claude"), "tech.anthropic"), (_kw("nvidia"), "tech.nvda"), (_kw("ai", "artificial intelligence"), "tech.ai"),
+    (_kw("war", "ceasefire", "russia", "ukraine", "china", "israel", "iran"), "geopolitics"),
 ]
 
 _BY_LEN = sorted(SERIES, key=lambda x: -len(x[0]))
@@ -103,6 +111,6 @@ def topic_of(series, title=""):
             return tid
     t = (title or "").lower()
     for pat, tid in KEYWORDS:
-        if re.search(pat, t):
+        if pat.search(t):
             return tid
     return "other"
