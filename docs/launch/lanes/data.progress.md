@@ -23,4 +23,11 @@ Commits: 32b9e36 (engine/venues.py + upload wiring), 954d200 (web block, store m
 - Evidence: pytest engine+ops 158 passed. Precision 1.000 on 50 hand-labeled pairs (TP 22, FP 0, recall 0.957); the first 42 pairs tuned the matcher, the last 8 were held out; the labels are mine, not a live crawl. vitest 1457 passed (api.test timing flake under load, passes alone). typecheck and lint clean. build + check:js 142.5 kB OK. e2e launch-f04-venues.spec.ts 4 passed (390 and 1440).
 - Next: ping main before pushing lib/types.ts; open the PR after rebase onto origin/final.
 
-## F14 · not started (plan to main first)
+## F14 · built locally on launch/data-f14 (stacked on launch/data-f04), NOT pushed (touches lib/types.ts: ping main first; F3 then F4 must land)
+Commits: 0942bd9 (engine/history.py, `history` command, scheduler + upload wiring), 428ad5a (types, docs/03, loader, route, PriceHistory chart, tests).
+Raw evidence files in docs/launch/review/f14/ (typecheck, lint, vitest, pytest, check-js, e2e .txt).
+- pytest engine+ops 170 passed (12 new in test_history.py, written first). vitest 1464 passed; 1 suite (funnel-db PGlite beforeAll) timed out under load, rerun alone 5 passed. typecheck, lint exit 0. check:js 142.5 kB OK (Recharts dynamic). e2e launch-f14-history 4 passed at 390 and 1440 px.
+- Size (fixture-scale, no CLOB call): 280 series = 232,200 B plain / 85,058 B gzipped; x10 for ~2,800 series = ~2.3 MB plain / ~0.85 MB gzipped. No prefix split needed.
+- LIMITATION: Polymarket only (no US/Kalshi history); basis line "Prices from Polymarket, every <interval>"; interval 1 h up to ~8 days, 11 h at 90 days.
+- Known gap: refresh.yml has no `engine history` step (the workflow never ran `engine kalshi` either); production path is the Railway scheduler. The workflow only uploads history.json if present.
+- Cache for incremental refresh: data/history.json (volume) else output/history.json.

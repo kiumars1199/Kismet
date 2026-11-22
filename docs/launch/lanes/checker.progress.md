@@ -18,3 +18,4 @@
   Evidence: guides.test.ts 11 pass; e2e launch-f06-howto 1 passed (390px); launch-f01-checker still 6 passed; typecheck/lint clean.
   Sources fetched 2026-11-22 (URLs in guides.ts). Partly unverified: Polymarket intl step 3 "enter amount and confirm"; Kalshi step 1 signup wording.
   Open: BetCard buttons ("Check", "How to bet this", "Add to combo") + card e2e after #44; F9 availability + RiskNote slots; F1(b) Kalshi price after "F3 merged"; rebases as #43/#45 merge.
+- F6 fix: steps now each carry source url + date; Polymarket intl step 3 and Kalshi step 1 reworded to only what fetched pages say; test added. Pushed to #46. Idle until #44 / F3 merged.

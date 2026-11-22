@@ -1,0 +1,41 @@
+
+ RUN  v5.1.0 /home/user/MarketEdge/.claude/worktrees/agent-adb115dae53f819e1/apps/web
+
+ ❯ test/funnel-db.test.ts (5 tests | 5 skipped) 11955ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+Not implemented: navigation to another Document
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/funnel-db.test.ts [ test/funnel-db.test.ts ]
+Error: Hook timed out in 10000ms.
+If this is a long-running hook, pass a timeout value as the last argument or configure it globally with "hookTimeout".
+ ❯ test/funnel-db.test.ts:24:1
+     22|
+     23| let db: PGlite;
+     24| beforeAll(async () => {
+       | ^
+     25|   db = new PGlite();
+     26|   await db.exec(STUB);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 118 passed (119)
+      Tests  1464 passed | 5 skipped (1469)
+   Start at  19:05:56
+   Duration  68.48s (tests 57%, import 27%, environment 13%, transform 2%, worker 1%)
+
+     Import  375 modules were evaluated 858 times · 44.88s total, 27% of tracked time
+             ~5.04s faster with isolate: false — shared modules are evaluated once per worker instead of once per file
+             learn more: https://vitest.dev/guide/improving-performance#test-isolation
+
+exit 1

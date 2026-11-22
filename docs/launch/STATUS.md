@@ -21,16 +21,16 @@ file after every merge. "Review result" says "passed review" only after the revi
 | F2 Combo checker | checker | in review (stacked on #43; 2 open items after BetCard) | kiumars1199/Kismet#45 | not reviewed |
 | F3 Every market searchable | data | in review | kiumars1199/Kismet#42 | not reviewed |
 | F4 Three venues side by side | data | built locally; PR after F3 merges | — | not reviewed |
-| F5 Topics at signup | onboarding-invites | not started | | not reviewed |
+| F5 Topics at signup | onboarding-invites | PR open; fixture Politics + 390/1440 + CLS being added; migration topics_off (lead applies before merge) | kiumars1199/Kismet#47 | not reviewed |
 | F6 How to place this bet | checker | PR open (stacked on #45); 2 unsourced guide steps being fixed | kiumars1199/Kismet#46 | not reviewed |
-| F7 Live payments by config | trust | review PASS (re-check PASS on 549a62b); CI green; full suites on final running | kiumars1199/Kismet#41 | not reviewed |
+| F7 Live payments by config | trust | merged (cd9f672) after review PASS + full suites on final (e2e 88/88); post-merge check pending | kiumars1199/Kismet#41 | not reviewed |
 | F8 Responsible betting | trust | PR open; afford note being added | kiumars1199/Kismet#44 | not reviewed |
 | F9 Venue availability | trust | not started | | not reviewed |
 | F10 Install and web push | alerts | not started | | not reviewed |
 | F11 Bet tracker | tracker | not started | | not reviewed |
 | F12 Morning digest | onboarding-invites | not started | | not reviewed |
 | F13 Share and invite | onboarding-invites | not started | | not reviewed |
-| F14 Price history chart | data | not started | | not reviewed |
+| F14 Price history chart | data | built locally (stacked on F4); PR after F3 + F4 | not reviewed |
 | F15 Admin metrics | trust | not started | | not reviewed |
 | F16 Big trade alert | alerts | not started | | not reviewed |
 
