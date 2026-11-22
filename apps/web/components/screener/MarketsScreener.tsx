@@ -23,6 +23,7 @@ import { useMeta, useScreener } from "./useScreener";
 import { usePublishScan } from "@/lib/scanClock";
 import { SortNote } from "./SortNote";
 import { KalshiResults } from "./KalshiResults";
+import { RiskNote } from "@/components/trade/RiskNote";
 
 const VENUES = [["all", "All"], ["polymarket", "Polymarket"], ["kalshi", "Kalshi"]] as const;
 
@@ -163,6 +164,7 @@ export function MarketsScreener({ initial, scannedAt, kalshiOn }: { initial?: Ma
         ) : (
           <>
             {error && <ErrorState onRetry={sc.retry} error={error} />}
+            <RiskNote className="text-left" />   {/* F8: the icon links on rows are too small for text */}
             {desktop !== false && <div className={desktop ? undefined : "hidden md:block"}>{table}</div>}
             {desktop !== true && <div className={desktop === false ? undefined : "md:hidden"}>{cards}</div>}
             <Pager page={data.page} pages={data.pages} onPage={(page) => set({ page })} />
