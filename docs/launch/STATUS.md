@@ -17,7 +17,7 @@ file after every merge. "Review result" says "passed review" only after the revi
 ## Features
 | Feature | Owner | Status | PR | Review result |
 |---|---|---|---|---|
-| F1 Bet checker | checker | in review (2 open items: signed-out search, Kalshi price) | kiumars1199/Kismet#43 | not reviewed |
+| F1 Bet checker | checker | review FAIL (no card Check link; result CLS 0.374@390; closed markets scored; paid limit e2e isolation; e2e gaps; price range; venue line); fixing | kiumars1199/Kismet#43 | not reviewed |
 | F2 Combo checker | checker | in review (stacked on #43; 2 open items after BetCard) | kiumars1199/Kismet#45 | not reviewed |
 | F3 Every market searchable | data | review FAIL (direct-load search drops Kalshi; topic substring misfires; chip-row CLS; Kalshi header counts; ven=kalshi off-state); fixing | kiumars1199/Kismet#42 | not reviewed |
 | F4 Three venues side by side | data | built locally; PR after F3 merges | — | not reviewed |
