@@ -60,7 +60,7 @@ def test_builds_markets_and_combos_from_fixtures(tmp_path):
     assert data["meta"]["complete"] and data["meta"]["n_events"] == 2 and data["meta"]["n_markets_open"] == 3
     mars = data["markets"][0]
     assert mars == {"ticker": "KXELONMARS-99", "event_ticker": "KXELONMARS-99", "series_ticker": "KXELONMARS",
-                    "title": "Will Elon Musk visit Mars before Aug 1, 2099?", "subtitle": "Mars",
+                    "title": "Will Elon Musk visit Mars before Aug 1, 2099?", "subtitle": "Mars", "topic": "tech.other",
                     "yes_bid_cents": 10, "yes_ask_cents": 12, "no_bid_cents": None, "no_ask_cents": 90,
                     "last_price_cents": None, "volume": 127577, "volume_24h": None, "open_interest": None,
                     "status": None, "close_time": "2099-08-01T04:59:00Z",

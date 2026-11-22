@@ -35,6 +35,8 @@ from datetime import datetime
 
 import requests
 
+from engine.kalshi_topics import topic_of
+
 BASE = "https://api.elections.kalshi.com/trade-api/v2"
 UA = "Kismet scanner"
 PAGE = 100          # rows per call (Kalshi allows up to 1000; we ask for less)
@@ -219,6 +221,7 @@ def market_row(m, title, series):
         "series_ticker": series,
         "title": title or m.get("title") or m["ticker"],
         "subtitle": m.get("yes_sub_title") or "",
+        "topic": topic_of(series, title or m.get("title") or ""),   # F3: a taxonomy id (lib/taxonomy.ts)
         "yes_bid_cents": cents(m, "yes_bid"),
         "yes_ask_cents": cents(m, "yes_ask"),
         "no_bid_cents": cents(m, "no_bid"),
