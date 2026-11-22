@@ -159,6 +159,7 @@ jobs:
           else
             python ops/upload.py output
             python ops/upload.py --only output/kalshi.json   # Nov 21: side file, not in the main upload
+            if [ -f output/kalshi_index.json ]; then python ops/upload.py --only output/kalshi_index.json; fi   # F3: every open Kalshi market
           fi
 
       - name: Open an issue when the refresh fails

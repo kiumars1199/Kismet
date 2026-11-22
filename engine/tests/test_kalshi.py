@@ -60,7 +60,7 @@ def test_builds_markets_and_combos_from_fixtures(tmp_path):
     assert data["meta"]["complete"] and data["meta"]["n_events"] == 2 and data["meta"]["n_markets_open"] == 3
     mars = data["markets"][0]
     assert mars == {"ticker": "KXELONMARS-99", "event_ticker": "KXELONMARS-99", "series_ticker": "KXELONMARS",
-                    "title": "Will Elon Musk visit Mars before Aug 1, 2099?", "subtitle": "Mars",
+                    "title": "Will Elon Musk visit Mars before Aug 1, 2099?", "subtitle": "Mars", "topic": "tech.other",
                     "yes_bid_cents": 10, "yes_ask_cents": 12, "no_bid_cents": None, "no_ask_cents": 90,
                     "last_price_cents": None, "volume": 127577, "volume_24h": None, "open_interest": None,
                     "status": None, "close_time": "2099-08-01T04:59:00Z",
@@ -342,3 +342,14 @@ def test_filled_shares():
     f = k.filled(rows)
     assert f["no_bid_cents"] == 0.5 and f["status"] == 1.0 and f["open_interest"] == 0.0
     assert k.filled([])["status"] is None
+
+
+def test_index_file_carries_every_open_market_not_just_the_top(tmp_path, monkeypatch):
+    monkeypatch.setattr(k, "KEEP_MARKETS", 2)
+    out = tmp_path / "kalshi.json"
+    data = k.run(str(out), str(tmp_path / "cache"), client=PagedClient({"": {"cursor": "", "events": [ev(1, 3), ev(2, 2)]}}))
+    idx = json.load(open(tmp_path / "kalshi_index.json"))
+    assert len(data["markets"]) == 2 and idx["meta"]["n"] == 5 and len(idx["rows"]) == 5
+    assert idx["meta"]["columns"] == list(k.INDEX_COLUMNS) and all(len(r) == len(k.INDEX_COLUMNS) for r in idx["rows"])
+    topic_col = k.INDEX_COLUMNS.index("topic")
+    assert all(isinstance(r[topic_col], str) and r[topic_col] for r in idx["rows"])
