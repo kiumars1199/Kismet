@@ -21,6 +21,9 @@ async function signIn(page: Page, email: string) {
   }).toPass({ timeout: 90_000 });
 }
 
+/** Each test is its own device for the signed-out daily count (the server honors x-e2e-device only under E2E_MOCK, never in production). */
+const ownDevice = (page: Page) => page.context().setExtraHTTPHeaders({ "x-e2e-device": `t-${Date.now()}-${Math.random().toString(36).slice(2)}` });
+
 const marketIds = async (page: Page, n: number) => {
   const r = await page.request.get("/api/markets?limit=40");
   const ids = ((await r.json()).rows as { market: { id: string } }[]).map((x) => x.market.id);
@@ -30,6 +33,7 @@ const check = (page: Page, m: string) => page.request.post("/api/check", { data:
 
 test("Free: 1 check a day, the second is 429 check_limit; Pro: 20 checks all 200", async ({ page }) => {
   test.setTimeout(300_000);
+  await ownDevice(page);
   await signIn(page, `f01-limit-${Date.now()}@example.com`);
   const ids = await marketIds(page, 20);
   expect(ids.length).toBeGreaterThanOrEqual(2);
@@ -55,6 +59,7 @@ test("Free: 1 check a day, the second is 429 check_limit; Pro: 20 checks all 200
 
 // Signed out (accounts on): /check?m= must not open the drawer, go inert, or redirect to /signup (components/market/DrawerGate.tsx).
 test("signed out: /check?m=<id>&side=0 stays on /check", async ({ page }) => {
+  await ownDevice(page);
   await page.goto("/check?m=6417673&side=0");   // a fixture market (test/fixtures/markets.json)
   await page.waitForTimeout(3_000);   // a redirect would have fired by now
   await expect(page).toHaveURL(/\/check\?m=/);
@@ -64,7 +69,9 @@ test("signed out: /check?m=<id>&side=0 stays on /check", async ({ page }) => {
 });
 
 // Signed-out word search: a public, minimal lookup (id, title, side, payout multiplier only).
-test("signed out: /api/check/search finds markets and leaks nothing else", async ({ page, request }) => {
+test("signed out: /api/check/search finds markets and leaks nothing else", async ({ page }) => {
+  await ownDevice(page);
+  const request = page.request;
   const r = await request.get("/api/check/search?q=nfl");
   expect(r.status()).toBe(200);
   const { markets } = await r.json();
@@ -77,4 +84,38 @@ test("signed out: /api/check/search finds markets and leaks nothing else", async
   await expect(page.getByTestId("check-hits").locator("li").first()).toBeVisible({ timeout: 30_000 });
   await page.getByTestId("check-hits").locator("li button").first().click();
   await expect(page.getByTestId("chk-score")).toBeVisible({ timeout: 30_000 });
+});
+
+// F2: a combo is ONE check, shared with F1's allowance; the leg lookup is not a check and carries no model numbers.
+test("Free: scoring a combo uses the day's check; the same set is free; another combo and a single check get 429", async ({ page }) => {
+  test.setTimeout(240_000);
+  await ownDevice(page);
+  await signIn(page, `f02-limit-${Date.now()}@example.com`);
+  const ids = await marketIds(page, 4);
+  expect(ids.length).toBeGreaterThanOrEqual(3);
+  const post = (path: string, data: unknown) => page.request.post(path, { data, headers: { Origin: new URL(page.url()).origin } });
+
+  // lookups are free and say nothing about the model
+  for (const m of ids.slice(0, 3)) {
+    const r = await post("/api/check/leg", { m, side: 0 });
+    expect(r.status()).toBe(200);
+    expect(Object.keys(await r.json()).sort()).toEqual(["market", "outcome", "price", "side", "venue"]);
+  }
+  const A = [{ m: ids[0], side: 0 }, { m: ids[1], side: 0 }];
+  expect((await post("/api/check/combo", { legs: A })).status()).toBe(200);
+  expect((await post("/api/check/combo", { legs: [...A].reverse() })).status()).toBe(200);   // same set again: free
+  const single = await post("/api/check", { m: ids[2], side: 0 });
+  expect(single.status()).toBe(429);
+  expect((await single.json()).code).toBe("check_limit");
+  const other = await post("/api/check/combo", { legs: [{ m: ids[0], side: 0 }, { m: ids[2], side: 0 }] });
+  expect(other.status()).toBe(429);
+  expect((await other.json()).code).toBe("check_limit");
+
+  // the page shows the upgrade card for the second combo
+  await page.goto(`/check/combo?m=${ids[0]}&side=0`);
+  await expect(page.getByTestId("combo-leg")).toHaveCount(1, { timeout: 30_000 });
+  await page.evaluate(([m]) => window.history.pushState(null, "", `/check/combo?m=${m}&side=0`), [ids[2]!]);
+  await expect(page.getByTestId("combo-leg")).toHaveCount(2, { timeout: 30_000 });
+  await expect(page.getByTestId("check-upgrade")).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByTestId("combo-mult")).toHaveCount(0);
 });

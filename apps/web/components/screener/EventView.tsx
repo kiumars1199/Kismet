@@ -76,10 +76,13 @@ export function EventView({ ev }: { ev: EventResponse }) {
         </p>
       </header>
       {first?.category === "weather" && <BucketChart ev={ev} />}
-      {desktop ? (
-        <MarketTable items={rows.map((r) => ({ kind: "row" as const, r }))} sort={sort} onSort={setSort} pro={pro} />
-      ) : (
-        <ul className="flex flex-col gap-2.5">
+      {desktop !== false && (
+        <div className={desktop ? undefined : "hidden md:block"}>
+          <MarketTable items={rows.map((r) => ({ kind: "row" as const, r }))} sort={sort} onSort={setSort} pro={pro} />
+        </div>
+      )}
+      {desktop !== true && (
+        <ul className={`flex flex-col gap-2.5 ${desktop === false ? "" : "md:hidden"}`}>
           {rows.map((r) => <li key={r.market.id}><MarketCard r={r} pro={pro} /></li>)}
         </ul>
       )}

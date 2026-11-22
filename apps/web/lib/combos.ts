@@ -3,6 +3,7 @@
 // sit in two events); same-event legs are correlated and the simple product is wrong. Suggested combos never pair
 // them, the tray refuses them (legProblem), and combo() still reports any that slip in (an old saved tray).
 // One chance everywhere (Marc #15, #74): the return, "wins about" and every leg's chance use the cautious chance.
+import { pct } from "@/lib/format";
 import { feeCents } from "@/lib/trade/intent";
 import type { Side, StoreMarket } from "@/lib/types";
 
@@ -49,6 +50,14 @@ export function combo(legs: Pick<Leg, "ask" | "fee" | "q" | "q_low" | "event_id"
   for (const l of legs) seen.set(l.event_id, (seen.get(l.event_id) ?? 0) + 1);
   const same_event = [...new Set(legs.filter((l) => seen.get(l.event_id)! > 1).map((l) => l.event))];
   return { legs: legs.length, q, q_low, price, pays: price > 0 ? 1 / price : 0, ret, has_edge: q_low > price, same_event };
+}
+
+/** Nov 21 (Q on #8): the one line in a combo's Why that says how the legs' cautious chances make the combo's:
+ *  "The combo wins only if every leg wins, so the legs' chances multiply: 80% × 70% ≈ 56%." */
+export function multiplyLine(legs: Pick<Leg, "q_low">[]): string | null {
+  if (legs.length < MIN_LEGS) return null;
+  const total = prod(legs.map((l) => l.q_low));
+  return `The combo wins only if every leg wins, so the legs' chances multiply: ${legs.map((l) => pct(l.q_low)).join(" × ")} ≈ ${pct(total)}.`;
 }
 
 /** Kalshi combo (one contract that pays $1 if every leg wins): edge = Q − ask − fee(ask), fee per contract. */

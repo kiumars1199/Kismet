@@ -4,7 +4,8 @@ import { describe, expect, it, beforeEach } from "vitest";
 import { betQuote } from "@/lib/betFigures";
 import { baseOf, compute } from "@/lib/check/compute";
 import { buildCheck } from "@/lib/check/response";
-import { checkKey, countCheck } from "@/lib/check/limit";
+import { checkKey, countCheck, deviceOf } from "@/lib/check/limit";
+import { isOpen, isOpenIn } from "@/lib/check/open";
 import { memoryLimiter, setLimiter } from "@/lib/abuse";
 import type { StoreMarket } from "@/lib/types";
 import fixture from "./fixtures/markets.json";
@@ -33,6 +34,13 @@ describe("compute", () => {
     const a = compute(base, 0.6, 100), b = compute(base, 0.5, 100);
     expect(b.multiplier!).toBeGreaterThan(a.multiplier!);
     expect(b.edge!).toBeGreaterThan(a.edge!);
+  });
+  it("rejects a price under 1% or over 99% (0.5%, 0%, 99.5%, 100%) and accepts 1% and 99%", () => {
+    for (const p of [0.005, 0, 0.995, 1]) expect(compute(base, p, 100).error, String(p)).toBe("price_range");
+    for (const p of [0.01, 0.99]) expect(compute(base, p, 100).error, String(p)).toBeNull();
+  });
+  it("gap = our chance − price, the points the card and drawer show", () => {
+    expect(compute(base, 0.5, 100).gap).toBeCloseTo(base.winProb! - 0.5, 12);
   });
   it("rejects 0%, 100%, and stakes outside $1–$100,000", () => {
     expect(compute(base, 0, 100).error).toBe("price_range");
@@ -85,5 +93,35 @@ describe("Free daily counter", () => {
       expect((await countCheck(req, "pro", "u1", `m${i}`, 0)).ok).toBe(true);
       expect((await countCheck(req, "premium", "u3", `m${i}`, 1)).ok).toBe(true);
     }
+  });
+});
+
+describe("closed markets get no check", () => {
+  const closed = markets.find((x) => x.id === "6674492")!;   // closes_at 1794944700 (reviewer's repro: Denmark vs. Norway)
+  it("closes_at ≤ now is not open (same rule as the lists' openOnly)", () => {
+    expect(isOpen(closed, 1795375691)).toBe(false);
+    expect(isOpen(closed, closed.closes_at)).toBe(false);
+    expect(isOpen(closed, closed.closes_at - 1)).toBe(true);
+  });
+  it("DATA_CLOCK=scan keeps fixture markets open at the scan time; the real clock closes them", () => {
+    const store = { meta: { scanned_at: closed.closes_at - 3600 } } as Parameters<typeof isOpenIn>[1];
+    const prev = process.env.DATA_CLOCK;
+    process.env.DATA_CLOCK = "scan";
+    expect(isOpenIn(closed, store)).toBe(true);
+    delete process.env.DATA_CLOCK;
+    expect(isOpenIn(closed, store)).toBe(Date.now() / 1000 < closed.closes_at);
+    if (prev !== undefined) process.env.DATA_CLOCK = prev;
+  });
+});
+
+describe("e2e device header", () => {
+  it("is honored only under E2E_MOCK outside production", () => {
+    const req = new Request("http://x", { headers: { "x-e2e-device": "t1" } });
+    const prev = { m: process.env.E2E_MOCK };
+    delete process.env.E2E_MOCK;
+    expect(deviceOf(req)).toBe("local");
+    process.env.E2E_MOCK = "1";
+    expect(deviceOf(req)).toBe("e2e:t1");
+    if (prev.m === undefined) delete process.env.E2E_MOCK; else process.env.E2E_MOCK = prev.m;
   });
 });
