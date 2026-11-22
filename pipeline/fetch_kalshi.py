@@ -393,7 +393,22 @@ def state_paths(cache_dir):
             "dump": os.path.join(base, "kalshi_markets.json")}
 
 
-def build(client, state=None, prev=None, now=None, budget=BUDGET_S):
+INDEX_COLUMNS = ("ticker", "title", "subtitle", "topic", "series", "yes_bid_cents", "yes_ask_cents", "last_price_cents",
+                 "volume", "close_epoch")
+
+
+def index_of(markets, fetched_at):
+    """F3: every open market, one array per row (column order = INDEX_COLUMNS), for search on /markets. kalshi.json keeps
+    only the top KEEP_MARKETS; this file carries the rest (~100 bytes a row, 5 MB gzipped for ~200K rows). Same
+    Kalshi data and credit; the web reads it server-side only."""
+    rows = [[m["ticker"], m["title"], m.get("subtitle") or "", m.get("topic") or "other", m.get("series_ticker") or "",
+             m.get("yes_bid_cents"), m.get("yes_ask_cents"), m.get("last_price_cents"), m.get("volume") or 0,
+             epoch(m.get("close_time"))] for m in markets]
+    return {"meta": {"source": "Kalshi", "attribution": "Market data from Kalshi (kalshi.com)", "fetched_at": fetched_at,
+                     "n": len(rows), "columns": list(INDEX_COLUMNS)}, "rows": rows}
+
+
+def build(client, state=None, prev=None, now=None, budget=BUDGET_S, all_out=None):
     """kalshi.json from a crawl. `state` = state_paths(); None = no settlements, no dump (tests). `prev` = the last
     kalshi.json (its recent settlements carry over)."""
     t0 = time.time() if now is None else now
@@ -448,6 +463,8 @@ def build(client, state=None, prev=None, now=None, budget=BUDGET_S):
 
     markets.sort(key=lambda m: m["volume"], reverse=True)
     kept_rows = markets[:KEEP_MARKETS]
+    if all_out is not None:
+        all_out.append(index_of(markets, fetched_at))
     return {
         "meta": {
             "source": "Kalshi",
@@ -475,9 +492,12 @@ def run(out_path, cache_dir, client=None, now=None, budget=BUDGET_S):
     c = client or Client(cache_dir)
     t0 = time.time()
     state = state_paths(cache_dir)
-    data = build(c, state, _read(out_path, None), now=now, budget=budget)
+    full = []
+    data = build(c, state, _read(out_path, None), now=now, budget=budget, all_out=full)
     data["meta"]["seconds"] = round(time.time() - t0, 1)
     _write(out_path, data)
+    if full:
+        _write(os.path.join(os.path.dirname(out_path), "kalshi_index.json"), full[0])
     if hasattr(c, "prune"):
         c.prune()
     return data
