@@ -19,7 +19,7 @@ file after every merge. "Review result" says "passed review" only after the revi
 |---|---|---|---|---|
 | F1 Bet checker | checker | not started | | not reviewed |
 | F2 Combo checker | checker | not started | | not reviewed |
-| F3 Every market searchable | data | not started | | not reviewed |
+| F3 Every market searchable | data | in review | kiumars1199/Kismet#42 | not reviewed |
 | F4 Three venues side by side | data | not started | | not reviewed |
 | F5 Topics at signup | onboarding-invites | not started | | not reviewed |
 | F6 How to place this bet | checker | not started | | not reviewed |
