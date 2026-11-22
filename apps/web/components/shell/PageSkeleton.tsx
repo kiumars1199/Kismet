@@ -3,7 +3,7 @@
 // in one frame instead of a blank wait. Shapes only, no text or numbers (nothing to read until the data arrives).
 export function PageSkeleton({ rows = 4 }: { rows?: number }) {
   return (
-    <div data-skeleton role="status" aria-live="polite" className="mx-auto w-full max-w-5xl space-y-4">
+    <div data-skeleton role="status" aria-live="polite" className="mx-auto min-h-svh w-full max-w-5xl space-y-4">
       <span className="sr-only">Loading</span>
       <div aria-hidden="true" className="h-8 w-56 animate-pulse rounded-input bg-muted-bg" />
       <div aria-hidden="true" className="h-10 w-full animate-pulse rounded-input bg-muted-bg" />
