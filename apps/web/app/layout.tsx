@@ -16,9 +16,12 @@ import { DEMO_MODE } from "@/lib/config";
 import type { HeaderHint } from "@/lib/me";
 import { unstable_rethrow } from "next/navigation";
 import { ClockProvider } from "@/components/clock";
-import { PauseScreen } from "@/components/account/PauseScreen";
+import { HelpLine } from "@/components/shell/HelpLine";
+import dynamic from "next/dynamic";
 import { isPaused } from "@/lib/account/pause";
 import "./globals.css";
+
+const PauseScreen = dynamic(() => import("@/components/account/PauseScreen").then((m) => m.PauseScreen));   // only while paused
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 const grotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-space-grotesk", display: "swap" });
@@ -62,7 +65,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         )}
         {pausedUntil ? (
           <>
-            <main id="main" className="flex-1 px-4 py-10 md:px-8"><PauseScreen until={pausedUntil} /></main>
+            <main id="main" className="flex-1 px-4 py-10 md:px-8"><PauseScreen until={pausedUntil} help={<HelpLine className="text-sm text-muted" />} /></main>
             <Footer />
           </>
         ) : (
