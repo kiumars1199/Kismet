@@ -344,7 +344,21 @@ def test_housekeep_prunes_stale_kalshi_cache_and_reports_disk(monkeypatch, tmp_p
     scheduler.housekeep(force_report=True)
     assert fresh.exists() and not stale.exists()
     out = capsys.readouterr().out
-    assert "pruned 1 stale Kalshi cache files" in out and "disk " in out and "data/kalshi_cache" in out
+    assert "pruned 1 stale Kalshi cache files" in out and "volume data/ " in out and "data/kalshi_cache" in out
+
+
+def test_housekeep_measures_the_volume_not_the_host(monkeypatch, tmp_path, capsys):
+    """Nov 22: on Railway, disk_usage() on the volume reports the 3 TB host, so "73% free" hid a full 5 GB volume. The
+    share free comes from what data/ holds against the volume size, and a nearly full volume logs every tick."""
+    data = tmp_path / "data"
+    data.mkdir()
+    (data / "sample.jsonl").write_bytes(b"x" * 950)
+    monkeypatch.setattr(scheduler, "ROOT", str(tmp_path))
+    monkeypatch.setattr(scheduler, "KALSHI_CACHE", str(data / "kalshi_cache"))
+    monkeypatch.setattr(scheduler, "VOLUME_BYTES", 1000.0)
+    scheduler.housekeep()   # not forced: logs only because the volume is 95% full
+    out = capsys.readouterr().out
+    assert "volume data/ 0.00 of 0 GB (5% free)" in out and "data/sample.jsonl" in out
 
 
 def test_engine_json_writes_are_atomic(tmp_path):
