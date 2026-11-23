@@ -272,13 +272,16 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
             </details>
           </>
         )}
-        {legs.length >= MIN_COMBO_LEGS && (
-          <div className="flex items-center gap-3">
-            <button type="button" onClick={() => void copyLink()} className="min-h-11 rounded-input border border-border px-4 text-sm font-medium text-text hover:border-accent-border">Copy link</button>
-            <span role="status" data-testid="combo-copied" className="text-[13px] text-accent-softer empty:hidden">{copied}</span>
-          </div>
-        )}
-        <p className="text-[12px] text-muted">{MIN_COMBO_LEGS} to {MAX_COMBO_LEGS} legs. Bet only what you can afford to lose.</p>
+        {/* pinned to the bottom of the (reserved) result box, so the answer growing above them moves nothing */}
+        <div className="mt-auto flex flex-col gap-3">
+          {legs.length >= MIN_COMBO_LEGS && (
+            <div className="flex items-center gap-3">
+              <button type="button" onClick={() => void copyLink()} className="min-h-11 rounded-input border border-border px-4 text-sm font-medium text-text hover:border-accent-border">Copy link</button>
+              <span role="status" data-testid="combo-copied" className="text-[13px] text-accent-softer empty:hidden">{copied}</span>
+            </div>
+          )}
+          <p className="text-[12px] text-muted">{MIN_COMBO_LEGS} to {MAX_COMBO_LEGS} legs. Bet only what you can afford to lose.</p>
+        </div>
       </section>
       </div>
     </div>
