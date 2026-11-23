@@ -1,20 +1,22 @@
 import { describe, expect, it } from "vitest";
 import { getStoreFor } from "@/lib/data/store";
-import { chanceLine } from "@/lib/card";
+import { betFigures } from "@/lib/betFigures";
 import { gateMarket } from "@/lib/data/gate";
 import { betFacts } from "./bet-facts";
 
 describe("betFacts (share image text)", () => {
-  it("shows the Free card's banded chance, never the exact one, for 25 bets", async () => {
+  it("says what the drawer says for the same Free-banded side (pays, wins about, won before), for 25 bets", async () => {
     const store = await getStoreFor("free");
     const ids = [...store.flagsById.keys()].slice(0, 25);
     expect(ids.length).toBe(25);
     for (const id of ids) {
       const f = betFacts(store, id)!;
-      const exact = store.flagsById.get(id)!;
-      expect(f.chance).toBe(chanceLine(gateMarket(exact, "free").best.win_prob));
-      const pct = Number(/^(\d+)%/.exec(f.chance ?? "")?.[1] ?? 0);
-      if (pct > 1 && pct < 99) expect(pct % 5).toBe(0);   // Free sees the chance in 5-point steps
+      const m = gateMarket(store.flagsById.get(id)!, "free");
+      const d = betFigures(m.best, { market: m });
+      expect(f.mult ?? "—").toBe(d.pays);
+      expect(f.chance).toBe(d.wins === "—" ? null : `wins about ${d.wins} · won ${d.winPct} before`);
+      const pct = Number(/won (\d+)% before/.exec(f.chance ?? "")?.[1] ?? 0);
+      if (pct > 1 && pct < 99) expect(pct % 5).toBe(0);   // Free sees the chance in 5-point steps, never the exact one
     }
   });
   it("has a multiplier like 1.47x and no dollar amounts or cents", async () => {

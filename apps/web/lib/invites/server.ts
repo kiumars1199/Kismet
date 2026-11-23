@@ -70,3 +70,23 @@ export async function recordSignup(
   if (result.status === "verified") await db.rpc("grant_invite_reward", { p_inviter: owner.user_id });
   return result;
 }
+
+/** Run on every sign-in (not just the first): (1) an invite recorded as "pending" because the invitee's email wasn't
+ *  confirmed yet becomes "verified" once it is, and asks for the inviter's reward; (2) a user with an invite code asks
+ *  again for their own reward, which a trial or paid Premium put off until they were eligible. Both are cheap no-ops
+ *  when there is nothing to do. */
+export async function settleInvites(
+  db: Pick<SupabaseClient, "from" | "rpc">,
+  user: { id: string; email_confirmed_at?: string | null },
+  now: number = Date.now(),
+): Promise<void> {
+  if (user.email_confirmed_at) {
+    const row = await first<{ id: string; inviter_id: string }>(db.from("invites").select("id, inviter_id").eq("invitee_id", user.id).eq("status", "pending").limit(1));
+    if (row) {
+      const { error } = await db.from("invites").update({ status: "verified", verified_at: new Date(now).toISOString() }).eq("id", row.id).eq("status", "pending");
+      if (!error) await db.rpc("grant_invite_reward", { p_inviter: row.inviter_id });
+    }
+  }
+  const own = await first<{ user_id: string }>(db.from("invite_codes").select("user_id").eq("user_id", user.id).limit(1));
+  if (own) await db.rpc("grant_invite_reward", { p_inviter: user.id });
+}

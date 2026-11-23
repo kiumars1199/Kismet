@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { fakeSupabase } from "@/test/fakeSupabase";
-import { getOrCreateCode, inviteProgress, recordInviterIp, recordSignup } from "./server";
+import { getOrCreateCode, inviteProgress, recordInviterIp, recordSignup, settleInvites } from "./server";
 import { isInviteCode } from "./core";
 
 const NOW = Date.parse("2026-11-22T12:00:00Z");
@@ -78,5 +78,35 @@ describe("inviteProgress", () => {
     expect(await inviteProgress(db, "inv")).toEqual({ verified: 3, target: 5, rewarded: false, comp_until: null });
     t.tables.invite_rewards!.push({ inviter_id: "inv", outcome: "granted", comp_until: "2026-12-22T00:00:00Z" });
     expect(await inviteProgress(db, "inv")).toMatchObject({ rewarded: true, comp_until: "2026-12-22T00:00:00Z" });
+  });
+});
+
+describe("settleInvites (runs on every sign-in)", () => {
+  it("promotes a pending invite once the invitee's email is confirmed, and asks for the inviter's reward", async () => {
+    const { db, t, rpc } = setup();
+    expect((await signup(db, "a", "h-a", false))?.status).toBe("pending");
+    await settleInvites(db, { id: "a", email_confirmed_at: null }, NOW);
+    expect(t.tables.invites![0]!.status).toBe("pending");   // still unconfirmed: nothing changes
+    expect(rpc).not.toHaveBeenCalled();
+    await settleInvites(db, { id: "a", email_confirmed_at: "2026-11-22T12:30:00Z" }, NOW);
+    expect(t.tables.invites![0]).toMatchObject({ status: "verified", verified_at: new Date(NOW).toISOString() });
+    expect(rpc).toHaveBeenCalledWith("grant_invite_reward", { p_inviter: "inv" });
+  });
+  it("a rejected invite is never promoted", async () => {
+    const { db, t, rpc } = setup();
+    await signup(db, "a", "h-inv");   // the inviter's own address: rejected
+    await settleInvites(db, { id: "a", email_confirmed_at: "2026-11-22T12:30:00Z" }, NOW);
+    expect(t.tables.invites![0]!.status).toBe("rejected");
+    expect(rpc).not.toHaveBeenCalled();
+  });
+  it("a user with an invite code asks again for their own reward (a trial that lapsed)", async () => {
+    const { db, rpc } = setup();
+    await settleInvites(db, { id: "inv", email_confirmed_at: "2026-11-01T00:00:00Z" }, NOW);
+    expect(rpc).toHaveBeenCalledWith("grant_invite_reward", { p_inviter: "inv" });
+  });
+  it("does nothing for a user with no invite and no code", async () => {
+    const { db, rpc } = setup();
+    await settleInvites(db, { id: "zzz", email_confirmed_at: "2026-11-01T00:00:00Z" }, NOW);
+    expect(rpc).not.toHaveBeenCalled();
   });
 });

@@ -3,7 +3,7 @@
 // (/api/og/bet/<id>), Share / Copy link / Save image, and your invite link with the live "n of 5" counter.
 // The image and link are the same for everyone: nothing here depends on the user.
 import { useEffect, useId, useRef, useState } from "react";
-import { InvitePanel } from "./InvitePanel";
+import { InvitePanel, useInvite } from "./InvitePanel";
 
 export function ShareSheet({ marketId, side, className }: { marketId: string; side: number; className?: string }) {
   const ref = useRef<HTMLDialogElement>(null);
@@ -12,6 +12,7 @@ export function ShareSheet({ marketId, side, className }: { marketId: string; si
   const [copied, setCopied] = useState(false);
   const [canShare, setCanShare] = useState(false);
   const [imgOk, setImgOk] = useState(true);
+  const { info } = useInvite(open);   // the sharer's code rides on the shared link so a friend's sign-up counts
   useEffect(() => setCanShare(typeof navigator !== "undefined" && typeof navigator.share === "function"), []);
   useEffect(() => {
     const d = ref.current;
@@ -21,7 +22,7 @@ export function ShareSheet({ marketId, side, className }: { marketId: string; si
   }, [open]);
 
   const img = `/api/og/bet/${encodeURIComponent(marketId)}?side=${side}`;
-  const link = () => `${location.origin}/m/${encodeURIComponent(marketId)}`;
+  const link = () => `${location.origin}/m/${encodeURIComponent(marketId)}${info?.code ? `?ref=${info.code}` : ""}`;
 
   return (
     <>

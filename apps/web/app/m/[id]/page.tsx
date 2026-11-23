@@ -8,6 +8,7 @@ import { PendingState } from "@/components/screener/States";
 import { SlowDownState } from "@/components/screener/SlowDownState";
 import { betLine, sideRet } from "@/lib/format";
 import { MarketDetail } from "@/components/market/MarketDetail";
+import { InviteRef } from "@/components/share/InviteRef";
 import { TeaserView } from "@/components/market/Teaser";
 import { requestZone } from "@/lib/zone-server";
 import { Breadcrumbs } from "@/components/shell/Breadcrumbs";
@@ -32,10 +33,18 @@ const load = cache(async (id: string): Promise<MarketResponse | null> => {
 // T-276: signed out (with accounts on), the page is a teaser: title, category, closing time, sign up. No model output.
 const teaser = cache(async () => authEnabled() && !(await getUser()));
 
+/** F13: the link preview is the public share image (Free-banded numbers, the same for everyone), so a signed-out crawler
+ *  gets the same card a signed-in friend would share. */
+const preview = (id: string, title: string, description: string): Metadata => {
+  const images = [{ url: `/api/og/bet/${encodeURIComponent(id)}`, width: 1200, height: 630, alt: title }];
+  return { title, description, openGraph: { title, description, type: "website", images }, twitter: { card: "summary_large_image", title, description, images: images.map((i) => i.url) } };
+};
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (await teaser()) {
-    const t = await marketTeaser((await params).id).catch(() => null);
-    return t ? { title: t.title, description: TEASER_DESCRIPTION } : { title: "Market" };
+    const id = (await params).id;
+    const t = await marketTeaser(id).catch(() => null);
+    return t ? preview(id, t.title, TEASER_DESCRIPTION) : { title: "Market" };
   }
   let data: MarketResponse | null;
   try {
@@ -45,7 +54,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
   if (!data) return { title: "Market" };
   const m = data.market;
-  return { title: m.question, description: `${betLine(m.best)} · ${sideRet(m.best)} estimated return, based on past results. Market analytics, not financial advice.` };
+  return preview(m.id, m.question, `${betLine(m.best)} · ${sideRet(m.best)} estimated return, based on past results. Market analytics, not financial advice.`);
 }
 
 export default async function Page({ params, searchParams }: Props) {
@@ -58,7 +67,7 @@ export default async function Page({ params, searchParams }: Props) {
       return <div className="mx-auto w-full max-w-[720px]"><PendingState line={pendingLine(e)} /></div>;   // no store yet is not a missing page
     }
     if (!t) notFound();
-    return <TeaserView t={t} path={`/m/${encodeURIComponent(id)}`} zone={await requestZone()} />;
+    return <><InviteRef /><TeaserView t={t} path={`/m/${encodeURIComponent(id)}`} zone={await requestZone()} /></>;   // F13: ?ref=<code> remembers the sharer
   }
   let data: MarketResponse | null;
   try {

@@ -16,7 +16,7 @@ export default function robots(): MetadataRoute.Robots {
       // T-281: an assistant fetching a page because a person asked (not training) may read the public pages. "/$" = the
       // home page only; every other path stays off-limits, as middleware enforces (lib/bots.ts agentAllowed).
       { userAgent: [...USER_AGENTS], allow: PUBLIC_FOR_USER_AGENTS.map((p) => (p === "/" ? "/$" : p)), disallow: "/" },
-      { userAgent: "*", allow: "/", disallow: PRIVATE },
+      { userAgent: "*", allow: ["/", "/api/og/"], disallow: PRIVATE },   // F13: link-preview bots (X, iMessage) fetch the share image under /api/,
     ],
     sitemap: `${siteUrl()}/sitemap.xml`,
   };

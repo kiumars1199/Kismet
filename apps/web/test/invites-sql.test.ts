@@ -132,14 +132,28 @@ describe("grant_invite_reward", () => {
     expect(await reward(id)).toMatchObject({ granted: true });
     expect(await subOf(id)).toMatchObject({ tier: "pro", comp_tier: "premium" });
   });
-  it("paid Premium is never touched", async () => {
+  it("paid Premium is never touched, and nothing is recorded, so a later lapse still earns the month", async () => {
     const id = await inviterWith(5, { tier: "'premium'", status: "'active'" });
     expect(await reward(id)).toMatchObject({ granted: false, reason: "paid_premium" });
     expect(await subOf(id)).toMatchObject({ tier: "premium", comp_tier: null });
+    expect((await db.query("select 1 from invite_rewards where inviter_id = $1", [id])).rows).toHaveLength(0);
+    await db.query("update subscriptions set tier = 'free', status = 'canceled' where user_id = $1", [id]);
+    expect(await reward(id)).toMatchObject({ granted: true });
+    expect(await subOf(id)).toMatchObject({ tier: "free", comp_tier: "premium" });
   });
-  it("a comp with no end date is never replaced by a shorter one", async () => {
+  it("a Premium trial at the 5th invite is not skipped for good: granted once the trial lapses", async () => {
+    const id = await inviterWith(5, { tier: "'premium'", status: "'trialing'" });
+    expect(await reward(id)).toMatchObject({ granted: false, reason: "paid_premium" });
+    await db.query("update subscriptions set tier = 'free', status = 'canceled' where user_id = $1", [id]);
+    expect(await reward(id)).toMatchObject({ granted: true });
+    expect(Number((await subOf(id)).days)).toBeGreaterThan(29.9);
+    expect(await reward(id)).toMatchObject({ granted: false, reason: "already_rewarded" });
+  });
+  it("a comp with no end date is never replaced by a shorter one, and is asked again if it is revoked", async () => {
     const id = await inviterWith(5, { comp_tier: "'premium'" });
     expect(await reward(id)).toMatchObject({ granted: false, reason: "open_ended_comp" });
     expect(await subOf(id)).toMatchObject({ comp_tier: "premium", days: null });
+    await db.query("update subscriptions set comp_tier = null where user_id = $1", [id]);
+    expect(await reward(id)).toMatchObject({ granted: true });
   });
 });

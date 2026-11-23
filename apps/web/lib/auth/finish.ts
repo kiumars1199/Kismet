@@ -4,7 +4,7 @@
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { isAdminEmail } from "@/lib/admin/core";
 import { adminEnabled, supabaseAdmin } from "@/lib/auth/server";
-import { recordInviteFromCookie } from "@/lib/invites/signin";
+import { recordInviteFromCookie, settleInvitesOnSignIn } from "@/lib/invites/signin";
 import { onFirstSignIn } from "@/lib/email/lifecycle";
 import { DEMO_MODE } from "@/lib/config";
 import { getSettings } from "@/lib/settings";
@@ -34,5 +34,6 @@ export async function finishSignIn(supabase: SupabaseClient, user: User, next: s
     await recordInviteFromCookie(user);   // F13: a sign-up that came through /invite/<code>
     await onFirstSignIn(user);   // T-299/T-300: funnel "signup_done" (+ welcome email); awaited, never throws
   }
+  await settleInvitesOnSignIn(user);   // F13: a pending invite whose email is now confirmed counts; a deferred reward is asked for again
   return profile?.onboarded_at ? next : `/onboarding?next=${encodeURIComponent(next)}`;
 }

@@ -73,7 +73,28 @@ test("invite link, QR, live 0..5 counter, reward; share sheet in the drawer", as
   await expect.poll(() => img.evaluate((el: HTMLImageElement) => [el.naturalWidth, el.naturalHeight]), { timeout: 60_000 }).toEqual([1200, 630]);
   await expect(page.getByRole("dialog").getByTestId("invite-counter")).toContainText("3 of 5", { timeout: 30_000 });
   await page.screenshot({ path: `${SHOTS}/share-sheet-3-of-5-1440.png` });
+
+  // the shared link carries the sharer's invite code
+  await page.context().grantPermissions(["clipboard-read", "clipboard-write"]);
+  await page.getByRole("button", { name: "Copy link" }).click();
+  const code = link.split("/").pop()!;
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(`http://localhost:${new URL(page.url()).port}/m/${id}?ref=${code}`);
   await page.keyboard.press("Escape");
+
+  // share previews work signed out: the image route answers a crawler, and /m/<id>'s og:image / twitter:image point at it
+  const origin = new URL(page.url()).origin;
+  const crawler = await browser.newContext({ baseURL: origin });
+  const cp = await crawler.newPage();
+  const og = await crawler.request.get(`/api/og/bet/${id}`);
+  expect(og.status()).toBe(200);
+  expect(og.headers()["content-type"]).toContain("image/png");
+  const html = await (await crawler.request.get(`/m/${id}?ref=${code}`)).text();
+  expect(html).toMatch(new RegExp(`<meta property="og:image" content="[^"]*/api/og/bet/${id}"`));
+  expect(html).toMatch(new RegExp(`<meta name="twitter:image" content="[^"]*/api/og/bet/${id}"`));
+  // and the ?ref= on a shared link is remembered for the sign-up
+  await cp.goto(`/m/${id}?ref=${code}`);
+  await expect.poll(async () => (await crawler.cookies()).some((c) => c.name === "me_invite" && c.value === code), { timeout: 30_000 }).toBe(true);
+  await crawler.close();
 
   for (let n = 4; n <= 5; n++) await joinFrom(browser, link, n);
   await page.goto("/account");

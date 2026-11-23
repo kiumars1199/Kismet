@@ -27,6 +27,8 @@ export const PUBLIC_API: readonly string[] = [
   "/api/backtest",            // backtest.json summary: the same figures /track-record shows publicly (landing cards read it)
   "/api/auth",                // sign-in, sign-up, reset, Google, sign-out
   "/api/stripe/webhook",      // Stripe signature
+  "/api/invite/ref",          // F13: a shared bet link carries the sharer's invite code; the visitor is signed out
+  "/api/og/bet",              // F13 share image: Free-banded numbers, the same for everyone; link-preview crawlers are signed out
   "/api/unsubscribe",         // signed token from the email
   "/api/alerts/run",          // CRON_SECRET
   "/api/settle/run",          // CRON_SECRET

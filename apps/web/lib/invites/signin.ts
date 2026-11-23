@@ -7,7 +7,7 @@ import type { User } from "@supabase/supabase-js";
 import { clientIp } from "@/lib/abuse";
 import { adminEnabled, supabaseAdmin } from "@/lib/auth/server";
 import { ipHash, isInviteCode } from "./core";
-import { recordSignup } from "./server";
+import { recordSignup, settleInvites } from "./server";
 
 export const INVITE_COOKIE = "me_invite";
 
@@ -24,5 +24,15 @@ export async function recordInviteFromCookie(user: User): Promise<void> {
     jar.delete(INVITE_COOKIE);
   } catch (e) {
     console.error("[invites] could not record sign-up:", e instanceof Error ? e.message : e);
+  }
+}
+
+/** Every sign-in: confirm a pending invite, and re-ask for the user's own reward if a trial held it back. Best effort. */
+export async function settleInvitesOnSignIn(user: User): Promise<void> {
+  try {
+    if (!adminEnabled()) return;
+    await settleInvites(supabaseAdmin(), user);
+  } catch (e) {
+    console.error("[invites] could not settle invites:", e instanceof Error ? e.message : e);
   }
 }

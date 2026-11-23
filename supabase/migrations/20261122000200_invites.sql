@@ -40,7 +40,7 @@ grant select (id, inviter_id, status, created_at, verified_at) on public.invites
 -- ---------------------------------------------------------------- one reward per inviter
 create table public.invite_rewards (
   inviter_id uuid primary key references auth.users on delete cascade,
-  outcome text not null,                         -- granted | skipped_paid_premium | skipped_open_ended_comp
+  outcome text not null,                         -- 'granted' (a row exists only once the month was granted)
   comp_until timestamptz,
   created_at timestamptz not null default now()
 );
@@ -62,11 +62,14 @@ begin
   end loop;
 end $$;
 
--- Grant the reward once, when the inviter's 5th sign-up is verified. Never lowers anything:
---   * paid Premium active: nothing to add, recorded as skipped;
---   * a live comp with no end date: can't be stacked on, recorded as skipped;
+-- Grant the reward once the inviter has 5 verified sign-ups AND can take it. Never lowers anything. While the inviter
+-- can't take it yet, nothing is recorded, so a later call (their next sign-in, a trial that lapses) still grants:
+--   * Premium paid or on trial (active, trialing, past_due): not now (a month on top of Premium they already have is
+--     worth nothing), asked again later;
+--   * a live comp with no end date: can't be stacked on, asked again later;
 --   * a live comp with an end date: Premium until that end + 30 days (stacks);
 --   * otherwise (free, or paid Pro): Premium comp for 30 days from now (paid Pro keeps its plan underneath).
+-- The invite_rewards row (primary key = inviter) is written only when the month is actually granted, so it can't repeat.
 create or replace function public.grant_invite_reward(p_inviter uuid)
 returns jsonb
 language plpgsql
@@ -81,26 +84,26 @@ declare
 begin
   select count(*) into n from public.invites where inviter_id = p_inviter and status = 'verified';
   if n < 5 then return jsonb_build_object('granted', false, 'reason', 'below_threshold', 'verified', n); end if;
-
-  insert into public.invite_rewards (inviter_id, outcome) values (p_inviter, 'pending') on conflict do nothing;
-  if not found then return jsonb_build_object('granted', false, 'reason', 'already_rewarded', 'verified', n); end if;
+  if exists (select 1 from public.invite_rewards where inviter_id = p_inviter) then
+    return jsonb_build_object('granted', false, 'reason', 'already_rewarded', 'verified', n);
+  end if;
 
   insert into public.subscriptions (user_id) values (p_inviter) on conflict do nothing;
   select * into s from public.subscriptions where user_id = p_inviter for update;
   live := s.comp_tier is not null and (s.comp_expires_at is null or s.comp_expires_at > now());
 
   if s.tier = 'premium' and coalesce(s.status, 'active') in ('active', 'trialing', 'past_due') then
-    update public.invite_rewards set outcome = 'skipped_paid_premium' where inviter_id = p_inviter;
     return jsonb_build_object('granted', false, 'reason', 'paid_premium', 'verified', n);
   end if;
   if live and s.comp_expires_at is null then
-    update public.invite_rewards set outcome = 'skipped_open_ended_comp' where inviter_id = p_inviter;
     return jsonb_build_object('granted', false, 'reason', 'open_ended_comp', 'verified', n);
   end if;
 
+  insert into public.invite_rewards (inviter_id, outcome) values (p_inviter, 'granted') on conflict do nothing;
+  if not found then return jsonb_build_object('granted', false, 'reason', 'already_rewarded', 'verified', n); end if;
   new_end := (case when live then s.comp_expires_at else now() end) + interval '30 days';
   update public.subscriptions set comp_tier = 'premium', comp_expires_at = new_end where user_id = p_inviter;
-  update public.invite_rewards set outcome = 'granted', comp_until = new_end where inviter_id = p_inviter;
+  update public.invite_rewards set comp_until = new_end where inviter_id = p_inviter;
   return jsonb_build_object('granted', true, 'comp_until', new_end, 'verified', n);
 end;
 $$;
