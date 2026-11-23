@@ -213,10 +213,16 @@ export function freeSample(store: Store, key: string, now = Date.now()): Set<str
 /** Free Best bets: every match is counted (`total` is the real N for "Unlock all N bets"), but only the day's sample
  *  leaves the server, ungrouped (a game group would carry the other bets in it). `free_daily` marks the page as the
  *  Free sample, so the client draws the locked cards from the server's answer, never from its own guess of the tier. */
-function freeFlagsPage(store: Store, f: FilterState, key: string): MarketsResponse {
+function freeFlagsPage(store: Store, f: FilterState, key: string, fallback = false): MarketsResponse {
   const page = marketsPage(store, { ...f, us: f.us && freeUsOn(store), page: 1, page_size: Number.MAX_SAFE_INTEGER, group_by_event: false });
   const keep = freeSample(store, key);
   const rows = page.rows.filter((r) => keep.has(r.market.id));
+  // First screen after onboarding (fav=1, "Your topics"): when none of the day's sample is in the chosen topics, answer with
+  // that user's own unfiltered sample instead (same freeSample, nothing from positions or history), marked so the page says so.
+  if (!rows.length && page.total > 0 && fallback) {
+    const all = freeFlagsPage(store, { ...f, topics: undefined }, key);
+    if (all.rows.length) return { ...all, free_fallback: true };
+  }
   return { ...page, page_size: f.page_size, total_groups: undefined, groups: undefined, rows, free_daily: FREE_BEST_BETS_A_DAY };
 }
 
@@ -236,8 +242,12 @@ export async function listBody(store: Store, f: FilterState, tier: Tier, sampleK
 }
 
 async function listBodyOf(store: Store, f: FilterState, tier: Tier, sampleKey: string): Promise<MarketsResponse | null> {
+  // fav=1 with its topics ("Your topics" pill): the API has no user context, so the flag is only a marker here (it filters
+  // nothing; t=<ids> is the filter). For Free Best bets it asks for the first-screen fallback (freeFlagsPage).
+  const fallback = !!f.favorites_only && !!f.topics?.length;
+  if (f.favorites_only) f = { ...f, favorites_only: undefined };
   const live = can(tier, "live_data");
-  const page = live ? marketsPage(store, f) : f.view === "flags" ? freeFlagsPage(store, f, sampleKey) : marketsPage(store, { ...f, page: 1 });
+  const page = live ? marketsPage(store, f) : f.view === "flags" ? freeFlagsPage(store, f, sampleKey, fallback) : marketsPage(store, { ...f, page: 1 });
   if (live && f.page > Math.max(1, page.pages)) return null;
   if (!live) return gateMarkets(page, tier, page.free_daily);   // Free stays 15 min behind; its Best bets are the day's sample
   if (!repriceOn()) return gateMarkets(page, tier);
@@ -333,7 +343,7 @@ export async function firstPage(params: URLSearchParams, view: "flags" | "market
     const ctx = await pageStore();
     const store = can(ctx.tier, "exact_edge") ? ctx.store : freeView(ctx.store);
     const kalshiOk = view === "markets" && canBeta(ctx.me, "kalshi");
-    const f = { ...parse(params), favorites_only: undefined };   // the "Your topics" flag is only the pill; t=<ids> is the filter
+    const f = parse(params);   // fav=1 is only the pill (and the Free first-screen fallback marker); t=<ids> is the filter
     if (f.venue === "kalshi" && !kalshiOk) f.venue = "all";   // Kalshi off: ignore the param, like /api/markets
     if (kalshiOk && f.venue === "kalshi") {   // the Kalshi page ships with the HTML too
       const kalshi = await kalshiPage(f, store);
