@@ -10,8 +10,10 @@ Kalshi matching is conservative: precision over recall. A pair must pass hard ga
 
 Kalshi multiplier (Nov 23, 2026): Kalshi's published taker fee, fee = round_up_to_cent(0.07 x C x P x (1 - P)), from
 https://kalshi.com/docs/kalshi-fee-schedule.pdf (found by web search on 2026-11-23; docs/launch/decisions.md). For one
-contract (C = 1) the multiplier is 1 / (P + fee), the fee rounded up to the next cent first. This is Kalshi's STANDARD
-fee: some Kalshi markets use a different fee multiplier, so the web labels it "(standard Kalshi fee)", never "exact".
+fixed reference order, a $100 stake (C = floor(100 / P) contracts, the same for everyone), the total fee is rounded up to the
+cent, the per-contract fee is that total / C, and the multiplier is 1 / (P + per-contract fee). (Worked for one contract the
+rounding inflated longshots: 1% showed 50x where a $100 order gives about 93.5x.) This is Kalshi's STANDARD fee: some Kalshi
+markets use a different fee multiplier, so the web labels it "for a $100 bet, standard Kalshi fee", never "exact".
 """
 import json
 import os
@@ -94,18 +96,28 @@ def kalshi_price(pm, k):
     return None if k["yes_ask"] is None else round(k["yes_ask"] / 100, 4)
 
 
-def kalshi_fee(price):
-    """Standard Kalshi taker fee in dollars for ONE contract at `price` (0-1): 0.07 * P * (1 - P) rounded UP to the cent.
-    Integer cents so float noise cannot add a cent (see the module doc for the source)."""
-    c = round(price * 100)
-    return -(-7 * c * (100 - c) // 10000) / 100
+REFERENCE_STAKE = 100   # dollars: the one order every Kalshi multiplier is worked for (the same for everyone, nothing personalised)
+
+
+def kalshi_contracts(price):
+    """Contracts a $100 order buys at `price` (0-1): floor(100 / P), in integer cents."""
+    return REFERENCE_STAKE * 100 // round(price * 100)
+
+
+def kalshi_fee_total(price):
+    """Standard Kalshi taker fee in dollars for the $100 reference order: 0.07 * C * P * (1 - P) rounded UP to the cent
+    (integer cents, so float noise cannot add a cent). See the module doc for the source."""
+    p = round(price * 100)
+    c = kalshi_contracts(price)
+    return -(-7 * c * p * (100 - p) // 10000) / 100
 
 
 def kalshi_multiplier(price):
-    """1 / (price + fee) for one contract, or None without a usable price."""
+    """1 / (P + per-contract fee) for the $100 reference order (per-contract fee = total fee / contracts, so a longshot is
+    not inflated by rounding one contract's fee up to a cent), or None without a usable price."""
     if not price or price <= 0:
         return None
-    return round(1 / (price + kalshi_fee(price)), 4)
+    return round(1 / (price + kalshi_fee_total(price) / kalshi_contracts(price)), 4)
 
 
 def _mult(ask, fee):

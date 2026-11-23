@@ -84,7 +84,7 @@ export interface Market {
   venues?: VenueQuote[];
 }
 // F4: one venue's price for the market's best side. `url` is the venue's plain market page (F6 reuses it for deep links).
-// multiplier = 1 / (price + fee) with the venue's own fee (Kalshi: its standard taker fee, engine/venues.py); null = none known, show the % only.
+// multiplier = 1 / (price + fee) with the venue's own fee (Kalshi: its standard taker fee worked for a $100 order, engine/venues.py); null = none known, show the % only.
 // at = unix s of the data (the scan for Polymarket and US, the Kalshi crawl for Kalshi); conf = Kalshi match score 0..1.
 export interface VenueQuote {
   venue: "polymarket" | "us" | "kalshi";

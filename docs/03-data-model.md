@@ -91,7 +91,8 @@ export interface Market {
 }
 // F4: one venue's price for the market's best side. `url` = the venue's plain market page (the "How to bet this" deep links
 // of F6 reuse it, so the name is stable). multiplier = 1 / (price + fee) with that venue's own fee; Kalshi's is its standard taker
-// fee (engine/venues.py kalshi_fee: round_up_to_cent(0.07 x P x (1 - P)) per contract; some Kalshi markets use another multiplier).
+// fee worked for a $100 order (engine/venues.py: C = floor(100/P), total fee round_up_to_cent(0.07 x C x P x (1 - P)), per contract = total / C;
+// the same for everyone; some Kalshi markets use another multiplier).
 // null = none known (an older venues.json): the UI shows the % only and that venue never wins "Pays most here".
 // at = unix s of the data (the scan for Polymarket/US, the Kalshi crawl for Kalshi); conf = Kalshi match score 0..1. Both
 // are the basis shown under "Where these prices come from".
