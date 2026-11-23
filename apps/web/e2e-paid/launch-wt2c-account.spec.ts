@@ -40,7 +40,7 @@ test("Free, signed in by email link: /account names the method, one help line, p
   await expect(page.locator("#acct-h + p")).toContainText("with an email link");
   await expect(page.locator("#acct-h + p")).not.toContainText("Google");
   // 4: one help line on /account (the pause card's); the footer still shows the disclaimer
-  await expect(page.getByTestId("helpline")).toHaveCount(1);
+  await expect(page.locator('[data-testid="helpline"]:visible')).toHaveCount(1);
   await expect(page.getByTestId("pause-card").getByTestId("helpline")).toBeVisible();
   await expect(page.locator("footer")).toContainText(DISCLAIMER);
 

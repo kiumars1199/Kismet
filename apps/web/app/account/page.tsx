@@ -39,7 +39,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ c
   const billing = billingMode() !== null;
 
   return (
-    <div className="mx-auto flex max-w-3xl flex-col gap-8">
+    <div data-account-page className="mx-auto flex max-w-3xl flex-col gap-8">   {/* the footer help line hides while this is on the page (globals.css): the pause card shows it */}
       <PageTitle title="Account">
         {/* #21: settings (display, sizing, topics, notifications, your data) one tap from the account page */}
         <Link href="/settings" data-testid="account-settings" className="inline-flex min-h-11 items-center rounded-input border border-border bg-muted-bg px-4 text-sm font-medium hover:border-accent-border">Settings</Link>
