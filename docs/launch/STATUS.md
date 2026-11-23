@@ -39,7 +39,7 @@ Merge order: F3, F1, F2, F5, F7, F8, F9, then F4, F6, F10–F16.
 Batch 1 MERGED (08:20–08:50 UTC: #43, #45, #64, #60, #61, #62; then #47, #54, #55; #46 merged 2a987ba at 09:31). Was: Batch 1 (decisions.md, Vercel cap): F1 #43 064f521, F2 #45 ef73b2f, f01b kiumars1199/Kismet#64 ae4e3eb, #60 df67be8, F6 #46 57ed4de, #61 0107058, #62 70d8f6b. Integ tree integ-b1 v1 (c5abb7f, first five) green: tsc, lint, vitest 1594 + timing test passes alone, pytest 164, build, check:js 146.8 kB, e2e 129. f01b delta PASS; v2 (b99788b, +#61 +#62, tree 61da2d4) green: tsc, lint, vitest, pytest 164, build, check:js 146.8 kB, e2e 139; pushed as launch/integ-batch1; one preview when a slot frees (~08:40 UTC), then merges and one prod build.
 
 ## Walk-through 1: first-time visitor from a TikTok link
-Status: dry run on prod a7c3ae5 (16:45; evidence review/walkthrough-1-dryrun/). Official walk after all merges.
+Status: official walk in progress on prod 137ad1f (21:50). Dry run was on prod a7c3ae5 (16:45; evidence review/walkthrough-1-dryrun/). Dry-run fixes merged: #71/#80/#82 (onboarding), #85 (tracker).
 
 Problems (dry run; fixes assigned):
 - [should-fix] /m teaser "get10 best bets" missing space (onboarding)
@@ -53,7 +53,7 @@ Problems (dry run; fixes assigned):
 - [nit] /m close time absolute only (onboarding)
 
 ## Walk-through 2: new Free user
-Status: dry run on the paid mock at eef7345 (18:35). The official walk on prod comes after the merges. Fixes go to the trust lane (T-wt2).
+Status: official walk in progress on 137ad1f (21:50). Dry run was on the paid mock at eef7345 (18:35). Dry-run fixes merged: #86, #81. Fixes go to the trust lane (T-wt2).
 Problems (from the dry run):
 - [should-fix] A first-time Free user with one topic can land on an empty first screen, because the random 10-bet sample may have none in that topic.
 - [should-fix] Tour step 1 opens over an empty list.
@@ -63,7 +63,7 @@ Problems (from the dry run):
 - ~~[nit] "- More Markets" shows on the /markets group header~~ fixed by #81 (merged); verify in the official walk.
 
 ## Walk-through 3: Pro user building a combo
-Status: dry run on the paid mock at eef7345 (18:58). The official walk on prod comes after the merges. Fixes are with the data lane (T-wt3).
+Status: official walk in progress on 137ad1f (21:50). Dry run was on the paid mock at eef7345 (18:58). Dry-run fixes merged: #89, #92. Fixes are with the data lane (T-wt3).
 Problems (from the dry run):
 - [blocker] A Pro user has no way into /check/combo: no link anywhere, and the Add-to-combo tray is Premium-only.
 - [should-fix] /combos and /pricing copy tells Pro that building combos is Premium-only.
@@ -74,6 +74,7 @@ Problems (from the dry run):
 - [nit] Search hits shift the result box (CLS 0.06-0.07).
 
 ## Found in review, outside a lane
+- 21:50 Merged #85 (T-wt1: pricing, help line, locked copy) at 5b3b53c -> 137ad1f. Reviewer PASS, CI web green, preview ready. Batch complete: no launch PRs left open. Production 137ad1f is READY and /api/health is ok. The official walk-throughs 1, 2 and 3 have started in parallel: signed-out steps on prod; signed-in steps on a local build of 137ad1f with the E2E mock, per decisions.md (no live test accounts, no bot-protection bypass on prod).
 - 21:47 Merged #92 (T-89b combo checker review fixes) at b810a77. Reviewer PASS, CI web green, preview ready.
 - 21:45 Merged #94 (T-ci2: WebKit in its own Playwright-image job, 4 Chromium shards) at 9a35dc6 -> fae9433. Reviewer PASS: the gate needs all 4 jobs and covers the same 85 paid + 273 demo tests; longest job 9:14 (it was 12:47). #92 b810a77 re-review PASS: the header matches final at 768-1280, "Check a bet" shows from 1440, and it is in the footer + phone More menu. Merge on green web. Follow-up T-89c (data lane): first-leg CLS at 390 (0.069; one run 0.1008), double active state in More, "2 to 10" said 3 times. #85 merged final in (5b3b53c) after a slow-dev-server failure on the old serial CI.
 - 21:25 Merged #93 (T-90b, which includes #90's stable table widths) at a085b22 -> a9b3df0. Both had a reviewer PASS (#90 f702290, #93 e04da39); a085b22 only merged final in. CI web green on the sharded workflow. The old serial run had failed twice on a next dev memory-threshold restart in password.spec.
