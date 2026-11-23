@@ -58,3 +58,16 @@ test("basis: source, time and Kalshi match confidence are one tap away", async (
   await expect(basis.locator('li[data-basis="kalshi"]')).toContainText("97% sure");
   await expect(basis.locator('li[data-basis="kalshi"] [data-ago]')).toBeVisible();
 });
+
+// A pasted Kalshi link resolves to the matched market once the store keeps the matcher's ticker (kalshi_matched_ticker, set from
+// venues.json; kalshi_ticker stays unset so the bet venue does not flip). Fixture: 6674492 <-> KXFIXTURE-6674492 (venues.json + kalshi.json).
+const KALSHI_LINK = "https://kalshi.com/markets/kxfixture/denmark-norway-both-teams-to-score/kxfixture-6674492";
+test("/check: a pasted Kalshi link resolves to its market (not 'missing') and shows Kalshi's own price", async ({ page }) => {
+  await page.goto("/check");
+  await page.getByLabel("Market link or words").fill(KALSHI_LINK);
+  await page.getByRole("button", { name: "Check", exact: true }).click();
+  await expect(page.getByTestId("chk-score")).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByTestId("check-missing")).toHaveCount(0);
+  await expect(page.getByText("Denmark vs. Norway").first()).toBeVisible();
+  await expect(page.getByTestId("check-kalshi")).toContainText(/Kalshi's own price for Yes is \d+%/);
+});
