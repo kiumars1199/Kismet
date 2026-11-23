@@ -145,7 +145,9 @@ export async function getMeForUser(user: SessionUser): Promise<Me> {
 }
 
 /** profiles.paused_until for a user known only by id (the extension's bearer token). Service role; failed read = not paused. */
-export const pausedUntilForUser = (userId: string): Promise<string | null> => pausedUntilOf(supabaseAdmin(), userId);
+export async function pausedUntilForUser(userId: string): Promise<string | null> {
+  try { return await pausedUntilOf(supabaseAdmin(), userId); } catch { return null; }   // no service key configured, or a hiccup
+}
 
 export const getTier = async (): Promise<Tier> => (await getMe()).tier;
 
