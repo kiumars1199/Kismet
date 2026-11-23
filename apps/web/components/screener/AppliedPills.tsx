@@ -50,6 +50,12 @@ function pillsFor(s: FilterState, mode: Mode): Pill[] {
   if (s.min_events !== undefined) one("ev", true, `≥ ${s.min_events} past events`, { min_events: undefined });
   if (s.closes_within_h !== undefined) one("cw", true, `Closes within ${hours(s.closes_within_h)}`, { closes_within_h: undefined });
   if (s.closes_after_h !== undefined) one("ca", true, `Closes after ${hours(s.closes_after_h)}`, { closes_after_h: undefined });
+  if (s.closes_from !== undefined || s.closes_to !== undefined) {
+    const d = (u: number) => new Date(u * 1000).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    const [f, t] = [s.closes_from, s.closes_to];
+    const label = f !== undefined && t !== undefined ? (d(f) === d(t) ? `Closes ${d(f)}` : `Closes ${d(f)} – ${d(t)}`) : f !== undefined ? `Closes from ${d(f)}` : `Closes by ${d(t!)}`;
+    one("cf", true, label, { closes_from: undefined, closes_to: undefined });
+  }
   one("live", s.live_only, "Live now", { live_only: undefined });
   out.push(...each("frequency", s.frequency, (x) => (x === "15M" ? "Every 15 min" : x)));
   if (s.volume_min !== undefined) one("vol", true, `Volume ≥ ${money(s.volume_min)}`, { volume_min: undefined });

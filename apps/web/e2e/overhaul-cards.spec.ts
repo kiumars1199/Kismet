@@ -141,6 +141,24 @@ test("filter bar: three dropdowns land in the URL on Apply, and stay after a rel
   await expect(page.getByTestId("bar-count")).toContainText(/\d+ bets?/);
 });
 
+test("filter bar: every sport and topic is listed, and dates can be picked as a range (Marc, Nov 22)", async ({ page }) => {
+  await page.goto("/");
+  const bar = page.getByTestId("filter-bar");
+  await page.waitForLoadState("networkidle");
+  const values = await bar.getByTestId("bar-sport").locator("option").evaluateAll((os) => os.map((o) => (o as HTMLOptionElement).value));
+  for (const v of ["t:sports.tennis", "t:sports.cricket", "t:politics", "t:finance.stocks", "t:culture"]) expect(values).toContain(v);
+  await bar.getByTestId("bar-date").selectOption("custom");
+  await bar.getByTestId("bar-from").fill("2026-11-20");
+  await bar.getByTestId("bar-to").fill("2026-11-23");
+  await bar.getByTestId("bar-apply").click();
+  await expect(page).toHaveURL(/cf=\d+/);
+  await expect(page).toHaveURL(/ct=\d+/);
+  await page.reload();
+  await expect(bar.getByTestId("bar-date")).toHaveValue("custom");
+  await expect(bar.getByTestId("bar-from")).toHaveValue("2026-11-20");
+  await expect(bar.getByTestId("bar-to")).toHaveValue("2026-11-23");
+});
+
 test("sort menu changes the order in the URL", async ({ page }) => {
   await page.goto("/");
   await page.waitForLoadState("networkidle");

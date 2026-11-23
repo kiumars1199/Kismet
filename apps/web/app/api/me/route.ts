@@ -21,7 +21,10 @@ export async function GET() {
       const full = await supabaseAdmin().from("profiles").select("favorite_topics, topics_off").eq("user_id", me.user.id).maybeSingle();
       // before the topics_off migration the column is missing: fall back to the topics alone
       const row = full.error ? (await supabaseAdmin().from("profiles").select("favorite_topics").eq("user_id", me.user.id).maybeSingle()).data : full.data;
-      await syncTopicsCookie(me.user.id, row);
+      // the session may have ended while the profile was read (sign-out in another tab): never write the hint then
+      const still = await getMe();
+      if (still.user?.id === me.user.id) await syncTopicsCookie(me.user.id, row);
+      else (await cookies()).delete(TOPICS_COOKIE);
     } catch { /* best effort */ }
   }
   return Response.json(

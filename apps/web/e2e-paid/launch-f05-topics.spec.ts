@@ -172,5 +172,27 @@ test("topics cleared elsewhere stop filtering here; sign-out drops the hint; ano
   await page.goto("/account");
   await page.getByRole("button", { name: "Sign out", exact: true }).click();
   await page.waitForURL((u) => u.pathname === "/", { timeout: 30_000 });
+  await page.waitForLoadState("networkidle");
+  await page.goto("/");   // a signed-out page request drops any hint a request that was in flight at sign-out wrote
+  await page.waitForLoadState("networkidle");
   expect(await hint()).toBeUndefined();
+});
+
+test("a returning user's first /bets opens filtered (the hint outlives the tab)", async ({ page, context }) => {
+  test.setTimeout(300_000);
+  await signUp(page, `f05-return-${Date.now()}@example.com`);
+  await makePremium(page);
+  const nfl = page.getByRole("button", { name: /^NFL/ });
+  await expect(nfl).toContainText("open", { timeout: 60_000 });
+  await page.waitForTimeout(500);
+  await nfl.click();
+  await expect(nfl).toHaveAttribute("aria-pressed", "true", { timeout: 30_000 });
+  await page.getByRole("button", { name: "Skip setup" }).click();
+  await page.waitForURL(/fav=1/, { timeout: 60_000 });
+  await page.goto("about:blank");   // no Kismet tab open: nothing polls /api/me
+  const hint = (await context.cookies()).find((c) => c.name === "me_topics")!;
+  expect((hint.expires - Date.now() / 1000) / 86_400).toBeGreaterThan(300);   // lasts about a year, not minutes
+  const hop = await page.request.get("/bets", { maxRedirects: 0 });
+  expect(hop.status()).toBe(307);
+  expect(hop.headers().location).toMatch(/\/bets\?fav=1&t=sports\.nfl/);
 });

@@ -2,11 +2,11 @@
 // user cleared the "Your topics" pill. A filter only, never a pick: the same flags come back for anyone with it.
 //
 // Middleware can't query the database per request, so the choice rides in a small cookie the server writes whenever
-// it learns the profile (profile save, /api/me): "<userId>|on:<ids>" or "<userId>|off:<ids>" (pill cleared). The cookie is only a 15 minute hint, bound to the user id and cleared on sign-out; the profile is the source of truth. Middleware turns a bare
+// it learns the profile (profile save, /api/me): "<userId>|on:<ids>" or "<userId>|off:<ids>" (pill cleared). The cookie is only a hint, bound to the user id and cleared on sign-out; the profile is the source of truth. Middleware turns a bare
 // /bets (or signed-in /) into a real 307 to /bets?fav=1&t=<ids>; the page then renders the filtered cards and the pill
 // in its first HTML.
 export const TOPICS_COOKIE = "me_topics";
-export const TOPICS_COOKIE_MAX_AGE = 60 * 15;   // a hint only: the profile is the source of truth; /api/me rewrites it from the profile on every call
+export const TOPICS_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;   // long-lived, so a returning user's first /bets already opens filtered; still only a hint: bound to the user id, rewritten from the profile on every /api/me, cleared on sign-out
 const DRAWER = new Set(["m", "side", "_rsc"]);   // params that don't filter (the drawer; Next's soft-navigation marker)
 const ID = /^[a-z0-9][a-z0-9._-]{0,59}$/;
 

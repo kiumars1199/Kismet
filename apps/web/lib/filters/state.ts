@@ -26,6 +26,9 @@ export const FilterState = z.object({
   market_types: z.array(MarketType).optional(),
   periods: z.array(PeriodEnum).optional(),
   side: SideChoice.default("best"),
+  // F3: which venue's markets. "all" (default): Polymarket rows, plus Kalshi matches when q is set; "polymarket": Polymarket
+  // only; "kalshi": Kalshi rows only (the response's `kalshi` page; Kalshi has no model chance, so no flags).
+  venue: z.enum(["all", "polymarket", "kalshi"]).default("all"),
   price_min: z.number().min(0).max(1).optional(), price_max: z.number().min(0).max(1).optional(),
   pays_min: z.number().optional(), pays_max: z.number().optional(),   // payout multiplier 1/ask, [min, max) (docs/13 §2)
   win_prob_min: z.number().optional(), win_prob_max: z.number().optional(),
@@ -40,6 +43,7 @@ export const FilterState = z.object({
   retention_min: z.number().optional(), capacity_min_usd: z.number().optional(),
   min_events: z.number().int().optional(),           // evidence size
   closes_within_h: z.number().optional(), closes_after_h: z.number().optional(),
+  closes_from: z.number().optional(), closes_to: z.number().optional(),   // absolute close window, unix s (Marc, Nov 22: pick dates)
   live_only: z.boolean().optional(),
   frequency: z.array(FrequencyEnum).optional(),
   volume_min: z.number().optional(), volume_24h_min: z.number().optional(),

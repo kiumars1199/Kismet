@@ -6,14 +6,18 @@ import type { Market, Side } from "@/lib/types";
 
 /** Kalshi when the market has a mapped ticker, else Polymarket. */
 import { venueOf } from "@/lib/trade/venue";
+import { RISK_NOTE, RiskNote } from "./RiskNote";
 export { venueOf };
 
 export function VenueLink({ m, className = "" }: { m: Pick<Market, "url" | "kalshi_ticker">; className?: string }) {
   const v = venueOf(m);
   return (
+    <>
     <a href={v.href} target="_blank" rel="noopener noreferrer" className={className} onClick={(e) => e.stopPropagation()}>
       Open on {v.name} <ExternalLink size={15} className="inline-block align-[-2px]" />
     </a>
+    <RiskNote />
+    </>
   );
 }
 
@@ -23,7 +27,7 @@ export function VenueIconLink({ m, className = "" }: { m: Pick<Market, "url" | "
   return (
     <a
       data-venue={v.name.toLowerCase()} href={v.href} target="_blank" rel="noopener noreferrer"
-      aria-label={`Open on ${v.name}`} title={`Open on ${v.name}`} onClick={(e) => e.stopPropagation()}
+      aria-label={`Open on ${v.name}. ${RISK_NOTE}`} title={`Open on ${v.name}. ${RISK_NOTE}`} onClick={(e) => e.stopPropagation()}
       className={`relative z-10 flex size-11 flex-none items-center justify-center rounded-input text-muted hover:bg-raised hover:text-text ${className}`}
     >
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

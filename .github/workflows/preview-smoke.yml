@@ -1,0 +1,49 @@
+# Smoke flows S3 (drawer) and S5 (My list) against each Vercel preview once it is ready (Q, Nov 22: previews
+# and CI only, no bypass on production). Needs the repo secret VERCEL_AUTOMATION_BYPASS_SECRET (Vercel →
+# Settings → Deployment Protection → Protection Bypass for Automation). Without it the job says so and skips.
+name: preview-smoke
+
+on:
+  deployment_status: {}
+
+permissions:
+  contents: read
+
+jobs:
+  s3-s5:
+    if: github.event.deployment_status.state == 'success' && startsWith(github.event.deployment.environment, 'Preview')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: apps/web
+    env:
+      PREVIEW_URL: ${{ github.event.deployment_status.environment_url }}
+      VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.deployment.sha }}
+      - name: Secret present?
+        id: secret
+        run: |
+          if [ -z "$VERCEL_AUTOMATION_BYPASS_SECRET" ]; then
+            echo "::warning::VERCEL_AUTOMATION_BYPASS_SECRET is not set; preview smoke S3/S5 skipped"
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: pnpm/action-setup@v4
+        if: steps.secret.outputs.ok == 'true'
+        with:
+          package_json_file: apps/web/package.json
+      - uses: actions/setup-node@v4
+        if: steps.secret.outputs.ok == 'true'
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: apps/web/pnpm-lock.yaml
+      - if: steps.secret.outputs.ok == 'true'
+        run: pnpm i --frozen-lockfile && pnpm exec playwright install --with-deps chromium
+      - if: steps.secret.outputs.ok == 'true'
+        run: pnpm exec playwright test -c playwright.preview.config.ts --trace off

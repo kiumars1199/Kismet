@@ -32,8 +32,8 @@ describe("topics cookie", () => {
     expect(parseTopicsCookie(v, undefined)).toEqual({ favorites: [], dismissed: false });
     expect(parseTopicsCookie("on:sports.nfl", "u1")).toEqual({ favorites: [], dismissed: false });   // old unbound format
   });
-  it("is only a short-lived hint, so a change made on another device can't linger", () => {
-    expect(TOPICS_COOKIE_MAX_AGE).toBeLessThanOrEqual(15 * 60);
+  it("lives long enough that a returning user's first visit the next day already opens filtered", () => {
+    expect(TOPICS_COOKIE_MAX_AGE).toBeGreaterThanOrEqual(30 * 24 * 3600);
   });
   it("ignores a missing, malformed or tampered value", () => {
     for (const v of [undefined, null, "", "garbage", "on", "u1|on"]) expect(parseTopicsCookie(v, "u1")).toEqual({ favorites: [], dismissed: false });

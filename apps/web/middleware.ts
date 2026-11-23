@@ -126,6 +126,7 @@ export async function middleware(req: NextRequest) {
       return r;
     }
   }
+  if (!data.user && req.cookies.has(TOPICS_COOKIE)) res.cookies.delete(TOPICS_COOKIE);   // F5: the topics hint belongs to a signed-in user
   if (!data.user) {
     const wall = accountWall(req);
     if (wall) {
