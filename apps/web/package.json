@@ -11,6 +11,8 @@
     "test": "vitest run && pnpm test:ops",
     "check:bundle": "node scripts/check-bundle.mjs",
     "check:js": "node scripts/perf/landing-js.mjs --route / --budget-kb 150",
+    "e2e:demo": "playwright test",
+    "e2e:paid": "playwright test -c playwright.paid.config.ts",
     "e2e": "playwright test && playwright test -c playwright.paid.config.ts --shard=1/2 && playwright test -c playwright.paid.config.ts --shard=2/2",
     "e2e:preview": "playwright test -c playwright.preview.config.ts --trace off",
     "test:ops": "node --test \"../../ops/tests/*.test.mjs\"",

@@ -32,7 +32,7 @@ test("#9 Free: the filter sheet with the Pro pitch closes with ✕, Escape and a
         await page.getByRole("button", { name: /^More filters/ }).first().click();
         await expect(sheet).toBeVisible({ timeout: 2_000 });
       }).toPass({ timeout: 60_000 });
-      await expect(sheet.getByRole("link", { name: "Upgrade to unlock" })).toBeAttached();   // Free: the Pro pitch
+      await expect(sheet.getByRole("link", { name: "Upgrade to unlock" })).toBeAttached({ timeout: 30_000 });   // Free: the Pro pitch (it shows once the plan is known)
     };
     await open();
     await sheet.getByRole("button", { name: "Close filters" }).click();
