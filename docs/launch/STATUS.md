@@ -24,7 +24,7 @@ file after every merge. "Review result" says "passed review" only after the revi
 | F5 Topics at signup | onboarding-invites | review PASS with notes on ff7c5eb (1-year uid-bound hint, sign-out clears it; CI green); migration 20261122000100 applied just before merge; merge waits on the Vercel limit | kiumars1199/Kismet#47 | PASS (pre-merge); post-merge check pending |
 | F6 How to place this bet | checker | PASS with notes on 3668ac3; F9 wiring 57ed4de PASS with notes (CA/NV/none verified in browser, F9 JSON not in client bundle, check:js 146.6 kB). Merge after F1/F2 once CI web is green on 57ed4de. Guide line will reuse trust's signed-out state picker | kiumars1199/Kismet#46 | PASS (pre-merge); post-merge check pending |
 | F7 Live payments by config | trust | merged (cd9f672), prod READY, health ok | kiumars1199/Kismet#41 | passed review |
-| F8 Responsible betting | trust | merged (651462b); prod PASS with notes (help line, 18+, RiskNote on prod; pause/account verified on merged build with mock); follow-up #54 in review | kiumars1199/Kismet#44 | passed review |
+| F8 Responsible betting | trust | merged (651462b); prod PASS with notes (help line, 18+, RiskNote on prod; pause/account verified on merged build with mock); follow-up #54 1979f82 PASS with notes (paused users get 423 from trade config; CI green), batch 2 | kiumars1199/Kismet#44 | passed review |
 | F9 Venue availability | trust | merged 5a65227, prod READY, health ok. Prod check FAIL: signed out, "Check your state" goes to /settings#state behind the sign-up wall, so the note can never change. Fix #63 315b0db review FAIL: open redirect via tab/CR/LF in next; NV note never shows on static "/" (cookie read server-side). Trust fixing after the CI heap PR | kiumars1199/Kismet#48 | FAIL (prod); fix in progress |
 | F10 Install and web push | alerts | PR open (3234b82; Lighthouse PWA 1; migration 20261122000500); in review queue | kiumars1199/Kismet#56 | not reviewed |
 | F11 Bet tracker | tracker | PR open, 31bf544 (one-tap log, P&L by sport, beat-the-close, 50/50 = split); migration 20261123000100_journal_split pending; review queued | kiumars1199/Kismet#58 | not reviewed |
@@ -72,6 +72,8 @@ Problems:
 
 - /markets at 390: the count line ("N markets match · …") wraps from 1 to 2 lines about 1–2 s in on 2 of 9 loads, CLS 0.068 (reviewer, F3 prod). Under budget; low. Owner: data, after F4.
 - f01b + #52 both declare `kalshi_matched_ticker`: whichever merges second drops one line (data, in the #52 rebase). Until #52 lands, pasted Kalshi links still show "missing".
+
+- #54 note: /api/trade/config reads the user's profile even when trading is off on the deploy; check tradingEnv/extensionId first (reviewer). Low; owner trust, after #63.
 
 ## Fixed log
 - F7: passed review (pre-merge PASS + post-merge PASS on cd9f672; evidence review/f07/).
