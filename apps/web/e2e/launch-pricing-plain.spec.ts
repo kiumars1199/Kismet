@@ -66,6 +66,47 @@ for (const [w, h] of [[390, 844], [1440, 900]] as const) {
     await page.goto("/pricing");
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(1_500);
-    expect(await page.evaluate(() => (window as unknown as { __cls: number }).__cls)).toBeLessThan(0.1);
+    const v = await page.evaluate(() => (window as unknown as { __cls: number }).__cls);
+    console.log(`/pricing CLS at ${w}: ${v.toFixed(4)}`);
+    expect(v).toBeLessThan(0.1);
+  });
+}
+
+// T-wt1c (walk-through 1): one plain proof line stays visible above the plans, with a chevron that says it opens; no dead space under it;
+// "See results" and the footer links are tap-sized.
+test("390x844: a plain proof line with a chevron sits above the plans, no dead space, Free still in the first screen", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/pricing");
+  const summary = page.getByTestId("proof-summary");
+  await expect(summary).toBeVisible();
+  expect(((await summary.innerText()).trim()).length).toBeGreaterThan(20);
+  await expect(page.getByTestId("proof-chevron")).toBeVisible();
+  const gap = await page.evaluate(() => {
+    const d = document.querySelector('[data-testid="proof-details"]')!.getBoundingClientRect();
+    const next = document.querySelector('[data-testid="proof-details"]')!.closest("header")!.nextElementSibling!.getBoundingClientRect();   // the plans block (its billing toggle is content, not dead space)
+    return next.top - d.bottom;
+  });
+  console.log(`/pricing 390: gap between the proof line and the plans ${Math.round(gap)} px`);
+  expect(gap).toBeLessThanOrEqual(40);
+  await expect(page.getByTestId("price-free")).toBeInViewport({ ratio: 1 });
+  await page.getByTestId("proof-details").locator("summary").click();
+  await expect(page.getByTestId("proof-live")).toBeVisible();
+});
+
+test("390x844: 'See results' on /pricing is at least 44x44", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/pricing");
+  const b = (await page.getByRole("link", { name: "See results" }).boundingBox())!;
+  expect(b.height).toBeGreaterThanOrEqual(44);
+  expect(b.width).toBeGreaterThanOrEqual(44);
+});
+
+for (const [w, min] of [[390, 44], [1440, 24]] as const) {
+  test(`footer links at ${w}px are at least ${min} px tall (and 24 wide)`, async ({ page }) => {
+    await page.setViewportSize({ width: w, height: 900 });
+    await page.goto("/pricing");
+    const sizes = await page.evaluate(() => [...document.querySelectorAll('footer nav[aria-label="Site"] a')].map((a) => { const r = a.getBoundingClientRect(); return { t: a.textContent, h: r.height, w: r.width }; }));
+    expect(sizes.length).toBeGreaterThan(5);
+    for (const s of sizes) { expect(s.h, `${s.t} height`).toBeGreaterThanOrEqual(min); expect(s.w, `${s.t} width`).toBeGreaterThanOrEqual(w === 390 ? 44 : 24); }
   });
 }

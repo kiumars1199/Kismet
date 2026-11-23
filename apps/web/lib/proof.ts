@@ -204,6 +204,15 @@ export function hitRateLive(l: LedgerSummary | null | undefined): string | null 
   return `Live so far: ${pct(b.wins / b.graded)} of ${exactCount(b.graded)} settled best bet${b.graded === 1 ? "" : "s"} won, and together they returned ${ret(liveReturn(b))}.`;
 }
 
+/** The one plain line above the pricing plans (T-wt1c): the live hit rate with its count and return when anything has settled, else the
+ *  test's size and win rate. The full stats and their basis stay in the Details under it. null with neither. */
+export function proofSummary(o: { backtest: BacktestFile | null | undefined; ledger: LedgerSummary | null | undefined }): string | null {
+  const live = hitRateLive(o.ledger);
+  if (live) return live;
+  const t = o.backtest && o.backtest.results ? chosenResult(o.backtest)?.taker : null;
+  return t && t.flags && ok(t.win_rate) ? `Tested on ${exactCount(t.flags)} past best bets: ${pct(t.win_rate as number)} won.` : null;
+}
+
 /** FAQ items with the live facts appended to the hit-rate answer, so "most win" and "lost money" sit in one answer. */
 export function withLiveHitRate<T extends { a: unknown }>(items: T[], live: string | null): T[] {
   return live ? items.map((x) => (x.a === HIT_RATE_VS_PROFIT ? { ...x, a: `${HIT_RATE_VS_PROFIT} ${live}` } : x)) : items;

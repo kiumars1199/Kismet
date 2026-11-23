@@ -16,7 +16,7 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push() {}, replace() {}, prefetch() {} }),
 }));
 
-const { eventsNeeded, HIT_RATE_VS_PROFIT, SAME_FOR_EVERYONE, hitRateLive, withLiveHitRate, JUDGE_T, liveReturn, proofLine, siteProof, sinceDay, testSpan } = await import("@/lib/proof");
+const { proofSummary, eventsNeeded, HIT_RATE_VS_PROFIT, SAME_FOR_EVERYONE, hitRateLive, withLiveHitRate, JUDGE_T, liveReturn, proofLine, siteProof, sinceDay, testSpan } = await import("@/lib/proof");
 const { ret } = await import("@/lib/format");
 const { chosenResult } = await import("@/lib/data/model");
 
@@ -232,3 +232,18 @@ describe("group records with no live counterpart", () => {
     expect(LIVE_NOT_BY_BAND).toMatch(/^No live record by payout band yet/);
   });
 });
+
+describe("proofSummary: the one plain line above the plans", () => {
+  const led = { entries: 10, graded: 100, wins: 78, losses: 22, avg_pnl: -0.01 } as never;
+  const bt = { results: { None: { taker: { flags: 1234, win_rate: 0.74, roi_pct: 9.5 } } }, chosen_half_life_days: null } as never;
+  it("with a live record: the live hit rate with its count and return (never a win rate alone)", () => {
+    expect(proofSummary({ backtest: bt, ledger: led })).toMatch(/^Live so far: 78% of 100 settled best bets won, and together they returned [−-]/);
+  });
+  it("without a live record: the test's size and win rate, in plain words", () => {
+    expect(proofSummary({ backtest: bt, ledger: null })).toBe("Tested on 1,234 past best bets: 74% won.");
+  });
+  it("nothing to say → null (the page shows a plain 'How it did in testing')", () => {
+    expect(proofSummary({ backtest: null, ledger: null })).toBeNull();
+  });
+});
+
