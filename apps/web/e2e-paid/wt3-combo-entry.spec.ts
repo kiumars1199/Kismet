@@ -225,7 +225,6 @@ test("Free: first leg, 2nd leg and scoring each shift the page < 0.02 at 390 and
     for (let run = 0; run < 5; run++) {
       await go("/check");
       await page.evaluate(() => sessionStorage.clear());
-      await page.request.post("/api/check/legs", { data: { n: 0 }, headers: { Origin: new URL(page.url()).origin } });   // the server-side count (HttpOnly cookie)
       await go(`/check/combo?m=${a!.market.id}&side=${a!.side.side_index}`);
       await expect(page.getByTestId("combo-leg")).toHaveCount(1, { timeout: 30_000 });
       await page.waitForTimeout(800);

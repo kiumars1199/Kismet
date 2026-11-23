@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { MAX_COMBO_LEGS } from "./combo";
-import { addStored, COUNT_COOKIE, parseStored, reservedLegs, STORE_KEY, type StoredLeg } from "./comboLegs";
+import { addStored, parseStored, reservedLegs, STORE_KEY, type StoredLeg } from "./comboLegs";
 import { isActive } from "@/components/shell/nav";
 
 const leg = (id: string, side: 0 | 1 = 0): StoredLeg => ({ key: `${id}:${side}`, marketId: id, side, question: `Q${id}`, outcome: "Yes", eventId: `e${id}`, event: `E${id}`, price: 0.5 });
@@ -25,14 +25,10 @@ describe("combo legs kept between pages (sessionStorage)", () => {
 });
 
 describe("room reserved for legs on first paint (T-89c)", () => {
-  it("the cookie's count, at least one for a ?m= link, clamped to the maximum, junk is zero", () => {
-    expect(COUNT_COOKIE).toBe("kismet_combo_n");
-    expect(reservedLegs(undefined, undefined)).toBe(0);
-    expect(reservedLegs("2", undefined)).toBe(2);
-    expect(reservedLegs("0", "123")).toBe(1);
-    expect(reservedLegs("3", "123")).toBe(3);
-    expect(reservedLegs("99", undefined)).toBe(MAX_COMBO_LEGS);
-    for (const bad of ["", "x", "-4", "NaN"]) expect(reservedLegs(bad, undefined), bad).toBe(0);
+  it("one leg when the URL carries ?m=, nothing otherwise (no state shared between tabs)", () => {
+    expect(reservedLegs("123")).toBe(1);
+    expect(reservedLegs(undefined)).toBe(0);
+    expect(reservedLegs("")).toBe(0);
   });
 });
 

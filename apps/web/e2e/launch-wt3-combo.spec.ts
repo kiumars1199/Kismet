@@ -230,3 +230,28 @@ test("the phone More menu marks only the exact page as current: /check/combo is 
   await expect(page.getByRole("dialog", { name: "More" }).getByRole("link", { name: "Check a bet" })).toHaveAttribute("aria-current", "page");
   await expect(page.getByRole("dialog", { name: "More" }).getByRole("link", { name: "Check a combo" })).not.toHaveAttribute("aria-current", "page");
 });
+
+// Review of #96: legs live in this tab's sessionStorage. A second tab opened after the first built legs starts clean: no reserved
+// blank space for legs it does not have, and it does not disturb the first tab's legs.
+for (const [name, size] of SIZES) {
+  test(`a new tab on /check/combo is the clean empty state while another tab holds legs, at ${name}px`, async ({ context, page }) => {
+    await page.setViewportSize(size);
+    const [a, b] = distinctEvents(await rows(page), 2);
+    await page.goto(`/check/combo?m=${a!.market.id}&side=${a!.side.side_index}`);
+    await expect(page.getByTestId("combo-leg")).toHaveCount(1, { timeout: 20_000 });
+    await page.goto(`/check/combo?m=${b!.market.id}&side=${b!.side.side_index}`);
+    await expect(page.getByTestId("combo-leg")).toHaveCount(2, { timeout: 20_000 });
+    const second = await context.newPage();
+    await second.setViewportSize(size);
+    await second.goto("/check/combo");
+    await expect(second.getByTestId("combo-msg")).toBeVisible();
+    const m = await second.evaluate(() => ({ legs: document.querySelector("[data-testid=combo-legs]")!.getBoundingClientRect().height, result: document.querySelector("section[aria-label='Combo result']")!.getBoundingClientRect().height }));
+    console.log(`new tab at ${name}px: legs list ${m.legs}px, result ${m.result}px`);
+    expect(m.legs).toBeLessThan(20);
+    expect(m.result).toBeLessThan(200);
+    expect(await second.getByTestId("combo-leg").count()).toBe(0);
+    await second.close();
+    await page.reload();   // the first tab still has its two legs
+    await expect(page.getByTestId("combo-leg")).toHaveCount(2, { timeout: 20_000 });
+  });
+}
