@@ -25,7 +25,7 @@ file after every merge. "Review result" says "passed review" only after the revi
 | F6 How to place this bet | checker | review PASS with notes on 3668ac3 (CI green; vitest 1546; every card has How to bet this with 3 steps and sources). Availability line reads "Check <venue> for your state" until the F9 statusesFor wiring (checker, now that #48 is merged). Merges after F2 | kiumars1199/Kismet#46 | PASS (pre-merge); F9 wiring + post-merge check pending |
 | F7 Live payments by config | trust | merged (cd9f672), prod READY, health ok | kiumars1199/Kismet#41 | passed review |
 | F8 Responsible betting | trust | merged (651462b); prod PASS with notes (help line, 18+, RiskNote on prod; pause/account verified on merged build with mock); follow-up #54 in review | kiumars1199/Kismet#44 | passed review |
-| F9 Venue availability | trust | merged 5a65227 (preview READY on 7b83e4f, CI green, suites green); prod READY, /api/health ok (06:30 UTC); reviewer prod check in progress | kiumars1199/Kismet#48 | PASS (pre-merge); prod check pending |
+| F9 Venue availability | trust | merged 5a65227, prod READY, health ok. Prod check FAIL: signed out, "Check your state" goes to /settings#state behind the sign-up wall, so the note can never change. Fix assigned to trust (public state picker, launch/trust-f9-state) | kiumars1199/Kismet#48 | FAIL (prod); fix in progress |
 | F10 Install and web push | alerts | PR open (3234b82; Lighthouse PWA 1; migration 20261122000500); in review queue | kiumars1199/Kismet#56 | not reviewed |
 | F11 Bet tracker | tracker | PR open, 31bf544 (one-tap log, P&L by sport, beat-the-close, 50/50 = split); migration 20261123000100_journal_split pending; review queued | kiumars1199/Kismet#58 | not reviewed |
 | F12 Morning digest | onboarding-invites | PR open (3862060; opt-in default off); migration renamed to 000400 pending; in review queue | kiumars1199/Kismet#55 | not reviewed |
@@ -56,7 +56,7 @@ Problems:
 - ~~e2e-paid/admin.spec.ts ERR_ABORTED on final~~ fixed by #50 (merged).
 - F15 review notes (admin only, not user-facing): the MRR and churn blocks disagree, and yearly plans are counted at the monthly price. Owner: lead to assign as a small follow-up once a lane frees up.
 
-- /m at 390: CLS 0.17–0.19 in the e2e env from the paper-trade button mounting after /api/trade/config (data, F14). Reviewer to measure on prod; owner decided after that.
+- /m at 390: (a) paper-trade button mounts after /api/trade/config and shifts 0.15–0.18 (only users who see the paper ticket). Owner: data, one commit on F14. (b) footer jump 0.432 on some loads from a bare <Suspense> in app/m/[id]/page.tsx:75 (same as /event). Owner: onboarding, added to #62. Prod signed out measured 0 (teaser).
 
 - Kalshi links stay unresolvable after #52: store.ts withVenues drops kalshi_ticker (reviewer, f01b). Owner: data, in #52.
 
