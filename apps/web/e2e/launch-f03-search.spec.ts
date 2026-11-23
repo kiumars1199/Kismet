@@ -105,3 +105,31 @@ for (const [name, size] of [["390", { width: 390, height: 844 }], ["1440", { wid
     expect(cls).toBeLessThan(0.1);
   });
 }
+
+// ---- F3 fix: every open Polymarket market is searchable, priced or not (test/fixtures/polymarket_index.json, 26 rows)
+
+for (const [name, size] of [["390", { width: 390, height: 844 }], ["1440", { width: 1440, height: 900 }]] as const) {
+  test(`a market the scan does not price is found by search and says "Not priced yet" at ${name}px`, async ({ page, request }) => {
+    const html = await (await request.get("/markets?q=Zorbland")).text();
+    expect(html).toContain("Zorbland");   // server-rendered
+    await page.setViewportSize(size);
+    await page.goto("/markets?q=Zorbland");
+    await expect(page.getByTestId("unpriced-results")).toBeVisible();
+    await expect(page.getByTestId("unpriced-row")).toHaveCount(1);
+    await expect(page.getByTestId("unpriced-label")).toHaveText("Not priced yet");
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  });
+}
+
+test("/api/meta counts every open Polymarket market and keeps the priced count", async ({ request }) => {
+  const b = (await (await request.get("/api/meta")).json()) as { counts: { markets: number; polymarket: number; polymarket_priced: number } };
+  expect(b.counts.polymarket_priced).toBe(b.counts.markets);
+  expect(b.counts.polymarket).toBe(b.counts.markets + 25);   // 26 fixture rows, one is already priced
+});
+
+test("a market past its close time that still accepts orders says it is waiting for the result", async ({ page }) => {
+  await page.goto("/markets?t=sports.nba");
+  const waiting = page.getByTestId("unpriced-row").filter({ hasText: "Past close time, waiting for the result" });
+  await expect(waiting).toHaveCount(1);
+  await expect(waiting).toContainText("Already closed market");
+});
