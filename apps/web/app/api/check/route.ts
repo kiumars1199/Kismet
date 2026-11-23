@@ -10,6 +10,9 @@ import { countCheck } from "@/lib/check/limit";
 import { isOpenIn, NOT_OPEN } from "@/lib/check/open";
 import { parseLink, resolveLink } from "@/lib/check/parse-link";
 import { buildCheck } from "@/lib/check/response";
+import { kalshiOwnPrice } from "@/lib/check/kalshi-price";
+import { getKalshiIndex } from "@/lib/data/store";
+import { kalshiDataEnabled } from "@/lib/kalshiCombo";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -33,10 +36,12 @@ export async function POST(req: Request) {
   if (bad) return Response.json({ error: bad === "stake_range" ? `Stake must be between $${MIN_STAKE} and $${MAX_STAKE.toLocaleString("en-US")}.` : "Price must be between 1% and 99%.", code: bad }, { status: 400 });
 
   return withTier(req, "markets", async (store, tier, me) => {
+    let kalshiParts: string[] | null = null;
     let market = id ? (store.byId.get(id) ?? store.flagsById.get(id)) : undefined;
     if (link) {
       const p = parseLink(link);
       market = p ? (resolveLink(p, store) ?? undefined) : undefined;
+      if (p?.venue === "kalshi") kalshiParts = p.parts.map((x) => x.toLowerCase());
     }
     if (!market || !isOpenIn(market, store)) return Response.json({ error: NOT_OPEN, code: "not_found" }, { status: 404 });
     if (!market.sides.some((s) => s.side_index === side)) return notFound("Side");
@@ -47,6 +52,12 @@ export async function POST(req: Request) {
     // exact numbers for a check, like the Free drawer reveal: the same figures the Pro card and drawer show
     const body = await liveMarketBody(store, market, tier, "pro");
     const out = buildCheck(body.market, side, price, stake);
-    return out ? Response.json(out) : notFound("Side");
+    if (!out) return notFound("Side");
+    // A Kalshi link also shows Kalshi's own Yes price for the pasted ticker (same for every account: gated by the data permission only)
+    if (kalshiParts && kalshiDataEnabled()) {
+      const own = kalshiOwnPrice((await getKalshiIndex())?.rows ?? [], kalshiParts);
+      if (own) out.kalshi = own;
+    }
+    return Response.json(out);
   });
 }

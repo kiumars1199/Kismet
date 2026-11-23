@@ -46,9 +46,21 @@ test("Free: 1 check a day, the second is 429 check_limit; Pro: 20 checks all 200
   expect((await second.json()).code).toBe("check_limit");
 
   // the page shows the upgrade card, not a number
-  await page.goto(`/check?m=${ids[1]}&side=0`);
-  await expect(page.getByTestId("check-upgrade")).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByTestId("chk-score")).toHaveCount(0);
+  await page.addInitScript(() => {
+    (window as unknown as { __cls: number }).__cls = 0;
+    new PerformanceObserver((l) => {
+      for (const e of l.getEntries() as unknown as { value: number; hadRecentInput: boolean }[]) if (!e.hadRecentInput) (window as unknown as { __cls: number }).__cls += e.value;
+    }).observe({ type: "layout-shift", buffered: true });
+  });
+  for (const [w, h] of [[390, 844], [1440, 900]] as const) {   // the limit card keeps the skeleton's height: CLS < 0.1
+    await page.setViewportSize({ width: w, height: h });
+    await page.goto("/check");
+    await page.goto(`/check?m=${ids[1]}&side=0`);
+    await expect(page.getByTestId("check-upgrade")).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId("chk-score")).toHaveCount(0);
+    await page.waitForTimeout(1500);
+    expect(await page.evaluate(() => (window as unknown as { __cls: number }).__cls), `CLS at ${w}`).toBeLessThan(0.1);
+  }
 
   await page.goto("/pricing");
   await page.getByTestId("checkout-pro").click();
