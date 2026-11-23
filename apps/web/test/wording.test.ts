@@ -45,7 +45,7 @@ describe("no expected-profit or guarantee wording (audit fail 8)", () => {
   });
 
   it("in the /m/[id] OG image and meta description", () => {
-    for (const f of ["app/m/[id]/opengraph-image.tsx", "app/m/[id]/page.tsx", "app/opengraph-image.tsx"]) {
+    for (const f of ["app/api/og/bet/[id]/route.tsx", "app/m/[id]/page.tsx", "app/opengraph-image.tsx"]) {
       let src = "";
       try { src = readFileSync(path.join(root, f), "utf8"); } catch { continue; }   // site OG image lands in T-158
       expect(src, f).not.toMatch(PROFIT_CLAIM);
