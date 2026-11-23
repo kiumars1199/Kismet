@@ -39,7 +39,7 @@ Merge order: F3, F1, F2, F5, F7, F8, F9, then F4, F6, F10–F16.
 Batch 1 MERGED (08:20–08:50 UTC: #43, #45, #64, #60, #61, #62; then #47, #54, #55; #46 merged 2a987ba at 09:31). Was: Batch 1 (decisions.md, Vercel cap): F1 #43 064f521, F2 #45 ef73b2f, f01b kiumars1199/Kismet#64 ae4e3eb, #60 df67be8, F6 #46 57ed4de, #61 0107058, #62 70d8f6b. Integ tree integ-b1 v1 (c5abb7f, first five) green: tsc, lint, vitest 1594 + timing test passes alone, pytest 164, build, check:js 146.8 kB, e2e 129. f01b delta PASS; v2 (b99788b, +#61 +#62, tree 61da2d4) green: tsc, lint, vitest, pytest 164, build, check:js 146.8 kB, e2e 139; pushed as launch/integ-batch1; one preview when a slot frees (~08:40 UTC), then merges and one prod build.
 
 ## Walk-through 1: first-time visitor from a TikTok link
-Status: official walk in progress on prod 137ad1f (21:50). Dry run was on prod a7c3ae5 (16:45; evidence review/walkthrough-1-dryrun/). Dry-run fixes merged: #71/#80/#82 (onboarding), #85 (tracker).
+Status: official walk in progress on prod 137ad1f (21:50). Dry run was on prod a7c3ae5 (16:45; evidence review/walkthrough-1-dryrun/). Dry-run fixes merged: #79 + #82 (onboarding: /m teaser, signup from a bet, auth header), #80 + #85 (tracker: /pricing, help line).
 
 Problems (dry run; fixes assigned):
 - [should-fix] /m teaser "get10 best bets" missing space (onboarding)
