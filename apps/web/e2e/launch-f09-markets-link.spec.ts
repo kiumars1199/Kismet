@@ -13,8 +13,11 @@ test("/markets: a visible availability line above the list, and in each icon lin
     await expect(bar).toContainText("Polymarket: not available in Nevada");
     const link = page.locator('a[data-venue="polymarket"]').first();
     await expect(link).toHaveAttribute("aria-label", /not available in Nevada/);
-    const [b, l] = await Promise.all([bar.boundingBox(), link.boundingBox()]);
-    expect(b!.y + b!.height).toBeLessThanOrEqual(l!.y + 1);
+    // poll: the page can still be settling (reserved heights) when the rows first appear
+    await expect.poll(async () => {
+      const [b, l] = await Promise.all([bar.boundingBox(), link.boundingBox()]);
+      return b && l ? l.y + 1 - (b.y + b.height) : -1;
+    }, { timeout: 10_000 }).toBeGreaterThanOrEqual(0);
   }
 });
 
