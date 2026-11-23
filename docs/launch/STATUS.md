@@ -20,17 +20,17 @@ file after every merge. "Review result" says "passed review" only after the revi
 | F1 Bet checker | checker | round 2 fixes pushed (064f521: CLS, Kalshi own Yes price); re-review queued first | kiumars1199/Kismet#43 | not reviewed (round 3 queued) |
 | F2 Combo checker | checker | round 2 fixes pushed (ef73b2f: scores only on 'Check this combo', one server call); re-review queued | kiumars1199/Kismet#45 | not reviewed (round 3 queued) |
 | F3 Every market searchable | data | merged 9ad7713; prod check FAIL (polymarket count); fix PR #59 bb4ce62 (polymarket_index.json, 143K rows) queued first for review | kiumars1199/Kismet#42 (fix #59) | prod check FAIL |
-| F4 Three venues side by side | data | review FAIL (Free sees undelayed venue prices; US row contradicts card; no basis); fixing | kiumars1199/Kismet#52 | not reviewed |
-| F5 Topics at signup | onboarding-invites | round 3 FAIL (9b07e14): 15-min hint makes the first visit each day unfiltered; sign-out race re-sets the cookie; fixing | kiumars1199/Kismet#47 | FAIL (round 3) |
+| F4 Three venues side by side | data | round 2 fixes pushed (17229de: delay-safe Kalshi snapshot, rows from the market's own row, price basis); re-review queued | kiumars1199/Kismet#52 | not reviewed |
+| F5 Topics at signup | onboarding-invites | round 3 fixes pushed (ff7c5eb: 1-year uid-bound hint, sign-out race fixed); re-review queued | kiumars1199/Kismet#47 | FAIL (round 3) |
 | F6 How to place this bet | checker | all 4 fixes pushed (3668ac3: BetCard How to bet this + RiskNote); re-review queued; F9 wiring after #48 | kiumars1199/Kismet#46 | not reviewed |
 | F7 Live payments by config | trust | merged (cd9f672), prod READY, health ok | kiumars1199/Kismet#41 | passed review |
 | F8 Responsible betting | trust | merged (651462b); prod PASS with notes (help line, 18+, RiskNote on prod; pause/account verified on merged build with mock); follow-up #54 in review | kiumars1199/Kismet#44 | passed review |
-| F9 Venue availability | trust | review PASS (aaa9198) but GitHub CI web job FAILS: 'Check your state' link is a 96×15 tap target on iPhone projects; fix assigned (tracker, trust lane is closed) | kiumars1199/Kismet#48 | PASS, CI red (merge blocked) |
+| F9 Venue availability | trust | review PASS; tap-target fix 7b83e4f; local suites green (108/108 e2e); waiting on GitHub CI web, then merge | kiumars1199/Kismet#48 | PASS, CI red (merge blocked) |
 | F10 Install and web push | alerts | PR open (3234b82; Lighthouse PWA 1; migration 20261122000500); in review queue | kiumars1199/Kismet#56 | not reviewed |
 | F11 Bet tracker | tracker | PR open, 31bf544 (one-tap log, P&L by sport, beat-the-close, 50/50 = split); migration 20261123000100_journal_split pending; review queued | kiumars1199/Kismet#58 | not reviewed |
 | F12 Morning digest | onboarding-invites | PR open (3862060; opt-in default off); migration renamed to 000400 pending; in review queue | kiumars1199/Kismet#55 | not reviewed |
-| F13 Share and invite | onboarding-invites | review FAIL (/api/og/bet 401 signed out and not used as og:image; pending invites never promoted; OG chance differs from drawer; reward skipped permanently for trial/paid Premium at 5th invite; conflicts); fixing | kiumars1199/Kismet#51 | not reviewed |
-| F14 Price history chart | data | review FAIL (empty-state CLS 0.188/0.108; history only for flag rows); fixing | kiumars1199/Kismet#53 |
+| F13 Share and invite | onboarding-invites | round 2 fixes pushed (f1b08ce: public OG image, pending invites promoted, deferred grant for Premium inviters, ?ref links); re-review queued; migration 000200 pending | kiumars1199/Kismet#51 | not reviewed |
+| F14 Price history chart | data | fixing (option C: stored history for flags + on-demand CLOB fallback; CLS + delay cut first) | kiumars1199/Kismet#53 |
 | F15 Admin metrics | trust | merged 34f672f with #50 (1376182); migration 000300 live; full suites green (search 300 ms flake passed 21/21 alone). Notes left for follow-up: MRR/churn blocks disagree; yearly priced at monthly | kiumars1199/Kismet#49 | passed review |
 | F16 Big trade alert | alerts | PR open (e3287b0, stacked on F10; migration 000600); in review queue | kiumars1199/Kismet#57 | not reviewed |
 
