@@ -19,7 +19,7 @@ file after every merge. "Review result" says "passed review" only after the revi
 |---|---|---|---|---|
 | F1 Bet checker | checker | review PASS with notes on 064f521 (CLS fixed); suites green on final+#59+F1 (vitest 1555, e2e 123), CI green; preview refused by the Vercel API daily cap at 06:50, retrying. Follow-up launch/checker-f01b c7e0a4b PASS with notes (Kalshi Use it per side, 640 px card, F2 CLS fix); merges after #43/#45, before F4 #52 | kiumars1199/Kismet#43 | PASS (pre-merge); post-merge check pending |
 | F2 Combo checker | checker | review PASS with notes on ef73b2f (one server call per check; CI green); merge after F1, waits on the Vercel limit. Low: CLS 0.141 at 390 when legs arrive after a slow lookup (follow-up) | kiumars1199/Kismet#45 | PASS (pre-merge); post-merge check pending |
-| F3 Every market searchable | data | merged 9ad7713; prod check FAIL (polymarket count); fix #59 merged 67cab85 (preview READY, CI green, suites green on final+#59; vitest 1555/1555 alone); prod deploy dpl_FZRXbSbQGLv3hXSxriFbVvUXh8Rn building (git auto-deploy was refused by the limit; redeployed the exact SHA); F3 prod recheck next | kiumars1199/Kismet#42 (fix #59; follow-up #60 df67be8 PASS with notes, merges next after F1) | fix PASS; prod recheck pending |
+| F3 Every market searchable | data | merged 9ad7713; prod check FAIL (polymarket count); fix #59 merged 67cab85 (preview READY, CI green, suites green on final+#59; vitest 1555/1555 alone); prod READY (dpl_FZRXbSbQGLv3hXSxriFbVvUXh8Rn, redeployed after git deploy was refused), health ok 06:58; F3 prod recheck with reviewer | kiumars1199/Kismet#42 (fix #59; follow-up #60 df67be8 PASS with notes, merges next after F1) | fix PASS; prod recheck pending |
 | F4 Three venues side by side | data | review PASS with notes on 42ee0ba (CI green). Before merge: rebase after F1/F2/f01b with one kalshi_matched_ticker declaration + Kalshi fixture row and /check e2e | kiumars1199/Kismet#52 | PASS (pre-merge); rebase pending |
 | F5 Topics at signup | onboarding-invites | review PASS with notes on ff7c5eb (1-year uid-bound hint, sign-out clears it; CI green); migration 20261122000100 applied just before merge; merge waits on the Vercel limit | kiumars1199/Kismet#47 | PASS (pre-merge); post-merge check pending |
 | F6 How to place this bet | checker | PASS with notes on 3668ac3; F9 wiring 57ed4de PASS with notes (CA/NV/none verified in browser, F9 JSON not in client bundle, check:js 146.6 kB). Merge after F1/F2 once CI web is green on 57ed4de. Guide line will reuse trust's signed-out state picker | kiumars1199/Kismet#46 | PASS (pre-merge); post-merge check pending |
@@ -35,6 +35,8 @@ file after every merge. "Review result" says "passed review" only after the revi
 | F16 Big trade alert | alerts | PR open (e3287b0, stacked on F10; migration 000600); in review queue | kiumars1199/Kismet#57 | not reviewed |
 
 Merge order: F3, F1, F2, F5, F7, F8, F9, then F4, F6, F10–F16.
+
+Batch 1 (decisions.md, Vercel cap): F1 #43 064f521, F2 #45 ef73b2f, f01b kiumars1199/Kismet#64 ae4e3eb, #60 df67be8, F6 #46 57ed4de. Integ tree integ-b1 suites running; one preview when a slot frees (~08:40 UTC), then merges and one prod build.
 
 ## Walk-through 1: first-time visitor from a TikTok link
 Status: not yet walked (after all merges).
