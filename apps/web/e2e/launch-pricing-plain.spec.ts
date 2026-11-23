@@ -43,13 +43,30 @@ test("help line links are at least 44 x 44 px at 390", async ({ page }) => {
     expect(b.height, `${await l.innerText()} height`).toBeGreaterThanOrEqual(44);
     expect(b.width, `${await l.innerText()} width`).toBeGreaterThanOrEqual(44);
   }
-  // "source" keeps its 44 px target, but its text starts at the box's left edge: no gap before the comma
-  const source = page.getByTestId("helpline").first().getByRole("link", { name: "source" });
-  const gap = await source.evaluate((el) => {
-    const r = document.createRange(); r.selectNodeContents(el);
-    return r.getBoundingClientRect().left - el.getBoundingClientRect().left;
-  });
-  expect(gap).toBeLessThanOrEqual(1);
+  // the visible gap from the end of "source" to the comma is <= 1 px (it was 2.6 px on final), in every help line on the page
+  const gaps = await page.getByTestId("helpline").evaluateAll((ps) => ps.map((p) => {
+    const w = document.createTreeWalker(p, NodeFilter.SHOW_TEXT);
+    const chars: { n: Text; i: number }[] = [];
+    for (let n = w.nextNode() as Text | null; n; n = w.nextNode() as Text | null) for (let i = 0; i < n.length; i++) chars.push({ n, i });
+    const text = chars.map((c) => c.n.data[c.i]).join("");
+    const k = text.indexOf("source,");
+    const rect = (c: { n: Text; i: number }) => { const r = document.createRange(); r.setStart(c.n, c.i); r.setEnd(c.n, c.i + 1); return r.getBoundingClientRect(); };
+    return k < 0 ? NaN : rect(chars[k + 6]!).left - rect(chars[k + 5]!).right;
+  }));
+  console.log("source-to-comma gap px:", gaps.map((g) => g.toFixed(2)).join(", "));
+  expect(gaps.length).toBeGreaterThan(0);
+  for (const g of gaps) { expect(Number.isNaN(g), "source, found").toBe(false); expect(g).toBeLessThanOrEqual(1); }
+  // and the source link still hit-tests across its full 44 px width: points at both ends of the box land on the link itself.
+  // (The -my-3 box overlaps the next line's block at its very bottom edge, on final too, so the vertical probe stays mid-box.)
+  const src = page.getByTestId("helpline").first().getByRole("link", { name: "source" });
+  await src.scrollIntoViewIfNeeded();   // elementFromPoint only sees the viewport
+  const sb = (await src.boundingBox())!;
+  expect(sb.width).toBeGreaterThanOrEqual(44);
+  expect(sb.height).toBeGreaterThanOrEqual(44);
+  for (const [fx, fy] of [[0.05, 0.5], [0.95, 0.5], [0.5, 0.35], [0.5, 0.5]] as const) {
+    const hit = await src.evaluate((el, [x, y]) => { const t = document.elementFromPoint(x!, y!); return el.contains(t) ? "link" : `${t?.tagName} ${String(t?.className).slice(0, 60)} "${(t?.textContent ?? "").slice(0, 30)}"`; }, [sb.x + sb.width * fx, sb.y + sb.height * fy] as [number, number]);
+    expect(hit, `hit at ${fx},${fy}`).toBe("link");
+  }
 });
 
 for (const [w, h] of [[390, 844], [1440, 900]] as const) {

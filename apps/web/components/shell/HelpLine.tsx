@@ -10,7 +10,7 @@ export function HelpLine({ className = "" }: { className?: string }) {
       <a href={l.call} className={`${a} justify-center -my-3 font-medium`}>{HELPLINE.number_display}</a>
       {" "}or <a href={l.chat} target="_blank" rel="noopener noreferrer" className={`${a} justify-center -my-3`}>chat online</a>
       {" "}({HELPLINE.operator}, 24/7,{" "}
-      <a href={HELPLINE.source_url} target="_blank" rel="noopener noreferrer" className={`${a} justify-start -my-3`}>source</a>, checked {HELPLINE.checked}).
+      <a href={HELPLINE.source_url} target="_blank" rel="noopener noreferrer" className={`${a.replace("underline underline-offset-2 ", "")} justify-start -my-3`} aria-label="source"><span className="underline underline-offset-2">source</span>,</a> checked {HELPLINE.checked}).
     </p>
   );
 }
