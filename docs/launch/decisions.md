@@ -90,3 +90,12 @@ create_deployment for the F1 preview was refused: 402 "api-deployments-free-per-
 
 ## Nov 23 07:00 UTC: paid e2e stays on next dev, with more heap
 In CI the paid e2e suite flakes when next dev restarts at its memory threshold. The suite has to run on next dev because the Supabase/Stripe mock is guarded off whenever NODE_ENV is production (route, rewrite and middleware, each pinned by tests). Weakening that guard to run on a production server isn't worth the risk. Instead, the paid webServer gets a larger Node heap, measured before and after (trust).
+
+## Nov 23 07:05 UTC: batch merges while Vercel is capped
+The Vercel API cap ("more than 100 per day") refuses every new deployment. The oldest deployment in the 24 h window ages out around 08:40 UTC, and later ones about every 20–40 min. At two slots per merge (preview + production), 15 PRs would take most of a day. Decision: merge in batches.
+- **Integration branch.** The lead builds the exact tree final+A+B+C… and runs the full suites on it.
+- **One preview.** It is pushed as `launch/integ-batchN` and gets one preview, which must be READY. That checks the exact tree production will run, which is stronger than separate previews of each head.
+- **Per-PR gates still apply.** Each PR in the batch still needs a reviewer pass and a green CI web job on its own head.
+- **Merge and verify.** Each PR is merged in order on GitHub with expectedHeadSha. The lead checks that final's tree equals the integration tree.
+- **One production build.** Production builds once for the final tip, and the lead does a post-merge check.
+- **Fallback.** If any step fails, only the PRs merged before the failure stay, and production builds that tip.
