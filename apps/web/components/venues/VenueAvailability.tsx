@@ -15,7 +15,7 @@ export function AvailabilityProvider({ value, children }: { value: Avail; childr
 export const useAvailability = () => useContext(Ctx);
 
 /** "Check your state" goes to the public /state page (works signed out), coming back here after the pick. */
-function useStateLink() {
+export function useStateLink() {
   const router = useRouter();
   return (e: MouseEvent) => {
     e.stopPropagation();
@@ -25,15 +25,21 @@ function useStateLink() {
   };
 }
 
+/** The link that opens the state picker (public /state, back here after the pick). Reuse it anywhere a "set your state"
+ *  action is needed, e.g. F6's How to bet guide. Safe inside a card's full-cover link (stops propagation, sits above it). */
+export function StateLink({ children, className = "" }: { children: ReactNode; className?: string }) {
+  const toState = useStateLink();
+  return <Link href="/state" data-testid="state-link" className={`relative z-10 -my-3.5 inline-flex min-h-11 items-center underline underline-offset-2 hover:text-text ${className}`} onClick={toState}>{children}</Link>;
+}
+
 export function VenueAvailability({ venue, className = "" }: { venue: VenueKey; className?: string }) {
   const { stateName, statuses } = useAvailability();
-  const toState = useStateLink();
   const status = statuses?.[venue] ?? null;
   const text = availabilityLine(venue, stateName, status);
   const tone = status === "restricted" ? "text-warning" : "text-muted";
   return (
     <span data-testid="venue-availability" data-status={status ?? "no-state"} className={`block text-center text-xs ${tone} ${className}`}>
-      {stateName ? text : <Link href="/state" className="relative z-10 -my-3.5 inline-flex min-h-11 items-center underline underline-offset-2 hover:text-text" onClick={toState}>{text}</Link>}
+      {stateName ? text : <StateLink>{text}</StateLink>}
     </span>
   );
 }
@@ -41,12 +47,11 @@ export function VenueAvailability({ venue, className = "" }: { venue: VenueKey; 
 /** One visible line (or two) above a list whose rows only have icon links: what each venue's availability is in your state. */
 export function VenueAvailabilityBar({ venues, className = "" }: { venues: VenueKey[]; className?: string }) {
   const { stateName, statuses } = useAvailability();
-  const toState = useStateLink();
   return (
     <div data-testid="markets-availability" className={`flex flex-col gap-0.5 text-xs text-muted ${className}`}>
       {stateName && statuses
         ? venues.map((v) => <span key={v} className={statuses[v] === "restricted" ? "text-warning" : undefined}>{availabilityLine(v, stateName, statuses[v])}</span>)
-        : <Link href="/state" className="-my-3.5 inline-flex min-h-11 items-center underline underline-offset-2 hover:text-text" onClick={toState}>Check your state</Link>}
+        : <StateLink>Check your state</StateLink>}
     </div>
   );
 }
