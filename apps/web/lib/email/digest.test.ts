@@ -8,6 +8,8 @@ import { runDigest, topicsKey, type DigestDeps, type DigestUser } from "./digest
 import { digestBets } from "./digest-bets";
 import { getStore, getStoreFor } from "@/lib/data/store";
 import { freeSample } from "@/lib/data/respond";
+import { bestBetsRows } from "@/lib/data/counts";
+import type { Store } from "@/lib/data/store";
 import { freeView } from "@/lib/data/gate";
 import { betFigures } from "@/lib/betFigures";
 import { sendEmail, unsubscribeToken, verifyUnsubscribe } from "./index";
@@ -200,6 +202,43 @@ describe("digestBets: the same numbers and the same bets the site shows", () => 
     expect(sample.size).toBeGreaterThan(0);
     expect(bets.length).toBe(Math.min(MAX_DIGEST_BETS, sample.size));
     expect(new Set(bets.map((b) => b.id)).size).toBe(bets.length);
+  });
+  // Fixtures that make the two digest rules observable. page_size counts game groups, so the 5-bet cap shows only when each
+  // game holds one bet; and Free must read its own (delayed) store, so the two stores must hold different bets.
+  async function fixtures() {
+    const live = await getStore();
+    const all = bestBetsRows(live);
+    const perEvent = new Map<string, number>();
+    for (const r of all) perEvent.set(r.market.event_id, (perEvent.get(r.market.event_id) ?? 0) + 1);
+    const singles = new Set(all.filter((r) => perEvent.get(r.market.event_id) === 1).map((r) => r.market.id));
+    const only = (st: Store, ids: Set<string>): Store => ({ ...st, markets: st.markets.filter((m) => ids.has(m.id)), flags: st.flags.filter((m) => ids.has(m.id)) });
+    return { live, all, singles, onlySingles: only(live, singles) };
+  }
+  it("a paid digest holds exactly 5 bets when more than 5 are eligible, even when every game has one bet", async () => {
+    const { onlySingles, singles } = await fixtures();
+    expect(singles.size).toBeGreaterThan(MAX_DIGEST_BETS);   // the fixture really has more than 5 eligible bets, one per game
+    const bets = await digestBets({ live: onlySingles, free: onlySingles }, "pro", "paid-user", []);
+    expect(bets).toHaveLength(MAX_DIGEST_BETS);
+    expect(new Set(bets.map((b) => b.id)).size).toBe(MAX_DIGEST_BETS);
+    for (const b of bets) expect(singles.has(b.id), b.id).toBe(true);
+  });
+  it("Free reads the Free store's daily sample, not the live store: the two hold different bets and the digest follows the sample", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(NOW);
+    try {
+      const { live, all, singles, onlySingles } = await fixtures();
+      expect(all.some((r) => !singles.has(r.market.id))).toBe(true);   // live holds bets the Free store does not
+      const sample = freeSample(freeView(onlySingles), "u:free-user-1");
+      const bets = await digestBets({ live, free: onlySingles }, "free", "free-user-1", []);
+      expect(bets).toHaveLength(MAX_DIGEST_BETS);
+      for (const b of bets) {
+        expect(singles.has(b.id), `${b.id} is only in the live store`).toBe(true);
+        expect(sample.has(b.id), b.id).toBe(true);
+      }
+      // and a paid digest of the same two stores is the live one, so the two plans really read different stores
+      const paid = await digestBets({ live, free: onlySingles }, "pro", "paid-user", []);
+      expect(paid.some((b) => !singles.has(b.id))).toBe(true);
+    } finally { vi.useRealTimers(); }
   });
   it("the empty case: a topic with no bets gives no bets, for Free and paid, so no email is sent", async () => {
     const live = await getStore();
