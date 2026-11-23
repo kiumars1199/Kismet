@@ -32,7 +32,7 @@ file after every merge. "Review result" says "passed review" only after the revi
 | F13 Share and invite | onboarding-invites | round 5 163b468 pushed: share numbers only for flags on their recommended side (flags.json), link and image judged on one Free store, tests first; in review queue, CI web pending | kiumars1199/Kismet#51 | FAIL (round 4); round 5 in review |
 | F14 Price history chart | data | round 5 9978ce7 local (server-decided Trade slot, reserved AddToCombo slot, own CLS 0.0036 at 390); final merged (7875508). Push after batch 1 with #62's page.tsx resolved, then review | kiumars1199/Kismet#53 | FAIL (round 4); round 5 waits on batch 1 |
 | F15 Admin metrics | trust | merged 34f672f with #50 (1376182); migration 000300 live; full suites green (search 300 ms flake passed 21/21 alone). Notes left for follow-up: MRR/churn blocks disagree; yearly priced at monthly | kiumars1199/Kismet#49 | passed review |
-| F16 Big trade alert | alerts | PR open (e3287b0, stacked on F10; migration 000600); in review queue | kiumars1199/Kismet#57 | not reviewed |
+| F16 Big trade alert | alerts | e3287b0 review FAIL: alerts run daily, not within one scan (fix: refresh workflow triggers big-trade run, decisions.md); feed order unverified (make order-proof + log line); "us:" ids can break the batch. Tier gating, UI and CI pass. Alerts fixing after the F10 sw.js fix | kiumars1199/Kismet#57 | FAIL (round 1) |
 
 Merge order: F3, F1, F2, F5, F7, F8, F9, then F4, F6, F10–F16.
 

@@ -102,3 +102,5 @@ The Vercel API cap ("more than 100 per day") refuses every new deployment. The o
 
 ## Nov 23 07:20 UTC: no broad process kills
 Lanes share one machine. Broad `pkill -f playwright` / `pkill -f next` from one lane killed other lanes' runs (trust's paid e2e baselines, and likely the lead's integ build, exit 143). Rule: kill only processes you started, by PID or by a pattern that includes your own worktree path. A run killed this way is thrown out, named as such, and re-run.
+
+- 07:50 F16 "within one scan": Vercel Hobby crons run once a day, so the refresh workflow (every 30 min) calls /api/alerts/run?kind=bigtrade after each scan, best-effort (it never fails the refresh). Other alert kinds stay on the daily run. Reason: the spec promises big-trade alerts within one scan; a 24 h delay defeats the feature.
