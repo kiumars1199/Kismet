@@ -62,3 +62,11 @@ describe("BestBetsHeading layout", () => {
     expect(screen.getByText("blurb").parentElement!.className).not.toContain("invisible");
   });
 });
+
+describe("BestBetsHeading fallback (onboarding first screen)", () => {
+  it("says none of today's free bets are in the topics and that these are today's free bets", () => {
+    render(<BestBetsHeading total={34} shown={10} sample daily={10} fallback onShowAll={() => {}} />);
+    expect(heading()).toBe("None of today's free bets are in your topics. Here are today's free bets.");
+    expect(screen.queryByRole("button")).toBeNull();
+  });
+});
