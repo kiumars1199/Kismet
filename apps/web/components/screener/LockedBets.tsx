@@ -4,12 +4,13 @@
 // locked rows (lib/data/respond.ts freeFlagsPage), and the card says so plainly. It sits inline in the list, so it
 // covers nothing and needs no close button (the T-291 #11 overlay it replaces did).
 import Link from "next/link";
+import { FREE_BEST_BETS_A_DAY } from "@/lib/entitlements";
 import { plural } from "@/lib/format";
 import { track } from "@/lib/telemetry";
 
 /** `total`: every Best bet matching the filters (the real N, lib/data/counts.ts); `shown`: how many of the day's
  *  sample match them and are on the page; `daily`: the Free allowance the server sampled (FREE_BEST_BETS_A_DAY). */
-export function LockedBets({ total, shown, daily }: { total: number; shown: number; daily: number; desktop?: boolean }) {
+export function LockedBets({ total, shown }: { total: number; shown: number; daily: number; desktop?: boolean }) {
   const locked = total - shown;
   if (locked <= 0) return null;
   const label = `Unlock ${plural(locked, "more bet", "more bets")}`;
@@ -24,7 +25,7 @@ export function LockedBets({ total, shown, daily }: { total: number; shown: numb
       <p className="flex-1 text-[13px] leading-relaxed text-muted">
         {shown === 0
           ? "Your free bets for today don't match these filters."
-          : `Free shows ${daily} Best bets a day, chosen at random, with delayed prices.`}{" "}
+          : `Free shows ${FREE_BEST_BETS_A_DAY} of today's best bets, picked at random each day, with delayed prices.`}{" "}
         Pro shows every one, live.
       </p>
       <Link href="/pricing" onClick={() => track("upgrade_clicked", { source: "locked_bets" })} data-testid="unlock-all"

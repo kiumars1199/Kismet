@@ -43,6 +43,13 @@ test("help line links are at least 44 x 44 px at 390", async ({ page }) => {
     expect(b.height, `${await l.innerText()} height`).toBeGreaterThanOrEqual(44);
     expect(b.width, `${await l.innerText()} width`).toBeGreaterThanOrEqual(44);
   }
+  // "source" keeps its 44 px target, but its text starts at the box's left edge: no gap before the comma
+  const source = page.getByTestId("helpline").first().getByRole("link", { name: "source" });
+  const gap = await source.evaluate((el) => {
+    const r = document.createRange(); r.selectNodeContents(el);
+    return r.getBoundingClientRect().left - el.getBoundingClientRect().left;
+  });
+  expect(gap).toBeLessThanOrEqual(1);
 });
 
 for (const [w, h] of [[390, 844], [1440, 900]] as const) {
