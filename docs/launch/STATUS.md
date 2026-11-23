@@ -25,7 +25,7 @@ file after every merge. "Review result" says "passed review" only after the revi
 | F6 How to place this bet | checker | all 4 fixes pushed (3668ac3: BetCard How to bet this + RiskNote); re-review queued; F9 wiring after #48 | kiumars1199/Kismet#46 | not reviewed |
 | F7 Live payments by config | trust | merged (cd9f672), prod READY, health ok | kiumars1199/Kismet#41 | passed review |
 | F8 Responsible betting | trust | merged (651462b); prod PASS with notes (help line, 18+, RiskNote on prod; pause/account verified on merged build with mock); follow-up #54 in review | kiumars1199/Kismet#44 | passed review |
-| F9 Venue availability | trust | fixes pushed + final merged in (aaa9198); re-review queued | kiumars1199/Kismet#48 | not reviewed |
+| F9 Venue availability | trust | review round 2 PASS with notes (aaa9198; evidence review/f09/round2/); suites on final+F9 running, then merge | kiumars1199/Kismet#48 | PASS (merge pending) |
 | F10 Install and web push | alerts | PR open (3234b82; Lighthouse PWA 1; migration 20261122000500); in review queue | kiumars1199/Kismet#56 | not reviewed |
 | F11 Bet tracker | tracker | not started | | not reviewed |
 | F12 Morning digest | onboarding-invites | PR open (3862060; opt-in default off); migration renamed to 000400 pending; in review queue | kiumars1199/Kismet#55 | not reviewed |
