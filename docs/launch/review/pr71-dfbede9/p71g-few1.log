@@ -1,0 +1,30 @@
+390 all->few {"cls":0.0192,"shifts":["0.0171 P y715->775, bets-list y813->0"],"scrollY":0}
+   before={"cards":10,"lastCardBottom":5997,"listTop":813,"listH":5457,"lockTop":6069,"blank":null,"vh":844,"docH":6658,"show":false,"h2":["More filters","Save this view","Today's top 5"],"kids":["H2:813+28","UL:857+2536","H2:3417+28","UL:3461+2536","DIV:0+0"]}
+   after={"cards":1,"lastCardBottom":1423,"listTop":873,"listH":844,"pinnedTop":1460,"lockTop":1516,"blank":37,"vh":844,"docH":2106,"show":false,"h2":["More filters","Save this view","Today's top 1"],"kids":["H2:873+28","UL:917+506","DIV:1460+256"]}
+390 all->few scrolled {"cls":0.1585,"shifts":["0.1140 bets-list y0->87, venue-button y805->0, state-link y771->0","0.0445 bets-list y87->45"],"scrollY":828}
+   before={"cards":10,"lastCardBottom":5997,"listTop":813,"listH":5457,"lockTop":6069,"blank":null,"vh":844,"docH":6658,"show":false,"h2":["More filters","Save this view","Today's top 5"],"kids":["H2:813+28","UL:857+2536","H2:3417+28","UL:3461+2536","DIV:768+0"]}
+   after={"cards":1,"lastCardBottom":1423,"listTop":873,"listH":844,"pinnedTop":1460,"lockTop":1516,"blank":37,"vh":844,"docH":2106,"show":false,"h2":["More filters","Save this view","Today's top 1"],"kids":["H2:873+28","UL:917+506","DIV:1460+256"]}
+390 few->all {"cls":0.0167,"shifts":["0.0100 P y775->715","0.0068 undefined y146->146, bets-list y0->813, LABEL y543->543"],"scrollY":0}
+   before={"cards":1,"lastCardBottom":1423,"listTop":873,"listH":844,"pinnedTop":1460,"lockTop":1516,"blank":37,"vh":844,"docH":2106,"show":false,"h2":["More filters","Save this view","Today's top 1"],"kids":["H2:873+28","UL:917+506","DIV:1460+256"]}
+   after={"cards":10,"lastCardBottom":5997,"listTop":813,"listH":5457,"lockTop":6069,"blank":null,"vh":844,"docH":6658,"show":false,"h2":["More filters","Save this view","Today's top 5"],"kids":["H2:813+28","UL:857+2536","H2:3417+28","UL:3461+2536","DIV:0+0"]}
+390 few->empty {"cls":0.0011,"shifts":[],"scrollY":0}
+   before={"cards":1,"lastCardBottom":1423,"listTop":873,"listH":844,"pinnedTop":1460,"lockTop":1516,"blank":37,"vh":844,"docH":2106,"show":false,"h2":["More filters","Save this view","Today's top 1"],"kids":["H2:873+28","UL:917+506","DIV:1460+256"]}
+   after={"cards":0,"lastCardBottom":null,"listTop":873,"listH":844,"pinnedTop":1460,"lockTop":1516,"blank":null,"vh":844,"docH":2106,"show":true,"h2":["More filters","Save this view"],"kids":["DIV:1460+256"]}
+390 empty->few {"cls":0.0011,"shifts":[],"scrollY":0}
+   before={"cards":0,"lastCardBottom":null,"listTop":873,"listH":844,"pinnedTop":1460,"lockTop":1516,"blank":null,"vh":844,"docH":2106,"show":true,"h2":["More filters","Save this view"],"kids":["DIV:1460+256"]}
+   after={"cards":1,"lastCardBottom":1423,"listTop":873,"listH":844,"pinnedTop":1460,"lockTop":1516,"blank":37,"vh":844,"docH":2106,"show":false,"h2":["More filters","Save this view","Today's top 1"],"kids":["H2:873+28","UL:917+506","DIV:1460+256"]}
+1440 all->few {"cls":0.0525,"shifts":["0.0361 bets-list y465->567, P y407->467, check-link y847->0, check-link y847->0, check-link y847->0","0.0164 bets-list y567->525, undefined y85->85, check-link y0->896"],"scrollY":0}
+   before={"cards":10,"lastCardBottom":2616,"listTop":465,"listH":2299,"lockTop":2678,"blank":null,"vh":900,"docH":2925,"show":false,"h2":["More filters","Save this view","Today's top 5"],"kids":["H2:465+28","UL:509+1030","H2:1563+28","UL:1607+1019","DIV:0+0"]}
+   after={"cards":1,"lastCardBottom":1061,"listTop":525,"listH":900,"pinnedTop":1303,"lockTop":1339,"blank":242,"vh":900,"docH":1586,"show":false,"h2":["More filters","Save this view","Today's top 1"],"kids":["H2:525+28","UL:569+502","DIV:1303+122"]}
+1440 all->few scrolled {"cls":0.0351,"shifts":["0.0351 bets-list y45->3"],"scrollY":522}
+   before={"cards":10,"lastCardBottom":2616,"listTop":465,"listH":2299,"lockTop":2678,"blank":null,"vh":900,"docH":2925,"show":false,"h2":["More filters","Save this view","Today's top 5"],"kids":["H2:465+28","UL:509+1030","H2:1563+28","UL:1607+1019","DIV:420+0"]}
+   after={"cards":1,"lastCardBottom":1061,"listTop":525,"listH":900,"pinnedTop":1303,"lockTop":1339,"blank":242,"vh":900,"docH":1586,"show":false,"h2":["More filters","Save this view","Today's top 1"],"kids":["H2:525+28","UL:569+502","DIV:1303+122"]}
+1440 few->all {"cls":0.036,"shifts":["0.0211 bets-list y525->507, P y467->407","0.0149 bets-list y507->465, undefined y85->85, DIV y0->895"],"scrollY":0}
+   before={"cards":1,"lastCardBottom":1061,"listTop":525,"listH":900,"pinnedTop":1303,"lockTop":1339,"blank":242,"vh":900,"docH":1586,"show":false,"h2":["More filters","Save this view","Today's top 1"],"kids":["H2:525+28","UL:569+502","DIV:1303+122"]}
+   after={"cards":10,"lastCardBottom":2616,"listTop":465,"listH":2299,"lockTop":2678,"blank":null,"vh":900,"docH":2925,"show":false,"h2":["More filters","Save this view","Today's top 5"],"kids":["H2:465+28","UL:509+1030","H2:1563+28","UL:1607+1019","DIV:0+0"]}
+1440 few->empty {"cls":0.0264,"shifts":["0.0147 bets-list y525->567, LI y407->407, check-link y896->0","0.0117 bets-list y567->525"],"scrollY":0}
+   before={"cards":1,"lastCardBottom":1061,"listTop":525,"listH":900,"pinnedTop":1303,"lockTop":1339,"blank":242,"vh":900,"docH":1586,"show":false,"h2":["More filters","Save this view","Today's top 1"],"kids":["H2:525+28","UL:569+502","DIV:1303+122"]}
+   after={"cards":0,"lastCardBottom":null,"listTop":525,"listH":900,"pinnedTop":1303,"lockTop":1339,"blank":null,"vh":900,"docH":1586,"show":true,"h2":["More filters","Save this view"],"kids":["DIV:1303+122"]}
+1440 empty->few {"cls":0.0001,"shifts":[],"scrollY":0}
+   before={"cards":0,"lastCardBottom":null,"listTop":525,"listH":900,"pinnedTop":1303,"lockTop":1339,"blank":null,"vh":900,"docH":1586,"show":true,"h2":["More filters","Save this view"],"kids":["DIV:1303+122"]}
+   after={"cards":1,"lastCardBottom":1061,"listTop":525,"listH":900,"pinnedTop":1303,"lockTop":1339,"blank":242,"vh":900,"docH":1586,"show":false,"h2":["More filters","Save this view","Today's top 1"],"kids":["H2:525+28","UL:569+502","DIV:1303+122"]}
