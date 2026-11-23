@@ -17,6 +17,7 @@ export const SALES_TABS = [
 export const MORE_LINKS = [
   { href: "/journal", label: "My bets" },
   { href: "/track-record", label: "Results" },
+  { href: "/check", label: "Check a bet" },
   { href: "/tools", label: "Tools" },
   { href: "/check/combo", label: "Check a combo" },
   { href: "/alerts", label: "Alerts" },
@@ -26,7 +27,7 @@ export const MORE_LINKS = [
   { href: "/about", label: "How it works" },
 ] as const;
 
-/** The bet checker: its own item in the desktop header for everyone (signed out too); phones reach it from More and the pages. */
+/** The bet checker: its own item in the desktop header from 1440 px (below that the header has no room: the footer and the phone More menu list it). */
 export const CHECK_TAB = { href: "/check", label: "Check a bet" } as const;
 
 /** Beta features (lib/beta.ts): shown only to testers, each with a Beta pill. */

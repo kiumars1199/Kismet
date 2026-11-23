@@ -65,7 +65,7 @@ export function Header({ signedOutHint = false, hint = null }: { signedOutHint?:
             </Link>
           );
         })}
-        <Link href={CHECK_TAB.href} aria-current={isActive(pathname, CHECK_TAB.href) ? "page" : undefined} className={navItem(isActive(pathname, CHECK_TAB.href))}>{CHECK_TAB.label}</Link>
+        <Link href={CHECK_TAB.href} aria-current={isActive(pathname, CHECK_TAB.href) ? "page" : undefined} className={`${navItem(isActive(pathname, CHECK_TAB.href))} max-[1439px]:hidden`}>{CHECK_TAB.label}</Link>
         {!signedOut && BETA_LINKS.filter((l) => view?.nav.includes(l.feature)).map((l) => (
           <Link key={l.href} href={l.href} aria-current={isActive(pathname, l.href) ? "page" : undefined} className={navItem(isActive(pathname, l.href))}>
             {l.label}{BETA_FEATURES.includes(l.feature) && <>

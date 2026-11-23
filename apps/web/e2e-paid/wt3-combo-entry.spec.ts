@@ -146,3 +146,60 @@ test("Free: the daily-limit box sits inside the result and moves nothing (CLS < 
     expect(delta).toBeLessThan(0.02);
   }
 });
+
+// Review of #92: the header link must not crowd the header. It shows from 1440 px only; below that "Check a bet" is in the footer (and
+// the phone More menu). At 768, 1024, 1100, 1280 and 1440, for signed out, Free, Pro and Premium: the header is no taller, no nav item
+// clips, and the search box is no narrower than it is without the link (and at least 120 px where it had room).
+const HEADER_SIZES = [768, 1024, 1100, 1280, 1440];
+async function headerAt(page: Page, w: number, path: string, plan: string) {
+  await page.setViewportSize({ width: w, height: 900 });
+  await page.goto(path);
+  await expect(page.getByRole("navigation", { name: "Main" })).toBeVisible();
+  await page.waitForTimeout(plan === "signed out" ? 400 : 1500);   // the search box and bell load after the first paint
+  const m = await page.evaluate(() => {
+    const header = document.querySelector("header")!;
+    const nav = header.querySelector("nav[aria-label=Main]") as HTMLElement;
+    const link = [...nav.querySelectorAll("a")].find((a) => a.textContent?.trim() === "Check a bet") as HTMLElement | undefined;
+    const search = header.querySelector("[role=combobox]")?.closest("div[class*='max-w-']") as HTMLElement | null;
+    const measure = () => ({ h: Math.round(header.getBoundingClientRect().height), clipped: nav.scrollWidth > nav.clientWidth + 1, search: search ? Math.round(search.getBoundingClientRect().width) : null });
+    const withLink = measure();
+    const shown = !!link && getComputedStyle(link).display !== "none";
+    const prev = link?.style.display ?? "";
+    if (link) link.style.display = "none";
+    const without = measure();   // what final's header is: the same page with the link gone
+    if (link) link.style.display = prev;
+    return { withLink, without, shown, hasLink: !!link };
+  });
+  const tag = `${plan} at ${w}px`;
+  console.log(`header ${tag}: link ${m.shown ? "shown" : "hidden"}, height ${m.withLink.h} (final ${m.without.h}), search ${m.withLink.search} (final ${m.without.search}), nav clipped ${m.withLink.clipped}`);
+  expect(m.hasLink, tag).toBe(true);
+  expect(m.shown, `link shown only from 1440 (${tag})`).toBe(w >= 1440);
+  expect(m.withLink.h, `header no taller than final (${tag})`).toBeLessThanOrEqual(m.without.h);
+  expect(m.withLink.clipped, `no nav item clips (${tag})`).toBe(m.without.clipped);
+  if (m.withLink.search !== null && m.without.search !== null) {
+    expect(m.withLink.search, `search no narrower than final (${tag})`).toBeGreaterThanOrEqual(Math.min(m.without.search, 120));
+  }
+}
+
+test("header: 'Check a bet' from 1440 only, and the header never gets taller, clipped or its search narrower (signed out, Free, Pro, Premium)", async ({ page }) => {
+  test.setTimeout(540_000);
+  await page.context().setExtraHTTPHeaders({ "x-e2e-device": `wt3-hdr-${Date.now()}` });
+  for (const w of HEADER_SIZES) await headerAt(page, w, "/about", "signed out");
+  await signIn(page, `wt3-hdr-${Date.now()}@example.com`);
+  for (const [plan, next] of [["free", "pro"], ["pro", "premium"], ["premium", null]] as const) {
+    for (const w of HEADER_SIZES) await headerAt(page, w, "/bets", plan);
+    if (next === "pro") {
+      await page.goto("/pricing");
+      await page.getByTestId("checkout-pro").click();
+      await expect(page).toHaveURL(/\/account\?checkout=success/, { timeout: 45_000 });
+      await expectPlanActive(page);
+    } else if (next === "premium") {   // a Premium comp through the mock database (service role), as the f05 topics spec does
+      const me = await (await page.request.get("/api/me")).json();
+      const res = await page.request.patch(`/e2e-mock/supabase/rest/v1/subscriptions?user_id=eq.${me.user.id}`, {
+        headers: { authorization: "Bearer e2e-service", apikey: "e2e-service", "content-type": "application/json" }, data: { comp_tier: "premium" },
+      });
+      expect(res.status()).toBeLessThan(300);
+      expect((await (await page.request.get("/api/me")).json()).tier).toBe("premium");
+    }
+  }
+});

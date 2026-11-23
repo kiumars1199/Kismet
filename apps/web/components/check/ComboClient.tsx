@@ -177,6 +177,7 @@ export function ComboClient() {
         </div>
         )}
         {legs.length < MIN_COMBO_LEGS && <p data-testid="combo-msg" className="text-sm text-soft">{legs.length === 0 ? "Add at least two bets to check a combo." : "Add at least one more leg."}</p>}
+        {legs.length < MIN_COMBO_LEGS && <p data-testid="combo-how" className="text-[13px] leading-relaxed text-muted">How it works: every leg has to win, so the chances multiply and so do the payouts. Add 2 to 10 bets, then check the set.</p>}
         {legs.length >= MIN_COMBO_LEGS && !ready && !limit && (
           <div className="flex flex-col items-start gap-2">
             <p data-testid="combo-msg" className="text-sm text-soft">{scoring ? "Scoring your combo…" : "Ready when you are."}</p>
