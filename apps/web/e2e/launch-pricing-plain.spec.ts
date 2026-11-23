@@ -33,16 +33,30 @@ test("the Free plan says how the daily bets are picked", async ({ page }) => {
   await expect(page.locator("main")).not.toContainText("a day, chosen at random");
 });
 
-test("help line links are at least 44 x 44 px at 390", async ({ page }) => {
+test("help line buttons are at least 44 x 44 px at 390; the comma sits against \"source\"", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/pricing");
   const links = page.getByTestId("helpline").first().getByRole("link");
   expect(await links.count()).toBeGreaterThanOrEqual(3);
   for (const l of await links.all()) {
+    if (await l.evaluate((el) => el.hasAttribute("data-inline-link"))) continue;   // "source": inline in the sentence (WCAG 2.5.8); hit-tested in e2e-paid/launch-helpline-targets
     const b = (await l.boundingBox())!;
     expect(b.height, `${await l.innerText()} height`).toBeGreaterThanOrEqual(44);
     expect(b.width, `${await l.innerText()} width`).toBeGreaterThanOrEqual(44);
   }
+  // the visible gap from the end of "source" to the comma is <= 1 px (it was 2.6 px on final), in every help line on the page
+  const gaps = await page.getByTestId("helpline").evaluateAll((ps) => ps.map((p) => {
+    const w = document.createTreeWalker(p, NodeFilter.SHOW_TEXT);
+    const chars: { n: Text; i: number }[] = [];
+    for (let n = w.nextNode() as Text | null; n; n = w.nextNode() as Text | null) for (let i = 0; i < n.length; i++) chars.push({ n, i });
+    const text = chars.map((c) => c.n.data[c.i]).join("");
+    const k = text.indexOf("source,");
+    const rect = (c: { n: Text; i: number }) => { const r = document.createRange(); r.setStart(c.n, c.i); r.setEnd(c.n, c.i + 1); return r.getBoundingClientRect(); };
+    return k < 0 ? NaN : rect(chars[k + 6]!).left - rect(chars[k + 5]!).right;
+  }));
+  console.log("source-to-comma gap px:", gaps.map((g) => g.toFixed(2)).join(", "));
+  expect(gaps.length).toBeGreaterThan(0);
+  for (const g of gaps) { expect(Number.isNaN(g), "source, found").toBe(false); expect(g).toBeLessThanOrEqual(1); }
 });
 
 for (const [w, h] of [[390, 844], [1440, 900]] as const) {
