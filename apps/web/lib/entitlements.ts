@@ -14,7 +14,7 @@ export type Feature =
   | "live_data" | "exact_edge" | "all_filters" | "full_execution" | "journal" | "csv_export"
   | "dashboards" | "alerts" | "push" | "webhooks" | "extension" | "combos";
 
-export type QuotaKey = "presets" | "dashboards" | "watchlist" | "alert_rules" | "flags_revealed" | "rows" | "best_bets_day";
+export type QuotaKey = "presets" | "dashboards" | "watchlist" | "alert_rules" | "flags_revealed" | "rows" | "best_bets_day" | "checks_day";
 
 const FEATURES: Record<Tier, readonly Feature[]> = {
   free: [],
@@ -30,9 +30,9 @@ export const FREE_BEST_BETS_A_DAY = 10;
 const QUOTAS: Record<Tier, Record<QuotaKey, number>> = {
   // rows: default rows per list request (site setting free_rows can change it); best_bets_day: Free Best bets a day
   // (docs/19 P3), fixed, so every page that states it and the server sample that enforces it say the same number
-  free: { presets: 1, dashboards: 0, watchlist: 10, alert_rules: 0, flags_revealed: 3, rows: 10, best_bets_day: FREE_BEST_BETS_A_DAY },
-  pro: { presets: 25, dashboards: 3, watchlist: Infinity, alert_rules: 20, flags_revealed: Infinity, rows: Infinity, best_bets_day: Infinity },
-  premium: { presets: Infinity, dashboards: Infinity, watchlist: Infinity, alert_rules: 100, flags_revealed: Infinity, rows: Infinity, best_bets_day: Infinity },
+  free: { presets: 1, dashboards: 0, watchlist: 10, alert_rules: 0, flags_revealed: 3, rows: 10, best_bets_day: FREE_BEST_BETS_A_DAY, checks_day: 1 },
+  pro: { presets: 25, dashboards: 3, watchlist: Infinity, alert_rules: 20, flags_revealed: Infinity, rows: Infinity, best_bets_day: Infinity, checks_day: Infinity },
+  premium: { presets: Infinity, dashboards: Infinity, watchlist: Infinity, alert_rules: 100, flags_revealed: Infinity, rows: Infinity, best_bets_day: Infinity, checks_day: Infinity },
 };
 
 /** Default Free delay (docs/01). The live value is site setting free_delay_min: read it with delayMin() (lib/settings-core). */

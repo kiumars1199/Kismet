@@ -11,9 +11,10 @@ import type { Tier } from "@/lib/entitlements";
 import { getSettings } from "@/lib/settings";
 import { delayMin } from "@/lib/settings-core";
 import { Flag as FlagSchema, Market as MarketSchema, ScanMeta as MetaSchema } from "@/lib/schemas";
-import type { BacktestFile, EventsFile, FlagsFile, KalshiFile, KalshiIndexFile, VenuesFile, VenuesSnapshot, VenueQuote, LedgerSummary, Market, MarketsFile, ModelFile, ScanMeta, StoreMarket } from "@/lib/types";
+import type { BacktestFile, EventsFile, FlagsFile, KalshiFile, KalshiIndexFile, VenuesFile, VenuesSnapshot, VenueQuote, LedgerSummary, Market, MarketsFile, ModelFile, PolymarketIndexFile, ScanMeta, StoreMarket } from "@/lib/types";
 import { derive } from "./derive";
 import { indexFromFile, indexFromKalshi, type KalshiIndex } from "./kalshi-index";
+import { indexFromPmFile, type PolymarketIndex } from "./polymarket-index";
 import { headlineBacktest } from "./model";
 import { buildSearch, type SearchIndex } from "@/lib/search/index";
 import { DELAYED_PENDING } from "@/lib/api";
@@ -472,9 +473,38 @@ export function getKalshiIndex(): Promise<KalshiIndex | undefined> {
     const text = await readSource("kalshi_index.json");
     if (text !== undefined) return indexFromFile(JSON.parse(text) as KalshiIndexFile);
     const f = await getKalshi();
-    return f && indexFromKalshi(f);
+    const top = f && indexFromKalshi(f);
+    // A source with no kalshi_index.json (a crawl that wrote none) must not shrink a full index already held to the top
+    // 2000 in kalshi.json: keep the last good one (F3 fix; /api/meta counts.kalshi read 2000 after such a crawl).
+    return kalshiIx.data && kalshiIx.data.rows.length > (top?.rows.length ?? 0) ? kalshiIx.data : top;
   })()
     .then((ix) => (kalshiIx.data = ix))
     .catch((e) => { console.warn(`[store] kalshi index failed: ${(e as Error).message}`); return kalshiIx.data; })
     .finally(() => { kalshiIx.at = Date.now(); kalshiIx.inflight = undefined; }));
+}
+
+/** F3 fix: every open Polymarket market the model does not price (lib/data/polymarket-index.ts), from
+ *  output/polymarket_index.json. Own 120 s cache; the built index is reused while the file's fetched_at is unchanged (it is
+ *  rebuilt hourly, the cache refreshes every 120 s; polymarket_index_meta.json says when it changed, so an unchanged index is not downloaded); a failed refresh keeps the last good one; no file = undefined. */
+const pmIx: { at?: number; data?: PolymarketIndex; sig?: string; inflight?: Promise<PolymarketIndex | undefined> } = {};
+export function getPolymarketIndex(): Promise<PolymarketIndex | undefined> {
+  if (pmIx.at && Date.now() - pmIx.at < TTL_MS) return Promise.resolve(pmIx.data);
+  return (pmIx.inflight ??= (async () => {
+    // The ~2 MB gzipped / 35 MB file is rebuilt hourly: read its few-byte meta first and download only when fetched_at moved.
+    // No meta (an older publisher) = the signature check below, as before.
+    const metaText = await readSource("polymarket_index_meta.json").catch(() => undefined);
+    let at: unknown;
+    try { at = metaText === undefined ? undefined : (JSON.parse(metaText) as { fetched_at?: unknown }).fetched_at; } catch { /* torn: download */ }
+    if (pmIx.data && typeof at === "number" && at === pmIx.data.fetchedAt) return pmIx.data;
+    const text = await readSource("polymarket_index.json");
+    if (text === undefined) return pmIx.data;
+    const sig = `${text.length}:${text.slice(0, 160)}`;
+    if (pmIx.data && sig === pmIx.sig) return pmIx.data;
+    const ix = indexFromPmFile(JSON.parse(text) as PolymarketIndexFile);
+    pmIx.sig = sig;
+    return ix;
+  })()
+    .then((ix) => (pmIx.data = ix))
+    .catch((e) => { console.warn(`[store] polymarket index failed: ${(e as Error).message}`); return pmIx.data; })
+    .finally(() => { pmIx.at = Date.now(); pmIx.inflight = undefined; }));
 }

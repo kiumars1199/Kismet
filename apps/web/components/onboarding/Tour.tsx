@@ -3,6 +3,8 @@
 // Starts once after onboarding (Onboarding.finish sets TOUR_KEY) or from "Replay the tour" on /account (/?tour=1).
 // Each step points at the first visible element its selectors match; when a section isn't on screen (another
 // layout, nothing loaded yet) the step still shows, centered, without a spotlight. Escape skips.
+// The bet drawer is modal too (it makes the page behind it inert), so while it is open the tour waits: exactly one
+// modal is on top and dismissable. It resumes where it was once the drawer closes.
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
 export const TOUR_KEY = "me:v1:tour";
@@ -26,8 +28,26 @@ const find = (sel: readonly string[]) => {
   return null;
 };
 
+const DRAWER = '[role="dialog"][aria-label="Market details"]';
+/** True while the bet drawer is open (it is mounted only then). Observes the page only while a tour step is pending
+ *  (`active`); otherwise it is disconnected, so a visitor with no tour pays nothing for it. */
+function useDrawerOpen(active: boolean) {
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    if (!active) { setOpen(false); return; }
+    const check = () => setOpen(!!document.querySelector(DRAWER));
+    check();
+    const mo = new MutationObserver(check);
+    mo.observe(document.body, { childList: true, subtree: true });
+    return () => mo.disconnect();
+  }, [active]);
+  return open;
+}
+
 export function Tour() {
   const [step, setStep] = useState<number | null>(null);
+  const drawerOpen = useDrawerOpen(step !== null);
+  const live = step !== null && !drawerOpen;
   const [rect, setRect] = useState<DOMRect | null>(null);
   const card = useRef<HTMLDivElement>(null);
   const next = useRef<HTMLButtonElement>(null);
@@ -54,7 +74,7 @@ export function Tour() {
 
   // Find the target (cards may still be loading: retry briefly), bring it into view, track it on scroll/resize.
   useEffect(() => {
-    if (step === null) return;
+    if (step === null || !live) return;
     let el: HTMLElement | null = null;
     let tries = 0;
     let shifts = 0;
@@ -76,14 +96,13 @@ export function Tour() {
     ro.observe(document.body);
     addEventListener("scroll", measure, { passive: true });
     addEventListener("resize", measure);
-    next.current?.focus({ preventScroll: true });
     return () => { clearTimeout(timer); ro.disconnect(); removeEventListener("scroll", measure); removeEventListener("resize", measure); };
-  }, [step]);
+  }, [step, live]);
 
   // Popover below the target when it fits, else above; centered when there is no target. Clamped to the viewport.
   useLayoutEffect(() => {
     const c = card.current;
-    if (step === null || !c) return;
+    if (step === null || !live || !c) return;
     const w = c.offsetWidth, h = c.offsetHeight, vw = innerWidth, vh = innerHeight, gap = 12;
     if (!rect) return setPos({ top: Math.max(16, (vh - h) / 2), left: Math.max(16, (vw - w) / 2) });
     const clampX = (x: number) => Math.min(Math.max(16, x), vw - w - 16);
@@ -94,16 +113,23 @@ export function Tour() {
     if (rect.right + gap + w <= vw - 16) return setPos({ top: clampY(rect.top), left: rect.right + gap }); // right (tall cards)
     if (rect.left - gap - w >= 16) return setPos({ top: clampY(rect.top), left: rect.left - gap - w });   // left
     setPos({ top: vh - h - 16, left: x });   // phone, tall target: pinned to the bottom edge
-  }, [rect, step]);
+  }, [rect, step, live]);
+
+  // Keyboard users land on the tour's controls: focus Next once the card is visible (it is hidden until positioned), at a
+  // normal start and again on a resume after the drawer closed.
+  const shown = pos !== null;
+  useEffect(() => {
+    if (live && shown) next.current?.focus({ preventScroll: true });
+  }, [live, shown, step]);
 
   useEffect(() => {
-    if (step === null) return;
+    if (!live) return;
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") end(); };
     addEventListener("keydown", onKey);
     return () => removeEventListener("keydown", onKey);
-  }, [step, end]);
+  }, [live, end]);
 
-  if (step === null) return null;
+  if (step === null || !live) return null;
   const s = STEPS[step];
   const last = step === STEPS.length - 1;
   const pad = 6;
@@ -113,12 +139,13 @@ export function Tour() {
       {/* the click shield; the spotlight's own shadow dims everything else */}
       <div className="absolute inset-0" onClick={end} aria-hidden="true" style={rect ? undefined : { background: "rgb(0 0 0 / 0.6)" }} />
       {rect && (
-        <div aria-hidden="true" className="pointer-events-none absolute rounded-card ring-2 ring-accent transition-all duration-300 ease-out motion-reduce:transition-none"
-          style={{ top: rect.top - pad, left: rect.left - pad, width: rect.width + pad * 2, height: rect.height + pad * 2, boxShadow: "0 0 0 9999px rgb(0 0 0 / 0.6)" }} />
+        <div aria-hidden="true" className="pointer-events-none absolute rounded-card ring-2 ring-accent transition-transform duration-300 ease-out motion-reduce:transition-none"
+          // moves with transform, not top/left: animating top/left counts as layout shift (CLS) on every frame
+          style={{ top: 0, left: 0, transform: `translate(${rect.left - pad}px, ${rect.top - pad}px)`, width: rect.width + pad * 2, height: rect.height + pad * 2, boxShadow: "0 0 0 9999px rgb(0 0 0 / 0.6)" }} />
       )}
       <div ref={card} role="dialog" aria-modal="true" aria-labelledby="tour-h" aria-describedby="tour-b"
-        className="absolute w-[min(360px,calc(100vw-32px))] rounded-card border border-border bg-surface p-5 shadow-[0_12px_32px_rgb(0_0_0/0.45)] transition-[top,left] duration-300 ease-out motion-reduce:transition-none"
-        style={pos ? { top: pos.top, left: pos.left } : { visibility: "hidden" }}>
+        className="absolute w-[min(360px,calc(100vw-32px))] rounded-card border border-border bg-surface p-5 shadow-[0_12px_32px_rgb(0_0_0/0.45)] transition-transform duration-300 ease-out motion-reduce:transition-none"
+        style={pos ? { top: 0, left: 0, transform: `translate(${pos.left}px, ${pos.top}px)` } : { visibility: "hidden" }}>
         <p className="text-xs tabular-nums text-muted">{step + 1} of {STEPS.length}</p>
         <h2 id="tour-h" className="mt-1 font-heading text-lg font-semibold">{s.title}</h2>
         <p id="tour-b" className="mt-1.5 text-sm leading-relaxed text-soft">{s.body}</p>

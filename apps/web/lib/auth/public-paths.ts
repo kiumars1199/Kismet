@@ -8,6 +8,7 @@ export const PUBLIC_PAGES: readonly string[] = [
   "/terms", "/privacy", "/refunds", "/disclaimer", "/contact",
   "/login", "/signup", "/reset-password", "/auth", "/maintenance",
   "/m", "/event",
+  "/check",                   // F1 bet checker: signed out gets the same 1 check a day as Free (counted per device)
 ];
 
 /** Static and discovery files: search engines, OAuth discovery, share images, icons, manifest. */
@@ -30,13 +31,16 @@ export const PUBLIC_API: readonly string[] = [
   "/api/alerts/run",          // CRON_SECRET
   "/api/settle/run",          // CRON_SECRET
   "/api/lifecycle/run",       // CRON_SECRET
+  "/api/digest/run",          // CRON_SECRET (F12 morning digest)
   "/api/ext/token/refresh",   // extension bearer token
   "/api/ext/telemetry",       // extension, no user data
   "/api/trade/config",        // extension vault page: whether the paper ticket shows (false signed out)
   "/api/trade/nonce/verify",  // extension, consumes a signed nonce
   "/api/events/by-slug",      // extension (no cookies): the route itself needs a session or an extension token
   "/api/mcp",                 // MCP server: OAuth bearer tokens, checked by the route
+  "/api/state",               // F9: same-origin POST of the visitor's US state, sets one cookie
   "/api/tz",                  // T-288: same-origin POST of the browser's time zone, sets one cookie, returns nothing
+  "/api/check",               // F1: the route counts the daily check per account or per hashed IP itself
   "/api/funnel",              // T-299: same-origin POST of a funnel step; signed-out steps count too
 ];
 

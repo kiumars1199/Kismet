@@ -310,6 +310,16 @@ export interface KalshiIndexFile {
   rows: [ticker: string, title: string, subtitle: string, topic: string, series: string, yes_bid_cents: number | null,
          yes_ask_cents: number | null, last_price_cents: number | null, volume: number, close_epoch: number | null][];
 }
+// F3 fix, output/polymarket_index.json (engine/pm_index.py, rebuilt hourly after the scan, uploaded on its own): EVERY
+// open, order-accepting, two-outcome Polymarket market, no price and no model chance. markets.json holds only the ~14-16K
+// the model prices (a live bid and ask, closing 0.5 h to 10 days out); this feeds search and topic filters, shown as
+// "Not priced yet" (`unpriced` in /api/markets), never flags. /api/meta counts.polymarket = priced + the rows of this
+// file the scan does not price; counts.polymarket_priced = markets.json rows. Source: Gamma GET /events/keyset.
+export interface PolymarketIndexFile {
+  meta: { source: "Polymarket"; fetched_at: number; n: number; columns: string[] };
+  rows: [id: string, question: string, event: string, slug: string, category: string, niche: string, tags: string[],
+         volume: number, close_epoch: number | null][];
+}
 export interface KalshiFile {
   meta: {
     source: "Kalshi"; attribution: string; fetched_at: number; api: string; n_markets: number; n_combos: number;

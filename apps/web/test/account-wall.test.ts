@@ -55,7 +55,7 @@ describe("signedOutAccess (lib/auth/public-paths.ts)", () => {
 
   it("API: only the listed routes are public; everything else is api401", () => {
     for (const p of ["/api/health", "/api/meta", "/api/me", "/api/backtest", "/api/auth/password", "/api/auth/google", "/api/stripe/webhook",
-      "/api/unsubscribe", "/api/alerts/run", "/api/settle/run", "/api/ext/token/refresh", "/api/events/by-slug/x", "/api/mcp", "/api/mcp/sse"])
+      "/api/unsubscribe", "/api/alerts/run", "/api/settle/run", "/api/ext/token/refresh", "/api/events/by-slug/x", "/api/mcp", "/api/mcp/sse", "/api/digest/run"])
       expect(signedOutAccess(p), p).toBe("public");
     for (const p of ["/api/flags", "/api/markets", "/api/markets/1", "/api/events/1", "/api/suggest", "/api/book", "/api/data",
       "/api/stripe/checkout", "/api/stripe/portal", "/api/ext/token", "/api/admin", "/api/healthz", "/api/mcpx", "/api"])
@@ -110,7 +110,7 @@ describe("middleware account wall", () => {
         expect(await res.json()).toEqual({ error: "Sign in to use this.", signin: "/login" });
       }
     }
-    for (const p of ["/api/health", "/api/meta", "/api/me", "/api/auth/password", "/api/events/by-slug/x", "/api/mcp"])
+    for (const p of ["/api/health", "/api/meta", "/api/me", "/api/auth/password", "/api/events/by-slug/x", "/api/mcp", "/api/digest/run"])
       expect((await hit(p)).status, p).toBe(200);   // NextResponse.next()
     expect((await hit("/api/flags", "OPTIONS")).status).toBe(200);
   });
