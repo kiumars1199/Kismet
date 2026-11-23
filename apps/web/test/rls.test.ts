@@ -161,7 +161,7 @@ describe("RLS (supabase/migrations)", () => {
         has_function_privilege('anon', p.oid, 'execute') as anon, has_function_privilege('authenticated', p.oid, 'execute') as auth
       from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public' and p.prosecdef`)).rows;
     expect(fns.map((f) => f.name).sort()).toEqual(["admin_activation", "admin_funnel", "admin_grant_plan", "admin_overview", "admin_revoke_grant", "admin_revoke_sessions",
-      "admin_user_detail", "admin_users", "apply_pending_plan_grant", "enforce_session_limit", "handle_new_user"]);
+      "admin_user_detail", "admin_users", "apply_pending_plan_grant", "claim_push_subscription", "enforce_session_limit", "handle_new_user"]);
     for (const f of fns) {
       expect(f.config, f.name).toContain("search_path=\"\"");
       expect([f.anon, f.auth], f.name).toEqual([false, false]);
@@ -297,6 +297,25 @@ describe("RLS (supabase/migrations)", () => {
     const after = (await db.query<{ app: boolean; n: number }>(
       `select (oauth_client_id is not null) as app, count(*)::int as n from auth.sessions where user_id = '${A}' group by 1 order by 1`)).rows;
     expect(after).toEqual([{ app: false, n: 3 }, { app: true, n: 3 }]);   // a 4th browser drops the oldest browser, not an app
+  });
+
+  it("F10 review: claim_push_subscription moves a device only with the same endpoint and keys, service role only", async () => {
+    const ep = "https://fcm.googleapis.com/fcm/send/claim-test";
+    const keys = { p256dh: "BTestOnly", auth: "authTestOnly" };
+    await as("authenticated", A, "insert into push_subscriptions (endpoint, keys) values ($1, $2)", [ep, keys]);
+    // B can't take it with a plain upsert (RLS), nor call the function directly
+    await expect(as("authenticated", B, "insert into push_subscriptions (endpoint, keys) values ($1, $2) on conflict (endpoint) do update set user_id = excluded.user_id", [ep, keys])).rejects.toThrow();
+    await expect(as("authenticated", B, "select public.claim_push_subscription($1, $2, $3)", [B, ep, keys])).rejects.toThrow(/permission denied/);
+    await expect(as("anon", null, "select public.claim_push_subscription($1, $2, $3)", [B, ep, keys])).rejects.toThrow(/permission denied/);
+    const claim = async (k: unknown) =>
+      (await db.query<{ ok: boolean }>("select public.claim_push_subscription($1, $2, $3) as ok", [B, ep, k])).rows[0]!.ok;
+    const owner = async () => (await db.query<{ u: string }>("select user_id as u from push_subscriptions where endpoint = $1", [ep])).rows[0]!.u;
+    expect(await claim({ p256dh: "BTestOnly", auth: "wrong" })).toBe(false);
+    expect(await claim({ p256dh: "BTestOnly" })).toBe(false);
+    expect(await owner()).toBe(A);
+    expect(await claim(keys)).toBe(true);
+    expect(await owner()).toBe(B);
+    await db.query("delete from push_subscriptions where endpoint = $1", [ep]);
   });
 
   it("deleting the auth user removes every row (delete account)", async () => {

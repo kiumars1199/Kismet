@@ -25,7 +25,10 @@ const Remove = z.object({ endpoint }).strict();
 
 const err = (status: number, error: string) => Response.json({ error }, { status });
 
-export async function saveSubscription(db: SupabaseClient, userId: string, tier: Tier, raw: unknown): Promise<Response> {
+// `admin` is the service-role client (null when it isn't configured); it is used only for claim_push_subscription.
+export async function saveSubscription(
+  db: SupabaseClient, userId: string, tier: Tier, raw: unknown, admin: SupabaseClient | null = null,
+): Promise<Response> {
   if (!can(tier, "push")) return err(403, "Push alerts are on Pro and Premium.");
   const body = Save.safeParse(raw);
   if (!body.success) return err(400, "That isn't a push subscription.");
@@ -36,7 +39,13 @@ export async function saveSubscription(db: SupabaseClient, userId: string, tier:
     return err(409, `You can turn on alerts for up to ${MAX_DEVICES} devices. Turn one off first.`);
   const { error } = await db.from("push_subscriptions")
     .upsert({ user_id: userId, endpoint: body.data.endpoint, keys: body.data.keys }, { onConflict: "endpoint" });
-  return error ? err(500, "Couldn't save this device.") : Response.json({ ok: true });
+  if (!error) return Response.json({ ok: true });
+  // The endpoint is unique across users. If another account turned alerts on in this same browser first, RLS hides
+  // that row and the upsert fails. claim_push_subscription (service role only) moves it to this user, but only when
+  // the endpoint AND keys match (proof this browser holds the subscription) and this user is under the device cap.
+  if (!admin) return err(500, "Couldn't save this device.");
+  const claim = await admin.rpc("claim_push_subscription", { p_user: userId, p_endpoint: body.data.endpoint, p_keys: body.data.keys });
+  return !claim.error && claim.data === true ? Response.json({ ok: true }) : err(500, "Couldn't save this device.");
 }
 
 export async function removeSubscription(db: SupabaseClient, userId: string, raw: unknown): Promise<Response> {

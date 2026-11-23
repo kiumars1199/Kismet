@@ -2,7 +2,7 @@
 // Signed in, same origin, Pro or Premium (lib/alerts-push-store.ts). Stored in push_subscriptions under RLS.
 import { pushConfigured } from "@/lib/alerts-push";
 import { removeSubscription, saveSubscription } from "@/lib/alerts-push-store";
-import { getMe } from "@/lib/auth/server";
+import { adminEnabled, getMe, supabaseAdmin } from "@/lib/auth/server";
 import { TOO_LARGE, tooLarge } from "@/lib/body";
 import { readBody, withUser } from "@/lib/repo/server";
 
@@ -15,11 +15,11 @@ export const GET = (req: Request) =>
     publicKey: pushConfigured() ? (process.env.VAPID_PUBLIC_KEY || process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || null) : null,
   }));
 
-export const POST =(req: Request) =>
+export const POST = (req: Request) =>
   withUser(req, async ({ db, userId }) => {
     const raw = await readBody(req);
     if (raw === TOO_LARGE) return tooLarge();
-    return saveSubscription(db, userId, (await getMe()).tier, raw);
+    return saveSubscription(db, userId, (await getMe()).tier, raw, adminEnabled() ? supabaseAdmin() : null);
   });
 
 export const DELETE = (req: Request) =>
