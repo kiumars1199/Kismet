@@ -105,6 +105,7 @@ Problems:
 - Merged 16:33: #52 F4 (a7c3ae5). Post-merge prod smoke a7c3ae5 PASS (#75 live, og image teaser 1200x630 with no leak, invite endpoints 204/401/405, no 5xx).
 - #77 follow-up: table fits from 1280 (xl overflow-visible + trim padding) and a fade cue for hidden columns.
 - #77 merged 16:56 as f2c7abf (reviewer PASS c93a99d/2d2597f, CI web green, preview READY). 1280 follow-up (launch/data-table-1280 cd90a13) is being opened as a PR.
+- #74 merged 17:05 as b02e125 (reviewer PASS 054c0c8, CI web green, preview READY). #80 CI red: HelpLine "source" link 39×44 fails the overhaul-iphone 44 px tap-target check (50 tests, all the same cause); the tracker lane is fixing it.
 - Old: CI timeout #73 (one line, 30 → 45 min), split out of #69 so it lands first; #51 was also cancelled at 30 min (10:05–10:35).
 - CI blockers (10:05): #66 was cancelled by the 30-min job timeout (the run now takes ~30 min); #68 and #67 failed on the F5 pill tap before page load (AppliedPills is a client-only button). Both are being fixed in #69 (trust); after it merges, final gets merged into the waiting PRs.
 - F5 pill-click flake: e2e-paid/launch-f05-topics.spec.ts:59 at 1440 failed on CI after a server ECONNRESET (seen on #67). Part of trust's stabilize PR (D).
