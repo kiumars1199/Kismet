@@ -150,15 +150,11 @@ export function ComboClient() {
       </div>
       <div className="min-h-6 text-[13px] text-muted" role="status" aria-live="polite" data-testid="combo-note">{busy ? "Looking it up…" : scoring ? "Scoring your combo…" : note}</div>
 
-      {limit && (
-        <div data-testid="check-upgrade" className="flex flex-col items-start gap-3 rounded-card border border-accent-border bg-surface p-5">
-          <p className="text-sm text-soft">Free includes 1 bet check a day, and you&apos;ve used it. Pro and Premium check as many bets and combos as you like.</p>
-          <Link href="/pricing" className="inline-flex min-h-11 items-center rounded-input bg-accent px-4 text-sm font-semibold text-on-accent hover:bg-accent-hover">See plans</Link>
-        </div>
-      )}
 
-      {/* room for two legs from the start, so legs arriving after a slow lookup don't push the result down */}
-      <ul data-testid="combo-legs" className="flex min-h-[168px] flex-col gap-2 sm:min-h-[148px]">
+      {/* On phones this region always holds the height of two legs and a scored result, so adding legs and scoring grow inside
+          it and the page below never moves. The empty result card itself stays small: the room is blank space under it, not a box. */}
+      <div className="flex min-h-[673px] flex-col gap-5 md:min-h-0">
+      <ul data-testid="combo-legs" className={`flex flex-col gap-2 ${legs.length ? "min-h-[168px] sm:min-h-[148px]" : ""}`}>
         {legs.map((l, i) => {
           const b = ready ? scored!.legs.get(l.key)?.base : undefined;
           return (
@@ -173,7 +169,13 @@ export function ComboClient() {
         })}
       </ul>
 
-      <section aria-label="Combo result" className="flex min-h-[485px] flex-col gap-3 rounded-card border border-border bg-surface p-4 md:min-h-[150px] md:p-5">
+      <section aria-label="Combo result" className={`flex flex-col gap-3 rounded-card border border-border bg-surface p-4 md:p-5 ${legs.length >= MIN_COMBO_LEGS ? "min-h-[485px] md:min-h-[200px]" : ""}`}>
+        {limit && (
+        <div data-testid="check-upgrade" className="flex flex-col items-start gap-3 rounded-input border border-accent-border bg-bg p-4">
+          <p className="text-sm text-soft">Free includes 1 bet check a day, and you&apos;ve used it. Pro and Premium check as many bets and combos as you like.</p>
+          <Link href="/pricing" className="inline-flex min-h-11 items-center rounded-input bg-accent px-4 text-sm font-semibold text-on-accent hover:bg-accent-hover">See plans</Link>
+        </div>
+        )}
         {legs.length < MIN_COMBO_LEGS && <p data-testid="combo-msg" className="text-sm text-soft">{legs.length === 0 ? "Add at least two bets to check a combo." : "Add at least one more leg."}</p>}
         {legs.length >= MIN_COMBO_LEGS && !ready && !limit && (
           <div className="flex flex-col items-start gap-2">
@@ -218,6 +220,7 @@ export function ComboClient() {
         )}
         <p className="text-[12px] text-muted">{MIN_COMBO_LEGS} to {MAX_COMBO_LEGS} legs. Bet only what you can afford to lose.</p>
       </section>
+      </div>
     </div>
   );
 }

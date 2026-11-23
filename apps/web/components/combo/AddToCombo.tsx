@@ -1,5 +1,5 @@
 "use client";
-// Drawer → "Add to combo" (docs/18 §5.1). Toggles this market's chosen side in the user's combo tray.
+// Drawer → "Add to combo tray" (docs/18 §5.1). Toggles this market's chosen side in the user's combo tray.
 import { useState } from "react";
 import { useEntitlements } from "@/lib/entitlements";
 import { legOf } from "@/lib/combos";
@@ -17,7 +17,7 @@ export function AddToCombo({ m, s, className, reserve = false }: { m: StoreMarke
   // Combos are Premium (lib/beta.ts live rule; out of beta since Nov 21)
   const ent = useEntitlements();
   const allowed = ent.canBeta("combos");
-  if (!allowed) return reserve && !ent.known ? <span aria-hidden="true" data-testid="combo-slot" className={`${className} invisible`}>Add to combo <BetaBadge className="ml-1.5" /></span> : null;
+  if (!allowed) return reserve && !ent.known ? <span aria-hidden="true" data-testid="combo-slot" className={`${className} invisible`}>Add to combo tray <BetaBadge className="ml-1.5" /></span> : null;
   return (
     <>
       <button
@@ -27,7 +27,7 @@ export function AddToCombo({ m, s, className, reserve = false }: { m: StoreMarke
           setError(add(legOf(m, s)));
         }}
       >
-        {inCombo ? "In combo ✓" : leg ? "Switch combo side" : "Add to combo"} <BetaBadge className="ml-1.5" />
+        {inCombo ? "In combo ✓" : leg ? "Switch combo side" : "Add to combo tray"} <BetaBadge className="ml-1.5" />
       </button>
       {error && <p role="alert" className="basis-full text-[13px] text-warning">{error}</p>}
     </>

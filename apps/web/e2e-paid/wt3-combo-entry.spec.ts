@@ -41,7 +41,7 @@ async function fromDrawer(page: Page) {
   const dialog = page.getByRole("dialog", { name: "Market details" });
   const link = dialog.getByRole("link", { name: "Add to combo checker" });
   await expect(link).toBeVisible({ timeout: 30_000 });
-  await expect(dialog.getByRole("button", { name: /^Add to combo$/ })).toHaveCount(0);   // the Premium tray is not shown to Free or Pro
+  await expect(dialog.getByRole("button", { name: /^Add to combo tray/ })).toHaveCount(0);   // the Premium tray is not shown to Free or Pro
   // next dev can still be hydrating when the first tap lands: tap again until the page has moved
   await expect(async () => {
     if (!/\/check\/combo/.test(page.url())) await link.click({ timeout: 3_000 });
@@ -55,6 +55,10 @@ test("signed out: /check and a bet's page lead to the combo checker at 390 and 1
   await page.context().setExtraHTTPHeaders({ "x-e2e-device": `wt3-${Date.now()}` });
   for (const size of SIZES) {
     await page.setViewportSize(size);
+    if (size.width >= 1024) {   // the desktop nav leads to /check for signed-out visitors too
+      await page.goto("/about");
+      await expect(page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Check a bet" })).toHaveAttribute("href", "/check");
+    }
     await fromCheck(page);
     await page.goto("/m/6674492");   // the signed-out teaser page
     const link = page.getByRole("link", { name: "Add to combo checker" });
@@ -103,5 +107,42 @@ test("Free, then Pro: both reach the combo checker from /check and the drawer; /
       await expect(page).toHaveURL(/\/account\?checkout=success/, { timeout: 45_000 });
       await expectPlanActive(page);
     }
+  }
+});
+
+// Review of #89: Free's limit box is part of the result (inside it), so it never pushes the legs down; no shift > 0.02 at 390 or 1440.
+test("Free: the daily-limit box sits inside the result and moves nothing (CLS < 0.02 at 390 and 1440)", async ({ page }) => {
+  test.setTimeout(240_000);
+  await page.context().setExtraHTTPHeaders({ "x-e2e-device": `wt3-limit-${Date.now()}` });
+  await signIn(page, `wt3-limit-${Date.now()}@example.com`);
+  const rows = ((await (await page.request.get("/api/markets?limit=20")).json()).rows as { market: { id: string }; side: { side_index: number } }[]);
+  // use the day's one check, so the combo below hits the limit
+  const used = await page.request.post("/api/check", { data: { m: rows[0]!.market.id, side: 0 }, headers: { Origin: new URL(page.url()).origin } });
+  expect(used.status()).toBe(200);
+  await page.addInitScript(() => {
+    const w = window as unknown as { __cls: number };
+    w.__cls = 0;
+    new PerformanceObserver((l) => { for (const e of l.getEntries() as unknown as { value: number; hadRecentInput: boolean }[]) if (!e.hadRecentInput) w.__cls += e.value; }).observe({ type: "layout-shift", buffered: true });
+  });
+  for (const size of SIZES) {
+    await page.setViewportSize(size);
+    await page.goto("/check/combo");
+    await page.evaluate(() => sessionStorage.clear());
+    for (const [i, r] of rows.slice(1, 3).entries()) {
+      await page.goto(`/check/combo?m=${r.market.id}&side=${r.side.side_index}`);
+      await expect(page.getByTestId("combo-leg")).toHaveCount(i + 1, { timeout: 30_000 });
+    }
+    await page.waitForTimeout(800);
+    const legsTop = (await page.getByTestId("combo-legs").boundingBox())!.y;
+    const before = await page.evaluate(() => (window as unknown as { __cls: number }).__cls);
+    await page.getByTestId("combo-check-btn").click();
+    const box = page.getByTestId("check-upgrade");
+    await expect(box).toBeVisible({ timeout: 30_000 });
+    await page.waitForTimeout(800);
+    expect(await page.getByRole("region", { name: "Combo result" }).getByTestId("check-upgrade").count(), "inside the result").toBe(1);
+    expect((await page.getByTestId("combo-legs").boundingBox())!.y).toBe(legsTop);
+    const delta = (await page.evaluate(() => (window as unknown as { __cls: number }).__cls)) - before;
+    console.log(`limit box CLS at ${size.width}px: ${delta.toFixed(4)}`);
+    expect(delta).toBeLessThan(0.02);
   }
 });

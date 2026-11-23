@@ -113,22 +113,58 @@ test("search hits are a dropdown over the page: the legs and the result below do
   await expect(hits).toHaveCount(0);
 });
 
+// Review of #89: the empty state is compact (no big empty box for 0 or 1 legs), the tall result slot is held from the 1st leg on
+// by the region around legs and result (so the page below never moves), and adding the 2nd leg and scoring each shift under 0.02.
 for (const [name, size] of SIZES) {
-  test(`a scored combo does not shift the page: CLS < 0.02 at ${name}px`, async ({ page }) => {
+  test(`the empty combo checker is compact, and the 2nd leg and the scoring each shift the page < 0.02 at ${name}px`, async ({ page }) => {
     await page.setViewportSize(size);
     await page.addInitScript(() => {
       const w = window as unknown as { __cls: number };
       w.__cls = 0;
       new PerformanceObserver((l) => { for (const e of l.getEntries() as unknown as { value: number; hadRecentInput: boolean }[]) if (!e.hadRecentInput) w.__cls += e.value; }).observe({ type: "layout-shift", buffered: true });
     });
-    const legs = distinctEvents(await rows(page), 2);   // the legs list reserves room for two
+    const cls = () => page.evaluate(() => (window as unknown as { __cls: number }).__cls);
+    const legs = distinctEvents(await rows(page), 2);
     await page.goto("/check/combo");
-    for (const r of legs) await addByUrl(page, r);
+    await page.evaluate(() => sessionStorage.clear());
+    await page.goto("/check/combo");
+    await expect(page.getByTestId("combo-msg")).toBeVisible();
+    const empty = await page.evaluate(() => ({ result: document.querySelector("section[aria-label='Combo result']")!.getBoundingClientRect().height, legs: document.querySelector("[data-testid=combo-legs]")!.getBoundingClientRect().height }));
+    console.log(`empty state at ${name}px: result ${empty.result}px, legs list ${empty.legs}px`);
+    expect(empty.result).toBeLessThan(200);
+    expect(empty.legs).toBeLessThan(20);
+    await addByUrl(page, legs[0]!);
+    await page.waitForTimeout(600);
+    const afterFirst = await cls();
+    await addByUrl(page, legs[1]!);
+    await page.waitForTimeout(800);
+    const second = (await cls()) - afterFirst;
     await page.getByTestId("combo-check-btn").click();
     await expect(page.getByTestId("combo-score")).toBeVisible();
-    await page.waitForTimeout(1200);
-    const cls = await page.evaluate(() => (window as unknown as { __cls: number }).__cls);
-    console.log(`combo CLS at ${name}px: ${cls.toFixed(4)}`);
-    expect(cls).toBeLessThan(0.02);
+    await page.waitForTimeout(800);
+    const scoring = (await cls()) - afterFirst - second;
+    console.log(`combo CLS at ${name}px: 2nd leg ${second.toFixed(4)}, scoring ${scoring.toFixed(4)}`);
+    expect(second).toBeLessThan(0.02);
+    expect(scoring).toBeLessThan(0.02);
   });
 }
+
+test("on Premium the tray button says 'Add to combo tray' and the checker link stays beside it", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/bets");
+  await page.locator("[data-row] h3 a").first().click();
+  const dialog = page.getByRole("dialog", { name: "Market details" });
+  await expect(dialog.getByRole("button", { name: /^Add to combo tray/ })).toBeVisible();
+  await expect(dialog.getByRole("button", { name: /^Add to combo(?! tray)/ })).toHaveCount(0);
+  await expect(dialog.getByRole("link", { name: "Add to combo checker" })).toBeVisible();
+});
+
+test("the desktop nav has 'Check a bet' (to /check) at 1440px", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/bets");
+  const link = page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Check a bet" });
+  await expect(link).toHaveAttribute("href", "/check");
+  await link.click();
+  await expect(page).toHaveURL(/\/check$/);
+  await expect(page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Check a bet" })).toHaveAttribute("aria-current", "page");
+});
