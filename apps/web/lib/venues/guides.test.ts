@@ -68,3 +68,22 @@ describe("venue availability in the guide (F9 adapter)", () => {
     expect(availabilityNote("polymarket-us", "restricted", "Texas")).toBe("Polymarket US: not available in Texas");
   });
 });
+
+// F9 wiring: the line above "How to bet this" follows the visitor's state (config/venue-availability.json via statusesFor).
+import { statusesFor } from "./availability";
+import { venueStatus } from "./guides";
+describe("venueStatus from F9 statuses", () => {
+  it("CA and NV give different lines for Polymarket US", () => {
+    const ca = statusesFor("CA"), nv = statusesFor("NV");
+    expect(availabilityNote("polymarket-us", venueStatus("polymarket-us", ca), "California")).toBe("Polymarket US: available in California");
+    expect(availabilityNote("polymarket-us", venueStatus("polymarket-us", nv), "Nevada")).toBe("Polymarket US: not available in Nevada");
+  });
+  it("maps the three venue ids to F9's keys", () => {
+    expect(venueStatus("polymarket", statusesFor("CA"))).toBe("restricted");   // polymarket_intl
+    expect(venueStatus("kalshi", statusesFor("CA"))).toBe("unverified");
+  });
+  it("no state chosen: unverified, 'Check <venue> for your state'", () => {
+    expect(venueStatus("polymarket-us", null)).toBe("unverified");
+    expect(availabilityNote("polymarket-us", venueStatus("polymarket-us", statusesFor(null)), null)).toBe("Check Polymarket US for your state");
+  });
+});

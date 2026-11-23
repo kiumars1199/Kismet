@@ -1,5 +1,6 @@
 // F6: "How to bet this": 3 steps per venue and a link that opens the market on the venue. One config, so a card, the checker
 // and the tests read the same text. Steps are taken from each venue's own help pages (fetched Nov 22, 2026); each step carries its source URL and date.
+import type { VenueKey } from "./availability-text";
 import type { StoreMarket } from "@/lib/types";
 
 export type VenueId = "polymarket" | "polymarket-us" | "kalshi";
@@ -66,10 +67,11 @@ export function venueLinks(m: M): { venue: VenueId; url: string | null }[] {
   return out;
 }
 
-/** Thin adapter over F9 (trust lane, lib/venues/availability.ts: statusesFor(state) with kalshi | polymarket_us | polymarket_intl).
- *  Until F9 merges nothing is known, so every venue is "unverified". After the merge this is the one place to change. */
+/** F9 (lib/venues/availability.ts statusesFor) keys its venues differently: map ours to its keys. The statuses come from the
+ *  root layout's context (components/venues/VenueAvailability); null (no state chosen) = "unverified" for every venue. */
 export type AvailStatus = "available" | "restricted" | "unverified";
-export const venueStatus = (_venue: VenueId, _state: string | null = null): AvailStatus => "unverified";
+export const VENUE_KEY: Record<VenueId, VenueKey> = { polymarket: "polymarket_intl", "polymarket-us": "polymarket_us", kalshi: "kalshi" };
+export const venueStatus = (venue: VenueId, statuses: Record<VenueKey, AvailStatus> | null): AvailStatus => statuses?.[VENUE_KEY[venue]] ?? "unverified";
 
 /** The venue to preselect: the first one known available, else null (the user picks; we never assume). */
 export function defaultVenue(links: { venue: VenueId }[], status: (v: VenueId) => AvailStatus): VenueId | null {

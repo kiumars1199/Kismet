@@ -3,9 +3,12 @@
 // button is a separate task (BetCard is shared). Steps and sources: lib/venues/guides.ts.
 import { useState } from "react";
 import { RiskNote } from "@/components/trade/RiskNote";
-import { availabilityNote, defaultVenue, GUIDES, venueStatus, type AvailStatus, type VenueId } from "@/lib/venues/guides";
+import { useAvailability } from "@/components/venues/VenueAvailability";
+import { availabilityNote, defaultVenue, GUIDES, venueStatus, type VenueId } from "@/lib/venues/guides";
 
-export function HowToBet({ links, status = venueStatus, stateName = null }: { links: { venue: VenueId; url: string | null }[]; status?: (venue: VenueId) => AvailStatus; stateName?: string | null }) {
+export function HowToBet({ links }: { links: { venue: VenueId; url: string | null }[] }) {
+  const { stateName, statuses } = useAvailability();
+  const status = (v: VenueId) => venueStatus(v, statuses);
   const [open, setOpen] = useState(false);
   const [venue, setVenue] = useState<VenueId | null>(null);
   if (!links.length) return null;
