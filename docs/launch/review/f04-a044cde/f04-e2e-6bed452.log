@@ -1,0 +1,6 @@
+[4/8] [chromium] › e2e/launch-f04-venues.spec.ts:33:1 › a market on one venue has no block
+[5/8] [chromium] › e2e/launch-f04-venues.spec.ts:39:1 › 6674492: the card says international only, so the block lists Polymarket US as Not listed
+[6/8] [chromium] › e2e/launch-f04-venues.spec.ts:47:1 › 7078474: the block's Polymarket US payout is the card's (1.34x)
+[7/8] [chromium] › e2e/launch-f04-venues.spec.ts:53:1 › basis: source, time and Kalshi match confidence are one tap away
+[8/8] [chromium] › e2e/launch-f04-venues.spec.ts:69:1 › /check: a pasted Kalshi link resolves to its market (not 'missing') and shows Kalshi's own price
+  8 passed (53.2s)
