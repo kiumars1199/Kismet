@@ -20,7 +20,7 @@ export function VenueAvailability({ venue, className = "" }: { venue: VenueKey; 
   const tone = status === "restricted" ? "text-warning" : "text-muted";
   return (
     <span data-testid="venue-availability" data-status={status ?? "no-state"} className={`block text-center text-xs ${tone} ${className}`}>
-      {stateName ? text : <Link href="/settings#state" className="relative z-10 underline underline-offset-2 hover:text-text" onClick={(e) => e.stopPropagation()}>{text}</Link>}
+      {stateName ? text : <Link href="/settings#state" className="relative z-10 -my-3.5 inline-flex min-h-11 items-center underline underline-offset-2 hover:text-text" onClick={(e) => e.stopPropagation()}>{text}</Link>}
     </span>
   );
 }
@@ -32,7 +32,7 @@ export function VenueAvailabilityBar({ venues, className = "" }: { venues: Venue
     <div data-testid="markets-availability" className={`flex flex-col gap-0.5 text-xs text-muted ${className}`}>
       {stateName && statuses
         ? venues.map((v) => <span key={v} className={statuses[v] === "restricted" ? "text-warning" : undefined}>{availabilityLine(v, stateName, statuses[v])}</span>)
-        : <Link href="/settings#state" className="underline underline-offset-2 hover:text-text">Check your state</Link>}
+        : <Link href="/settings#state" className="-my-3.5 inline-flex min-h-11 items-center underline underline-offset-2 hover:text-text">Check your state</Link>}
     </div>
   );
 }
