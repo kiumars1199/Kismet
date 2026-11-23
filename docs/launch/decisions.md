@@ -104,3 +104,5 @@ The Vercel API cap ("more than 100 per day") refuses every new deployment. The o
 Lanes share one machine. Broad `pkill -f playwright` / `pkill -f next` from one lane killed other lanes' runs (trust's paid e2e baselines, and likely the lead's integ build, exit 143). Rule: kill only processes you started, by PID or by a pattern that includes your own worktree path. A run killed this way is thrown out, named as such, and re-run.
 
 - 07:50 F16 "within one scan": Vercel Hobby crons run once a day, so the refresh workflow (every 30 min) calls /api/alerts/run?kind=bigtrade after each scan, best-effort (it never fails the refresh). Other alert kinds stay on the daily run. Reason: the spec promises big-trade alerts within one scan; a 24 h delay defeats the feature.
+
+- 08:00 F12 digest for Free users: Free still gets the digest, but its bets come from the same Free daily sample the site shows (delayed Free store; nothing a Free user couldn't see on /bets that day). Pro and Premium get the live top 5. Reason: a digest that gives Free more than the site breaks the plan line; dropping Free entirely loses the main return hook for Free users.
