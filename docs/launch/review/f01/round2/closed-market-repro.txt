@@ -1,0 +1,13 @@
+real clock, now=1795391705
+POST {"m":"6674492","side":0}
+{"error":"We couldn't find an open market at that link","code":"not_found"}
+HTTP 404
+
+POST {"m":"6674492","side":0,"price":0.005}
+{"error":"Price must be between 1% and 99%.","code":"price_range"}
+HTTP 400
+
+POST {"m":"6674492","side":0,"price":0.5}
+{"error":"We couldn't find an open market at that link","code":"not_found"}
+HTTP 404
+

@@ -1,0 +1,10 @@
+390 m-history cls 0.003 box h 286 | Price over time Aug 18 Sep 11 Oct 4 Nov 16 0% 50% 100% Prices from Polymarket, every 11 hours. Chance of Yes.
+390 m-empty cls 0.188 box h 286 | Price over time No price history yet Prices from Polymarket.
+390 drawer-history cls 0.003 box h 286 | Price over time Aug 18 Sep 11 Oct 4 Nov 16 0% 50% 100% Prices from Polymarket, every 11 hours. Chance of Yes.
+1440 m-history cls 0.002 box h 286 | Price over time Aug 18 Sep 11 Oct 4 Oct 27 Nov 16 0% 50% 100% Prices from Polymarket, every 11 hours. Chance of Yes.
+1440 m-empty cls 0.108 box h 286 | Price over time No price history yet Prices from Polymarket.
+1440 drawer-history cls 0.011 box h 286 | Price over time Aug 18 Sep 11 Oct 4 Nov 16 0% 50% 100% Prices from Polymarket, every 11 hours. Chance of Yes.
+delay 0 7078474 [{"v":0,"t":305,"src":["freshness:flex min-h-11 flex-none items-center gap-1.5 white"]},{"v":0.003,"t":333,"src":["freshness:flex min-h-11 flex-none items-center gap-1.5 white","BUTTON:relative flex size-11 items-center justify-center "]},{"v":0.185,"t":622,"src":["history-empty:h-[200px] flex items-center text-sm text-muted"]}]
+delay 0 6674492 [{"v":0,"t":305,"src":["freshness:flex min-h-11 flex-none items-center gap-1.5 white"]},{"v":0.003,"t":334,"src":["freshness:flex min-h-11 flex-none items-center gap-1.5 white","BUTTON:relative flex size-11 items-center justify-center "]}]
+delay 1500 7078474 [{"v":0,"t":305,"src":["freshness:flex min-h-11 flex-none items-center gap-1.5 white"]},{"v":0.003,"t":639,"src":["freshness:flex min-h-11 flex-none items-center gap-1.5 white","BUTTON:relative flex size-11 items-center justify-center "]},{"v":0.185,"t":2468,"src":["history-empty:h-[200px] flex items-center text-sm text-muted"]}]
+delay 1500 6674492 [{"v":0,"t":330,"src":["freshness:flex min-h-11 flex-none items-center gap-1.5 white"]},{"v":0.003,"t":350,"src":["freshness:flex min-h-11 flex-none items-center gap-1.5 white","BUTTON:relative flex size-11 items-center justify-center "]}]

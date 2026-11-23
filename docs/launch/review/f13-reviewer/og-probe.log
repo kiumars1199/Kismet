@@ -1,0 +1,20 @@
+
+Running 1 test using 1 worker
+
+signed-out og: 401 signed-out /m og: n/a
+[WebServer] [abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+card 6674176 {"title":"RCD Mallorca vs. FC Barcelona: O/U 2.5","best":{"side_index":0,"outcome":"Over","ask":0.64,"mid":0.635,"fee":0.0115,"win_prob":0.8,"win_prob_low":0.75,"edge":0.1,"edge_low":0.1,"roi_pct":20,"model_level":"nmt","model_neff":349.6,"model_events":452,"realistic_edge":0.1,"ranges":{"roi_pct":[20,50],"edge":[0.1,0.2]}}}
+og 6674176 0 200 image/png public, max-age=300, s-maxage=300 [ 1200, 630 ]
+og 6674176 1 200 image/png public, max-age=300, s-maxage=300 [ 1200, 630 ]
+card 6654461 {"title":"Singapore vs. Brazil: O/U 4.5","best":{"side_index":0,"outcome":"Over","ask":0.65,"mid":0.64,"fee":0.0114,"win_prob":0.75,"win_prob_low":0.7,"edge":0.1,"edge_low":0.02,"roi_pct":10,"model_level":"nmt","model_neff":387.9,"model_events":487,"realistic_edge":0.1,"ranges":{"roi_pct":[10,20],"edge":[0.1,0.2]}}}
+og 6654461 0 200 image/png public, max-age=300, s-maxage=300 [ 1200, 630 ]
+og 6654461 1 200 image/png public, max-age=300, s-maxage=300 [ 1200, 630 ]
+unknown id 404
+[WebServer]  ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+signed-out /m/<id> 200
+og:image tags <meta property="og:image:alt" content="Kismet market"/> <meta property="og:image:type" content="image/png"/> <meta property="og:image" content="http://localhost:3290/m/6674176/opengraph-image?ab611b1200707405"/>
+[WebServer]  ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+  ✓  1 [chromium] › e2e-paid/zz-reviewer-f13b.spec.ts:19:1 › reviewer f13 og signed in (53.1s)
+
+  1 passed (55.0s)

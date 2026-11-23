@@ -1,0 +1,20 @@
+
+Running 3 tests using 1 worker
+
+[WebServer] [abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+  ✓  1 [chromium] › e2e-paid/launch-f08-age.spec.ts:5:1 › signup: the 18+ and Terms box is required and recorded (36.3s)
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+  ✓  2 [chromium] › e2e-paid/launch-f08-pause.spec.ts:29:1 › pause 24 h: pause screen on every app page, 423 on data routes, end time in the user's zone (22.6s)
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+{"w":390,"p":"/bets","betButtons":10,"riskNotes":10,"affordText":10,"helpline":true,"pauseCard":0,"cls":0,"scrollW":390}
+{"w":390,"p":"/markets","betButtons":0,"riskNotes":1,"affordText":1,"helpline":true,"pauseCard":0,"cls":0.0004905852553591822,"scrollW":390}
+{"w":390,"p":"/account","betButtons":0,"riskNotes":0,"affordText":0,"helpline":true,"pauseCard":1,"cls":0,"scrollW":390}
+{"w":1440,"p":"/bets","betButtons":10,"riskNotes":10,"affordText":10,"helpline":true,"pauseCard":0,"cls":0.000632063534164952,"scrollW":1440}
+{"w":1440,"p":"/markets","betButtons":0,"riskNotes":1,"affordText":1,"helpline":true,"pauseCard":0,"cls":0.01062177345893347,"scrollW":1440}
+{"w":1440,"p":"/account","betButtons":0,"riskNotes":0,"affordText":0,"helpline":true,"pauseCard":1,"cls":0.000632063534164952,"scrollW":1440}
+390 pause screen: Your account is paused You asked for a break. Kismet is off until Nov 24, 2026, 1:11 AM. There is nothing to do. The pause can't be ended early, and your plan and data are kept. Gambling problem? Call or text 1-800-MY-RESET or chat online (National Council on Problem Gambling, 24/7, source, checked 
+1440 pause screen: Your account is paused You asked for a break. Kismet is off until Nov 24, 2026, 1:11 AM. There is nothing to do. The pause can't be ended early, and your plan and data are kept. Gambling problem? Call or text 1-800-MY-RESET or chat online (National Council on Problem Gambling, 24/7, source, checked 
+  ✓  3 [chromium] › e2e-paid/zz-reviewer-f08.spec.ts:20:1 › reviewer f08 on final (42.7s)
+
+  3 passed (1.8m)

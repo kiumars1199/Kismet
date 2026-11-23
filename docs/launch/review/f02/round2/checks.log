@@ -1,0 +1,13 @@
+$ tsc --noEmit
+$ eslint . --max-warnings 0
+lint=0
+   Duration  1.51s (import 71%, transform 15%, tests 8%, worker 6%)
+
+    Isolate  5 workers spawned · ~409ms startup each (spawn + environment, per file)
+             at least ~273ms faster with isolate: false — reuses workers across files instead of one per file
+
+ Test Files  5 passed (5)
+      Tests  57 passed (57)
+build=0
+/: first-load JS 142.8 kB gzipped (456 kB raw, 13 files); budget 150 kB: OK
+/check/combo: first-load JS 127.8 kB gzipped (421 kB raw, 9 files); budget 150 kB: OK

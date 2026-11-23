@@ -1,0 +1,42 @@
+API /api/markets?venue=kalshi&topic=sports.nfl 200 bytes=1259 kalshi.total=4 rows=4 size=50  
+API /api/markets?ven=kalshi&t=sports.nfl 200 bytes=1259 kalshi.total=4 rows=4 size=50  
+API /api/markets?q=Jokic 200 bytes=5116 kalshi.total=1 rows=1 size=5  
+API /api/flags?venue=kalshi 200 bytes=73305   
+API /api/flags?q=Jokic 200 bytes=2867   
+API /api/markets?venue=kalshi&page_size=500 200 bytes=7249 kalshi.total=28 rows=28 size=50  
+API /api/meta 200 bytes=2320  {"markets":501,"flags":151,"events":307,"polymarket":501,"kalshi":28} 
+flags rows with KX ticker: 0 of 24
+390 kalshi-nfl: hscroll=false cls=0.004 disclaimer=true cents=false
+   rows=4 results=1 empty=""
+390 kalshi-noprice: hscroll=false cls=0.003 disclaimer=true cents=false
+   rows=1 results=1 empty=""
+390 kalshi-empty: hscroll=false cls=0.004 disclaimer=true cents=false
+   rows=0 results=0 empty=""
+390 all-q-jokic: hscroll=false cls=0.004 disclaimer=true cents=false
+   rows=1 results=1 empty=""
+390 venue-long-name: hscroll=false cls=0.004 disclaimer=true cents=false
+   rows=4 results=1 empty=""
+390 after chip click (shifts after input excluded): hscroll=false cls=0.000 disclaimer=true cents=false
+bets topic=crypto: noEdge=true cards=0 otherEmpty=false
+bets topic=culture: noEdge=true cards=0 otherEmpty=false
+bets topic=finance: noEdge=true cards=0 otherEmpty=false
+bets topic=geopolitics: noEdge=true cards=0 otherEmpty=false
+bets topic=mentions: noEdge=true cards=0 otherEmpty=false
+bets topic=other: noEdge=true cards=0 otherEmpty=false
+bets topic=politics: noEdge=true cards=0 otherEmpty=false
+bets topic=sports: noEdge=false cards=12 otherEmpty=false
+bets topic=tech: noEdge=true cards=0 otherEmpty=false
+bets topic=weather: noEdge=true cards=0 otherEmpty=false
+390 responses >1MB: 0
+1440 kalshi-nfl: hscroll=false cls=0.002 disclaimer=true cents=false
+   rows=4 results=1 empty=""
+1440 kalshi-noprice: hscroll=false cls=0.002 disclaimer=true cents=false
+   rows=1 results=1 empty=""
+1440 kalshi-empty: hscroll=false cls=0.002 disclaimer=true cents=false
+   rows=0 results=0 empty=""
+1440 all-q-jokic: hscroll=false cls=0.014 disclaimer=true cents=false
+   rows=1 results=1 empty=""
+1440 venue-long-name: hscroll=false cls=0.002 disclaimer=true cents=false
+   rows=4 results=1 empty=""
+1440 after chip click (shifts after input excluded): hscroll=false cls=0.000 disclaimer=true cents=false
+1440 responses >1MB: 0

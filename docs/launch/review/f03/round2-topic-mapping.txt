@@ -1,0 +1,18 @@
+KXNEWX | Will Ukraine and Russia sign a ceasefire? -> geopolitics
+KXNEWX | Golden State Warriors win? -> other
+KXNEWX | Golden Globe best picture -> other
+KXNEWX | Will Snowden be pardoned? -> other
+KXSOLAR | Solar eclipse -> other
+KXGOVSHUT | Government shutdown -> politics.congress
+KXWARRIORS | Warriors win -> other
+KXNEWX | Will it rain in NYC tomorrow? -> weather.precipitation
+KXNEWX | Gold above $3000? -> finance.commodities
+KXNEWX | Will war break out between X and Y? -> geopolitics
+KXSOL | Solana above 200? -> crypto.solana
+KXGOV | Who wins the governor race? -> politics.elections
+KXNEWX | Hurricane makes landfall -> weather.hurricanes
+KXNEWX | Bitcoin above 100k -> crypto.bitcoin
+KXNEWX | Will the Fed cut rates? -> finance.fed
+KXNEWX | Will snow fall in Denver? -> weather.precipitation
+KXNEWX | Rainbow Six tournament winner -> other
+KXNEWX | Warsaw mayor election -> politics.elections

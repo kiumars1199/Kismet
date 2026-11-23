@@ -1,0 +1,24 @@
+
+Running 4 tests using 1 worker
+
+[WebServer] <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (114kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+[WebServer] <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (268kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+[WebServer] [abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+  ✓  1 [chromium] › e2e-paid/admin.spec.ts:79:1 › admin: sees /admin with a user count, flips the banner and everyone sees it (1.3m)
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+[WebServer]  ⨯ [Error: aborted]
+[WebServer] [Error: aborted] { code: 'ECONNRESET' }
+[WebServer]  ⨯ uncaughtException: [Error: aborted] { code: 'ECONNRESET' }
+[WebServer]  ⨯ uncaughtException:  [Error: aborted] { code: 'ECONNRESET' }
+  ✓  2 [chromium] › e2e-paid/admin.spec.ts:137:1 › normal user and anonymous visitor: 404 on every admin page and API route, no Admin link; Kalshi yes, Combos Premium only (50.4s)
+  ✓  3 [chromium] › e2e-paid/launch-f15-admin.spec.ts:25:1 › admin 30-day table: counts, dollars from cents, dashes before the ledger (5.6s)
+1440 scrollW 1440 note Revenue is recorded from Nov 23, 2026; earlier days show a dash.
+390 scrollW 390 note Revenue is recorded from Nov 23, 2026; earlier days show a dash.
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+non-admin /admin status 404
+anon /admin status 404
+  ✓  4 [chromium] › e2e-paid/zz-reviewer-f15.spec.ts:20:1 › reviewer f15 shots (14.0s)
+[WebServer]  ⨯ [Error: aborted]
+
+  4 passed (2.5m)

@@ -12,3 +12,4 @@
   Next: build + check:js, evidence in docs/launch/review/f13/, PR.
 - F12 (digest) · not started.
 - F13 #51 ready: merged origin/final; tsc, lint clean; vitest 1502 pass (one timing test flaky under load, passes alone); check:js 142.6 kB OK; chromium e2e launch-f13 3 passed; evidence docs/launch/review/f13/evidence.md.
+- F12 (digest) · branch launch/onboarding-f12: built; evidence docs/launch/review/f12/evidence.md; opt-in default off logged in decisions.md. Migration 20261122000300_digest.sql for lead.

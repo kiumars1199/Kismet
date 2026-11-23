@@ -1,0 +1,13 @@
+$ tsc --noEmit
+TYPECHECK OK
+$ eslint . --max-warnings 0
+LINT OK
+
+ RUN  v5.1.0 /home/user/MarketEdge/.claude/worktrees/agent-ac3ec7df000229278/apps/web
+
+
+ Test Files  6 passed (6)
+      Tests  61 passed (61)
+   Start at  01:01:20
+   Duration  3.17s (tests 82%, transform 9%, import 9%)
+

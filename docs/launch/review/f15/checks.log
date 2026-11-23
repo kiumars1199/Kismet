@@ -1,0 +1,23 @@
+$ tsc --noEmit
+TYPECHECK OK
+$ eslint . --max-warnings 0
+LINT OK
+
+ RUN  v5.1.0 /home/user/MarketEdge/.claude/worktrees/agent-ac3ec7df000229278/apps/web
+
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+ Test Files  12 passed (12)
+      Tests  94 passed (94)
+   Start at  00:54:06
+   Duration  4.98s (tests 87%, import 10%, transform 3%)
+
+    Isolate  12 workers spawned · ~104ms startup each (spawn + environment, per file)
+             at least ~311ms faster with isolate: false — reuses workers across files instead of one per file
+

@@ -1,0 +1,2 @@
+direct load /markets?q=Jokic: kalshi-results 1 api calls []
+typed search: url /markets?q=Jokic kalshi-results 1 api calls [ '/api/markets?q=Jokic&tz=UTC' ]

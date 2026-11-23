@@ -1,0 +1,9 @@
+390 /markets CLS=0.004
+390 /markets?q=Jokic CLS=0.004
+390 /markets?ven=kalshi&t=sports.nfl CLS=0.004
+1440 /markets CLS=0.011
+1440 /markets?q=Jokic CLS=0.014
+   0.012 @421ms SECTION#kalshi-results, TH, TH, TH, TH
+1440 /markets?ven=kalshi&t=sports.nfl CLS=0.002
+390 /markets CLS=0.004
+1440 /markets CLS=0.011

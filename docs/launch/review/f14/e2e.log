@@ -1,0 +1,20 @@
+[WebServer] <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (114kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+[WebServer] <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (268kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] responseMode: 'json' drops mid-call notifications. subscriptions/listen streams are always served over SSE regardless; other notifications emitted before a result are dropped.
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+Running 4 tests using 1 worker
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] responseMode: 'json' drops mid-call notifications. subscriptions/listen streams are always served over SSE regardless; other notifications emitted before a result are dropped.
+[WebServer] [abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+  ✓  1 [chromium] › e2e/launch-f14-history.spec.ts:5:3 › a market with history draws the chart and the basis line at 390px (1.6s)
+  ✓  2 [chromium] › e2e/launch-f14-history.spec.ts:5:3 › a market with history draws the chart and the basis line at 1440px (1.2s)
+  ✓  3 [chromium] › e2e/launch-f14-history.spec.ts:17:1 › a market with no history says "No price history yet" in the same-height box (781ms)
+  ✓  4 [chromium] › e2e/launch-f14-history.spec.ts:25:1 › the history API serves the chart's points (37ms)
+
+  4 passed (1.4m)

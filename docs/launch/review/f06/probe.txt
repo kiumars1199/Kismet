@@ -1,0 +1,8 @@
+390 /bets: "How to bet" controls on cards=0, "Check" links=12
+390 twin 6417673: {"steps":3,"venues":["Polymarket","Polymarket US"],"link":"https://polymarket.com/event/nfl-ind-hou-2026-11-20","nolink":false,"avail":0,"afford":2,"hs":false,"sources":[],"cls":0.003569958018946979,"disc":true}
+   after US toggle link=https://polymarket.us/event/aec-nfl-6417673 steps0="Create your account with Google or Apple ID, then "
+390 plain 6635049: {"steps":3,"venues":[],"link":"https://polymarket.com/event/fif-chn-bah1-2026-11-17-exact-score","nolink":false,"avail":0,"afford":2,"hs":false,"sources":[],"cls":0.003569958018946979,"disc":true}
+1440 /bets: "How to bet" controls on cards=0, "Check" links=12
+1440 twin 6417673: {"steps":3,"venues":["Polymarket","Polymarket US"],"link":"https://polymarket.com/event/nfl-ind-hou-2026-11-20","nolink":false,"avail":0,"afford":2,"hs":false,"sources":[],"cls":0.0019168158972050755,"disc":true}
+   after US toggle link=https://polymarket.us/event/aec-nfl-6417673 steps0="Create your account with Google or Apple ID, then "
+1440 plain 6635049: {"steps":3,"venues":[],"link":"https://polymarket.com/event/fif-chn-bah1-2026-11-17-exact-score","nolink":false,"avail":0,"afford":2,"hs":false,"sources":[],"cls":0.0019168158972050755,"disc":true}

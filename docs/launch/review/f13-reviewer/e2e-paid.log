@@ -1,0 +1,25 @@
+
+Running 4 tests using 1 worker
+
+[WebServer] [abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+[WebServer] [Error: aborted] { code: 'ECONNRESET' }
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+OG status 200 image/png
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+  ✓  1 [chromium] › e2e-paid/launch-f13-invite.spec.ts:37:1 › invite link, QR, live 0..5 counter, reward; share sheet in the drawer (1.5m)
+  ✓  2 [chromium] › e2e-paid/launch-f13-invite.spec.ts:92:1 › a bad invite code is ignored and a signed-out visitor can't read /api/invite (813ms)
+[WebServer]  ⨯ [Error: aborted]
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+CLS /account (invite panel) at 390px: 0.0005
+  ✓  3 [chromium] › e2e-paid/launch-f13-invite.spec.ts:98:1 › at 390 px: /account invite panel and the share sheet fit, no horizontal scroll, CLS under 0.1 (22.3s)
+signed-out /api/flags rows undefined
+unknown id 401
+weird id 401
+  ✓  4 [chromium] › e2e-paid/zz-reviewer-f13.spec.ts:5:1 › reviewer f13 og (128ms)
+
+  4 passed (1.9m)

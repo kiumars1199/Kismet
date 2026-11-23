@@ -1,0 +1,7 @@
+$ tsc --noEmit
+$ eslint . --max-warnings 0
+ Test Files  2 passed (2)
+      Tests  9 passed (9)
+build=0
+/: first-load JS 142.5 kB gzipped (456 kB raw, 13 files); budget 150 kB: OK
+/m/[id]: first-load JS 180.1 kB gzipped (588 kB raw, 14 files); budget 150 kB: OVER
