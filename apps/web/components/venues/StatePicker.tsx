@@ -1,19 +1,20 @@
 "use client";
-// F9: where the visitor picks their state (saved in a cookie). /settings#state.
+// F9: where the visitor picks their state (saved in a cookie). /settings#state, and /state for anyone (no account).
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { card } from "@/components/kit";
 import { US_STATES } from "@/lib/venues/states";
 import { useAvailability } from "./VenueAvailability";
 
-export function StatePicker() {
+/** `next`: a same-site path (already checked by safeNext) to go back to after saving, e.g. from /state. */
+export function StatePicker({ next = null }: { next?: string | null } = {}) {
   const router = useRouter();
   const { state } = useAvailability();
   const [error, setError] = useState("");
   async function pick(value: string) {
     setError("");
     const res = await fetch("/api/state", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ state: value || null }) }).catch(() => null);
-    if (res?.ok) router.refresh();
+    if (res?.ok) { if (next) window.location.assign(next); else router.refresh(); }
     else setError("Couldn't save your state. Try again.");
   }
   return (
