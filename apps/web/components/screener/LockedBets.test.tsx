@@ -36,8 +36,13 @@ describe("LockedBets", () => {
     expect(container.textContent).not.toMatch(/Free shows 4\b/);
   });
 
-  it("says when the free bets don't match the filters", () => {
+  it("says when none of the free bets match the filters, and offers Pro in plain words", () => {
     const { container } = render(<LockedBets total={30} shown={0} daily={10} />);
-    expect(container.textContent).toContain("Your free bets for today don't match these filters.");
+    expect(container.textContent).toContain("None of today's 10 free bets match these filters. Pro shows all 30, live.");
+    expect(screen.getByRole("link").textContent).toBe("See it with Pro");
+    expect(screen.getByRole("link").getAttribute("href")).toBe("/pricing");
+    cleanup();
+    const big = render(<LockedBets total={2778} shown={0} daily={10} />);
+    expect(big.container.textContent).toContain("Pro shows all 2,778, live.");
   });
 });

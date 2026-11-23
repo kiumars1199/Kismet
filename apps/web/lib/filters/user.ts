@@ -5,10 +5,11 @@ import type { FilterState } from "./state";
 export interface UserFilterCtx { favorites: string[]; watchlistIds: Set<string> }
 
 export function resolveUserFilters(state: FilterState, ctx: UserFilterCtx): { state: FilterState; keep: (marketId: string) => boolean } {
-  const out = { ...state, favorites_only: undefined, watchlisted_only: undefined };
+  const out = { ...state, favorites_only: undefined as boolean | undefined, watchlisted_only: undefined };
   // ponytail: an explicit topic filter wins over favorites (no AND of two OR-lists); fine while chips drive both
   if (state.favorites_only && ctx.favorites.length && !state.topics?.length) out.topics = ctx.favorites;
   // ponytail: wl=1 filters each fetched page, so pages can come back short; an ids= API param fixes it if needed
+  if (state.favorites_only && out.topics?.length) out.favorites_only = true;   // only a marker for the server (Free first-screen fallback); t=<ids> filters
   const keep = state.watchlisted_only ? (id: string) => ctx.watchlistIds.has(id) : () => true;
   return { state: out, keep };
 }

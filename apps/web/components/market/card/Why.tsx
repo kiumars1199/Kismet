@@ -54,14 +54,14 @@ export function bandTested(r: { flags?: number; win_rate?: number; roi_pct?: num
   const bets = `${countWords(n)} tested bet${n === 1 ? "" : "s"}`;
   if (n < TESTED_MIN) return { text: `too few tested bets to show a return (${bets})`, lost: false };
   const won = typeof r.win_rate === "number" ? `, won ${pct(r.win_rate)}` : "";
-  return { text: `${ret(r.roi_pct)} over ${bets}${won}${r.roi_pct < 0 ? " (lost money)" : ""}`, lost: r.roi_pct < 0 };
+  return { text: `${ret(r.roi_pct)} ${n >= 1000 ? "" : "over "}${bets}${won}${r.roi_pct < 0 ? " (lost money)" : ""}`, lost: r.roi_pct < 0 };
 }
 
 /** The live record beside it: every best bet, all payouts (the ledger isn't split by payout band), with its count. */
 export function liveSoFar(p: Proof | undefined): { text: string; note: string } {
   if (!p || !p.settled || p.liveRoi === null) return { text: "No settled bets yet", note: "Best bets are logged when shown and graded as their markets settle." };
   return {
-    text: `${ret(p.liveRoi)} over ${countWords(p.settled)} settled best bet${p.settled === 1 ? "" : "s"}`,
+    text: `${ret(p.liveRoi)} ${p.settled >= 1000 ? "" : "over "}${countWords(p.settled)} settled best bet${p.settled === 1 ? "" : "s"}`,
     note: `All payouts together; not split by payout yet. ${calibrationNote(p.live)}`.trim(),
   };
 }

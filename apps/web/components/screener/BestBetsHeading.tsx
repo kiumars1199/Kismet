@@ -6,7 +6,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Count } from "@/components/kit";
 
 /** `daily`: the Free allowance (free_daily), which decides "pick" or "bets": a topic with one match still leaves Free ten a day. */
-export function BestBetsHeading({ total, shown, sample = false, daily, onShowAll, children }: { total?: number; shown: number; sample?: boolean; daily?: number; onShowAll: () => void; children?: ReactNode }) {
+export function BestBetsHeading({ total, shown, sample = false, daily, fallback = false, onShowAll, children }: { total?: number; shown: number; sample?: boolean; daily?: number; fallback?: boolean; onShowAll: () => void; children?: ReactNode }) {
   // The tap switches the line at once, so the row loses the button's height inside the 500 ms input window instead of
   // when the (slower) answer lands, where it would count as layout shift.
   const [asked, setAsked] = useState(false);
@@ -25,6 +25,14 @@ export function BestBetsHeading({ total, shown, sample = false, daily, onShowAll
             Show today&apos;s free {what}
           </button>
         </div>
+      </>
+    );
+  }
+  if (fallback && sample && shown > 0) {   // first screen after onboarding: the chosen topics had none of today's sample
+    return (
+      <>
+        <h1 className={cls}>None of today&apos;s free bets are in your topics. Here are today&apos;s free bets.</h1>
+        {children}
       </>
     );
   }
