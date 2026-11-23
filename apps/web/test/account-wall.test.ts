@@ -41,6 +41,7 @@ describe("signedOutAccess (lib/auth/public-paths.ts)", () => {
   });
 
   it("/admin and the e2e mock guard themselves (404 to non-admins), so they aren't redirected", () => {
+    expect(signedOutAccess("/state")).toBe("public");   // F9: pick a state without an account
     expect(signedOutAccess("/admin")).toBe("public");
     expect(signedOutAccess("/admin/users")).toBe("public");
     expect(signedOutAccess("/e2e-mock/auth/v1/user")).toBe("public");
@@ -143,6 +144,7 @@ describe("/api/events/by-slug: open CORS for the extension, but needs a session 
     vi.doMock("@/lib/auth/server", async (orig) => ({
       ...(await orig<typeof import("@/lib/auth/server")>()),
       authEnabled: () => true,
+      pausedUntilForUser: async () => null,
       getUser: async () => (user ? { ...user, verified: true } : null),
       getMe: async () => ({ user, tier: "free", status: null, current_period_end: null, cancel_at_period_end: false, beta: false }),
     }));

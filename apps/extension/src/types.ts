@@ -52,7 +52,7 @@ export type Msg =
 
 /** Sign-in from /ext/connect: short-lived token (chrome.storage.session), exp in ms. */
 export interface Auth { token: string; exp: number; tier: "free" | "pro" | "premium" }
-export interface SessionInfo { signedIn: boolean; tier: Auth["tier"] | null }
+export interface SessionInfo { signedIn: boolean; tier: Auth["tier"] | null; pausedUntil?: string | null }
 
 // chrome.storage.local key for what the side panel shows
 export interface Selection { slug: string; marketId: string | null; at: number }
