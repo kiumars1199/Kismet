@@ -11,7 +11,8 @@ import { headerView, useMe, type HeaderHint } from "@/lib/me";
 export function AccountLink({ signedOutHint = false, hint = null }: { signedOutHint?: boolean; hint?: HeaderHint | null }) {
   const me = useMe();
   const view = headerView(me, hint);
-  const onAuthPage = /^\/(login|signup)(\/|$)/.test(usePathname() ?? "");   // the page already is the sign-up form
+  const path = usePathname() ?? "";
+  const onLogin = /^\/login(\/|$)/.test(path), onSignup = /^\/signup(\/|$)/.test(path);   // an auth page shows only the other page's link
   if (!me ? !signedOutHint && !hint : !me.auth) return null;
   return view?.signedIn
     ? (
@@ -22,8 +23,8 @@ export function AccountLink({ signedOutHint = false, hint = null }: { signedOutH
     )
     : (
       <>
-        <Link href="/login" className="flex min-h-11 flex-none items-center whitespace-nowrap rounded-input px-2 text-sm font-medium text-muted hover:text-text sm:px-2.5">Log in</Link>
-        {!onAuthPage && <Link href="/signup" className="flex min-h-11 flex-none items-center whitespace-nowrap rounded-input bg-accent px-3 text-sm sm:px-3.5 font-semibold text-on-accent hover:bg-accent-hover">Sign up</Link>}
+        {!onLogin && <Link href="/login" className="flex min-h-11 flex-none items-center whitespace-nowrap rounded-input px-2 text-sm font-medium text-muted hover:text-text sm:px-2.5">Log in</Link>}
+        {!onSignup && <Link href="/signup" className="flex min-h-11 flex-none items-center whitespace-nowrap rounded-input bg-accent px-3 text-sm sm:px-3.5 font-semibold text-on-accent hover:bg-accent-hover">Sign up</Link>}
       </>
     );
 }

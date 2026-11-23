@@ -8,7 +8,7 @@ import { softNav } from "@/lib/softNav";
 import { useEffect, useRef, useState } from "react";
 import { fetchBook, fetchMarket, type BookResponse, type MarketResponse } from "@/lib/api";
 import { useWhen } from "./When";
-import { ago, basis, edge, money, pct, points, price, ret, sideEdge, formatCount, LONG_SHOT_LINE } from "@/lib/format";
+import { ago, cleanEventLine, basis, edge, money, pct, points, price, ret, sideEdge, formatCount, LONG_SHOT_LINE } from "@/lib/format";
 import { betFigures, betQuote, edgeAbove0, PTS_HELP, RETURN_HELP_ONE, RETURN_LABEL_LONG, RETURNS_FAQ } from "@/lib/betFigures";
 import { useProfile } from "@/lib/repo/hooks";
 import { useEntitlements } from "@/lib/entitlements";
@@ -157,7 +157,7 @@ function Detail({ data, side: sideParam, onClose, reserve }: { data: MarketRespo
           {/* page mode (no onClose): the breadcrumbs above already name the topic and the game */}
           <div className="text-xs text-muted">{onClose && <>{topicLabel(m)} · </>}<span title={when.full} suppressHydrationWarning>{when.game}</span> · <span suppressHydrationWarning>{when.closes}</span></div>
           <H className="mt-1.5 text-[22px] font-semibold leading-tight">{m.question}</H>
-          {onClose && m.event !== m.question && <Link href={`/event/${m.event_id}`} className="mt-1 inline-block text-[13px] text-accent-hover hover:text-accent-soft">{m.event}</Link>}
+          {onClose && m.event !== m.question && <Link href={`/event/${m.event_id}`} className="mt-1 inline-block text-[13px] text-accent-hover hover:text-accent-soft">{cleanEventLine(m.event)}</Link>}
         </div>
       }
     >
