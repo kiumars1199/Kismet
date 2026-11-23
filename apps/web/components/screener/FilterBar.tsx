@@ -92,10 +92,12 @@ const ICON = {
   date: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" /></svg>,
 };
 
-export function FilterBar({ state, facets, win, total, shown, onChange }: {
-  state: FilterState; facets?: MarketsResponse["facets"]; win: { today: Win; week: Win }; total?: number; shown?: number; onChange: Change;
+export function FilterBar({ state, facets, win, total, shown, fallback = false, onChange }: {
+  state: FilterState; facets?: MarketsResponse["facets"]; win: { today: Win; week: Win }; total?: number; shown?: number; fallback?: boolean; onChange: Change;
 }) {
-  const applied = barValues(state, win);
+  // T-wt2b: on the first-screen fallback the cards are NOT in the saved topics, so the bar must not name them: Sport or topic reads
+  // Everything, and the count is the one for the cards shown (the "Your topics" pill carries the topics).
+  const applied = fallback ? { ...barValues(state, win), sport: "" } : barValues(state, win);
   const [draft, setDraft] = useState(applied);
   const key = `${applied.sport}|${applied.mult}|${applied.date}`;
   useEffect(() => setDraft(applied), [key]);   // eslint-disable-line react-hooks/exhaustive-deps -- follow the URL (back, pills, reset)

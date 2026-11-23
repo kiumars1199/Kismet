@@ -72,6 +72,19 @@ export function Tour() {
     try { localStorage.removeItem(TOUR_KEY); } catch { /* storage off */ }
   }, []);
 
+  // Bring the target into view. On the first-screen fallback (an h1 explains why these are today's free bets), step 1 never scrolls
+  // that h1 away: a card already on screen stays put, otherwise the page moves only as far as keeps the h1 in view (a phone shows
+  // the heading and the top of the card). Everywhere else the card is centred.
+  const reveal = (el: HTMLElement, at: number) => {
+    const h1 = at === 0 ? document.querySelector("h1[data-free-fallback]") : null;
+    if (!h1) return el.scrollIntoView({ block: "center" });
+    const r = el.getBoundingClientRect();
+    if (r.top >= 0 && r.top < innerHeight - 80) return;
+    const needed = r.bottom - innerHeight + 16;
+    const room = h1.getBoundingClientRect().top - 8;   // scrolling further would push the h1 off the top
+    scrollBy(0, Math.max(0, Math.min(needed, room)));
+  };
+
   // Find the target (cards may still be loading: retry briefly), bring it into view, track it on scroll/resize.
   useEffect(() => {
     if (step === null || !live) return;
@@ -82,12 +95,12 @@ export function Tour() {
     // the page still loading above the target moves it: bring it back into view a few times, then leave scrolling to the user
     const reflow = () => {
       const r = el?.getBoundingClientRect();
-      if (el && r && (r.bottom < 0 || r.top > innerHeight) && shifts++ < 5) el.scrollIntoView({ block: "center" });
+      if (el && r && (r.bottom < 0 || r.top > innerHeight) && shifts++ < 5) reveal(el, step);
       measure();
     };
     const look = () => {
       el = find(STEPS[step].sel);
-      if (el) { el.scrollIntoView({ block: "center" }); measure(); }
+      if (el) { reveal(el, step); measure(); }
       else if (++tries < 40) timer = window.setTimeout(look, 250);   // up to 10 s for the list to load
       else if (step === 0) setStep(1);   // still no card (an empty list): skip "A best bet" instead of pointing at nothing
       else setRect(null);
