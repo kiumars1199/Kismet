@@ -99,3 +99,6 @@ The Vercel API cap ("more than 100 per day") refuses every new deployment. The o
 - **Merge and verify.** Each PR is merged in order on GitHub with expectedHeadSha. The lead checks that final's tree equals the integration tree.
 - **One production build.** Production builds once for the final tip, and the lead does a post-merge check.
 - **Fallback.** If any step fails, only the PRs merged before the failure stay, and production builds that tip.
+
+## Nov 23 07:20 UTC: no broad process kills
+Lanes share one machine. Broad `pkill -f playwright` / `pkill -f next` from one lane killed other lanes' runs (trust's paid e2e baselines, and likely the lead's integ build, exit 143). Rule: kill only processes you started, by PID or by a pattern that includes your own worktree path. A run killed this way is thrown out, named as such, and re-run.
