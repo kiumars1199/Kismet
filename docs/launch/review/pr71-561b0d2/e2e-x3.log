@@ -1,0 +1,908 @@
+
+Running 24 tests using 1 worker
+
+[1/24] [chromium] › e2e-paid/free-topics-cls.spec.ts:56:5 › Free at 390px › Show today's free bets: CLS < 0.1 when /api/flags is slow
+[WebServer] <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (114kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+
+[WebServer] <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (268kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] [abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[chromium] › e2e-paid/free-topics-cls.spec.ts:56:5 › Free at 390px › Show today's free bets: CLS < 0.1 when /api/flags is slow
+CLS show-free-sample at 390px: 0.001
+
+[2/24] [chromium] › e2e-paid/free-topics-cls.spec.ts:75:5 › Free at 390px › removing a filter pill swaps the sample without shifting the page
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[chromium] › e2e-paid/free-topics-cls.spec.ts:75:5 › Free at 390px › removing a filter pill swaps the sample without shifting the page
+CLS remove pill at 390px: 0.000
+
+[3/24] [chromium] › e2e-paid/free-topics-cls.spec.ts:103:7 › Free at 390px › full → empty (10 bets on screen): CLS < 0.1 when /api/flags is slow
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[chromium] › e2e-paid/free-topics-cls.spec.ts:103:7 › Free at 390px › full → empty (10 bets on screen): CLS < 0.1 when /api/flags is slow
+CLS full → empty (all) at 390px: 0.036
+
+[4/24] [chromium] › e2e-paid/free-topics-cls.spec.ts:103:7 › Free at 390px › full → empty (a few bets on screen): CLS < 0.1 when /api/flags is slow
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[5/24] [chromium] › e2e-paid/free-topics-cls.spec.ts:56:5 › Free at 1440px › Show today's free bets: CLS < 0.1 when /api/flags is slow
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[chromium] › e2e-paid/free-topics-cls.spec.ts:56:5 › Free at 1440px › Show today's free bets: CLS < 0.1 when /api/flags is slow
+CLS show-free-sample at 1440px: 0.000
+
+[6/24] [chromium] › e2e-paid/free-topics-cls.spec.ts:75:5 › Free at 1440px › removing a filter pill swaps the sample without shifting the page
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[chromium] › e2e-paid/free-topics-cls.spec.ts:75:5 › Free at 1440px › removing a filter pill swaps the sample without shifting the page
+CLS remove pill at 1440px: 0.000
+
+[7/24] [chromium] › e2e-paid/free-topics-cls.spec.ts:103:7 › Free at 1440px › full → empty (10 bets on screen): CLS < 0.1 when /api/flags is slow
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[chromium] › e2e-paid/free-topics-cls.spec.ts:103:7 › Free at 1440px › full → empty (10 bets on screen): CLS < 0.1 when /api/flags is slow
+CLS full → empty (all) at 1440px: 0.080
+
+[8/24] [chromium] › e2e-paid/free-topics-cls.spec.ts:103:7 › Free at 1440px › full → empty (a few bets on screen): CLS < 0.1 when /api/flags is slow
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[chromium] › e2e-paid/free-topics-cls.spec.ts:103:7 › Free at 1440px › full → empty (a few bets on screen): CLS < 0.1 when /api/flags is slow
+CLS full → empty (one) at 1440px: 0.023
+
+[9/24] [chromium] › e2e-paid/free-topics-cls.spec.ts:56:5 › Free at 390px › Show today's free bets: CLS < 0.1 when /api/flags is slow
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[chromium] › e2e-paid/free-topics-cls.spec.ts:56:5 › Free at 390px › Show today's free bets: CLS < 0.1 when /api/flags is slow
+CLS show-free-sample at 390px: 0.000
+
+[10/24] [chromium] › e2e-paid/free-topics-cls.spec.ts:75:5 › Free at 390px › removing a filter pill swaps the sample without shifting the page
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[chromium] › e2e-paid/free-topics-cls.spec.ts:75:5 › Free at 390px › removing a filter pill swaps the sample without shifting the page
+CLS remove pill at 390px: 0.000
+
+[11/24] [chromium] › e2e-paid/free-topics-cls.spec.ts:103:7 › Free at 390px › full → empty (10 bets on screen): CLS < 0.1 when /api/flags is slow
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[chromium] › e2e-paid/free-topics-cls.spec.ts:103:7 › Free at 390px › full → empty (10 bets on screen): CLS < 0.1 when /api/flags is slow
+CLS full → empty (all) at 390px: 0.041
+
+[12/24] [chromium] › e2e-paid/free-topics-cls.spec.ts:103:7 › Free at 390px › full → empty (a few bets on screen): CLS < 0.1 when /api/flags is slow
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[13/24] [chromium] › e2e-paid/free-topics-cls.spec.ts:56:5 › Free at 1440px › Show today's free bets: CLS < 0.1 when /api/flags is slow
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[chromium] › e2e-paid/free-topics-cls.spec.ts:56:5 › Free at 1440px › Show today's free bets: CLS < 0.1 when /api/flags is slow
+CLS show-free-sample at 1440px: 0.000
+
+[14/24] [chromium] › e2e-paid/free-topics-cls.spec.ts:75:5 › Free at 1440px › removing a filter pill swaps the sample without shifting the page
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[chromium] › e2e-paid/free-topics-cls.spec.ts:75:5 › Free at 1440px › removing a filter pill swaps the sample without shifting the page
+CLS remove pill at 1440px: 0.000
+
+[15/24] [chromium] › e2e-paid/free-topics-cls.spec.ts:103:7 › Free at 1440px › full → empty (10 bets on screen): CLS < 0.1 when /api/flags is slow
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[chromium] › e2e-paid/free-topics-cls.spec.ts:103:7 › Free at 1440px › full → empty (10 bets on screen): CLS < 0.1 when /api/flags is slow
+CLS full → empty (all) at 1440px: 0.021
+
+[16/24] [chromium] › e2e-paid/free-topics-cls.spec.ts:103:7 › Free at 1440px › full → empty (a few bets on screen): CLS < 0.1 when /api/flags is slow
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[chromium] › e2e-paid/free-topics-cls.spec.ts:103:7 › Free at 1440px › full → empty (a few bets on screen): CLS < 0.1 when /api/flags is slow
+CLS full → empty (one) at 1440px: 0.045
+
+[17/24] [chromium] › e2e-paid/free-topics-cls.spec.ts:56:5 › Free at 390px › Show today's free bets: CLS < 0.1 when /api/flags is slow
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[chromium] › e2e-paid/free-topics-cls.spec.ts:56:5 › Free at 390px › Show today's free bets: CLS < 0.1 when /api/flags is slow
+CLS show-free-sample at 390px: 0.001
+
+[18/24] [chromium] › e2e-paid/free-topics-cls.spec.ts:75:5 › Free at 390px › removing a filter pill swaps the sample without shifting the page
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[chromium] › e2e-paid/free-topics-cls.spec.ts:75:5 › Free at 390px › removing a filter pill swaps the sample without shifting the page
+CLS remove pill at 390px: 0.000
+
+[19/24] [chromium] › e2e-paid/free-topics-cls.spec.ts:103:7 › Free at 390px › full → empty (10 bets on screen): CLS < 0.1 when /api/flags is slow
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[chromium] › e2e-paid/free-topics-cls.spec.ts:103:7 › Free at 390px › full → empty (10 bets on screen): CLS < 0.1 when /api/flags is slow
+0.108 DIV.bets-list y 45->147 h 799->697
+0.108 A.state-link y 821->0 h 23->0
+0.041 DIV.bets-list y 147->105 h 697->739
+
+CLS full → empty (all) at 390px: 0.149
+
+  1) [chromium] › e2e-paid/free-topics-cls.spec.ts:103:7 › Free at 390px › full → empty (10 bets on screen): CLS < 0.1 when /api/flags is slow 
+
+    Error: expect(received).toBeLessThan(expected)
+
+    Expected: < 0.1
+    Received:   0.14906984258077
+
+      127 |           if (cls >= 0.1) console.log((await page.evaluate(() => (window as unknown as { __src: string[] }).__src)).join("\n"));   // what moved, when it fails
+      128 |         console.log(`CLS full → empty (${from}) at ${w}px: ${cls.toFixed(3)}`);
+    > 129 |         expect(cls).toBeLessThan(0.1);
+          |                     ^
+      130 |       });
+      131 |     }
+      132 |   });
+        at /tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/wt71/apps/web/e2e-paid/free-topics-cls.spec.ts:129:21
+
+    Error Context: test-results/free-topics-cls-Free-at-39-b504f--0-1-when-api-flags-is-slow-chromium-repeat2/error-context.md
+
+
+[20/24] [chromium] › e2e-paid/free-topics-cls.spec.ts:103:7 › Free at 390px › full → empty (a few bets on screen): CLS < 0.1 when /api/flags is slow
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[21/24] [chromium] › e2e-paid/free-topics-cls.spec.ts:56:5 › Free at 1440px › Show today's free bets: CLS < 0.1 when /api/flags is slow
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[chromium] › e2e-paid/free-topics-cls.spec.ts:56:5 › Free at 1440px › Show today's free bets: CLS < 0.1 when /api/flags is slow
+CLS show-free-sample at 1440px: 0.000
+
+[22/24] [chromium] › e2e-paid/free-topics-cls.spec.ts:75:5 › Free at 1440px › removing a filter pill swaps the sample without shifting the page
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[chromium] › e2e-paid/free-topics-cls.spec.ts:75:5 › Free at 1440px › removing a filter pill swaps the sample without shifting the page
+CLS remove pill at 1440px: 0.000
+
+[23/24] [chromium] › e2e-paid/free-topics-cls.spec.ts:103:7 › Free at 1440px › full → empty (10 bets on screen): CLS < 0.1 when /api/flags is slow
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[chromium] › e2e-paid/free-topics-cls.spec.ts:103:7 › Free at 1440px › full → empty (10 bets on screen): CLS < 0.1 when /api/flags is slow
+CLS full → empty (all) at 1440px: 0.021
+
+[24/24] [chromium] › e2e-paid/free-topics-cls.spec.ts:103:7 › Free at 1440px › full → empty (a few bets on screen): CLS < 0.1 when /api/flags is slow
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+  1 failed
+    [chromium] › e2e-paid/free-topics-cls.spec.ts:103:7 › Free at 390px › full → empty (10 bets on screen): CLS < 0.1 when /api/flags is slow 
+  4 skipped
+  19 passed (6.0m)

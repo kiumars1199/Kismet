@@ -1,0 +1,7 @@
+free-390 t=undefined loadCLS=0.0157 h1="0 bets where the odds lean your way" btn=0 "null" cards=0 {"hs":false,"disc":true,"cents":false,"manifestLinks":1,"inHead":1}
+PWA manifestUrl=http://localhost:3335/manifest.webmanifest errors=[] parsedName=Kismet installabilityErrors=[{"errorId":"in-incognito","errorArguments":[]}] sw=null links=1
+free-390 t=undefined loadCLS=0.0152 h1="0 bets where the odds lean your way" btn=0 "null" cards=0 {"hs":false,"disc":true,"cents":false,"manifestLinks":1,"inHead":1}
+PWA manifestUrl=http://localhost:3335/manifest.webmanifest errors=[] parsedName=Kismet installabilityErrors=[{"errorId":"in-incognito","errorArguments":[]}] sw=null links=1
+free-390 t=sports.nfl loadCLS=0.0157 h1="Today's free bets aren't in your topics" btn=1 "Show today's free bets" cards=0 {"hs":false,"disc":true,"cents":false,"manifestLinks":1,"inHead":1}
+   after click: {"settleMs":5168,"url":"/bets","h1":"10 of 34 bets where the odds lean your way","cards":10,"pill":0,"btnH":44,"clsTotal":0.0162,"allInclInput":0.0262,"shifts":["0.0005 freshness y68->68","0.0152 BUTTON y603->603, BUTTON y603->655, saved-views y655->655","0.0100 (input) P y775->715","0.0005 LABEL y543->543"]}
+PWA manifestUrl=http://localhost:3335/manifest.webmanifest errors=[] parsedName=Kismet installabilityErrors=[{"errorId":"in-incognito","errorArguments":[]}] sw=null links=1

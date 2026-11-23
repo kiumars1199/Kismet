@@ -1,0 +1,26 @@
+
+Running 8 tests using 1 worker
+
+[1/8] [chromium] › e2e/launch-f04-venues.spec.ts:5:3 › /m/<id> with 3 venues shows 3 rows and exactly one "Pays most here" at 390px
+[WebServer] <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (114kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+
+[WebServer] <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (268kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+
+[WebServer] [abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+
+[2/8] [chromium] › e2e/launch-f04-venues.spec.ts:5:3 › /m/<id> with 3 venues shows 3 rows and exactly one "Pays most here" at 1440px
+[3/8] [chromium] › e2e/launch-f04-venues.spec.ts:26:1 › a market on 2 venues shows Kalshi as Not listed
+[WebServer] [Error: aborted] { code: 'ECONNRESET' }
+
+[WebServer]  ⨯ uncaughtException: [Error: aborted] { code: 'ECONNRESET' }
+
+[WebServer]  ⨯ uncaughtException:  [Error: aborted] { code: 'ECONNRESET' }
+
+[4/8] [chromium] › e2e/launch-f04-venues.spec.ts:33:1 › a market on one venue has no block
+[5/8] [chromium] › e2e/launch-f04-venues.spec.ts:39:1 › 6674492: the card says international only, so the block lists Polymarket US as Not listed
+[6/8] [chromium] › e2e/launch-f04-venues.spec.ts:47:1 › 7078474: the block's Polymarket US payout is the card's (1.34x)
+[7/8] [chromium] › e2e/launch-f04-venues.spec.ts:53:1 › basis: source, time and Kalshi match confidence are one tap away
+[8/8] [chromium] › e2e/launch-f04-venues.spec.ts:68:1 › /check: a pasted Kalshi link resolves to its market (not 'missing') and shows Kalshi's own price
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+  8 passed (55.0s)

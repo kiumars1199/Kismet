@@ -1,0 +1,34 @@
+390 / -> 200 / {"disc":true,"hs":false,"sw":390,"cents":false,"teaser":false,"h1":"Which Polymarket bets are worth it today?","state":"/state?next=%2F"}
+390 /m/6596313 -> 200 /m/6596313 {"disc":true,"hs":false,"sw":390,"cents":false,"teaser":true,"h1":"Will Donald Trump publicly insult someone on November 26, 20","state":null}
+390 /markets -> 200 /signup?next=%2Fmarkets {"disc":true,"hs":false,"sw":390,"cents":false,"teaser":false,"h1":"Create your free account","state":null}
+390 /markets?ven=kalshi -> 200 /signup?next=%2Fmarkets%3Fven%3Dkalshi {"disc":true,"hs":false,"sw":390,"cents":false,"teaser":false,"h1":"Create your free account","state":null}
+390 /kalshi -> 200 /signup?next=%2Fkalshi {"disc":true,"hs":false,"sw":390,"cents":false,"teaser":false,"h1":"Create your free account","state":null}
+390 /pricing -> 200 /pricing {"disc":true,"hs":false,"sw":390,"cents":false,"teaser":false,"h1":"Plans","state":null}
+  history -> 401 application/json
+  history unknown -> 401 application/json
+  markets/[id] -> 401 application/json
+  og -> 200 image/png
+  kalshi api -> 401 application/json
+  meta -> 200 application/json
+  390 pageerrors [] 5xx []
+768 / -> 200 / {"disc":true,"hs":false,"sw":768,"cents":false,"teaser":false,"h1":"Which Polymarket bets are worth it today?","state":"/state?next=%2F"}
+768 /m/6596313 -> 200 /m/6596313 {"disc":true,"hs":false,"sw":768,"cents":false,"teaser":true,"h1":"Will Donald Trump publicly insult someone on November 26, 20","state":null}
+768 /markets -> 200 /signup?next=%2Fmarkets {"disc":true,"hs":false,"sw":768,"cents":false,"teaser":false,"h1":"Create your free account","state":null}
+768 /markets?ven=kalshi -> 200 /signup?next=%2Fmarkets%3Fven%3Dkalshi {"disc":true,"hs":false,"sw":768,"cents":false,"teaser":false,"h1":"Create your free account","state":null}
+768 /kalshi -> 200 /signup?next=%2Fkalshi {"disc":true,"hs":false,"sw":768,"cents":false,"teaser":false,"h1":"Create your free account","state":null}
+768 /pricing -> 200 /pricing {"disc":true,"hs":false,"sw":768,"cents":false,"teaser":false,"h1":"Plans","state":null}
+  768 pageerrors [] 5xx []
+1024 / -> 200 / {"disc":true,"hs":false,"sw":1024,"cents":false,"teaser":false,"h1":"Which Polymarket bets are worth it today?","state":"/state?next=%2F"}
+1024 /m/6596313 -> 200 /m/6596313 {"disc":true,"hs":false,"sw":1024,"cents":false,"teaser":true,"h1":"Will Donald Trump publicly insult someone on November 26, 20","state":null}
+1024 /markets -> 200 /signup?next=%2Fmarkets {"disc":true,"hs":false,"sw":1024,"cents":false,"teaser":false,"h1":"Create your free account","state":null}
+1024 /markets?ven=kalshi -> 200 /signup?next=%2Fmarkets%3Fven%3Dkalshi {"disc":true,"hs":false,"sw":1024,"cents":false,"teaser":false,"h1":"Create your free account","state":null}
+1024 /kalshi -> 200 /signup?next=%2Fkalshi {"disc":true,"hs":false,"sw":1024,"cents":false,"teaser":false,"h1":"Create your free account","state":null}
+1024 /pricing -> 200 /pricing {"disc":true,"hs":false,"sw":1024,"cents":false,"teaser":false,"h1":"Plans","state":null}
+  1024 pageerrors [] 5xx []
+1440 / -> 200 / {"disc":true,"hs":false,"sw":1440,"cents":false,"teaser":false,"h1":"Which Polymarket bets are worth it today?","state":"/state?next=%2F"}
+1440 /m/6596313 -> 200 /m/6596313 {"disc":true,"hs":false,"sw":1440,"cents":false,"teaser":true,"h1":"Will Donald Trump publicly insult someone on November 26, 20","state":null}
+1440 /markets -> 200 /signup?next=%2Fmarkets {"disc":true,"hs":false,"sw":1440,"cents":false,"teaser":false,"h1":"Create your free account","state":null}
+1440 /markets?ven=kalshi -> 200 /signup?next=%2Fmarkets%3Fven%3Dkalshi {"disc":true,"hs":false,"sw":1440,"cents":false,"teaser":false,"h1":"Create your free account","state":null}
+1440 /kalshi -> 200 /signup?next=%2Fkalshi {"disc":true,"hs":false,"sw":1440,"cents":false,"teaser":false,"h1":"Create your free account","state":null}
+1440 /pricing -> 200 /pricing {"disc":true,"hs":false,"sw":1440,"cents":false,"teaser":false,"h1":"Plans","state":null}
+  1440 pageerrors [] 5xx []

@@ -1,0 +1,122 @@
+✓ Lockfile passes supply-chain policies (verified 8h ago)
+Lockfile is up to date, resolution step is skipped
+Packages: +1
++
+Progress: resolved 1, reused 0, downloaded 0, added 1, done
+
+dependencies:
++ @modelcontextprotocol/server 2.4.0
++ @sentry/nextjs 11.9.0
++ @supabase/ssr 0.12.7
++ @supabase/supabase-js 2.118.0
++ @tanstack/react-table 8.21.3
++ @tanstack/react-virtual 3.14.26
++ @upstash/ratelimit 2.2.1
++ @upstash/redis 1.41.0
++ botid 1.5.13
++ minisearch 7.2.0
++ next 15.5.29
++ posthog-js 1.440.0
++ qrcode 1.5.4
++ react 19.3.1
++ react-dom 19.3.1
++ recharts 3.10.1
++ server-only 0.0.1
++ stripe 23.1.0
++ web-push 4.0.0
++ zod 4.6.7
++ zustand 5.1.0
+
+devDependencies:
++ @axe-core/playwright 4.14.0
++ @electric-sql/pglite 0.5.14
++ @eslint/eslintrc 3.3.7
++ @modelcontextprotocol/client 2.4.0
++ @playwright/test 1.65.1
++ @tailwindcss/postcss 4.3.5
++ @testing-library/react 16.3.3
++ @types/node 26.6.6
++ @types/qrcode 1.5.5
++ @types/react 19.3.0
++ @types/react-dom 19.3.0
++ @types/web-push 3.6.4
++ eslint 9.39.5
++ eslint-config-next 15.5.29
++ fast-check 4.10.2
++ jsdom 31.0.1
++ tailwindcss 4.3.5
++ typescript 5.9.3
++ vitest 5.1.0
+
+Done in 400ms using pnpm v12.21.0
+
+Running 8 tests using 1 worker
+
+[1/8] [chromium] › e2e/launch-f04-venues.spec.ts:5:3 › /m/<id> with 3 venues shows 3 rows and exactly one "Pays most here" at 390px
+[WebServer] <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (114kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+
+[WebServer] <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (268kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+
+  1) [chromium] › e2e/launch-f04-venues.spec.ts:5:3 › /m/<id> with 3 venues shows 3 rows and exactly one "Pays most here" at 390px 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://localhost:3339/m/7077573", waiting until "load"
+
+
+       5 |   test(`/m/<id> with 3 venues shows 3 rows and exactly one "Pays most here" at ${name}px`, async ({ page }) => {
+       6 |     await page.setViewportSize(size);
+    >  7 |     await page.goto("/m/7077573");
+         |                ^
+       8 |     const block = page.getByTestId("venues-block");
+       9 |     await expect(block).toBeVisible();
+      10 |     await expect(block.locator("li[data-venue]")).toHaveCount(3);
+        at /tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/wt83/apps/web/e2e/launch-f04-venues.spec.ts:7:16
+
+    Error Context: test-results/launch-f04-venues--m-id-wi-8f4c9-one-Pays-most-here-at-390px-chromium/error-context.md
+
+
+[2/8] [chromium] › e2e/launch-f04-venues.spec.ts:5:3 › /m/<id> with 3 venues shows 3 rows and exactly one "Pays most here" at 1440px
+[WebServer] [abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+
+[3/8] [chromium] › e2e/launch-f04-venues.spec.ts:26:1 › a market on 2 venues shows Kalshi as Not listed
+[WebServer]  ⨯ [Error: aborted]
+
+  2) [chromium] › e2e/launch-f04-venues.spec.ts:26:1 › a market on 2 venues shows Kalshi as Not listed 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://localhost:3339/m/7078474", waiting until "load"
+
+
+      25 |
+      26 | test("a market on 2 venues shows Kalshi as Not listed", async ({ page }) => {
+    > 27 |   await page.goto("/m/7078474");
+         |              ^
+      28 |   const block = page.getByTestId("venues-block");
+      29 |   await expect(block.locator('li[data-venue="kalshi"]')).toContainText("Not listed");
+      30 |   await expect(block.getByTestId("pays-most")).toHaveText("Pays most here");   // every listed venue has a multiplier: unqualified
+        at /tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/wt83/apps/web/e2e/launch-f04-venues.spec.ts:27:14
+
+    Tearing down "context" exceeded the test timeout of 30000ms.
+
+    Fixture "trace recording" timeout of 30000ms exceeded during teardown.
+
+    Error Context: test-results/launch-f04-venues-a-market-25706--shows-Kalshi-as-Not-listed-chromium/error-context.md
+
+
+[4/8] [chromium] › e2e/launch-f04-venues.spec.ts:33:1 › a market on one venue has no block
+[5/8] [chromium] › e2e/launch-f04-venues.spec.ts:39:1 › 6674492: the card says international only, so the block lists Polymarket US as Not listed
+[6/8] [chromium] › e2e/launch-f04-venues.spec.ts:47:1 › 7078474: the block's Polymarket US payout is the card's (1.34x)
+[7/8] [chromium] › e2e/launch-f04-venues.spec.ts:53:1 › basis: source, time and Kalshi match confidence are one tap away
+[8/8] [chromium] › e2e/launch-f04-venues.spec.ts:68:1 › /check: a pasted Kalshi link resolves to its market (not 'missing') and shows Kalshi's own price
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+  2 failed
+    [chromium] › e2e/launch-f04-venues.spec.ts:5:3 › /m/<id> with 3 venues shows 3 rows and exactly one "Pays most here" at 390px 
+    [chromium] › e2e/launch-f04-venues.spec.ts:26:1 › a market on 2 venues shows Kalshi as Not listed 
+  6 passed (4.2m)

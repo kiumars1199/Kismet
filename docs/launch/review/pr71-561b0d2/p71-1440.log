@@ -1,0 +1,3 @@
+free-1440 t=sports.nfl loadCLS=0.0029 h1="Today's free bets aren't in your topics" btn=1 "Show today's free bets" cards=0 {"hs":false,"disc":true,"cents":false,"manifestLinks":1,"inHead":1}
+   after click: {"settleMs":482,"url":"/bets","h1":"10 of 34 bets where the odds lean your way","cards":10,"pill":0,"btnH":44,"clsTotal":0.0029,"allInclInput":0.0066,"shifts":["0.0006 DIV y10->10","0.0023 BUTTON y347->347, BUTTON y347->347, saved-views y347->347","0.0037 (input) P y467->407"]}
+PWA manifestUrl=http://localhost:3335/manifest.webmanifest errors=[] parsedName=Kismet installabilityErrors=[{"errorId":"in-incognito","errorArguments":[]}] sw=null links=1
