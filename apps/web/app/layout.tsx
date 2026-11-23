@@ -52,8 +52,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const banner = settings.banner_on && settings.banner_text ? settings.banner_text : null;
   return (
     <html lang="en" className={`${inter.variable} ${grotesk.variable}`}>
-      {/* F10: Next streams the metadata manifest link into <body>, where Chrome ignores it, so the page is never
-          installable. This copy in <head> is the one Chrome reads (the streamed duplicate is harmless). */}
+      {/* F10: Next streams a metadata manifest link into <body>, where Chrome ignores it, so the page is never installable.
+          This copy in <head> is the one Chrome reads, and the only one: the manifest is a plain route
+          (app/manifest.webmanifest/route.ts), not a metadata file, so Next adds none (e2e/manifest-link.spec.ts). */}
       <head><link rel="manifest" href="/manifest.webmanifest" /></head>
       <body className="flex min-h-dvh flex-col bg-background text-text">
         <ClockProvider zone={clock.zone} saved={clock.saved} now={now}>

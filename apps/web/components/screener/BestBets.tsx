@@ -25,12 +25,12 @@ import { drawerHref, useOpenDrawer } from "@/components/market/drawer";
 import { SaveViewDialog } from "@/components/presets/SaveViewDialog";
 import { SavedViews } from "@/components/presets/SavedViews";
 import { suggestViewName } from "@/lib/presets-name";
-import { Count } from "@/components/kit";
 import { CardSkeleton } from "@/components/market/bits";
 import { SearchChips } from "@/components/search/SearchChips";
 import { AppliedPills } from "./AppliedPills";
 import { TodayCard } from "./DayStrip";
 import { FilterPanel } from "./FilterPanel";
+import { BestBetsHeading } from "./BestBetsHeading";
 import { EmptyState, ErrorState, StaleBanner } from "./States";
 import { useDesktop } from "./useDesktop";
 import { LockedBets } from "./LockedBets";
@@ -177,12 +177,8 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
   return (
     <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-4">
       <section className="flex flex-col gap-2">
-        <h1 className="text-[28px] font-bold leading-[1.1] tracking-[-0.02em] md:text-[34px]">
-          {/* P9: Free sees the day's sample, so the headline says "10 of 34", not a count it can't open */}
-          {total !== undefined
-            ? <>{sample && rows.length < total ? <>{rows.length} of </> : null}<Count n={total} /> {total === 1 ? "bet" : "bets"} where the odds lean your way</>
-            : "Bets where the odds lean your way"}
-        </h1>
+        {/* P9: Free sees the day's sample, so the headline says "10 of 34", not a count it can't open */}
+        <BestBetsHeading total={total} shown={rows.length} sample={sample} onShowAll={() => set({ topics: undefined, categories: undefined, favorites_only: undefined })} />
         <p className="max-w-[760px] text-sm leading-normal text-muted">
           Each one has won more often in the past than its price suggests, after the fee.
           {/* P9: when the stale banner shows, it carries the scan age; saying it here too was the third stale notice */}
