@@ -7,6 +7,7 @@
   "crons": [
     { "path": "/api/alerts/run", "schedule": "0 13 * * *" },
     { "path": "/api/settle/run", "schedule": "30 7 * * *" },
-    { "path": "/api/lifecycle/run", "schedule": "41 15 * * *" }
+    { "path": "/api/lifecycle/run", "schedule": "41 15 * * *" },
+    { "path": "/api/digest/run", "schedule": "17 12 * * *" }
   ]
 }
