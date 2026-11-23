@@ -37,5 +37,20 @@ export function addStored(legs: StoredLeg[], leg: StoredLeg): { legs: StoredLeg[
   return { legs: [...legs, leg], refused: null };
 }
 
+/** How many legs this browser keeps, mirrored in an HttpOnly cookie (set by /api/check/legs) so the SERVER can reserve the legs
+ *  list's height in the first HTML (sessionStorage is invisible to it). Session cookie, /check pages only, a count and nothing else. */
+export const COUNT_COOKIE = "kismet_combo_n";
+
+/** Legs to reserve room for on first paint: the cookie's count, and at least one when the URL carries a ?m= leg. */
+export function reservedLegs(cookie: string | undefined, m: string | undefined): number {
+  const n = Number.parseInt(cookie ?? "", 10);
+  const kept = Number.isFinite(n) ? Math.min(Math.max(n, 0), MAX_COMBO_LEGS) : 0;
+  return Math.max(kept, m ? 1 : 0);
+}
+
 export const readStored = (): StoredLeg[] => { try { return parseStored(sessionStorage.getItem(STORE_KEY)); } catch { return []; } };
-export const writeStored = (legs: StoredLeg[]) => { try { sessionStorage.setItem(STORE_KEY, JSON.stringify(legs)); } catch {} };
+export const writeStored = (legs: StoredLeg[]) => {
+  try { sessionStorage.setItem(STORE_KEY, JSON.stringify(legs)); } catch {}
+  // the count goes to the server (/api/check/legs sets an HttpOnly cookie): browser code sets no cookies
+  try { void fetch("/api/check/legs", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ n: legs.length }), keepalive: true }).catch(() => {}); } catch {}
+};

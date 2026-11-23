@@ -168,3 +168,65 @@ test("the desktop nav has 'Check a bet' (to /check) at 1440px", async ({ page })
   await expect(page).toHaveURL(/\/check$/);
   await expect(page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Check a bet" })).toHaveAttribute("aria-current", "page");
 });
+
+// Review of #92 (T-89c): the first leg (a ?m= link, or legs kept from this tab) must not move the page: the legs list holds its height
+// from the first paint when the server already knows a leg is coming, not after hydration. Each step < 0.02 at 390 and 1440,
+// five fresh runs each, so one borderline run cannot pass.
+const watchCls = () => {
+  const w = window as unknown as { __cls: number };
+  w.__cls = 0;
+  new PerformanceObserver((l) => { for (const e of l.getEntries() as unknown as { value: number; hadRecentInput: boolean }[]) if (!e.hadRecentInput) w.__cls += e.value; }).observe({ type: "layout-shift", buffered: true });
+};
+for (const [name, size] of SIZES) {
+  test(`first leg, 2nd leg and scoring each shift the page < 0.02 at ${name}px (5 fresh runs)`, async ({ browser, page: seed }) => {
+    test.setTimeout(240_000);
+    const [a, b] = distinctEvents(await rows(seed), 2);
+    const worst = { first: 0, second: 0, scoring: 0 };
+    for (let run = 0; run < 5; run++) {
+      const ctx = await browser.newContext({ viewport: size, baseURL: test.info().project.use.baseURL });
+      const page = await ctx.newPage();
+      await page.route("**/api/check/leg", async (r) => { await new Promise((ok) => setTimeout(ok, 700)); await r.continue(); });   // a slow lookup
+      await page.addInitScript(watchCls);
+      const cls = () => page.evaluate(() => (window as unknown as { __cls: number }).__cls);
+      await page.goto(`/check/combo?m=${a!.market.id}&side=${a!.side.side_index}`);
+      await expect(page.getByTestId("combo-leg")).toHaveCount(1, { timeout: 20_000 });
+      await page.waitForTimeout(700);
+      const first = await cls();
+      await page.goto(`/check/combo?m=${b!.market.id}&side=${b!.side.side_index}`);   // the 1st leg comes back from this tab, the 2nd from the link
+      await expect(page.getByTestId("combo-leg")).toHaveCount(2, { timeout: 20_000 });
+      await page.waitForTimeout(700);
+      const second = await cls();   // a fresh page load: its own total
+      const before = second;
+      await page.getByTestId("combo-check-btn").click();
+      await expect(page.getByTestId("combo-score")).toBeVisible();
+      await page.waitForTimeout(700);
+      const scoring = (await cls()) - before;
+      worst.first = Math.max(worst.first, first); worst.second = Math.max(worst.second, second); worst.scoring = Math.max(worst.scoring, scoring);
+      await ctx.close();
+    }
+    console.log(`T-89c CLS at ${name}px, worst of 5: first leg ${worst.first.toFixed(4)}, 2nd leg ${worst.second.toFixed(4)}, scoring ${worst.scoring.toFixed(4)}`);
+    expect(worst.first).toBeLessThan(0.02);
+    expect(worst.second).toBeLessThan(0.02);
+    expect(worst.scoring).toBeLessThan(0.02);
+  });
+}
+
+test("'2 to 10' is said once on /check/combo (not in the subtitle or the empty card as well)", async ({ page }) => {
+  await page.goto("/check/combo");
+  await expect(page.getByTestId("combo-msg")).toBeVisible();
+  const text = await page.locator("main").innerText();
+  expect(text.match(/2 to 10/g) ?? []).toHaveLength(1);
+});
+
+test("the phone More menu marks only the exact page as current: /check/combo is 'Check a combo', not 'Check a bet'", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/check/combo");
+  await page.getByRole("button", { name: "More" }).click();
+  const dialog = page.getByRole("dialog", { name: "More" });
+  await expect(dialog.getByRole("link", { name: "Check a combo" })).toHaveAttribute("aria-current", "page");
+  await expect(dialog.getByRole("link", { name: "Check a bet" })).not.toHaveAttribute("aria-current", "page");
+  await page.goto("/check");
+  await page.getByRole("button", { name: "More" }).click();
+  await expect(page.getByRole("dialog", { name: "More" }).getByRole("link", { name: "Check a bet" })).toHaveAttribute("aria-current", "page");
+  await expect(page.getByRole("dialog", { name: "More" }).getByRole("link", { name: "Check a combo" })).not.toHaveAttribute("aria-current", "page");
+});
