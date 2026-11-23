@@ -29,8 +29,8 @@ test("the history API serves the chart's points", async ({ request }) => {
   expect((await request.get("/api/markets/nope/history")).status()).toBe(404);
 });
 
-// Layout shifts of this page's own content: a shift counts when one of its nodes is still in the page and not inside the footer
-// (the footer swap is the <Suspense> in app/m/[id]/page.tsx, onboarding's #62).
+// Layout shifts of this page's own content: a shift counts when one of its nodes is still in the page (nodes that were removed
+// again, such as a loading placeholder, do not count). The footer swap is gone since onboarding's #62 (skeleton fallback).
 const OWN_CLS_INIT = () => {
   const w = window as unknown as { __shifts: { value: number; nodes: Node[] }[] };
   w.__shifts = [];
@@ -42,7 +42,7 @@ const OWN_CLS_INIT = () => {
 };
 const OWN_CLS_READ = () => {
   const shifts = (window as unknown as { __shifts: { value: number; nodes: Node[] }[] }).__shifts;
-  return shifts.filter((s) => s.nodes.some((n) => n.isConnected && !(n as Element).closest?.("footer"))).reduce((a, s) => a + s.value, 0);
+  return shifts.filter((s) => s.nodes.some((n) => n.isConnected)).reduce((a, s) => a + s.value, 0);
 };
 
 // Review fixes: the chart card is one height in every state, so nothing below it moves when the history arrives or is empty.
@@ -98,8 +98,8 @@ test("with a chart, the details say where it is from and when the latest point i
 
 // Review finding: with paper trading off the empty state alone measured 0.20 at 390 and 0.11 at 1440, attributed to history-empty.
 // The four state branches now have their own React keys (no reused animated node). The footer swap that inflated this number on a
-// first load is NOT the chart's: it comes from the bare <Suspense> in app/m/[id]/page.tsx (fixed in onboarding's #62), so the
-// whole-page counter below leaves out shifts whose only nodes are the footer or nodes that were removed from the page.
+// first load came from the bare <Suspense> in app/m/[id]/page.tsx (fixed in onboarding's #62), so the whole-page counter below
+// counts every shift except those whose only nodes were removed from the page.
 // (The paper-Trade and Add-to-combo slots are reserved from the first paint, see the tests below.)
 for (const [name, size] of [["390", { width: 390, height: 844 }], ["1440", { width: 1440, height: 900 }]] as const) {
   for (const id of ["7078474", "6674492"]) {
@@ -121,7 +121,7 @@ for (const [name, size] of [["390", { width: 390, height: 844 }], ["1440", { wid
 // action row wraps (Trade + Add to combo + star + Alert + link = 2 lines at 390 px, the page below jumps 50 px, 0.15 to 0.19). The e2e
 // server is a production build (next start) with trading ON and a premium user (combos on). The two answers are held back 700 ms so
 // the late items appear AFTER the first paint on every run (on a fast machine they could land before it and hide the shift). Every
-// non-footer shift on the page is counted.
+// shift on the page whose nodes are still there is counted.
 for (const id of ["6674492", "7078474"]) {
   test(`/m/${id} at 390px, trading and combos on: Trade (paper) and Add to combo mount late without moving anything (CLS < 0.1)`, async ({ page }) => {
     const slow = (pattern: string) => page.route(pattern, async (r) => { await new Promise((ok) => setTimeout(ok, 700)); await r.continue(); });

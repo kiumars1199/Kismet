@@ -9,7 +9,7 @@ beforeAll(() => {
   globalThis.ResizeObserver ??= class { observe() {} disconnect() {} unobserve() {} } as unknown as typeof ResizeObserver;
   Element.prototype.scrollIntoView ??= () => {};
 });
-afterEach(() => { localStorage.clear(); history.replaceState(null, "", "/"); });
+afterEach(() => { localStorage.clear(); history.replaceState(null, "", "/"); document.querySelectorAll('[aria-label="Market details"]').forEach((n) => n.remove()); });
 
 describe("first-run tour", () => {
   it("doesn't show unless started", () => {
@@ -38,5 +38,21 @@ describe("first-run tour", () => {
     expect(location.search).toBe("?view=flags");
     act(() => { fireEvent.keyDown(window, { key: "Escape" }); });
     expect(screen.queryByRole("dialog")).toBeNull();
+  });
+
+  it("waits while the bet drawer is open (one modal on top) and resumes at the same step once it closes", async () => {
+    localStorage.setItem(TOUR_KEY, "1");
+    const drawer = document.createElement("div");
+    drawer.setAttribute("role", "dialog");
+    drawer.setAttribute("aria-label", "Market details");
+    document.body.appendChild(drawer);
+    render(<Tour />);
+    await act(async () => { await new Promise((r) => setTimeout(r, 50)); });
+    expect(screen.queryByTestId("tour")).toBeNull();
+    expect(localStorage.getItem(TOUR_KEY)).toBe("1");   // not consumed: it is only waiting
+    act(() => { fireEvent.keyDown(window, { key: "Escape" }); });
+    expect(localStorage.getItem(TOUR_KEY)).toBe("1");   // Escape belongs to the drawer
+    act(() => { drawer.remove(); });
+    expect(await screen.findByText("1 of 5")).toBeTruthy();
   });
 });

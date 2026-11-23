@@ -6,6 +6,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { isAdminEmail, mfaRequired } from "@/lib/admin/core";
 import { maintenanceOn } from "@/lib/maintenance";
 import { agentAllowed } from "@/lib/bots";
+import { TOPICS_COOKIE, defaultTopicsHref, parseTopicsCookie } from "@/lib/filters/default-topics";
 import { isAppToken } from "@/lib/auth/app-token";
 import { DEMO_MODE } from "@/lib/config";
 import { signedOutAccess } from "@/lib/auth/public-paths";
@@ -125,11 +126,26 @@ export async function middleware(req: NextRequest) {
       return r;
     }
   }
+  if (!data.user && req.cookies.has(TOPICS_COOKIE)) res.cookies.delete(TOPICS_COOKIE);   // F5: the topics hint belongs to a signed-in user
   if (!data.user) {
     const wall = accountWall(req);
     if (wall) {
       for (const c of res.cookies.getAll()) wall.cookies.set(c);   // keep any cookie the refresh just cleared
       return wall;
+    }
+  }
+  // F5: a bare Best bets (or signed-in Home) opens on the user's topics: a real 307, decided from the me_topics cookie
+  // (no database call here). The page then renders the filtered cards and the "Your topics" pill in its first HTML.
+  if (data.user && req.method === "GET" && (path === "/bets" || path === "/")) {
+    const { favorites, dismissed } = parseTopicsCookie(req.cookies.get(TOPICS_COOKIE)?.value, data.user.id);
+    const q = defaultTopicsHref(req.nextUrl.search, favorites, dismissed);
+    if (q) {
+      const to = req.nextUrl.clone();
+      to.pathname = "/bets";
+      to.search = q;
+      const r = NextResponse.redirect(to, 307);
+      for (const c of res.cookies.getAll()) r.cookies.set(c);
+      return r;
     }
   }
   return page(!!data.user, res, true);

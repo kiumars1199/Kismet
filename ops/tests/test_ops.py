@@ -427,3 +427,9 @@ def test_polymarket_index_is_a_side_file_sent_once_per_build(tmp_path):
 def test_scheduler_builds_the_polymarket_index_after_the_scan_upload():
     steps = [" ".join(a) for a in scheduler.CMDS["scan"]]
     assert steps.index("ops/upload.py output") < steps.index("-m engine pmindex") < steps.index("ops/upload.py --only output/polymarket_index.json")
+
+
+def test_scheduler_uploads_the_index_meta_after_the_index():
+    steps = [" ".join(a) for a in scheduler.CMDS["scan"]]
+    assert steps.index("ops/upload.py --only output/polymarket_index.json") < steps.index("ops/upload.py --only output/polymarket_index_meta.json")
+    assert "polymarket_index_meta.json" in upload.SIDE_FILES

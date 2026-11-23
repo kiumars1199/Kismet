@@ -1,6 +1,7 @@
 // Sign out this device, or everywhere (docs/14 §1: revokes every session's refresh token).
 import { NextResponse } from "next/server";
 import { clientKey, rateLimit } from "@/lib/abuse";
+import { TOPICS_COOKIE } from "@/lib/filters/default-topics";
 import { authEnabled, sameOrigin, supabaseServer } from "@/lib/auth/server";
 
 export const runtime = "nodejs";
@@ -16,5 +17,7 @@ export async function POST(req: Request) {
     const scope = form?.get("scope") === "global" ? "global" : "local";
     await (await supabaseServer()).auth.signOut({ scope });
   }
-  return NextResponse.redirect(new URL("/", origin), 303);
+  const res = NextResponse.redirect(new URL("/", origin), 303);
+  res.cookies.delete(TOPICS_COOKIE);   // F5: the topics hint belongs to the signed-in user
+  return res;
 }

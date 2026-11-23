@@ -1,0 +1,4 @@
+precomputed: top.json 0 best bets, counts.json
+.................................................precision 1.000 (TP 22, FP []), recall 0.957 (FN ['mentions'])
+............................
+170 passed in 3.47s

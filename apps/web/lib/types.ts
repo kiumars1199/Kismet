@@ -68,6 +68,7 @@ export interface Market {
   competitive?: number;         // abs(mid - 0.5) of the market mid
   // docs/16 §3 market matching (engine job kalshi_match, not built yet). Set only when confidence >= 0.9.
   kalshi_ticker?: string | null;
+  kalshi_matched_ticker?: string;   // F4 (#52): the matcher's Kalshi ticker, kept apart from kalshi_ticker so the bet venue doesn't flip to Kalshi
   kalshi_match_conf?: number;
   // F4: the Kalshi ticker the venue matcher paired with this market (set with `venues` when a same-side Kalshi quote is in this
   // scan's snapshot). For link lookups only: it is NOT `kalshi_ticker`, which makes Kalshi the market's bet venue.

@@ -112,11 +112,12 @@ describe("RLS (supabase/migrations)", () => {
       app_settings: `insert into app_settings (key, value) values ('banner_on', 'true')`,
       plan_grants: `insert into plan_grants (email, tier, created_by, updated_by) values ('later@x.test', 'pro', '${A}', '${A}')`,
       funnel_events: `insert into funnel_events (user_id, event) values ('${A}', 'signup_done')`,
+      digest_emails: `insert into digest_emails (user_id, day) values ('${A}', '2026-11-23')`,
       lifecycle_emails: `insert into lifecycle_emails (user_id, kind) values ('${A}', 'welcome')`,
     };
     for (const sql of Object.values(seed)) await db.exec(sql);
     const tables = (await db.query<{ tablename: string }>("select tablename from pg_tables where schemaname = 'public'")).rows.map((r) => r.tablename);
-    expect(tables.sort()).toEqual(["admin_audit_log", "alert_events", "alert_rules", "app_settings", "dashboards", "drawer_reveals",
+    expect(tables.sort()).toEqual(["admin_audit_log", "alert_events", "alert_rules", "app_settings", "dashboards", "digest_emails", "drawer_reveals",
       "funnel_events", "journal", "lifecycle_emails", "plan_grants", "presets", "profiles", "push_subscriptions", "stripe_events", "subscriptions", "watchlist"]);   // a new table must be added here, and to seed
 
     for (const t of tables) {
@@ -125,7 +126,7 @@ describe("RLS (supabase/migrations)", () => {
       expect(await as("anon", null, `select * from ${t}`), `anon ${t}`).toEqual([]);
       const seen = await as<Record<string, unknown>>("authenticated", B, `select * from ${t}`);
       expect(seen.filter((r) => r.user_id !== B), `B reads ${t}`).toEqual([]);
-      if (["stripe_events", "admin_audit_log", "app_settings", "plan_grants", "funnel_events", "lifecycle_emails"].includes(t)) expect(seen, `${t}: service role only`).toEqual([]);
+      if (["stripe_events", "admin_audit_log", "app_settings", "plan_grants", "funnel_events", "lifecycle_emails", "digest_emails"].includes(t)) expect(seen, `${t}: service role only`).toEqual([]);
       await as("authenticated", B, `delete from ${t}`).catch(() => {});
       const after = Number((await db.query<{ n: number }>(`select count(*)::int as n from ${t}`)).rows[0].n);
       expect(after, `B deletes from ${t}`).toBe(total);
