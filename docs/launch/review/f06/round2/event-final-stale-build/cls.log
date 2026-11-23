@@ -1,0 +1,7 @@
+  1335826 390 load6: ["0.307 FOOTER.flex flex-wrap items-center justify-between gap-3  y110->0, NAV.fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 bor y354->0"]
+1335826 390: [0,0,0,0,0,0,0.307,0]
+  1335826 1440 load5: ["0.189 FOOTER.flex flex-wrap items-center justify-between gap-3  y110->0, NAV.fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 bor y264->0"]
+1335826 1440: [0,0,0,0,0,0.189,0,0]
+1335827 390: [0,0,0,0,0,0,0,0]
+  1335827 1440 load7: ["0.128 FOOTER.flex flex-wrap items-center justify-between gap-3  y110->0, NAV.fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 bor y264->0"]
+1335827 1440: [0,0,0,0,0,0,0,0.128]

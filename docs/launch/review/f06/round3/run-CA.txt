@@ -1,0 +1,6 @@
+set CA -> 204
+CA 390 /bets: F9 line(s)=["Polymarket US: available in California"] guide=["Polymarket: not available in California","Polymarket US: available in California","Polymarket US: available in California"] hscroll=false
+CA 390 /check?m=6417673: F9 line(s)=[] guide=["Polymarket: not available in California","Polymarket US: available in California","Polymarket US: available in California"] hscroll=false
+set CA -> 204
+CA 1440 /bets: F9 line(s)=["Polymarket US: available in California"] guide=["Polymarket: not available in California","Polymarket US: available in California","Polymarket US: available in California"] hscroll=false
+CA 1440 /check?m=6417673: F9 line(s)=[] guide=["Polymarket: not available in California","Polymarket US: available in California","Polymarket US: available in California"] hscroll=false

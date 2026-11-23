@@ -1,0 +1,43 @@
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] responseMode: 'json' drops mid-call notifications. subscriptions/listen streams are always served over SSE regardless; other notifications emitted before a result are dropped.
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+
+Running 16 tests using 1 worker
+
+[1/16] [chromium] › e2e/launch-f03-search.spec.ts:6:1 › GET /api/markets?venue=kalshi&topic=sports.nfl returns Kalshi NFL rows
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] responseMode: 'json' drops mid-call notifications. subscriptions/listen streams are always served over SSE regardless; other notifications emitted before a result are dropped.
+
+[WebServer] [abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+
+[2/16] [chromium] › e2e/launch-f03-search.spec.ts:13:1 › q finds a Kalshi row by a title word
+[3/16] [chromium] › e2e/launch-f03-search.spec.ts:18:1 › /api/meta counts by venue
+[4/16] [chromium] › e2e/launch-f03-search.spec.ts:25:3 › /markets Kalshi venue: topic filter, rows, "No price yet", no horizontal scroll at 390px
+[5/16] [chromium] › e2e/launch-f03-search.spec.ts:25:3 › /markets Kalshi venue: topic filter, rows, "No price yet", no horizontal scroll at 1440px
+[6/16] [chromium] › e2e/launch-f03-search.spec.ts:38:1 › the venue chip switches to Kalshi and the URL round-trips
+[7/16] [chromium] › e2e/launch-f03-search.spec.ts:48:1 › a direct load of /markets?q=<word> carries the Kalshi matches in the server HTML and on screen
+[8/16] [chromium] › e2e/launch-f03-search.spec.ts:57:1 › a direct load of the Kalshi view ships its rows and chips in the server HTML
+[9/16] [chromium] › e2e/launch-f03-search.spec.ts:65:3 › Kalshi view at 390px: the header counts Kalshi rows and the Polymarket-only controls are gone
+[10/16] [chromium] › e2e/launch-f03-search.spec.ts:83:3 › the venue chip row never shifts on /markets at 390px (it is in the server HTML)
+[chromium] › e2e/launch-f03-search.spec.ts:83:3 › the venue chip row never shifts on /markets at 390px (it is in the server HTML)
+CLS /markets 390px: total 0.0200, chip row 0.0000
+
+[11/16] [chromium] › e2e/launch-f03-search.spec.ts:65:3 › Kalshi view at 1440px: the header counts Kalshi rows and the Polymarket-only controls are gone
+[12/16] [chromium] › e2e/launch-f03-search.spec.ts:83:3 › the venue chip row never shifts on /markets at 1440px (it is in the server HTML)
+[chromium] › e2e/launch-f03-search.spec.ts:83:3 › the venue chip row never shifts on /markets at 1440px (it is in the server HTML)
+CLS /markets 1440px: total 0.0107, chip row 0.0000
+
+[13/16] [chromium] › e2e/launch-f03-search.spec.ts:112:3 › a market the scan does not price is found by search and says "Not priced yet" at 390px
+[14/16] [chromium] › e2e/launch-f03-search.spec.ts:112:3 › a market the scan does not price is found by search and says "Not priced yet" at 1440px
+[15/16] [chromium] › e2e/launch-f03-search.spec.ts:124:1 › /api/meta counts every open Polymarket market and keeps the priced count
+[16/16] [chromium] › e2e/launch-f03-search.spec.ts:130:1 › a market past its close time that still accepts orders says it is waiting for the result
+  16 passed (2.0m)
+exit 0

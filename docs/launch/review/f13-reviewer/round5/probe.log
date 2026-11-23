@@ -1,0 +1,32 @@
+signed-out 390 FLAG 6674492 s=0 desc="Pays 1.45x · Bets like this won about 9 in 10 before. Market analytics, not financial advice." ogimage=http://localhost:3291/api/og/bet/6674492?s=0&amp;sig=mfwZuaX1XqCUAZk6NZ8Hp8 img=200 50144B nosig=43120B NUMBERS
+signed-out 390 FLAGOTHER 6674492 s=1 desc="Kismet has a verdict on this market. Sign up free to see it. Market analytics, not financial advice." ogimage=http://localhost:3291/api/og/bet/6674492 img=200 43120B nosig=43120B TEASER
+signed-out 390 POSNOTFLAG 6771258 s=1 desc="Kismet has a verdict on this market. Sign up free to see it. Market analytics, not financial advice." ogimage=http://localhost:3291/api/og/bet/6771258 img=200 42926B nosig=42926B TEASER
+signed-out 390 NEG 7101594 s=1 desc="Kismet has a verdict on this market. Sign up free to see it. Market analytics, not financial advice." ogimage=http://localhost:3291/api/og/bet/7101594 img=200 41513B nosig=41513B TEASER
+signed-out 1440 FLAG 6674492 s=0 desc="Pays 1.45x · Bets like this won about 9 in 10 before. Market analytics, not financial advice." ogimage=http://localhost:3291/api/og/bet/6674492?s=0&amp;sig=mfwZuaX1XqCUAZk6NZ8Hp8 img=200 50144B nosig=43120B NUMBERS
+signed-out 1440 FLAGOTHER 6674492 s=1 desc="Kismet has a verdict on this market. Sign up free to see it. Market analytics, not financial advice." ogimage=http://localhost:3291/api/og/bet/6674492 img=200 43120B nosig=43120B TEASER
+signed-out 1440 POSNOTFLAG 6771258 s=1 desc="Kismet has a verdict on this market. Sign up free to see it. Market analytics, not financial advice." ogimage=http://localhost:3291/api/og/bet/6771258 img=200 42926B nosig=42926B TEASER
+signed-out 1440 NEG 7101594 s=1 desc="Kismet has a verdict on this market. Sign up free to see it. Market analytics, not financial advice." ogimage=http://localhost:3291/api/og/bet/7101594 img=200 41513B nosig=41513B TEASER
+free(free) 390 link 6674492: 200 {"path":"/m/6674492?ref=apkhr6m8&s=0&sig=mfwZuaX1XqCUAZk6NZ8Hp8","image":"/api/og/bet/6674492?s=0&sig=mfwZuaX1XqCUAZk6NZ8Hp8"} desc="Pays 1.45x · Bets like this won about 9 in 10 before. Market analytics, not financial advice."
+free(free) 390 link 6771258: 200 {"path":"/m/6771258?ref=apkhr6m8","image":"/api/og/bet/6771258"} desc="Bet No · pays 1.09x · +5–10% estimated return, based on past results. Market analytics, not financial advice."
+free(free) 390 link 7101594: 200 {"path":"/m/7101594?ref=apkhr6m8","image":"/api/og/bet/7101594"} desc="Bet No · pays 1.01x · under 0% estimated return, based on past results. Market analytics, not financial advice."
+free 390 disclaimer true share-button 1
+free(free) 1440 link 6674492: 200 {"path":"/m/6674492?ref=guh28xq6&s=0&sig=mfwZuaX1XqCUAZk6NZ8Hp8","image":"/api/og/bet/6674492?s=0&sig=mfwZuaX1XqCUAZk6NZ8Hp8"} desc="Pays 1.45x · Bets like this won about 9 in 10 before. Market analytics, not financial advice."
+free(free) 1440 link 6771258: 200 {"path":"/m/6771258?ref=guh28xq6","image":"/api/og/bet/6771258"} desc="Bet No · pays 1.09x · +5–10% estimated return, based on past results. Market analytics, not financial advice."
+free(free) 1440 link 7101594: 200 {"path":"/m/7101594?ref=guh28xq6","image":"/api/og/bet/7101594"} desc="Bet No · pays 1.01x · under 0% estimated return, based on past results. Market analytics, not financial advice."
+free 1440 disclaimer true share-button 1
+pro(pro) 390 link 6674492: 200 {"path":"/m/6674492?ref=azt7hvap&s=0&sig=mfwZuaX1XqCUAZk6NZ8Hp8","image":"/api/og/bet/6674492?s=0&sig=mfwZuaX1XqCUAZk6NZ8Hp8"} desc="Pays 1.45x · Bets like this won about 9 in 10 before. Market analytics, not financial advice."
+pro(pro) 390 link 6771258: 200 {"path":"/m/6771258?ref=azt7hvap","image":"/api/og/bet/6771258"} desc="Bet No · pays 1.09x · +5.4% estimated return, based on past results. Market analytics, not financial advice."
+pro(pro) 390 link 7101594: 200 {"path":"/m/7101594?ref=azt7hvap","image":"/api/og/bet/7101594"} desc="Bet No · pays 1.01x · −5.7% estimated return, based on past results. Market analytics, not financial advice."
+pro 390 disclaimer true share-button 1
+pro(pro) 1440 link 6674492: 200 {"path":"/m/6674492?ref=agrqcbv3&s=0&sig=mfwZuaX1XqCUAZk6NZ8Hp8","image":"/api/og/bet/6674492?s=0&sig=mfwZuaX1XqCUAZk6NZ8Hp8"} desc="Pays 1.45x · Bets like this won about 9 in 10 before. Market analytics, not financial advice."
+pro(pro) 1440 link 6771258: 200 {"path":"/m/6771258?ref=agrqcbv3","image":"/api/og/bet/6771258"} desc="Bet No · pays 1.09x · +5.4% estimated return, based on past results. Market analytics, not financial advice."
+pro(pro) 1440 link 7101594: 200 {"path":"/m/7101594?ref=agrqcbv3","image":"/api/og/bet/7101594"} desc="Bet No · pays 1.01x · −5.7% estimated return, based on past results. Market analytics, not financial advice."
+pro 1440 disclaimer true share-button 1
+premium(premium) 390 link 6674492: 200 {"path":"/m/6674492?ref=8q38tkeq&s=0&sig=mfwZuaX1XqCUAZk6NZ8Hp8","image":"/api/og/bet/6674492?s=0&sig=mfwZuaX1XqCUAZk6NZ8Hp8"} desc="Pays 1.45x · Bets like this won about 9 in 10 before. Market analytics, not financial advice."
+premium(premium) 390 link 6771258: 200 {"path":"/m/6771258?ref=8q38tkeq","image":"/api/og/bet/6771258"} desc="Bet No · pays 1.09x · +5.4% estimated return, based on past results. Market analytics, not financial advice."
+premium(premium) 390 link 7101594: 200 {"path":"/m/7101594?ref=8q38tkeq","image":"/api/og/bet/7101594"} desc="Bet No · pays 1.01x · −5.7% estimated return, based on past results. Market analytics, not financial advice."
+premium 390 disclaimer true share-button 1
+premium(premium) 1440 link 6674492: 200 {"path":"/m/6674492?ref=frbux578&s=0&sig=mfwZuaX1XqCUAZk6NZ8Hp8","image":"/api/og/bet/6674492?s=0&sig=mfwZuaX1XqCUAZk6NZ8Hp8"} desc="Pays 1.45x · Bets like this won about 9 in 10 before. Market analytics, not financial advice."
+premium(premium) 1440 link 6771258: 200 {"path":"/m/6771258?ref=frbux578","image":"/api/og/bet/6771258"} desc="Bet No · pays 1.09x · +5.4% estimated return, based on past results. Market analytics, not financial advice."
+premium(premium) 1440 link 7101594: 200 {"path":"/m/7101594?ref=frbux578","image":"/api/og/bet/7101594"} desc="Bet No · pays 1.01x · −5.7% estimated return, based on past results. Market analytics, not financial advice."
+premium 1440 disclaimer true share-button 1

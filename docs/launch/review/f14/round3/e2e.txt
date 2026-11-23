@@ -1,0 +1,86 @@
+[WebServer] <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (114kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+
+[WebServer] <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (268kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] responseMode: 'json' drops mid-call notifications. subscriptions/listen streams are always served over SSE regardless; other notifications emitted before a result are dropped.
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+
+Running 14 tests using 1 worker
+
+[WebServer] responseMode: 'json' drops mid-call notifications. subscriptions/listen streams are always served over SSE regardless; other notifications emitted before a result are dropped.
+
+[1/14] [chromium] › e2e/launch-f14-history.spec.ts:5:3 › a market with history draws the chart and the basis line at 390px
+[WebServer] [abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+
+[2/14] [chromium] › e2e/launch-f14-history.spec.ts:5:3 › a market with history draws the chart and the basis line at 1440px
+[3/14] [chromium] › e2e/launch-f14-history.spec.ts:17:1 › a market with no history says "No price history for this market yet" in the same-height box
+[4/14] [chromium] › e2e/launch-f14-history.spec.ts:25:1 › the history API serves the chart's points
+[5/14] [chromium] › e2e/launch-f14-history.spec.ts:38:5 › /m/6674492 (chart): the card's slot is 360px in every frame at 390px
+[chromium] › e2e/launch-f14-history.spec.ts:38:5 › /m/6674492 (chart): the card's slot is 360px in every frame at 390px
+CLS /m/6674492 390px: whole page 0.1699; slot heights seen [0,360]
+
+[6/14] [chromium] › e2e/launch-f14-history.spec.ts:38:5 › /m/7078474 (empty state): the card's slot is 360px in every frame at 390px
+[chromium] › e2e/launch-f14-history.spec.ts:38:5 › /m/7078474 (empty state): the card's slot is 360px in every frame at 390px
+CLS /m/7078474 390px: whole page 0.1921; slot heights seen [0,360]
+
+[7/14] [chromium] › e2e/launch-f14-history.spec.ts:38:5 › /m/6674492 (chart): the card's slot is 360px in every frame at 1440px
+[chromium] › e2e/launch-f14-history.spec.ts:38:5 › /m/6674492 (chart): the card's slot is 360px in every frame at 1440px
+CLS /m/6674492 1440px: whole page 0.1593; slot heights seen [0,360]
+
+[8/14] [chromium] › e2e/launch-f14-history.spec.ts:38:5 › /m/7078474 (empty state): the card's slot is 360px in every frame at 1440px
+[chromium] › e2e/launch-f14-history.spec.ts:38:5 › /m/7078474 (empty state): the card's slot is 360px in every frame at 1440px
+CLS /m/7078474 1440px: whole page 0.1576; slot heights seen [0,360]
+
+[9/14] [chromium] › e2e/launch-f14-history.spec.ts:66:1 › the empty state says it plainly, and the details name the source
+[10/14] [chromium] › e2e/launch-f14-history.spec.ts:73:1 › with a chart, the details say where it is from and when the latest point is, and no point is newer than the scan
+[11/14] [chromium] › e2e/launch-f14-history.spec.ts:91:5 › /m/7078474 whole-page CLS under 0.1 with paper trading off at 390px
+[chromium] › e2e/launch-f14-history.spec.ts:91:5 › /m/7078474 whole-page CLS under 0.1 with paper trading off at 390px
+whole-page CLS /m/7078474 390px, paper trading off: 0.0036
+
+[12/14] [chromium] › e2e/launch-f14-history.spec.ts:91:5 › /m/6674492 whole-page CLS under 0.1 with paper trading off at 390px
+[chromium] › e2e/launch-f14-history.spec.ts:91:5 › /m/6674492 whole-page CLS under 0.1 with paper trading off at 390px
+whole-page CLS /m/6674492 390px, paper trading off: 0.0036
+
+[13/14] [chromium] › e2e/launch-f14-history.spec.ts:91:5 › /m/7078474 whole-page CLS under 0.1 with paper trading off at 1440px
+[chromium] › e2e/launch-f14-history.spec.ts:91:5 › /m/7078474 whole-page CLS under 0.1 with paper trading off at 1440px
+whole-page CLS /m/7078474 1440px, paper trading off: 0.0019
+
+[14/14] [chromium] › e2e/launch-f14-history.spec.ts:91:5 › /m/6674492 whole-page CLS under 0.1 with paper trading off at 1440px
+[chromium] › e2e/launch-f14-history.spec.ts:91:5 › /m/6674492 whole-page CLS under 0.1 with paper trading off at 1440px
+whole-page CLS /m/6674492 1440px, paper trading off: 0.1541
+
+  1) [chromium] › e2e/launch-f14-history.spec.ts:91:5 › /m/6674492 whole-page CLS under 0.1 with paper trading off at 1440px 
+
+    Error: expect(received).toBeLessThan(expected)
+
+    Expected: < 0.1
+    Received:   0.1541390381194273
+
+      108 |       const cls = await page.evaluate(() => (window as unknown as { __cls: number }).__cls);
+      109 |       console.log(`whole-page CLS /m/${id} ${name}px, paper trading off: ${cls.toFixed(4)}`);
+    > 110 |       expect(cls).toBeLessThan(0.1);
+          |                   ^
+      111 |     });
+      112 |   }
+      113 | }
+        at /home/user/MarketEdge/.claude/worktrees/agent-ac3ec7df000229278/apps/web/e2e/launch-f14-history.spec.ts:110:19
+
+    Error Context: test-results/launch-f14-history--m-6674-cb766-paper-trading-off-at-1440px-chromium/error-context.md
+
+
+  1 failed
+    [chromium] › e2e/launch-f14-history.spec.ts:91:5 › /m/6674492 whole-page CLS under 0.1 with paper trading off at 1440px 
+  13 passed (2.6m)
+e2e exit 1

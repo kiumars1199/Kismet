@@ -1,0 +1,10 @@
+.next/types/app/api/check/route.ts(2,24): error TS2307: Cannot find module '../../../../../app/api/check/route.js' or its corresponding type declarations.
+.next/types/app/api/check/route.ts(5,29): error TS2307: Cannot find module '../../../../../app/api/check/route.js' or its corresponding type declarations.
+.next/types/app/check/page.ts(2,24): error TS2307: Cannot find module '../../../../app/check/page.js' or its corresponding type declarations.
+.next/types/app/check/page.ts(5,29): error TS2307: Cannot find module '../../../../app/check/page.js' or its corresponding type declarations.
+.next/types/validator.ts(170,39): error TS2307: Cannot find module '../../app/check/combo/page.js' or its corresponding type declarations.
+.next/types/validator.ts(179,39): error TS2307: Cannot find module '../../app/check/page.js' or its corresponding type declarations.
+.next/types/validator.ts(602,39): error TS2307: Cannot find module '../../app/api/check/combo/route.js' or its corresponding type declarations.
+.next/types/validator.ts(611,39): error TS2307: Cannot find module '../../app/api/check/leg/route.js' or its corresponding type declarations.
+.next/types/validator.ts(620,39): error TS2307: Cannot find module '../../app/api/check/route.js' or its corresponding type declarations.
+.next/types/validator.ts(629,39): error TS2307: Cannot find module '../../app/api/check/search/route.js' or its corresponding type declarations.

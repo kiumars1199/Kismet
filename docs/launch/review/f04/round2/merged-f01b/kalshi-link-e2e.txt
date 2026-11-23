@@ -1,0 +1,4 @@
+KXFIXTURE-6674492 6674492 None None
+KXFIXTURE-7077573 7077573 None None
+KXNBAGAME-26NOV19LACSAS-SAS None None We couldn't find an open market at that link
+6674492 kalshi_ticker None matched KXFIXTURE-6674492

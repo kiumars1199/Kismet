@@ -1,0 +1,58 @@
+[WebServer] ✓ Lockfile passes supply-chain policies (verified 12h ago)
+[WebServer] Lockfile is up to date, resolution step is skipped
+
+[WebServer] Packages: +1 -25
+[WebServer] +-------------------------
+
+[WebServer] Progress: resolved 1, reused 0, downloaded 0, added 1, done
+
+[WebServer] 
+[WebServer] dependencies:
+[WebServer] - qrcode 1.5.4
+[WebServer] 
+[WebServer] devDependencies:
+[WebServer] - @types/qrcode 1.5.5
+[WebServer] 
+
+[WebServer] Done in 144ms using pnpm v12.21.0
+
+[WebServer] <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (114kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+
+[WebServer] <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (268kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] responseMode: 'json' drops mid-call notifications. subscriptions/listen streams are always served over SSE regardless; other notifications emitted before a result are dropped.
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+
+Running 13 tests using 2 workers
+
+[1/13] [chromium] › e2e/launch-f01-checker.spec.ts:20:1 › checker = card = drawer on 3 fixture markets: chance, market %, multiplier, edge, return
+[2/13] [chromium] › e2e/launch-f06-howto.spec.ts:5:1 › how to bet this at 390px: 3 steps, the venue link, close
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] responseMode: 'json' drops mid-call notifications. subscriptions/listen streams are always served over SSE regardless; other notifications emitted before a result are dropped.
+
+[WebServer] [abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+
+[3/13] [chromium] › e2e/launch-f06-howto.spec.ts:33:1 › how to bet this from a card at 390px: pick a venue, 3 steps, sources, link, close
+[4/13] [chromium] › e2e/launch-f08-risknote.spec.ts:6:3 › /bets: a risk note next to every bet button at 390 px, CLS < 0.1
+[5/13] [chromium] › e2e/launch-f08-risknote.spec.ts:6:3 › /bets: a risk note next to every bet button at 1440 px, CLS < 0.1
+[6/13] [chromium] › e2e/launch-f01-checker.spec.ts:54:1 › price 60% → 50% updates multiplier, edge and score in under 100 ms with no network call
+[7/13] [chromium] › e2e/launch-f01-checker.spec.ts:82:1 › 0%, 100%, 0.5% and 99.5% are rejected, unknown links say so, the formula is on the page
+[8/13] [chromium] › e2e/launch-f01-checker.spec.ts:100:1 › the venue line matches the card: International only, not on Polymarket US
+[9/13] [chromium] › e2e/launch-f01-checker.spec.ts:110:3 › /check at 390px: no horizontal scroll, CLS < 0.1 loading ?m=, empty and with a result
+[10/13] [chromium] › e2e/launch-f01-checker.spec.ts:110:3 › /check at 1440px: no horizontal scroll, CLS < 0.1 loading ?m=, empty and with a result
+[11/13] [chromium] › e2e/launch-f01-checker.spec.ts:125:1 › Check on a card at /bets, 390px, lands on that bet's result with the card's numbers
+[12/13] [chromium] › e2e/launch-f01-checker.spec.ts:139:1 › every card on /, /bets and /markets has a Check link to /check?m=…&side=…
+[13/13] [chromium] › e2e/launch-f01-checker.spec.ts:150:1 › /check?m=<id>&side=0 opens no drawer and the page is not inert
+  13 passed (1.5m)
+exit 0

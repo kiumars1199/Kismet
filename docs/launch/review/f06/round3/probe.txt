@@ -1,0 +1,18 @@
+none 390 /bets: F9 line(s)=["Check your state"] guide=["Check Polymarket for your state","Check Polymarket US for your state"] hscroll=false
+none 390 /check?m=6417673: F9 line(s)=[] guide=["Check Polymarket for your state","Check Polymarket US for your state"] hscroll=false
+none 1440 /bets: F9 line(s)=["Check your state"] guide=["Check Polymarket for your state","Check Polymarket US for your state"] hscroll=false
+none 1440 /check?m=6417673: F9 line(s)=[] guide=["Check Polymarket for your state","Check Polymarket US for your state"] hscroll=false
+set CA -> 204
+CA 390 /bets: F9 line(s)=["Polymarket US: available in California"] guide=["Polymarket: not available in California","Polymarket US: available in California","Polymarket US: available in California"] hscroll=false
+set CA -> 204
+CA 390 /bets: F9 line(s)=["Polymarket US: available in California"] guide=["Polymarket: not available in California","Polymarket US: available in California","Polymarket US: available in California"] hscroll=false
+CA 390 /check?m=6417673: F9 line(s)=[] guide=["Polymarket: not available in California","Polymarket US: available in California","Polymarket US: available in California"] hscroll=false
+set CA -> 204
+CA 1440 /bets: F9 line(s)=["Polymarket US: available in California"] guide=["Polymarket: not available in California","Polymarket US: available in California","Polymarket US: available in California"] hscroll=false
+CA 1440 /check?m=6417673: F9 line(s)=[] guide=["Polymarket: not available in California","Polymarket US: available in California","Polymarket US: available in California"] hscroll=false
+set NV -> 204
+NV 390 /bets: F9 line(s)=["Polymarket US: not available in Nevada"] guide=["Polymarket: not available in Nevada","Polymarket US: not available in Nevada"] hscroll=false
+NV 390 /check?m=6417673: F9 line(s)=[] guide=["Polymarket: not available in Nevada","Polymarket US: not available in Nevada"] hscroll=false
+set NV -> 204
+NV 1440 /bets: F9 line(s)=["Polymarket US: not available in Nevada"] guide=["Polymarket: not available in Nevada","Polymarket US: not available in Nevada"] hscroll=false
+NV 1440 /check?m=6417673: F9 line(s)=[] guide=["Polymarket: not available in Nevada","Polymarket US: not available in Nevada"] hscroll=false

@@ -1,0 +1,16 @@
+before users, right secret: 200 {"ran":true,"users":0,"sent":0,"skipped_no_bets":0,"skipped_paused":0,"failed":0}
+0 free  uid 16dfa6b5-2d07-43cb-a961-633af4cac2a8 optin 200 {"on":true}
+  tier now free
+1 pro  uid 9c7360c0-affe-4540-b724-e721e4ba67c3 optin 200 {"on":true}
+  tier now pro
+2 premium  uid 992dd796-45d9-4a14-8ecd-c47010622cc6 optin 200 {"on":true}
+  tier now premium
+3 pro paused_until 2026-11-24T08:08:45.023Z uid 3062292d-742a-41fb-ac1b-d596076fc8b6 optin 200 {"on":true}
+  pause patch 204
+  tier now pro
+4 pro paused_until 2026-11-23T07:08:45.024Z uid c3a40cf3-6f56-4264-aece-35878ea4957f optin 200 {"on":true}
+  pause patch 204
+  tier now pro
+signed out, right secret: 200 {"ran":true,"users":5,"sent":0,"skipped_no_bets":0,"skipped_paused":1,"failed":0}
+signed out, wrong secret: 401 {"error":"unauthorized"}
+signed out, no secret: 401 {"error":"unauthorized"}

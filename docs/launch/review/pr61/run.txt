@@ -1,0 +1,11 @@
+390 /bets?m=7077574 open: {"drawer":true,"tour":false,"focusInDrawer":true,"active":"DIV:Market details","flag":"1","step":null}
+390 after Escape: {"drawer":false,"tour":true,"focusInDrawer":false,"active":"A:Miami (OH) to win the 1st quar","flag":"1","step":"1 of 5"}
+390 after Skip tour: {"drawer":false,"tour":false,"focusInDrawer":false,"active":"BODY:Skip to contentKismetBest bets","flag":null,"step":null}
+390 after reload: {"drawer":false,"tour":false,"focusInDrawer":false,"active":"BODY:Skip to contentKismetBest bets","flag":null,"step":null}
+390 /bets no drawer: {"tour":true,"step":"1 of 5","active":"Skip to contentKisme"}
+1440 /bets?m=7077574 open: {"drawer":true,"tour":false,"focusInDrawer":true,"active":"DIV:Market details","flag":"1","step":null}
+1440 after Escape: {"drawer":false,"tour":true,"focusInDrawer":false,"active":"A:Miami (OH) to win the 1st quar","flag":"1","step":"1 of 5"}
+1440 after Skip tour: {"drawer":false,"tour":false,"focusInDrawer":false,"active":"BODY:Skip to contentKismetBest bets","flag":null,"step":null}
+1440 after reload: {"drawer":false,"tour":false,"focusInDrawer":false,"active":"BODY:Skip to contentKismetBest bets","flag":null,"step":null}
+1440 /bets no drawer: {"tour":true,"step":"1 of 5","active":"Skip to contentKisme"}
+exit 0

@@ -1,0 +1,20 @@
+prod https://kismetodds.com 2026-11-23T06:32:30.156Z
+390 GET / -> 200
+390 signed-out / no-state: {"n":4,"above":[{"text":"Check your state","status":"no-state","btn":"Bet on Polymarket US","above":true},{"text":"Check your state","status":"no-state","btn":"Bet on Polymarket US","above":true},{"text":"Check your state","status":"no-state","btn":"Bet on Polymarket US","above":true},{"text":"Check your state","status":"no-state","btn":"Bet on Polymarket US","above":true}],"disc":true,"hs":false,"url":"/","status":"Kismet · Which Polymarket bets are worth it today?"}
+390 'Check your state' links visible: 4
+390 link box h=44
+390 after click url=https://kismetodds.com/
+390 state picker not visible after click
+1440 GET / -> 200
+1440 signed-out / no-state: {"n":4,"above":[{"text":"Check your state","status":"no-state","btn":"Bet on Polymarket US","above":true},{"text":"Check your state","status":"no-state","btn":"Bet on Polymarket US","above":true},{"text":"Check your state","status":"no-state","btn":"Bet on Polymarket US","above":true},{"text":"Check your state","status":"no-state","btn":"Bet on Polymarket US","above":true}],"disc":true,"hs":false,"url":"/","status":"Kismet · Which Polymarket bets are worth it today?"}
+1440 'Check your state' links visible: 4
+1440 link box h=44
+1440 after click url=https://kismetodds.com/
+1440 state picker not visible after click
+market id for CLS: 6970124
+/m/6970124 390 signed-out load0: status=200 {"cls":0,"s":[],"disc":true,"avail":0}
+/m/6970124 390 signed-out load1: status=200 {"cls":0,"s":[],"disc":true,"avail":0}
+/m/6970124 390 signed-out load2: status=200 {"cls":0,"s":[],"disc":true,"avail":0}
+/m/6970124 390 signed-out load3: status=200 {"cls":0,"s":[],"disc":true,"avail":0}
+/m/6970124 390 signed-out load4: status=200 {"cls":0,"s":[],"disc":true,"avail":0}
+/m/6970124 390 signed-out load5: status=200 {"cls":0,"s":[],"disc":true,"avail":0}

@@ -1,0 +1,15 @@
+Running 8 tests using 2 workers
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] responseMode: 'json' drops mid-call notifications. subscriptions/listen streams are always served over SSE regardless; other notifications emitted before a result are dropped.
+[WebServer] [abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+  ✓  2 [chromium] › e2e/launch-f09-availability.spec.ts:8:1 › no state chosen: 'Check your state' above each bet button, linking to Settings (1.9s)
+  ✓  1 [chromium] › e2e/launch-f08-risknote.spec.ts:6:3 › /bets: a risk note next to every bet button at 390 px, CLS < 0.1 (3.6s)
+  ✓  4 [chromium] › e2e/launch-f08-risknote.spec.ts:6:3 › /bets: a risk note next to every bet button at 1440 px, CLS < 0.1 (2.0s)
+  ✓  3 [chromium] › e2e/launch-f09-availability.spec.ts:19:1 › restricted state: the note says not available, above the button, at 390 px and 1440 px (5.4s)
+  ✓  6 [chromium] › e2e/launch-f09-availability.spec.ts:47:1 › an unknown state is refused and clearing works (1.3s)
+  ✓  5 [chromium] › e2e/launch-f09-markets-link.spec.ts:4:1 › /markets: a visible availability line above the list, and in each icon link's label (3.8s)
+  ✓  8 [chromium] › e2e/launch-f09-markets-link.spec.ts:24:1 › /markets with no state chosen says 'Check your state' (1.3s)
+  ✓  7 [chromium] › e2e/launch-f09-availability.spec.ts:55:1 › Polymarket US says available in a state its Trust page does not restrict (2.9s)
+
+  8 passed (2.8m)

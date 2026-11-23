@@ -1,0 +1,19 @@
+[ 1785.491847] Memory cgroup out of memory: Killed process 19250 (chrome) total-vm:1518317980kB, anon-rss:160244kB, file-rss:2268kB, shmem-rss:11564kB, UID:0 pgtables:1680kB oom_score_adj:300
+[ 6213.579787] idle-reclaim (85): drop_caches: 1
+[ 6338.619354] idle-reclaim (85): drop_caches: 1
+               total        used        free      shared  buff/cache   available
+Mem:              15           4           6           0           5          11
+cookie NV / -> / notes=["Check your state","Check your state","Check your state","Check your state"] select=-
+cookie NV /m/6674492 -> /m/6674492 notes=[] select=-
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+page.goto: Target page, context or browser has been closed
+    at /tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/probe/state3.mjs:10:70 {
+  log: []
+}
+
+Node.js v22.23.5
+
+[exited with code 1]

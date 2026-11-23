@@ -204,3 +204,86 @@ Evidence: review/f05-reviewer/ (e2e-paid.log 3/3, probe*.log, bets-signedin-raw.
 2. The "server redirect" is not an HTTP redirect when signed in: GET /bets gives 200 with NEXT_REDIRECT plus a meta refresh (249 KB, 0 cards). Then a second document loads /bets?fav=1&t=… (that one has the pill in its HTML). Seen on next dev with the mock; check on the preview.
 3. The spec's SHOTS is an absolute path into another agent's worktree (agent-afda8a27944e228d2), so it would write outside the repo in CI.
 OK: the pill clears, and stays cleared on a second device (topics_off). CLS /bets 0.054 at 390 and 0.020 at 1440. Disclaimer, no hscroll, typecheck, lint, unit tests pass. Same-for-all unit test is present (two anonymous callers only).
+
+## F8 #44 (head f1d4e3e): PASS with notes
+Evidence: review/f08/ (checks.log: typecheck, lint, unit 17/17; e2e-risknote 2/2; e2e-paid 2/2 = pause + 18+; probe.log, 390-account-pause-card.png). Pause-screen screenshots weren't taken: the dev server was OOM-killed (another agent's server shares the box).
+Paused: 423 on markets, markets/:id, flags, model/curve, events, suggest, kalshi, combos. 200 on me, data, alerts (the user's own rows) and trade/config. Migration guard trigger blocks a user JWT from writing paused_until. Help line source and date are in config/site.json.
+Notes: /markets has one note above the list, with the risk text in each icon link's aria-label (not visible beside each). EventView puts it inline after "Open on Polymarket". /api/trade/config answers while paused.
+
+## F3 #42 round 2 (head 2b6c784): PASS (production counts post-merge)
+Evidence: review/f03/round2/ (jokic.log, cls.log, probe.log, kalshi-off.log, round2-topic-mapping.txt [in f03/], vitest.log, e2e.log 27/27, screenshots). pytest 156 passed, lint, build. check:js / 142.5 kB; /markets 218.7 kB (already over on final at 217.4).
+All 5 findings fixed. CLS /markets 0.004 at 390 and 0.011 at 1440.
+Behaviour change: venue=kalshi with Kalshi off now returns 200 with the normal Polymarket list (no Kalshi data) instead of 404.
+
+- 2026-11-22 F9 #48 (8434b9e/09d9ca1): FAIL sent. 1) /markets polymarket.com icon links have no availability note; 2) Kalshi/PM US all unverified so buttons never say available. Evidence review/f09/.
+- 2026-11-22 F6 #46 (b9051cb..c68d2b7 / 5fb6c47): FAIL sent. 1) no How-to-bet on cards; 2) defaults to intl Polymarket with no availability (F9 dep); 3) step sources not shown; 4) duplicate afford note. Evidence review/f06/.
+
+## Respawn (Nov 22 ~23:30 UTC, after container restart)
+Queue (from main): F3 prod check (9ad7713) → F1 #43 8818178 → F2 #45 cfe2306 → F4 #52 da59363 → F14 #53 05e7f98 (stacked on F4) → F5 #47 2325297
+→ F15 #49 c8d68a1 + #50 850bdd3 → F13 #51 (when ready) → F8 prod check (651462b). Then F9/F6 re-reviews, walk-throughs.
+- F3 prod: Vercel prod READY on 9ad7713; Railway deploy on 9ad7713 23:35. /api/meta counts.kalshi = 2000 until kalshi_index.json was uploaded (23:37:47), then 172680.
+  counts.polymarket = 15686 (anon gets 15-min delayed scan). BUT scan at 23:36 = 14402 markets (< 15000); trend falling all day (18.4K 17:18 → 16.0K 17:33 → 15.6K 22:59 → 14.4K). Recheck next scan.
+  /api/markets 401 and /markets, /bets 307 → /signup when signed out: search + Kalshi topic tree on prod need a prod test account (not created). Evidence review/f03/postmerge/.
+- F1 round 2 (8818178): typecheck, lint OK; vitest 1488 pass / 1 fail (known apply() p95 load flake); check:js / 142.7 kB, /check 129.3 kB; e2e checker 9/9; paid limit 3/3 in one run.
+  Closed 6674492 real clock → 404 "We couldn't find an open market at that link"; price 0.005 → 400 price_range. Evidence review/f01/round2/.
+- F3 prod verdict sent: FAIL (polymarket 14402 < 15000, cause upstream of F3; kalshi 172680 OK; search/topic tree need a prod account).
+- F1 round 2 verdict: FAIL, 1 finding: CLS 0.371 (unknown link) and 0.298 (Free limit card) at 390 on /check?m=… (skeleton 1000 px collapses). Everything else fixed. review/f01/round2/evidence.md
+- F1 round 2 FAIL sent (CLS missing/limit at 390).
+- F2 round 2 (cfe2306): FAIL sent. 1) Free auto-scores at 2 legs, so a 3+ leg combo / drop-weakest always 429s for Free. Note: combo response carries per-leg full results (≤10 single checks per Free check). review/f02/round2/.
+- F4 #52 (da59363): FAIL sent. 1) delayed store merges newest venues.json (Free sees current prices; block ≠ card); 2) US row from venues.json contradicts the card in fixture (6674492, 7078474); 3) no basis. review/f04/.
+- F14 #53 (05e7f98): FAIL sent. 1) empty-state CLS 0.188/0.108; 2) history only for flag rows; notes: size extrapolated; Free gets the undelayed tail. review/f14/.
+
+- F5 #47 2325297 round2: FAIL. 1) the me_topics cookie stays stale across devices (filter persists after being cleared elsewhere); 2) low: the cookie survives sign-out and is not tied to a user. Done-when 1-3 met; paid spec 4/4; CLS < 0.06. Evidence: review/f05/round2/.
+- F15 #49 c8d68a1 + #50 850bdd3: PASS with notes (two MRR/churn blocks disagree; yearly MRR at the monthly price; ledger needs the migration and invoice.paid). Admin tests 2/2 and f15 1/1; #50 is a 2-line timeout change only. Evidence: review/f15/reviewer-evidence.md
+- F8 prod 651462b: PASS with notes. Footer help line, 18+ gate and home RiskNote 4/4 verified at 390 and 1440. Pause, /bets, /markets and /account are not verified (no prod account). Evidence: review/f08/postmerge/
+- F13 #51 cd2e444: FAIL. 1) /api/og/bet returns 401 signed out (not in PUBLIC_API) and /m/<id> og:image does not use it; low: pending invites never promoted, IP salt needed, share links lack the invite code; conflicts with final (account/page.tsx) and #49 (rls.test.ts). Evidence: review/f13-reviewer/
+- F8 final 651462b local mock: pause, age, RiskNote 10/10, /markets note and /account help line all OK. F13 addendum: OG chance 10% vs drawer 1-in-7/15%; a trial or paid-Premium user at the 5th invite is skipped permanently.
+
+## Respawn 2 (Nov 23 ~03:20 UTC, after second container restart)
+Queue: F9 #48 aaa9198 → F6 #46 3668ac3 → #54 1979f82 → F10 #56 3234b82 → F16 #57 e3287b0 → F12 #55 6210623 (moved; migration now 000400). All heads verified by fetch.
+- F9: polymarket.us/trust fetched (200): "Legal nationwide*" / "*Trading currently not available in Nevada." matches config (PM US 50 available, NV restricted). Kalshi 51 unverified (lead decision).
+- F9 #48 aaa9198: PASS with notes (event-page footer CLS 1/5 loads; /markets rows link intl only). review/f09/round2/
+- F6 3668ac3 partial: lint OK, typecheck OK after removing stale .next, vitest venues/check 73/73. Paused for F5 round 3 (front of queue).
+- F5 #47 9b07e14 round3: FAIL. 1) 15-min hint: return visit after 15 min opens / and /bets unfiltered (first load 200, pill 0); 2) PR's new sign-out test fails 2/2 (hint rewritten after signout). review/f05/round3/
+- 03:5x NOTE: my 'pkill -f "next build"' may have killed another lane's build (same uid). Only kill by my own port from now on.
+
+## 2026-11-23 F3 fix #59 4e52f3d (moved from bb4ce62): PASS with notes
+Evidence docs/launch/review/f03/fix59/. CI web/python/supply-chain success. Notes: prod index download size per 120 s; topic-browse strip below priced rows at 390; scheduler comment; behind final (merges clean). Queue after: F1 #43, F2 #45, F5 #47 ff7c5eb, F4 #52 17229de, F13 #51 f1b08ce, then F6, #54, F10, F16, F12, F11.
+- F1 #43 064f521 round 3: PASS with notes sent (CLS fixed; Kalshi own price unreachable until #52 + Use-it side bug). review/f01/round3/
+- F4 #52 17229de CI web red: overhaul-iphone smallTargets 'summary "Where these prices come from" 324x25' on /m/7077574 at 390 and 430.
+- F2 #45 ef73b2f round 3: PASS with notes sent. review/f02/round3/
+- F5 #47 ff7c5eb round 4: PASS with notes sent. review/f05/round4/
+- f01b c7e0a4b: PASS with notes sent (Kalshi still unreachable after #52: ticker not merged onto market). review/f01b/
+- F4 #52 42ee0ba round 2: verdict sent; f01b 3f4f74e + #52 duplicate type breaks tsc. review/f04/round2/
+- 2026-11-23 F14 #53 581a9de: PASS with notes (Free cut keeps post-scan bucket values; empty-state CLS 0.20/0.11 from skeleton node reuse). Evidence docs/launch/review/f14/.
+- 2026-11-23 #60 df67be8: PASS with notes (code read + local timing: refresh 0.2–0.8 ms vs 23–69 ms). Evidence docs/launch/review/f60/.
+- 2026-11-23 F13 #51 f1b08ce round2: FAIL (CI web red: t291 ECONNRESET after dev-server memory restart; passes locally; final green). Product checks pass; notes: public OG = model output for any id (owner decision), wording, shares any side, deferred grant only on sign-in. Evidence docs/launch/review/f13-reviewer/round2/.
+- 06:25Z queued #61 2da4dab (tour hidden behind drawer) after F6, F13 r3, F14 re-review; low priority
+- 06:26Z F6 #46 3668ac3 verdict PASS with notes sent; /event 390 CLS 0.436 (bare Suspense) filed as found-in-review
+- 06:31Z F13 r3 product checks pass, waiting on CI web; switching to F9 prod check (priority)
+- 06:32Z queued #62 6fc0eb3 (event skeleton) after #61. Order: F9 prod, F13 r3, F14 341f340, #61, #62
+- 06:33Z queued F6 delta 57ed4de after #59/F3 prod, before F13 r3
+- 06:38Z F9 prod verdict FAIL (Check your state -> signup wall signed out); /m CLS sources identified
+- 06:44Z F13 r3 4c3d82a verdict FAIL (CI web e2e-paid t291 ECONNRESET after memory restart, 2nd time); product PASS
+- 06:45Z F6 delta 57ed4de PASS with notes sent (CI web pending)
+- 06:47Z F14 paused (head moving: paper-trade slot); starting #61
+- 06:50Z F14 head now 59831df (trade slot); after #61
+- 06:53Z queued #63 315b0db (public /state). Order: F3 prod, #63, #61, F14 59831df, #62
+- 06:54Z #61 verdict FAIL (CI e2e-paid flake) product PASS
+- 07:2xZ #63 315b0db: FAIL sent (open redirect via %09/%0A/%0D in next; landing is force-static so the NV note never shows signed out). review/pr63/
+- 07:3xZ F3 prod 67cab85: PASS with notes sent (99.9% of keyset; search blocked on prod, 12/12 locally with real index; /markets CLS 0.068 on 2/9). review/f03/prod67cab85/
+- 07:3xZ f01b ae4e3eb delta: PASS with notes sent (TS2300 duplicate with #52 after auto-merge; no-op without #52). review/f01b/delta-ae4e3eb/
+Next: F14 59831df, #62 6fc0eb3.
+- 08:0xZ F14 #53 59831df: FAIL sent (slot never clears for non-allow-listed; 390 jump persists via AddToCombo 0.15-0.19; PR dirty, no CI; conflicts #62). review/f14/round4/
+Next: #62 70d8f6b (moved from 6fc0eb3).
+- #61 0107058 PASS sent; #62 70d8f6b PASS with notes sent. Next F13 #51 79639df.
+- F13 #51 79639df round4: FAIL sent (edge>0 used as 'flagged': 105 non-flags get numbers). CI web pending. review/f13-reviewer/round4/
+- #54 PASS w/ notes; F5 #47 unchanged; F10 #56 PASS w/ notes sent. Next F16 #57.
+- F16 #57 e3287b0: FAIL (daily cron vs within one scan; feed order unverified). review/f16/reviewer/
+- F12 #55 6210623: FAIL (digest cron blocked by middleware public paths; payout before fee). review/f12/reviewer/
+- F13 #51 163b468 r5: checks 1-4 pass at 390/1440 for all tiers; CI web pending at the time of review. review/f13-reviewer/round5/
+- F12 #55 6210623: FAIL sent.
+- F10 #56 62f1858 delta: code ok; dirty (rls.test conflict), no CI -> FAIL. review/f10/reviewer/delta-62f1858/
+- F16 #57 5ec0156 r2: code ok; same conflict, no CI -> FAIL. review/f16/reviewer/round2/
+- 08:07Z F11 #58 31bf544: FAIL (BetCard conflict with final; checker integration now possible; Pro 390 CLS 0.063 new). Evidence review/f11/reviewer/.
+- 08:16Z F12 #55 eabe0f5: PASS with notes (all 4 checks pass live on mock; CI green). Evidence review/f12/reviewer/round2/.

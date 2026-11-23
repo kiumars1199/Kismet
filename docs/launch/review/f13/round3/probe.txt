@@ -1,0 +1,59 @@
+signed-out GET /api/share/link -> 401
+
+[6674473] link=/m/6674473?ref=we3mdy2b&s=1&sig=gQIJ2xf0XD3uq1oq_6djEH image=/api/og/bet/6674473?s=1&sig=gQIJ2xf0XD3uq1oq_6djEH
+  og valid: 200 image/png 48857 bytes cache=public, max-age=300, s-maxage=300
+  og unsigned: 200 image/png 37821 bytes cache=public, max-age=300, s-maxage=300
+  og unsigned-side: 200 image/png 37821 bytes cache=public, max-age=300, s-maxage=300
+  og forged: 200 image/png 37821 bytes cache=public, max-age=300, s-maxage=300
+  og other-side: 200 image/png 37821 bytes cache=public, max-age=300, s-maxage=300
+  og old-side-param: 200 image/png 37821 bytes cache=public, max-age=300, s-maxage=300
+  /m valid (signed out): desc="Pays 1.26x · Bets like this won over 9 in 10 before. Market analytics, not financial advice." img=http://localhost:3291/api/og/bet/6674473?s=1&sig=gQIJ2xf0XD3uq1oq_6djEH tw=http://localhost:3291/api/og/bet/6674473?s=1&sig=gQIJ2xf0XD3uq1oq_6djEH
+  /m unsigned (signed out): desc="Kismet has a verdict on this market. Sign up free to see it. Market analytics, not financial advice." img=http://localhost:3291/api/og/bet/6674473 tw=http://localhost:3291/api/og/bet/6674473
+  /m forged (signed out): desc="Kismet has a verdict on this market. Sign up free to see it. Market analytics, not financial advice." img=http://localhost:3291/api/og/bet/6674473 tw=http://localhost:3291/api/og/bet/6674473
+  /m other-side (signed out): desc="Kismet has a verdict on this market. Sign up free to see it. Market analytics, not financial advice." img=http://localhost:3291/api/og/bet/6674473 tw=http://localhost:3291/api/og/bet/6674473
+  /m valid (signed in): desc="Pays 1.26x · Bets like this won over 9 in 10 before. Market analytics, not financial advice." img=http://localhost:3291/api/og/bet/6674473?s=1&sig=gQIJ2xf0XD3uq1oq_6djEH
+
+[6674485] link=/m/6674485?ref=we3mdy2b&s=0&sig=uy20L8XZkXvOSvXF0IleaQ image=/api/og/bet/6674485?s=0&sig=uy20L8XZkXvOSvXF0IleaQ
+  og valid: 200 image/png 49389 bytes cache=public, max-age=300, s-maxage=300
+  og unsigned: 200 image/png 39204 bytes cache=public, max-age=300, s-maxage=300
+  og unsigned-side: 200 image/png 39204 bytes cache=public, max-age=300, s-maxage=300
+  og forged: 200 image/png 39204 bytes cache=public, max-age=300, s-maxage=300
+  og other-side: 200 image/png 39204 bytes cache=public, max-age=300, s-maxage=300
+  og old-side-param: 200 image/png 39204 bytes cache=public, max-age=300, s-maxage=300
+  /m valid (signed out): desc="Pays 1.45x · Bets like this won about 8–9 in 10 before. Market analytics, not financial advice." img=http://localhost:3291/api/og/bet/6674485?s=0&sig=uy20L8XZkXvOSvXF0IleaQ tw=http://localhost:3291/api/og/bet/6674485?s=0&sig=uy20L8XZkXvOSvXF0IleaQ
+  /m unsigned (signed out): desc="Kismet has a verdict on this market. Sign up free to see it. Market analytics, not financial advice." img=http://localhost:3291/api/og/bet/6674485 tw=http://localhost:3291/api/og/bet/6674485
+  /m forged (signed out): desc="Kismet has a verdict on this market. Sign up free to see it. Market analytics, not financial advice." img=http://localhost:3291/api/og/bet/6674485 tw=http://localhost:3291/api/og/bet/6674485
+  /m other-side (signed out): desc="Kismet has a verdict on this market. Sign up free to see it. Market analytics, not financial advice." img=http://localhost:3291/api/og/bet/6674485 tw=http://localhost:3291/api/og/bet/6674485
+  /m valid (signed in): desc="Pays 1.45x · Bets like this won about 8–9 in 10 before. Market analytics, not financial advice." img=http://localhost:3291/api/og/bet/6674485?s=0&sig=uy20L8XZkXvOSvXF0IleaQ
+
+[6654461] link=/m/6654461?ref=we3mdy2b&s=0&sig=p3wqtR_H45SdGdL_4LoddC image=/api/og/bet/6654461?s=0&sig=p3wqtR_H45SdGdL_4LoddC
+  og valid: 200 image/png 49475 bytes cache=public, max-age=300, s-maxage=300
+  og unsigned: 200 image/png 39134 bytes cache=public, max-age=300, s-maxage=300
+  og unsigned-side: 200 image/png 39134 bytes cache=public, max-age=300, s-maxage=300
+  og forged: 200 image/png 39134 bytes cache=public, max-age=300, s-maxage=300
+  og other-side: 200 image/png 39134 bytes cache=public, max-age=300, s-maxage=300
+  og old-side-param: 200 image/png 39134 bytes cache=public, max-age=300, s-maxage=300
+  /m valid (signed out): desc="Pays 1.49x · Bets like this won about 7–8 in 10 before. Market analytics, not financial advice." img=http://localhost:3291/api/og/bet/6654461?s=0&sig=p3wqtR_H45SdGdL_4LoddC tw=http://localhost:3291/api/og/bet/6654461?s=0&sig=p3wqtR_H45SdGdL_4LoddC
+  /m unsigned (signed out): desc="Kismet has a verdict on this market. Sign up free to see it. Market analytics, not financial advice." img=http://localhost:3291/api/og/bet/6654461 tw=http://localhost:3291/api/og/bet/6654461
+  /m forged (signed out): desc="Kismet has a verdict on this market. Sign up free to see it. Market analytics, not financial advice." img=http://localhost:3291/api/og/bet/6654461 tw=http://localhost:3291/api/og/bet/6654461
+  /m other-side (signed out): desc="Kismet has a verdict on this market. Sign up free to see it. Market analytics, not financial advice." img=http://localhost:3291/api/og/bet/6654461 tw=http://localhost:3291/api/og/bet/6654461
+  /m valid (signed in): desc="Pays 1.49x · Bets like this won about 7–8 in 10 before. Market analytics, not financial advice." img=http://localhost:3291/api/og/bet/6654461?s=0&sig=p3wqtR_H45SdGdL_4LoddC
+
+[6654452] link=/m/6654452?ref=we3mdy2b&s=0&sig=kAnBOHMIPgKqZFVPiyATDs image=/api/og/bet/6654452?s=0&sig=kAnBOHMIPgKqZFVPiyATDs
+  og valid: 200 image/png 47330 bytes cache=public, max-age=300, s-maxage=300
+  og unsigned: 200 image/png 37135 bytes cache=public, max-age=300, s-maxage=300
+  og unsigned-side: 200 image/png 37135 bytes cache=public, max-age=300, s-maxage=300
+  og forged: 200 image/png 37135 bytes cache=public, max-age=300, s-maxage=300
+  og other-side: 200 image/png 37135 bytes cache=public, max-age=300, s-maxage=300
+  og old-side-param: 200 image/png 37135 bytes cache=public, max-age=300, s-maxage=300
+  /m valid (signed out): desc="Pays 1.12x · Bets like this won about 8–9 in 10 before. Market analytics, not financial advice." img=http://localhost:3291/api/og/bet/6654452?s=0&sig=kAnBOHMIPgKqZFVPiyATDs tw=http://localhost:3291/api/og/bet/6654452?s=0&sig=kAnBOHMIPgKqZFVPiyATDs
+  /m unsigned (signed out): desc="Kismet has a verdict on this market. Sign up free to see it. Market analytics, not financial advice." img=http://localhost:3291/api/og/bet/6654452 tw=http://localhost:3291/api/og/bet/6654452
+  /m forged (signed out): desc="Kismet has a verdict on this market. Sign up free to see it. Market analytics, not financial advice." img=http://localhost:3291/api/og/bet/6654452 tw=http://localhost:3291/api/og/bet/6654452
+  /m other-side (signed out): desc="Kismet has a verdict on this market. Sign up free to see it. Market analytics, not financial advice." img=http://localhost:3291/api/og/bet/6654452 tw=http://localhost:3291/api/og/bet/6654452
+  /m valid (signed in): desc="Pays 1.12x · Bets like this won about 8–9 in 10 before. Market analytics, not financial advice." img=http://localhost:3291/api/og/bet/6654452?s=0&sig=kAnBOHMIPgKqZFVPiyATDs
+sheet tier=free 390: img=/api/og/bet/6674473?s=1&sig=gQIJ2xf0XD3uq1oq_6djEH copied=http://localhost:3291/m/6674473?ref=we3mdy2b&s=1&sig=gQIJ2xf0XD3uq1oq_6djEH hscroll=false
+sheet tier=free 1440: img=/api/og/bet/6674473?s=1&sig=gQIJ2xf0XD3uq1oq_6djEH copied=http://localhost:3291/m/6674473?ref=we3mdy2b&s=1&sig=gQIJ2xf0XD3uq1oq_6djEH hscroll=false
+sheet tier=pro 390: img=/api/og/bet/6674473?s=1&sig=gQIJ2xf0XD3uq1oq_6djEH copied=http://localhost:3291/m/6674473?ref=we3mdy2b&s=1&sig=gQIJ2xf0XD3uq1oq_6djEH hscroll=false
+sheet tier=pro 1440: img=/api/og/bet/6674473?s=1&sig=gQIJ2xf0XD3uq1oq_6djEH copied=http://localhost:3291/m/6674473?ref=we3mdy2b&s=1&sig=gQIJ2xf0XD3uq1oq_6djEH hscroll=false
+sheet tier=premium 390: img=/api/og/bet/6674473?s=1&sig=gQIJ2xf0XD3uq1oq_6djEH copied=http://localhost:3291/m/6674473?ref=we3mdy2b&s=1&sig=gQIJ2xf0XD3uq1oq_6djEH hscroll=false
+sheet tier=premium 1440: img=/api/og/bet/6674473?s=1&sig=gQIJ2xf0XD3uq1oq_6djEH copied=http://localhost:3291/m/6674473?ref=we3mdy2b&s=1&sig=gQIJ2xf0XD3uq1oq_6djEH hscroll=false

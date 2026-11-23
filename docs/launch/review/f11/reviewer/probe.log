@@ -1,0 +1,35 @@
+signedout 390 load 0 {"cls":"0.000","sh":[],"log":0,"up":0,"cards":0,"hs":false}
+signedout 390 load 1 {"cls":"0.000","sh":[],"log":0,"up":0,"cards":0,"hs":false}
+signedout 1440 load 0 {"cls":"0.000","sh":[],"log":0,"up":0,"cards":0,"hs":false}
+signedout 1440 load 1 {"cls":"0.000","sh":[],"log":0,"up":0,"cards":0,"hs":false}
+free 390 load 0 {"cls":"0.064","sh":["6407ms 0.064 DIV.mx-auto flex w-full max-w-[140 y215.75->146"],"log":0,"up":10,"cards":10,"upText":"Track your bets with Pro","hs":false}
+free 390 load 1 {"cls":"0.064","sh":["2914ms 0.064 DIV.mx-auto flex w-full max-w-[140 y215.75->146"],"log":0,"up":10,"cards":10,"upText":"Track your bets with Pro","hs":false}
+free 390 disclaimer true
+free 1440 load 0 {"cls":"0.003","sh":["3889ms 0.001 DIV.h-11 w-full max-w-[340px] roun y9.5->9.5","4664ms 0.002 DETAILS.group relative z-10 rounded-xl y832.640625->884.640625, DETAILS.group relative z-10 rounded-xl y832.640625->884.640625, DETAILS.group relative z-10 rounded-xl y832.640625->884.640625, DETAILS.group relative z-10 rounded-xl y832.640625->884.640625"],"log":0,"up":10,"cards":10,"upText":"Track your bets with Pro","hs":false}
+free 1440 load 1 {"cls":"0.003","sh":["2455ms 0.001 DIV.h-11 w-full max-w-[340px] roun y9.5->9.5","3266ms 0.002 DETAILS.group relative z-10 rounded-xl y832.640625->884.640625, DETAILS.group relative z-10 rounded-xl y832.640625->884.640625, DETAILS.group relative z-10 rounded-xl y832.640625->884.640625, DETAILS.group relative z-10 rounded-xl y832.640625->884.640625"],"log":0,"up":10,"cards":10,"upText":"Track your bets with Pro","hs":false}
+free 1440 disclaimer true
+pro 390 load 0 {"cls":"0.063","sh":["6317ms 0.063 DIV.mx-auto flex w-full max-w-[140 y215.75->146"],"log":12,"up":0,"cards":12,"hs":false}
+pro 390 load 1 {"cls":"0.063","sh":["3032ms 0.063 DIV.mx-auto flex w-full max-w-[140 y215.75->146"],"log":12,"up":0,"cards":12,"hs":false}
+pro 390 label: I placed this: log $100 on Miami (OH) at 69% in My bets done: Logged $100 at 69%. See My bets Undo
+pro 390 journal rows: ["Sports 1 +$42.72","Cfb 1 +$42.72"]
+pro 390 server journal: [{"m":"7077574","s":0,"price":0.69,"shares":142.715,"fee":0.010695000000000001}]
+pro 390 disclaimer true
+pro 1440 load 0 {"cls":"0.003","sh":["3697ms 0.001 DIV.h-11 w-full max-w-[340px] roun y9.5->9.5","5365ms 0.002 DETAILS.group relative z-10 rounded-xl y832.640625->884.640625, DETAILS.group relative z-10 rounded-xl y832.640625->884.640625, DETAILS.group relative z-10 rounded-xl y832.640625->884.640625, DETAILS.group relative z-10 rounded-xl y832.640625->884.640625"],"log":12,"up":0,"cards":12,"hs":false}
+pro 1440 load 1 {"cls":"0.003","sh":["2750ms 0.001 DIV.h-11 w-full max-w-[340px] roun y9.5->9.5","3860ms 0.002 DETAILS.group relative z-10 rounded-xl y832.640625->884.640625, DETAILS.group relative z-10 rounded-xl y832.640625->884.640625, DETAILS.group relative z-10 rounded-xl y832.640625->884.640625, DETAILS.group relative z-10 rounded-xl y832.640625->884.640625"],"log":12,"up":0,"cards":12,"hs":false}
+pro 1440 label: I placed this: log $100 on Miami (OH) at 69% in My bets done: Logged $100 at 69%. See My bets Undo
+pro 1440 journal rows: ["Sports 1 +$42.72","Cfb 1 +$42.72"]
+pro 1440 server journal: [{"m":"7077574","s":0,"price":0.69,"shares":142.715,"fee":0.010695000000000001}]
+pro 1440 disclaimer true
+premium 390 load 0 {"cls":"0.063","sh":["3485ms 0.063 DIV.mx-auto flex w-full max-w-[140 y215.75->146"],"log":12,"up":0,"cards":12,"hs":false}
+premium 390 load 1 {"cls":"0.063","sh":["2916ms 0.063 DIV.mx-auto flex w-full max-w-[140 y215.75->146"],"log":12,"up":0,"cards":12,"hs":false}
+premium 390 label: I placed this: log $100 on Miami (OH) at 69% in My bets done: Logged $100 at 69%. See My bets Undo
+premium 390 journal rows: []
+premium 390 server journal: [{"m":"7077574","s":0,"price":0.69,"shares":142.715,"fee":0.010695000000000001}]
+premium 390 disclaimer true
+premium 1440 load 0 {"cls":"0.040","sh":["3438ms 0.001 DIV.h-11 w-full max-w-[340px] roun y9.5->9.5","3530ms 0.037 DIV.mx-auto flex w-full max-w-[140 y147->85, ARTICLE.relative flex w-full flex-1 fl y567.390625->505.390625, ARTICLE.relative flex w-full flex-1 fl y567.390625->505.390625","6381ms 0.002 DETAILS.group relative z-10 rounded-xl y832.640625->884.640625, DETAILS.group relative z-10 rounded-xl y832.640625->884.640625, DETAILS.group relative z-10 rounded-xl y832.640625->884.640625, DETAILS.group relative z-10 rounded-xl y832.640625->884.640625"],"log":12,"up":0,"cards":12,"hs":false}
+premium 1440 load 1 {"cls":"0.040","sh":["3080ms 0.001 DIV.h-11 w-full max-w-[340px] roun y9.5->9.5","3758ms 0.037 DIV.mx-auto flex w-full max-w-[140 y147->85, ARTICLE.relative flex w-full flex-1 fl y567.390625->505.390625, ARTICLE.relative flex w-full flex-1 fl y567.390625->505.390625","4185ms 0.002 DETAILS.group relative z-10 rounded-xl y832.640625->884.640625, DETAILS.group relative z-10 rounded-xl y832.640625->884.640625, DETAILS.group relative z-10 rounded-xl y832.640625->884.640625, DETAILS.group relative z-10 rounded-xl y832.640625->884.640625"],"log":12,"up":0,"cards":12,"hs":false}
+premium 1440 label: I placed this: log $100 on Miami (OH) at 69% in My bets done: Logged $100 at 69%. See My bets Undo
+premium 1440 journal rows: ["Sports 1 +$42.72","Cfb 1 +$42.72"]
+premium 1440 server journal: [{"m":"7077574","s":0,"price":0.69,"shares":142.715,"fee":0.010695000000000001}]
+premium 1440 disclaimer true
+probe=0

@@ -1,0 +1,31 @@
+   ▲ Next.js 15.5.29
+   - Local:        http://localhost:3291
+   - Network:      http://192.0.2.2:3291
+
+ ✓ Starting...
+ ○ Compiling /instrumentation ...
+ ✓ Compiled /instrumentation in 2.5s (1085 modules)
+ ✓ Ready in 4.7s
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 1767ms (611 modules)
+ ○ Compiling /e2e-mock/[...path] ...
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (114kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (268kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+ ✓ Compiled /state in 8.3s (3173 modules)
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/rest/v1/app_settings?select=key%2Cvalue 200 in 160ms
+ GET /state 200 in 7614ms
+ ○ Compiling /m/[id] ...
+ ✓ Compiled /m/[id] in 2.4s (3244 modules)
+ GET /m/6674492 200 in 4942ms
+ GET /m/6674492 200 in 501ms
+ ○ Compiling /api/tz ...
+ ✓ Compiled /api/trade/config in 4.6s (3275 modules)
+ POST /api/tz 204 in 4644ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /api/trade/config 200 in 4067ms
+ GET /icon.svg?97b018907b5f6904 200 in 4898ms
+ GET /api/me 200 in 4087ms
+ GET /api/meta 200 in 4774ms
+[?25h

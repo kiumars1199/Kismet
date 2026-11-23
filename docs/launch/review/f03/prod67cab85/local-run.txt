@@ -1,0 +1,30 @@
+build 0
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+meta counts {"markets":501,"flags":151,"events":307,"polymarket":143879,"polymarket_priced":501,"kalshi":28}
+200 FOUND 7270055 Ōita Trinita vs. Tokushima Vortis: 1st Half O/U 1.5
+200 FOUND 7242803 Set Handicap: Ryo Tabata (-1.5) vs Pedro Albuquerque Dietrich (+1.5)
+200 FOUND 3764399 Will Travis Etienne Jr. finish as a top-5 FLEX in the 2026-27 NFL seas
+200 FOUND 7252841 Spread: York City FC (-2.5)
+200 FOUND 7280636 Meleek Thomas: Points O/U 14.5
+200 FOUND 7097127 Will the price of Bitcoin be between $60,000 and $62,000 on November 2
+200 FOUND 7269451 Spread: Macclesfield FC (-3.5)
+200 FOUND 7257777 Spread: Perugia Calcio Spa (-5.5)
+200 FOUND 3914529 Will Lokomotiv Sofia keep the most clean sheets in the 2026-27 efbet L
+200 FOUND 4802476 Dorking Wanderers FC vs. Southall FC: Total Corners Odd or Even?
+200 FOUND 7194514 Will the highest temperature in Los Angeles be between 68-69°F on Nove
+200 FOUND 6961251 Spread: Boston United FC (-1.5)
+hits 12 / 12
+0 0.02 mainH 22232  
+1 0.019 mainH 22232  
+2 0.069 mainH 22232 ["923ms 0.000 freshness y68->68 h44->44","2114ms 0.068 DIV. y694->714 h150->130, P.rounded-input border border-warning/40 b y532->552 h82->82, DIV.-mx-4 flex items-center gap-2 overflow-x y468->488 h48->48, DIV.-mx-4 flex items-center gap-2 overflow-x y340->360 h48->48, DIV.-mx-4 flex items-center gap-2 overflow-x y404->424 h48->48"] 
+0 0.02 mainH 22232  
+1 0.068 mainH 22232 ["986ms 0.068 DIV. y694->714 h150->130, P.rounded-input border border-warning/40 b y532->552 h82->82, DIV.-mx-4 flex items-center gap-2 overflow-x y468->488 h48->48, DIV.-mx-4 flex items-center gap-2 overflow-x y340->360 h48->48, DIV.-mx-4 flex items-center gap-2 overflow-x y404->424 h48->48"] 
+2 0.02 mainH 22232  
+0 0.02 mainH 22232  
+1 0.02 mainH 22232  
+2 0.02 mainH 22232  
+[1]+  Done                    env DATA_DIR=$S/f3data HISTORY_LIVE=off DATA_SOURCE=local DATA_CLOCK=scan DEMO_MODE=true KALSHI_DATA_PERMISSION=true KALSHI_TRADING_ENV=demo pnpm exec next start -p 3290 > $D/server.log 2>&1
+
+[exited with code 1]

@@ -1,0 +1,20 @@
+
+Running 4 tests using 1 worker
+
+[1/4] [chromium] › rv/f14slot.spec.ts:20:74 › notlisted 390
+[chromium] › rv/f14slot.spec.ts:20:74 › notlisted 390
+notlisted 390 cfg.enabled=false slot_after_6s=1 trade_buttons=0 slot_box={"x":16,"y":382.5,"width":125,"height":46}
+
+[2/4] [chromium] › rv/f14slot.spec.ts:20:74 › notlisted 1440
+[chromium] › rv/f14slot.spec.ts:20:74 › notlisted 1440
+notlisted 1440 cfg.enabled=false slot_after_6s=1 trade_buttons=0 slot_box={"x":360,"y":281,"width":303,"height":46}
+
+[3/4] [chromium] › rv/f14slot.spec.ts:20:74 › allowed 390
+[chromium] › rv/f14slot.spec.ts:20:74 › allowed 390
+allowed 390 cfg.enabled=true slot_after_6s=0 trade_buttons=1 slot_box=null
+
+[4/4] [chromium] › rv/f14slot.spec.ts:20:74 › allowed 1440
+[chromium] › rv/f14slot.spec.ts:20:74 › allowed 1440
+allowed 1440 cfg.enabled=true slot_after_6s=0 trade_buttons=1 slot_box=null
+
+  4 passed (1.4m)

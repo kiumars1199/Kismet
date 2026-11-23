@@ -1,0 +1,1278 @@
+   ▲ Next.js 15.5.29
+   - Local:        http://localhost:3290
+   - Network:      http://192.0.2.2:3290
+
+ ✓ Starting...
+ ○ Compiling /instrumentation ...
+ ✓ Compiled /instrumentation in 4.2s (1085 modules)
+ ✓ Ready in 6.6s
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 662ms (611 modules)
+ ○ Compiling /login ...
+ ✓ Compiled /login in 8.2s (2947 modules)
+ ○ Compiling /e2e-mock/[...path] ...
+ ✓ Compiled /e2e-mock/[...path] in 3s (3177 modules)
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/rest/v1/app_settings?select=key%2Cvalue 200 in 3972ms
+ GET /login 200 in 12999ms
+ GET /e2e-mock/supabase/rest/v1/app_settings?select=value&key=eq.maintenance 200 in 70ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ ○ Compiling /signup ...
+ ✓ Compiled /signup in 754ms (3165 modules)
+ GET /signup?next=%2Fbets 200 in 1224ms
+ ○ Compiling /api/tz ...
+ ✓ Compiled /api/trade/config in 3.1s (3246 modules)
+ GET /icon.svg?97b018907b5f6904 200 in 3090ms
+ POST /api/tz 204 in 3058ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /api/trade/config 200 in 2526ms
+ GET /api/me 200 in 2541ms
+[abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+ GET /api/meta 200 in 3279ms
+ POST /e2e-mock/supabase/rest/v1/funnel_events 201 in 84ms
+ POST /api/funnel 200 in 3604ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /signup?next=%2Fbets 200 in 404ms
+ POST /e2e-mock/supabase/rest/v1/funnel_events 201 in 77ms
+ POST /api/funnel 200 in 158ms
+ GET /icon.svg?97b018907b5f6904 200 in 36ms
+ GET /api/meta 200 in 105ms
+ GET /api/me 200 in 65ms
+ GET /api/trade/config 200 in 85ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /signup?next=%2Fbets 200 in 149ms
+ POST /e2e-mock/supabase/rest/v1/funnel_events 201 in 93ms
+ POST /api/funnel 200 in 144ms
+ GET /icon.svg?97b018907b5f6904 200 in 25ms
+ GET /api/meta 200 in 40ms
+ POST /api/tz 204 in 84ms
+ GET /api/me 200 in 58ms
+ GET /api/trade/config 200 in 63ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /signup?next=%2Fbets 200 in 147ms
+ POST /e2e-mock/supabase/rest/v1/funnel_events 201 in 110ms
+ POST /api/funnel 200 in 186ms
+ GET /icon.svg?97b018907b5f6904 200 in 115ms
+ GET /api/meta 200 in 108ms
+ GET /api/me 200 in 100ms
+ GET /api/trade/config 200 in 124ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /login?next=/bets 200 in 137ms
+ GET /icon.svg?97b018907b5f6904 200 in 125ms
+ GET /api/meta 200 in 118ms
+ POST /api/tz 204 in 133ms
+ GET /api/trade/config 200 in 38ms
+ GET /api/me 200 in 52ms
+ ○ Compiling /api/auth/magic-link ...
+ ✓ Compiled /api/auth/magic-link in 2.1s (3250 modules)
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ POST /e2e-mock/supabase/auth/v1/otp?redirect_to=http%3A%2F%2Flocalhost%3A3290%2Fauth%2Fcallback%3Fnext%3D%252Fbets 200 in 126ms
+ POST /api/auth/magic-link 200 in 2402ms
+ GET /e2e-mock/supabase/_inbox?email=rv-f11-free-390-1795420837819%40example.com 200 in 45ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ ○ Compiling /auth/callback ...
+ ✓ Compiled /auth/callback in 1518ms (3254 modules)
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ POST /e2e-mock/supabase/auth/v1/token?grant_type=pkce 200 in 124ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=accepted_terms_at%2Conboarded_at&user_id=eq.064f33ba-5b7e-478a-a412-2ab77a14611c 200 in 142ms
+ PATCH /e2e-mock/supabase/rest/v1/profiles?user_id=eq.064f33ba-5b7e-478a-a412-2ab77a14611c 204 in 39ms
+ GET /login?next=%2Fbets 200 in 336ms
+ POST /e2e-mock/supabase/rest/v1/funnel_events?on_conflict=user_id%2Cevent&select=id 201 in 27ms
+ POST /e2e-mock/supabase/rest/v1/lifecycle_emails?on_conflict=user_id%2Ckind%2Cref&select=kind 201 in 52ms
+ GET /icon.svg?97b018907b5f6904 200 in 50ms
+ DELETE /e2e-mock/supabase/rest/v1/lifecycle_emails?user_id=eq.064f33ba-5b7e-478a-a412-2ab77a14611c&kind=eq.welcome&ref=eq. 204 in 43ms
+[lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+ GET /auth/callback?next=%2Fbets&code=0522b8e5-a095-41e5-acbc-60ea1c616e29 303 in 2221ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 28ms
+ GET /e2e-mock/supabase/rest/v1/app_settings?select=value&key=eq.maintenance 200 in 27ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ ○ Compiling /onboarding ...
+ ✓ Compiled /onboarding in 1578ms (3270 modules)
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 100ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.064f33ba-5b7e-478a-a412-2ab77a14611c 200 in 40ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.064f33ba-5b7e-478a-a412-2ab77a14611c 200 in 62ms
+ GET /onboarding?next=%2Fbets 200 in 2554ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /icon.svg?97b018907b5f6904 200 in 37ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 102ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 64ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.064f33ba-5b7e-478a-a412-2ab77a14611c 200 in 47ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.064f33ba-5b7e-478a-a412-2ab77a14611c 200 in 63ms
+ GET /api/meta 200 in 325ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 27ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 33ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.064f33ba-5b7e-478a-a412-2ab77a14611c 200 in 31ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.064f33ba-5b7e-478a-a412-2ab77a14611c 200 in 42ms
+ GET /api/me 200 in 162ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 59ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 98ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ ○ Compiling /api/data ...
+ ✓ Compiled /api/data in 1310ms (3274 modules)
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 1295ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 1428ms
+ GET /api/trade/config 200 in 1514ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 111ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 115ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 123ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=* 200 in 146ms
+ GET /e2e-mock/supabase/rest/v1/presets?select=*&order=created_at.asc 200 in 124ms
+ GET /e2e-mock/supabase/rest/v1/dashboards?select=*&order=created_at.asc 200 in 120ms
+ GET /e2e-mock/supabase/rest/v1/watchlist?select=*&order=created_at.asc 200 in 153ms
+ GET /e2e-mock/supabase/rest/v1/alert_rules?select=*&order=created_at.asc 200 in 144ms
+ GET /e2e-mock/supabase/rest/v1/alert_events?select=*&order=fired_at.asc 200 in 137ms
+ GET /e2e-mock/supabase/rest/v1/journal?select=*&order=placed_at.asc 200 in 131ms
+ GET /api/data 200 in 1950ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.064f33ba-5b7e-478a-a412-2ab77a14611c 200 in 92ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.064f33ba-5b7e-478a-a412-2ab77a14611c 200 in 96ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.064f33ba-5b7e-478a-a412-2ab77a14611c 200 in 80ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.064f33ba-5b7e-478a-a412-2ab77a14611c 200 in 76ms
+ GET /api/me 200 in 415ms
+ GET /api/meta 200 in 425ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 97ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 145ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ ○ Compiling /bets ...
+ ✓ Compiled /bets in 2.8s (3335 modules)
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 107ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 143ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.064f33ba-5b7e-478a-a412-2ab77a14611c 200 in 57ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.064f33ba-5b7e-478a-a412-2ab77a14611c 200 in 73ms
+ PATCH /api/data/profile 200 in 3900ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=onboarded_at%2Cfavorite_topics&user_id=eq.064f33ba-5b7e-478a-a412-2ab77a14611c 200 in 126ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 409ms
+ GET /bets 200 in 4361ms
+ PATCH /e2e-mock/supabase/rest/v1/profiles?user_id=eq.064f33ba-5b7e-478a-a412-2ab77a14611c&first_bets_at=is.null 204 in 64ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 46ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 124ms
+ GET /icon.svg?97b018907b5f6904 200 in 118ms
+ POST /e2e-mock/supabase/rest/v1/funnel_events?on_conflict=user_id%2Cevent&select=id 201 in 89ms
+ POST /api/funnel 200 in 399ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 87ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 67ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.064f33ba-5b7e-478a-a412-2ab77a14611c 200 in 56ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.064f33ba-5b7e-478a-a412-2ab77a14611c 200 in 82ms
+ GET /api/meta 200 in 346ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 101ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 100ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /api/trade/config 200 in 186ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 100ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 103ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 103ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.064f33ba-5b7e-478a-a412-2ab77a14611c 200 in 76ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ ○ Compiling /api/backtest ...
+ ✓ Compiled /api/backtest in 1518ms (3337 modules)
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.064f33ba-5b7e-478a-a412-2ab77a14611c 200 in 1780ms
+ GET /api/me 200 in 2162ms
+ GET /api/backtest 200 in 1873ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 104ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 28ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.064f33ba-5b7e-478a-a412-2ab77a14611c 200 in 59ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.064f33ba-5b7e-478a-a412-2ab77a14611c 200 in 59ms
+ GET /api/meta 200 in 2030ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 33ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=* 200 in 62ms
+ GET /e2e-mock/supabase/rest/v1/presets?select=*&order=created_at.asc 200 in 83ms
+ GET /e2e-mock/supabase/rest/v1/dashboards?select=*&order=created_at.asc 200 in 83ms
+ GET /e2e-mock/supabase/rest/v1/watchlist?select=*&order=created_at.asc 200 in 83ms
+ GET /e2e-mock/supabase/rest/v1/alert_rules?select=*&order=created_at.asc 200 in 72ms
+ GET /e2e-mock/supabase/rest/v1/alert_events?select=*&order=fired_at.asc 200 in 69ms
+ GET /e2e-mock/supabase/rest/v1/journal?select=*&order=placed_at.asc 200 in 68ms
+ GET /api/data 200 in 253ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 78ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 37ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 76ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.064f33ba-5b7e-478a-a412-2ab77a14611c 200 in 39ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.064f33ba-5b7e-478a-a412-2ab77a14611c 200 in 54ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=onboarded_at%2Cfavorite_topics&user_id=eq.064f33ba-5b7e-478a-a412-2ab77a14611c 200 in 125ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /bets 200 in 939ms
+ PATCH /e2e-mock/supabase/rest/v1/profiles?user_id=eq.064f33ba-5b7e-478a-a412-2ab77a14611c&first_bets_at=is.null 204 in 96ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 44ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 42ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ POST /e2e-mock/supabase/rest/v1/funnel_events?on_conflict=user_id%2Cevent&select=id 201 in 151ms
+ POST /api/funnel 200 in 257ms
+ GET /icon.svg?97b018907b5f6904 200 in 155ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 85ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 42ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 83ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 108ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.064f33ba-5b7e-478a-a412-2ab77a14611c 200 in 88ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.064f33ba-5b7e-478a-a412-2ab77a14611c 200 in 134ms
+ GET /api/meta 200 in 382ms
+ GET /api/trade/config 200 in 104ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 143ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.064f33ba-5b7e-478a-a412-2ab77a14611c 200 in 122ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.064f33ba-5b7e-478a-a412-2ab77a14611c 200 in 173ms
+ GET /api/me 200 in 469ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 91ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 91ms
+ GET /api/backtest 200 in 53ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 171ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 243ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.064f33ba-5b7e-478a-a412-2ab77a14611c 200 in 86ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.064f33ba-5b7e-478a-a412-2ab77a14611c 200 in 86ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /api/meta 200 in 474ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 184ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=* 200 in 133ms
+ GET /e2e-mock/supabase/rest/v1/presets?select=*&order=created_at.asc 200 in 183ms
+ GET /e2e-mock/supabase/rest/v1/dashboards?select=*&order=created_at.asc 200 in 183ms
+ GET /e2e-mock/supabase/rest/v1/watchlist?select=*&order=created_at.asc 200 in 183ms
+ GET /e2e-mock/supabase/rest/v1/alert_rules?select=*&order=created_at.asc 200 in 165ms
+ GET /e2e-mock/supabase/rest/v1/alert_events?select=*&order=fired_at.asc 200 in 165ms
+ GET /e2e-mock/supabase/rest/v1/journal?select=*&order=placed_at.asc 200 in 164ms
+ GET /api/data 200 in 572ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /login?next=/bets 200 in 112ms
+ GET /icon.svg?97b018907b5f6904 200 in 54ms
+ POST /api/tz 204 in 142ms
+ GET /e2e-mock/supabase/rest/v1/app_settings?select=key%2Cvalue 200 in 118ms
+ GET /api/meta 200 in 297ms
+ GET /api/me 200 in 24ms
+ GET /api/trade/config 200 in 31ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ POST /e2e-mock/supabase/auth/v1/otp?redirect_to=http%3A%2F%2Flocalhost%3A3290%2Fauth%2Fcallback%3Fnext%3D%252Fbets 200 in 92ms
+ POST /api/auth/magic-link 200 in 147ms
+ GET /e2e-mock/supabase/_inbox?email=rv-f11-free-1440-1795420869805%40example.com 200 in 40ms
+ POST /e2e-mock/supabase/auth/v1/token?grant_type=pkce 200 in 40ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=accepted_terms_at%2Conboarded_at&user_id=eq.93a9e141-6fe0-4281-8684-8d47bc637a9f 200 in 50ms
+ PATCH /e2e-mock/supabase/rest/v1/profiles?user_id=eq.93a9e141-6fe0-4281-8684-8d47bc637a9f 204 in 28ms
+ POST /e2e-mock/supabase/rest/v1/funnel_events?on_conflict=user_id%2Cevent&select=id 201 in 36ms
+ POST /e2e-mock/supabase/rest/v1/lifecycle_emails?on_conflict=user_id%2Ckind%2Cref&select=kind 201 in 22ms
+ DELETE /e2e-mock/supabase/rest/v1/lifecycle_emails?user_id=eq.93a9e141-6fe0-4281-8684-8d47bc637a9f&kind=eq.welcome&ref=eq. 204 in 33ms
+[lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+ GET /auth/callback?next=%2Fbets&code=6240ce1a-355f-4f24-ba9c-003c1e1c39e6 303 in 316ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 57ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 103ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.93a9e141-6fe0-4281-8684-8d47bc637a9f 200 in 66ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.93a9e141-6fe0-4281-8684-8d47bc637a9f 200 in 77ms
+ GET /onboarding?next=%2Fbets 200 in 536ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /icon.svg?97b018907b5f6904 200 in 28ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 113ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 93ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 64ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 98ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.93a9e141-6fe0-4281-8684-8d47bc637a9f 200 in 68ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.93a9e141-6fe0-4281-8684-8d47bc637a9f 200 in 67ms
+ GET /api/meta 200 in 441ms
+ GET /api/trade/config 200 in 97ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 44ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 71ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.93a9e141-6fe0-4281-8684-8d47bc637a9f 200 in 107ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.93a9e141-6fe0-4281-8684-8d47bc637a9f 200 in 106ms
+ GET /api/me 200 in 318ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 98ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.93a9e141-6fe0-4281-8684-8d47bc637a9f 200 in 52ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.93a9e141-6fe0-4281-8684-8d47bc637a9f 200 in 79ms
+ GET /api/meta 200 in 281ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 45ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 65ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 42ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 60ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=* 200 in 67ms
+ GET /e2e-mock/supabase/rest/v1/presets?select=*&order=created_at.asc 200 in 110ms
+ GET /e2e-mock/supabase/rest/v1/dashboards?select=*&order=created_at.asc 200 in 110ms
+ GET /e2e-mock/supabase/rest/v1/watchlist?select=*&order=created_at.asc 200 in 99ms
+ GET /e2e-mock/supabase/rest/v1/alert_rules?select=*&order=created_at.asc 200 in 92ms
+ GET /e2e-mock/supabase/rest/v1/alert_events?select=*&order=fired_at.asc 200 in 89ms
+ GET /e2e-mock/supabase/rest/v1/journal?select=*&order=placed_at.asc 200 in 107ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.93a9e141-6fe0-4281-8684-8d47bc637a9f 200 in 85ms
+ GET /api/data 200 in 266ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.93a9e141-6fe0-4281-8684-8d47bc637a9f 200 in 97ms
+ GET /api/me 200 in 271ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 27ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 43ms
+ GET /e2e-mock/supabase/rest/v1/app_settings?select=value&key=eq.maintenance 200 in 44ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 164ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 254ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 206ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.93a9e141-6fe0-4281-8684-8d47bc637a9f 200 in 96ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.93a9e141-6fe0-4281-8684-8d47bc637a9f 200 in 96ms
+ PATCH /api/data/profile 200 in 524ms
+ PATCH /e2e-mock/supabase/rest/v1/profiles?user_id=eq.93a9e141-6fe0-4281-8684-8d47bc637a9f&select=* 200 in 207ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=onboarded_at%2Cfavorite_topics&user_id=eq.93a9e141-6fe0-4281-8684-8d47bc637a9f 200 in 159ms
+ GET /bets 200 in 1066ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ PATCH /e2e-mock/supabase/rest/v1/profiles?user_id=eq.93a9e141-6fe0-4281-8684-8d47bc637a9f&first_bets_at=is.null 204 in 120ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 94ms
+ GET /icon.svg?97b018907b5f6904 200 in 214ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 174ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 138ms
+ POST /e2e-mock/supabase/rest/v1/funnel_events?on_conflict=user_id%2Cevent&select=id 201 in 133ms
+ POST /api/funnel 200 in 677ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 89ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.93a9e141-6fe0-4281-8684-8d47bc637a9f 200 in 64ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.93a9e141-6fe0-4281-8684-8d47bc637a9f 200 in 84ms
+ GET /api/meta 200 in 347ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 108ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 154ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 163ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 156ms
+ GET /api/trade/config 200 in 117ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /api/backtest 200 in 89ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 122ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 109ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.93a9e141-6fe0-4281-8684-8d47bc637a9f 200 in 65ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.93a9e141-6fe0-4281-8684-8d47bc637a9f 200 in 65ms
+ GET /api/me 200 in 361ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.93a9e141-6fe0-4281-8684-8d47bc637a9f 200 in 84ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.93a9e141-6fe0-4281-8684-8d47bc637a9f 200 in 126ms
+ GET /api/meta 200 in 421ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 26ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 40ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=* 200 in 63ms
+ GET /e2e-mock/supabase/rest/v1/presets?select=*&order=created_at.asc 200 in 89ms
+ GET /e2e-mock/supabase/rest/v1/dashboards?select=*&order=created_at.asc 200 in 89ms
+ GET /e2e-mock/supabase/rest/v1/watchlist?select=*&order=created_at.asc 200 in 75ms
+ GET /e2e-mock/supabase/rest/v1/alert_rules?select=*&order=created_at.asc 200 in 65ms
+ GET /e2e-mock/supabase/rest/v1/journal?select=*&order=placed_at.asc 200 in 57ms
+ GET /e2e-mock/supabase/rest/v1/alert_events?select=*&order=fired_at.asc 200 in 56ms
+ GET /api/data 200 in 259ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 100ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 48ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 113ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.93a9e141-6fe0-4281-8684-8d47bc637a9f 200 in 77ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.93a9e141-6fe0-4281-8684-8d47bc637a9f 200 in 96ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=onboarded_at%2Cfavorite_topics&user_id=eq.93a9e141-6fe0-4281-8684-8d47bc637a9f 200 in 37ms
+ GET /bets 200 in 867ms
+ PATCH /e2e-mock/supabase/rest/v1/profiles?user_id=eq.93a9e141-6fe0-4281-8684-8d47bc637a9f&first_bets_at=is.null 204 in 69ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 91ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 80ms
+ GET /icon.svg?97b018907b5f6904 200 in 42ms
+ POST /e2e-mock/supabase/rest/v1/funnel_events?on_conflict=user_id%2Cevent&select=id 201 in 51ms
+ POST /api/funnel 200 in 245ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 84ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 36ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.93a9e141-6fe0-4281-8684-8d47bc637a9f 200 in 55ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.93a9e141-6fe0-4281-8684-8d47bc637a9f 200 in 71ms
+ GET /api/meta 200 in 214ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 80ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 139ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /api/trade/config 200 in 94ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 123ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 123ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 215ms
+ GET /api/backtest 200 in 197ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.93a9e141-6fe0-4281-8684-8d47bc637a9f 200 in 92ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.93a9e141-6fe0-4281-8684-8d47bc637a9f 200 in 91ms
+ GET /api/me 200 in 484ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 52ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.93a9e141-6fe0-4281-8684-8d47bc637a9f 200 in 136ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.93a9e141-6fe0-4281-8684-8d47bc637a9f 200 in 160ms
+ GET /api/meta 200 in 557ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 30ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 46ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/rest/v1/profiles?select=* 200 in 171ms
+ GET /e2e-mock/supabase/rest/v1/presets?select=*&order=created_at.asc 200 in 201ms
+ GET /e2e-mock/supabase/rest/v1/dashboards?select=*&order=created_at.asc 200 in 186ms
+ GET /e2e-mock/supabase/rest/v1/alert_rules?select=*&order=created_at.asc 200 in 185ms
+ GET /e2e-mock/supabase/rest/v1/watchlist?select=*&order=created_at.asc 200 in 185ms
+ GET /e2e-mock/supabase/rest/v1/journal?select=*&order=placed_at.asc 200 in 185ms
+ GET /e2e-mock/supabase/rest/v1/alert_events?select=*&order=fired_at.asc 200 in 185ms
+ GET /api/data 200 in 514ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /login?next=/bets 200 in 159ms
+ GET /icon.svg?97b018907b5f6904 200 in 105ms
+ GET /api/meta 200 in 125ms
+ POST /api/tz 204 in 137ms
+ GET /api/me 200 in 71ms
+ GET /api/trade/config 200 in 85ms
+ POST /e2e-mock/supabase/auth/v1/otp?redirect_to=http%3A%2F%2Flocalhost%3A3290%2Fauth%2Fcallback%3Fnext%3D%252Fbets 200 in 110ms
+ POST /api/auth/magic-link 200 in 154ms
+ GET /e2e-mock/supabase/_inbox?email=rv-f11-pro-390-1795420890573%40example.com 200 in 28ms
+ POST /e2e-mock/supabase/auth/v1/token?grant_type=pkce 200 in 22ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=accepted_terms_at%2Conboarded_at&user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7 200 in 24ms
+ PATCH /e2e-mock/supabase/rest/v1/profiles?user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7 204 in 21ms
+ POST /e2e-mock/supabase/rest/v1/funnel_events?on_conflict=user_id%2Cevent&select=id 201 in 36ms
+ POST /e2e-mock/supabase/rest/v1/lifecycle_emails?on_conflict=user_id%2Ckind%2Cref&select=kind 201 in 27ms
+ DELETE /e2e-mock/supabase/rest/v1/lifecycle_emails?user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7&kind=eq.welcome&ref=eq. 204 in 27ms
+[lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+ GET /auth/callback?next=%2Fbets&code=37e70d5a-b86e-4405-9d1c-86a56f13c4c0 303 in 249ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 39ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 47ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7 200 in 35ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7 200 in 126ms
+ GET /onboarding?next=%2Fbets 200 in 504ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /icon.svg?97b018907b5f6904 200 in 26ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 246ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 103ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 149ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 177ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7 200 in 142ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7 200 in 183ms
+ GET /api/meta 200 in 566ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 94ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 98ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7 200 in 65ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7 200 in 88ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 70ms
+ GET /api/me 200 in 497ms
+ GET /api/trade/config 200 in 96ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 102ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7 200 in 74ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7 200 in 120ms
+ PATCH /e2e-mock/supabase/rest/v1/subscriptions?user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7 204 in 96ms
+ GET /api/me 200 in 416ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 134ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 67ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 95ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7 200 in 84ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7 200 in 84ms
+ GET /api/meta 200 in 364ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 40ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 94ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 94ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=* 200 in 94ms
+ GET /e2e-mock/supabase/rest/v1/presets?select=*&order=created_at.asc 200 in 150ms
+ GET /e2e-mock/supabase/rest/v1/dashboards?select=*&order=created_at.asc 200 in 129ms
+ GET /e2e-mock/supabase/rest/v1/watchlist?select=*&order=created_at.asc 200 in 105ms
+ GET /e2e-mock/supabase/rest/v1/alert_rules?select=*&order=created_at.asc 200 in 102ms
+ GET /e2e-mock/supabase/rest/v1/alert_events?select=*&order=fired_at.asc 200 in 128ms
+ GET /e2e-mock/supabase/rest/v1/journal?select=*&order=placed_at.asc 200 in 125ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7 200 in 108ms
+ GET /api/data 200 in 449ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7 200 in 126ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=onboarded_at%2Cfavorite_topics&user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7 200 in 152ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 271ms
+ ⨯ [Error: aborted]
+ GET /bets 200 in 1163ms
+ ○ Compiling /_error ...
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ PATCH /e2e-mock/supabase/rest/v1/profiles?user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7&first_bets_at=is.null 204 in 560ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 116ms
+ GET /icon.svg?97b018907b5f6904 200 in 149ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ ✓ Compiled /_error in 10.1s (4166 modules)
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 4921ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 4653ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 4590ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 4100ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 4071ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 4961ms
+ GET /e2e-mock/supabase/rest/v1/app_settings?select=value&key=eq.maintenance 200 in 292ms
+ GET /api/backtest 200 in 442ms
+ GET /api/trade/config 200 in 452ms
+ POST /e2e-mock/supabase/rest/v1/funnel_events?on_conflict=user_id%2Cevent&select=id 201 in 333ms
+ POST /api/funnel 200 in 7674ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 215ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 3063ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7 200 in 719ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7 200 in 822ms
+ GET /bets 200 in 4188ms
+ GET /api/me 200 in 4210ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 211ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7 200 in 337ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7 200 in 317ms
+ GET /api/meta 200 in 4390ms
+ PATCH /e2e-mock/supabase/rest/v1/profiles?user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7&first_bets_at=is.null 204 in 439ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 232ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 194ms
+ GET /bets 200 in 875ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 370ms
+ PATCH /e2e-mock/supabase/rest/v1/profiles?user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7&first_bets_at=is.null 204 in 265ms
+ GET /icon.svg?97b018907b5f6904 200 in 316ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 342ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=* 200 in 157ms
+ GET /e2e-mock/supabase/rest/v1/presets?select=*&order=created_at.asc 200 in 157ms
+ GET /e2e-mock/supabase/rest/v1/dashboards?select=*&order=created_at.asc 200 in 154ms
+ GET /e2e-mock/supabase/rest/v1/watchlist?select=*&order=created_at.asc 200 in 153ms
+ GET /e2e-mock/supabase/rest/v1/alert_rules?select=*&order=created_at.asc 200 in 143ms
+ GET /e2e-mock/supabase/rest/v1/alert_events?select=*&order=fired_at.asc 200 in 138ms
+ GET /e2e-mock/supabase/rest/v1/journal?select=*&order=placed_at.asc 200 in 137ms
+ GET /api/data 200 in 982ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7 200 in 83ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7 200 in 83ms
+ GET /api/meta 200 in 894ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 85ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 61ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 103ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7 200 in 36ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7 200 in 92ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/rest/v1/profiles?select=onboarded_at%2Cfavorite_topics&user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7 200 in 100ms
+ GET /bets 200 in 1270ms
+ PATCH /e2e-mock/supabase/rest/v1/profiles?user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7&first_bets_at=is.null 204 in 85ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 148ms
+ GET /icon.svg?97b018907b5f6904 200 in 153ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 82ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 95ms
+ POST /e2e-mock/supabase/rest/v1/funnel_events?on_conflict=user_id%2Cevent&select=id 201 in 205ms
+ POST /api/funnel 200 in 629ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 70ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 164ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7 200 in 121ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7 200 in 112ms
+ GET /api/meta 200 in 575ms
+ GET /api/backtest 200 in 81ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 75ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 75ms
+ GET /api/trade/config 200 in 178ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 128ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 30ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 49ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7 200 in 57ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7 200 in 81ms
+ GET /api/me 200 in 363ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7 200 in 73ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7 200 in 91ms
+ GET /api/meta 200 in 248ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 37ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 30ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/rest/v1/profiles?select=* 200 in 105ms
+ GET /e2e-mock/supabase/rest/v1/presets?select=*&order=created_at.asc 200 in 156ms
+ GET /e2e-mock/supabase/rest/v1/dashboards?select=*&order=created_at.asc 200 in 155ms
+ GET /e2e-mock/supabase/rest/v1/watchlist?select=*&order=created_at.asc 200 in 155ms
+ GET /e2e-mock/supabase/rest/v1/alert_rules?select=*&order=created_at.asc 200 in 145ms
+ GET /e2e-mock/supabase/rest/v1/alert_events?select=*&order=fired_at.asc 200 in 141ms
+ GET /e2e-mock/supabase/rest/v1/journal?select=*&order=placed_at.asc 200 in 139ms
+ GET /api/data 200 in 312ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 107ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 116ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 41ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7 200 in 93ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7 200 in 37ms
+ POST /e2e-mock/supabase/rest/v1/journal?select=* 201 in 50ms
+ POST /api/data/journal 200 in 506ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 40ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ ○ Compiling /journal ...
+ ✓ Compiled /journal in 11.8s (4212 modules)
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/rest/v1/app_settings?select=key%2Cvalue 200 in 215ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 53ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7 200 in 64ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7 200 in 81ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /journal 200 in 13138ms
+ GET /icon.svg?97b018907b5f6904 200 in 78ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 184ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 257ms
+ GET /e2e-mock/supabase/rest/v1/app_settings?select=value&key=eq.maintenance 200 in 176ms
+ GET /api/trade/config 200 in 255ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 40ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7 200 in 80ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7 200 in 128ms
+ GET /api/meta 200 in 522ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 43ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 58ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7 200 in 40ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.9899327a-a09e-45fa-9347-f2b8850817c7 200 in 135ms
+ GET /api/me 200 in 278ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 24ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 166ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=* 200 in 68ms
+ GET /e2e-mock/supabase/rest/v1/presets?select=*&order=created_at.asc 200 in 85ms
+ GET /e2e-mock/supabase/rest/v1/dashboards?select=*&order=created_at.asc 200 in 52ms
+ GET /e2e-mock/supabase/rest/v1/watchlist?select=*&order=created_at.asc 200 in 50ms
+ GET /e2e-mock/supabase/rest/v1/alert_rules?select=*&order=created_at.asc 200 in 80ms
+ GET /e2e-mock/supabase/rest/v1/alert_events?select=*&order=fired_at.asc 200 in 78ms
+ GET /e2e-mock/supabase/rest/v1/journal?select=*&order=placed_at.asc 200 in 74ms
+ GET /api/data 200 in 368ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 34ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ ○ Compiling /api/settle ...
+ ✓ Compiled /api/settle in 2.7s (4217 modules)
+ POST /api/settle 200 in 3673ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 139ms
+ ○ Compiling /api/data/[collection]/[id] ...
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ ✓ Compiled /api/data/[collection]/[id] in 1288ms (4219 modules)
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 125ms
+ PATCH /e2e-mock/supabase/rest/v1/journal?id=eq.f32d91ec-841e-4aa9-ac65-fb441739f93a&select=* 200 in 48ms
+ PATCH /api/data/journal/f32d91ec-841e-4aa9-ac65-fb441739f93a 200 in 2403ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 79ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 46ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=* 200 in 66ms
+ GET /e2e-mock/supabase/rest/v1/presets?select=*&order=created_at.asc 200 in 78ms
+ GET /e2e-mock/supabase/rest/v1/dashboards?select=*&order=created_at.asc 200 in 71ms
+ GET /e2e-mock/supabase/rest/v1/watchlist?select=*&order=created_at.asc 200 in 70ms
+ GET /e2e-mock/supabase/rest/v1/alert_rules?select=*&order=created_at.asc 200 in 87ms
+ GET /e2e-mock/supabase/rest/v1/alert_events?select=*&order=fired_at.asc 200 in 84ms
+ GET /e2e-mock/supabase/rest/v1/journal?select=*&order=placed_at.asc 200 in 80ms
+ GET /api/data 200 in 234ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /login?next=/bets 200 in 301ms
+ GET /icon.svg?97b018907b5f6904 200 in 42ms
+ GET /api/meta 200 in 188ms
+ POST /api/tz 204 in 117ms
+ GET /api/me 200 in 63ms
+ GET /api/trade/config 200 in 35ms
+ POST /e2e-mock/supabase/auth/v1/otp?redirect_to=http%3A%2F%2Flocalhost%3A3290%2Fauth%2Fcallback%3Fnext%3D%252Fbets 200 in 92ms
+ POST /api/auth/magic-link 200 in 146ms
+ GET /e2e-mock/supabase/_inbox?email=rv-f11-pro-1440-1795420950776%40example.com 200 in 63ms
+ POST /e2e-mock/supabase/auth/v1/token?grant_type=pkce 200 in 29ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=accepted_terms_at%2Conboarded_at&user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b 200 in 43ms
+ PATCH /e2e-mock/supabase/rest/v1/profiles?user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b 204 in 39ms
+ POST /e2e-mock/supabase/rest/v1/funnel_events?on_conflict=user_id%2Cevent&select=id 201 in 44ms
+ POST /e2e-mock/supabase/rest/v1/lifecycle_emails?on_conflict=user_id%2Ckind%2Cref&select=kind 201 in 31ms
+ DELETE /e2e-mock/supabase/rest/v1/lifecycle_emails?user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b&kind=eq.welcome&ref=eq. 204 in 40ms
+[lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+ GET /auth/callback?next=%2Fbets&code=2d96abd7-4388-4914-8b2d-1b7b7c346a74 303 in 391ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 19ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 29ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b 200 in 30ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b 200 in 81ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /onboarding?next=%2Fbets 200 in 450ms
+ GET /icon.svg?97b018907b5f6904 200 in 33ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 213ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 59ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b 200 in 55ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b 200 in 124ms
+ GET /api/meta 200 in 420ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 81ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 57ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 82ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 161ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /api/trade/config 200 in 159ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b 200 in 256ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b 200 in 237ms
+ GET /api/me 200 in 470ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 32ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 63ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 66ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b 200 in 174ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b 200 in 173ms
+ GET /api/meta 200 in 450ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 156ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 84ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b 200 in 77ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b 200 in 123ms
+ GET /api/me 200 in 428ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=* 200 in 67ms
+ GET /e2e-mock/supabase/rest/v1/presets?select=*&order=created_at.asc 200 in 65ms
+ GET /e2e-mock/supabase/rest/v1/dashboards?select=*&order=created_at.asc 200 in 92ms
+ GET /e2e-mock/supabase/rest/v1/watchlist?select=*&order=created_at.asc 200 in 89ms
+ GET /e2e-mock/supabase/rest/v1/alert_rules?select=*&order=created_at.asc 200 in 84ms
+ GET /e2e-mock/supabase/rest/v1/alert_events?select=*&order=fired_at.asc 200 in 80ms
+ GET /e2e-mock/supabase/rest/v1/journal?select=*&order=placed_at.asc 200 in 75ms
+ GET /api/data 200 in 441ms
+ PATCH /e2e-mock/supabase/rest/v1/subscriptions?user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b 204 in 76ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 53ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 139ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 184ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 108ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 240ms
+ PATCH /e2e-mock/supabase/rest/v1/profiles?user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b&select=* 200 in 308ms
+ PATCH /api/data/profile 200 in 1045ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b 200 in 300ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b 200 in 509ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=onboarded_at%2Cfavorite_topics&user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b 200 in 264ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 593ms
+ GET /bets 200 in 2434ms
+ PATCH /e2e-mock/supabase/rest/v1/profiles?user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b&first_bets_at=is.null 204 in 40ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 112ms
+ GET /icon.svg?97b018907b5f6904 200 in 210ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 251ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 281ms
+ POST /e2e-mock/supabase/rest/v1/funnel_events?on_conflict=user_id%2Cevent&select=id 201 in 184ms
+ POST /api/funnel 200 in 767ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 203ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 156ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 190ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b 200 in 157ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b 200 in 359ms
+ GET /api/meta 200 in 842ms
+ GET /api/backtest 200 in 450ms
+ GET /api/trade/config 200 in 370ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 76ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 86ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 77ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 70ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b 200 in 78ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b 200 in 78ms
+ GET /api/me 200 in 273ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b 200 in 47ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b 200 in 47ms
+ GET /api/meta 200 in 330ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 55ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 260ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=* 200 in 82ms
+ GET /e2e-mock/supabase/rest/v1/presets?select=*&order=created_at.asc 200 in 127ms
+ GET /e2e-mock/supabase/rest/v1/dashboards?select=*&order=created_at.asc 200 in 127ms
+ GET /e2e-mock/supabase/rest/v1/watchlist?select=*&order=created_at.asc 200 in 127ms
+ GET /e2e-mock/supabase/rest/v1/alert_rules?select=*&order=created_at.asc 200 in 95ms
+ GET /e2e-mock/supabase/rest/v1/alert_events?select=*&order=fired_at.asc 200 in 90ms
+ GET /e2e-mock/supabase/rest/v1/journal?select=*&order=placed_at.asc 200 in 88ms
+ GET /api/data 200 in 541ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 130ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 41ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 69ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b 200 in 93ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b 200 in 118ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/rest/v1/profiles?select=onboarded_at%2Cfavorite_topics&user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b 200 in 312ms
+ GET /bets 200 in 1002ms
+ PATCH /e2e-mock/supabase/rest/v1/profiles?user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b&first_bets_at=is.null 204 in 56ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 47ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 172ms
+ GET /icon.svg?97b018907b5f6904 200 in 251ms
+ POST /e2e-mock/supabase/rest/v1/funnel_events?on_conflict=user_id%2Cevent&select=id 201 in 281ms
+ POST /api/funnel 200 in 656ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 383ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 107ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 121ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 133ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /api/backtest 200 in 137ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b 200 in 189ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b 200 in 283ms
+ GET /api/meta 200 in 693ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 236ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 87ms
+ GET /api/trade/config 200 in 98ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 92ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b 200 in 58ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b 200 in 99ms
+ GET /api/me 200 in 527ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 28ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b 200 in 63ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b 200 in 80ms
+ GET /api/meta 200 in 241ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 20ms
+ GET /e2e-mock/supabase/rest/v1/app_settings?select=value&key=eq.maintenance 200 in 30ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 19ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=* 200 in 56ms
+ GET /e2e-mock/supabase/rest/v1/presets?select=*&order=created_at.asc 200 in 76ms
+ GET /e2e-mock/supabase/rest/v1/dashboards?select=*&order=created_at.asc 200 in 76ms
+ GET /e2e-mock/supabase/rest/v1/watchlist?select=*&order=created_at.asc 200 in 66ms
+ GET /e2e-mock/supabase/rest/v1/alert_rules?select=*&order=created_at.asc 200 in 62ms
+ GET /e2e-mock/supabase/rest/v1/alert_events?select=*&order=fired_at.asc 200 in 60ms
+ GET /e2e-mock/supabase/rest/v1/journal?select=*&order=placed_at.asc 200 in 77ms
+ GET /api/data 200 in 172ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 124ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 224ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 73ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b 200 in 28ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b 200 in 69ms
+ POST /e2e-mock/supabase/rest/v1/journal?select=* 201 in 19ms
+ POST /api/data/journal 200 in 889ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 113ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 21ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b 200 in 41ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b 200 in 56ms
+ GET /journal 200 in 498ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /icon.svg?97b018907b5f6904 200 in 38ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 167ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 122ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 84ms
+ GET /api/trade/config 200 in 79ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 85ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b 200 in 93ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b 200 in 82ms
+ GET /api/meta 200 in 409ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 72ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b 200 in 40ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.622a5c3b-9153-429c-9f9a-d67d58fb407b 200 in 52ms
+ GET /api/me 200 in 228ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 18ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 23ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=* 200 in 46ms
+ GET /e2e-mock/supabase/rest/v1/presets?select=*&order=created_at.asc 200 in 83ms
+ GET /e2e-mock/supabase/rest/v1/dashboards?select=*&order=created_at.asc 200 in 83ms
+ GET /e2e-mock/supabase/rest/v1/watchlist?select=*&order=created_at.asc 200 in 76ms
+ GET /e2e-mock/supabase/rest/v1/alert_rules?select=*&order=created_at.asc 200 in 73ms
+ GET /e2e-mock/supabase/rest/v1/alert_events?select=*&order=fired_at.asc 200 in 72ms
+ GET /e2e-mock/supabase/rest/v1/journal?select=*&order=placed_at.asc 200 in 86ms
+ GET /api/data 200 in 197ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 36ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ POST /api/settle 200 in 427ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 96ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 112ms
+ PATCH /e2e-mock/supabase/rest/v1/journal?id=eq.12144369-9a3d-434d-a9f9-27039af46fea&select=* 200 in 62ms
+ PATCH /api/data/journal/12144369-9a3d-434d-a9f9-27039af46fea 200 in 441ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 106ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 72ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=* 200 in 197ms
+ GET /e2e-mock/supabase/rest/v1/presets?select=*&order=created_at.asc 200 in 207ms
+ GET /e2e-mock/supabase/rest/v1/dashboards?select=*&order=created_at.asc 200 in 180ms
+ GET /e2e-mock/supabase/rest/v1/watchlist?select=*&order=created_at.asc 200 in 166ms
+ GET /e2e-mock/supabase/rest/v1/alert_rules?select=*&order=created_at.asc 200 in 157ms
+ GET /e2e-mock/supabase/rest/v1/alert_events?select=*&order=fired_at.asc 200 in 120ms
+ GET /e2e-mock/supabase/rest/v1/journal?select=*&order=placed_at.asc 200 in 102ms
+ GET /api/data 200 in 533ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /login?next=/bets 200 in 170ms
+ GET /icon.svg?97b018907b5f6904 200 in 100ms
+ GET /api/meta 200 in 109ms
+ POST /api/tz 204 in 147ms
+ GET /api/me 200 in 76ms
+ GET /api/trade/config 200 in 82ms
+ POST /e2e-mock/supabase/auth/v1/otp?redirect_to=http%3A%2F%2Flocalhost%3A3290%2Fauth%2Fcallback%3Fnext%3D%252Fbets 200 in 131ms
+ POST /api/auth/magic-link 200 in 217ms
+ GET /e2e-mock/supabase/_inbox?email=rv-f11-premium-390-1795420982048%40example.com 200 in 57ms
+ POST /e2e-mock/supabase/auth/v1/token?grant_type=pkce 200 in 103ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=accepted_terms_at%2Conboarded_at&user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f 200 in 81ms
+ PATCH /e2e-mock/supabase/rest/v1/profiles?user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f 204 in 243ms
+ POST /e2e-mock/supabase/rest/v1/funnel_events?on_conflict=user_id%2Cevent&select=id 201 in 31ms
+ POST /e2e-mock/supabase/rest/v1/lifecycle_emails?on_conflict=user_id%2Ckind%2Cref&select=kind 201 in 50ms
+ DELETE /e2e-mock/supabase/rest/v1/lifecycle_emails?user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f&kind=eq.welcome&ref=eq. 204 in 30ms
+[lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+ GET /auth/callback?next=%2Fbets&code=bb7ac11b-2ca5-4b65-ac5d-7217b2a1743b 303 in 646ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 47ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 122ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f 200 in 118ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f 200 in 145ms
+ GET /onboarding?next=%2Fbets 200 in 640ms
+ GET /icon.svg?97b018907b5f6904 200 in 94ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 211ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 196ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 44ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f 200 in 66ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f 200 in 110ms
+ GET /api/meta 200 in 468ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 49ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 58ms
+ GET /api/trade/config 200 in 60ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 65ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f 200 in 69ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f 200 in 69ms
+ GET /api/me 200 in 281ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 42ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 59ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 82ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f 200 in 131ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f 200 in 131ms
+ GET /api/meta 200 in 352ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 166ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f 200 in 146ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f 200 in 168ms
+ GET /api/me 200 in 481ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 175ms
+ PATCH /e2e-mock/supabase/rest/v1/subscriptions?user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f 204 in 76ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=* 200 in 75ms
+ GET /e2e-mock/supabase/rest/v1/presets?select=*&order=created_at.asc 200 in 132ms
+ GET /e2e-mock/supabase/rest/v1/dashboards?select=*&order=created_at.asc 200 in 132ms
+ GET /e2e-mock/supabase/rest/v1/watchlist?select=*&order=created_at.asc 200 in 122ms
+ GET /e2e-mock/supabase/rest/v1/alert_rules?select=*&order=created_at.asc 200 in 116ms
+ GET /e2e-mock/supabase/rest/v1/alert_events?select=*&order=fired_at.asc 200 in 113ms
+ GET /e2e-mock/supabase/rest/v1/journal?select=*&order=placed_at.asc 200 in 121ms
+ GET /api/data 200 in 525ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 40ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 128ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 67ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 110ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f 200 in 185ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f 200 in 185ms
+ PATCH /api/data/profile 200 in 484ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 237ms
+[Error: aborted] { code: 'ECONNRESET' }
+ GET /e2e-mock/supabase/rest/v1/profiles?select=onboarded_at%2Cfavorite_topics&user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f 200 in 205ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /bets 200 in 1430ms
+ PATCH /e2e-mock/supabase/rest/v1/profiles?user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f&first_bets_at=is.null 204 in 247ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 21ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 19ms
+ POST /e2e-mock/supabase/rest/v1/funnel_events?on_conflict=user_id%2Cevent&select=id 201 in 33ms
+ POST /api/funnel 200 in 103ms
+ GET /icon.svg?97b018907b5f6904 200 in 19ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 65ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 52ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f 200 in 59ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f 200 in 165ms
+ GET /api/meta 200 in 380ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 164ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 205ms
+ GET /api/trade/config 200 in 166ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 107ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 106ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 79ms
+ GET /api/backtest 200 in 103ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f 200 in 147ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f 200 in 234ms
+ GET /api/me 200 in 609ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 268ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f 200 in 91ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f 200 in 139ms
+ GET /api/meta 200 in 702ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 140ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 20ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=* 200 in 99ms
+ GET /e2e-mock/supabase/rest/v1/presets?select=*&order=created_at.asc 200 in 147ms
+ GET /e2e-mock/supabase/rest/v1/dashboards?select=*&order=created_at.asc 200 in 137ms
+ GET /e2e-mock/supabase/rest/v1/watchlist?select=*&order=created_at.asc 200 in 135ms
+ GET /e2e-mock/supabase/rest/v1/alert_rules?select=*&order=created_at.asc 200 in 132ms
+ GET /e2e-mock/supabase/rest/v1/alert_events?select=*&order=fired_at.asc 200 in 155ms
+ GET /e2e-mock/supabase/rest/v1/journal?select=*&order=placed_at.asc 200 in 157ms
+ GET /api/data 200 in 302ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 197ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 46ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 177ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f 200 in 34ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f 200 in 72ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=onboarded_at%2Cfavorite_topics&user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f 200 in 98ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /bets 200 in 1060ms
+ PATCH /e2e-mock/supabase/rest/v1/profiles?user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f&first_bets_at=is.null 204 in 160ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 48ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 21ms
+ POST /e2e-mock/supabase/rest/v1/funnel_events?on_conflict=user_id%2Cevent&select=id 201 in 42ms
+ POST /api/funnel 200 in 122ms
+ GET /icon.svg?97b018907b5f6904 200 in 52ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 141ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 29ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f 200 in 108ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f 200 in 123ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 52ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 75ms
+ GET /e2e-mock/supabase/rest/v1/app_settings?select=key%2Cvalue 200 in 75ms
+ GET /api/meta 200 in 377ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 118ms
+ GET /api/trade/config 200 in 132ms
+ GET /api/backtest 200 in 71ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 51ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 48ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f 200 in 81ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f 200 in 112ms
+ GET /api/me 200 in 328ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 120ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f 200 in 46ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f 200 in 92ms
+ GET /api/meta 200 in 352ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 71ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 26ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=* 200 in 77ms
+ GET /e2e-mock/supabase/rest/v1/presets?select=*&order=created_at.asc 200 in 119ms
+ GET /e2e-mock/supabase/rest/v1/dashboards?select=*&order=created_at.asc 200 in 118ms
+ GET /e2e-mock/supabase/rest/v1/watchlist?select=*&order=created_at.asc 200 in 98ms
+ GET /e2e-mock/supabase/rest/v1/alert_rules?select=*&order=created_at.asc 200 in 97ms
+ GET /e2e-mock/supabase/rest/v1/alert_events?select=*&order=fired_at.asc 200 in 97ms
+ GET /e2e-mock/supabase/rest/v1/journal?select=*&order=placed_at.asc 200 in 89ms
+ GET /api/data 200 in 266ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 108ms
+ GET /e2e-mock/supabase/rest/v1/app_settings?select=value&key=eq.maintenance 200 in 97ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 99ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 134ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f 200 in 102ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f 200 in 92ms
+ POST /e2e-mock/supabase/rest/v1/journal?select=* 201 in 69ms
+ POST /api/data/journal 200 in 698ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 77ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 50ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f 200 in 33ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f 200 in 62ms
+ GET /journal 200 in 465ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /icon.svg?97b018907b5f6904 200 in 40ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 371ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 598ms
+ GET /api/trade/config 200 in 242ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 153ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f 200 in 90ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f 200 in 132ms
+ GET /api/meta 200 in 807ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 79ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 72ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f 200 in 131ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.700b65e2-7373-4017-9278-4ad4fbb71d0f 200 in 149ms
+ GET /api/me 200 in 317ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 223ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 96ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 122ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=* 200 in 142ms
+ GET /e2e-mock/supabase/rest/v1/presets?select=*&order=created_at.asc 200 in 142ms
+ GET /e2e-mock/supabase/rest/v1/dashboards?select=*&order=created_at.asc 200 in 169ms
+ GET /e2e-mock/supabase/rest/v1/watchlist?select=*&order=created_at.asc 200 in 165ms
+ GET /e2e-mock/supabase/rest/v1/alert_rules?select=*&order=created_at.asc 200 in 160ms
+ GET /e2e-mock/supabase/rest/v1/alert_events?select=*&order=fired_at.asc 200 in 146ms
+ GET /e2e-mock/supabase/rest/v1/journal?select=*&order=placed_at.asc 200 in 137ms
+ GET /api/data 200 in 552ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 96ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=* 200 in 83ms
+ GET /e2e-mock/supabase/rest/v1/presets?select=*&order=created_at.asc 200 in 144ms
+ GET /e2e-mock/supabase/rest/v1/dashboards?select=*&order=created_at.asc 200 in 144ms
+ GET /e2e-mock/supabase/rest/v1/watchlist?select=*&order=created_at.asc 200 in 144ms
+ GET /e2e-mock/supabase/rest/v1/alert_rules?select=*&order=created_at.asc 200 in 145ms
+ GET /e2e-mock/supabase/rest/v1/alert_events?select=*&order=fired_at.asc 200 in 145ms
+ GET /e2e-mock/supabase/rest/v1/journal?select=*&order=placed_at.asc 200 in 144ms
+ GET /api/data 200 in 494ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 59ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ POST /api/settle 200 in 41ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 261ms
+[Error: aborted] { code: 'ECONNRESET' }
+ ⨯ uncaughtException: [Error: aborted] { code: 'ECONNRESET' }
+ ⨯ uncaughtException:  [Error: aborted] { code: 'ECONNRESET' }
+ GET /login?next=/bets 200 in 338ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /icon.svg?97b018907b5f6904 200 in 165ms
+ POST /api/tz 204 in 245ms
+ GET /e2e-mock/supabase/rest/v1/app_settings?select=value&key=eq.maintenance 200 in 395ms
+ GET /api/meta 200 in 99ms
+ GET /api/me 200 in 38ms
+ GET /api/trade/config 200 in 97ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ POST /e2e-mock/supabase/auth/v1/otp?redirect_to=http%3A%2F%2Flocalhost%3A3290%2Fauth%2Fcallback%3Fnext%3D%252Fbets 200 in 263ms
+ POST /api/auth/magic-link 200 in 489ms
+ GET /e2e-mock/supabase/_inbox?email=rv-f11-premium-1440-1795421032527%40example.com 200 in 70ms
+ POST /e2e-mock/supabase/auth/v1/token?grant_type=pkce 200 in 45ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=accepted_terms_at%2Conboarded_at&user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6 200 in 20ms
+ PATCH /e2e-mock/supabase/rest/v1/profiles?user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6 204 in 26ms
+ POST /e2e-mock/supabase/rest/v1/funnel_events?on_conflict=user_id%2Cevent&select=id 201 in 20ms
+ POST /e2e-mock/supabase/rest/v1/lifecycle_emails?on_conflict=user_id%2Ckind%2Cref&select=kind 201 in 24ms
+ DELETE /e2e-mock/supabase/rest/v1/lifecycle_emails?user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6&kind=eq.welcome&ref=eq. 204 in 26ms
+[lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+ GET /auth/callback?next=%2Fbets&code=743923a2-32ea-4902-92ff-f0ebcb83e549 303 in 364ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 51ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 146ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6 200 in 118ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6 200 in 156ms
+ GET /onboarding?next=%2Fbets 200 in 633ms
+ GET /icon.svg?97b018907b5f6904 200 in 25ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 139ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 141ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6 200 in 64ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6 200 in 110ms
+ GET /api/meta 200 in 362ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 69ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 59ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 58ms
+ GET /api/trade/config 200 in 118ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 111ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 140ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 111ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6 200 in 85ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6 200 in 85ms
+ GET /api/me 200 in 381ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 84ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6 200 in 83ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6 200 in 95ms
+ GET /api/me 200 in 459ms
+ PATCH /e2e-mock/supabase/rest/v1/subscriptions?user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6 204 in 105ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6 200 in 75ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6 200 in 275ms
+ GET /api/meta 200 in 554ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 50ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 85ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 186ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 80ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 135ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=* 200 in 118ms
+ GET /e2e-mock/supabase/rest/v1/presets?select=*&order=created_at.asc 200 in 118ms
+ GET /e2e-mock/supabase/rest/v1/dashboards?select=*&order=created_at.asc 200 in 118ms
+ GET /e2e-mock/supabase/rest/v1/watchlist?select=*&order=created_at.asc 200 in 109ms
+ GET /e2e-mock/supabase/rest/v1/alert_rules?select=*&order=created_at.asc 200 in 124ms
+ GET /e2e-mock/supabase/rest/v1/alert_events?select=*&order=fired_at.asc 200 in 120ms
+ GET /e2e-mock/supabase/rest/v1/journal?select=*&order=placed_at.asc 200 in 105ms
+ GET /api/data 200 in 470ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6 200 in 109ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6 200 in 117ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=onboarded_at%2Cfavorite_topics&user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6 200 in 39ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 293ms
+ ⨯ [Error: aborted]
+ GET /bets 200 in 1042ms
+ PATCH /e2e-mock/supabase/rest/v1/profiles?user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6&first_bets_at=is.null 204 in 257ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /icon.svg?97b018907b5f6904 200 in 396ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 428ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 489ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 384ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 400ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 146ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ POST /e2e-mock/supabase/rest/v1/funnel_events?on_conflict=user_id%2Cevent&select=id 201 in 387ms
+ POST /api/funnel 200 in 1442ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6 200 in 453ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6 200 in 483ms
+ GET /api/meta 200 in 1419ms
+ GET /api/backtest 200 in 508ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 550ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 327ms
+ GET /api/trade/config 200 in 133ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 204ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 353ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 70ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6 200 in 112ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6 200 in 112ms
+ GET /api/me 200 in 781ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6 200 in 185ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6 200 in 198ms
+ GET /api/meta 200 in 701ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 36ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 40ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=* 200 in 96ms
+ GET /e2e-mock/supabase/rest/v1/presets?select=*&order=created_at.asc 200 in 164ms
+ GET /e2e-mock/supabase/rest/v1/dashboards?select=*&order=created_at.asc 200 in 164ms
+ GET /e2e-mock/supabase/rest/v1/watchlist?select=*&order=created_at.asc 200 in 164ms
+ GET /e2e-mock/supabase/rest/v1/alert_rules?select=*&order=created_at.asc 200 in 155ms
+ GET /e2e-mock/supabase/rest/v1/alert_events?select=*&order=fired_at.asc 200 in 151ms
+ GET /e2e-mock/supabase/rest/v1/journal?select=*&order=placed_at.asc 200 in 149ms
+ GET /api/data 200 in 283ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 139ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 96ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 171ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6 200 in 84ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6 200 in 113ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/rest/v1/profiles?select=onboarded_at%2Cfavorite_topics&user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6 200 in 408ms
+ GET /bets 200 in 1452ms
+ PATCH /e2e-mock/supabase/rest/v1/profiles?user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6&first_bets_at=is.null 204 in 67ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 58ms
+ GET /icon.svg?97b018907b5f6904 200 in 137ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 103ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 252ms
+ POST /e2e-mock/supabase/rest/v1/funnel_events?on_conflict=user_id%2Cevent&select=id 201 in 374ms
+ POST /api/funnel 200 in 724ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 85ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 81ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6 200 in 50ms
+ GET /api/backtest 200 in 56ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6 200 in 74ms
+ GET /api/meta 200 in 363ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 20ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 29ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6 200 in 37ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6 200 in 49ms
+ GET /api/meta 200 in 113ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 41ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 148ms
+ GET /api/trade/config 200 in 200ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 37ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6 200 in 41ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6 200 in 52ms
+ GET /api/me 200 in 212ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 46ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 86ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=* 200 in 47ms
+ GET /e2e-mock/supabase/rest/v1/presets?select=*&order=created_at.asc 200 in 66ms
+ GET /e2e-mock/supabase/rest/v1/dashboards?select=*&order=created_at.asc 200 in 66ms
+ GET /e2e-mock/supabase/rest/v1/watchlist?select=*&order=created_at.asc 200 in 59ms
+ GET /e2e-mock/supabase/rest/v1/alert_rules?select=*&order=created_at.asc 200 in 56ms
+ GET /e2e-mock/supabase/rest/v1/alert_events?select=*&order=fired_at.asc 200 in 55ms
+ GET /e2e-mock/supabase/rest/v1/journal?select=*&order=placed_at.asc 200 in 77ms
+ GET /api/data 200 in 218ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 256ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 102ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 44ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6 200 in 64ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6 200 in 88ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ POST /e2e-mock/supabase/rest/v1/journal?select=* 201 in 230ms
+ POST /api/data/journal 200 in 1084ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 40ms
+ GET /e2e-mock/supabase/rest/v1/app_settings?select=key%2Cvalue 200 in 34ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 40ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6 200 in 124ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6 200 in 148ms
+ GET /journal 200 in 752ms
+ GET /icon.svg?97b018907b5f6904 200 in 40ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 83ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 23ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6 200 in 53ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6 200 in 64ms
+ GET /api/meta 200 in 194ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 50ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 115ms
+ GET /api/trade/config 200 in 139ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 29ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=paused_until&user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6 200 in 26ms
+ GET /e2e-mock/supabase/rest/v1/subscriptions?select=*&user_id=eq.5832b8a6-1d30-444b-ba77-3f9b113a7fb6 200 in 47ms
+ GET /api/me 200 in 123ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 18ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 17ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=* 200 in 48ms
+ GET /e2e-mock/supabase/rest/v1/presets?select=*&order=created_at.asc 200 in 76ms
+ GET /e2e-mock/supabase/rest/v1/dashboards?select=*&order=created_at.asc 200 in 59ms
+ GET /e2e-mock/supabase/rest/v1/watchlist?select=*&order=created_at.asc 200 in 57ms
+ GET /e2e-mock/supabase/rest/v1/alert_rules?select=*&order=created_at.asc 200 in 55ms
+ GET /e2e-mock/supabase/rest/v1/alert_events?select=*&order=fired_at.asc 200 in 69ms
+ GET /e2e-mock/supabase/rest/v1/journal?select=*&order=placed_at.asc 200 in 67ms
+ GET /api/data 200 in 155ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 29ms
+ POST /api/settle 200 in 19ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 30ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 30ms
+ PATCH /e2e-mock/supabase/rest/v1/journal?id=eq.36295adb-b898-44bd-9e63-514e54b5a968&select=* 200 in 23ms
+ PATCH /api/data/journal/36295adb-b898-44bd-9e63-514e54b5a968 200 in 258ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/auth/v1/user 200 in 195ms
+ GET /e2e-mock/supabase/rest/v1/app_settings?select=value&key=eq.maintenance 200 in 53ms
+ GET /e2e-mock/supabase/auth/v1/user 200 in 81ms
+ GET /e2e-mock/supabase/rest/v1/profiles?select=* 200 in 161ms
+ GET /e2e-mock/supabase/rest/v1/presets?select=*&order=created_at.asc 200 in 166ms
+ GET /e2e-mock/supabase/rest/v1/dashboards?select=*&order=created_at.asc 200 in 159ms
+ GET /e2e-mock/supabase/rest/v1/watchlist?select=*&order=created_at.asc 200 in 152ms
+ GET /e2e-mock/supabase/rest/v1/alert_rules?select=*&order=created_at.asc 200 in 135ms
+ GET /e2e-mock/supabase/rest/v1/alert_events?select=*&order=fired_at.asc 200 in 183ms
+ GET /e2e-mock/supabase/rest/v1/journal?select=*&order=placed_at.asc 200 in 179ms
+ GET /api/data 200 in 544ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[?25h

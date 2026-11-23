@@ -1,0 +1,23 @@
+signed-out /alerts -> /signup?next=%2Falerts
+free 390 tier(me)= "free" kinds: "New market in a view | Price drops to a target | Estimated return crosses a level | Market closing soon | Market settled" hscroll false
+free 390 disclaimer true
+free 1440 tier(me)= "free" kinds: "New market in a view | Price drops to a target | Estimated return crosses a level | Market closing soon | Market settled" hscroll false
+free 1440 disclaimer true
+pro 390 patch 200 [{"user_id":"dc0e11ea-a265-4152-b961-82b710828373","tier":"free","stripe_customer_id":null,"stripe_subscription_id":null
+pro 390 tier(me)= "pro" kinds: "New market in a view | Price drops to a target | Estimated return crosses a level | Market closing soon | Market settled" hscroll false
+pro 390 direct POST big_trade: 403 {"error":"Bad origin"}
+pro 390 disclaimer true
+pro 1440 patch 200 [{"user_id":"4d608480-5c18-4e1a-ac83-fd27c7ab663a","tier":"free","stripe_customer_id":null,"stripe_subscription_id":null
+pro 1440 tier(me)= "pro" kinds: "New market in a view | Price drops to a target | Estimated return crosses a level | Market closing soon | Market settled" hscroll false
+pro 1440 direct POST big_trade: 403 {"error":"Bad origin"}
+pro 1440 disclaimer true
+premium 390 patch 200 [{"user_id":"b3309375-b85a-46b7-91ca-97e65c82d85a","tier":"free","stripe_customer_id":null,"stripe_subscription_id":null
+premium 390 tier(me)= "premium" kinds: "New market in a view | Price drops to a target | Estimated return crosses a level | Market closing soon | Market settled | Big trade ($10,000+)" hscroll false
+premium 390 rules: [["big_trade",["email"],null]]
+premium 390 describe shown: true
+premium 390 disclaimer true
+premium 1440 patch 200 [{"user_id":"d677b0a6-96b7-4ee0-ae30-f27785ea66ce","tier":"free","stripe_customer_id":null,"stripe_subscription_id":null
+premium 1440 tier(me)= "premium" kinds: "New market in a view | Price drops to a target | Estimated return crosses a level | Market closing soon | Market settled | Big trade ($10,000+)" hscroll false
+premium 1440 rules: [["big_trade",["email"],null]]
+premium 1440 describe shown: true
+premium 1440 disclaimer true

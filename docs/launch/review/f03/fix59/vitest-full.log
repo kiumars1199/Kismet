@@ -1,0 +1,62 @@
+
+ RUN  v5.1.0 /home/user/MarketEdge/.claude/worktrees/agent-ac3ec7df000229278/apps/web
+
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+stdout | test/api.test.ts > apply() timing > p95 < 150 ms over 15k rows
+apply() over 15k rows: p50 51.9 ms, p95 156.2 ms
+
+stdout | test/api.test.ts > apply() timing > p95 < 150 ms over 15k rows
+apply() over 15k rows: p50 48.5 ms, p95 164.4 ms
+
+ ❯ test/api.test.ts (7 tests | 1 failed) 9854ms
+   ❯ apply() timing (1)
+     × p95 < 150 ms over 15k rows 9454ms (retry x1)
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+Not implemented: navigation to another Document
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/api.test.ts > apply() timing > p95 < 150 ms over 15k rows (initial run)
+AssertionError: expected 156.19607300000007 to be less than 150
+ ❯ test/api.test.ts:119:17
+    117|     const p95 = times[Math.floor(times.length * 0.95)];
+    118|     console.log(`apply() over 15k rows: p50 ${times[15].toFixed(1)} ms…
+    119|     expect(p95).toBeLessThan(150);
+       |                 ^
+    120|   });
+    121| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  test/api.test.ts > apply() timing > p95 < 150 ms over 15k rows (1st retry)
+AssertionError: expected 164.35461899999973 to be less than 150
+ ❯ test/api.test.ts:119:17
+    117|     const p95 = times[Math.floor(times.length * 0.95)];
+    118|     console.log(`apply() over 15k rows: p50 ${times[15].toFixed(1)} ms…
+    119|     expect(p95).toBeLessThan(150);
+       |                 ^
+    120|   });
+    121| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 120 passed (121)
+      Tests  1 failed | 1481 passed (1482)
+   Start at  03:57:08
+   Duration  64.34s (tests 61%, import 27%, environment 9%, transform 2%, worker 1%)
+
+     Import  379 modules were evaluated 814 times · 42.12s total, 27% of tracked time
+             ~4.43s faster with isolate: false — shared modules are evaluated once per worker instead of once per file
+             learn more: https://vitest.dev/guide/improving-performance#test-isolation
+
+      Tests  7 passed (7)

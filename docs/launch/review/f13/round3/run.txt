@@ -1,0 +1,299 @@
+
+Running 1 test using 1 worker
+
+[1/1] [chromium] › rv/f13r3.spec.ts:25:1 › F13 r3 signed share matrix
+[WebServer] <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (114kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+[WebServer] <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (268kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+
+[chromium] › rv/f13r3.spec.ts:25:1 › F13 r3 signed share matrix
+signed-out GET /api/share/link -> 401
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] [abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+
+[6674473] link=/m/6674473?ref=we3mdy2b&s=1&sig=gQIJ2xf0XD3uq1oq_6djEH image=/api/og/bet/6674473?s=1&sig=gQIJ2xf0XD3uq1oq_6djEH
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+  og valid: 200 image/png 48857 bytes cache=public, max-age=300, s-maxage=300
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+  og unsigned: 200 image/png 37821 bytes cache=public, max-age=300, s-maxage=300
+
+  og unsigned-side: 200 image/png 37821 bytes cache=public, max-age=300, s-maxage=300
+
+  og forged: 200 image/png 37821 bytes cache=public, max-age=300, s-maxage=300
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+  og other-side: 200 image/png 37821 bytes cache=public, max-age=300, s-maxage=300
+
+  og old-side-param: 200 image/png 37821 bytes cache=public, max-age=300, s-maxage=300
+
+  /m valid (signed out): desc="Pays 1.26x · Bets like this won over 9 in 10 before. Market analytics, not financial advice." img=http://localhost:3291/api/og/bet/6674473?s=1&sig=gQIJ2xf0XD3uq1oq_6djEH tw=http://localhost:3291/api/og/bet/6674473?s=1&sig=gQIJ2xf0XD3uq1oq_6djEH
+
+  /m unsigned (signed out): desc="Kismet has a verdict on this market. Sign up free to see it. Market analytics, not financial advice." img=http://localhost:3291/api/og/bet/6674473 tw=http://localhost:3291/api/og/bet/6674473
+
+  /m forged (signed out): desc="Kismet has a verdict on this market. Sign up free to see it. Market analytics, not financial advice." img=http://localhost:3291/api/og/bet/6674473 tw=http://localhost:3291/api/og/bet/6674473
+
+  /m other-side (signed out): desc="Kismet has a verdict on this market. Sign up free to see it. Market analytics, not financial advice." img=http://localhost:3291/api/og/bet/6674473 tw=http://localhost:3291/api/og/bet/6674473
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+  /m valid (signed in): desc="Pays 1.26x · Bets like this won over 9 in 10 before. Market analytics, not financial advice." img=http://localhost:3291/api/og/bet/6674473?s=1&sig=gQIJ2xf0XD3uq1oq_6djEH
+
+
+[6674485] link=/m/6674485?ref=we3mdy2b&s=0&sig=uy20L8XZkXvOSvXF0IleaQ image=/api/og/bet/6674485?s=0&sig=uy20L8XZkXvOSvXF0IleaQ
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+  og valid: 200 image/png 49389 bytes cache=public, max-age=300, s-maxage=300
+
+  og unsigned: 200 image/png 39204 bytes cache=public, max-age=300, s-maxage=300
+
+  og unsigned-side: 200 image/png 39204 bytes cache=public, max-age=300, s-maxage=300
+
+  og forged: 200 image/png 39204 bytes cache=public, max-age=300, s-maxage=300
+
+  og other-side: 200 image/png 39204 bytes cache=public, max-age=300, s-maxage=300
+
+  og old-side-param: 200 image/png 39204 bytes cache=public, max-age=300, s-maxage=300
+
+  /m valid (signed out): desc="Pays 1.45x · Bets like this won about 8–9 in 10 before. Market analytics, not financial advice." img=http://localhost:3291/api/og/bet/6674485?s=0&sig=uy20L8XZkXvOSvXF0IleaQ tw=http://localhost:3291/api/og/bet/6674485?s=0&sig=uy20L8XZkXvOSvXF0IleaQ
+
+  /m unsigned (signed out): desc="Kismet has a verdict on this market. Sign up free to see it. Market analytics, not financial advice." img=http://localhost:3291/api/og/bet/6674485 tw=http://localhost:3291/api/og/bet/6674485
+
+  /m forged (signed out): desc="Kismet has a verdict on this market. Sign up free to see it. Market analytics, not financial advice." img=http://localhost:3291/api/og/bet/6674485 tw=http://localhost:3291/api/og/bet/6674485
+
+  /m other-side (signed out): desc="Kismet has a verdict on this market. Sign up free to see it. Market analytics, not financial advice." img=http://localhost:3291/api/og/bet/6674485 tw=http://localhost:3291/api/og/bet/6674485
+
+  /m valid (signed in): desc="Pays 1.45x · Bets like this won about 8–9 in 10 before. Market analytics, not financial advice." img=http://localhost:3291/api/og/bet/6674485?s=0&sig=uy20L8XZkXvOSvXF0IleaQ
+
+
+[6654461] link=/m/6654461?ref=we3mdy2b&s=0&sig=p3wqtR_H45SdGdL_4LoddC image=/api/og/bet/6654461?s=0&sig=p3wqtR_H45SdGdL_4LoddC
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+  og valid: 200 image/png 49475 bytes cache=public, max-age=300, s-maxage=300
+
+  og unsigned: 200 image/png 39134 bytes cache=public, max-age=300, s-maxage=300
+
+  og unsigned-side: 200 image/png 39134 bytes cache=public, max-age=300, s-maxage=300
+
+  og forged: 200 image/png 39134 bytes cache=public, max-age=300, s-maxage=300
+
+  og other-side: 200 image/png 39134 bytes cache=public, max-age=300, s-maxage=300
+
+  og old-side-param: 200 image/png 39134 bytes cache=public, max-age=300, s-maxage=300
+
+  /m valid (signed out): desc="Pays 1.49x · Bets like this won about 7–8 in 10 before. Market analytics, not financial advice." img=http://localhost:3291/api/og/bet/6654461?s=0&sig=p3wqtR_H45SdGdL_4LoddC tw=http://localhost:3291/api/og/bet/6654461?s=0&sig=p3wqtR_H45SdGdL_4LoddC
+
+  /m unsigned (signed out): desc="Kismet has a verdict on this market. Sign up free to see it. Market analytics, not financial advice." img=http://localhost:3291/api/og/bet/6654461 tw=http://localhost:3291/api/og/bet/6654461
+
+  /m forged (signed out): desc="Kismet has a verdict on this market. Sign up free to see it. Market analytics, not financial advice." img=http://localhost:3291/api/og/bet/6654461 tw=http://localhost:3291/api/og/bet/6654461
+
+  /m other-side (signed out): desc="Kismet has a verdict on this market. Sign up free to see it. Market analytics, not financial advice." img=http://localhost:3291/api/og/bet/6654461 tw=http://localhost:3291/api/og/bet/6654461
+
+  /m valid (signed in): desc="Pays 1.49x · Bets like this won about 7–8 in 10 before. Market analytics, not financial advice." img=http://localhost:3291/api/og/bet/6654461?s=0&sig=p3wqtR_H45SdGdL_4LoddC
+
+
+[6654452] link=/m/6654452?ref=we3mdy2b&s=0&sig=kAnBOHMIPgKqZFVPiyATDs image=/api/og/bet/6654452?s=0&sig=kAnBOHMIPgKqZFVPiyATDs
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+  og valid: 200 image/png 47330 bytes cache=public, max-age=300, s-maxage=300
+
+  og unsigned: 200 image/png 37135 bytes cache=public, max-age=300, s-maxage=300
+
+  og unsigned-side: 200 image/png 37135 bytes cache=public, max-age=300, s-maxage=300
+
+  og forged: 200 image/png 37135 bytes cache=public, max-age=300, s-maxage=300
+
+  og other-side: 200 image/png 37135 bytes cache=public, max-age=300, s-maxage=300
+
+  og old-side-param: 200 image/png 37135 bytes cache=public, max-age=300, s-maxage=300
+
+  /m valid (signed out): desc="Pays 1.12x · Bets like this won about 8–9 in 10 before. Market analytics, not financial advice." img=http://localhost:3291/api/og/bet/6654452?s=0&sig=kAnBOHMIPgKqZFVPiyATDs tw=http://localhost:3291/api/og/bet/6654452?s=0&sig=kAnBOHMIPgKqZFVPiyATDs
+
+  /m unsigned (signed out): desc="Kismet has a verdict on this market. Sign up free to see it. Market analytics, not financial advice." img=http://localhost:3291/api/og/bet/6654452 tw=http://localhost:3291/api/og/bet/6654452
+
+  /m forged (signed out): desc="Kismet has a verdict on this market. Sign up free to see it. Market analytics, not financial advice." img=http://localhost:3291/api/og/bet/6654452 tw=http://localhost:3291/api/og/bet/6654452
+
+  /m other-side (signed out): desc="Kismet has a verdict on this market. Sign up free to see it. Market analytics, not financial advice." img=http://localhost:3291/api/og/bet/6654452 tw=http://localhost:3291/api/og/bet/6654452
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+  /m valid (signed in): desc="Pays 1.12x · Bets like this won about 8–9 in 10 before. Market analytics, not financial advice." img=http://localhost:3291/api/og/bet/6654452?s=0&sig=kAnBOHMIPgKqZFVPiyATDs
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+sheet tier=free 390: img=/api/og/bet/6674473?s=1&sig=gQIJ2xf0XD3uq1oq_6djEH copied=http://localhost:3291/m/6674473?ref=we3mdy2b&s=1&sig=gQIJ2xf0XD3uq1oq_6djEH hscroll=false
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+sheet tier=free 1440: img=/api/og/bet/6674473?s=1&sig=gQIJ2xf0XD3uq1oq_6djEH copied=http://localhost:3291/m/6674473?ref=we3mdy2b&s=1&sig=gQIJ2xf0XD3uq1oq_6djEH hscroll=false
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+sheet tier=pro 390: img=/api/og/bet/6674473?s=1&sig=gQIJ2xf0XD3uq1oq_6djEH copied=http://localhost:3291/m/6674473?ref=we3mdy2b&s=1&sig=gQIJ2xf0XD3uq1oq_6djEH hscroll=false
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+sheet tier=pro 1440: img=/api/og/bet/6674473?s=1&sig=gQIJ2xf0XD3uq1oq_6djEH copied=http://localhost:3291/m/6674473?ref=we3mdy2b&s=1&sig=gQIJ2xf0XD3uq1oq_6djEH hscroll=false
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+sheet tier=premium 390: img=/api/og/bet/6674473?s=1&sig=gQIJ2xf0XD3uq1oq_6djEH copied=http://localhost:3291/m/6674473?ref=we3mdy2b&s=1&sig=gQIJ2xf0XD3uq1oq_6djEH hscroll=false
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+sheet tier=premium 1440: img=/api/og/bet/6674473?s=1&sig=gQIJ2xf0XD3uq1oq_6djEH copied=http://localhost:3291/m/6674473?ref=we3mdy2b&s=1&sig=gQIJ2xf0XD3uq1oq_6djEH hscroll=false
+
+  1 passed (3.3m)

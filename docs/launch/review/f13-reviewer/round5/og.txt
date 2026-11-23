@@ -1,0 +1,7 @@
+FLAG 6674492 side=0 og=200 50144 nosig=43120B | <meta property="og:description" content="Pays 1.45x · Bets like this won about 9 in 10 before. Market analytics, not financial advice." | <meta property="og:image" content="https://kismetodds.com/api/og/bet/6674492?s=0&amp;sig=mfwZuaX1XqCUAZk6NZ8Hp8"
+FLAGOTHER 6674492 side=1 og=200 43120 nosig=43120B | <meta property="og:description" content="Bet Yes · pays 1.47x · +33% estimated return, based on past results. Market analytics, not financial advice." | <meta property="og:image" content="https://kismetodds.com/api/og/bet/6674492"
+POSNOTFLAG 6771258 side=1 og=200 42926 nosig=42926B | <meta property="og:description" content="Bet No · pays 1.09x · +5.4% estimated return, based on past results. Market analytics, not financial advice." | <meta property="og:image" content="https://kismetodds.com/api/og/bet/6771258"
+NEG 7101594 side=1 og=200 41513 nosig=41513B | <meta property="og:description" content="Bet No · pays 1.01x · −5.7% estimated return, based on past results. Market analytics, not financial advice." | <meta property="og:image" content="https://kismetodds.com/api/og/bet/7101594"
+link 6674492: {"error":"Accounts are off"}
+link 6771258: {"error":"Accounts are off"}
+link 7101594: {"error":"Accounts are off"}

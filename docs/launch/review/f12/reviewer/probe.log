@@ -1,0 +1,9 @@
+390 at /onboarding
+390 checkbox count 1 checked false
+390 after /onboarding optin {"on":true}
+1440 at /onboarding
+1440 checkbox count 1 checked false
+1440 after /onboarding optin {"on":false}
+probe=0
+digest run: {"error":"Sign in to use this.","signin":"/login"}
+digest run no secret: 401

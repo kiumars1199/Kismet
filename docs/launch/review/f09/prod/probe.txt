@@ -1,0 +1,16 @@
+prod https://kismetodds.com 2026-11-23T06:31:42.966Z
+390 GET / -> 200
+390 signed-out / no-state: {"n":4,"above":[{"text":"Check your state","status":"no-state","btn":"Bet on Polymarket US","above":true},{"text":"Check your state","status":"no-state","btn":"Bet on Polymarket US","above":true},{"text":"Check your state","status":"no-state","btn":"Bet on Polymarket US","above":true},{"text":"Check your state","status":"no-state","btn":"Bet on Polymarket US","above":true}],"disc":true,"hs":false,"url":"/","status":"Kismet · Which Polymarket bets are worth it today?"}
+390 GET /bets -> 200
+390 signed-out /bets no-state: {"n":0,"above":[],"disc":true,"hs":false,"url":"/signup?next=%2Fbets","status":"Sign up free · Kismet"}
+390 GET /markets -> 200
+390 signed-out /markets no-state: {"n":0,"above":[],"disc":true,"hs":false,"url":"/signup?next=%2Fmarkets","status":"Sign up free · Kismet"}
+390 'Check your state' links visible: 0
+1440 GET / -> 200
+1440 signed-out / no-state: {"n":4,"above":[{"text":"Check your state","status":"no-state","btn":"Bet on Polymarket US","above":true},{"text":"Check your state","status":"no-state","btn":"Bet on Polymarket US","above":true},{"text":"Check your state","status":"no-state","btn":"Bet on Polymarket US","above":true},{"text":"Check your state","status":"no-state","btn":"Bet on Polymarket US","above":true}],"disc":true,"hs":false,"url":"/","status":"Kismet · Which Polymarket bets are worth it today?"}
+1440 GET /bets -> 200
+1440 signed-out /bets no-state: {"n":0,"above":[],"disc":true,"hs":false,"url":"/signup?next=%2Fbets","status":"Sign up free · Kismet"}
+1440 GET /markets -> 200
+1440 signed-out /markets no-state: {"n":0,"above":[],"disc":true,"hs":false,"url":"/signup?next=%2Fmarkets","status":"Sign up free · Kismet"}
+1440 'Check your state' links visible: 0
+market id for CLS: null

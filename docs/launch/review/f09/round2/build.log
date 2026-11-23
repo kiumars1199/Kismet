@@ -1,0 +1,141 @@
+$ next build
+   ▲ Next.js 15.5.29
+
+   Creating an optimized production build ...
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (114kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (268kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+ ✓ Compiled successfully in 78s
+   Linting and checking validity of types ...
+   Collecting page data ...
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+responseMode: 'json' drops mid-call notifications. subscriptions/listen streams are always served over SSE regardless; other notifications emitted before a result are dropped.
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+   Generating static pages (0/29) ...
+   Generating static pages (7/29) 
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+   Generating static pages (14/29) 
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+   Generating static pages (21/29) 
+ ✓ Generating static pages (29/29)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                           Size  First Load JS  Revalidate  Expire
+┌ ○ /                                              1.44 kB         137 kB          5m      1y
+├ ƒ /_not-found                                      192 B         108 kB
+├ ƒ /.well-known/oauth-protected-resource            715 B         109 kB
+├ ƒ /.well-known/oauth-protected-resource/api/mcp    715 B         109 kB
+├ ƒ /[...missing]                                    192 B         108 kB
+├ ○ /about                                           225 B         138 kB          5m      1y
+├ ƒ /account                                       8.73 kB         117 kB
+├ ƒ /admin                                           174 B         118 kB
+├ ƒ /admin/audit                                   4.52 kB         113 kB
+├ ƒ /admin/funnel                                    715 B         109 kB
+├ ƒ /admin/grants                                    174 B         118 kB
+├ ƒ /admin/health                                  4.51 kB         113 kB
+├ ƒ /admin/settings                                  174 B         118 kB
+├ ƒ /admin/users                                   4.52 kB         113 kB
+├ ƒ /admin/users/[id]                                185 B         118 kB
+├ ƒ /alerts                                        17.8 kB         153 kB
+├ ƒ /api/account                                   2.22 kB         110 kB
+├ ƒ /api/account/export                              715 B         109 kB
+├ ƒ /api/account/pause                               715 B         109 kB
+├ ƒ /api/admin                                     2.22 kB         110 kB
+├ ƒ /api/admin/export                                715 B         109 kB
+├ ƒ /api/alerts/run                                2.22 kB         110 kB
+├ ƒ /api/auth/google                                 715 B         109 kB
+├ ƒ /api/auth/magic-link                             715 B         109 kB
+├ ƒ /api/auth/password                             2.22 kB         110 kB
+├ ƒ /api/auth/password/update                        715 B         109 kB
+├ ƒ /api/auth/reset                                  715 B         109 kB
+├ ƒ /api/auth/signout                                715 B         109 kB
+├ ƒ /api/backtest                                    715 B         109 kB
+├ ƒ /api/book                                        715 B         109 kB
+├ ƒ /api/combos                                      715 B         109 kB
+├ ƒ /api/combos/kalshi                               715 B         109 kB
+├ ƒ /api/data                                        715 B         109 kB
+├ ƒ /api/data/[collection]                           715 B         109 kB
+├ ƒ /api/data/[collection]/[id]                      715 B         109 kB
+├ ƒ /api/events/[id]                                 715 B         109 kB
+├ ƒ /api/events/by-slug/[slug]                       715 B         109 kB
+├ ƒ /api/ext/telemetry                               192 B         108 kB
+├ ƒ /api/ext/token                                   715 B         109 kB
+├ ƒ /api/ext/token/refresh                           715 B         109 kB
+├ ƒ /api/flags                                       715 B         109 kB
+├ ƒ /api/funnel                                      715 B         109 kB
+├ ƒ /api/health                                      715 B         109 kB
+├ ƒ /api/kalshi                                      715 B         109 kB
+├ ƒ /api/lifecycle/run                             2.22 kB         110 kB
+├ ƒ /api/markets                                     715 B         109 kB
+├ ƒ /api/markets/[id]                                715 B         109 kB
+├ ƒ /api/mcp                                         600 B         109 kB
+├ ƒ /api/me                                        2.22 kB         110 kB
+├ ƒ /api/meta                                        715 B         109 kB
+├ ƒ /api/model/curve                                 715 B         109 kB
+├ ƒ /api/oauth/decision                              715 B         109 kB
+├ ƒ /api/revalidate                                  715 B         109 kB
+├ ƒ /api/settle                                      715 B         109 kB
+├ ƒ /api/settle/run                                  715 B         109 kB
+├ ƒ /api/state                                       715 B         109 kB
+├ ƒ /api/stripe/checkout                           2.22 kB         110 kB
+├ ƒ /api/stripe/portal                             2.22 kB         110 kB
+├ ƒ /api/stripe/webhook                            2.22 kB         110 kB
+├ ƒ /api/suggest                                     715 B         109 kB
+├ ƒ /api/trade/config                                715 B         109 kB
+├ ƒ /api/trade/nonce                                 715 B         109 kB
+├ ƒ /api/trade/nonce/verify                          715 B         109 kB
+├ ƒ /api/tz                                          715 B         109 kB
+├ ƒ /api/unsubscribe                               1.88 kB         110 kB
+├ ○ /apple-icon.png                                    0 B            0 B
+├ ƒ /auth/callback                                 2.22 kB         110 kB
+├ ƒ /bets                                          9.54 kB         191 kB
+├ ƒ /combos                                        7.07 kB         145 kB
+├ ○ /contact                                         177 B         108 kB          5m      1y
+├ ƒ /dashboards                                      180 B         274 kB
+├ ƒ /dashboards/[id]                                 178 B         274 kB
+├ ○ /disclaimer                                      177 B         108 kB          5m      1y
+├ ƒ /e2e-mock/[...path]                              192 B         108 kB
+├ ƒ /event/[id]                                    5.08 kB         314 kB
+├ ƒ /ext/connect                                   5.93 kB         114 kB
+├ ○ /icon.svg                                          0 B            0 B
+├ ƒ /journal                                       8.98 kB         250 kB
+├ ƒ /kalshi                                        3.45 kB         112 kB
+├ ƒ /llms.txt                                        600 B         109 kB
+├ ƒ /login                                           123 B         115 kB
+├ ƒ /m/[id]                                        18.8 kB         175 kB
+├ ƒ /m/[id]/opengraph-image                          192 B         108 kB
+├ ƒ /m/[id]/twitter-image                            192 B         108 kB
+├ ƒ /maintenance                                     192 B         108 kB
+├ ƒ /markets                                       11.5 kB         214 kB
+├ ƒ /oauth/consent                                 4.51 kB         113 kB
+├ ƒ /onboarding                                    7.67 kB         149 kB
+├ ○ /opengraph-image                                 192 B         108 kB
+├ ○ /pricing                                         129 B         117 kB          5m      1y
+├ ○ /privacy                                         177 B         108 kB          5m      1y
+├ ○ /refunds                                         177 B         108 kB          5m      1y
+├ ƒ /reset-password                                5.26 kB         113 kB
+├ ○ /robots.txt                                      192 B         108 kB
+├ ƒ /settings                                      6.83 kB         121 kB
+├ ƒ /signed-in/about                                 225 B         138 kB
+├ ƒ /signed-in/pricing                               129 B         117 kB
+├ ƒ /signed-in/track-record                        2.37 kB         114 kB
+├ ƒ /signup                                          120 B         115 kB
+├ ○ /sitemap.xml                                     192 B         108 kB
+├ ƒ /status                                        4.64 kB         115 kB
+├ ○ /terms                                           177 B         108 kB          5m      1y
+├ ƒ /tools                                         9.53 kB         118 kB
+├ ○ /track-record                                  2.37 kB         114 kB          5m      1y
+├ ○ /twitter-image                                   192 B         108 kB
+└ ƒ /watchlist                                     9.48 kB         125 kB
++ First Load JS shared by all                       108 kB
+  ├ chunks/8701-95c158389b996b37.js                48.9 kB
+  ├ chunks/a9b5e390-e79471b6b30cbf24.js            54.2 kB
+  └ other shared chunks (total)                    5.07 kB
+
+
+ƒ Middleware                                        279 kB
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

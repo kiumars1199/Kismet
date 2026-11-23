@@ -1,0 +1,188 @@
+   ▲ Next.js 15.5.29
+   - Local:        http://localhost:3291
+   - Network:      http://192.0.2.2:3291
+
+ ✓ Starting...
+ ○ Compiling /instrumentation ...
+ ✓ Compiled /instrumentation in 6s (1085 modules)
+ ✓ Ready in 7.8s
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 1030ms (611 modules)
+ ○ Compiling /e2e-mock/[...path] ...
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (114kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (268kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+ ✓ Compiled /state in 18s (3206 modules)
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /e2e-mock/supabase/rest/v1/app_settings?select=key%2Cvalue 200 in 114ms
+ GET /state 200 in 17145ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ ○ Compiling / ...
+ ✓ Compiled / in 4.4s (3276 modules)
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET / 200 in 5349ms
+ GET /state 200 in 219ms
+ GET /state?next=%2F 200 in 175ms
+ GET /state 200 in 107ms
+ GET / 200 in 353ms
+ ○ Compiling /icon.svg ...
+ ✓ Compiled /api/trade/config in 2.8s (3284 modules)
+ GET /icon.svg?97b018907b5f6904 200 in 2718ms
+ POST /api/tz 204 in 2533ms
+ GET /api/trade/config 200 in 1664ms
+[abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+ GET /api/backtest 200 in 2690ms
+ GET /api/meta 200 in 2726ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ POST /e2e-mock/supabase/rest/v1/funnel_events 201 in 124ms
+ POST /api/funnel 200 in 3365ms
+ ○ Compiling /api/me ...
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ ✓ Compiled /api/me in 1271ms (3289 modules)
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /api/me 200 in 1444ms
+ GET /e2e-mock/supabase/rest/v1/app_settings?select=value&key=eq.maintenance 200 in 1416ms
+ GET /state?next=%2F 200 in 215ms
+ GET /icon.svg?97b018907b5f6904 200 in 38ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ ○ Compiling /api/state ...
+ ✓ Compiled /api/state in 665ms (3291 modules)
+ POST /api/state 204 in 762ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET / 200 in 453ms
+ POST /e2e-mock/supabase/rest/v1/funnel_events 201 in 94ms
+ POST /api/funnel 200 in 161ms
+ GET /icon.svg?97b018907b5f6904 200 in 36ms
+ GET /api/backtest 200 in 137ms
+ POST /api/tz 204 in 195ms
+ GET /api/meta 200 in 222ms
+ GET /api/me 200 in 57ms
+ GET /api/trade/config 200 in 69ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET / 200 in 166ms
+ POST /e2e-mock/supabase/rest/v1/funnel_events 201 in 59ms
+ POST /api/funnel 200 in 86ms
+ GET /icon.svg?97b018907b5f6904 200 in 22ms
+ GET /api/meta 200 in 21ms
+ POST /api/tz 204 in 117ms
+ GET /api/backtest 200 in 90ms
+ GET /api/me 200 in 51ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /api/trade/config 200 in 56ms
+ GET /state?next=%2F 200 in 46ms
+ GET /icon.svg?97b018907b5f6904 200 in 19ms
+ POST /api/state 204 in 32ms
+ GET / 200 in 156ms
+ POST /e2e-mock/supabase/rest/v1/funnel_events 201 in 278ms
+ POST /api/funnel 200 in 303ms
+ GET /icon.svg?97b018907b5f6904 200 in 215ms
+ GET /api/meta 200 in 102ms
+ GET /api/backtest 200 in 118ms
+ POST /api/tz 204 in 123ms
+ GET /api/me 200 in 50ms
+ GET /api/trade/config 200 in 53ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /state?next=%2F%2Fevil.example 200 in 196ms
+ GET /icon.svg?97b018907b5f6904 200 in 36ms
+ GET /api/meta 200 in 151ms
+ POST /api/tz 204 in 175ms
+ GET /api/me 200 in 42ms
+ GET /api/trade/config 200 in 21ms
+ POST /api/state 204 in 21ms
+ GET /state?next=%2F%2Fevil.example 200 in 71ms
+ GET /icon.svg?97b018907b5f6904 200 in 38ms
+ GET /state?next=%2F%5Cevil.example 200 in 144ms
+ GET /icon.svg?97b018907b5f6904 200 in 20ms
+ GET /api/meta 200 in 69ms
+ POST /api/tz 204 in 66ms
+ GET /api/trade/config 200 in 36ms
+ GET /api/me 200 in 32ms
+ POST /api/state 204 in 32ms
+ GET /state?next=%2F%5Cevil.example 200 in 68ms
+ GET /icon.svg?97b018907b5f6904 200 in 26ms
+ GET /e2e-mock/supabase/rest/v1/app_settings?select=value&key=eq.maintenance 200 in 67ms
+ GET /state?next=https%3A%2F%2Fevil.example 200 in 170ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /icon.svg?97b018907b5f6904 200 in 39ms
+ GET /api/meta 200 in 94ms
+ POST /api/tz 204 in 67ms
+ GET /api/me 200 in 52ms
+ GET /api/trade/config 200 in 58ms
+ POST /api/state 204 in 19ms
+ GET /state?next=https%3A%2F%2Fevil.example 200 in 45ms
+ GET /icon.svg?97b018907b5f6904 200 in 42ms
+ GET /state?next=%2F%09/evil.example 200 in 184ms
+ GET /icon.svg?97b018907b5f6904 200 in 33ms
+ GET /api/meta 200 in 75ms
+ POST /api/tz 204 in 80ms
+ GET /api/trade/config 200 in 47ms
+ GET /api/me 200 in 34ms
+ POST /api/state 204 in 27ms
+ GET /state?next=%2F%0a/evil.example 200 in 117ms
+ GET /icon.svg?97b018907b5f6904 200 in 18ms
+ GET /api/meta 200 in 41ms
+ POST /api/tz 204 in 56ms
+ GET /api/me 200 in 39ms
+ GET /api/trade/config 200 in 40ms
+ POST /api/state 204 in 19ms
+ GET /e2e-mock/supabase/rest/v1/app_settings?select=key%2Cvalue 200 in 71ms
+ GET /state?next=%2F%0d/evil.example 200 in 275ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /icon.svg?97b018907b5f6904 200 in 399ms
+ GET /api/meta 200 in 80ms
+ POST /api/tz 204 in 109ms
+ GET /api/me 200 in 39ms
+ GET /api/trade/config 200 in 48ms
+ POST /api/state 204 in 20ms
+ GET /state?next=%2F%2Fevil.example 200 in 155ms
+ GET /icon.svg?97b018907b5f6904 200 in 36ms
+ GET /api/meta 200 in 75ms
+ POST /api/tz 204 in 96ms
+ GET /api/me 200 in 52ms
+ GET /api/trade/config 200 in 59ms
+ POST /api/state 204 in 18ms
+ GET /state?next=%2F%2Fevil.example 200 in 52ms
+ GET /icon.svg?97b018907b5f6904 200 in 17ms
+ GET /e2e-mock/supabase/rest/v1/app_settings?select=value&key=eq.maintenance 200 in 56ms
+ GET /state?next=%2Fstate 200 in 109ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /icon.svg?97b018907b5f6904 200 in 26ms
+ GET /api/meta 200 in 99ms
+ POST /api/tz 204 in 74ms
+ GET /api/me 200 in 44ms
+ GET /api/trade/config 200 in 47ms
+ POST /api/state 204 in 690ms
+ GET /state?next=%2Fstate 200 in 99ms
+ GET /icon.svg?97b018907b5f6904 200 in 35ms
+ GET /state?next=javascript%3Aalert(1) 200 in 113ms
+ GET /icon.svg?97b018907b5f6904 200 in 21ms
+ GET /api/meta 200 in 54ms
+ POST /api/tz 204 in 45ms
+ GET /api/me 200 in 46ms
+ GET /api/trade/config 200 in 50ms
+ POST /api/state 204 in 29ms
+ GET /state?next=javascript%3Aalert%281%29 200 in 46ms
+ GET /icon.svg?97b018907b5f6904 200 in 26ms
+ GET /state?next=%2F%5Cevil.example 200 in 92ms
+ GET /icon.svg?97b018907b5f6904 200 in 32ms
+ GET /api/meta 200 in 65ms
+ POST /api/tz 204 in 46ms
+ GET /api/trade/config 200 in 54ms
+ GET /api/me 200 in 51ms
+ POST /api/state 204 in 28ms
+ GET /state?next=%2F%5Cevil.example 200 in 46ms
+ GET /icon.svg?97b018907b5f6904 200 in 24ms
+ GET /state?next=%2F%20%2Fevil.example 200 in 120ms
+ GET /icon.svg?97b018907b5f6904 200 in 36ms
+ GET /api/meta 200 in 31ms
+ POST /api/tz 204 in 72ms
+ GET /api/me 200 in 30ms
+ GET /api/trade/config 200 in 26ms
+ POST /api/state 204 in 20ms
+ ○ Compiling /[...missing] ...
+ ✓ Compiled /[...missing] in 2.2s (3289 modules)
+ GET /%20/evil.example 404 in 3151ms
+ GET /icon.svg?97b018907b5f6904 200 in 84ms
+ GET /icon.svg?97b018907b5f6904 200 in 73ms
+ GET /api/meta 200 in 131ms
+[?25h

@@ -1,0 +1,4 @@
+installable-manifest 1 binary []
+splash-screen 1 binary [{"failures":[],"isParseFailure":false,"hasStartUrl":true,"hasIconsAtLeast144px":true,"hasIconsAtLeast512px":true,"fetchesIcon":true,"hasPWADisplayValue":true,"hasBackgroundColor":true,"hasThemeColor":true,"hasShortName":true,"shortNameLength":true,"hasName":true,"hasMaskableIcon":true}]
+themed-omnibox 1 binary [{"failures":[],"themeColor":"#070a09","isParseFailure":false,"hasStartUrl":true,"hasIconsAtLeast144px":true,"hasIconsAtLeast512px":true,"fetchesIcon":true,"hasPWADisplayValue":true,"hasBackgroundColor":true,"hasThemeColor":true,"hasShortName":true,"shortNameLength":true,"hasName":true,"hasMaskableI
+maskable-icon 1 binary ""

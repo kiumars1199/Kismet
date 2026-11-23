@@ -1,0 +1,23 @@
+390 nav https://kismetodds.com/
+390 nav https://kismetodds.com/
+390 req GET https://kismetodds.com/signup?_rsc=1p-R_iEY6bj0jY31
+390 req GET https://kismetodds.com/settings?_rsc=1p-R_iEY6bj0jY31
+390 req GET https://kismetodds.com/signup?next=%2Fsettings
+390 href /settings#state
+390 element at link center: link
+390 req GET https://kismetodds.com/signup?next=%2Fsettings&_rsc=LVJSaHy66hGDaViF
+390 req GET https://kismetodds.com/_next/static/chunks/app/signup/page-4ed59a8fa9d4316c.js
+390 nav https://kismetodds.com/signup?next=%2Fsettings
+390 url after 6s https://kismetodds.com/signup?next=%2Fsettings
+1440 nav https://kismetodds.com/
+1440 nav https://kismetodds.com/
+1440 req GET https://kismetodds.com/signup?_rsc=1p-R_iEY6bj0jY31
+1440 req GET https://kismetodds.com/settings?_rsc=1p-R_iEY6bj0jY31
+1440 req GET https://kismetodds.com/signup?next=%2Fsettings
+1440 href /settings#state
+1440 element at link center: link
+1440 req GET https://kismetodds.com/signup?next=%2Fsettings&_rsc=LVJSaHy66hGDaViF
+1440 req GET https://kismetodds.com/_next/static/chunks/app/signup/page-4ed59a8fa9d4316c.js
+1440 nav https://kismetodds.com/signup?next=%2Fsettings
+1440 req GET https://kismetodds.com/signup?next=%2Fkalshi
+1440 url after 6s https://kismetodds.com/signup?next=%2Fsettings

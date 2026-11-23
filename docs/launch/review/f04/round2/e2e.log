@@ -1,0 +1,34 @@
+[WebServer] <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (114kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+
+[WebServer] <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (268kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] responseMode: 'json' drops mid-call notifications. subscriptions/listen streams are always served over SSE regardless; other notifications emitted before a result are dropped.
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+
+Running 7 tests using 1 worker
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] responseMode: 'json' drops mid-call notifications. subscriptions/listen streams are always served over SSE regardless; other notifications emitted before a result are dropped.
+
+[1/7] [chromium] › e2e/launch-f04-venues.spec.ts:5:3 › /m/<id> with 3 venues shows 3 rows and exactly one "Pays most here" at 390px
+[WebServer] [abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+
+[2/7] [chromium] › e2e/launch-f04-venues.spec.ts:5:3 › /m/<id> with 3 venues shows 3 rows and exactly one "Pays most here" at 1440px
+[3/7] [chromium] › e2e/launch-f04-venues.spec.ts:24:1 › a market on 2 venues shows Kalshi as Not listed
+[4/7] [chromium] › e2e/launch-f04-venues.spec.ts:31:1 › a market on one venue has no block
+[5/7] [chromium] › e2e/launch-f04-venues.spec.ts:37:1 › 6674492: the card says international only, so the block lists Polymarket US as Not listed
+[6/7] [chromium] › e2e/launch-f04-venues.spec.ts:45:1 › 7078474: the block's Polymarket US payout is the card's (1.34x)
+[7/7] [chromium] › e2e/launch-f04-venues.spec.ts:51:1 › basis: source, time and Kalshi match confidence are one tap away
+  7 passed (1.3m)
+exit 0

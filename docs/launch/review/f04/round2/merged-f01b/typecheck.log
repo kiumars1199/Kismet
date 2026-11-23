@@ -1,0 +1,7 @@
+$ tsc --noEmit
+lib/types.ts(71,3): error TS2300: Duplicate identifier 'kalshi_matched_ticker'.
+lib/types.ts(75,3): error TS2300: Duplicate identifier 'kalshi_matched_ticker'.
+lib/types.ts(75,3): error TS2717: Subsequent property declarations must have the same type.  Property 'kalshi_matched_ticker' must be of type 'string | null | undefined', but here has type 'string | undefined'.
+[ELIFECYCLE] Command failed with exit code 2.
+$ tsc --noEmit
+OK

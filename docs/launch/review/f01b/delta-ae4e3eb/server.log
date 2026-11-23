@@ -1,0 +1,89 @@
+✓ Lockfile passes supply-chain policies (verified 13h ago)
+Lockfile is up to date, resolution step is skipped
+Packages: +1
++
+Progress: resolved 1, reused 0, downloaded 0, added 1, done
+
+dependencies:
++ @modelcontextprotocol/server 2.4.0
++ @sentry/nextjs 11.9.0
++ @supabase/ssr 0.12.7
++ @supabase/supabase-js 2.118.0
++ @tanstack/react-table 8.21.3
++ @tanstack/react-virtual 3.14.26
++ @upstash/ratelimit 2.2.1
++ @upstash/redis 1.41.0
++ botid 1.5.13
++ minisearch 7.2.0
++ next 15.5.29
++ posthog-js 1.440.0
++ react 19.3.1
++ react-dom 19.3.1
++ recharts 3.10.1
++ server-only 0.0.1
++ stripe 23.1.0
++ zod 4.6.7
++ zustand 5.1.0
+
+devDependencies:
++ @axe-core/playwright 4.14.0
++ @electric-sql/pglite 0.5.14
++ @eslint/eslintrc 3.3.7
++ @modelcontextprotocol/client 2.4.0
++ @playwright/test 1.65.1
++ @tailwindcss/postcss 4.3.5
++ @testing-library/react 16.3.3
++ @types/node 26.6.6
++ @types/react 19.3.0
++ @types/react-dom 19.3.0
++ eslint 9.39.5
++ eslint-config-next 15.5.29
++ fast-check 4.10.2
++ jsdom 31.0.1
++ tailwindcss 4.3.5
++ typescript 5.9.3
++ vitest 5.1.0
+
+Done in 1.6s using pnpm v12.21.0
+   ▲ Next.js 15.5.29
+   - Local:        http://localhost:3291
+   - Network:      http://192.0.2.2:3291
+
+ ✓ Starting...
+ ○ Compiling /instrumentation ...
+ ✓ Compiled /instrumentation in 17.6s (1085 modules)
+ ✓ Ready in 20.2s
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 3.3s (611 modules)
+ ○ Compiling /api/health ...
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (114kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (268kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+ ✓ Compiled /api/health in 19s (1660 modules)
+ GET /api/health 200 in 20486ms
+ ○ Compiling /check ...
+ ✓ Compiled /check in 27.6s (3014 modules)
+ GET /check 200 in 31260ms
+ ○ Compiling /api/check ...
+ ✓ Compiled /api/check in 3.2s (3007 modules)
+[abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+ POST /api/check 200 in 3716ms
+ POST /api/check 404 in 59ms
+ GET /check 200 in 1100ms
+ ○ Compiling /api/tz ...
+ ✓ Compiled /api/me in 1690ms (1890 modules)
+ ✓ Compiled in 4.3s (3256 modules)
+ GET /icon.svg?97b018907b5f6904 200 in 12736ms
+ GET /api/trade/config 200 in 12218ms
+ POST /api/tz 204 in 12872ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ GET /api/me 200 in 12492ms
+ POST /api/check 200 in 11220ms
+ GET /api/meta 200 in 13257ms
+ GET /check 200 in 1271ms
+ GET /icon.svg?97b018907b5f6904 200 in 248ms
+ GET /api/meta 200 in 172ms
+ POST /api/tz 204 in 224ms
+ GET /api/trade/config 200 in 49ms
+ GET /api/me 200 in 54ms
+ POST /api/check 200 in 33ms
+[?25h

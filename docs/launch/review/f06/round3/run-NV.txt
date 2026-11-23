@@ -1,0 +1,6 @@
+set NV -> 204
+NV 390 /bets: F9 line(s)=["Polymarket US: not available in Nevada"] guide=["Polymarket: not available in Nevada","Polymarket US: not available in Nevada"] hscroll=false
+NV 390 /check?m=6417673: F9 line(s)=[] guide=["Polymarket: not available in Nevada","Polymarket US: not available in Nevada"] hscroll=false
+set NV -> 204
+NV 1440 /bets: F9 line(s)=["Polymarket US: not available in Nevada"] guide=["Polymarket: not available in Nevada","Polymarket US: not available in Nevada"] hscroll=false
+NV 1440 /check?m=6417673: F9 line(s)=[] guide=["Polymarket: not available in Nevada","Polymarket US: not available in Nevada"] hscroll=false

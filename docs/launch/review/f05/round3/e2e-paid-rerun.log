@@ -1,0 +1,20 @@
+Running 3 tests using 1 worker
+  ✓  1 [chromium] › e2e-paid/launch-f05-topics.spec.ts:50:1 › warm-up: first hits compile the routes (55.6s)
+CLS post-onboarding landing at 1440px: 0.0172  (http://localhost:3291/?view=flags&t=sports.nfl%2Cpolitics.elections&fav=1)
+CLS /bets with topics saved at 1440px: 0.0172
+  ✓  2 [chromium] › e2e-paid/launch-f05-topics.spec.ts:59:3 › picks NFL + Politics at 1440px: / and /bets open filtered with a Your topics pill; one tap clears it (21.9s)
+  ✘  3 [chromium] › e2e-paid/launch-f05-topics.spec.ts:143:1 › topics cleared elsewhere stop filtering here; sign-out drops the hint; another account never reads it (34.5s)
+  1) [chromium] › e2e-paid/launch-f05-topics.spec.ts:143:1 › topics cleared elsewhere stop filtering here; sign-out drops the hint; another account never reads it 
+    Error: expect(received).toBeUndefined()
+    Received: {"domain": "localhost", "expires": 1795406643.71632, "httpOnly": true, "name": "me_topics", "path": "/", "sameSite": "Lax", "secure": false, "value": "2b390a23-3475-4619-8593-50d82f8e8904%7Con%3A"}
+      173 |   await page.getByRole("button", { name: "Sign out", exact: true }).click();
+      174 |   await page.waitForURL((u) => u.pathname === "/", { timeout: 30_000 });
+    > 175 |   expect(await hint()).toBeUndefined();
+          |                        ^
+      176 | });
+      177 |
+        at /home/user/MarketEdge/.claude/worktrees/agent-ac3ec7df000229278/apps/web/e2e-paid/launch-f05-topics.spec.ts:175:24
+    Error Context: test-results/launch-f05-topics-topics-c-06a35-ther-account-never-reads-it-chromium/error-context.md
+  1 failed
+    [chromium] › e2e-paid/launch-f05-topics.spec.ts:143:1 › topics cleared elsewhere stop filtering here; sign-out drops the hint; another account never reads it 
+  2 passed (1.9m)

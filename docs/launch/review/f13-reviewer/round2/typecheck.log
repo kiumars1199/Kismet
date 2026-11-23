@@ -1,0 +1,15 @@
+✓ Lockfile passes supply-chain policies (verified 9h ago)
+Lockfile is up to date, resolution step is skipped
+Packages: +26
+++++++++++++++++++++++++++
+Progress: resolved 26, reused 25, downloaded 0, added 26, done
+
+dependencies:
++ qrcode 1.5.4
+
+devDependencies:
++ @types/qrcode 1.5.5
+
+Done in 278ms using pnpm v12.21.0
+$ tsc --noEmit
+exit 0

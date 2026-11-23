@@ -17,3 +17,8 @@
 - Fix: `pnpm e2e` runs the paid suite in 2 shards, each with its own dev server; playwright.paid.config.ts pins --max-old-space-size=8192; web-ci adds a step printing `free -m` and the Node heap limit.
 - chg1: 16/16 + 15/15 passed, 0 restarts, 963 s, peak used heap 4.3/3.2 GB.
 - Not covered by this fix: qa-c-billing ERR_ABORTED (test races CheckoutStatus's location.replace) and password.spec ECONNRESET. Both reported to main.
+- PR #65 opened at 9d8dc25 (title approved by main). It also has the qa-c-billing fix: expectPlanActive waits for CheckoutStatus's own reload. Local: base3 31/31, 699 s, heap 5.6 GB. chg1 31/31, 963 s. chg2 29/31, 875 s; the 2 failures were not memory (f08-age ECONNRESET, s7 keyboard focus).
+
+## 2026-11-23 #63 review fixes (launch/trust-f9-state @ e52cafb)
+- safeNext: same-origin URL resolve, control chars refused. GET /api/state lets the client hydrate on static "/" (no document.cookie, because cookies are httpOnly). Note keeps min-h-4.
+- e2e-paid/launch-f09-state-static: failed 2/2 before the fix, passes 2/2 after. Merged origin/final (public-paths conflict with /check).

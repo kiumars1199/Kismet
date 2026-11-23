@@ -1,0 +1,41 @@
+[WebServer] <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (114kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+
+[WebServer] <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (268kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] responseMode: 'json' drops mid-call notifications. subscriptions/listen streams are always served over SSE regardless; other notifications emitted before a result are dropped.
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+
+Running 14 tests using 2 workers
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] responseMode: 'json' drops mid-call notifications. subscriptions/listen streams are always served over SSE regardless; other notifications emitted before a result are dropped.
+
+[1/14] [chromium] › e2e/launch-f01-checker.spec.ts:20:1 › checker = card = drawer on 3 fixture markets: chance, market %, multiplier, edge, return
+[2/14] [chromium] › e2e/launch-f02-combo.spec.ts:16:1 › 3 legs: combined numbers, drop the weakest with one tap, numbers update
+[WebServer] [abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+
+[3/14] [chromium] › e2e/launch-f02-combo.spec.ts:52:1 › a 2nd leg from the same event shows the same-event warning; a duplicate is refused
+[4/14] [chromium] › e2e/launch-f02-combo.spec.ts:69:1 › /check/combo at 390px: no horizontal scroll
+[5/14] [chromium] › e2e/launch-f01-checker.spec.ts:54:1 › price 60% → 50% updates multiplier, edge and score in under 100 ms with no network call
+[6/14] [chromium] › e2e/launch-f01-checker.spec.ts:82:1 › 0%, 100%, 0.5% and 99.5% are rejected, unknown links say so, the formula is on the page
+[7/14] [chromium] › e2e/launch-f01-checker.spec.ts:100:1 › the venue line matches the card: International only, not on Polymarket US
+[8/14] [chromium] › e2e/launch-f01-checker.spec.ts:110:3 › /check at 390px: no horizontal scroll, CLS < 0.1 loading ?m=, empty and with a result
+[9/14] [chromium] › e2e/launch-f01-checker.spec.ts:110:3 › /check at 1440px: no horizontal scroll, CLS < 0.1 loading ?m=, empty and with a result
+[10/14] [chromium] › e2e/launch-f01-checker.spec.ts:126:3 › unknown link result at 390px: CLS < 0.1 (the skeleton and the answer keep the same height)
+[11/14] [chromium] › e2e/launch-f01-checker.spec.ts:126:3 › unknown link result at 1440px: CLS < 0.1 (the skeleton and the answer keep the same height)
+[12/14] [chromium] › e2e/launch-f01-checker.spec.ts:138:1 › Check on a card at /bets, 390px, lands on that bet's result with the card's numbers
+[13/14] [chromium] › e2e/launch-f01-checker.spec.ts:152:1 › every card on /, /bets and /markets has a Check link to /check?m=…&side=…
+[14/14] [chromium] › e2e/launch-f01-checker.spec.ts:163:1 › /check?m=<id>&side=0 opens no drawer and the page is not inert
+  14 passed (2.1m)
+exit 0

@@ -1,0 +1,8 @@
+SSR: [
+ "DIV.flex flex-col gap-2 h0 \"Check your stateBet on Polymarket USBet only what you can afford to lose.Pays 1.\"",
+ "DIV. h0 \"Wed 12:00 AM · ClosedBall State vs. Ohio: 1Q Moneyline\""
+]
+hydrated: [
+ "DIV.flex flex-col gap-2 h232 \"Check your stateBet on Polymarket USBet only what you can afford to lose.Pays 1.\"",
+ "DIV. h50 \"Wed 12:00 AM · ClosedBall State vs. Ohio: 1Q Moneyline\""
+]

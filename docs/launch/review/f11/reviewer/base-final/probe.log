@@ -1,0 +1,7 @@
+free 390 load 0 {"cls":"0.064","sh":["12087ms 0.064 DIV.mx-auto flex w-full max-w-[140 y215.75->146"],"log":0,"up":0,"cards":10,"hs":false}
+free 390 load 1 {"cls":"0.064","sh":["6117ms 0.064 DIV.mx-auto flex w-full max-w-[140 y215.75->146"],"log":0,"up":0,"cards":10,"hs":false}
+free 390 disclaimer true
+pro 390 load 0 {"cls":"0.000","sh":[],"log":0,"up":0,"cards":12,"hs":false}
+pro 390 load 1 {"cls":"0.000","sh":[],"log":0,"up":0,"cards":12,"hs":false}
+pro 390 disclaimer true
+probe=0

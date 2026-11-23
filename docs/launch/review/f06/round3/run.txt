@@ -1,0 +1,17 @@
+none 390 /bets: F9 line(s)=["Check your state"] guide=["Check Polymarket for your state","Check Polymarket US for your state"] hscroll=false
+none 390 /check?m=6417673: F9 line(s)=[] guide=["Check Polymarket for your state","Check Polymarket US for your state"] hscroll=false
+none 1440 /bets: F9 line(s)=["Check your state"] guide=["Check Polymarket for your state","Check Polymarket US for your state"] hscroll=false
+none 1440 /check?m=6417673: F9 line(s)=[] guide=["Check Polymarket for your state","Check Polymarket US for your state"] hscroll=false
+set CA -> 204
+CA 390 /bets: F9 line(s)=["Polymarket US: available in California"] guide=["Polymarket: not available in California","Polymarket US: available in California","Polymarket US: available in California"] hscroll=false
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+page.waitForTimeout: Target page, context or browser has been closed
+    at /tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/probe/f6d.mjs:19:67 {
+  log: []
+}
+
+Node.js v22.23.5
+exit 1

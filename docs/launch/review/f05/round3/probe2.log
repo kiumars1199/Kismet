@@ -1,0 +1,16 @@
+Running 2 tests using 1 worker
+390 hint=a143d753-dcc0-4800-9c7d-fee4eb5bdde1|on:sports.nfl expires_in_s=895
+390 after expiry GET /bets -> 200 
+390 after expiry GET / -> 200 
+390 first document after expiry: url=http://localhost:3291/bets pill_in_first_paint=0
+390 after expiry /bets url=http://localhost:3291/bets pill=0
+390 second load GET /bets -> 307 /bets?fav=1&t=sports.nfl
+  ✓  1 [chromium] › ../../docs/launch/review/f05/round3/run/f05r3.spec.ts:19:30 › returning after the hint expired at 390px (1.3m)
+1440 hint=c6a710ab-84a2-4c8a-9183-abbe47a50e37|on:sports.nfl expires_in_s=898
+1440 after expiry GET /bets -> 200 
+1440 after expiry GET / -> 200 
+1440 first document after expiry: url=http://localhost:3291/bets pill_in_first_paint=0
+1440 after expiry /bets url=http://localhost:3291/bets pill=0
+1440 second load GET /bets -> 307 /bets?fav=1&t=sports.nfl
+  ✓  2 [chromium] › ../../docs/launch/review/f05/round3/run/f05r3.spec.ts:19:30 › returning after the hint expired at 1440px (21.6s)
+  2 passed (1.7m)

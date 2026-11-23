@@ -1,0 +1,3 @@
+FLAG 6674492 side=0 og=200 50144B nosig=43120B desc=<meta property="og:description" content="Pays 1.45x · Bets like this won about 9 in 10 before. Market analytics, not financial advice."
+POSNOTFLAG 6771258 side=1 og=200 51480B nosig=42926B desc=<meta property="og:description" content="Pays 1.08x · Bets like this won over 9 in 10 before. Market analytics, not financial advice."
+NEG 7101594 side=1 og=200 41513B nosig=41513B desc=<meta property="og:description" content="Bet No · pays 1.01x · −5.7% estimated return, based on past results. Market analytics, not financial advice."
