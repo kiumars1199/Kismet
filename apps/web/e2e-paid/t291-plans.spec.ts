@@ -1,6 +1,6 @@
 // T-291 #12, #14: with billing configured, the plan buttons are right in the first HTML: no disabled "Coming soon"
 // waiting for /api/me, and "Start free" goes to /signup.
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 test("plan buttons in the server HTML: Start trial / Start free, never a disabled Coming soon", async ({ request, page }) => {
   for (const path of ["/pricing", "/about", "/"]) {

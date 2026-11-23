@@ -1,7 +1,7 @@
 // /markets at 768 scrolled the whole page sideways: the table (md and up) is 1294 px wide and nothing contained it, so document
 // scrollWidth was 1294 for every signed-in plan. The page must never scroll sideways at 390, 768 or 1024, and the page shift on load
 // stays under 0.1.
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "./fixtures";
 
 async function signIn(page: Page, email: string) {
   await page.goto("/login?next=/account");

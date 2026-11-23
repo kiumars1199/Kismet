@@ -1,7 +1,7 @@
 // docs/15 § Paywall (Lane X) + T-276 account wall: a signed-out visitor gets the sales pages and teasers only.
 // The data APIs answer 401, app pages redirect to /signup?next=<page>, and the HTML + RSC payload of every public
 // page carries no more than the Free tier allows (the landing's 3 real cards) and no model output on teasers.
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "./fixtures";
 import flagsFixture from "../test/fixtures/flags.json";
 
 const PAID_ONLY = ["capacity_usd", "limit_price", "limit_edge", "retention", "\"theta\"", "\"cov\""];

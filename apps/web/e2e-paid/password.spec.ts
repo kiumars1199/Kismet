@@ -1,7 +1,7 @@
 // T-275: email + password. Sign up → confirm from the inbox → signed in; the session survives a new browser context
 // (the sb-* cookie lasts weeks, it isn't a session cookie) and sign-out clears it; sign in with the password;
 // forgot → reset link → /reset-password → new password works, the old one doesn't. Supabase is the in-app mock.
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "./fixtures";
 
 const PASS = "first password 1";
 const NEW_PASS = "second password 2";
