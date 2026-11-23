@@ -2,7 +2,8 @@
 // The nonce is bound to this exact order and expires in 2 minutes; other sites can't read it (no CORS) and
 // can't message the extension (externally_connectable), so they can't fire orders through it.
 import { NonceRequest } from "@/lib/trade/intent";
-import { sameOrigin } from "@/lib/auth/server";
+import { pausedResponse } from "@/lib/account/pause";
+import { getMe, sameOrigin } from "@/lib/auth/server";
 import { currentUser, issueNonce, tradingAllowed, tradingEnv } from "@/lib/trade/server";
 import { readJson, TOO_LARGE, tooLarge } from "@/lib/body";
 
@@ -12,6 +13,8 @@ export const dynamic = "force-dynamic";
 export async function POST(req: Request): Promise<Response> {
   if (!tradingEnv()) return Response.json({ error: "Trading is off." }, { status: 404 });
   if (!sameOrigin(req)) return Response.json({ error: "Bad origin." }, { status: 403 });
+  const paused = pausedResponse(await getMe());   // F8: no new orders while paused
+  if (paused) return paused;
   const user = await currentUser(req);
   if (!tradingAllowed(user?.email ?? null)) return Response.json({ error: "Trading isn't enabled for this account." }, { status: 403 });
   const raw = await readJson(req, 16_384);   // RT-12: bounded
