@@ -1,7 +1,8 @@
 import type { MetaResponse } from "@/lib/api";
 import { getMe } from "@/lib/auth/server";
 import { canBeta } from "@/lib/beta";
-import { getKalshiIndex } from "@/lib/data/store";
+import { getKalshiIndex, getPolymarketIndex } from "@/lib/data/store";
+import { countUnpriced } from "@/lib/data/polymarket-index";
 import { withStore } from "@/lib/data/respond";
 import { settledCount } from "@/lib/data/counts";
 import { delayMin } from "@/lib/settings-core";
@@ -17,13 +18,14 @@ export async function GET() {
   const me = await getMe();
   const { tier } = me;
   const kalshi = canBeta(me, "kalshi") ? ((await getKalshiIndex())?.rows.length ?? 0) : 0;   // F3: open Kalshi markets
+  const pmIx = await getPolymarketIndex();   // F3 fix: every open Polymarket market, priced or not
   return withStore((store) => {
     const topics: Record<string, number> = {};
     for (const m of store.markets) for (const id of topicsOf(m)) topics[id] = (topics[id] ?? 0) + 1;
     const body: MetaResponse = {
       meta: store.meta,
       loaded_at: store.loadedAt,
-      counts: { markets: store.markets.length, flags: store.flags.length, events: store.byEvent.size, polymarket: store.markets.length, kalshi },
+      counts: { markets: store.markets.length, flags: store.flags.length, events: store.byEvent.size, polymarket: store.markets.length + (pmIx ? countUnpriced(pmIx, store.byId) : 0), polymarket_priced: store.markets.length, kalshi },
       facets: { ...store.facets, topics },
       delay_min: delayMin(tier),
       // QA-A #49/#63: each bet once (lib/data/counts.ts settledCount), the same base as /status and /track-record

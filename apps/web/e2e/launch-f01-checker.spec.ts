@@ -122,6 +122,19 @@ for (const [w, h] of [[390, 844], [1440, 900]] as const) {
   });
 }
 
+for (const [w, h] of [[390, 844], [1440, 900]] as const) {
+  test(`unknown link result at ${w}px: CLS < 0.1 (the skeleton and the answer keep the same height)`, async ({ page }) => {
+    await page.setViewportSize({ width: w, height: h });
+    await page.goto("/check");
+    await watchCls(page);
+    await page.goto("/check?m=no-such-market&side=0");
+    await expect(page.getByTestId("check-missing")).toBeVisible({ timeout: 20_000 });
+    await page.waitForTimeout(1500);
+    expect(await noHScroll(page)).toBe(true);
+    expect(await cls(page)).toBeLessThan(0.1);
+  });
+}
+
 test("Check on a card at /bets, 390px, lands on that bet's result with the card's numbers", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/bets");

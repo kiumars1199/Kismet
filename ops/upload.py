@@ -109,7 +109,7 @@ def _rotate(storage, prev_at, gap, log):
     return False
 
 
-SIDE_FILES = ("kalshi.json", "kalshi_index.json")   # uploaded on their own with --only
+SIDE_FILES = ("kalshi.json", "kalshi_index.json", "polymarket_index.json", "polymarket_index_meta.json")   # uploaded on their own with --only
 
 
 def publish(out_dir, storage, log=print, rotate_min_sec=None):
@@ -149,9 +149,21 @@ def publish_one(path, storage, log=print):
     if not os.path.exists(path):
         log(f"{os.path.basename(path)} not found; bucket keeps the previous copy")
         return True
+    sent = path + ".sent"   # polymarket_index.json is rebuilt hourly but this step runs every scan: send each build once
+    if os.path.basename(path) == "polymarket_index.json":
+        try:
+            with open(sent) as f:
+                if f.read().strip() == str(os.path.getmtime(path)):
+                    log(f"{os.path.basename(path)} already uploaded")
+                    return True
+        except OSError:
+            pass
     try:
         with open(path, "rb") as f:
             storage.put(os.path.basename(path), f.read())
+        if os.path.basename(path) == "polymarket_index.json":
+            with open(sent, "w") as f:
+                f.write(str(os.path.getmtime(path)))
     except (requests.RequestException, OSError) as e:
         log(f"upload of {os.path.basename(path)} failed: {type(e).__name__}")
         return False

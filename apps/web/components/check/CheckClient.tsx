@@ -80,7 +80,7 @@ export function CheckClient() {
   const r = useMemo(() => (cur ? compute(cur.base, Number.isNaN(price) ? 0 : price, Number.isNaN(stake) ? 0 : stake) : null), [cur, price, stake]);
 
   return (
-    <div className="flex flex-col gap-5 [--check-h:1000px] md:[--check-h:700px]" data-testid="check-page">
+    <div className="flex flex-col gap-5 [--check-h:1000px] md:[--check-h:700px] [--miss-h:640px]" data-testid="check-page">
       <form onSubmit={submit} className="flex flex-col gap-2 sm:flex-row">
         <label className="sr-only" htmlFor="check-q">Market link or words</label>
         <input id="check-q" value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste a Polymarket or Kalshi link, or type a team or topic"
@@ -106,11 +106,11 @@ export function CheckClient() {
       {!busy && hits.length === 0 && text && found === null && null}
 
       {found?.kind === "missing" && (
-        <p data-testid="check-missing" className="rounded-card border border-border bg-surface p-4 text-sm text-soft">We couldn&apos;t find an open market at that link. Try searching by words above.</p>
+        <p data-testid="check-missing" style={deepLink ? { minHeight: "var(--miss-h)" } : undefined} className="rounded-card border border-border bg-surface p-4 text-sm text-soft">We couldn&apos;t find an open market at that link. Try searching by words above.</p>
       )}
       {found?.kind === "error" && <p className="rounded-card border border-border bg-surface p-4 text-sm text-soft">{found.text}</p>}
       {found?.kind === "limit" && (
-        <div data-testid="check-upgrade" className="flex flex-col items-start gap-3 rounded-card border border-accent-border bg-surface p-5">
+        <div data-testid="check-upgrade" style={deepLink ? { minHeight: "var(--check-h)" } : undefined} className="flex flex-col items-start gap-3 rounded-card border border-accent-border bg-surface p-5">
           <p className="text-sm text-soft">Free includes 1 bet check a day, and you&apos;ve used it. Pro and Premium check as many bets as you like.</p>
           <Link href="/pricing" className="inline-flex min-h-11 items-center rounded-input bg-accent px-4 text-sm font-semibold text-on-accent hover:bg-accent-hover">See plans</Link>
         </div>
@@ -146,6 +146,12 @@ export function CheckClient() {
             </label>
           </div>
 
+          {data.kalshi?.prices[side] != null && (
+            <p data-testid="check-kalshi" className="text-[13px] text-soft">
+              Kalshi&apos;s own price for {cur.outcome} is {pct(data.kalshi.prices[side]!)}.{" "}
+              <button type="button" className="min-h-11 text-accent-soft underline" onClick={() => setPriceText(String(Math.round(data.kalshi!.prices[side]! * 100)))}>Use it</button>
+            </p>
+          )}
           <div data-testid="check-error" className="min-h-[1.5rem] text-[13px] text-negative" role="alert">{r.error && r.error !== "no_model" ? ERROR_TEXT[r.error] : ""}</div>
 
           {r.error === "no_model" ? (

@@ -24,6 +24,8 @@ test("3 legs: combined numbers, drop the weakest with one tap, numbers update", 
   await expect(page.getByTestId("combo-msg")).toContainText("Add at least one more leg");
   await addByUrl(page, distinct[1]!);
   await addByUrl(page, distinct[2]!);
+  await expect(page.getByTestId("combo-mult")).toHaveCount(0);   // nothing is scored until the tap
+  await page.getByTestId("combo-check-btn").click();
   await expect(page.getByTestId("combo-mult")).toBeVisible();
   const before = { chance: await page.getByTestId("combo-chance").innerText(), mult: await page.getByTestId("combo-mult").innerText() };
   await expect(page.getByTestId("combo-formula")).toContainText("independent");
@@ -57,6 +59,7 @@ test("a 2nd leg from the same event shows the same-event warning; a duplicate is
   await page.goto("/check/combo");
   await addByUrl(page, a!);
   await addByUrl(page, b!);
+  await page.getByTestId("combo-check-btn").click();
   await expect(page.getByTestId("combo-same-event")).toContainText("move together");
   await page.evaluate(([m, s]) => window.history.pushState(null, "", `/check/combo?m=${m}&side=${s}&x=1`), [a!.market.id, String(a!.side.side_index)]);
   await expect(page.getByTestId("combo-note")).toContainText("already in your combo");
@@ -68,4 +71,27 @@ test("/check/combo at 390px: no horizontal scroll", async ({ page }) => {
   await page.goto("/check/combo");
   await expect(page.getByRole("heading", { name: "Combo checker" })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+});
+
+// F2 review: legs that arrive after a lookup slower than 500 ms (so not "after input") must not shift the page: CLS < 0.1 at 390.
+test("legs arriving after a slow lookup keep CLS < 0.1 at 390 and 1440", async ({ page }) => {
+  test.setTimeout(120_000);
+  const all = await rows(page);
+  const distinct = all.filter((r, i) => all.findIndex((x) => x.market.event_id === r.market.event_id) === i).slice(0, 2);
+  for (const [w, h] of [[390, 844], [1440, 900]] as const) {
+    await page.setViewportSize({ width: w, height: h });
+    await page.route("**/api/check/leg", async (route) => { await new Promise((r) => setTimeout(r, 800)); await route.continue(); });
+    await page.addInitScript(() => {
+      (window as unknown as { __cls: number }).__cls = 0;
+      new PerformanceObserver((l) => {
+        for (const e of l.getEntries() as unknown as { value: number; hadRecentInput: boolean }[]) if (!e.hadRecentInput) (window as unknown as { __cls: number }).__cls += e.value;
+      }).observe({ type: "layout-shift", buffered: true });
+    });
+    await page.goto("/check/combo");
+    await expect(page.getByRole("heading", { name: "Combo checker" })).toBeVisible();
+    for (const r of distinct) await addByUrl(page, r);
+    await page.waitForTimeout(1500);
+    expect(await page.evaluate(() => (window as unknown as { __cls: number }).__cls), `CLS at ${w}`).toBeLessThan(0.1);
+    await page.unroute("**/api/check/leg");
+  }
 });

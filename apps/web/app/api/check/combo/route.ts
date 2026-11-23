@@ -9,7 +9,7 @@ import { liveMarketBody, withTier } from "@/lib/data/respond";
 import { MAX_COMBO_LEGS, MIN_COMBO_LEGS } from "@/lib/check/combo";
 import { comboKey, countCheck } from "@/lib/check/limit";
 import { isOpenIn, NOT_OPEN } from "@/lib/check/open";
-import { buildCheck, type CheckResponse } from "@/lib/check/response";
+import { buildCheck, type ComboLegsResponse } from "@/lib/check/response";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -33,12 +33,14 @@ export async function POST(req: Request) {
     const c = await countCheck(req, tier, me.user?.id, comboKey(legs), 0);
     if (!c.ok) return Response.json({ error: "Free includes 1 check a day. Upgrade for unlimited checks.", code: "check_limit", left: 0 }, { status: 429 });
 
-    const out: CheckResponse[] = [];
+    const out: ComboLegsResponse["legs"] = [];
     for (const [i, m] of markets.entries()) {
       const body = await liveMarketBody(store, m!, tier, "pro");
       const one = buildCheck(body.market, legs[i]!.side, undefined, 100);
       if (!one) return Response.json({ error: "Side not found", code: "not_found" }, { status: 404 });
-      out.push(one);
+      // only what the combo view needs: the leg's inputs and basis (no per-leg chance/edge/score results, no other side)
+      const side = one.sides.find((x) => x.index === one.side)!;
+      out.push({ m: one.market.id, side: one.side, base: side.base, basis: side.basis });
     }
     return Response.json({ legs: out });
   });

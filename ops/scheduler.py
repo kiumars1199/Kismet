@@ -115,10 +115,17 @@ CMDS = {
                       ["pipeline/fetch_prices.py", "--extend", "--per-niche-month", "300", "--threads", "4"],
                       ["-m", "engine", "backtest-even"]],
     "attach_even": [["-m", "engine", "attach-even"]],  # settles the live flag ledger (ledger_summary.json)
-    # Nov 21: Kalshi runs after the Polymarket upload (fresh best bets first), then only kalshi.json is uploaded.
+    # Steps run in order and each failure stops the rest, so the fresh Best bets (scan + upload) always go first:
+    #   1. scan, then upload everything in output/ except the side files below;
+    #   2. Kalshi crawl (no-op unless KALSHI_DATA_PERMISSION=true), then upload kalshi.json, kalshi_index.json and venues.json;
+    #   3. F3: every open Polymarket market for search (pmindex rebuilds hourly, else it is a no-op), then upload
+    #      polymarket_index.json (once per build) and its small polymarket_index_meta.json LAST (the web re-downloads the big
+    #      file only when the meta changes).
     "scan": [["-m", "engine", "scan"], ["ops/upload.py", "output"],
              ["-m", "engine", "kalshi"], ["ops/upload.py", "--only", "output/kalshi.json"],
-             ["ops/upload.py", "--only", "output/kalshi_index.json"]],   # F3: every open Kalshi market (skipped when the crawl wrote none)
+             ["ops/upload.py", "--only", "output/kalshi_index.json"],
+             ["-m", "engine", "pmindex"], ["ops/upload.py", "--only", "output/polymarket_index.json"],
+             ["ops/upload.py", "--only", "output/polymarket_index_meta.json"]],
 }
 
 

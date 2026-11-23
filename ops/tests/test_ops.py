@@ -406,3 +406,30 @@ def test_engine_json_writes_are_atomic(tmp_path):
     src = "".join(open(f).read() for f in glob.glob(os.path.join(os.path.dirname(__file__), "..", "..", "engine", "*.py")))
     import re
     assert not re.search(r'json\.dump\([^\n]*open\(', src.replace('json.dump(x, open(p, "w"))', ""))   # no in-place writes left
+
+
+def test_polymarket_index_is_a_side_file_sent_once_per_build(tmp_path):
+    """F3 fix: polymarket_index.json (rebuilt hourly) never rides the main upload, and the every-scan upload step sends each build once."""
+    out = write(tmp_path, *good())
+    (tmp_path / "polymarket_index.json").write_text("{}")
+    http = FakeHttp(prev=None)
+    assert upload.publish(out, upload.Storage("https://x.supabase.co/", "svc", http), log=lambda *_: None)
+    assert "polymarket_index.json" not in [c[1].rsplit("/", 1)[1] for c in http.calls if c[0] == "POST"]
+    p = str(tmp_path / "polymarket_index.json")
+    h1 = FakeHttp(prev=None)
+    assert upload.publish_one(p, upload.Storage("https://x.supabase.co/", "svc", h1), log=lambda *_: None)
+    assert len([c for c in h1.calls if c[0] == "POST"]) == 1
+    h2 = FakeHttp(prev=None)
+    assert upload.publish_one(p, upload.Storage("https://x.supabase.co/", "svc", h2), log=lambda *_: None)
+    assert h2.calls == []   # same build: not sent again
+
+
+def test_scheduler_builds_the_polymarket_index_after_the_scan_upload():
+    steps = [" ".join(a) for a in scheduler.CMDS["scan"]]
+    assert steps.index("ops/upload.py output") < steps.index("-m engine pmindex") < steps.index("ops/upload.py --only output/polymarket_index.json")
+
+
+def test_scheduler_uploads_the_index_meta_after_the_index():
+    steps = [" ".join(a) for a in scheduler.CMDS["scan"]]
+    assert steps.index("ops/upload.py --only output/polymarket_index.json") < steps.index("ops/upload.py --only output/polymarket_index_meta.json")
+    assert "polymarket_index_meta.json" in upload.SIDE_FILES

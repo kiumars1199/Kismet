@@ -1,14 +1,14 @@
 "use client";
 // /check/combo (SPEC F2). Add legs by words or by pasted link (or a card link: ?m=<id>&side=<0|1>). A leg is looked up without
-// any model numbers (/api/check/leg). With 2+ legs the whole set is scored once (/api/check/combo, ONE Free check for that
-// set; the same set again is free), and the numbers are computed here from what it returns.
+// any model numbers (/api/check/leg). The set is scored only when the person taps "Check this combo" (/api/check/combo, ONE
+// Free check for that set); the numbers, and the weakest-leg suggestion, are computed here from what it returns.
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CheckSearchResponse } from "@/app/api/check/search/route";
 import { checkCombo, MAX_COMBO_LEGS, MIN_COMBO_LEGS, type ComboLeg } from "@/lib/check/combo";
 import { parseLink } from "@/lib/check/parse-link";
-import type { CheckResponse, LegLookup } from "@/lib/check/response";
+import type { ComboLegsResponse, LegLookup } from "@/lib/check/response";
 import { SCORE_FORMULA } from "@/lib/check/score";
 import { multX } from "@/lib/card";
 import { pct } from "@/lib/format";
@@ -58,28 +58,27 @@ export function ComboClient() {
     void add({ m, side: sp.get("side") === "1" ? 1 : 0 });
   }, [sp]);
 
-  // Score the set when it has 2+ legs and hasn't been scored yet (one check for the set on the server).
+  // Scoring is an explicit tap ("Check this combo"): one Free check for this set. The response carries every leg's inputs, so
+  // removing legs afterwards (including "Drop that leg") recomputes here and never asks the server again. Adding a leg is a new set.
   const setKey = useMemo(() => setKeyOf(legs), [legs]);
-  useEffect(() => {
-    if (legs.length < MIN_COMBO_LEGS || scored?.setKey === setKey) return;
+  async function checkNow() {
+    if (legs.length < MIN_COMBO_LEGS || scoring) return;
     const mine = ++seq.current;
-    setScoring(true); setLimit(false);
-    (async () => {
-      try {
-        const r = await fetch("/api/check/combo", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ legs: legs.map((l) => ({ m: l.marketId, side: l.side })) }) });
-        if (mine !== seq.current) return;
-        if (r.status === 429) { setLimit(true); setScored(null); return; }
-        if (!r.ok) { setNote("Couldn't score this combo. Try again in a moment."); return; }
-        const out = ((await r.json()) as { legs: CheckResponse[] }).legs;
-        const map = new Map<string, { base: ComboLeg["base"]; basis: string }>();
-        for (const d of out) { const s = d.sides.find((x) => x.index === d.side)!; map.set(`${d.market.id}:${d.side}`, { base: s.base, basis: s.basis }); }
-        setScored({ setKey, legs: map });
-      } catch { if (mine === seq.current) setNote("Couldn't reach Kismet. Check your connection and try again."); }
-      finally { if (mine === seq.current) setScoring(false); }
-    })();
-  }, [legs, setKey, scored?.setKey]);
+    setScoring(true); setLimit(false); setNote("");
+    try {
+      const r = await fetch("/api/check/combo", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ legs: legs.map((l) => ({ m: l.marketId, side: l.side })) }) });
+      if (mine !== seq.current) return;
+      if (r.status === 429) { setLimit(true); setScored(null); return; }
+      if (!r.ok) { setNote("Couldn't score this combo. Try again in a moment."); return; }
+      const out = ((await r.json()) as ComboLegsResponse).legs;
+      const map = new Map<string, { base: ComboLeg["base"]; basis: string }>();
+      for (const d of out) map.set(`${d.m}:${d.side}`, { base: d.base, basis: d.basis });
+      setScored({ setKey, legs: map });
+    } catch { if (mine === seq.current) setNote("Couldn't reach Kismet. Check your connection and try again."); }
+    finally { if (mine === seq.current) setScoring(false); }
+  }
 
-  const ready = scored?.setKey === setKey;
+  const ready = !!scored && legs.length >= MIN_COMBO_LEGS && legs.every((l) => scored.legs.has(l.key));
   const combos: ComboLeg[] = useMemo(() => (ready ? legs.map((l) => ({ ...l, base: scored!.legs.get(l.key)!.base })) : []), [ready, legs, scored]);
   const c = useMemo(() => checkCombo(combos), [combos]);
   const n = ready ? c.numbers : null;
@@ -133,7 +132,8 @@ export function ComboClient() {
         </div>
       )}
 
-      <ul data-testid="combo-legs" className="flex flex-col gap-2">
+      {/* room for two legs from the start, so legs arriving after a slow lookup don't push the result down */}
+      <ul data-testid="combo-legs" className="flex min-h-[148px] flex-col gap-2">
         {legs.map((l, i) => {
           const b = ready ? scored!.legs.get(l.key)?.base : undefined;
           return (
@@ -148,9 +148,14 @@ export function ComboClient() {
         })}
       </ul>
 
-      <section aria-label="Combo result" className="flex flex-col gap-3 rounded-card border border-border bg-surface p-4 md:p-5">
+      <section aria-label="Combo result" className="flex min-h-[150px] flex-col gap-3 rounded-card border border-border bg-surface p-4 md:p-5">
         {legs.length < MIN_COMBO_LEGS && <p data-testid="combo-msg" className="text-sm text-soft">{legs.length === 0 ? "Add at least two bets to check a combo." : "Add at least one more leg."}</p>}
-        {legs.length >= MIN_COMBO_LEGS && !ready && !limit && <p data-testid="combo-msg" className="text-sm text-soft">Scoring your combo…</p>}
+        {legs.length >= MIN_COMBO_LEGS && !ready && !limit && (
+          <div className="flex flex-col items-start gap-2">
+            <p data-testid="combo-msg" className="text-sm text-soft">{scoring ? "Scoring your combo…" : "Ready when you are. Free includes 1 check a day; this combo counts as one."}</p>
+            <button type="button" data-testid="combo-check-btn" disabled={scoring} onClick={() => void checkNow()} className="min-h-11 rounded-input bg-accent px-4 text-sm font-semibold text-on-accent hover:bg-accent-hover disabled:opacity-60">Check this combo</button>
+          </div>
+        )}
         {ready && c.error === "no_model" && <p data-testid="combo-msg" className="text-sm text-soft">No model chance for &ldquo;{c.noModel}&rdquo;, so this combo can&apos;t be scored. Remove that leg.</p>}
         {ready && c.sameEvent.length > 0 && (
           <p data-testid="combo-same-event" className="rounded-input border border-border bg-bg p-3 text-[13px] text-soft">
