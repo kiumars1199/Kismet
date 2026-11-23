@@ -162,6 +162,20 @@ jobs:
             if [ -f output/kalshi_index.json ]; then python ops/upload.py --only output/kalshi_index.json; fi   # F3: every open Kalshi market
           fi
 
+      # F16 "within one scan" (docs/launch/decisions.md): after every scan, run only the big-trade alert rules.
+      # The daily Vercel cron still runs every rule. Best effort: a failed call never fails the refresh.
+      - name: Run big-trade alerts on the new scan
+        continue-on-error: true
+        env:
+          SITE_URL: ${{ vars.SITE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$SITE_URL" ] || [ -z "$CRON_SECRET" ]; then
+            echo "::warning::SITE_URL / CRON_SECRET not set: skipped the big-trade alert run"
+            exit 0
+          fi
+          curl -fsS --max-time 70 -X POST -H "Authorization: Bearer $CRON_SECRET" "${SITE_URL%/}/api/alerts/run?kind=bigtrade"
+
       - name: Open an issue when the refresh fails
         if: failure()
         env:

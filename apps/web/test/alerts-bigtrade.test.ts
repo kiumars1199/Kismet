@@ -9,8 +9,8 @@ vi.mock("@/lib/email", async (orig) => ({ ...(await orig<typeof import("@/lib/em
 const sendPush = vi.fn(async (): Promise<"sent" | "gone" | "failed"> => "sent");
 vi.mock("@/lib/alerts-push", () => ({ pushConfigured: () => true, sendPush: () => sendPush() }));
 
-const { runServerAlerts } = await import("@/lib/alerts-server");
-const { BIG_TRADE_USD, fetchBigTrades, parseTrades } = await import("@/lib/bigtrade");
+const { kindsFromQuery, runServerAlerts } = await import("@/lib/alerts-server");
+const { BIG_TRADE_USD, fetchBigTrades, parseTrades, tradeStats } = await import("@/lib/bigtrade");
 
 const side = (i: 0 | 1): Side => ({
   side_index: i, outcome: i ? "No" : "Jaguars", ask: 0.72, mid: 0.715, fee: 0.01, win_prob: 0.79, win_prob_low: 0.76,
@@ -106,6 +106,49 @@ describe("big trade alert (F16)", () => {
     expect(sendPush).not.toHaveBeenCalled();
   });
 
+  it("caps one rule at 10 alerts per run, like the other kinds", async () => {
+    const d = db([rule()], "premium");
+    const s = src(Array.from({ length: 12 }, (_, i) => trade({ transaction_hash: `0x${i}`, timestamp: tsNow - 60 * i })));
+    expect((await runServerAlerts(d as never, s, NOON)).events).toBe(10);
+  });
+
+  it("a general rule and a single-market rule on the same trade send the user one alert", async () => {
+    const d = db([rule({ id: "g1", market_id: null }), rule({ id: "b1", market_id: "a" })], "premium");
+    d.tables.watchlist!.push({ user_id: "u1", market_id: "a" });   // the general rule follows "a" through My list
+    const s = src([trade()]);
+    expect((await runServerAlerts(d as never, s, NOON)).events).toBe(1);
+    expect(sendPush).toHaveBeenCalledTimes(1);
+  });
+
+  it("across runs too: whichever rule goes first, the same trade reaches the user once", async () => {
+    const d = db([rule({ id: "g1", market_id: null }), rule({ id: "b1", market_id: "a" })], "premium");
+    d.tables.watchlist!.push({ user_id: "u1", market_id: "a" });   // the general rule follows "a" through My list
+    const s = src([trade()]);
+    expect((await runServerAlerts(d as never, s, NOON)).events).toBe(1);
+    d.tables.alert_rules!.reverse();   // row order isn't stable between runs (no order by; last_fired_at updates)
+    expect((await runServerAlerts(d as never, s, new Date(NOON.getTime() + 1_800_000))).events).toBe(0);
+    expect(sendPush).toHaveBeenCalledTimes(1);
+  });
+
+  it("a rule in quiet hours doesn't let the other rule re-send later", async () => {
+    const d = db([rule({ id: "g1", market_id: null, quiet_hours: [11, 13] }), rule({ id: "b1", market_id: "a" })], "premium");
+    d.tables.watchlist!.push({ user_id: "u1", market_id: "a" });
+    const s = src([trade()]);
+    expect((await runServerAlerts(d as never, s, NOON)).events).toBe(1);   // b1 sends; g1 is quiet
+    expect((await runServerAlerts(d as never, s, new Date(NOON.getTime() + 3 * 3_600_000))).events).toBe(0);   // g1 awake: already sent
+  });
+
+  it("kind=bigtrade (the post-scan run) evaluates only big-trade rules; the daily run evaluates all", async () => {
+    expect(kindsFromQuery("http://x/api/alerts/run?kind=bigtrade")).toEqual(["big_trade"]);
+    expect(kindsFromQuery("http://x/api/alerts/run")).toBeUndefined();
+    expect(kindsFromQuery("http://x/api/alerts/run?kind=nope")).toBeNull();
+    const rules = [rule(), rule({ id: "p1", kind: "market_price", market_id: "a", side_index: 0, threshold: 0.99, channels: [] })];
+    const only = await runServerAlerts(db(rules, "premium") as never, src([trade()]), NOON, { kinds: ["big_trade"] });
+    expect(only).toMatchObject({ rules: 1, events: 1 });
+    const all = await runServerAlerts(db(rules, "premium") as never, src([trade()]), NOON);
+    expect(all).toMatchObject({ rules: 2 });
+  });
+
   it("a failing trade feed is one rule's problem: nothing sent, no crash", async () => {
     const d = db([rule()], "premium");
     const s = { ...src([]), fetchBigTrades: async () => { throw new Error("HTTP 500"); } };
@@ -136,6 +179,41 @@ describe("lib/bigtrade.ts: Polymarket Data API v2 /trades", () => {
     const rows = parseTrades({ data: [trade({ size: 3, price: 0.5 }), trade({ token_id: undefined }), trade({ timestamp: undefined })] });
     expect(rows).toHaveLength(1);
     expect(rows[0]).toMatchObject({ usd: 1.5, token_id: "tok0", outcome: "Jaguars", side: "BUY" });
+  });
+  // The docs give no sort direction for the event_id feed (no sort/order parameter on /v2/trades), so the fetch must
+  // find a recent trade whichever way the feed is ordered.
+  const pageOf = (rows: unknown[], next: string | null) => new Response(JSON.stringify({ data: rows, pagination: { next_cursor: next, has_more: !!next } }), { status: 200 });
+  it("oldest-first feed: follows next_cursor and still finds the recent $10,000 trade, newest first", async () => {
+    const urls: string[] = [];
+    const pages = [
+      pageOf([trade({ timestamp: tsNow - 900 * 86_400, transaction_hash: "0xold1" }), trade({ timestamp: tsNow - 400 * 86_400, transaction_hash: "0xold2" })], "c1"),
+      pageOf([trade({ timestamp: tsNow - 7200, transaction_hash: "0xr1" }), trade({ timestamp: tsNow - 60, transaction_hash: "0xr2" })], null),
+    ];
+    vi.stubGlobal("fetch", vi.fn(async (u: string) => { urls.push(u); return pages.shift()!; }));
+    const stats = tradeStats();
+    const rows = await fetchBigTrades(["e1"], tsNow - 86_400, stats);
+    expect(rows.map((r) => r.tx)).toEqual(["0xr2", "0xr1"]);
+    expect(urls).toHaveLength(2);
+    const u2 = new URL(urls[1]!);
+    expect(u2.searchParams.get("cursor")).toBe("c1");
+    expect(u2.searchParams.get("event_id")).toBe("e1");   // the docs: re-send identical filters with the cursor
+    expect(stats).toMatchObject({ requests: 2, trades: 4, newest: tsNow - 60 });
+  });
+  it("newest-first feed: stops once a page reaches past the look-back", async () => {
+    const fetchMock = vi.fn(async () => pageOf([trade({ timestamp: tsNow - 60 }), trade({ timestamp: tsNow - 5 * 86_400, transaction_hash: "0xo" })], "c1"));
+    vi.stubGlobal("fetch", fetchMock);
+    expect((await fetchBigTrades(["e1"], tsNow - 86_400)).map((r) => r.tx)).toEqual(["0xhash1"]);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+  it("sends only Polymarket event ids: US-venue (us:) ids are dropped, a mixed batch still finds the Polymarket hit", async () => {
+    const urls: string[] = [];
+    vi.stubGlobal("fetch", vi.fn(async (u: string) => { urls.push(u); return pageOf([trade()], null); }));
+    expect(await fetchBigTrades(["us:KXNFL-1", "e1", "us:KXNFL-2"], tsNow - 86_400)).toHaveLength(1);
+    expect(urls).toHaveLength(1);
+    expect(new URL(urls[0]!).searchParams.get("event_id")).toBe("e1");
+    urls.length = 0;
+    expect(await fetchBigTrades(["us:only"], 0)).toEqual([]);
+    expect(urls).toHaveLength(0);
   });
   it("a non-200 answer throws (the evaluator counts it as that rule failing)", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => new Response("no", { status: 429 })));

@@ -5,7 +5,7 @@ import type { MarketsResponse } from "@/lib/api";
 import { closesIn, pct, ret } from "@/lib/format";
 import { formatOdds } from "@/lib/odds";
 import { FilterState } from "@/lib/filters/state";
-import type { AlertEvent, AlertRule, OddsFormat, Repo } from "@/lib/repo/types";
+import type { AlertEvent, AlertKind, AlertRule, OddsFormat, Repo } from "@/lib/repo/types";
 import { UniqueViolation } from "@/lib/repo/types";
 import type { BigTrade } from "@/lib/bigtrade";
 import type { Settlement } from "@/lib/journal";
@@ -51,6 +51,12 @@ export const title = (m: Market) => `${m.niche.toUpperCase()} · ${m.question}`;
 type Live = (Execution & { book_ok: true }) | null;
 export interface Deps {
   repo: Repo;
+  /** Evaluate only these kinds (the post-scan big-trade run). The other rules still count as context, e.g. for the
+   *  markets a general big_trade rule follows. Omitted: every kind. */
+  kinds?: AlertKind[];
+  /** Whose rules these are (the server passes the user id). F16 dedupes a trade per user with it, so two of their
+   *  rules never send the same trade, whichever runs first. Omitted (the in-browser demo): per rule. */
+  owner?: string;
   fetchMarkets: (q: FilterState) => Promise<MarketsResponse>;
   fetchMarket: (id: string) => Promise<Market | null>;
   fetchBook: (token: string, q: number, cat: string) => Promise<Live>;
@@ -129,7 +135,7 @@ function settledPayload(rule: AlertRule, m: Market | null, winner: 0 | 1 | null)
 export const BIG_TRADE_USD = 10_000;
 /** The cron runs once a day; look back a little more than that. Dedupe (rule + transaction) makes the overlap harmless. */
 export const BIG_TRADE_LOOKBACK_H = 25;
-const usd0 =(n: number) => `$${Math.round(n).toLocaleString("en-US")}`;
+const usd0 = (n: number) => `$${Math.round(n).toLocaleString("en-US")}`;
 
 /** F16: trades of $10,000+ on the markets a "big_trade" rule watches (same set as "settled"). One hit per trade. */
 async function bigTradeHits(rule: AlertRule, d: Deps, all: AlertRule[], now: Date) {
@@ -141,7 +147,7 @@ async function bigTradeHits(rule: AlertRule, d: Deps, all: AlertRule[], now: Dat
   const since = Math.floor(now.getTime() / 1000) - BIG_TRADE_LOOKBACK_H * 3600;
   const trades = await d.fetchBigTrades([...new Set(markets.map((m) => m.event_id))], since);
   const hits: { market: Market; side: Side; trade: BigTrade }[] = [];
-  for (const t of trades) {
+  for (const t of [...trades].sort((a, b) => b.ts - a.ts)) {   // newest first, so the cap below keeps the newest
     if (t.usd < BIG_TRADE_USD || t.ts < since) continue;
     const m = markets.find((x) => x.tokens.includes(t.token_id));
     if (!m) continue;
@@ -155,8 +161,9 @@ async function bigTradeHits(rule: AlertRule, d: Deps, all: AlertRule[], now: Dat
 export async function runRules(rules: AlertRule[], d: Deps): Promise<AlertEvent[]> {
   const now = d.now ?? new Date();
   const out: AlertEvent[] = [];
+  const tradesSent = new Set<string>();   // F16: one alert per trade per user, even when two of their rules match it
   for (const rule of rules) {
-    if (!rule.enabled || inQuietHours(rule, now, d.timeZone)) continue;
+    if (!rule.enabled || (d.kinds && !d.kinds.includes(rule.kind)) || inQuietHours(rule, now, d.timeZone)) continue;
     let fired = false;
     if (rule.kind === "settled") {
       // once per rule and market, ever: a resolved market never reopens, so no cooldown bucket in the key
@@ -185,8 +192,14 @@ export async function runRules(rules: AlertRule[], d: Deps): Promise<AlertEvent[
     }
     if (rule.kind === "big_trade") {
       try {
+        let n = 0;
         for (const h of await bigTradeHits(rule, d, rules, now)) {
           const t = h.trade;
+          const key = `${t.tx}|${t.token_id}`;
+          if (tradesSent.has(key)) continue;
+          if (n >= 10) break;   // same cap as the other kinds
+          tradesSent.add(key);
+          n++;
           try {
             out.push(await d.repo.alert_events.insert({
               rule_id: rule.id, market_id: h.market.id, side_index: h.side.side_index,
@@ -195,7 +208,8 @@ export async function runRules(rules: AlertRule[], d: Deps): Promise<AlertEvent[
                 message: `A ${usd0(t.usd)} ${t.side === "SELL" ? "sale" : "buy"} on ${h.side.outcome} at ${pct(t.price)}. Large trades are public; they are not a tip.`,
               },
               sent_channels: ["in_app", ...(rule.channels.includes("push") ? ["push"] : [])],
-              read_at: null, dedupe_key: `${rule.id}|${h.market.id}|bt|${t.tx}|${t.token_id}`,
+              // per user, not per rule: a second rule of theirs on the same trade hits this key and sends nothing
+              read_at: null, dedupe_key: `bt|${d.owner ?? rule.id}|${t.tx}|${t.token_id}`,
             }));
             fired = true;
           } catch (e) {

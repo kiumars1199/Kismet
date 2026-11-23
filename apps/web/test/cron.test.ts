@@ -37,3 +37,22 @@ describe("cron auth", () => {
     expect(v.crons.find((c: { path: string }) => c.path === "/api/alerts/run").schedule).toBe("0 13 * * *");   // daily on Vercel Hobby (T-265); */5 again on Pro;
   });
 });
+
+describe("F16: big-trade alerts run after every scan (refresh.yml)", () => {
+  const yml = readFileSync("../../.github/workflows/refresh.yml", "utf8");
+  const step = yml.slice(yml.indexOf("- name: Run big-trade alerts"));
+  it("POSTs /api/alerts/run?kind=bigtrade with the cron secret after the upload, and never fails the refresh", () => {
+    expect(yml.indexOf("- name: Run big-trade alerts")).toBeGreaterThan(yml.indexOf("- name: Upload outputs to the Supabase bucket"));
+    const body = step.slice(0, step.indexOf("\n      - name:", 10) > 0 ? step.indexOf("\n      - name:", 10) : undefined);
+    expect(body).toMatch(/continue-on-error: true/);
+    expect(body).toMatch(/secrets\.CRON_SECRET/);
+    expect(body).toMatch(/-X POST/);
+    expect(body).toMatch(/Authorization: Bearer \$CRON_SECRET/);
+    expect(body).toMatch(/\/api\/alerts\/run\?kind=bigtrade/);
+  });
+  it("an unknown kind is a 400, not a full run", async () => {
+    vi.stubEnv("CRON_SECRET", "s3cret");
+    const r = await alertsPost(new Request("http://test/api/alerts/run?kind=nope", { method: "POST", headers: { authorization: "Bearer s3cret" } }));
+    expect(r.status).toBe(400);
+  });
+});

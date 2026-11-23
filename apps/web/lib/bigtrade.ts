@@ -44,18 +44,49 @@ export function parseTrades(raw: unknown): BigTrade[] {
   return out;
 }
 
-/** Recent trades worth $10,000 or more in these Polymarket events (newest first, one page of up to 200 per chunk).
- *  ponytail: one page; a very busy event could push an older big trade off it, so raise `limit` or follow next_cursor. */
-export async function fetchBigTrades(eventIds: string[], sinceSec: number): Promise<BigTrade[]> {
-  const ids = [...new Set(eventIds)];
+/** Counts for the one log line per run (app/api/alerts/run/route.ts): proves on the first live run what the feed sent. */
+export interface TradeStats { requests: number; trades: number; newest: number | null }
+export const tradeStats = (): TradeStats => ({ requests: 0, trades: 0, newest: null });
+
+const MAX_PAGES = 5;   // per chunk of 20 events; 1000 rows a page (the documented maximum) of trades already >= $10,000
+
+/** Recent trades worth $10,000 or more in these Polymarket events, newest first.
+ *  ORDER: the docs give no sort direction for the event_id feed and /v2/trades has no sort or order parameter (only
+ *  /v2/activity does), so this is order-proof instead: it follows next_cursor (re-sending identical filters, as the docs
+ *  require) until the feed runs out, or a newest-first page has reached past `sinceSec`, then sorts here, newest first.
+ *  LIMIT: an oldest-first feed with more than MAX_PAGES x 1000 trades of $10,000+ in one chunk's 3-year window would
+ *  still miss the newest ones; the per-run log line (count + newest timestamp) shows which way the live feed runs.
+ *  US-venue events ("us:<id>", lib/types.ts) are not Polymarket ids, so they are never sent. */
+export async function fetchBigTrades(eventIds: string[], sinceSec: number, stats?: TradeStats): Promise<BigTrade[]> {
+  const ids = [...new Set(eventIds)].filter((id) => id && !id.startsWith("us:"));
   const out: BigTrade[] = [];
   for (let i = 0; i < ids.length; i += CHUNK) {
-    const q = new URLSearchParams({
-      event_id: ids.slice(i, i + CHUNK).join(","), filter_type: "CASH", filter_amount: String(BIG_TRADE_USD), taker_only: "true", limit: "200",
-    });
-    const res = await fetch(`${BASE}?${q}`, { cache: "no-store", signal: AbortSignal.timeout(8_000) });
-    if (!res.ok) throw new Error(`Polymarket trades HTTP ${res.status}`);
-    out.push(...parseTrades(await res.json()).filter((t) => t.usd >= BIG_TRADE_USD && t.ts >= sinceSec));
+    const filters = {
+      event_id: ids.slice(i, i + CHUNK).join(","), filter_type: "CASH", filter_amount: String(BIG_TRADE_USD), taker_only: "true", limit: "1000",
+    };
+    let cursor: string | null = null;
+    for (let p = 0; p < MAX_PAGES; p++) {
+      const q = new URLSearchParams(cursor ? { ...filters, cursor } : filters);
+      const res = await fetch(`${BASE}?${q}`, { cache: "no-store", signal: AbortSignal.timeout(8_000) });
+      if (!res.ok) throw new Error(`Polymarket trades HTTP ${res.status}`);
+      const body: unknown = await res.json();
+      const rows = parseTrades(body);
+      if (stats) {
+        stats.requests++;
+        stats.trades += rows.length;
+        for (const r of rows) if (stats.newest === null || r.ts > stats.newest) stats.newest = r.ts;
+      }
+      out.push(...rows.filter((t) => t.usd >= BIG_TRADE_USD && t.ts >= sinceSec));
+      cursor = nextCursor(body);
+      if (!cursor || !rows.length) break;
+      const newestFirst = rows[0]!.ts >= rows[rows.length - 1]!.ts;
+      if (newestFirst && rows[rows.length - 1]!.ts < sinceSec) break;   // every later page is older still
+    }
   }
-  return out;
+  return out.sort((a, b) => b.ts - a.ts);
+}
+
+function nextCursor(body: unknown): string | null {
+  const c = (body as { pagination?: { next_cursor?: unknown } } | null)?.pagination?.next_cursor;
+  return typeof c === "string" && c ? c : null;
 }

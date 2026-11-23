@@ -8,7 +8,7 @@ import { pushConfigured, sendPush, type PushSub } from "@/lib/alerts-push";
 import { sendEmail, siteUrl, unsubscribeUrl } from "@/lib/email";
 import { alertEmail, DISCLAIMER } from "@/lib/email/templates";
 import { can, effectiveTier, type Tier } from "@/lib/entitlements";
-import { UniqueViolation, type AlertEvent, type AlertRule, type OddsFormat, type Repo } from "@/lib/repo/types";
+import { UniqueViolation, type AlertEvent, type AlertKind, type AlertRule, type OddsFormat, type Repo } from "@/lib/repo/types";
 
 type Row = AlertRule & { user_id: string };
 export type Source = Pick<Deps, "fetchMarkets" | "fetchMarket" | "fetchBook" | "fetchSettlement" | "fetchBigTrades">;
@@ -51,9 +51,20 @@ const memoTrades = (f: NonNullable<Source["fetchBigTrades"]>): NonNullable<Sourc
   };
 };
 
-export async function runServerAlerts(db: SupabaseClient, src: Source, now = new Date()): Promise<RunCounts> {
-  const rules = must<Row[]>(await db.from("alert_rules").select("*").eq("enabled", true), "alert_rules read") ?? [];
+/** ?kind= on /api/alerts/run. None: every kind (the daily cron). "bigtrade": only big-trade rules (refresh.yml, after
+ *  every scan, so a big trade is alerted within one scan). Anything else: null, and the route answers 400. */
+export function kindsFromQuery(url: string): AlertKind[] | undefined | null {
+  const k = new URL(url).searchParams.get("kind");
+  if (k === null) return undefined;
+  return k === "bigtrade" ? ["big_trade"] : null;
+}
+
+export async function runServerAlerts(db: SupabaseClient, src: Source, now = new Date(), opts: { kinds?: AlertKind[] } = {}): Promise<RunCounts> {
+  const all = must<Row[]>(await db.from("alert_rules").select("*").eq("enabled", true), "alert_rules read") ?? [];
   const counts: RunCounts = { users: 0, rules: 0, events: 0, emails: 0, webhooks: 0, pushes: 0, errors: 0 };
+  const runs = (r: Row) => !opts.kinds || opts.kinds.includes(r.kind);
+  // users with nothing to evaluate in this run are skipped; their other rules stay in as context
+  const rules = all.filter((r) => all.some((x) => x.user_id === r.user_id && runs(x)));
   if (!rules.length) return counts;
   const bigTrades = src.fetchBigTrades ? memoTrades(src.fetchBigTrades) : undefined;
   const users = [...new Set(rules.map((r) => r.user_id))];
@@ -100,7 +111,7 @@ export async function runServerAlerts(db: SupabaseClient, src: Source, now = new
       },
     } as unknown as Repo;
     const deps: Deps = {
-      ...src, repo, now, timeZone, odds: prof?.odds_format ?? "percent", memory,
+      ...src, repo, now, timeZone, odds: prof?.odds_format ?? "percent", memory, kinds: opts.kinds, owner: uid,
       // F16: Premium only. Free and Pro get no feed, so a big_trade rule on those plans can never fire.
       fetchBigTrades: tier === "premium" ? bigTrades : undefined,
       fetchBook: async (token, q, cat) => {
@@ -111,7 +122,7 @@ export async function runServerAlerts(db: SupabaseClient, src: Source, now = new
     };
 
     counts.users++;
-    counts.rules += mine.length;
+    counts.rules += mine.filter(runs).length;
     let events: AlertEvent[];
     try { events = await runRules(mine, deps); } catch (e) {
       console.error("[alerts/run] user failed:", (e as Error).message);
