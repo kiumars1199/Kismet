@@ -24,6 +24,8 @@ test("3 legs: combined numbers, drop the weakest with one tap, numbers update", 
   await expect(page.getByTestId("combo-msg")).toContainText("Add at least one more leg");
   await addByUrl(page, distinct[1]!);
   await addByUrl(page, distinct[2]!);
+  await expect(page.getByTestId("combo-mult")).toHaveCount(0);   // nothing is scored until the tap
+  await page.getByTestId("combo-check-btn").click();
   await expect(page.getByTestId("combo-mult")).toBeVisible();
   const before = { chance: await page.getByTestId("combo-chance").innerText(), mult: await page.getByTestId("combo-mult").innerText() };
   await expect(page.getByTestId("combo-formula")).toContainText("independent");
@@ -57,6 +59,7 @@ test("a 2nd leg from the same event shows the same-event warning; a duplicate is
   await page.goto("/check/combo");
   await addByUrl(page, a!);
   await addByUrl(page, b!);
+  await page.getByTestId("combo-check-btn").click();
   await expect(page.getByTestId("combo-same-event")).toContainText("move together");
   await page.evaluate(([m, s]) => window.history.pushState(null, "", `/check/combo?m=${m}&side=${s}&x=1`), [a!.market.id, String(a!.side.side_index)]);
   await expect(page.getByTestId("combo-note")).toContainText("already in your combo");

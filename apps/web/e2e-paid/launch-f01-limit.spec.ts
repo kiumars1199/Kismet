@@ -114,7 +114,10 @@ test("Free: scoring a combo uses the day's check; the same set is free; another 
     expect(Object.keys(await r.json()).sort()).toEqual(["market", "outcome", "price", "side", "venue"]);
   }
   const A = [{ m: ids[0], side: 0 }, { m: ids[1], side: 0 }];
-  expect((await post("/api/check/combo", { legs: A })).status()).toBe(200);
+  const first = await post("/api/check/combo", { legs: A });
+  expect(first.status()).toBe(200);
+  const legsOut = (await first.json()).legs as Record<string, unknown>[];
+  for (const l of legsOut) expect(Object.keys(l).sort()).toEqual(["base", "basis", "m", "side"]);   // no per-leg chance/edge/score for Free
   expect((await post("/api/check/combo", { legs: [...A].reverse() })).status()).toBe(200);   // same set again: free
   const single = await post("/api/check", { m: ids[2], side: 0 });
   expect(single.status()).toBe(429);
@@ -128,6 +131,37 @@ test("Free: scoring a combo uses the day's check; the same set is free; another 
   await expect(page.getByTestId("combo-leg")).toHaveCount(1, { timeout: 30_000 });
   await page.evaluate(([m]) => window.history.pushState(null, "", `/check/combo?m=${m}&side=0`), [ids[2]!]);
   await expect(page.getByTestId("combo-leg")).toHaveCount(2, { timeout: 30_000 });
+  await expect(page.getByTestId("check-upgrade")).toHaveCount(0);   // nothing is scored until the tap
+  await page.getByTestId("combo-check-btn").click();
   await expect(page.getByTestId("check-upgrade")).toBeVisible({ timeout: 30_000 });
   await expect(page.getByTestId("combo-mult")).toHaveCount(0);
+});
+
+// F2 review: a Free account builds 3 legs (no automatic scoring), taps Check once, then drops a leg: the numbers update, no 429.
+test("Free: 3 legs, one explicit check, then dropping a leg recomputes without a second check", async ({ page }) => {
+  test.setTimeout(240_000);
+  await ownDevice(page);
+  await signIn(page, `f02-free3-${Date.now()}@example.com`);
+  const ids = await marketIds(page, 6);
+  const ev = await Promise.all(ids.map(async (m) => ((await (await page.request.get(`/api/markets/${m}`)).json()).market.event_id as string)));
+  const pick = ids.filter((_, i) => ev.indexOf(ev[i]!) === i).slice(0, 3);
+  expect(pick.length).toBe(3);
+  let calls = 0;
+  page.on("request", (r) => { if (r.url().endsWith("/api/check/combo")) calls++; });
+  await page.goto(`/check/combo?m=${pick[0]}&side=0`);
+  await expect(page.getByTestId("combo-leg")).toHaveCount(1, { timeout: 30_000 });
+  for (const [i, m] of pick.slice(1).entries()) {
+    await page.evaluate(([x]) => window.history.pushState(null, "", `/check/combo?m=${x}&side=0`), [m!]);
+    await expect(page.getByTestId("combo-leg")).toHaveCount(i + 2, { timeout: 30_000 });
+  }
+  await expect(page.getByTestId("combo-leg")).toHaveCount(3, { timeout: 30_000 });
+  expect(calls).toBe(0);
+  await page.getByTestId("combo-check-btn").click();
+  await expect(page.getByTestId("combo-mult")).toBeVisible({ timeout: 30_000 });
+  const before = await page.getByTestId("combo-mult").innerText();
+  await page.getByRole("button", { name: /^Remove / }).first().click();
+  await expect(page.getByTestId("combo-leg")).toHaveCount(2);
+  await expect(page.getByTestId("combo-mult")).not.toHaveText(before);
+  await expect(page.getByTestId("check-upgrade")).toHaveCount(0);
+  expect(calls).toBe(1);
 });

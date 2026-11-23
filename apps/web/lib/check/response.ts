@@ -44,3 +44,6 @@ export function buildLeg(m: StoreMarket, sideIndex: 0 | 1): LegLookup | null {
   const base = baseOf(m, s);
   return { market: { id: m.id, question: m.question, event: m.event, event_id: m.event_id }, side: sideIndex, outcome: s.outcome, price: base.ask, venue: base.venue };
 }
+
+/** /api/check/combo: per leg, only the inputs the combo view recomputes from (a Free check is one combo, not ten single checks). */
+export interface ComboLegsResponse { legs: { m: string; side: 0 | 1; base: CheckBase; basis: string }[] }
