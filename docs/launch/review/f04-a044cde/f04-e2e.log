@@ -1,0 +1,29 @@
+    > 14 |     await expect(page).toHaveURL(/\/state\?next=/, { timeout: 30_000 });   // next dev compiles /state on this first hit
+         |                        ^
+      15 |     await expect(page).not.toHaveURL(/signup|login|settings/);
+      16 |     await page.getByTestId("state-select").selectOption("NV");
+      17 |     await expect(page).toHaveURL(/\/\?us=0&g=0&ps=50$/, { timeout: 15_000 });
+        at /tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/wt52/apps/web/e2e/launch-f09-state-signed-out.spec.ts:14:24
+
+    Error Context: test-results/launch-f09-state-signed-ou-41e52-ote-shows-Nevada-no-sign-up-chromium/error-context.md
+
+
+[4/11] [chromium] › e2e/launch-f09-state-signed-out.spec.ts:6:3 › signed out at 1440: Check your state → pick NV → the note shows Nevada, no sign-up
+[5/11] [chromium] › e2e/launch-f04-venues.spec.ts:24:1 › a market on 2 venues shows Kalshi as Not listed
+[6/11] [chromium] › e2e/launch-f04-venues.spec.ts:31:1 › a market on one venue has no block
+[7/11] [chromium] › e2e/launch-f09-state-signed-out.spec.ts:24:1 › /state refuses an off-site next and still works on its own
+[8/11] [chromium] › e2e/launch-f04-venues.spec.ts:37:1 › 6674492: the card says international only, so the block lists Polymarket US as Not listed
+[9/11] [chromium] › e2e/launch-f04-venues.spec.ts:45:1 › 7078474: the block's Polymarket US payout is the card's (1.34x)
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[10/11] [chromium] › e2e/launch-f04-venues.spec.ts:51:1 › basis: source, time and Kalshi match confidence are one tap away
+[11/11] [chromium] › e2e/launch-f04-venues.spec.ts:65:1 › /check: a pasted Kalshi link resolves to its market (not 'missing') and shows Kalshi's own price
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+  1 failed
+    [chromium] › e2e/launch-f09-state-signed-out.spec.ts:6:3 › signed out at 390: Check your state → pick NV → the note shows Nevada, no sign-up 
+  10 passed (55.0s)
+[4/6] [chromium] › e2e/launch-f09-state-signed-out.spec.ts:6:3 › signed out at 390: Check your state → pick NV → the note shows Nevada, no sign-up
+[5/6] [chromium] › e2e/launch-f09-state-signed-out.spec.ts:6:3 › signed out at 1440: Check your state → pick NV → the note shows Nevada, no sign-up
+[6/6] [chromium] › e2e/launch-f09-state-signed-out.spec.ts:24:1 › /state refuses an off-site next and still works on its own
+  6 passed (46.0s)
