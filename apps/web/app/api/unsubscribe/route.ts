@@ -19,6 +19,18 @@ const page = (body: string, status = 200) =>
 
 const claims = (req: Request) => verifyUnsubscribe(new URL(req.url).searchParams.get("t") ?? "");
 
+/** F12: a digest token turns the morning digest off (profiles.digest_opt_in); it never touches alert rules. */
+async function stopDigest(c: UnsubClaims): Promise<void> {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/+$/, "");
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) return;
+  const res = await fetch(`${url}/rest/v1/profiles?user_id=eq.${encodeURIComponent(c.u)}`, {
+    method: "PATCH", headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ digest_opt_in: false }),
+  });
+  if (!res.ok) throw new Error(`profiles update HTTP ${res.status}`);
+}
+
 /** Drops the email channel from the matching alert rules. No Supabase configured = nothing stored server-side. */
 async function stopEmail(c: UnsubClaims): Promise<void> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/+$/, "");
@@ -42,6 +54,10 @@ const invalid = () => page(`<h1>This link has expired or is not valid</h1><p>Tur
 export function GET(req: Request): Response {
   const c = claims(req);
   if (!c) return invalid();
+  if (c.k === "digest") {
+    return page(`<h1>Stop the morning digest?</h1><p>You will no longer get the daily bets email. Alert emails and in-app alerts are not affected.</p>
+<form method="post"><button type="submit" style="background:#10b981;color:#000;border:0;border-radius:12px;padding:10px 16px;font-weight:600;cursor:pointer">Unsubscribe</button></form>`);
+  }
   const what = c.r ? "this alert" : "all alert emails";
   return page(`<h1>Stop ${what}?</h1><p>You will no longer get ${what} by email. In-app alerts stay on.</p>
 <form method="post"><button type="submit" style="background:#10b981;color:#000;border:0;border-radius:12px;padding:10px 16px;font-weight:600;cursor:pointer">Unsubscribe</button></form>`);
@@ -51,10 +67,11 @@ export async function POST(req: Request): Promise<Response> {
   const c = claims(req);
   if (!c) return invalid();
   try {
-    await stopEmail(c);
+    await (c.k === "digest" ? stopDigest(c) : stopEmail(c));
   } catch (e) {
     console.error("[unsubscribe] failed:", (e as Error).message);
     return page(`<h1>Something went wrong</h1><p>Please try the link again in a minute.</p>`, 500);
   }
+  if (c.k === "digest") return page(`<h1>You're unsubscribed</h1><p>The morning digest will no longer be emailed to you.</p>`);
   return page(`<h1>You're unsubscribed</h1><p>${c.r ? "This alert" : "Alert emails"} will no longer be emailed to you.</p>`);
 }

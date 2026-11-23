@@ -45,6 +45,7 @@ export function Onboarding({ next }: { next?: string }) {
     setReady(true);
     try { if (localStorage.getItem(ORDER_STYLE_KEY) === "limit") setStyle("limit"); } catch { /* storage off */ }
   }, []);
+  const [digest, setDigest] = useState(false);   // F12: morning email, explicit opt-in, off unless ticked
   const [custom, setCustom] = useState("");
   const [error, setError] = useState<string | null>(null);
 
@@ -60,6 +61,9 @@ export function Onboarding({ next }: { next?: string }) {
     } catch { /* storage off */ }
     setError(null);
     let topics: string[] | undefined;
+    if (digest && !DEMO_MODE) {   // best effort: failing to save an email preference must not block setup
+      fetch("/api/digest/optin", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ on: true }) }).catch(() => {});
+    }
     try {
       // Signed in: wait until AuthBoot has switched to the account store, or the flag would land only in this browser.
       if (!DEMO_MODE) await within(repoReady, 8_000).catch(() => {});
@@ -99,7 +103,17 @@ export function Onboarding({ next }: { next?: string }) {
         <p className="mt-2 text-muted">{STEPS[step].line}</p>
       </header>
 
-      {step === 0 && <TopicsPicker />}
+      {step === 0 && (
+        <>
+          <TopicsPicker />
+          {!DEMO_MODE && (
+            <label className="flex min-h-12 items-start gap-3 rounded-input border border-border bg-input px-4 py-3 text-sm text-soft">
+              <input type="checkbox" checked={digest} onChange={(e) => setDigest(e.target.checked)} className="mt-1 size-4 accent-[#10b981]" />
+              <span><span className="block font-medium text-text">Email me a short morning list</span><span className="text-muted">Up to 5 bets in your topics, once a day. Turn it off any time from the email.</span></span>
+            </label>
+          )}
+        </>
+      )}
 
       {step === 1 && (
         <div className="flex flex-col gap-8">

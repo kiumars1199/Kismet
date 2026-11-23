@@ -33,7 +33,7 @@ describe("cron auth", () => {
 
   it("vercel.json schedules every cron route", () => {
     const v = JSON.parse(readFileSync("vercel.json", "utf8"));
-    expect(v.crons.map((c: { path: string }) => c.path).sort()).toEqual(["/api/alerts/run", "/api/lifecycle/run", "/api/settle/run"]);
+    expect(v.crons.map((c: { path: string }) => c.path).sort()).toEqual(["/api/alerts/run", "/api/digest/run", "/api/lifecycle/run", "/api/settle/run"]);
     expect(v.crons.find((c: { path: string }) => c.path === "/api/alerts/run").schedule).toBe("0 13 * * *");   // daily on Vercel Hobby (T-265); */5 again on Pro;
   });
 });
