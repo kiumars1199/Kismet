@@ -1,0 +1,27 @@
+  [chromium] › admin.spec.ts:137:1 › normal user and anonymous visitor: 404 on every admin page and API route, no Admin link; Kalshi yes, Combos Premium only
+  [chromium] › admin.spec.ts:79:1 › admin: sees /admin with a user count, flips the banner and everyone sees it
+  [chromium] › launch-f08-age.spec.ts:5:1 › signup: the 18+ and Terms box is required and recorded
+  [chromium] › launch-f08-pause.spec.ts:29:1 › pause 24 h: pause screen on every app page, 423 on data routes, end time in the user's zone
+  [chromium] › launch-f15-admin.spec.ts:25:1 › admin 30-day table: counts, dollars from cents, dashes before the ledger
+  [chromium] › overhaul-funnel.spec.ts:113:1 › admin /admin/funnel shows daily counts and step-to-step conversion
+  [chromium] › overhaul-funnel.spec.ts:34:1 › funnel: every step fires exactly once per user (signed-out steps once per visit)
+  [chromium] › overhaul-landing.spec.ts:13:1 › server HTML of / has no banned word or count above 3 digits
+  [chromium] › overhaul-landing.spec.ts:35:3 › landing at 1440×900: words, order, first screen
+  [chromium] › overhaul-landing.spec.ts:35:3 › landing at 390×844: words, order, first screen
+  [chromium] › password.spec.ts:35:1 › password: sign up, confirm by email, stay signed in, sign out, sign in again
+  [chromium] › password.spec.ts:82:1 › password: forgot → reset link → set a new one → sign in with it
+  [chromium] › paywall-pages.spec.ts:12:1 › signed out: data APIs are 401, app pages redirect with next, public pages carry no paid fields
+  [chromium] › paywall-pages.spec.ts:57:1 › signed out: public pages make no API call that gets a 401
+  [chromium] › paywall-pages.spec.ts:90:1 › redirect with next: a signed-out deep link → sign up → onboarding → back on that page
+  [chromium] › qa-c-404.spec.ts:5:1 › #33 signed out: unknown URLs are a 404 page; app pages still ask for an account
+  [chromium] › qa-c-billing.spec.ts:48:1 › #48: Terms and Refunds send cancellation to /account's Manage billing or cancel
+  [chromium] › qa-c-billing.spec.ts:7:1 › #32 → #18: Start trial (Premium, yearly) signed out → sign-up → checkout → /account shows plan, trial end, cancel
+  [chromium] › qa-c-header.spec.ts:47:1 › #17/#73 admin: Combos, Kalshi, Admin, Account on every page without waiting for /api/me
+  [chromium] › qa-c-header.spec.ts:65:1 › #17/#73 normal user: Account everywhere, no Admin, Kalshi (live for every plan), no Combos (Premium)
+  [chromium] › qa-c-settings.spec.ts:33:1 › #21/#22 settings: linked from /account, saved to the account, seen on a second device
+  [chromium] › qa-c-settings.spec.ts:60:1 › #22 onboarding banner: never flashes once setup is done; dismissing is saved to the account
+  [chromium] › qa-c-upsell.spec.ts:23:1 › #9 Free: the filter sheet with the Pro pitch closes with ✕, Escape and a click outside; /markets shows loading
+  [chromium] › qa-c2-alerts.spec.ts:32:1 › #23/#64 Pro: /alerts renders before its scripts load, says where alerts go, and a new rule can email
+  [chromium] › qa-c2-alerts.spec.ts:65:1 › Nov 21: Free sees a short upgrade note on /alerts, and no email switch
+  [chromium] › qa-c2-alerts.spec.ts:76:1 › #64 /pricing sells no Telegram or Discord alerts and says email is checked once a day
+  [chromium] › qa-c2-alerts.spec.ts:83:1 › #38/#58/#72 /pricing states the AI connector allowance the same way on the table and the cards

@@ -1,0 +1,6 @@
+      Tests  14 passed (14)
+   Start at  09:17:35
+   Duration  2.38s (tests 88%, transform 6%, import 5%, worker 1%)
+
+$ tsc --noEmit
+$ eslint . --max-warnings 0

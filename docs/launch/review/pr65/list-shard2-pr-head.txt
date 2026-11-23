@@ -1,0 +1,20 @@
+  [chromium] › s7-upgrade.spec.ts:103:1 › keyboard only: search → drawer → save → upgrade reaches /pricing
+  [chromium] › s7-upgrade.spec.ts:35:1 › S7 sign up → upgrade with Stripe → Pro unlocks live data and exact numbers
+  [chromium] › s7-upgrade.spec.ts:85:1 › account delete: type the email, everything goes, signed out
+  [chromium] › t291-plans.spec.ts:5:1 › plan buttons in the server HTML: Start trial / Start free, never a disabled Coming soon
+  [iphone-390] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /
+  [iphone-390] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /about
+  [iphone-390] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /login
+  [iphone-390] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /pricing
+  [iphone-390] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /reset-password
+  [iphone-390] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /signup
+  [iphone-390] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /terms
+  [iphone-390] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /track-record
+  [iphone-430] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /
+  [iphone-430] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /about
+  [iphone-430] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /login
+  [iphone-430] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /pricing
+  [iphone-430] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /reset-password
+  [iphone-430] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /signup
+  [iphone-430] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /terms
+  [iphone-430] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /track-record

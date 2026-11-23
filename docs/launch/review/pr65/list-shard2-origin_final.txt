@@ -1,0 +1,29 @@
+  [chromium] › qa-c-header.spec.ts:47:1 › #17/#73 admin: Combos, Kalshi, Admin, Account on every page without waiting for /api/me
+  [chromium] › qa-c-header.spec.ts:65:1 › #17/#73 normal user: Account everywhere, no Admin, Kalshi (live for every plan), no Combos (Premium)
+  [chromium] › qa-c-settings.spec.ts:33:1 › #21/#22 settings: linked from /account, saved to the account, seen on a second device
+  [chromium] › qa-c-settings.spec.ts:60:1 › #22 onboarding banner: never flashes once setup is done; dismissing is saved to the account
+  [chromium] › qa-c-upsell.spec.ts:23:1 › #9 Free: the filter sheet with the Pro pitch closes with ✕, Escape and a click outside; /markets shows loading
+  [chromium] › qa-c2-alerts.spec.ts:32:1 › #23/#64 Pro: /alerts renders before its scripts load, says where alerts go, and a new rule can email
+  [chromium] › qa-c2-alerts.spec.ts:65:1 › Nov 21: Free sees a short upgrade note on /alerts, and no email switch
+  [chromium] › qa-c2-alerts.spec.ts:76:1 › #64 /pricing sells no Telegram or Discord alerts and says email is checked once a day
+  [chromium] › qa-c2-alerts.spec.ts:83:1 › #38/#58/#72 /pricing states the AI connector allowance the same way on the table and the cards
+  [chromium] › s7-upgrade.spec.ts:103:1 › keyboard only: search → drawer → save → upgrade reaches /pricing
+  [chromium] › s7-upgrade.spec.ts:35:1 › S7 sign up → upgrade with Stripe → Pro unlocks live data and exact numbers
+  [chromium] › s7-upgrade.spec.ts:85:1 › account delete: type the email, everything goes, signed out
+  [chromium] › t291-plans.spec.ts:5:1 › plan buttons in the server HTML: Start trial / Start free, never a disabled Coming soon
+  [iphone-390] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /
+  [iphone-390] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /about
+  [iphone-390] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /login
+  [iphone-390] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /pricing
+  [iphone-390] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /reset-password
+  [iphone-390] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /signup
+  [iphone-390] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /terms
+  [iphone-390] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /track-record
+  [iphone-430] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /
+  [iphone-430] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /about
+  [iphone-430] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /login
+  [iphone-430] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /pricing
+  [iphone-430] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /reset-password
+  [iphone-430] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /signup
+  [iphone-430] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /terms
+  [iphone-430] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /track-record

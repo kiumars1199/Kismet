@@ -1,0 +1,34 @@
+390 out tier=out first="Check your state" state url ?next=%2F -> back on / | after: cls=0 shifts=[] notes=["Polymarket US: not available in Nevada"] hscroll=false disclaimer=true cents=false | reload: cls=0 shifts=[] first="Polymarket US: not available in Nevada"
+390 free tier=free first="Check your state" state url ?next=%2F -> back on / | after: cls=0 shifts=[] notes=["Polymarket US: not available in Nevada"] hscroll=false disclaimer=true cents=false | reload: cls=0 shifts=[] first="Polymarket US: not available in Nevada"
+390 pro tier=pro first="Check your state" state url ?next=%2F -> back on / | after: cls=0.0005 shifts=[0.0005] notes=["Polymarket US: not available in Nevada"] hscroll=false disclaimer=true cents=false | reload: cls=0 shifts=[] first="Polymarket US: not available in Nevada"
+390 premium tier=premium first="Check your state" state url ?next=%2F -> back on / | after: cls=0.0005 shifts=[0.0005] notes=["Polymarket US: not available in Nevada"] hscroll=false disclaimer=true cents=false | reload: cls=0 shifts=[] first="Polymarket US: not available in Nevada"
+1440 out tier=out first="Check your state" state url ?next=%2F -> back on / | after: cls=0 shifts=[] notes=["Polymarket US: not available in Nevada"] hscroll=false disclaimer=true cents=false | reload: cls=0 shifts=[] first="Polymarket US: not available in Nevada"
+1440 free tier=free first="Check your state" state url ?next=%2F -> back on / | after: cls=0.0006 shifts=[0.0006] notes=["Polymarket US: not available in Nevada"] hscroll=false disclaimer=true cents=false | reload: cls=0.0006 shifts=[0.0006] first="Polymarket US: not available in Nevada"
+1440 pro tier=pro first="Check your state" state url ?next=%2F -> back on / | after: cls=0.0006 shifts=[0.0006] notes=["Polymarket US: not available in Nevada"] hscroll=false disclaimer=true cents=false | reload: cls=0.0006 shifts=[0.0006] first="Polymarket US: not available in Nevada"
+1440 premium tier=premium first="Check your state" state url ?next=%2F -> back on / | after: cls=0.0006 shifts=[0.0006] notes=["Polymarket US: not available in Nevada"] hscroll=false disclaimer=true cents=false | reload: cls=0.0006 shifts=[0.0006] first="Polymarket US: not available in Nevada"
+next=%2F%09%2Fevil.example -> Back href="/" final=/state?next=%2F%09%2Fevil.example offsite=[]
+next=%2F%0A%2Fevil.example -> Back href="/" final=/state?next=%2F%0A%2Fevil.example offsite=[]
+next=%2F%0D%2Fevil.example -> Back href="/" final=/state?next=%2F%0D%2Fevil.example offsite=[]
+next=%2F%0D%0A%2Fevil.example -> Back href="/" final=/state?next=%2F%0D%0A%2Fevil.example offsite=[]
+next=%09%2F%2Fevil.example -> Back href="/" final=/state?next=%09%2F%2Fevil.example offsite=[]
+next=%2F%2Fevil.example -> Back href="/" final=/state?next=%2F%2Fevil.example offsite=[]
+next=%2F%5Cevil.example -> Back href="/" final=/state?next=%2F%5Cevil.example offsite=[]
+next=%2F%5C%2Fevil.example -> Back href="/" final=/state?next=%2F%5C%2Fevil.example offsite=[]
+next=%2F%09%5Cevil.example -> Back href="/" final=/state?next=%2F%09%5Cevil.example offsite=[]
+next=%2F.%2F%2Fevil.example -> Back href="/" final=/state?next=%2F.%2F%2Fevil.example offsite=[]
+next=%2F..%2F%2Fevil.example -> Back href="/" final=/state?next=%2F..%2F%2Fevil.example offsite=[]
+next=%2F%2E%2F%2Fevil.example -> Back href="/" final=/state?next=%2F%2E%2F%2Fevil.example offsite=[]
+next=https%3A%2F%2Fevil.example -> Back href="/" final=/state?next=https%3A%2F%2Fevil.example offsite=[]
+next=javascript%3Aalert(1) -> Back href="/" final=/state?next=javascript%3Aalert(1) offsite=[]
+next=%2F%00evil -> Back href="/" final=/state?next=%2F%00evil offsite=[]
+next=%2Fok%7F -> Back href="/" final=/state?next=%2Fok%7F offsite=[]
+next=%2F%1F%2Fevil.example -> Back href="/" final=/state?next=%2F%1F%2Fevil.example offsite=[]
+next=%2F%E2%80%A8%2Fevil.example -> Back href="/%E2%80%A8/evil.example" final=/state?next=%2F%E2%80%A8%2Fevil.example offsite=[]
+next=%20%2F%2Fevil.example -> Back href="/" final=/state?next=%20%2F%2Fevil.example offsite=[]
+next=%2F%2509%2Fevil.example -> Back href="/%09/evil.example" final=/%09/evil.example offsite=[]
+next=%2Fbets%3Fx%3D1%23why -> Back href="/bets?x=1#why" final=/state?next=%2Fbets%3Fx%3D1%23why offsite=[]
+next=%2Fstate -> Back href="/" final=/state?next=%2Fstate offsite=[]
+next=%2Fbets%3Fx%3D1%23why navs=["/state?next=%2Fbets%3Fx%3D1%23why","/state?next=%2Fbets%3Fx%3D1%23why","/signup?next=%2Fbets%3Fx%3D1#why","/signup?next=%2Fbets%3Fx%3D1#why"] final=/signup?next=%2Fbets%3Fx%3D1#why
+next=%2Fm%2F7077574 navs=["/state?next=%2Fm%2F7077574","/state?next=%2Fm%2F7077574","/state?next=%2Fm%2F7077574","/state?next=%2Fm%2F7077574"] final=/state?next=%2Fm%2F7077574
+next=%2F%3Fus%3D0 navs=["/state?next=%2F%3Fus%3D0","/state?next=%2F%3Fus%3D0","/?us=0","/?us=0"] final=/?us=0
+next=%2Fm%2F7077574 navs=["/state?next=%2Fm%2F7077574","/state?next=%2Fm%2F7077574","/m/7077574","/m/7077574"] final=/m/7077574

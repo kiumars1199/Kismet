@@ -1,0 +1,15 @@
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] [abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+  ✓  1 [chromium] › e2e-paid/launch-f09-state-static.spec.ts:6:3 › signed out at 390: / → Check your state → NV → / says not available in Nevada, CLS < 0.1 (44.1s)
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+  ✓  2 [chromium] › e2e-paid/launch-f09-state-static.spec.ts:6:3 › signed out at 1440: / → Check your state → NV → / says not available in Nevada, CLS < 0.1 (5.3s)
+
+  2 passed (53.1s)

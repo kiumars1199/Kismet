@@ -1,0 +1,9 @@
+$ tsc --noEmit
+$ eslint . --max-warnings 0
+ Test Files  5 passed (5)
+      Tests  37 passed (37)
+   Start at  09:03:33
+   Duration  1.85s (tests 68%, transform 19%, import 11%, worker 2%)
+
+    0.9 kB  static/chunks/4744-37403b0c20e80c56.js
+/: first-load JS 144.8 kB gzipped (463 kB raw, 13 files); budget 150 kB: OK
