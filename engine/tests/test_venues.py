@@ -44,7 +44,7 @@ def test_build_polymarket_us_and_kalshi_in_order_with_kalshi_multiplier():
     assert [q["venue"] for q in out["venues"]] == ["polymarket", "us", "kalshi"]
     poly, us, k = out["venues"]
     assert poly["multiplier"] == round(1 / 0.63, 4) and us["multiplier"] == round(1 / 0.61, 4)
-    assert k["price"] == 0.6 and k["multiplier"] == round(1 / 0.62, 4) and k["url"] == "https://kalshi.com/markets/kxnflgame"
+    assert k["price"] == 0.6 and k["multiplier"] == v.kalshi_multiplier(0.6) and k["url"] == "https://kalshi.com/markets/kxnflgame"
     assert out["kalshi_ticker"] == "KXNFLGAME-1" and out["kalshi_match_conf"] >= v.MIN_SCORE
 
 
@@ -89,26 +89,34 @@ def test_write_stamps_the_kalshi_crawl_time_and_keeps_two_older_snapshots(tmp_pa
     assert [p["meta"]["kalshi_fetched_at"] for p in json.load(open(tmp_path / "venues.json"))["prev"]] == [3000, 2000]
 
 
-# Kalshi taker fee for one contract: round_up_to_cent(0.07 * C * P * (1 - P)), C = 1; multiplier = 1 / (P + fee).
-# Hand-computed: P=0.01: 0.07*0.01*0.99 = 0.000693 -> 1c; 1/0.02 = 50. P=0.50: 0.07*0.25 = 0.0175 -> 2c; 1/0.52 = 1.9231.
-# P=0.97: 0.07*0.97*0.03 = 0.002037 -> 1c; 1/0.98 = 1.0204. P=0.69: 0.07*0.69*0.31 = 0.014973 -> 2c.
-def test_kalshi_fee_rounds_up_to_the_next_cent():
-    assert v.kalshi_fee(0.01) == 0.01
-    assert v.kalshi_fee(0.50) == 0.02
-    assert v.kalshi_fee(0.97) == 0.01
-    assert v.kalshi_fee(0.69) == 0.02
+# Kalshi taker fee, worked for ONE fixed reference order (the same for everyone): a $100 stake, C = floor(100 / P) contracts,
+# fee_total = round_up_to_cent(0.07 * C * P * (1 - P)), per contract = fee_total / C, multiplier = 1 / (P + per-contract fee).
+# Hand-computed:
+#  P=0.01: C = 10000, 0.07*10000*0.01*0.99 = 6.93 -> $6.93 ; 0.000693 per contract ; 1/0.010693 = 93.5191
+#  P=0.05: C = 2000,  0.07*2000*0.05*0.95  = 6.65  -> $6.65 ; 0.003325 per contract ; 1/0.053325 = 18.7529
+#  P=0.50: C = 200,   0.07*200*0.5*0.5     = 3.50  -> $3.50 ; 0.0175 per contract ; 1/0.5175  = 1.9324
+#  P=0.97: C = 103,   0.07*103*0.97*0.03   = 0.2098 -> $0.21 ; 0.21/103 per contract ; 1/(0.97 + 0.21/103) = 1.0288
+def test_kalshi_reference_order_contracts_and_total_fee():
+    assert v.kalshi_contracts(0.01) == 10000 and v.kalshi_contracts(0.05) == 2000
+    assert v.kalshi_contracts(0.50) == 200 and v.kalshi_contracts(0.97) == 103
+    assert v.kalshi_fee_total(0.01) == 6.93
+    assert v.kalshi_fee_total(0.05) == 6.65
+    assert v.kalshi_fee_total(0.50) == 3.5
+    assert v.kalshi_fee_total(0.97) == 0.21
+    assert v.kalshi_fee_total(0.76) == 1.68   # C = 131: 0.07*131*0.76*0.24 = 1.6727 rounds UP to the cent
 
 
-def test_kalshi_multiplier_is_one_over_price_plus_fee():
-    assert v.kalshi_multiplier(0.01) == 50.0
-    assert v.kalshi_multiplier(0.50) == 1.9231
-    assert v.kalshi_multiplier(0.97) == 1.0204
+def test_kalshi_multiplier_uses_the_per_contract_fee_of_the_100_dollar_order():
+    assert v.kalshi_multiplier(0.01) == 93.5191
+    assert v.kalshi_multiplier(0.05) == 18.7529
+    assert v.kalshi_multiplier(0.50) == 1.9324
+    assert v.kalshi_multiplier(0.97) == 1.0288
+
+
+def test_kalshi_longshots_are_not_inflated_by_one_contract_rounding():
+    # The old one-contract maths (fee rounded up to a whole cent per contract) gave 50x at 1% and 16.67x at 5%.
+    assert v.kalshi_multiplier(0.01) > 90 and v.kalshi_multiplier(0.05) > 18.5
 
 
 def test_kalshi_multiplier_none_without_a_usable_price():
-    assert v.kalshi_multiplier(None) is None and v.kalshi_multiplier(0) is None
-
-
-def test_kalshi_fee_other_prices():
-    # P=0.20: 0.07*0.2*0.8 = 0.0112 -> 2c; P=0.10: 0.07*0.1*0.9 = 0.0063 -> 1c (integer-cent maths, no float noise).
-    assert v.kalshi_fee(0.20) == 0.02 and v.kalshi_fee(0.10) == 0.01
+    assert v.kalshi_multiplier(None) is None and v.kalshi_multiplier(0) is None and v.kalshi_multiplier(1.0) is not None
