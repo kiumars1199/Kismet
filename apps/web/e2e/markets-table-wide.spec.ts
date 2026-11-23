@@ -135,3 +135,46 @@ test("/markets with one extra column (Volume) at 1280px: it fits now (Bet and To
   await page.waitForTimeout(500);
   expect(Math.round(await page.locator("table thead").evaluate((el) => el.getBoundingClientRect().top))).toBe(64);
 });
+
+// Bet cell at wide widths (follow-up to #81): the Market column used to take all the slack, so "Yes · 69% · pays 1.45x" wrapped on almost
+// every row (53 px rows became 69 px) and line 2 began with a stray "·". Cap the Market column; the dot shows only where it cannot wrap.
+const betCells = (page: Page) => page.evaluate(() => [...document.querySelectorAll('[data-testid="bet-cell"]')].map((c) => {
+  const first = c.querySelector('[data-testid="bet-side"]')!.getBoundingClientRect();
+  const pays = c.querySelector('[data-testid="bet-pays"]')!.getBoundingClientRect();
+  const dot = c.querySelector('[data-testid="bet-dot"]') as HTMLElement | null;
+  return { wrapped: pays.top >= first.bottom - 1, leadingDot: !!dot && getComputedStyle(dot).display !== "none" && dot.getBoundingClientRect().top >= pays.top - 1 && pays.top >= first.bottom - 1, row: (c.closest("tr") as HTMLElement).getBoundingClientRect().height };
+}));
+const cls = (page: Page) => page.addInitScript(() => {
+  const w = window as unknown as { __cls: number };
+  w.__cls = 0;
+  new PerformanceObserver((l) => { for (const e of l.getEntries() as unknown as { value: number; hadRecentInput: boolean }[]) if (!e.hadRecentInput) w.__cls += e.value; }).observe({ type: "layout-shift", buffered: true });
+});
+
+for (const w of [1440, 1920]) {
+  test(`/markets at ${w}px: Bet never wraps, rows stay one line, header sticks, no sideways scroll, CLS < 0.05`, async ({ page }) => {
+    await cls(page);
+    await open(page, w);
+    await page.waitForTimeout(800);
+    const cells = await betCells(page);
+    expect(cells.length).toBeGreaterThan(5);
+    console.log(`/markets ${w}px: ${cells.length} bet cells, wrapped ${cells.filter((c) => c.wrapped).length}, tallest row ${Math.max(...cells.map((c) => c.row))}`);
+    expect(cells.filter((c) => c.wrapped)).toHaveLength(0);
+    expect(Math.max(...cells.map((c) => c.row))).toBeLessThanOrEqual(58);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBe(0);
+    await page.mouse.wheel(0, 700);
+    await page.waitForTimeout(500);
+    expect(Math.round(await page.locator("table thead").evaluate((el) => el.getBoundingClientRect().top))).toBe(64);
+    expect(await page.evaluate(() => (window as unknown as { __cls: number }).__cls)).toBeLessThan(0.05);
+  });
+}
+
+test("/markets at 1280px: where Bet wraps, line 2 never starts with a dot; no sideways scroll, CLS < 0.05", async ({ page }) => {
+  await cls(page);
+  await open(page, 1280);
+  await page.waitForTimeout(800);
+  const cells = await betCells(page);
+  expect(cells.length).toBeGreaterThan(5);
+  expect(cells.filter((c) => c.leadingDot)).toHaveLength(0);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBe(0);
+  expect(await page.evaluate(() => (window as unknown as { __cls: number }).__cls)).toBeLessThan(0.05);
+});

@@ -38,7 +38,17 @@ function columns(pro: boolean): Col[] {
       header: "Market",
       cell: ({ row: { original: r } }) => <MarketCell r={r} />,
     }),
-    h.display({ id: "bet", header: "Bet", meta: { label: "Bet" }, cell: ({ row: { original: r } }) => { const q = betQuote(r.market, r.side); return <span className="font-medium"><span className="whitespace-nowrap">{r.side.outcome} · {pct(q.ask)}</span>{" "}<span className="whitespace-nowrap text-xs font-normal tabular-nums text-muted" title={PAYS_AFTER_FEE_HELP}>· pays {q.paysText ?? DASH}</span></span>; } }),   // the two halves wrap onto two lines only when the table is squeezed (1280 px, any font)
+    h.display({ id: "bet", header: "Bet", meta: { label: "Bet" }, cell: ({ row: { original: r } }) => {
+      const q = betQuote(r.market, r.side);
+      // The separator dot rides at the END of the first half (shown from 1400 px, where the Market column is capped so this seldom wraps):
+      // if "pays" does drop to line 2, the dot stays on line 1 and no line starts with "·". Squeezed below 1400 px there is no dot.
+      return (
+        <span data-testid="bet-cell" className="font-medium">
+          <span data-testid="bet-side" className="whitespace-nowrap">{r.side.outcome} · {pct(q.ask)}<span data-testid="bet-dot" aria-hidden="true" className="hidden min-[1400px]:inline"> ·</span></span>{" "}
+          <span data-testid="bet-pays" className="whitespace-nowrap text-xs font-normal tabular-nums text-muted" title={PAYS_AFTER_FEE_HELP}>pays {q.paysText ?? DASH}</span>
+        </span>
+      );
+    } }),   // the two halves wrap onto two lines only when the table is squeezed (1280 px, any font)
     h.display({
       id: "return", meta: { label: pro ? "Edge" : "Estimated return", sort: pro ? "edge" : "roi", right: true, help: RETURN_HELP },
       header: pro ? "Edge" : "Estimated return",
@@ -188,7 +198,7 @@ export function MarketTable({ items, sort, onSort, onToggleGroup, pro = false, l
                   key={hd.id}
                   scope="col"
                   aria-sort={active ? (sort.dir === "asc" ? "ascending" : "descending") : undefined}
-                  className={`px-3 py-2.5 font-medium xl:px-2 ${meta?.right ? "text-right" : ""} ${hd.id === "star" ? "w-11" : ""} ${hd.id === "market" ? "w-[38%]" : ""}`}
+                  className={`px-3 py-2.5 font-medium xl:px-2 ${meta?.right ? "text-right" : ""} ${hd.id === "star" ? "w-11" : ""} ${hd.id === "market" ? "w-[38%] min-[1400px]:w-[18rem]" : ""} ${hd.id === "bet" ? "min-[1400px]:w-60" : ""} ${hd.id === "topic" ? "min-[1400px]:w-28" : ""}`}
                 >
                   {hd.id === "star" ? (
                     <ColumnChooser cols={table.getAllLeafColumns().map((c) => ({ id: c.id, label: (c.columnDef as Col).meta?.label ?? c.id, pro: !!(c.columnDef as Col).meta?.pro, on: c.getIsVisible(), toggle: () => c.toggleVisibility() }))} />

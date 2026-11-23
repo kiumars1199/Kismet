@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { combo } from "@/lib/combos";
-import { addLeg, checkCombo, MAX_COMBO_LEGS, type ComboLeg } from "./combo";
+import { addLeg, checkCombo, MAX_COMBO_LEGS, NOT_SCORED_SAME_EVENT, type ComboLeg } from "./combo";
 import { score } from "./score";
 
 const leg = (id: string, ask: number, fee: number, q: number | null, o: Partial<ComboLeg> = {}): ComboLeg => ({
@@ -44,6 +44,22 @@ describe("checkCombo", () => {
     const r = checkCombo([leg("1", 0.5, 0, 0.6, { eventId: "x", event: "Game" }), leg("2", 0.4, 0, 0.5, { eventId: "x", event: "Game" }), leg("3", 0.4, 0, 0.5)]);
     expect(r.sameEvent).toEqual(["Game"]);
     expect(checkCombo([leg("1", 0.5, 0, 0.6), leg("2", 0.4, 0, 0.5)]).sameEvent).toEqual([]);
+  });
+  it("same-event legs: no score (null), chance, payout and edge stay; the note says why; other combos still score", () => {
+    const same = checkCombo([leg("1", 0.5, 0, 0.6, { eventId: "x", event: "Game" }), leg("2", 0.4, 0, 0.5, { eventId: "x", event: "Game" })]);
+    expect(same.numbers!.score).toBeNull();
+    expect(same.numbers!.chance).toBeCloseTo(0.3, 12);
+    expect(same.numbers!.multiplier).toBeCloseTo(5, 9);
+    expect(same.scoreNote).toBe(NOT_SCORED_SAME_EVENT);
+    expect(NOT_SCORED_SAME_EVENT).toBe("Not scored: legs from the same event");
+    const other = checkCombo([leg("1", 0.5, 0, 0.6), leg("2", 0.4, 0, 0.5)]);
+    expect(other.numbers!.score).not.toBeNull();
+    expect(other.scoreNote).toBeNull();
+  });
+  it("a 3-leg combo with two same-event legs is not scored, and no drop suggestion cites a score", () => {
+    const r = checkCombo([leg("1", 0.5, 0, 0.6, { eventId: "x", event: "Game" }), leg("2", 0.4, 0, 0.5, { eventId: "x", event: "Game" }), leg("3", 0.4, 0, 0.5)]);
+    expect(r.numbers!.score).toBeNull();
+    expect(r.scoreNote).toBe(NOT_SCORED_SAME_EVENT);
   });
   it("suggests dropping the leg whose removal raises the score most, with the new numbers", () => {
     const legs = [leg("1", 0.5, 0, 0.7), leg("bad", 0.6, 0, 0.3), leg("3", 0.5, 0, 0.7)];

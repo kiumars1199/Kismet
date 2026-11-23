@@ -45,7 +45,7 @@ export const TAXONOMY_TREE: TaxNode[] = [
   ]),
   category("crypto", "Crypto", [
     ["bitcoin", "Bitcoin"], ["ethereum", "Ethereum"], ["solana", "Solana"], ["xrp", "XRP"],
-    ["up-or-down", "Up or down"], ["hit-price", "Hit a price"], ["multi-strikes", "Price ranges"],
+    ["up-or-down", "Crypto up or down"], ["hit-price", "Hit a price"], ["multi-strikes", "Price ranges"],
   ]),
   category("weather", "Weather & Climate", [
     ["highest-temperature", "Highest temperature"], ["lowest-temperature", "Lowest temperature"],
@@ -54,7 +54,7 @@ export const TAXONOMY_TREE: TaxNode[] = [
   category("finance", "Finance & Economics", [
     ["stocks", "Stocks", ["stocks", "equities", "stock-prices"]], ["earnings-calls", "Earnings calls"],
     ["commodities", "Commodities", ["commodities", "gold", "silver", "oil"]], ["fed", "Fed"],
-    ["inflation", "Inflation"], ["jobs", "Jobs"], ["daily-close", "Daily close"], ["finance-updown", "Up or down"],
+    ["inflation", "Inflation"], ["jobs", "Jobs"], ["daily-close", "Daily close"], ["finance-updown", "Stock market up or down"],
   ]),
   category("politics", "Politics & Elections", [
     ["elections", "Elections"], ["us-politics", "US", ["us-politics", "us-election"]], ["congress", "Congress"],

@@ -12,7 +12,7 @@ import { backLine, cardVenue, STAKE, INTL_ONLY, NOT_FOR_US, starsHelp } from "@/
 import { paysBand } from "@/lib/filters/bands";   // not ./apply: zod on the landing (T-295)
 import { costPct, ESTIMATE_HELP, money, pct, ret } from "@/lib/format";
 import { noLiveRecord, type Proof } from "@/lib/proof";
-import type { Execution, Market, Side } from "@/lib/types";
+import type { Execution } from "@/lib/types";
 import dynamic from "next/dynamic";
 // T-295: the star sits inside the closed "Why this bet?" body, so it loads on its own (keeps the landing under 150 kB)
 const WatchStar = dynamic(() => import("@/components/watch/WatchStar").then((m) => m.WatchStar), {
@@ -22,25 +22,8 @@ const WatchStar = dynamic(() => import("@/components/watch/WatchStar").then((m) 
 import { venueOf } from "@/lib/trade/venue";
 import { AlertLink } from "../bits";
 import { drawerHref, useOpenDrawer } from "../drawer";
-import { topicLabel } from "../labels";
+import { basisWords, pastBets } from "../labels";
 import { useBacktest } from "../TierNote";
-
-const TYPE_WORDS: Record<Market["market_type"], string> = {
-  moneyline: "match-winner bets", spreads: "handicap bets", totals: "over/under bets", props: "in-game bets",
-  "yes/no": "yes/no bets", "multi-outcome": "multiple-choice bets",
-};
-/** What the estimate is built from, in words: model_level nmt / niche / cat / all. */
-function basisWords(m: Pick<Market, "category" | "niche" | "tags" | "market_type">, s: Pick<Side, "model_level">): string {
-  const topic = topicLabel(m);
-  switch (s.model_level) {
-    case "nmt": return `${topic} ${TYPE_WORDS[m.market_type]}`;
-    case "niche": return `${topic} bets`;
-    case "cat": return `${topic} bets of every kind`;
-    default: return "bets of every kind";
-  }
-}
-/** "about 240 similar past bets"; never a four-digit count on a card. */
-const pastBets = (n: number) => (n >= 1000 ? "over a thousand similar past bets" : `about ${Math.max(1, Math.round(n))} similar past bets`);
 
 /** A count in words that never shows four digits on a card (lib/banned.ts): 240 → "240", 8,312 → "over 8 thousand". */
 const countWords = (n: number) => (n >= 1000 ? `over ${Math.floor(n / 1000)} thousand` : `${Math.round(n)}`);
