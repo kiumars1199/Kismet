@@ -1,0 +1,62 @@
+{
+  "tool": "lighthouse 11.7.1 (last release with the PWA category), Chrome Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36",
+  "url": "http://localhost:3250/",
+  "fetchTime": "2026-11-23T00:13:58.174Z",
+  "pwaCategoryScore": 1,
+  "audits": [
+    {
+      "id": "installable-manifest",
+      "score": 1,
+      "mode": "binary",
+      "title": "Web app manifest and service worker meet the installability requirements"
+    },
+    {
+      "id": "splash-screen",
+      "score": 1,
+      "mode": "binary",
+      "title": "Configured for a custom splash screen"
+    },
+    {
+      "id": "themed-omnibox",
+      "score": 1,
+      "mode": "binary",
+      "title": "Sets a theme color for the address bar."
+    },
+    {
+      "id": "content-width",
+      "score": 1,
+      "mode": "binary",
+      "title": "Content is sized correctly for the viewport"
+    },
+    {
+      "id": "viewport",
+      "score": 1,
+      "mode": "metricSavings",
+      "title": "Has a `<meta name=\"viewport\">` tag with `width` or `initial-scale`"
+    },
+    {
+      "id": "maskable-icon",
+      "score": 1,
+      "mode": "binary",
+      "title": "Manifest has a maskable icon"
+    },
+    {
+      "id": "pwa-cross-browser",
+      "score": null,
+      "mode": "manual",
+      "title": "Site works cross-browser"
+    },
+    {
+      "id": "pwa-page-transitions",
+      "score": null,
+      "mode": "manual",
+      "title": "Page transitions don't feel like they block on the network"
+    },
+    {
+      "id": "pwa-each-page-has-url",
+      "score": null,
+      "mode": "manual",
+      "title": "Each page has a URL"
+    }
+  ]
+}
