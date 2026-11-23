@@ -23,6 +23,7 @@ import { useMeta, useScreener } from "./useScreener";
 import { usePublishScan } from "@/lib/scanClock";
 import { SortNote } from "./SortNote";
 import { KalshiResults } from "./KalshiResults";
+import { UnpricedResults } from "./UnpricedResults";
 import { RiskNote } from "@/components/trade/RiskNote";
 import { VenueAvailabilityBar } from "@/components/venues/VenueAvailability";
 
@@ -107,7 +108,7 @@ export function MarketsScreener({ initial, scannedAt, kalshiOn }: { initial?: Ma
                 : data ? `${formatCount(data.total)} ${data.total === 1 ? "market matches" : "markets match"}` : "Loading markets…"}
               {meta && (kalshiView
                 ? <> · {formatCount(meta.counts.kalshi)} open on Kalshi</>
-                : <> · {formatCount(meta.counts.markets)} open · scanned <Ago at={scanned} /></>)}
+                : <> · {formatCount(meta.counts.polymarket)} open ({formatCount(meta.counts.markets)} priced) · scanned <Ago at={scanned} /></>)}
             </p>
           </div>
           {/* the button mounts after /api/me answers: its row is reserved (min-h-11, own line on a phone), so the filter rows
@@ -153,8 +154,11 @@ export function MarketsScreener({ initial, scannedAt, kalshiOn }: { initial?: Ma
             <p role="status" data-testid="markets-updating" className="text-sm font-medium text-soft">Loading markets…</p>
             {Array.from({ length: 8 }, (_, i) => <Skeleton key={i} className="h-16" />)}
           </div>
-        ) : data.total === 0 && data.kalshi?.total ? (
-          <KalshiResults page={data.kalshi} />
+        ) : data.total === 0 && (data.kalshi?.total || data.unpriced?.total) ? (
+          <>
+            {data.kalshi?.total ? <KalshiResults page={data.kalshi} /> : null}
+            {data.unpriced && <UnpricedResults page={data.unpriced} />}
+          </>
         ) : data.total === 0 ? (
           <EmptyState
             title={state.q ? "No matches in open markets" : "No markets match these filters"}
@@ -171,6 +175,7 @@ export function MarketsScreener({ initial, scannedAt, kalshiOn }: { initial?: Ma
             {desktop !== true && <div className={desktop === false ? undefined : "md:hidden"}>{cards}</div>}
             <Pager page={data.page} pages={data.pages} onPage={(page) => set({ page })} />
             {data.kalshi && <KalshiResults page={data.kalshi} also />}
+            {data.unpriced && <UnpricedResults page={data.unpriced} also />}
           </>
         )}
       </div>

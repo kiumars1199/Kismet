@@ -1,7 +1,8 @@
 // Server helpers shared by the API routes.
 import { ctxOf, livePrices, repriceMarkets, repricePage, type QuoteSource } from "@/lib/reprice";
-import { DelayedPending, getKalshiIndex, getStore, getStoreFor, type Store } from "./store";
+import { DelayedPending, getKalshiIndex, getPolymarketIndex, getStore, getStoreFor, type Store } from "./store";
 import { searchKalshi } from "./kalshi-index";
+import { searchUnpriced } from "./polymarket-index";
 import { canBeta } from "@/lib/beta";
 import { botCheck, clientIp, clientKey, noteRows, rateLimit, rowBudget, verifiedBot, type Rule } from "@/lib/abuse";
 import { getMe, type Me } from "@/lib/auth/server";
@@ -12,7 +13,7 @@ import { bestBetsRows, freeUsOn } from "./counts";
 export { freeUsOn };
 import { delayMin, rowCap } from "@/lib/settings-core";
 import { apply, nowFor, openOnly } from "@/lib/filters/apply";
-import { parse } from "@/lib/filters/url";
+import { parse, serialize } from "@/lib/filters/url";
 import { RELAX_STEPS, relax, relaxedNote, type ParsedQuery } from "@/lib/search/parse";
 import { BEST_BETS_VERDICTS, CLOSING_SOON, tierOf, type FilterState } from "@/lib/filters/state";
 import { DELAYED_PENDING, delayedPendingLine, type EventResponse, type MarketResponse, type MarketsResponse } from "@/lib/api";
@@ -262,6 +263,21 @@ async function kalshiPage(f: FilterState, store: Store): Promise<MarketsResponse
   return searchKalshi(ix, { q: f.q, topics: f.topics, categories: f.categories, page: alone ? f.page : 1, page_size: alone ? f.page_size : 5 }, now);
 }
 
+/** F3 fix: open Polymarket markets the model does not price, matching q or the topic filters (top 10 + the total), beside
+ *  the priced rows. Only on a page-1 "all venues" search or topic browse; never in the Best bets views. */
+async function unpricedPage(f: FilterState, store: Store): Promise<MarketsResponse["unpriced"]> {
+  if (f.venue === "kalshi" || f.page !== 1 || !(f.q?.trim() || f.topics?.length || f.categories?.length)) return undefined;
+  // The index has no price, chance, payout or edge, so any filter on those (or on time, volume, spread, my lists...) can't
+  // be applied to it: with one on, the strip is hidden rather than showing rows the user filtered out.
+  const extra = serialize(f);
+  for (const k of ["q", "t", "c", "ven", "pg", "ps", "s", "g", "view", "tz", "xc"]) extra.delete(k);
+  if (extra.size) return undefined;
+  const ix = await getPolymarketIndex();
+  if (!ix) return undefined;
+  const page = searchUnpriced(ix, store.byId, { q: f.q, topics: f.topics, categories: f.categories, excludeCategories: f.exclude_categories }, process.env.DATA_CLOCK === "scan" ? store.meta.scanned_at : undefined);
+  return page.total ? page : undefined;
+}
+
 /** GET /api/markets and /api/flags. Free: first page only (top 10 rows), exact numbers as ranges (docs/08 LIMITS);
  *  Best bets are the day's sample (freeSample). Paid: a page past the last one is refused (docs/15 § pagination cap). */
 export const listRoute = (req: Request, view?: "flags") =>
@@ -290,7 +306,8 @@ export const listRoute = (req: Request, view?: "flags") =>
     const over = live ? null : await rowBudget(req, me.user?.id, body.rows.map((r) => r.market.id));   // RT-03
     if (over) return over;
     await noteRows(req, me.user?.id, body.rows.length);
-    return Response.json(kalshi ? { ...body, kalshi } : body);
+    const unpriced = view ? undefined : await unpricedPage(f, store);
+    return Response.json({ ...body, ...(kalshi ? { kalshi } : {}), ...(unpriced ? { unpriced } : {}) });
   });
 
 /** Best bets page 1 for the first server paint (docs/19 P6): the same body /api/flags returns for this URL (same
@@ -328,7 +345,8 @@ export async function firstPage(params: URLSearchParams, view: "flags" | "market
     await pageBudget(ctx, [...main.rows, ...(soon?.rows ?? [])].map((r) => r.market.id));
     // F3: a direct load of /markets?q=word carries the "Also on Kalshi" matches, as /api/markets does
     const kalshi = kalshiOk && f.venue === "all" && f.q?.trim() ? await kalshiPage(f, store) : undefined;
-    return { main: kalshi ? { ...main, kalshi } : main, soon: soon ?? undefined, scanned_at: store.meta.scanned_at };   // the scan this tier sees, like /api/meta
+    const unpriced = view === "markets" ? await unpricedPage(f, store) : undefined;
+    return { main: { ...main, ...(kalshi ? { kalshi } : {}), ...(unpriced ? { unpriced } : {}) }, soon: soon ?? undefined, scanned_at: store.meta.scanned_at };   // the scan this tier sees, like /api/meta
   } catch {
     return undefined;
   }
