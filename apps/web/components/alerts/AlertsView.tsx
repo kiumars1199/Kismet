@@ -65,14 +65,15 @@ const blank = (email = false): Draft => ({
   channels: email ? ["email"] : [], webhook_url: null, cooldown_minutes: 60, quiet_hours: null, view_id: "builtin:best",
 });
 
-function describe(r: AlertRule): string {
+/** The plain-language line under each rule (exported for tests). */
+export function describe(r: AlertRule): string {
   const q = r.query as { _view_name?: string } | null;
   switch (r.kind) {
     case "preset_match": return `When a market newly matches “${q?._view_name ?? "a view"}”${(r.threshold ?? 1) > 1 ? ` · up to ${r.threshold} per check` : ""}`;
     case "market_price": return `When the price is ${price(r.threshold)} or lower`;
     case "edge_change": return `When estimated return crosses ${ret(r.threshold)}`;
     case "closing_soon": return `When ${r.market_id ? "this market" : "anything in My list"} closes within ${r.threshold ?? 6} h`;
-    case "big_trade": return `When one trade of $10,000 or more hits ${r.market_id ? "this market" : "a market you have an alert on or saved"}`;
+    case "big_trade": return `When one trade of $10,000 or more hits ${r.market_id ? "this market" : "a market you have an alert on or saved"} · checked about every 30 minutes`;
     case "settled": return r.market_id ? "When this market settles" : "When a market you have an alert on, or saved, settles";
   }
 }

@@ -220,3 +220,12 @@ describe("lib/bigtrade.ts: Polymarket Data API v2 /trades", () => {
     await expect(fetchBigTrades(["e1"], 0)).rejects.toThrow(/429/);
   });
 });
+
+describe("F16 copy: big-trade rules are checked after every scan", () => {
+  it("the rule line says about every 30 minutes", async () => {
+    const { describe: describeRule } = await import("@/components/alerts/AlertsView");
+    const r = { kind: "big_trade", market_id: "a", query: null, threshold: null } as never;
+    expect(describeRule(r)).toMatch(/checked about every 30 minutes/);
+    expect(describeRule({ ...(r as object), market_id: null } as never)).toMatch(/checked about every 30 minutes/);
+  });
+});
