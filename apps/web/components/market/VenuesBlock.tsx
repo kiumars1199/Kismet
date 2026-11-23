@@ -1,6 +1,7 @@
 // F4: the same outcome on each venue, side by side. Shown only for a market listed on 2+ venues (engine/venues.py).
 // Basis: prices are each venue's own best ask for this side; payout includes that venue's fee.
-import { venueRows } from "@/lib/venues/rows";
+import { Ago } from "@/components/clock";
+import { venueBasis, venueRows } from "@/lib/venues/rows";
 import type { Market } from "@/lib/types";
 
 export function VenuesBlock({ market }: { market: Pick<Market, "venues" | "best"> }) {
@@ -28,6 +29,18 @@ export function VenuesBlock({ market }: { market: Pick<Market, "venues" | "best"
         ))}
       </ul>
       {rows.some((r) => r.listed && !r.pays) && <p className="mt-2 text-xs text-muted">Kalshi shows its price only: its payout after fees is not worked out here yet.</p>}
+      <details className="mt-2 text-xs text-muted" data-testid="venues-basis">
+        <summary className="cursor-pointer py-1 text-soft">Where these prices come from</summary>
+        <ul className="mt-1 flex flex-col gap-1">
+          {venueBasis(market.venues).map((b) => (
+            <li key={b.venue} data-basis={b.venue}>
+              <span className="font-medium text-text">{b.label}</span>: {b.source}
+              {b.at ? <> · as of <Ago at={b.at} /></> : null}
+              {b.match ? <> · {b.match}</> : null}
+            </li>
+          ))}
+        </ul>
+      </details>
     </section>
   );
 }

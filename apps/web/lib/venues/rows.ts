@@ -36,3 +36,19 @@ export function venueRows(venues: VenueQuote[] | undefined): VenueRow[] {
     };
   });
 }
+
+export interface VenueBasis { venue: VenueRow["venue"]; label: string; source: string; at: number | null; match: string | null }
+
+/** The basis of each listed venue's number, one tap away (CLAUDE.md rule 3): where the price is from, when, and for Kalshi
+ *  how sure the match is. The Polymarket and US prices are the scan's own (the same numbers the card shows). */
+export function venueBasis(venues: VenueQuote[] | undefined): VenueBasis[] {
+  return VENUE_ORDER.flatMap((venue) => {
+    const v = (venues ?? []).find((x) => x.venue === venue);
+    if (!v) return [];
+    const source = venue === "polymarket" ? "Polymarket's own best ask for this outcome, plus its fee"
+      : venue === "us" ? "Polymarket US best ask for this outcome, plus its fee (the price on the card)"
+      : "Kalshi's price for this outcome, matched by title, date and numbers; no fee counted";
+    const match = venue === "kalshi" && v.conf != null ? `match ${Math.round(v.conf * 100)}% sure` : null;
+    return [{ venue, label: VENUE_LABEL[venue], source, at: v.at ?? null, match }];
+  });
+}

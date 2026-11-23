@@ -11,7 +11,7 @@ import type { Tier } from "@/lib/entitlements";
 import { getSettings } from "@/lib/settings";
 import { delayMin } from "@/lib/settings-core";
 import { Flag as FlagSchema, Market as MarketSchema, ScanMeta as MetaSchema } from "@/lib/schemas";
-import type { BacktestFile, EventsFile, FlagsFile, KalshiFile, KalshiIndexFile, VenuesFile, LedgerSummary, MarketsFile, ModelFile, ScanMeta, StoreMarket } from "@/lib/types";
+import type { BacktestFile, EventsFile, FlagsFile, KalshiFile, KalshiIndexFile, VenuesFile, VenuesSnapshot, VenueQuote, LedgerSummary, Market, MarketsFile, ModelFile, ScanMeta, StoreMarket } from "@/lib/types";
 import { derive } from "./derive";
 import { indexFromFile, indexFromKalshi, type KalshiIndex } from "./kalshi-index";
 import { headlineBacktest } from "./model";
@@ -94,20 +94,38 @@ function validate(file: string, meta: unknown, rows: unknown[], schema: typeof M
   }
 }
 
-/** F4: venues.json older or newer than the scan by more than this is not trusted: no venues, never an error. */
-const VENUES_MAX_SKEW_S = 3 * 3600;
-/** The venue quotes for this scan, or undefined (missing, malformed or stale file = "no venues"). */
-export function usableVenues(v: VenuesFile | undefined, scannedAt: number): VenuesFile["venues"] | undefined {
-  if (!v || typeof v.venues !== "object" || !v.venues) return undefined;
-  if (process.env.DATA_CLOCK !== "scan" && !(Math.abs((v.meta?.generated_at ?? 0) - scannedAt) <= VENUES_MAX_SKEW_S)) return undefined;
-  return v.venues;
+/** F4: a Kalshi snapshot older than its store's scan by more than this is not shown. */
+const KALSHI_MAX_AGE_S = 3 * 3600;
+/** The Kalshi snapshot for a store scanned at `scannedAt`: the newest of venues.json and its `prev` snapshots whose Kalshi
+ *  crawl is NOT newer than the scan (Free's delayed store must not see a fresher Kalshi price than its own scan), and not
+ *  over 3 h older. undefined = no Kalshi row (missing, malformed, stale, or only newer data exists). */
+export function kalshiSnapshot(v: VenuesFile | undefined, scannedAt: number): VenuesSnapshot | undefined {
+  if (!v) return undefined;
+  const ok = (x: VenuesSnapshot | undefined): x is VenuesSnapshot => !!x && typeof x.venues === "object" && !!x.venues && !!x.meta;
+  const at = (x: VenuesSnapshot) => x.meta.kalshi_fetched_at ?? x.meta.generated_at;
+  return [v, ...(v.prev ?? [])].filter(ok).filter((x) => at(x) <= scannedAt && scannedAt - at(x) <= KALSHI_MAX_AGE_S).sort((p, q) => at(q) - at(p))[0];
+}
+
+const mult = (ask: number | null | undefined, fee: number | null | undefined) => (ask != null && ask > 0 ? Math.round((1 / (ask + (fee ?? 0))) * 1e4) / 1e4 : null);
+
+/** F4: the venues of one market. Polymarket and Polymarket US come from the market's own row, exactly what its card shows
+ *  (cardVenue): US only when the scan lists the twin (m.us). Kalshi comes from the snapshot, only for the same side. */
+function venuesOf(m: Market, scannedAt: number, k: VenuesSnapshot | undefined): VenueQuote[] | undefined {
+  if (m.venue === "us") return undefined;   // US-native rows are priced on US only
+  const out: VenueQuote[] = [{ venue: "polymarket", price: m.best.ask, multiplier: mult(m.best.ask, m.best.fee), url: m.url, at: scannedAt }];
+  if (m.us) out.push({ venue: "us", price: m.us.ask, multiplier: mult(m.us.ask, m.us.fee), url: m.us.url, at: scannedAt });
+  const e = k?.venues[m.id];
+  const kq = e?.venues.find((v) => v.venue === "kalshi");
+  if (e && kq && (e.side === undefined || e.side === m.best.side_index)) out.push({ ...kq, multiplier: null, at: k!.meta.kalshi_fetched_at ?? k!.meta.generated_at, ...(e.kalshi_match_conf != null ? { conf: e.kalshi_match_conf } : {}) });
+  return out.length >= 2 ? out : undefined;
 }
 
 export function buildStore(raw: RawData, loadedAt = Date.now()): Store {
   validate("markets.json", raw.markets.meta, raw.markets.markets, MarketSchema);
   validate("flags.json", raw.flags.meta, raw.flags.flags, FlagSchema);
-  const vq = usableVenues(raw.venues, raw.markets.meta.scanned_at);
-  const withVenues = <T extends { id: string }>(m: T): T => (vq?.[m.id] ? { ...m, venues: vq[m.id]!.venues } : m);
+  const scannedAt = raw.markets.meta.scanned_at;
+  const ksnap = kalshiSnapshot(raw.venues, scannedAt);
+  const withVenues = <T extends Market>(m: T): T => { const v = venuesOf(m, scannedAt, ksnap); return v ? { ...m, venues: v } : m; };
 
   const flags: StoreMarket[] = raw.flags.flags.map((f) => ({ ...withVenues(f), derived: derive(f) }));
   const flagsById = new Map(flags.map((f) => [f.id, f]));

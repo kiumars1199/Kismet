@@ -60,3 +60,30 @@ def test_no_side_prices_kalshi_at_one_minus_the_yes_bid():
     assert v.kalshi_price(pm, k) == 0.3
     k["yes_bid"] = None
     assert v.kalshi_price(pm, k) is None
+
+
+def test_entries_carry_the_side_the_kalshi_price_is_for():
+    pm = _pm(us=dict(ask=0.6, fee=0.01, url="u"))
+    pm["best"]["side_index"] = 1
+    assert v.build([pm], [_row()])["1"]["side"] == 1
+
+
+def test_write_stamps_the_kalshi_crawl_time_and_keeps_two_older_snapshots(tmp_path):
+    """F4: the web picks the newest snapshot whose Kalshi crawl is not newer than a store's scan (Free's delay)."""
+    class Cfg(dict):
+        def path(self, kind, name):
+            return str(tmp_path / name)
+    cfg = Cfg()
+    pm = _pm(us=dict(ask=0.6, fee=0.01, url="u"))
+    pm["best"]["side_index"] = 0
+    json.dump({"markets": [pm]}, open(tmp_path / "markets.json", "w"))
+    for fetched in (1000, 2000, 3000, 4000):
+        json.dump({"meta": {"fetched_at": fetched}, "rows": [_row()]}, open(tmp_path / "kalshi_index.json", "w"))
+        v.write(cfg, log=lambda *_: None)
+    out = json.load(open(tmp_path / "venues.json"))
+    assert out["meta"]["kalshi_fetched_at"] == 4000
+    assert [p["meta"]["kalshi_fetched_at"] for p in out["prev"]] == [3000, 2000]   # newest first, two kept
+    assert "prev" not in out["prev"][0]
+    # the same crawl written twice is one snapshot, not two
+    v.write(cfg, log=lambda *_: None)
+    assert [p["meta"]["kalshi_fetched_at"] for p in json.load(open(tmp_path / "venues.json"))["prev"]] == [3000, 2000]

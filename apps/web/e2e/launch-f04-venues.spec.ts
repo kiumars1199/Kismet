@@ -1,16 +1,16 @@
-// F4: the same outcome on every venue (fixture test/fixtures/venues.json: 6674492 and 7077573 on 3 venues, 7078474 on 2).
+// F4: the same outcome on every venue (fixture test/fixtures/venues.json: 7077573 on 3 venues, 6674492 Polymarket + Kalshi, 7078474 Polymarket + US).
 import { expect, test } from "@playwright/test";
 
 for (const [name, size] of [["390", { width: 390, height: 844 }], ["1440", { width: 1440, height: 900 }]] as const) {
   test(`/m/<id> with 3 venues shows 3 rows and exactly one "Pays most here" at ${name}px`, async ({ page }) => {
     await page.setViewportSize(size);
-    await page.goto("/m/6674492");
+    await page.goto("/m/7077573");
     const block = page.getByTestId("venues-block");
     await expect(block).toBeVisible();
     await expect(block.locator("li[data-venue]")).toHaveCount(3);
     await expect(block.getByTestId("pays-most")).toHaveCount(1);
     await expect(block.getByTestId("pays-most")).toHaveText("Pays most here (Kalshi fee not counted)");
-    await expect(block.locator('li[data-venue="us"]').getByTestId("pays-most")).toBeVisible();   // US has the lower price, the highest payout
+    await expect(block.locator('li[data-venue="polymarket"]').getByTestId("pays-most")).toBeVisible();   // 1.32x vs US 1.29x after each fee
     // Kalshi: a % and no payout, and never the marked one
     const kalshi = block.locator('li[data-venue="kalshi"]');
     await expect(kalshi).toContainText("%");
@@ -29,6 +29,32 @@ test("a market on 2 venues shows Kalshi as Not listed", async ({ page }) => {
 });
 
 test("a market on one venue has no block", async ({ page }) => {
-  await page.goto("/m/6417673");
+  await page.goto("/m/6635049");
   await expect(page.getByTestId("venues-block")).toHaveCount(0);
+});
+
+// Review fixes: the block never disagrees with the card (same numbers), and its basis is one tap away.
+test("6674492: the card says international only, so the block lists Polymarket US as Not listed", async ({ page }) => {
+  await page.goto("/m/6674492");
+  await expect(page.getByText("International only, not on Polymarket US").first()).toBeVisible();
+  const block = page.getByTestId("venues-block");
+  await expect(block.locator('li[data-venue="us"]')).toContainText("Not listed");
+  await expect(block.locator('li[data-venue="polymarket"]')).toContainText("1.45x");
+});
+
+test("7078474: the block's Polymarket US payout is the card's (1.34x)", async ({ page }) => {
+  await page.goto("/m/7078474");
+  await expect(page.getByText("Pays 1.34x on Polymarket US").first()).toBeVisible();
+  await expect(page.getByTestId("venues-block").locator('li[data-venue="us"]')).toContainText("1.34x");
+});
+
+test("basis: source, time and Kalshi match confidence are one tap away", async ({ page }) => {
+  await page.goto("/m/7077573");
+  const basis = page.getByTestId("venues-basis");
+  await expect(basis.locator("li").first()).toBeHidden();   // closed: not in the default view
+  await basis.locator("summary").click();
+  await expect(basis.locator('li[data-basis="polymarket"]')).toContainText("best ask");
+  await expect(basis.locator('li[data-basis="polymarket"] [data-ago]')).toBeVisible();
+  await expect(basis.locator('li[data-basis="kalshi"]')).toContainText("97% sure");
+  await expect(basis.locator('li[data-basis="kalshi"] [data-ago]')).toBeVisible();
 });
