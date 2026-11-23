@@ -10,7 +10,7 @@ import { countCheck } from "@/lib/check/limit";
 import { isOpenIn, NOT_OPEN } from "@/lib/check/open";
 import { parseLink, resolveLink } from "@/lib/check/parse-link";
 import { buildCheck } from "@/lib/check/response";
-import { kalshiOwnPrice } from "@/lib/check/kalshi-price";
+import { kalshiOwnPrices } from "@/lib/check/kalshi-price";
 import { getKalshiIndex } from "@/lib/data/store";
 import { kalshiDataEnabled } from "@/lib/kalshiCombo";
 
@@ -55,7 +55,8 @@ export async function POST(req: Request) {
     if (!out) return notFound("Side");
     // A Kalshi link also shows Kalshi's own Yes price for the pasted ticker (same for every account: gated by the data permission only)
     if (kalshiParts && kalshiDataEnabled()) {
-      const own = kalshiOwnPrice((await getKalshiIndex())?.rows ?? [], kalshiParts);
+      const bs = body.market.best;
+      const own = kalshiOwnPrices((await getKalshiIndex())?.rows ?? [], kalshiParts, { index: bs.side_index as 0 | 1, outcome: bs.outcome });
       if (own) out.kalshi = own;
     }
     return Response.json(out);

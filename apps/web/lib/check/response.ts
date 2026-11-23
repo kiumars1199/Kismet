@@ -10,8 +10,8 @@ export interface CheckResponse {
   sides: { index: 0 | 1; outcome: string; base: CheckBase; basis: string }[];
   side: 0 | 1;
   result: CheckResult;
-  /** A Kalshi link: Kalshi's own Yes price for the ticker pasted (0-1), shown beside the matched market's numbers. */
-  kalshi?: { ticker: string; yes_price: number };
+  /** A Kalshi link: Kalshi's own price for each side of the matched market (0-1, null = none), from the ticker pasted. */
+  kalshi?: { ticker: string; prices: { 0: number | null; 1: number | null } };
 }
 
 export function buildCheck(m: StoreMarket, sideIndex: 0 | 1, price: number | undefined, stake: number): CheckResponse | null {
