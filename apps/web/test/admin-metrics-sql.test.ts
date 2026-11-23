@@ -108,6 +108,7 @@ describe("admin_metrics()", () => {
   });
 
   it("invites are 0 without the invites table, then counted per day once it exists", async () => {
+    await db.exec("drop table if exists public.invites cascade");   // F13's migration (20261122000200) creates the real table; this test needs the "not there yet" state first
     expect((await metrics()).days.every((d) => d.invites_sent === 0 && d.invites_verified === 0)).toBe(true);
     await db.exec(`
       create table public.invites (id uuid primary key default gen_random_uuid(), inviter_id uuid, invitee_id uuid unique, code text,

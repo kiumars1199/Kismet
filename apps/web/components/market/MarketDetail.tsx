@@ -13,6 +13,7 @@ import { betFigures, betQuote, edgeAbove0, PTS_HELP, RETURN_HELP_ONE, RETURN_LAB
 import { useProfile } from "@/lib/repo/hooks";
 import { useEntitlements } from "@/lib/entitlements";
 import type { Execution, Side, StoreMarket } from "@/lib/types";
+import { ShareSheet } from "@/components/share/ShareSheet";
 import { WatchStar } from "@/components/watch/WatchStar";
 import { DrawerExtras } from "./DrawerExtras";
 // Recharts (~390 KB) loads only when a drawer opens, not with Best bets; the placeholder keeps the chart's height.
@@ -340,6 +341,7 @@ function Actions({ m, s, reserve }: { m: StoreMarket; s: Side; reserve: ActionRe
           </svg>
           <span role="status" className="sr-only">{copied ? "Link copied" : ""}</span>
         </button>
+        <ShareSheet marketId={m.id} className={icon} />   {/* F13: share image + invite */}
       </div>
     </div>
   );

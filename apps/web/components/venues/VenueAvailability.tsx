@@ -4,6 +4,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useState, type MouseEvent, type ReactNode } from "react";
+import { stateHref, stateNext } from "@/lib/state-next";
 import { availabilityLine, type AvailStatus, type VenueKey } from "@/lib/venues/availability-text";
 
 export interface Avail { state: string | null; stateName: string | null; statuses: Record<VenueKey, AvailStatus> | null }
@@ -33,7 +34,7 @@ export function useStateLink() {
     e.stopPropagation();
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
     e.preventDefault();
-    router.push(`/state?next=${encodeURIComponent(window.location.pathname + window.location.search)}`);
+    router.push(`/state?next=${encodeURIComponent(stateNext(window.location.pathname) + window.location.search)}`);
   };
 }
 
@@ -44,7 +45,7 @@ export function StateLink({ children, className = "" }: { children: ReactNode; c
   // The server-rendered href already carries the page to come back to (the path; the query is added on click, since a
   // static page like "/" is rendered without it), so a tap before hydration or "open in new tab" still returns here.
   const pathname = usePathname();
-  const href = pathname && pathname !== "/state" ? `/state?next=${encodeURIComponent(pathname)}` : "/state";
+  const href = stateHref(pathname);
   return <Link href={href} data-testid="state-link" className={`relative z-10 -my-3.5 inline-flex min-h-11 items-center underline underline-offset-2 hover:text-text ${className}`} onClick={toState}>{children}</Link>;
 }
 

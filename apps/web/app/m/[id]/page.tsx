@@ -9,6 +9,7 @@ import { SlowDownState } from "@/components/screener/SlowDownState";
 import { betLine, sideRet } from "@/lib/format";
 import { MarketDetail } from "@/components/market/MarketDetail";
 import { actionReserve } from "@/lib/trade/reserve";
+import { InviteRef } from "@/components/share/InviteRef";
 import { MarketSkeleton } from "@/components/market/MarketSkeleton";
 import { TeaserView } from "@/components/market/Teaser";
 import { requestZone } from "@/lib/zone-server";
@@ -16,10 +17,11 @@ import { Breadcrumbs } from "@/components/shell/Breadcrumbs";
 import { topicCrumb } from "@/components/market/labels";
 import { authEnabled, getUser } from "@/lib/auth/server";
 import { TEASER_DESCRIPTION, marketTeaser } from "@/lib/teaser";
+import { shareableFacts } from "@/lib/share/card-data";
 
 export const dynamic = "force-dynamic";
 
-type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ side?: string }> };
+type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ side?: string; s?: string; sig?: string }> };
 
 // T-44: same tier shaping as /api/markets/[id]; RT3-02: same rate limit, plus the Free row budget. cache(): the
 // metadata and the page share one load (one count) per request.
@@ -34,10 +36,28 @@ const load = cache(async (id: string): Promise<MarketResponse | null> => {
 // T-276: signed out (with accounts on), the page is a teaser: title, category, closing time, sign up. No model output.
 const teaser = cache(async () => authEnabled() && !(await getUser()));
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+/** F13: the link preview is the public share image. A link a signed-in person shared carries `s` (side) and `sig`; the
+ *  image shows the Free-banded numbers only for a valid signature, so the description says the same: the numbers line
+ *  for a valid signature, the sign-up line otherwise. */
+const preview = async (id: string, title: string, fallback: string, sp: { s?: string; sig?: string }): Promise<Metadata> => {
+  const side = Number(sp.s);
+  // the same rule as the image: a valid signature on a flagged bet
+  const facts = typeof sp.sig === "string" && Number.isInteger(side) ? await shareableFacts(id, side, sp.sig) : null;
+  const signed = !!facts;
+  const description = facts && (facts.mult || facts.chance)
+    ? `${[facts.mult && `Pays ${facts.mult}`, facts.chance].filter(Boolean).join(" · ")}. Market analytics, not financial advice.`
+    : fallback;
+  const url = `/api/og/bet/${encodeURIComponent(id)}${signed ? `?s=${side}&sig=${encodeURIComponent(sp.sig!)}` : ""}`;
+  const images = [{ url, width: 1200, height: 630, alt: title }];
+  return { title, description, openGraph: { title, description, type: "website", images }, twitter: { card: "summary_large_image", title, description, images: [url] } };
+};
+
+export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
+  const sp = await searchParams;
   if (await teaser()) {
-    const t = await marketTeaser((await params).id).catch(() => null);
-    return t ? { title: t.title, description: TEASER_DESCRIPTION } : { title: "Market" };
+    const id = (await params).id;
+    const t = await marketTeaser(id).catch(() => null);
+    return t ? preview(id, t.title, TEASER_DESCRIPTION, sp) : { title: "Market" };
   }
   let data: MarketResponse | null;
   try {
@@ -47,7 +67,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
   if (!data) return { title: "Market" };
   const m = data.market;
-  return { title: m.question, description: `${betLine(m.best)} · ${sideRet(m.best)} estimated return, based on past results. Market analytics, not financial advice.` };
+  return preview(m.id, m.question, `${betLine(m.best)} · ${sideRet(m.best)} estimated return, based on past results. Market analytics, not financial advice.`, sp);
 }
 
 export default async function Page({ params, searchParams }: Props) {
@@ -60,7 +80,7 @@ export default async function Page({ params, searchParams }: Props) {
       return <div className="mx-auto w-full max-w-[720px]"><PendingState line={pendingLine(e)} /></div>;   // no store yet is not a missing page
     }
     if (!t) notFound();
-    return <TeaserView t={t} path={`/m/${encodeURIComponent(id)}`} zone={await requestZone()} />;
+    return <><InviteRef /><TeaserView t={t} path={`/m/${encodeURIComponent(id)}`} zone={await requestZone()} /></>;   // F13: ?ref=<code> remembers the sharer
   }
   let data: MarketResponse | null;
   try {
