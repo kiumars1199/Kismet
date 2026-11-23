@@ -148,6 +148,22 @@ export function MarketTable({ items, sort, onSort, onToggleGroup, pro = false, l
   // so the pager and footer don't jump from the first paint to the measured one (CLS, F3 review).
   const bottom = virtual.length ? v.getTotalSize() - (virtual.at(-1)!.end - margin) : v.getTotalSize();
 
+  // Below xl the table scrolls inside its own box: a fade on the right edge says more columns are off to the right. It is an overlay
+  // (absolute, no layout), so it can never shift the page.
+  const boxRef = useRef<HTMLDivElement>(null);
+  const [more, setMore] = useState(false);
+  useEffect(() => {
+    const el = boxRef.current;
+    if (!el) return;
+    const check = () => setMore(el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
+    check();
+    el.addEventListener("scroll", check, { passive: true });
+    const ro = new ResizeObserver(check);
+    ro.observe(el);
+    if (el.firstElementChild) ro.observe(el.firstElementChild);
+    return () => { el.removeEventListener("scroll", check); ro.disconnect(); };
+  }, []);
+
   const sortBy = (key?: SortKey) => {
     if (!key) return;
     const dir = sort.key === key ? (sort.dir === "desc" ? "asc" : "desc") : key === "closes" || key === "price" ? "asc" : "desc";
@@ -155,9 +171,10 @@ export function MarketTable({ items, sort, onSort, onToggleGroup, pro = false, l
   };
 
   return (
-    // The table is about 1294 px wide at its narrowest: below 1440 px it scrolls inside its own box, never the page (at 768 and
-    // 1024 it made the whole page scroll sideways). From 1440 px it fits, so the box doesn't scroll and the sticky header keeps working.
-    <div className="overflow-x-auto rounded-card border border-border bg-surface min-[1440px]:overflow-visible">
+    // The table is about 1250 px wide at its narrowest (tighter column padding from xl): below 1280 px it scrolls inside its own box,
+    // never the page. From 1280 px it fits, so the box doesn't scroll and the sticky header keeps working there.
+    <div className="relative rounded-card border border-border bg-surface">
+      <div ref={boxRef} className="overflow-x-auto xl:overflow-visible">
       <table className={`w-full border-collapse text-sm ${loading ? "opacity-60" : ""}`} aria-busy={loading}>
         <thead className="sticky top-0 z-10 bg-surface lg:top-16">
           <tr className="border-b border-border text-left text-xs text-muted">
@@ -169,7 +186,7 @@ export function MarketTable({ items, sort, onSort, onToggleGroup, pro = false, l
                   key={hd.id}
                   scope="col"
                   aria-sort={active ? (sort.dir === "asc" ? "ascending" : "descending") : undefined}
-                  className={`px-3 py-2.5 font-medium ${meta?.right ? "text-right" : ""} ${hd.id === "star" ? "w-11" : ""} ${hd.id === "market" ? "w-[38%]" : ""}`}
+                  className={`px-3 py-2.5 font-medium xl:px-2 ${meta?.right ? "text-right" : ""} ${hd.id === "star" ? "w-11" : ""} ${hd.id === "market" ? "w-[38%]" : ""}`}
                 >
                   {hd.id === "star" ? (
                     <ColumnChooser cols={table.getAllLeafColumns().map((c) => ({ id: c.id, label: (c.columnDef as Col).meta?.label ?? c.id, pro: !!(c.columnDef as Col).meta?.pro, on: c.getIsVisible(), toggle: () => c.toggleVisibility() }))} />
@@ -230,7 +247,7 @@ export function MarketTable({ items, sort, onSort, onToggleGroup, pro = false, l
                 {row.getVisibleCells().map((c) => {
                   const meta = (c.column.columnDef as Col).meta;
                   return (
-                    <td key={c.id} className={`px-3 py-1 align-middle tabular-nums ${meta?.right ? "text-right" : ""}`}>
+                    <td key={c.id} className={`px-3 py-1 align-middle tabular-nums xl:px-2 ${meta?.right ? "text-right" : ""}`}>
                       {flexRender(c.column.columnDef.cell, c.getContext())}
                     </td>
                   );
@@ -241,6 +258,8 @@ export function MarketTable({ items, sort, onSort, onToggleGroup, pro = false, l
           {bottom > 0 && <tr aria-hidden="true" style={{ height: bottom }} />}
         </tbody>
       </table>
+      </div>
+      <div aria-hidden="true" data-testid="table-fade" data-on={more ? "true" : "false"} className={`pointer-events-none absolute inset-y-0 right-0 w-10 rounded-r-card bg-gradient-to-l from-surface to-transparent transition-opacity xl:hidden ${more ? "opacity-100" : "opacity-0"}`} />
     </div>
   );
 }
