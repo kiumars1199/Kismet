@@ -45,14 +45,16 @@ describe("robots.txt and sitemap.xml (T-76)", () => {
     expect(src).toMatch(/twitter: \{ card: "summary_large_image"/);
     expect(src).toMatch(/openGraph: \{[^}]*images:/);
   });
-  it("the market share card wraps instead of running off the 1200 px edge (audit run 2 fail 5)", () => {
-    const src = readFileSync(path.resolve(import.meta.dirname, "../app/m/[id]/opengraph-image.tsx"), "utf8");
-    expect(src).toMatch(/fontSize: 54[^}]*lineClamp: 3/);                       // question: 3 lines, then …
-    expect(src).toMatch(/fontSize: 32[^}]*lineClamp: 2/);                       // the sign-up line wraps, 2 lines max
+  it("/m/<id> link previews use the public share image route, not a file-convention card (F13)", () => {
+    const dir = path.resolve(import.meta.dirname, "../app/m/[id]");
+    expect(readdirSync(dir)).not.toContain("opengraph-image.tsx");   // a file card would override the metadata image
+    expect(readdirSync(dir)).not.toContain("twitter-image.tsx");
+    const src = readFileSync(path.join(dir, "page.tsx"), "utf8");
+    expect(src).toMatch(/\/api\/og\/bet\//);
+    expect(src).toMatch(/summary_large_image/);
   });
-  it("the market share card is the signed-out teaser: no model numbers (T-276)", () => {
-    const src = readFileSync(path.resolve(import.meta.dirname, "../app/m/[id]/opengraph-image.tsx"), "utf8");
-    expect(src).toMatch(/marketTeaser/);
-    for (const k of ["sideRet", "betLine", "win_prob", "roi_pct", "getStoreFor", "gateMarket", "pct("]) expect(src).not.toContain(k);
+  it("robots lets link-preview bots fetch the share image under /api/", () => {
+    const all = rules.find((r) => r.userAgent === "*")!;
+    expect([all.allow].flat()).toContain("/api/og/");
   });
 });
