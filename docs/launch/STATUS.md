@@ -17,17 +17,17 @@ file after every merge. "Review result" says "passed review" only after the revi
 ## Features
 | Feature | Owner | Status | PR | Review result |
 |---|---|---|---|---|
-| F1 Bet checker | checker | re-review round 2 FAIL (CLS 0.371/0.298 at 390 on /check unknown-link and Free-limit states); fixing | kiumars1199/Kismet#43 | not reviewed |
-| F2 Combo checker | checker | re-review round 2 FAIL (Free auto-scores at 2 legs, so 3+ leg combos always 429 for Free); fixing | kiumars1199/Kismet#45 | not reviewed |
+| F1 Bet checker | checker | round 2 fixes pushed (064f521: CLS, Kalshi own Yes price); re-review queued first | kiumars1199/Kismet#43 | not reviewed (round 3 queued) |
+| F2 Combo checker | checker | round 2 fixes pushed (ef73b2f: scores only on 'Check this combo', one server call); re-review queued | kiumars1199/Kismet#45 | not reviewed (round 3 queued) |
 | F3 Every market searchable | data | merged (9ad7713); prod check FAIL: counts.polymarket 14402 < 15000 (upstream scan count falling; data investigating, see decisions Nov 23); kalshi 172680 OK | kiumars1199/Kismet#42 | preview PASS; prod check pending |
 | F4 Three venues side by side | data | review FAIL (Free sees undelayed venue prices; US row contradicts card; no basis); fixing | kiumars1199/Kismet#52 | not reviewed |
-| F5 Topics at signup | onboarding-invites | re-review round 2 FAIL (me_topics cookie stale across devices; cookie survives sign-out); fixing | kiumars1199/Kismet#47 | not reviewed |
+| F5 Topics at signup | onboarding-invites | round 3 FAIL (9b07e14): 15-min hint makes the first visit each day unfiltered; sign-out race re-sets the cookie; fixing | kiumars1199/Kismet#47 | FAIL (round 3) |
 | F6 How to place this bet | checker | all 4 fixes pushed (3668ac3: BetCard How to bet this + RiskNote); re-review queued; F9 wiring after #48 | kiumars1199/Kismet#46 | not reviewed |
 | F7 Live payments by config | trust | merged (cd9f672), prod READY, health ok | kiumars1199/Kismet#41 | passed review |
 | F8 Responsible betting | trust | merged (651462b); prod PASS with notes (help line, 18+, RiskNote on prod; pause/account verified on merged build with mock); follow-up #54 in review | kiumars1199/Kismet#44 | passed review |
-| F9 Venue availability | trust | review round 2 PASS with notes (aaa9198; evidence review/f09/round2/); suites on final+F9 running, then merge | kiumars1199/Kismet#48 | PASS (merge pending) |
+| F9 Venue availability | trust | review PASS (aaa9198) but GitHub CI web job FAILS: 'Check your state' link is a 96×15 tap target on iPhone projects; fix assigned (tracker, trust lane is closed) | kiumars1199/Kismet#48 | PASS, CI red (merge blocked) |
 | F10 Install and web push | alerts | PR open (3234b82; Lighthouse PWA 1; migration 20261122000500); in review queue | kiumars1199/Kismet#56 | not reviewed |
-| F11 Bet tracker | tracker | not started | | not reviewed |
+| F11 Bet tracker | tracker | PR open, 31bf544 (one-tap log, P&L by sport, beat-the-close, 50/50 = split); migration 20261123000100_journal_split pending; review queued | kiumars1199/Kismet#58 | not reviewed |
 | F12 Morning digest | onboarding-invites | PR open (3862060; opt-in default off); migration renamed to 000400 pending; in review queue | kiumars1199/Kismet#55 | not reviewed |
 | F13 Share and invite | onboarding-invites | review FAIL (/api/og/bet 401 signed out and not used as og:image; pending invites never promoted; OG chance differs from drawer; reward skipped permanently for trial/paid Premium at 5th invite; conflicts); fixing | kiumars1199/Kismet#51 | not reviewed |
 | F14 Price history chart | data | review FAIL (empty-state CLS 0.188/0.108; history only for flag rows); fixing | kiumars1199/Kismet#53 |
