@@ -93,6 +93,8 @@ Problems:
 - Merged 16:29: #76 test timeouts (5881b35).
 - #71 round 2 30fe232: Show-tap fixed (0.765 → 0.0065), pill 0.52 gone; still FAIL on full→empty filter change at 1440 (0.786); with trust.
 - #74 PASS (Kalshi-view min-h tweak 54641d6 pending diff check). #77 new: /markets sideways scroll at 768 and 1024, found by the #74 review.
+- Merged 16:33: #52 F4 (a7c3ae5). Post-merge prod smoke a7c3ae5 PASS (#75 live, og image teaser 1200x630 with no leak, invite endpoints 204/401/405, no 5xx).
+- #77 follow-up: table fits from 1280 (xl overflow-visible + trim padding) and a fade cue for hidden columns.
 - Old: CI timeout #73 (one line, 30 → 45 min), split out of #69 so it lands first; #51 was also cancelled at 30 min (10:05–10:35).
 - CI blockers (10:05): #66 was cancelled by the 30-min job timeout (the run now takes ~30 min); #68 and #67 failed on the F5 pill tap before page load (AppliedPills is a client-only button). Both are being fixed in #69 (trust); after it merges, final gets merged into the waiting PRs.
 - F5 pill-click flake: e2e-paid/launch-f05-topics.spec.ts:59 at 1440 failed on CI after a server ECONNRESET (seen on #67). Part of trust's stabilize PR (D).
