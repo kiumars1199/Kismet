@@ -16,6 +16,8 @@ import { checkHref } from "@/lib/check/href";
 import { cardVenue, chanceLine, INTL_ONLY, plainTitle, sideLabel, starsHelp, US_SMALL_PRINT } from "@/lib/card";
 import { useEntitlements } from "@/lib/entitlements";
 import { VenueButton } from "@/components/trade/VenueButton";
+import { HowToBet } from "@/components/check/HowToBet";
+import { venueLinks } from "@/lib/venues/guides";
 import { useWhen } from "./When";
 import { drawerHref, useOpenDrawer } from "./drawer";
 import { useLiveAsk } from "./live";
@@ -82,6 +84,7 @@ export function BetCard({ r }: { r: ApiRow; pro?: boolean }) {
           : <VenueButton m={m} s={s} className="min-h-12 w-full sm:min-h-11" />}
         <Link href={checkHref(m.id, s.side_index)} data-testid="check-link" aria-label={`Check this bet: ${m.question}`}
           className="relative z-10 mt-1 flex min-h-11 items-center justify-center rounded-xl text-sm font-semibold text-accent-hover hover:text-accent-soft">Check</Link>
+        <div className="relative z-10 mt-1"><HowToBet links={venueLinks(m)} /></div>
       </div>
       <Why r={r} livePrice={live && (
         <span data-testid="live-price" className="block text-xs text-muted">
