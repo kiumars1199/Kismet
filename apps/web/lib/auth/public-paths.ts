@@ -14,7 +14,7 @@ export const PUBLIC_PAGES: readonly string[] = [
 /** Static and discovery files: search engines, OAuth discovery, share images, icons, manifest. */
 export const PUBLIC_FILES: readonly string[] = [
   "/robots.txt", "/sitemap.xml", "/llms.txt", "/.well-known",
-  "/favicon.ico", "/icon", "/icon.svg", "/apple-icon", "/apple-icon.png", "/opengraph-image", "/twitter-image", "/manifest.webmanifest",
+  "/favicon.ico", "/icon", "/icon.svg", "/apple-icon", "/apple-icon.png", "/opengraph-image", "/twitter-image", "/manifest.webmanifest", "/sw.js", "/icons",
   "/149e9513-01fa-4fb0-aad4-566afd725d1b",   // Vercel BotID challenge script + proxy (botid/next/config rewrites, Vercel only)
   "/_vercel",                                 // Vercel platform paths (analytics, insights) if ever enabled
 ];

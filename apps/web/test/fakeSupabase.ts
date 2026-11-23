@@ -6,7 +6,8 @@ export function fakeSupabase(tables: Record<string, R[]>, emails: Record<string,
   const from = (t: string) => {
     const rows = (tables[t] ??= []);
     const where: ((r: R) => boolean)[] = [];
-    let op: "select" | "insert" | "update" = "select";
+    let op: "select" | "insert" | "update" | "delete" | "upsert" = "select";
+    let conflict = "";
     let body: R = {};
     let single = false;
     const run = () => {
@@ -18,6 +19,12 @@ export function fakeSupabase(tables: Record<string, R[]>, emails: Record<string,
         rows.push(row);
         return { data: single ? row : [row], error: null };
       }
+      if (op === "upsert") {
+        const old = rows.find((r) => r[conflict] === body[conflict]);
+        if (old) Object.assign(old, body); else rows.push({ id: String(seq++), ...body });
+        return { data: null, error: null };
+      }
+      if (op === "delete") { for (const r of hit) rows.splice(rows.indexOf(r), 1); return { data: null, error: null }; }
       if (op === "update") { hit.forEach((r) => Object.assign(r, body)); return { data: null, error: null }; }
       return { data: hit.map((r) => ({ ...r })), error: null };
     };
@@ -30,6 +37,8 @@ export function fakeSupabase(tables: Record<string, R[]>, emails: Record<string,
       or: (s: string) => { where.push((r) => s.split(",").some((c) => r[c.split(".")[0]!] == null)); return b; },
       insert: (row: R) => { op = "insert"; body = row; return b; },
       update: (p: R) => { op = "update"; body = p; return b; },
+      delete: () => { op = "delete"; return b; },
+      upsert: (row: R, o?: { onConflict?: string }) => { op = "upsert"; body = row; conflict = o?.onConflict ?? "id"; return b; },
       then: (ok: (v: unknown) => unknown, bad?: (e: unknown) => unknown) => Promise.resolve(run()).then(ok, bad),
     };
     return b;
