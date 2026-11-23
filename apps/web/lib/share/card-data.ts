@@ -3,14 +3,23 @@
 import { getStoreFor, type Store } from "@/lib/data/store";
 import { marketTeaser, type Teaser } from "@/lib/teaser";
 import { betFacts, type BetFacts } from "./bet-facts";
-import { verifyShareSig } from "./sig";
+import { shareSig, verifyShareSig } from "./sig";
 
 export type ShareCard = { kind: "numbers"; facts: BetFacts } | { kind: "teaser"; teaser: Teaser };
 
-/** Only a flagged bet (the recommended side, with a positive edge) gets a card with numbers. Judged on the exact row. */
+/** Only a flag (a market in flags.json) on its recommended side gets a card with numbers. The Free store is the one the
+ *  public image uses, and the link route judges on it too, so a signed link always renders numbers. */
 export function isShareable(store: Store, id: string, side: number): boolean {
+  const flag = store.flagsById.get(id);
+  return !!flag && flag.best.side_index === side;
+}
+
+/** What /api/share/link issues for a market: its recommended side, signed only when that is shareable. null = no such market. */
+export function shareLinkParts(store: Store, id: string): { id: string; side: number; sig: string | null } | null {
   const m = store.flagsById.get(id) ?? store.byId.get(id);
-  return !!m && m.best.side_index === side && m.best.edge > 0;
+  if (!m) return null;
+  const side = m.best.side_index;
+  return { id: m.id, side, sig: isShareable(store, m.id, side) ? shareSig(m.id, side) : null };
 }
 
 /** The numbers for a share link, or null: the signature is valid AND the bet is flagged. Used by the image and by the
