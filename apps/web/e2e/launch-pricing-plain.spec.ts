@@ -33,12 +33,13 @@ test("the Free plan says how the daily bets are picked", async ({ page }) => {
   await expect(page.locator("main")).not.toContainText("a day, chosen at random");
 });
 
-test("help line links are at least 44 x 44 px at 390", async ({ page }) => {
+test("help line buttons are at least 44 x 44 px at 390; the comma sits against \"source\"", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/pricing");
   const links = page.getByTestId("helpline").first().getByRole("link");
   expect(await links.count()).toBeGreaterThanOrEqual(3);
   for (const l of await links.all()) {
+    if (await l.evaluate((el) => el.hasAttribute("data-inline-link"))) continue;   // "source": inline in the sentence (WCAG 2.5.8); hit-tested in e2e-paid/launch-helpline-targets
     const b = (await l.boundingBox())!;
     expect(b.height, `${await l.innerText()} height`).toBeGreaterThanOrEqual(44);
     expect(b.width, `${await l.innerText()} width`).toBeGreaterThanOrEqual(44);
@@ -56,17 +57,6 @@ test("help line links are at least 44 x 44 px at 390", async ({ page }) => {
   console.log("source-to-comma gap px:", gaps.map((g) => g.toFixed(2)).join(", "));
   expect(gaps.length).toBeGreaterThan(0);
   for (const g of gaps) { expect(Number.isNaN(g), "source, found").toBe(false); expect(g).toBeLessThanOrEqual(1); }
-  // and the source link still hit-tests across its full 44 px width: points at both ends of the box land on the link itself.
-  // (The -my-3 box overlaps the next line's block at its very bottom edge, on final too, so the vertical probe stays mid-box.)
-  const src = page.getByTestId("helpline").first().getByRole("link", { name: "source" });
-  await src.scrollIntoViewIfNeeded();   // elementFromPoint only sees the viewport
-  const sb = (await src.boundingBox())!;
-  expect(sb.width).toBeGreaterThanOrEqual(44);
-  expect(sb.height).toBeGreaterThanOrEqual(44);
-  for (const [fx, fy] of [[0.05, 0.5], [0.95, 0.5], [0.5, 0.35], [0.5, 0.5]] as const) {
-    const hit = await src.evaluate((el, [x, y]) => { const t = document.elementFromPoint(x!, y!); return el.contains(t) ? "link" : `${t?.tagName} ${String(t?.className).slice(0, 60)} "${(t?.textContent ?? "").slice(0, 30)}"`; }, [sb.x + sb.width * fx, sb.y + sb.height * fy] as [number, number]);
-    expect(hit, `hit at ${fx},${fy}`).toBe("link");
-  }
 });
 
 for (const [w, h] of [[390, 844], [1440, 900]] as const) {
