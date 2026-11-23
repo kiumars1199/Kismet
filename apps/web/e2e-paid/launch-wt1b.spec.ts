@@ -5,7 +5,7 @@
 import flagsFixture from "../test/fixtures/flags.json";
 import { expect, test, type Page } from "./fixtures";
 
-const flags = (flagsFixture as unknown as { flags: { id: string; question: string }[] }).flags;
+const flags = (flagsFixture as unknown as { flags: { id: string; question: string; event?: string }[] }).flags;
 const id = flags[0]!.id;
 // the longest real title: the bet line on /signup must still leave "Create account" above the tab bar
 const longId = [...flags].sort((a, b) => b.question.length - a.question.length)[0]!.id;
@@ -16,10 +16,13 @@ const box = async (l: ReturnType<Page["locator"]>) => (await l.boundingBox())!;
 
 test.use({ hasTouch: true });
 
-for (const size of SIZES) {
-  test(`/m teaser at ${size.width}x${size.height}: Sign up free is right after the verdict and clears the tab bar by 24 px`, async ({ page }) => {
+// the first flag, the longest title (4 lines at 375), and one with an event line under the title
+const eventId = flags.find((f) => f.id === "6673454")?.id ?? flags.find((f) => f.event && f.event !== f.question)!.id;
+const CASES = [{ name: "first flag", mid: id }, { name: "longest title", mid: longId }, { name: "title + event line", mid: eventId }];
+for (const size of SIZES) for (const c of CASES) {
+  test(`/m teaser (${c.name}) at ${size.width}x${size.height}: Sign up free is right after the verdict and clears the tab bar by 24 px`, async ({ page }) => {
     await page.setViewportSize(size);
-    await page.goto(`/m/${id}`);
+    await page.goto(`/m/${c.mid}`);
     await expect(page.getByTestId("teaser")).toBeVisible({ timeout: 60_000 });
     const verdict = await box(page.getByTestId("teaser-verdict"));
     const signup = await box(page.getByRole("link", { name: "Sign up free" }));
@@ -27,6 +30,7 @@ for (const size of SIZES) {
     expect(signup.y, "Sign up free follows the verdict row").toBeGreaterThanOrEqual(verdict.y + verdict.height);
     expect(signup.y - (verdict.y + verdict.height), "directly after (no other block between)").toBeLessThan(40);
     expect(combo.y, "the combo link is below Sign up free").toBeGreaterThanOrEqual(signup.y + signup.height);
+    console.log(`/m ${c.mid} ${size.width}x${size.height}: gap ${Math.round((await tabTop(page)) - (signup.y + signup.height))}`);
     expect(signup.y + signup.height, "button bottom is >= 24 px above the tab bar").toBeLessThanOrEqual((await tabTop(page)) - 24);
     await expect(page.getByTestId("teaser-price")).toHaveText(/^Market price: \S+ \d+%$/);
   });
@@ -41,8 +45,8 @@ test("/m: the Log in link is >= 44 x 44", async ({ page }) => {
   expect(login.height).toBeGreaterThanOrEqual(44);
 });
 
-test("/signup?next=/m/<id> at 390x844: Create account above the tab bar, no '?.', Sign up tab is current, links 44 px", async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
+for (const size of SIZES) test(`/signup?next=/m/<id> at ${size.width}x${size.height}: Create account and the 18+ box above the tab bar, no '?.', Sign up tab is current, links 44 px`, async ({ page }) => {
+  await page.setViewportSize(size);
   await page.goto(`/signup?next=${encodeURIComponent(`/m/${longId}`)}`);
   const line = page.getByTestId("signup-bet");
   await expect(line).toBeVisible({ timeout: 60_000 });
@@ -50,8 +54,10 @@ test("/signup?next=/m/<id> at 390x844: Create account above the tab bar, no '?.'
   const tab = page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Sign up" });
   await expect(tab).toHaveAttribute("aria-current", "page");
   const submit = await box(page.getByRole("button", { name: "Create account" }));
-  console.log(`signup 390: Create account bottom ${Math.round(submit.y + submit.height)}, tab bar top ${Math.round(await tabTop(page))}`);
+  console.log(`signup ${size.width}x${size.height}: Create account bottom ${Math.round(submit.y + submit.height)}, tab bar top ${Math.round(await tabTop(page))}`);
   expect(submit.y + submit.height, "Create account is above the tab bar").toBeLessThanOrEqual(await tabTop(page));
+  const cb = await box(page.getByLabel(/I'm 18 or older/));
+  expect(cb.y + cb.height, "the 18+ box is above the tab bar").toBeLessThanOrEqual(await tabTop(page));
   for (const name of ["Terms", "Privacy Policy", "Log in"]) {
     const l = page.getByRole("main").getByRole("link", { name, exact: true }).last();
     const b = await box(l);

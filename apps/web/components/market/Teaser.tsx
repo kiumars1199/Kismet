@@ -29,13 +29,13 @@ export function TeaserView({ t, path, zone = null }: { t: Teaser; path: string; 
   const closes = t.closes_at ? new Date(t.closes_at * 1000) : null;
   const next = encodeURIComponent(path);
   return (
-    <article className="mx-auto flex w-full max-w-[720px] flex-col gap-6 py-4 md:py-10" data-testid="teaser">
-      <header className="flex flex-col gap-3">
+    <article className="mx-auto flex w-full max-w-[720px] flex-col gap-4 py-2 md:gap-6 md:py-10" data-testid="teaser">
+      <header className="flex flex-col gap-2 md:gap-3">
         <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: t.title }]} />
         <p className="text-xs font-medium uppercase tracking-wide text-muted">
           {t.category}{t.kind === "event" && t.markets ? ` · ${formatCount(t.markets)} ${t.markets === 1 ? "market" : "markets"}` : ""}
         </p>
-        <h1 className="text-balance text-[28px] font-bold leading-tight tracking-[-0.02em] md:text-[36px]">{t.title}</h1>
+        <h1 className="text-balance text-[22px] font-bold leading-snug tracking-[-0.02em] md:text-[36px] md:leading-tight">{t.title}</h1>
         {t.event && !eventDuplicatesTitle(t.title, t.event) ? <p className="text-sm text-soft">{t.event}</p> : null}
         {closes ? (
           <p className="text-sm text-muted">
@@ -49,8 +49,8 @@ export function TeaserView({ t, path, zone = null }: { t: Teaser; path: string; 
           </p>
         ) : null}
       </header>
-      <section className="flex flex-col gap-4 rounded-card border border-accent-border bg-accent-bg p-5 sm:p-6">
-        <p className="text-[17px] font-medium text-accent-soft">{TEASER_LINE}</p>
+      <section className="flex flex-col gap-3 rounded-card border border-accent-border bg-accent-bg p-4 sm:gap-4 sm:p-6">
+        <p className="text-base font-medium text-accent-soft sm:text-[17px]">{TEASER_LINE}</p>
         {t.kind === "market" ? (
           <p data-testid="teaser-verdict" className="rounded-input border border-accent-border px-4 py-3 text-sm text-accent-softer">
             <span aria-hidden>🔒</span> <span className="font-semibold text-accent-soft">Kismet&apos;s verdict</span>: sign up to unlock it.
