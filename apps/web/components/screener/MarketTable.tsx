@@ -2,6 +2,7 @@
 
 // Desktop rows (F-01): TanStack Table for columns + visibility, TanStack Virtual over the window for rows.
 // Sorting is server-side (manualSorting): a header click asks the page to change `sort` in the URL.
+import { BREAKPOINTS, COL_CLASS, minWidthAt } from "@/lib/market-table-cols";
 import { ClosesIn, ClosesLine } from "@/components/clock";
 import Link from "next/link";
 import { createColumnHelper, flexRender, getCoreRowModel, useReactTable, type ColumnDef, type VisibilityState } from "@tanstack/react-table";
@@ -40,15 +41,15 @@ function columns(pro: boolean): Col[] {
     }),
     h.display({ id: "bet", header: "Bet", meta: { label: "Bet" }, cell: ({ row: { original: r } }) => {
       const q = betQuote(r.market, r.side);
-      // The separator dot rides at the END of the first half (shown from 1400 px, where the Market column is capped so this seldom wraps):
-      // if "pays" does drop to line 2, the dot stays on line 1 and no line starts with "·". Squeezed below 1400 px there is no dot.
+      // No separator before "pays": the muted extra-small "pays 1.47x" sets the halves apart. The two halves wrap onto two lines only when
+      // the table is squeezed (1280 px, any font).
       return (
         <span data-testid="bet-cell" className="font-medium">
-          <span data-testid="bet-side" className="whitespace-nowrap">{r.side.outcome} · {pct(q.ask)}<span data-testid="bet-dot" aria-hidden="true" className="hidden min-[1400px]:inline"> ·</span></span>{" "}
+          <span data-testid="bet-side" className="whitespace-nowrap">{r.side.outcome} · {pct(q.ask)}</span>{" "}
           <span data-testid="bet-pays" className="whitespace-nowrap text-xs font-normal tabular-nums text-muted" title={PAYS_AFTER_FEE_HELP}>pays {q.paysText ?? DASH}</span>
         </span>
       );
-    } }),   // the two halves wrap onto two lines only when the table is squeezed (1280 px, any font)
+    } }),
     h.display({
       id: "return", meta: { label: pro ? "Edge" : "Estimated return", sort: pro ? "edge" : "roi", right: true, help: RETURN_HELP },
       header: pro ? "Edge" : "Estimated return",
@@ -94,7 +95,7 @@ function MarketCell({ r }: { r: ApiRow }) {
           if (e.metaKey || e.ctrlKey) window.open(r.market.url, "_blank", "noopener,noreferrer");
           else open(r.market.id, r.side.side_index);
         }}
-        className="line-clamp-2 min-h-11 font-medium leading-snug text-text hover:text-accent-hover"
+        className="line-clamp-2 min-h-11 font-medium leading-[22px] text-text hover:text-accent-hover"   /* 2 x 22 px = the 44 px tap target, so no sliver of a 3rd line shows under the clamp */
       >
         {r.market.question}
       </a>
@@ -102,6 +103,8 @@ function MarketCell({ r }: { r: ApiRow }) {
     </div>
   );
 }
+
+const colW = (id: string) => COL_CLASS[id] ?? "w-[100px]";   // Market: "" (the flexible column)
 
 const COLS_KEY = "me.columns.v1";
 const PRO_IDS = ["mid", "spread", "fee", "volume", "volume_24h", "liquidity", "evidence", "level", "type", "retention", "capacity", "verdict", "realistic"];
@@ -187,8 +190,14 @@ export function MarketTable({ items, sort, onSort, onToggleGroup, pro = false, l
     // the overflowing content), so the class cannot flip-flop.
     <div className="relative rounded-card border border-border bg-surface">
       <div ref={boxRef} className={more ? "overflow-x-auto" : "overflow-x-auto xl:overflow-visible"}>
-      <table className={`w-full border-collapse text-sm ${loading ? "opacity-60" : ""}`} aria-busy={loading}>
-        <thead className="sticky top-0 z-10 bg-surface lg:top-16">
+      <table
+        className={`w-full min-w-(--mw-0) min-[1366px]:min-w-(--mw-1366) min-[1440px]:min-w-(--mw-1440) table-fixed border-collapse text-sm ${loading ? "opacity-60" : ""}`}
+        // one min-width per breakpoint, from the same widths that render (a single base sum let Bet and Topic eat Market's floor from 1440 px)
+        style={Object.fromEntries(BREAKPOINTS.map((bp) => [`--mw-${bp}`, `${minWidthAt(visible.map((c) => c.id), bp)}px`])) as React.CSSProperties}
+        aria-busy={loading}>
+        {/* Page-sticky (under the 64 px top bar) only where the box does not scroll: from xl, when the columns fit. In a scrolling box (below xl, or
+            with extra columns) the box is the sticky container, so top-16 would leave a 64 px blank band over the first row. */}
+        <thead className={`sticky top-0 z-10 bg-surface ${more ? "" : "xl:top-16"}`}>
           <tr className="border-b border-border text-left text-xs text-muted">
             {table.getHeaderGroups()[0]!.headers.map((hd) => {
               const meta = (hd.column.columnDef as Col).meta;
@@ -198,7 +207,7 @@ export function MarketTable({ items, sort, onSort, onToggleGroup, pro = false, l
                   key={hd.id}
                   scope="col"
                   aria-sort={active ? (sort.dir === "asc" ? "ascending" : "descending") : undefined}
-                  className={`px-3 py-2.5 font-medium xl:px-2 ${meta?.right ? "text-right" : ""} ${hd.id === "star" ? "w-11" : ""} ${hd.id === "market" ? "w-[38%] min-[1400px]:w-[18rem]" : ""} ${hd.id === "bet" ? "min-[1400px]:w-60" : ""} ${hd.id === "topic" ? "min-[1400px]:w-28" : ""}`}
+                  className={`px-3 py-2.5 font-medium xl:px-2 ${meta?.right ? "text-right" : ""} ${colW(hd.id)}`}
                 >
                   {hd.id === "star" ? (
                     <ColumnChooser cols={table.getAllLeafColumns().map((c) => ({ id: c.id, label: (c.columnDef as Col).meta?.label ?? c.id, pro: !!(c.columnDef as Col).meta?.pro, on: c.getIsVisible(), toggle: () => c.toggleVisibility() }))} />
