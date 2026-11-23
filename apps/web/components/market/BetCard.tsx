@@ -13,6 +13,7 @@ import type { ApiRow } from "@/lib/api";
 import { betQuote, quoteStars, RETURN_HELP_ONE } from "@/lib/betFigures";
 import { cardVenue, chanceLine, INTL_ONLY, plainTitle, sideLabel, starsHelp, US_SMALL_PRINT } from "@/lib/card";
 import { useEntitlements } from "@/lib/entitlements";
+import { LogBetButton } from "@/components/journal/LogBetButton";
 import { VenueButton } from "@/components/trade/VenueButton";
 import { useWhen } from "./When";
 import { drawerHref, useOpenDrawer } from "./drawer";
@@ -78,6 +79,7 @@ export function BetCard({ r }: { r: ApiRow; pro?: boolean }) {
         {v.kind === "intl-only"
           ? <p data-testid="intl-only" className="flex min-h-11 items-center justify-center rounded-xl border border-border bg-raised/60 px-3 text-center text-xs text-muted">{INTL_ONLY}</p>
           : <VenueButton m={m} s={s} className="min-h-12 w-full sm:min-h-11" />}
+        {v.kind !== "intl-only" && <LogBetButton market={m} side={s} className="mt-2 w-full" />}
       </div>
       <Why r={r} livePrice={live && (
         <span data-testid="live-price" className="block text-xs text-muted">

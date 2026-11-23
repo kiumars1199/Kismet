@@ -77,11 +77,30 @@ export function cumulative(rows: JournalEntry[]) {
     });
 }
 
-export function byTopic(rows: JournalEntry[]) {
-  const m = new Map<string, number>();
-  for (const r of rows) if (r.result) m.set(r.niche ?? r.category ?? "other", (m.get(r.niche ?? r.category ?? "other") ?? 0) + (r.pnl_usd ?? 0));
-  return [...m].map(([topic, pnl]) => ({ topic, pnl })).sort((a, b) => b.pnl - a.pnl);
+/** "Beat the closing price": you paid less than the price just before the market closed. null until the close is known. */
+export const beatClose = (b: Pick<JournalEntry, "price" | "closing_price">): boolean | null =>
+  b.closing_price == null ? null : b.closing_price > b.price;
+
+const settledPnl = (r: JournalEntry) => r.pnl_usd ?? pnl(r, r.result!);
+
+/**
+ * Settled P&L grouped by sport (category) or topic (niche, else category). Rows with neither go to "other", so the
+ * groups always add up to summarize().pnl.
+ */
+export function breakdown(rows: JournalEntry[], by: "category" | "topic") {
+  const m = new Map<string, { pnl: number; bets: number }>();
+  for (const r of rows) {
+    if (!r.result) continue;
+    const key = (by === "category" ? r.category : r.niche ?? r.category) ?? "other";
+    const g = m.get(key) ?? { pnl: 0, bets: 0 };
+    g.pnl += settledPnl(r);
+    g.bets += 1;
+    m.set(key, g);
+  }
+  return [...m].map(([key, g]) => ({ key, ...g })).sort((a, b) => b.pnl - a.pnl);
 }
+
+export const byTopic = (rows: JournalEntry[]) => breakdown(rows, "topic").map((g) => ({ topic: g.key, pnl: g.pnl }));
 
 /** Date in the user's time zone: "Nov 16, 2026". */
 export function day(iso: string | null | undefined, timeZone: string): string {
