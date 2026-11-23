@@ -76,7 +76,7 @@ test("invite link, QR, live 0..5 counter, reward; share sheet in the drawer", as
 
   // the shared link carries the sharer's invite code
   await page.context().grantPermissions(["clipboard-read", "clipboard-write"]);
-  await page.getByRole("button", { name: "Copy link" }).click();
+  await page.getByRole("button", { name: "Copy link" }).first().click();   // the sheet's own (the invite panel below has another)
   const code = link.split("/").pop()!;
   expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(`http://localhost:${new URL(page.url()).port}/m/${id}?ref=${code}`);
   await page.keyboard.press("Escape");
