@@ -1,0 +1,20 @@
+390-acct [account] {"url":"/account","h1":"Account","cls":0,"shifts":[],"disc":true,"hs":false,"wide":[],"cents":[],"small":[{"t":"Search a team, city or “3x”","w":78,"h":24,"inline":false,"where":"nav"},{"t":"source","w":45,"h":17,"inline":true,"where":"main"},{"t":"See plans","w":65,"h":17,"inline":true,"where":"main"},{"t":"source","w":39,"h":15,"inline":true,"where":"footer"}],"smallN":4,"dup":[]}
+390-acct [account-pause] {"url":"/account","h1":"Account","cls":0,"shifts":[],"disc":true,"hs":false,"wide":[],"cents":[],"small":[{"t":"Search a team, city or “3x”","w":78,"h":24,"inline":false,"where":"nav"},{"t":"source","w":45,"h":17,"inline":true,"where":"main"},{"t":"See plans","w":65,"h":17,"inline":true,"where":"main"},{"t":"source","w":39,"h":15,"inline":true,"where":"footer"}],"smallN":4,"dup":[]}
+390-acct pause card: "Take a break\n\nPause your account for 24 hours, 7 days or 30 days. While it is paused Kismet shows only a pause screen, and it can't be ended early.\n\n24 hours\n7 days\n30 days\n\nGambling problem? Free, confidential help:\n\nCall or text 1-800-MY-RESET\nChat online\n\n(National Council on Problem Gambling, 24/7, source, checked 2026-11-22)."
+390-acct pause card links: [{"t":"Call or text 1-800-MY-RESET","href":"tel:+18006973738","h":44,"w":227},{"t":"Chat online","href":"https://www.ncpgambling.org/chat/","h":44,"w":110},{"t":"source","href":"https://www.ncpgambling.org/help-treatment/about-the-national-problem-gambling-helpline/","h":17,"w":45}]
+390-acct [account-pause-picked] {"url":"/account","h1":"Account","cls":0,"shifts":[],"disc":true,"hs":false,"wide":[],"cents":[],"small":[{"t":"Search a team, city or “3x”","w":78,"h":24,"inline":false,"where":"nav"},{"t":"Cancel","w":46,"h":20,"inline":false,"where":"main"},{"t":"source","w":45,"h":17,"inline":true,"where":"main"},{"t":"See plans","w":65,"h":17,"inline":true,"where":"main"},{"t":"source","w":39,"h":15,"inline":true,"where":"footer"}],"smallN":5,"dup":[]}
+390-acct pause buttons: [{"t":"24 hours","h":44,"w":94},{"t":"7 days","h":44,"w":78},{"t":"30 days","h":44,"w":88},{"t":"Pause for 24 hours","h":44,"w":161},{"t":"Cancel","h":20,"w":46}]
+390-acct signin section: "Sign-in\n\nSigned in as wt2a-390-1795472500516@example.com, with Google or an email link.\n\nAn account can be signed in on up to 3 devices. Signing in on a 4th signs out the oldest.\n\nSign out\nSign out everywhere"
+390-acct footer helpline: "Gambling problem? Free, confidential help:\n\nCall or text 1-800-MY-RESET\nChat online\n\n(National Council on Problem Gambling, 24/7, source, checked 2026-11-22)."
+390-acct [account-full] {"url":"/account","h1":"Account","cls":0,"shifts":[],"disc":true,"hs":false,"wide":[],"cents":[],"small":[{"t":"Search a team, city or “3x”","w":78,"h":24,"inline":false,"where":"nav"},{"t":"Cancel","w":46,"h":20,"inline":false,"where":"main"},{"t":"source","w":45,"h":17,"inline":true,"where":"main"},{"t":"See plans","w":65,"h":17,"inline":true,"where":"main"},{"t":"source","w":39,"h":15,"inline":true,"where":"footer"}],"smallN":5,"dup":[]}
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+page.waitForURL: Navigation failed because page crashed!
+=========================== logs ===========================
+waiting for navigation until "load"
+============================================================
+    at /tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/probe/wt2off.mjs:234:74
+
+Node.js v22.23.5

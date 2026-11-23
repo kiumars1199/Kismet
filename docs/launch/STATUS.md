@@ -55,14 +55,18 @@ Problems:
 - Gap (not a problem): the signed-out combo from /m is BotID-blocked for headless on prod; passes on the local build (decisions.md)
 
 ## Walk-through 2: new Free user
-Status: official walk in progress on 137ad1f (21:50). Dry run was on the paid mock at eef7345 (18:35). Dry-run fixes merged: #86, #81. Fixes go to the trust lane (T-wt2).
-Problems (from the dry run):
-- [should-fix] A first-time Free user with one topic can land on an empty first screen, because the random 10-bet sample may have none in that topic.
-- [should-fix] Tour step 1 opens over an empty list.
-- [should-fix] Onboarding step 1 has a CLS of 0.104 at 1440, from chip height growth and a late fieldset.
-- [nit] "Why this bet?" says "over over".
-- [nit] The copy on the locked card is unclear when 0 Free bets match.
-- ~~[nit] "- More Markets" shows on the /markets group header~~ fixed by #81 (merged); verify in the official walk.
+Status: official walk on 137ad1f (22:50; evidence review/walkthrough-2/): FAIL. Signed-in steps were walked on a local build of 137ad1f with the E2E mock, and signed-out steps on prod (decisions.md). Fixes assigned: T-wt2b (data), T-wt2c (tracker). Dry-run items fixed: onboarding CLS (now 0.0006), "over over", locked-card copy, "- More Markets" (#81). The empty first screen is fixed only when the topic has bets that aren't in the sample.
+
+Problems:
+- [should-fix] The empty first screen still happens when a topic has no best bets today (15 of 18 topics today, NBA among them). The fallback needs total > 0. (data, T-wt2b)
+- [should-fix] On the fallback first screen the filter bar contradicts the cards ("NFL (1)", "10 of 34", but soccer cards). The tour also scrolls the explanatory h1 away. (data, T-wt2b)
+- [should-fix] The pause "Cancel" button is 46x20 and sits next to "Pause for 24 hours" (tracker, T-wt2c)
+- [nit] The h1 says "your topics" for a plain topic filter. The locked "Pro shows all 1" card is not in the first view. (data, T-wt2b)
+- [nit] Tap targets: onboarding Back, "Track your bets with Pro", /markets rows, the drawer's See plans / Why two numbers? / Settings. (tracker, T-wt2c)
+- [nit] /account says "with Google or an email link" to password users. The help line is shown twice on /account. (tracker, T-wt2c)
+- [nit] The drawer has no single-bet "Check" entry. (tracker, T-wt2c)
+- Not seen yet, to re-walk after the fixes: email + password signup (stalled under shared-machine load), the first screen for a topic with no bets, and the tour over an empty list.
+- Accepted, not a problem: the console logs 429 on the 2nd Free check (decisions.md).
 
 ## Walk-through 3: Pro user building a combo
 Status: official walk in progress on 137ad1f (21:50). Dry run was on the paid mock at eef7345 (18:58). Dry-run fixes merged: #89, #92. Fixes are with the data lane (T-wt3).
