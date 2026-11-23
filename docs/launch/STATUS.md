@@ -50,8 +50,8 @@ Problems:
 - [nit] Teaser copy "Yes: 69% priced by the market" → "Market price: Yes 69%" (onboarding, T-wt1b)
 - [nit] /state has no h1 (onboarding, T-wt1b)
 - [nit] The bottom-bar "Sign up" tab has no active state on /signup (onboarding, T-wt1b)
-- [nit] Tap targets under 44 px at 390: Terms/Privacy in the 18+ label, the auth switch links, /m "Log in" 41 px wide (onboarding, T-wt1b); /pricing "See results", footer links on desktop (tracker, T-wt1c)
-- [nit] /pricing at 390 hides all proof behind a bare "How it did in testing" line, with 110 px of dead space (tracker, T-wt1c)
+- [nit] Tap targets under 44 px at 390: Terms/Privacy in the 18+ label, the auth switch links, /m "Log in" 41 px wide (onboarding, T-wt1b); ~~/pricing "See results", footer links on desktop~~ fixed by #95
+- ~~[nit] /pricing at 390 hides all proof behind a bare "How it did in testing" line, with 110 px of dead space~~ fixed by #95 (merged 2fcbe82)
 - Gap (not a problem): the signed-out combo from /m is BotID-blocked for headless on prod; passes on the local build (decisions.md)
 
 ## Walk-through 2: new Free user
@@ -80,6 +80,7 @@ Problems (from the dry run):
 - [nit] Search hits shift the result box (CLS 0.06-0.07).
 
 ## Found in review, outside a lane
+- 23:20 #95 T-wt1c merged at 2dfcf1e (final 2fcbe82): reviewer PASS on the 2nd round (1st round: proof line could say "100% of 1 won" and a win rate without the return). Follow-up T-95b (tracker): bound the "Live record just started" note, drop ".0".
 - 21:50 Merged #85 (T-wt1: pricing, help line, locked copy) at 5b3b53c -> 137ad1f. Reviewer PASS, CI web green, preview ready. Batch complete: no launch PRs left open. Production 137ad1f is READY and /api/health is ok. The official walk-throughs 1, 2 and 3 have started in parallel: signed-out steps on prod; signed-in steps on a local build of 137ad1f with the E2E mock, per decisions.md (no live test accounts, no bot-protection bypass on prod).
 - 21:47 Merged #92 (T-89b combo checker review fixes) at b810a77. Reviewer PASS, CI web green, preview ready.
 - 21:45 Merged #94 (T-ci2: WebKit in its own Playwright-image job, 4 Chromium shards) at 9a35dc6 -> fae9433. Reviewer PASS: the gate needs all 4 jobs and covers the same 85 paid + 273 demo tests; longest job 9:14 (it was 12:47). #92 b810a77 re-review PASS: the header matches final at 768-1280, "Check a bet" shows from 1440, and it is in the footer + phone More menu. Merge on green web. Follow-up T-89c (data lane): first-leg CLS at 390 (0.069; one run 0.1008), double active state in More, "2 to 10" said 3 times. #85 merged final in (5b3b53c) after a slow-dev-server failure on the old serial CI.

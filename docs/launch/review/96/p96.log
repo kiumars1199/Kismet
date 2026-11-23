@@ -1,0 +1,25 @@
+legs 6654452 0 6635049 1
+out 390: worst first 0 second 0.0019 scoring 0.0063 newtab-stale 0
+   run0 first 0 [] second 0.0019 [0.0019 P y646->691 h18->18] scoring 0.0063 stale-tab 0 [] cookie-after 0
+   run1 first 0 [] second 0.0019 [0.0019 P y646->691 h18->18] scoring 0.0000 stale-tab 0 [] cookie-after 0
+   run2 first 0 [] second 0.0019 [0.0019 P y646->691 h18->18] scoring 0.0000 stale-tab 0 [] cookie-after 0
+   run3 first 0 [] second 0.0019 [0.0019 P y646->691 h18->18] scoring 0.0000 stale-tab 0 [] cookie-after 0
+   run4 first 0 [] second 0.0019 [0.0019 P y646->691 h18->18] scoring 0.0000 stale-tab 0 [] cookie-after 0
+out 1440: worst first 0 second 0.0006 scoring 0.0000 newtab-stale 0
+   run0 first 0 [] second 0.0006 [0.0006 P y530->577 h18->18] scoring 0.0000 stale-tab 0 [] cookie-after 0
+   run1 first 0 [] second 0.0006 [0.0006 P y530->577 h18->18] scoring 0.0000 stale-tab 0 [] cookie-after 0
+   run2 first 0 [] second 0.0006 [0.0006 P y530->577 h18->18] scoring 0.0000 stale-tab 0 [] cookie-after 0
+   run3 first 0 [] second 0.0006 [0.0006 P y530->577 h18->18] scoring 0.0000 stale-tab 0 [] cookie-after 0
+   run4 first 0 [] second 0.0006 [0.0006 P y530->577 h18->18] scoring 0.0000 stale-tab 0 [] cookie-after 0
+legs 6654452 0 6635049 1
+stale 390: new-tab empty state {"ulH":168,"legs":0,"cardH":485} vs clean empty {"ulH":0,"cardH":138}; tab1 reload after new tab: CLS 0.0019 [0.0019 P y646->691 h18->18]
+stale 1440: new-tab empty state {"ulH":148,"legs":0,"cardH":200} vs clean empty {"ulH":0,"cardH":125}; tab1 reload after new tab: CLS 0.0006 [0.0006 P y530->577 h18->18]
+legs 6654452 0 6635049 1
+legs 6654452 0 6635049 1
+legs 6654452 0 6635049 1
+copy 390: "2 to 10" in main 1, body 1; aria-current [] more []; disclaimer true; cents false; sideways 0; empty CLS 0
+copy 1440: "2 to 10" in main 1, body 1; aria-current [] more []; disclaimer true; cents false; sideways 0; empty CLS 0
+390 free /check/combo: More current ["Check a combo"]; all current ["Check a combo"]
+390 free /check: More current ["Check a bet"]; all current ["Check a bet","Check a bet"]
+1440 free /check/combo: current ["Check a combo"]
+1440 free /check: current ["Check a bet","Check a bet"]

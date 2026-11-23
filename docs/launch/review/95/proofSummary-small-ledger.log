@@ -1,0 +1,7 @@
+[R95] graded=1: SUMMARY="Live so far: 100% of 1 settled best bet won, and together they returned +82%."  DETAILS-LIVE="Live so far: 1 settled bet, +82%."
+[R95] graded=2: SUMMARY="Live so far: 100% of 2 settled best bets won, and together they returned +43%."  DETAILS-LIVE="Live so far: 2 settled bets, +43%."
+[R95] graded=3: SUMMARY="Live so far: 0% of 3 settled best bets won, and together they returned −100%."  DETAILS-LIVE="Live so far: 3 settled bets, −100%."
+[R95] graded=5: SUMMARY="Live so far: 100% of 5 settled best bets won, and together they returned +39%."  DETAILS-LIVE="Live so far: 5 settled bets, +39%."
+[R95] graded=20: SUMMARY="Live so far: 85% of 20 settled best bets won, and together they returned +16%."  DETAILS-LIVE="Live so far: 20 settled bets, +16%."
+[R95] graded=1155: SUMMARY="Live so far: 78% of 1,155 settled best bets won, and together they returned −1.6%."  DETAILS-LIVE="Live so far: 1,155 settled bets, −1.6%."
+[R95] neg-test: "Tested on 1,234 past best bets: 81% won."
