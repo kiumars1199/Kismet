@@ -13,9 +13,9 @@ describe("venueRows", () => {
   });
 
   it("Kalshi has a multiplier and a %, and can win 'Pays most here'; the badge is plain (its fee is counted)", () => {
-    const rows = venueRows([q("polymarket", 0.7, 1.4), q("kalshi", 0.69, 1.4085)]);
+    const rows = venueRows([q("polymarket", 0.7, 1.4), q("kalshi", 0.69, 1.4184)]);
     const k = rows.find((r) => r.venue === "kalshi")!;
-    expect(k).toMatchObject({ listed: true, chance: "69%", pays: "1.41x", best: true, bestLabel: "Pays most here" });
+    expect(k).toMatchObject({ listed: true, chance: "69%", pays: "1.42x", best: true, bestLabel: "Pays most here" });
     expect(rows.find((r) => r.venue === "polymarket")!.best).toBe(false);
     const three = venueRows([q("polymarket", 0.62, 1.55), q("us", 0.6, 1.64), q("kalshi", 0.6, 1.6)]);
     expect(three.filter((r) => r.best).map((r) => r.venue)).toEqual(["us"]);

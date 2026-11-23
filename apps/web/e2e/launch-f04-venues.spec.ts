@@ -58,8 +58,7 @@ test("basis: source, time and Kalshi match confidence are one tap away", async (
   await expect(basis.locator('li[data-basis="polymarket"]')).toContainText("best ask");
   await expect(basis.locator('li[data-basis="polymarket"] [data-ago]')).toBeVisible();
   await expect(basis.locator('li[data-basis="kalshi"]')).toContainText("97% sure");
-  await expect(basis.locator('li[data-basis="kalshi"]')).toContainText("Kalshi's fee is counted");
-  await expect(basis.locator('li[data-basis="kalshi"]')).toContainText("for a $100 bet, standard Kalshi fee");
+  await expect(basis.locator('li[data-basis="kalshi"]')).toContainText("Kalshi's standard fee is counted in its payout, worked out for a $100 bet (some Kalshi markets charge a different fee).");
   await expect(basis.locator('li[data-basis="kalshi"] [data-ago]')).toBeVisible();
 });
 
