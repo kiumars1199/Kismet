@@ -1,6 +1,7 @@
 // T-276: what a signed-out visitor may see of one market or event: title, category, closing time. Nothing from the
 // model (no verdict, edge, win chance, price or return), so /m/* and /event/* stay indexable without leaking it.
 import "server-only";
+import { cleanEventLine } from "@/lib/format";
 import { getStoreFor } from "@/lib/data/store";
 import { TAXONOMY } from "@/lib/taxonomy";
 
@@ -10,8 +11,7 @@ export interface Teaser { kind: "market" | "event"; id: string; title: string; e
 
 const label = (c: string) => TAXONOMY[c]?.label ?? (c ? c[0]!.toUpperCase() + c.slice(1) : "Other");
 
-/** Polymarket names a game's second event "<game> - More Markets": drop the suffix so the line can match the title. */
-export const cleanEventLine = (e: string): string => e.replace(/\s+-\s+more markets\s*$/i, "").trim() || e;
+export { cleanEventLine } from "@/lib/format";   // client-safe home: lib/format.ts
 
 /** Only these keys ever leave this module. */
 export async function marketTeaser(id: string): Promise<Teaser | null> {

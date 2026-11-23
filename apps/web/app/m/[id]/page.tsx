@@ -6,7 +6,7 @@ import type { MarketResponse } from "@/lib/api";
 import { SlowDown, liveMarketBody, pageBudget, pageStore, pendingLine } from "@/lib/data/respond";
 import { PendingState } from "@/components/screener/States";
 import { SlowDownState } from "@/components/screener/SlowDownState";
-import { betLine, sideRet } from "@/lib/format";
+import { betLine, cleanEventLine, sideRet } from "@/lib/format";
 import { MarketDetail } from "@/components/market/MarketDetail";
 import { actionReserve } from "@/lib/trade/reserve";
 import { InviteRef } from "@/components/share/InviteRef";
@@ -93,7 +93,7 @@ export default async function Page({ params, searchParams }: Props) {
   const m = data.market;
   return (
     <div className="mx-auto w-full max-w-[720px]">
-      <Breadcrumbs className="mb-3" items={[{ label: "Best bets", href: "/bets" }, topicCrumb(m), ...(m.event && m.event !== m.question ? [{ label: m.event, href: `/event/${encodeURIComponent(m.event_id)}` }] : []), { label: m.question }]} />
+      <Breadcrumbs className="mb-3" items={[{ label: "Best bets", href: "/bets" }, topicCrumb(m), ...(m.event && m.event !== m.question ? [{ label: cleanEventLine(m.event), href: `/event/${encodeURIComponent(m.event_id)}` }] : []), { label: m.question }]} />
       <Suspense fallback={<MarketSkeleton />}>
         <MarketDetail id={id} side={side === "0" ? 0 : side === "1" ? 1 : undefined} initial={data} reserve={await actionReserve()} />
       </Suspense>
