@@ -445,11 +445,17 @@ export function getKalshiIndex(): Promise<KalshiIndex | undefined> {
 
 /** F3 fix: every open Polymarket market the model does not price (lib/data/polymarket-index.ts), from
  *  output/polymarket_index.json. Own 120 s cache; the built index is reused while the file's fetched_at is unchanged (it is
- *  rebuilt hourly, the cache refreshes every 120 s); a failed refresh keeps the last good one; no file = undefined. */
+ *  rebuilt hourly, the cache refreshes every 120 s; polymarket_index_meta.json says when it changed, so an unchanged index is not downloaded); a failed refresh keeps the last good one; no file = undefined. */
 const pmIx: { at?: number; data?: PolymarketIndex; sig?: string; inflight?: Promise<PolymarketIndex | undefined> } = {};
 export function getPolymarketIndex(): Promise<PolymarketIndex | undefined> {
   if (pmIx.at && Date.now() - pmIx.at < TTL_MS) return Promise.resolve(pmIx.data);
   return (pmIx.inflight ??= (async () => {
+    // The ~2 MB gzipped / 35 MB file is rebuilt hourly: read its few-byte meta first and download only when fetched_at moved.
+    // No meta (an older publisher) = the signature check below, as before.
+    const metaText = await readSource("polymarket_index_meta.json").catch(() => undefined);
+    let at: unknown;
+    try { at = metaText === undefined ? undefined : (JSON.parse(metaText) as { fetched_at?: unknown }).fetched_at; } catch { /* torn: download */ }
+    if (pmIx.data && typeof at === "number" && at === pmIx.data.fetchedAt) return pmIx.data;
     const text = await readSource("polymarket_index.json");
     if (text === undefined) return pmIx.data;
     const sig = `${text.length}:${text.slice(0, 160)}`;

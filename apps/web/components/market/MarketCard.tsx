@@ -3,12 +3,14 @@
 // Compact row card (MobileHybrid artboard): topic · closes, question, then what happens on this one bet
 // ("Pays 10x · wins about 1 in 7", docs/18 §6), the price line, and the return on the right, smaller.
 // The question link covers the card (opens the drawer); star and alert sit above it.
+import Link from "next/link";
 import type { ApiRow } from "@/lib/api";
 import { useWhen } from "./When";
 import { basis, pct, priceAsOf, sideEdge } from "@/lib/format";
 import { betFigures, RETURN_HELP_ONE } from "@/lib/betFigures";
 import { WatchStar } from "@/components/watch/WatchStar";
 import { VenueIconLink } from "@/components/trade/TradeButton";
+import { checkHref } from "@/lib/check/href";
 import { drawerHref, useOpenDrawer } from "./drawer";
 import { AlertLink, Notes } from "./bits";
 import { PTS_HELP, VERDICT_TONE, returnTone, rowNotes, topicLabel } from "./labels";
@@ -65,6 +67,8 @@ export function MarketCard({ r, pro = false, notes = true }: { r: ApiRow; pro?: 
           <div className="text-[11px] text-muted">estimated{pro && <> · edge {sideEdge(s)}</>}</div>
         </div>
         <div className="relative z-10 -mb-2 -mr-2 flex">
+          <Link href={checkHref(m.id, s.side_index)} data-testid="check-link" aria-label={`Check this bet: ${m.question}`}
+            className="flex min-h-11 items-center px-2 text-xs font-semibold text-accent-hover hover:text-accent-soft">Check</Link>
           <WatchStar marketId={m.id} side={s.side_index} market={m} />
           <VenueIconLink m={m} />
           <AlertLink marketId={m.id} side={s.side_index} />
