@@ -1,5 +1,7 @@
 import type { MetaResponse } from "@/lib/api";
 import { getMe } from "@/lib/auth/server";
+import { canBeta } from "@/lib/beta";
+import { getKalshiIndex } from "@/lib/data/store";
 import { withStore } from "@/lib/data/respond";
 import { settledCount } from "@/lib/data/counts";
 import { delayMin } from "@/lib/settings-core";
@@ -12,14 +14,16 @@ export const dynamic = "force-dynamic";
 // Tier-aware (AUDIT run 3 fail 1): Free and anon get the delayed scan's meta, matching the rows they are served.
 // withStore marks the body private, no-store, Vary: Cookie, so no shared cache mixes tiers.
 export async function GET() {
-  const { tier } = await getMe();
+  const me = await getMe();
+  const { tier } = me;
+  const kalshi = canBeta(me, "kalshi") ? ((await getKalshiIndex())?.rows.length ?? 0) : 0;   // F3: open Kalshi markets
   return withStore((store) => {
     const topics: Record<string, number> = {};
     for (const m of store.markets) for (const id of topicsOf(m)) topics[id] = (topics[id] ?? 0) + 1;
     const body: MetaResponse = {
       meta: store.meta,
       loaded_at: store.loadedAt,
-      counts: { markets: store.markets.length, flags: store.flags.length, events: store.byEvent.size },
+      counts: { markets: store.markets.length, flags: store.flags.length, events: store.byEvent.size, polymarket: store.markets.length, kalshi },
       facets: { ...store.facets, topics },
       delay_min: delayMin(tier),
       // QA-A #49/#63: each bet once (lib/data/counts.ts settledCount), the same base as /status and /track-record
