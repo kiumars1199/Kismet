@@ -10,12 +10,15 @@ export interface Teaser { kind: "market" | "event"; id: string; title: string; e
 
 const label = (c: string) => TAXONOMY[c]?.label ?? (c ? c[0]!.toUpperCase() + c.slice(1) : "Other");
 
+/** Polymarket names a game's second event "<game> - More Markets": drop the suffix so the line can match the title. */
+export const cleanEventLine = (e: string): string => e.replace(/\s+-\s+more markets\s*$/i, "").trim() || e;
+
 /** Only these keys ever leave this module. */
 export async function marketTeaser(id: string): Promise<Teaser | null> {
   const store = await getStoreFor("free");
   const m = store.flagsById.get(id) ?? store.byId.get(id);
   if (!m) return null;
-  return { kind: "market", id: m.id, title: m.question, event: m.event !== m.question ? m.event : undefined, category: label(m.category), closes_at: m.closes_at ?? null,
+  return { kind: "market", id: m.id, title: m.question, event: cleanEventLine(m.event) !== m.question ? cleanEventLine(m.event) : undefined, category: label(m.category), closes_at: m.closes_at ?? null,
     price: typeof m.sides?.[0]?.mid === "number" ? m.sides[0].mid : null, price_outcome: m.sides?.[0]?.outcome };
 }
 

@@ -79,6 +79,17 @@ describe("signed-out market and event pages are teasers", async () => {
     expect(eventDuplicatesTitle("Spread: Brazil (-3.5)", "Brazil vs Serbia")).toBe(false);
   });
 
+  it("cleanEventLine strips Polymarket's ' - More Markets' suffix; the rest stays", async () => {
+    const { cleanEventLine } = await import("@/lib/teaser");
+    expect(cleanEventLine("Denmark vs. Norway - More Markets")).toBe("Denmark vs. Norway");
+    expect(cleanEventLine("Denmark vs. Norway - more markets ")).toBe("Denmark vs. Norway");
+    expect(cleanEventLine("Denmark vs. Norway")).toBe("Denmark vs. Norway");
+    expect(cleanEventLine("More Markets")).toBe("More Markets");
+    const { eventDuplicatesTitle } = await import("@/components/market/Teaser");
+    expect(eventDuplicatesTitle("Denmark vs. Norway: Both Teams to Score", cleanEventLine("Denmark vs. Norway - More Markets"))).toBe(true);
+    expect(eventDuplicatesTitle("Over 2.5 goals", cleanEventLine("Denmark vs. Norway - More Markets"))).toBe(false);
+  });
+
   it("signupBetTitle reads the title from the store by id, only for a /m/<id> next", async () => {
     const { signupBetTitle } = await import("@/lib/teaser");
     const m = flagged[0]!;
