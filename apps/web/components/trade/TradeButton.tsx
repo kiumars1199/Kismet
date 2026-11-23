@@ -38,9 +38,12 @@ export function VenueIconLink({ m, className = "" }: { m: Pick<Market, "url" | "
 }
 
 /** Shown only when KALSHI_TRADING_ENV=demo and the user is allow-listed (or demo mode). */
-export function TradeButton({ m, s, className }: { m: Market; s: Side; className: string }) {
+export function TradeButton({ m, s, className, reserve = false }: { m: Market; s: Side; className: string; reserve?: boolean }) {
   const cfg = useTradeConfig();
-  if (!cfg) return null;
+  // `reserve`: paper trading is configured on this deployment (server-known), so until /api/trade/config answers keep an invisible
+  // button of the same size in the row. Mounting the real one then changes nothing: without it the action row wrapped, the link icon
+  // dropped to a second row and the page below jumped 50 px at 390 px.
+  if (!cfg) return reserve ? <span aria-hidden="true" data-testid="trade-slot" className={`${className} invisible`}>Trade <span className="rounded-full px-1.5 text-[11px]">paper</span></span> : null;
   const yes = m.sides[0], no = m.sides[1];
   return (
     <button

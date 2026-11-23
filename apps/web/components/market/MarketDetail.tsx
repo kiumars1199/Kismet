@@ -32,7 +32,8 @@ const card = "rounded-inner border border-border bg-raised p-4";
 const LEVEL = { all: "all markets", cat: "category", niche: "niche", nmt: "niche + type" } as const;
 
 /** Loads the market (unless given) and renders the detail. `onClose` = drawer mode. */
-export function MarketDetail({ id, side, initial, onClose }: { id: string; side?: 0 | 1; initial?: MarketResponse; onClose?: () => void }) {
+/** reserveTrade: paper trading is configured on this deployment (set by the /m page): keeps the Trade button's slot in the action row. */
+export function MarketDetail({ id, side, initial, onClose, reserveTrade = false }: { id: string; side?: 0 | 1; initial?: MarketResponse; onClose?: () => void; reserveTrade?: boolean }) {
   const [res, setRes] = useState<{ id: string; data?: MarketResponse; error?: boolean }>(initial ? { id, data: initial } : { id: "" });
   const [retry, setRetry] = useState(0);
   useEffect(() => {
@@ -71,7 +72,7 @@ export function MarketDetail({ id, side, initial, onClose }: { id: string; side?
         </div>
       </Frame>
     );
-  return <Detail data={data} side={side} onClose={onClose} />;
+  return <Detail data={data} side={side} onClose={onClose} reserveTrade={reserveTrade} />;
 }
 
 function Frame({ onClose, children, title }: { onClose?: () => void; children: React.ReactNode; title?: React.ReactNode }) {
@@ -113,7 +114,7 @@ function useLiveBook(m: StoreMarket, s: Side, stake?: number): Live {
   return live;
 }
 
-function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side?: 0 | 1; onClose?: () => void }) {
+function Detail({ data, side: sideParam, onClose, reserveTrade }: { data: MarketResponse; side?: 0 | 1; onClose?: () => void; reserveTrade: boolean }) {
   const m = data.market;
   const when = useWhen(m.closes_at);
   const s = m.sides.find((x) => x.side_index === sideParam) ?? m.best;
@@ -157,7 +158,7 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
         </div>
       }
     >
-      <Actions m={m} s={s} />
+      <Actions m={m} s={s} reserveTrade={reserveTrade} />
 
       <section aria-label="Headline" className="rounded-inner border border-accent-border bg-accent-bg p-[18px]">
         <div className="flex flex-wrap items-center justify-between gap-2">
@@ -293,7 +294,7 @@ function LiveBet({ s, pays, ask }: { s: Side; pays: string; ask?: number }) {
   );
 }
 
-function Actions({ m, s }: { m: StoreMarket; s: Side }) {
+function Actions({ m, s, reserveTrade }: { m: StoreMarket; s: Side; reserveTrade: boolean }) {
   const [copied, setCopied] = useState(false);
   const share = async () => {
     try {
@@ -323,7 +324,7 @@ function Actions({ m, s }: { m: StoreMarket; s: Side }) {
               <p className="text-center text-xs text-muted">{NOT_FOR_US}</p>
             </div>}
       <div className="flex flex-wrap gap-1.5 sm:gap-2">
-        <TradeButton m={m} s={s} className={btn} />
+        <TradeButton m={m} s={s} className={btn} reserve={reserveTrade} />
         <AddToCombo m={m} s={s} className={btn} />
         <div className={`flex flex-none ${box}`}><WatchStar marketId={m.id} side={s.side_index} market={m} tipAlign="left" /></div>
         <Link href={`/alerts?market=${m.id}&side=${s.side_index}`} className={btn}>
