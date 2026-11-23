@@ -3,6 +3,8 @@
 // Starts once after onboarding (Onboarding.finish sets TOUR_KEY) or from "Replay the tour" on /account (/?tour=1).
 // Each step points at the first visible element its selectors match; when a section isn't on screen (another
 // layout, nothing loaded yet) the step still shows, centered, without a spotlight. Escape skips.
+// The bet drawer is modal too (it makes the page behind it inert), so while it is open the tour waits: exactly one
+// modal is on top and dismissable. It resumes where it was once the drawer closes.
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
 export const TOUR_KEY = "me:v1:tour";
@@ -26,8 +28,24 @@ const find = (sel: readonly string[]) => {
   return null;
 };
 
+const DRAWER = '[role="dialog"][aria-label="Market details"]';
+/** True while the bet drawer is open (it is mounted only then). */
+function useDrawerOpen() {
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    const check = () => setOpen(!!document.querySelector(DRAWER));
+    check();
+    const mo = new MutationObserver(check);
+    mo.observe(document.body, { childList: true, subtree: true });
+    return () => mo.disconnect();
+  }, []);
+  return open;
+}
+
 export function Tour() {
   const [step, setStep] = useState<number | null>(null);
+  const drawerOpen = useDrawerOpen();
+  const live = step !== null && !drawerOpen;
   const [rect, setRect] = useState<DOMRect | null>(null);
   const card = useRef<HTMLDivElement>(null);
   const next = useRef<HTMLButtonElement>(null);
@@ -54,7 +72,7 @@ export function Tour() {
 
   // Find the target (cards may still be loading: retry briefly), bring it into view, track it on scroll/resize.
   useEffect(() => {
-    if (step === null) return;
+    if (step === null || !live) return;
     let el: HTMLElement | null = null;
     let tries = 0;
     let shifts = 0;
@@ -78,12 +96,12 @@ export function Tour() {
     addEventListener("resize", measure);
     next.current?.focus({ preventScroll: true });
     return () => { clearTimeout(timer); ro.disconnect(); removeEventListener("scroll", measure); removeEventListener("resize", measure); };
-  }, [step]);
+  }, [step, live]);
 
   // Popover below the target when it fits, else above; centered when there is no target. Clamped to the viewport.
   useLayoutEffect(() => {
     const c = card.current;
-    if (step === null || !c) return;
+    if (step === null || !live || !c) return;
     const w = c.offsetWidth, h = c.offsetHeight, vw = innerWidth, vh = innerHeight, gap = 12;
     if (!rect) return setPos({ top: Math.max(16, (vh - h) / 2), left: Math.max(16, (vw - w) / 2) });
     const clampX = (x: number) => Math.min(Math.max(16, x), vw - w - 16);
@@ -94,16 +112,16 @@ export function Tour() {
     if (rect.right + gap + w <= vw - 16) return setPos({ top: clampY(rect.top), left: rect.right + gap }); // right (tall cards)
     if (rect.left - gap - w >= 16) return setPos({ top: clampY(rect.top), left: rect.left - gap - w });   // left
     setPos({ top: vh - h - 16, left: x });   // phone, tall target: pinned to the bottom edge
-  }, [rect, step]);
+  }, [rect, step, live]);
 
   useEffect(() => {
-    if (step === null) return;
+    if (!live) return;
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") end(); };
     addEventListener("keydown", onKey);
     return () => removeEventListener("keydown", onKey);
-  }, [step, end]);
+  }, [live, end]);
 
-  if (step === null) return null;
+  if (step === null || !live) return null;
   const s = STEPS[step];
   const last = step === STEPS.length - 1;
   const pad = 6;
