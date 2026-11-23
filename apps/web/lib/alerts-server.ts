@@ -11,7 +11,7 @@ import { can, effectiveTier, type Tier } from "@/lib/entitlements";
 import { UniqueViolation, type AlertEvent, type AlertRule, type OddsFormat, type Repo } from "@/lib/repo/types";
 
 type Row = AlertRule & { user_id: string };
-export type Source = Pick<Deps, "fetchMarkets" | "fetchMarket" | "fetchBook" | "fetchSettlement">;
+export type Source = Pick<Deps, "fetchMarkets" | "fetchMarket" | "fetchBook" | "fetchSettlement" | "fetchBigTrades">;
 export interface RunCounts { users: number; rules: number; events: number; emails: number; webhooks: number; pushes: number; errors: number }
 
 // docs/15: webhooks only to these prefixes (same as the alert_rules schema), checked again after URL normalization
@@ -41,10 +41,21 @@ const must = <T>(r: { data: T | null; error: { message: string } | null }, what:
   return r.data as T;
 };
 
+/** One trade-feed request per distinct event set per run, shared by every Premium user in it. */
+const memoTrades = (f: NonNullable<Source["fetchBigTrades"]>): NonNullable<Source["fetchBigTrades"]> => {
+  const seen = new Map<string, ReturnType<typeof f>>();
+  return (ids, since) => {
+    const k = `${since}|${[...new Set(ids)].sort().join(",")}`;
+    if (!seen.has(k)) seen.set(k, f(ids, since));
+    return seen.get(k)!;
+  };
+};
+
 export async function runServerAlerts(db: SupabaseClient, src: Source, now = new Date()): Promise<RunCounts> {
   const rules = must<Row[]>(await db.from("alert_rules").select("*").eq("enabled", true), "alert_rules read") ?? [];
   const counts: RunCounts = { users: 0, rules: 0, events: 0, emails: 0, webhooks: 0, pushes: 0, errors: 0 };
   if (!rules.length) return counts;
+  const bigTrades = src.fetchBigTrades ? memoTrades(src.fetchBigTrades) : undefined;
   const users = [...new Set(rules.map((r) => r.user_id))];
   const profiles = must<{ user_id: string; timezone: string | null; odds_format: OddsFormat | null }[]>(
     await db.from("profiles").select("user_id, timezone, odds_format").in("user_id", users), "profiles read") ?? [];
@@ -90,6 +101,8 @@ export async function runServerAlerts(db: SupabaseClient, src: Source, now = new
     } as unknown as Repo;
     const deps: Deps = {
       ...src, repo, now, timeZone, odds: prof?.odds_format ?? "percent", memory,
+      // F16: Premium only. Free and Pro get no feed, so a big_trade rule on those plans can never fire.
+      fetchBigTrades: tier === "premium" ? bigTrades : undefined,
       fetchBook: async (token, q, cat) => {
         const x = await src.fetchBook(token, q, cat);
         if (x) live.set(token, { ask: x.best_ask, roi: liveRoi(x) });

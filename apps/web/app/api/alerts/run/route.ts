@@ -4,6 +4,7 @@
 // Vercel Cron sends GET; POST is kept for manual runs and the post-scan trigger. Both need the cron secret.
 // Evaluates every user's enabled Supabase alert_rules with the service role (lib/alerts-server.ts).
 import { runServerAlerts } from "@/lib/alerts-server";
+import { fetchBigTrades } from "@/lib/bigtrade";
 import { adminEnabled, supabaseAdmin } from "@/lib/auth/server";
 import { liveExecution } from "@/lib/book";
 import { DEMO_MODE } from "@/lib/config";
@@ -39,6 +40,7 @@ async function run(req: Request): Promise<Response> {
       fetchMarkets: async (q) => marketsPage(store, q),
       fetchMarket: async (id) => store.flagsById.get(id) ?? store.byId.get(id) ?? null,
       fetchBook: liveExecution,
+      fetchBigTrades,   // F16 (Premium only: the evaluator withholds it from Free and Pro)
       fetchSettlement: settleOne,   // F10 "settled" rules: Polymarket's market status (cached 10 min, resolved forever)
     });
     await record({ ran: true, ...counts });

@@ -72,6 +72,7 @@ function describe(r: AlertRule): string {
     case "market_price": return `When the price is ${price(r.threshold)} or lower`;
     case "edge_change": return `When estimated return crosses ${ret(r.threshold)}`;
     case "closing_soon": return `When ${r.market_id ? "this market" : "anything in My list"} closes within ${r.threshold ?? 6} h`;
+    case "big_trade": return `When one trade of $10,000 or more hits ${r.market_id ? "this market" : "a market you have an alert on or saved"}`;
     case "settled": return r.market_id ? "When this market settles" : "When a market you have an alert on, or saved, settles";
   }
 }
@@ -203,6 +204,8 @@ function MarketPicker({ marketId, onPick }: { marketId: string | null; onPick: (
 
 function RuleEditor({ draft, filters, email, onClose }: { draft: Draft | null; filters: string | null; email: boolean; onClose: () => void }) {
   const presets = useCollection("presets");
+  const { tier } = useEntitlements();
+  const bigTradeOk = !DEMO && tier === "premium";   // F16: Premium only; the server withholds the feed from other plans too
   const [d, setD] = useState<Draft>(blank());
   const [sides, setSides] = useState<string[]>(["Yes", "No"]);
   useEffect(() => { if (draft) setD(draft); }, [draft]);
@@ -241,7 +244,7 @@ function RuleEditor({ draft, filters, email, onClose }: { draft: Draft | null; f
   };
 
   const kindDefaults: Record<AlertRule["kind"], Partial<Draft>> = {
-    preset_match: { threshold: 1 }, market_price: { threshold: null }, edge_change: { threshold: 5 }, closing_soon: { threshold: 6 }, settled: { threshold: null },
+    preset_match: { threshold: 1 }, market_price: { threshold: null }, edge_change: { threshold: 5 }, closing_soon: { threshold: 6 }, settled: { threshold: null }, big_trade: { threshold: null },
   };
 
   return (
@@ -250,7 +253,7 @@ function RuleEditor({ draft, filters, email, onClose }: { draft: Draft | null; f
         <div className="flex flex-col gap-1.5">
           <span className="text-xs font-medium text-muted">Alert me when</span>
           <Segmented label="Alert kind" value={d.kind} onChange={(k) => set({ kind: k, ...kindDefaults[k] })}
-            options={(Object.keys(KIND_LABEL) as AlertRule["kind"][]).map((k) => ({ value: k, label: KIND_LABEL[k] }))} />
+            options={(Object.keys(KIND_LABEL) as AlertRule["kind"][]).filter((k) => k !== "big_trade" || bigTradeOk || d.kind === "big_trade").map((k) => ({ value: k, label: KIND_LABEL[k] }))} />
         </div>
 
         {d.kind === "preset_match" && (
@@ -270,7 +273,7 @@ function RuleEditor({ draft, filters, email, onClose }: { draft: Draft | null; f
 
         {d.kind !== "preset_match" && (
           <div className="flex flex-col gap-1.5">
-            <span className="text-xs font-medium text-muted">{d.kind === "closing_soon" || d.kind === "settled" ? "Market (leave empty for everything you have alerts on or saved)" : "Market"}</span>
+            <span className="text-xs font-medium text-muted">{d.kind === "closing_soon" || d.kind === "settled" || d.kind === "big_trade" ? "Market (leave empty for everything you have alerts on or saved)" : "Market"}</span>
             <MarketPicker marketId={d.market_id} onPick={(m) => set({ market_id: m.id, side_index: m.best.side_index, name: d.name || m.question.slice(0, 80) })} />
             {d.market_id && (
               <Segmented label="Side" value={String(d.side_index ?? 0)} onChange={(v) => set({ side_index: v === "1" ? 1 : 0 })}
