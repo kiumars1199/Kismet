@@ -87,3 +87,6 @@ The F9 prod check showed that "Check your state" leads signed-out visitors to th
 
 ## Nov 23 06:50 UTC: Vercel API deployment cap
 create_deployment for the F1 preview was refused: 402 "api-deployments-free-per-day" (more than 100). The #59 prod redeploy got through just before. The preview gate is still not waived. Until slots free up, merges wait and each freed slot goes first to a production build for anything already merged, then to a preview of the next PR in the merge order. The lead retries at each check-in. Upgrading the Vercel plan stays on Q's list.
+
+## Nov 23 07:00 UTC: paid e2e stays on next dev, with more heap
+In CI the paid e2e suite flakes when next dev restarts at its memory threshold. The suite has to run on next dev because the Supabase/Stripe mock is guarded off whenever NODE_ENV is production (route, rewrite and middleware, each pinned by tests). Weakening that guard to run on a production server isn't worth the risk. Instead, the paid webServer gets a larger Node heap, measured before and after (trust).
