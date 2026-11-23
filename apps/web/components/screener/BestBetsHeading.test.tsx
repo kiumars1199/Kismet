@@ -49,3 +49,16 @@ describe("BestBetsHeading", () => {
     expect(screen.queryByRole("button")).toBeNull();
   });
 });
+
+describe("BestBetsHeading layout", () => {
+  it("the Show button takes the blurb's grid cell (the blurb stays, hidden), so the row does not grow when it appears", () => {
+    const { container } = render(<BestBetsHeading total={7} shown={0} sample daily={10} onShowAll={() => {}}><p>blurb</p></BestBetsHeading>);
+    const btn = screen.getByTestId("show-free-sample");
+    const blurb = container.querySelector("p")!;
+    expect(btn.parentElement).toBe(blurb.parentElement!.parentElement);   // both children of the one grid
+    expect(blurb.parentElement!.className).toContain("invisible");
+    cleanup();
+    render(<BestBetsHeading total={34} shown={10} sample daily={10} onShowAll={() => {}}><p>blurb</p></BestBetsHeading>);
+    expect(screen.getByText("blurb").parentElement!.className).not.toContain("invisible");
+  });
+});

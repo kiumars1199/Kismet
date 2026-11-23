@@ -2,11 +2,11 @@
 // The Best bets headline. Free sees the day's sample, so it reads "10 of 34 bets ...". When the user's topics filter that
 // sample down to nothing it says so plainly, with one button to see it; the line is the same for every Free user
 // (it depends on counts only: no personalized picks).
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Count } from "@/components/kit";
 
 /** `daily`: the Free allowance (free_daily), which decides "pick" or "bets": a topic with one match still leaves Free ten a day. */
-export function BestBetsHeading({ total, shown, sample = false, daily, onShowAll }: { total?: number; shown: number; sample?: boolean; daily?: number; onShowAll: () => void }) {
+export function BestBetsHeading({ total, shown, sample = false, daily, onShowAll, children }: { total?: number; shown: number; sample?: boolean; daily?: number; onShowAll: () => void; children?: ReactNode }) {
   // The tap switches the line at once, so the row loses the button's height inside the 500 ms input window instead of
   // when the (slower) answer lands, where it would count as layout shift.
   const [asked, setAsked] = useState(false);
@@ -17,18 +17,25 @@ export function BestBetsHeading({ total, shown, sample = false, daily, onShowAll
     return (
       <>
         <h1 className={cls}>{daily === 1 ? "Today's free pick isn't in your topics" : "Today's free bets aren't in your topics"}</h1>
-        <button type="button" data-testid="show-free-sample" onClick={() => { setAsked(true); onShowAll(); }}
-          className="inline-flex min-h-11 w-fit items-center rounded-xl border border-border px-4 text-sm font-medium text-accent-hover hover:bg-raised">
-          Show today&apos;s free {what}
-        </button>
+        {/* The button takes the blurb's place (same grid cell, the blurb stays and only hides), so the row doesn't grow */}
+        <div className="grid">
+          <div aria-hidden="true" className="invisible [grid-area:1/1]">{children}</div>
+          <button type="button" data-testid="show-free-sample" onClick={() => { setAsked(true); onShowAll(); }}
+            className="inline-flex min-h-11 w-fit items-center self-start rounded-xl border border-border px-4 text-sm font-medium text-accent-hover hover:bg-raised [grid-area:1/1]">
+            Show today&apos;s free {what}
+          </button>
+        </div>
       </>
     );
   }
   return (
+    <>
     <h1 className={cls}>
       {total !== undefined && !(asked && sample && shown === 0)
         ? <>{sample && shown < total ? <>{shown} of </> : null}<Count n={total} /> {total === 1 ? "bet" : "bets"} where the odds lean your way</>
         : "Bets where the odds lean your way"}
     </h1>
+    {children}
+    </>
   );
 }

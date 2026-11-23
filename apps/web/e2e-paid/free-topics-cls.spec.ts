@@ -25,7 +25,11 @@ const skipTour = async (page: Page) => { const b = page.getByRole("button", { na
 
 const observeCls = (page: Page) => page.evaluate(() => {
   (window as unknown as { __cls: number }).__cls = 0;
-  new PerformanceObserver((l) => { for (const e of l.getEntries() as unknown as { value: number; hadRecentInput: boolean }[]) if (!e.hadRecentInput) (window as unknown as { __cls: number }).__cls += e.value; })
+  (window as unknown as { __src: string[] }).__src = [];
+  new PerformanceObserver((l) => { for (const e of l.getEntries() as unknown as { value: number; hadRecentInput: boolean; sources: { node: Element | null; previousRect: DOMRect; currentRect: DOMRect }[] }[]) if (!e.hadRecentInput) {
+    (window as unknown as { __cls: number }).__cls += e.value;
+    for (const x of e.sources.slice(0, 6)) (window as unknown as { __src: string[] }).__src.push(`${e.value.toFixed(3)} ${x.node?.tagName}.${(x.node as HTMLElement | null)?.getAttribute?.("data-testid") ?? ""}${(x.node as HTMLElement | null)?.getAttribute?.("aria-label") ?? ""} y ${Math.round(x.previousRect.y)}->${Math.round(x.currentRect.y)} h ${Math.round(x.previousRect.height)}->${Math.round(x.currentRect.height)}`);
+  } })
     .observe({ type: "layout-shift", buffered: false });
 });
 const readCls = async (page: Page) => { await page.waitForLoadState("networkidle"); await page.waitForTimeout(1_500); return page.evaluate(() => (window as unknown as { __cls: number }).__cls); };
@@ -92,5 +96,38 @@ for (const { w, h } of [{ w: 390, h: 844 }, { w: 1440, h: 900 }]) {
       console.log(`CLS remove pill at ${w}px: ${cls.toFixed(3)}`);
       expect(cls).toBeLessThan(0.1);
     });
+
+    // The reverse direction: a full list on screen, then a filter change (a soft navigation, as the screener does) whose
+    // answer is Free's empty sample. The new heading row and the short list must not pull the page around.
+    for (const from of ["all", "one"] as const) {
+      test(`full → empty (${from === "all" ? "10 bets" : "a few bets"} on screen): CLS < 0.1 when /api/flags is slow`, async ({ page }) => {
+        test.setTimeout(300_000);
+        await signUp(page, `cls-free-c-${from}-${w}-${Date.now()}@example.com`);
+        const { empty } = await topics(page);
+        expect(empty, "a topic with no bets in today's Free sample").not.toBeNull();
+        let start = "/bets?fav=0";
+        if (from === "one") {
+          let roi: number | null = null;
+          for (const n of [5, 10, 15, 20, 30, 40, 60, 80, 120, 200]) {
+            const r = (await (await page.request.get(`/api/flags?roi=${n}`)).json()) as Flags;
+            if (r.free_daily !== undefined && r.rows.length >= 1 && r.rows.length <= 3) { roi = n; break; }
+          }
+          test.skip(roi === null, "no return filter leaves 1 to 3 of today's Free bets");
+          start = `/bets?fav=0&roi=${roi}`;
+        }
+        await page.goto(start);
+        await expect(page.getByTestId("bets-list").locator("article").first()).toBeVisible({ timeout: 60_000 });
+        await skipTour(page);
+        await page.waitForLoadState("networkidle");
+        await page.route("**/api/flags*", async (r) => { await new Promise((x) => setTimeout(x, 1_500)); await r.continue(); });
+        await observeCls(page);
+        await page.evaluate((u) => { window.history.pushState(null, "", u); }, `/bets?fav=1&t=${encodeURIComponent(empty!)}`);
+        await expect(page.getByTestId("show-free-sample")).toBeVisible({ timeout: 30_000 });
+        const cls = await readCls(page);
+          if (cls >= 0.1) console.log((await page.evaluate(() => (window as unknown as { __src: string[] }).__src)).join("\n"));   // what moved, when it fails
+        console.log(`CLS full → empty (${from}) at ${w}px: ${cls.toFixed(3)}`);
+        expect(cls).toBeLessThan(0.1);
+      });
+    }
   });
 }

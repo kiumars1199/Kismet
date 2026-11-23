@@ -153,6 +153,7 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
   const [saved, setSaved] = useState<{ ok: boolean; msg: string } | null>(null);
 
   const rows = data ? [...data.rows, ...view!.more] : [];
+  const emptySample = sample && rows.length === 0;   // Free, and none of today's bets match (only meaningful once data is in)
   const slots = data ? slotsOf(rows, data.groups ? [...data.groups, ...view!.moreGroups] : undefined) : [];
   // QA-A #70/#71: bets left, in bets (`total` counts bets; a game slot holds `size` of them), never below 0. Live
   // re-pricing can drop rows from a page, so whether a button shows comes from the pages held (sc.hasMore), not this.
@@ -179,13 +180,14 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
     <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-4">
       <section className="flex flex-col gap-2">
         {/* P9: Free sees the day's sample, so the headline says "10 of 34", not a count it can't open */}
-        <BestBetsHeading total={total} shown={rows.length} sample={sample} daily={daily} onShowAll={() => set({ topics: undefined, categories: undefined, favorites_only: undefined })} />
+        <BestBetsHeading total={total} shown={rows.length} sample={sample} daily={daily} onShowAll={() => set({ topics: undefined, categories: undefined, favorites_only: undefined })}>
         <p className="max-w-[760px] text-sm leading-normal text-muted">
           Each one has won more often in the past than its price suggests, after the fee.
           {/* P9: when the stale banner shows, it carries the scan age; saying it here too was the third stale notice */}
           {scanned && freshness(scanned) === "fresh" && <span className="whitespace-nowrap"> Updated <Ago at={scanned} />.</span>}{" "}
           <Link href="/track-record" className="inline-flex min-h-11 items-center text-accent-hover underline-offset-4 hover:underline">See how we track results</Link>
         </p>
+        </BestBetsHeading>
       </section>
 
       <TodayCard />
@@ -213,7 +215,7 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
 
       {error && !data ? (
         <ErrorState onRetry={sc.retry} what="best bets" error={error} />
-      ) : !data || (busy && sample && rows.length === 0) ? (
+      ) : !data || (busy && emptySample) ? (
         // no data yet, or the answer on screen is Free's empty sample (a short note and one locked card) and the next one is
         // loading: reserve the list's height with the skeleton, so the cards landing push nothing down
         <ul className={LIST(desktop)} aria-busy="true" aria-label="Loading best bets">
@@ -232,18 +234,23 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
         <>
         {/* #45: the old list stays only as a dim backdrop that can't be used; a visible label says it is being replaced */}
         {busy && <p role="status" data-testid="bets-updating" className="sticky top-16 z-20 mx-auto -mb-2 rounded-full border border-border bg-surface px-4 py-1.5 text-sm font-medium text-text shadow">Updating bets…</p>}
-        <div data-testid="bets-list" aria-busy={busy} inert={busy || undefined} className={`flex flex-col gap-4 transition-opacity duration-200 ease-out ${busy ? "pointer-events-none opacity-40" : ""}`}>
+        {/* Free's empty sample is a short list (the locked card) replacing a long one. It keeps a screenful of height with the
+            card pinned to the bottom of it, so neither the card nor the footer jumps up into view when the answer lands
+            (the heading and its Show button already say what happened). */}
+        <div data-testid="bets-list" aria-busy={busy} inert={busy || undefined} className={`flex flex-col gap-4 transition-opacity duration-200 ease-out ${busy ? "pointer-events-none opacity-40" : ""} ${emptySample ? "min-h-[100svh]" : ""}`}>
           {error && <ErrorState onRetry={sc.retry} what="best bets" error={error} />}
-          <h2 id="top-h" className="text-xl font-semibold">Today&apos;s top {Math.min(TOP, slots.length)}</h2>
-          <Cards slots={slots.slice(0, TOP)} desktop={desktop} label="top-h" />
+          {!emptySample && <h2 id="top-h" className="text-xl font-semibold">Today&apos;s top {Math.min(TOP, slots.length)}</h2>}
+          {!emptySample && <Cards slots={slots.slice(0, TOP)} desktop={desktop} label="top-h" />}
           {slots.length > TOP && (
             <>
               <h2 id="more-h" className="mt-2 text-xl font-semibold">More bets</h2>
               <Cards slots={slots.slice(TOP)} desktop={desktop} label="more-h" />
             </>
           )}
-          <LogUpsell />
-          {sample && <LockedBets total={data.total} shown={rows.length} daily={daily} />}
+          <div className={emptySample ? "mt-auto flex flex-col gap-4" : "contents"}>
+            <LogUpsell />
+            {sample && <LockedBets total={data.total} shown={rows.length} daily={daily} />}
+          </div>
           {!sample && sc.hasMore && (
             <button
               type="button"
