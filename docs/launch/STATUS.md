@@ -75,6 +75,7 @@ Problems:
 
 - F8 gap (reviewer, #66): /api/ext/token and /api/ext/token/refresh don't check pause, so an already-connected extension keeps refreshing its token while the user is paused; its token-authenticated data calls may not be pause-gated either. Owner: trust, after #63/HowToBet. #66 (trade config checks the deploy's trading switch first) PASS with notes, merges on green CI.
 - #54 note: /api/trade/config reads the user's profile even when trading is off on the deploy; check tradingEnv/extensionId first (reviewer). Low; owner trust, after #63.
+- F12 test gap (`if (found)` guard hid the digestBets assertions): fixed in kiumars1199/Kismet#68, review PASS (6 of 6 mutations caught), merged 1aa4bca at 10:52 UTC.
 - F5 copy nit (reviewer, post-merge): Free with a 1-bet daily sample filtered to 0 by topics reads "0 of 1 bet where the odds lean your way". Should say plainly that today's free pick isn't in their topics. Low; owner onboarding, after F13.
 - F10 nit (reviewer, post-merge): `link rel=manifest` appears twice in prod HTML. Low; owner: whichever lane frees first.
 - F8 gap fixed in kiumars1199/Kismet#67: 5ca579b PASS with notes (an existing token is refused after pause; other users unaffected). Final merged in (149c524), CI green; merged df105f8 at 10:25 UTC. Follow-ups (owner trust, post-launch; trading is off in prod):
