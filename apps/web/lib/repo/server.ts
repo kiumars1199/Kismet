@@ -2,7 +2,7 @@
 // Quotas per tier are enforced here, not only in the UI (docs/08 LIMITS).
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
-import { COOKIE_OPTIONS, authEnabled, getTier, sameOrigin, supabaseServer } from "@/lib/auth/server";
+import { COOKIE_OPTIONS, authEnabled, getTier, sameOrigin, supabaseAdmin, supabaseServer } from "@/lib/auth/server";
 import { TOPICS_COOKIE, TOPICS_COOKIE_MAX_AGE, topicsCookieValue } from "@/lib/filters/default-topics";
 import { readJson } from "@/lib/body";
 import { isAppToken } from "@/lib/auth/app-token";
@@ -104,18 +104,26 @@ export async function patchProfile({ db, userId }: Ctx, body: unknown): Promise<
   if (!parsed.success) return err(400, "Invalid settings");
   const { data, error } = await db.from("profiles").update(parsed.data).eq("user_id", userId).select("*").maybeSingle();
   if (error) return err(400, "Couldn't save");
-  await syncTopicsCookie(data);
+  await syncTopicsCookie(userId, data);
   return Response.json(profileOut(data));
 }
 
 /** F5: remember the saved topics (and whether the "Your topics" pill was cleared) in a server-set cookie, so middleware
  *  can send a bare /bets to the filtered view without a database call (lib/filters/default-topics.ts). */
-export async function syncTopicsCookie(row: Record<string, unknown> | null): Promise<void> {
+export async function syncTopicsCookie(userId: string, row: Record<string, unknown> | null): Promise<void> {
   if (!row) return;
   try {
     const fav = Array.isArray(row.favorite_topics) ? (row.favorite_topics as unknown[]).filter((x): x is string => typeof x === "string") : [];
-    (await cookies()).set(TOPICS_COOKIE, topicsCookieValue(fav, row.topics_off === true), { ...COOKIE_OPTIONS, maxAge: TOPICS_COOKIE_MAX_AGE });
+    (await cookies()).set(TOPICS_COOKIE, topicsCookieValue(userId, fav, row.topics_off === true), { ...COOKIE_OPTIONS, maxAge: TOPICS_COOKIE_MAX_AGE });
   } catch { /* not in a request context (tests): nothing to set */ }
+}
+
+/** F5: the saved topics straight from the profile (the source of truth; the cookie is only a hint). Empty on any failure. */
+export async function profileTopics(userId: string): Promise<string[]> {
+  try {
+    const { data } = await supabaseAdmin().from("profiles").select("favorite_topics").eq("user_id", userId).maybeSingle();
+    return Array.isArray(data?.favorite_topics) ? (data.favorite_topics as unknown[]).filter((x): x is string => typeof x === "string") : [];
+  } catch { return []; }
 }
 
 /** First sign-in import of localStorage data (docs/08). Rows that clash or break a quota are skipped. */

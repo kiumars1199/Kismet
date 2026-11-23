@@ -13,13 +13,15 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   const me = await getMe();
-  // F5: a device that hasn't heard the saved topics yet (new browser, cookie cleared) learns them here, once
-  if (me.user && adminEnabled() && !(await cookies()).get(TOPICS_COOKIE)) {
+  // F5: the profile is the source of truth. Every call rewrites the hint cookie from it (a change made on another
+  // device, a new browser, another account on this one), and a signed-out call drops it.
+  if (!me.user) (await cookies()).delete(TOPICS_COOKIE);
+  else if (adminEnabled()) {
     try {
       const full = await supabaseAdmin().from("profiles").select("favorite_topics, topics_off").eq("user_id", me.user.id).maybeSingle();
       // before the topics_off migration the column is missing: fall back to the topics alone
       const row = full.error ? (await supabaseAdmin().from("profiles").select("favorite_topics").eq("user_id", me.user.id).maybeSingle()).data : full.data;
-      await syncTopicsCookie(row);
+      await syncTopicsCookie(me.user.id, row);
     } catch { /* best effort */ }
   }
   return Response.json(

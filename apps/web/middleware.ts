@@ -136,7 +136,7 @@ export async function middleware(req: NextRequest) {
   // F5: a bare Best bets (or signed-in Home) opens on the user's topics: a real 307, decided from the me_topics cookie
   // (no database call here). The page then renders the filtered cards and the "Your topics" pill in its first HTML.
   if (data.user && req.method === "GET" && (path === "/bets" || path === "/")) {
-    const { favorites, dismissed } = parseTopicsCookie(req.cookies.get(TOPICS_COOKIE)?.value);
+    const { favorites, dismissed } = parseTopicsCookie(req.cookies.get(TOPICS_COOKIE)?.value, data.user.id);
     const q = defaultTopicsHref(req.nextUrl.search, favorites, dismissed);
     if (q) {
       const to = req.nextUrl.clone();

@@ -16,8 +16,8 @@ import { BEST_BETS_VERDICTS, CLOSING_SOON, tierOf, type FilterState } from "@/li
 import { DELAYED_PENDING, delayedPendingLine, type EventResponse, type MarketResponse, type MarketsResponse } from "@/lib/api";
 import type { LedgerStats, StoreMarket } from "@/lib/types";
 import { proofLine, type Proof } from "@/lib/proof";
-import { cookies, headers } from "next/headers";
-import { TOPICS_COOKIE, parseTopicsCookie } from "@/lib/filters/default-topics";
+import { headers } from "next/headers";
+import { profileTopics } from "@/lib/repo/server";
 
 /** RT-15: tier-shaped bodies must never sit in a shared cache. A route's own private Cache-Control is kept. */
 export function noStore(res: Response): Response {
@@ -280,7 +280,8 @@ export const listRoute = (req: Request, view?: "flags") =>
 export async function firstPage(params: URLSearchParams, view: "flags" | "markets"): Promise<{ main: MarketsResponse; soon?: MarketsResponse; scanned_at: number } | undefined> {
   if (params.has("wl")) return undefined;
   if (params.has("fav") && !params.has("t")) {   // F5: "Your topics" without ids (an old link, onboarding): resolve them here, like a bare /bets
-    const { favorites } = parseTopicsCookie((await cookies()).get(TOPICS_COOKIE)?.value);
+    const uid = (await getMe()).user?.id;   // the profile decides; the cookie is only a hint
+    const favorites = uid ? await profileTopics(uid) : [];
     if (!favorites.length) return undefined;
     params = new URLSearchParams(params);
     params.set("t", favorites.join(","));

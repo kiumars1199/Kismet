@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { defaultTopicsHref, parseTopicsCookie, topicsCookieValue } from "./default-topics";
+import { TOPICS_COOKIE_MAX_AGE, defaultTopicsHref, parseTopicsCookie, topicsCookieValue } from "./default-topics";
 
 describe("defaultTopicsHref", () => {
   it("opens with the user's topics when the URL has no filters", () => {
@@ -21,13 +21,22 @@ describe("defaultTopicsHref", () => {
 });
 
 describe("topics cookie", () => {
-  it("round-trips topics and the cleared flag", () => {
-    expect(parseTopicsCookie(topicsCookieValue(["sports.nfl", "weather"], false))).toEqual({ favorites: ["sports.nfl", "weather"], dismissed: false });
-    expect(parseTopicsCookie(topicsCookieValue(["sports.nfl"], true))).toEqual({ favorites: ["sports.nfl"], dismissed: true });
-    expect(parseTopicsCookie(topicsCookieValue([], false))).toEqual({ favorites: [], dismissed: false });
+  it("round-trips topics and the cleared flag for the same user", () => {
+    expect(parseTopicsCookie(topicsCookieValue("u1", ["sports.nfl", "weather"], false), "u1")).toEqual({ favorites: ["sports.nfl", "weather"], dismissed: false });
+    expect(parseTopicsCookie(topicsCookieValue("u1", ["sports.nfl"], true), "u1")).toEqual({ favorites: ["sports.nfl"], dismissed: true });
+    expect(parseTopicsCookie(topicsCookieValue("u1", [], false), "u1")).toEqual({ favorites: [], dismissed: false });
+  });
+  it("ignores a cookie written for another user (shared browser) or with no user", () => {
+    const v = topicsCookieValue("u1", ["sports.nfl"], false);
+    expect(parseTopicsCookie(v, "u2")).toEqual({ favorites: [], dismissed: false });
+    expect(parseTopicsCookie(v, undefined)).toEqual({ favorites: [], dismissed: false });
+    expect(parseTopicsCookie("on:sports.nfl", "u1")).toEqual({ favorites: [], dismissed: false });   // old unbound format
+  });
+  it("is only a short-lived hint, so a change made on another device can't linger", () => {
+    expect(TOPICS_COOKIE_MAX_AGE).toBeLessThanOrEqual(15 * 60);
   });
   it("ignores a missing, malformed or tampered value", () => {
-    for (const v of [undefined, null, "", "garbage", "on"]) expect(parseTopicsCookie(v)).toEqual({ favorites: [], dismissed: false });
-    expect(parseTopicsCookie("on:sports.nfl,<script>,../x,weather").favorites).toEqual(["sports.nfl", "weather"]);
+    for (const v of [undefined, null, "", "garbage", "on", "u1|on"]) expect(parseTopicsCookie(v, "u1")).toEqual({ favorites: [], dismissed: false });
+    expect(parseTopicsCookie("u1|on:sports.nfl,<script>,../x,weather", "u1").favorites).toEqual(["sports.nfl", "weather"]);
   });
 });
