@@ -38,7 +38,7 @@ function columns(pro: boolean): Col[] {
       header: "Market",
       cell: ({ row: { original: r } }) => <MarketCell r={r} />,
     }),
-    h.display({ id: "bet", header: "Bet", meta: { label: "Bet" }, cell: ({ row: { original: r } }) => { const q = betQuote(r.market, r.side); return <span className="whitespace-nowrap font-medium">{r.side.outcome} · {pct(q.ask)} <span className="text-xs font-normal tabular-nums text-muted" title={PAYS_AFTER_FEE_HELP}>· pays {q.paysText ?? DASH}</span></span>; } }),
+    h.display({ id: "bet", header: "Bet", meta: { label: "Bet" }, cell: ({ row: { original: r } }) => { const q = betQuote(r.market, r.side); return <span className="font-medium"><span className="whitespace-nowrap">{r.side.outcome} · {pct(q.ask)}</span>{" "}<span className="whitespace-nowrap text-xs font-normal tabular-nums text-muted" title={PAYS_AFTER_FEE_HELP}>· pays {q.paysText ?? DASH}</span></span>; } }),   // the two halves wrap onto two lines only when the table is squeezed (1280 px, any font)
     h.display({
       id: "return", meta: { label: pro ? "Edge" : "Estimated return", sort: pro ? "edge" : "roi", right: true, help: RETURN_HELP },
       header: pro ? "Edge" : "Estimated return",
@@ -53,7 +53,7 @@ function columns(pro: boolean): Col[] {
       cell: ({ row: { original: r } }) => { const c = betFigures(r.side, { market: r.market }).chance; return <span className={`whitespace-nowrap ${chanceTone(c)}`}>{c ?? <Val v={DASH} />}</span>; },
     }),
     h.display({ id: "closes", header: "Closes", meta: { label: "Closes", sort: "closes", right: true }, cell: ({ row: { original: r } }) => <span className="whitespace-nowrap"><ClosesIn at={r.market.closes_at} /></span> }),
-    h.display({ id: "topic", header: "Topic", meta: { label: "Topic" }, cell: ({ row: { original: r } }) => <span className="whitespace-nowrap text-xs text-muted">{topicLabel(r.market)}</span> }),
+    h.display({ id: "topic", header: "Topic", meta: { label: "Topic" }, cell: ({ row: { original: r } }) => <span className="text-xs text-muted">{topicLabel(r.market)}</span> }),
     // optional Pro columns (hidden by default)
     h.display({ id: "mid", header: "Mid", meta: { label: "Mid", pro: true, right: true }, cell: ({ row: { original: r } }) => <Val v={price(r.side.mid)} /> }),
     h.display({ id: "spread", header: "Spread", meta: { label: "Spread", pro: true, sort: "spread", right: true }, cell: ({ row: { original: r } }) => <Val v={price(r.market.spread)} /> }),
