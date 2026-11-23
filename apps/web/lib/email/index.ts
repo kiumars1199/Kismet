@@ -13,11 +13,12 @@ const UNSUB_DAYS = 365;
 const b64 = (s: string) => Buffer.from(s).toString("base64url");
 const mac = (body: string, secret: string) => createHmac("sha256", secret).update(body).digest("base64url");
 
-export interface UnsubClaims { u: string; r?: string; exp: number } // user id, alert rule id (absent = all alert email)
+// u = user id; r = alert rule id (absent = all alert email); k = "digest": this token turns off the morning digest (F12), not alerts
+export interface UnsubClaims { u: string; r?: string; k?: "digest"; exp: number }
 
-export function unsubscribeToken(userId: string, ruleId?: string, secret = process.env.UNSUBSCRIBE_SECRET, now = Date.now()): string {
+export function unsubscribeToken(userId: string, ruleId?: string, secret = process.env.UNSUBSCRIBE_SECRET, now = Date.now(), kind?: "digest"): string {
   if (!secret) throw new Error("UNSUBSCRIBE_SECRET is not set");
-  const body = b64(JSON.stringify({ u: userId, ...(ruleId ? { r: ruleId } : {}), exp: Math.floor(now / 1000) + UNSUB_DAYS * 86400 }));
+  const body = b64(JSON.stringify({ u: userId, ...(ruleId ? { r: ruleId } : {}), ...(kind ? { k: kind } : {}), exp: Math.floor(now / 1000) + UNSUB_DAYS * 86400 }));
   return `${body}.${mac(body, secret)}`;
 }
 
@@ -39,6 +40,9 @@ export function verifyUnsubscribe(token: string, secret = process.env.UNSUBSCRIB
 
 export const unsubscribeUrl = (userId: string, ruleId?: string) =>
   `${siteUrl()}/api/unsubscribe?t=${unsubscribeToken(userId, ruleId)}`;
+
+export const digestUnsubscribeUrl = (userId: string) =>
+  `${siteUrl()}/api/unsubscribe?t=${unsubscribeToken(userId, undefined, process.env.UNSUBSCRIBE_SECRET, Date.now(), "digest")}`;
 
 /** unsubscribeUrl absent = a required transactional notice: no List-Unsubscribe header, no link. */
 export interface Email { to: string; subject: string; html: string; text: string; unsubscribeUrl?: string }

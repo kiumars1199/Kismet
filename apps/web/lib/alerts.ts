@@ -7,6 +7,7 @@ import { formatOdds } from "@/lib/odds";
 import { FilterState } from "@/lib/filters/state";
 import type { AlertEvent, AlertRule, OddsFormat, Repo } from "@/lib/repo/types";
 import { UniqueViolation } from "@/lib/repo/types";
+import type { Settlement } from "@/lib/journal";
 import type { Execution, Market, Side } from "@/lib/types";
 
 export const KIND_LABEL: Record<AlertRule["kind"], string> = {
@@ -14,6 +15,7 @@ export const KIND_LABEL: Record<AlertRule["kind"], string> = {
   market_price: "Price drops to a target",
   edge_change: "Estimated return crosses a level",
   closing_soon: "Market closing soon",
+  settled: "Market settled",
 };
 
 const bucket = (now: Date, cooldownMin: number) => Math.floor(now.getTime() / (Math.max(1, cooldownMin) * 60_000));
@@ -50,6 +52,8 @@ export interface Deps {
   fetchMarkets: (q: FilterState) => Promise<MarketsResponse>;
   fetchMarket: (id: string) => Promise<Market | null>;
   fetchBook: (token: string, q: number, cat: string) => Promise<Live>;
+  /** "settled" rules: has this market resolved (Polymarket's own market status, lib/settle.ts)? Omitted: those rules never fire. */
+  fetchSettlement?: (id: string) => Promise<Settlement>;
   now?: Date;
   timeZone: string;
   odds?: OddsFormat;
@@ -101,15 +105,55 @@ async function candidates(rule: AlertRule, d: Deps): Promise<Hit[]> {
   return crossed ? [{ market: m, side: s, live }] : [];
 }
 
+/** F10 "settled": markets a rule watches. One market when the rule names it; otherwise every market the user has any
+ *  other alert rule on, plus My list (the same set "closing soon" uses). Capped so one rule can't fan out. */
+function settledIds(rule: AlertRule, all: AlertRule[], listed: string[]): string[] {
+  if (rule.market_id) return [rule.market_id];
+  const own = all.filter((r) => r.enabled && r.kind !== "settled" && r.market_id).map((r) => r.market_id!);
+  return [...new Set([...own, ...listed])].slice(0, 20);
+}
+
+/** Settled payload: what happened, in plain words (no "bet this", no cents). */
+function settledPayload(rule: AlertRule, m: Market | null, winner: 0 | 1 | null) {
+  const won = winner === null ? null : (m?.sides[winner]?.outcome ?? (winner === 0 ? "Yes" : "No"));
+  const message = won ? `Settled · ${won} won` : "Settled · no winner (the market was voided)";
+  return { title: m ? title(m) : rule.name, message, rule_name: rule.name, kind: rule.kind };
+}
+
 /** Evaluate enabled rules once. Returns the events it inserted (dedupe_key unique per cooldown bucket). */
 export async function runRules(rules: AlertRule[], d: Deps): Promise<AlertEvent[]> {
   const now = d.now ?? new Date();
   const out: AlertEvent[] = [];
   for (const rule of rules) {
     if (!rule.enabled || inQuietHours(rule, now, d.timeZone)) continue;
+    let fired = false;
+    if (rule.kind === "settled") {
+      // once per rule and market, ever: a resolved market never reopens, so no cooldown bucket in the key
+      try {
+        if (!d.fetchSettlement) continue;
+        const ids = settledIds(rule, rules, rule.market_id ? [] : (await d.repo.watchlist.list()).map((w) => w.market_id));
+        for (const id of ids) {
+          const st = await d.fetchSettlement(id).catch(() => null);
+          if (!st?.resolved) continue;
+          const m = await d.fetchMarket(id).catch(() => null);
+          try {
+            out.push(await d.repo.alert_events.insert({
+              rule_id: rule.id, market_id: id, side_index: st.winner_side_index,
+              payload: settledPayload(rule, m, st.winner_side_index),
+              sent_channels: ["in_app", ...(rule.channels.includes("push") ? ["push"] : [])],
+              read_at: null, dedupe_key: `${rule.id}|${id}|settled`,
+            }));
+            fired = true;
+          } catch (e) {
+            if (!(e instanceof UniqueViolation)) throw e;
+          }
+        }
+      } catch { continue; }
+      if (fired) await d.repo.alert_rules.update(rule.id, { last_fired_at: now.toISOString() });
+      continue;
+    }
     let hits: Hit[];
     try { hits = await candidates(rule, d); } catch { continue; }   // one bad rule never blocks the rest
-    let fired = false;
     for (const h of hits.slice(0, 10)) {
       try {
         out.push(await d.repo.alert_events.insert({

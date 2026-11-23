@@ -4,14 +4,15 @@
 // second run in the same cooldown bucket inserts nothing and sends nothing.
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { liveRoi, runRules, type Deps } from "@/lib/alerts";
+import { pushConfigured, sendPush, type PushSub } from "@/lib/alerts-push";
 import { sendEmail, siteUrl, unsubscribeUrl } from "@/lib/email";
 import { alertEmail, DISCLAIMER } from "@/lib/email/templates";
 import { can, effectiveTier, type Tier } from "@/lib/entitlements";
 import { UniqueViolation, type AlertEvent, type AlertRule, type OddsFormat, type Repo } from "@/lib/repo/types";
 
 type Row = AlertRule & { user_id: string };
-export type Source = Pick<Deps, "fetchMarkets" | "fetchMarket" | "fetchBook">;
-export interface RunCounts { users: number; rules: number; events: number; emails: number; webhooks: number; errors: number }
+export type Source = Pick<Deps, "fetchMarkets" | "fetchMarket" | "fetchBook" | "fetchSettlement">;
+export interface RunCounts { users: number; rules: number; events: number; emails: number; webhooks: number; pushes: number; errors: number }
 
 // docs/15: webhooks only to these prefixes (same as the alert_rules schema), checked again after URL normalization
 const HOOKS = { discord: "https://discord.com/api/webhooks/", telegram: "https://api.telegram.org/" } as const;
@@ -42,7 +43,7 @@ const must = <T>(r: { data: T | null; error: { message: string } | null }, what:
 
 export async function runServerAlerts(db: SupabaseClient, src: Source, now = new Date()): Promise<RunCounts> {
   const rules = must<Row[]>(await db.from("alert_rules").select("*").eq("enabled", true), "alert_rules read") ?? [];
-  const counts: RunCounts = { users: 0, rules: 0, events: 0, emails: 0, webhooks: 0, errors: 0 };
+  const counts: RunCounts = { users: 0, rules: 0, events: 0, emails: 0, webhooks: 0, pushes: 0, errors: 0 };
   if (!rules.length) return counts;
   const users = [...new Set(rules.map((r) => r.user_id))];
   const profiles = must<{ user_id: string; timezone: string | null; odds_format: OddsFormat | null }[]>(
@@ -106,6 +107,15 @@ export async function runServerAlerts(db: SupabaseClient, src: Source, now = new
     }
     counts.events += events.length;
     let email: string | null | undefined;
+    // F10: this user's devices, read once and only when a fired rule asks for push on a plan that has it.
+    // Only events inserted this run get here (dedupe_key is unique), so each event is pushed at most once.
+    let devices: (PushSub & { id: string })[] = [];
+    const wantsPush = pushConfigured() && can(tier, "push") && events.some((e) => mine.find((r) => r.id === e.rule_id)?.channels.includes("push"));
+    if (wantsPush) {
+      const r = await db.from("push_subscriptions").select("id, endpoint, keys").eq("user_id", uid);
+      if (r.error) counts.errors++;
+      devices = (r.data ?? []) as (PushSub & { id: string })[];
+    }
     for (const ev of events) {
       const rule = mine.find((r) => r.id === ev.rule_id)!;
       const m = await src.fetchMarket(ev.market_id);
@@ -129,11 +139,25 @@ export async function runServerAlerts(db: SupabaseClient, src: Source, now = new
             if (url && (await postHook(ch, url, text))) { sent.push(ch); counts.webhooks++; }
           }
         }
+        if (devices.length && rule.channels.includes("push")) {
+          const p = ev.payload as { title?: string; message?: string } | null;
+          const body = { title: p?.title ?? rule.name, body: p?.message ?? "", url: `/m/${encodeURIComponent(ev.market_id)}` };
+          let ok = false;
+          for (const dev of [...devices]) {
+            const res = await sendPush({ endpoint: dev.endpoint, keys: dev.keys }, body);
+            if (res === "sent") ok = true;
+            else if (res === "gone") {   // the push service forgot this device: drop it
+              await db.from("push_subscriptions").delete().eq("id", dev.id).eq("user_id", uid);
+              devices = devices.filter((x) => x.id !== dev.id);
+            } else counts.errors++;
+          }
+          if (ok) { sent.push("push"); counts.pushes++; }
+        }
       } catch (e) {
         console.error("[alerts/run] delivery failed:", (e as Error).message);   // event stays; never re-sent
         counts.errors++;
       }
-      // record what actually went out (no server web push yet, so "push" is not claimed)
+      // record what actually went out: "push" only when a push service accepted it
       const u = await db.from("alert_events").update({ sent_channels: sent }).eq("id", ev.id);
       if (u.error) counts.errors++;
     }

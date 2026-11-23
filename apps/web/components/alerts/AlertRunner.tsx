@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { drawerHref } from "@/components/market/drawer";
 import { runRules } from "@/lib/alerts";
 import { fetchMarket, fetchMarkets } from "@/lib/api";
+import type { Settlement } from "@/lib/journal";
 import { showNotification } from "@/lib/notify";
 import { getRepo } from "@/lib/repo";
 import type { Execution } from "@/lib/types";
@@ -25,6 +26,11 @@ export function runAlertsNow(): Promise<number> {
         repo, timeZone: timezone, odds: odds_format, memory,
         fetchMarkets: (q) => fetchMarkets(q),
         fetchMarket: (id) => fetchMarket(id).then((r) => r.market, () => null),
+        fetchSettlement: async (id) => {   // only called by "settled" rules
+          const res = await fetch("/api/settle", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ids: [id] }) });
+          const out = res.ok ? ((await res.json()) as Record<string, Settlement>) : {};
+          return out[id] ?? { resolved: false, winner_side_index: null, closing_prices: [null, null] };
+        },
         fetchBook: async (token, q, cat) => {
           const res = await fetch(`/api/book?${new URLSearchParams({ token, q: String(q), cat })}`);
           const x = res.ok ? ((await res.json()) as Execution) : null;
