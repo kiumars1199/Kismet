@@ -176,6 +176,7 @@ jobs:
             if [ -f output/kalshi_index.json ]; then python ops/upload.py --only output/kalshi_index.json; fi   # F3: every open Kalshi market
             if [ -f output/venues.json ]; then python ops/upload.py --only output/venues.json; fi   # F4: the same outcome on every venue
             if [ -f output/history.json ]; then python ops/upload.py --only output/history.json; fi   # F14: price history
+            if [ -f output/polymarket_index.json ]; then python ops/upload.py --only output/polymarket_index.json; fi   # F3 fix: every open Polymarket market
           fi
 
       - name: Open an issue when the refresh fails

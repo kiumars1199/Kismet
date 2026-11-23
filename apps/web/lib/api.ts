@@ -28,6 +28,7 @@ import type { Curve } from "@/lib/data/model";
 import type { Proof } from "@/lib/proof";
 import type { Counts, Facets, Group } from "@/lib/filters/apply";
 import type { KalshiPage } from "@/lib/data/kalshi-index";
+import type { UnpricedPage } from "@/lib/data/polymarket-index";
 import type { FilterInput } from "@/lib/filters/state";
 import type { Chip } from "@/lib/search/parse";
 import type { BacktestFile, BacktestRecord, BacktestResult, Execution, ScanMeta, Side, SideRanges, StoreMarket } from "@/lib/types";
@@ -39,7 +40,7 @@ export interface MetaResponse {
   loaded_at: number;                       // ms, when this server instance loaded the data
   // markets/flags/events: the Polymarket scan. polymarket (= markets) and kalshi: open markets by venue (F3); kalshi is 0
   // until KALSHI_DATA_PERMISSION is on and a scan wrote kalshi_index.json or kalshi.json.
-  counts: { markets: number; flags: number; events: number; polymarket: number; kalshi: number };
+  counts: { markets: number; flags: number; events: number; polymarket: number; polymarket_priced: number; kalshi: number };
   facets: { categories: Counts; niches: Counts; market_types: Counts; periods: Counts; frequency: Counts; topics: Counts };
   results?: { graded: number; wins: number; losses: number; avg_pnl: number | null } | null;   // live ledger totals (ledger_summary.json)
   delay_min?: number;                      // the plan's minimum delay in minutes (Free 15, paid 0); `meta` is the scan served, at least that old (RT3-03)
@@ -61,6 +62,8 @@ export interface MarketsResponse {
   // F3: Kalshi matches (venue=kalshi: the only rows, `rows` is empty; venue=all with q: the top 5 beside the Polymarket
   // rows). Absent when Kalshi data is off or not asked for.
   kalshi?: KalshiPage;
+  // F3 fix: open Polymarket markets the model does not price yet that match q / the topic filters (top 10 + total).
+  unpriced?: UnpricedPage;
 }
 
 export interface MarketResponse {

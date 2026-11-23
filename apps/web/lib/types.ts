@@ -301,6 +301,13 @@ export interface KalshiIndexFile {
   meta: { source: "Kalshi"; attribution: string; fetched_at: number; n: number; columns: string[] };
   rows: [string, string, string, string, string, number | null, number | null, number | null, number, number | null][];
 }
+/** output/polymarket_index.json (F3 fix, engine/pm_index.py): every open two-outcome Polymarket market, one array per row
+ *  in `meta.columns` order ("id", "question", "event", "slug", "category", "niche", "tags", "volume", "close_epoch").
+ *  No prices. Server only: the browser gets at most 10 matches in /api/markets (`unpriced`). */
+export interface PolymarketIndexFile {
+  meta: { source: "Polymarket"; fetched_at: number; n: number; columns: string[] };
+  rows: [string, string, string, string, string, string, string[], number, number | null][];
+}
 export interface KalshiFile {
   meta: {
     source: "Kalshi"; attribution: string; fetched_at: number; api: string; n_markets: number; n_combos: number;
