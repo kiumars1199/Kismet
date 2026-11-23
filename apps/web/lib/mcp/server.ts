@@ -2,6 +2,7 @@
 // Plans (docs/01 § Tiers, lib/connector-plan.ts): Premium no daily cap (60 calls a minute), Pro 3 calls a day, Free none. Gating runs per
 // tools/call, not per HTTP request: initialize and tools/list are separate requests and stay open to any valid token.
 // No personalized picks (CLAUDE.md rule 4): every verdict is the public one; my_list is the user's own saved order.
+import { isPaused } from "@/lib/account/pause";
 import "server-only";
 import "@/lib/zod-jitless";
 import { z } from "zod";
@@ -66,6 +67,7 @@ async function gate(user: SessionUser | null): Promise<{ me: Me } | { refused: C
     console.error("[mcp] plan lookup failed", e instanceof Error ? e.message : e);
     return { refused: refuse("Couldn't check your plan just now. Try again in a minute.") };
   }
+  if (isPaused(me.paused_until)) return { refused: refuse("This Kismet account is paused. It resumes on " + new Date(me.paused_until!).toUTCString() + ".") };
   if (!can(me.tier, "live_data")) return { refused: refuse(FREE_REFUSAL()) };
   const key = `u:${user.id}`;
   if (me.tier === "premium") {

@@ -121,7 +121,7 @@ def build(markets, tuples):
         venues, hit = quotes(pm, rows)
         if len(venues) < 2:
             continue
-        res[pm["id"]] = dict(venues=venues)
+        res[pm["id"]] = dict(venues=venues, side=pm["best"].get("side_index"))
         if hit:
             res[pm["id"]].update(kalshi_ticker=hit[0]["ticker"], kalshi_match_conf=hit[1])
     return res
@@ -135,15 +135,35 @@ def _read(path):
         return None
 
 
+KEEP_PREV = 2   # older snapshots kept in venues.json (the web's delayed stores read them)
+
+
 def write(cfg, log=print):
-    """output/venues.json from output/flags.json + markets.json and (when present) output/kalshi_index.json."""
+    """output/venues.json from output/markets.json and (when present) output/kalshi_index.json.
+
+    Kalshi quotes are only as new as the crawl (meta.kalshi_fetched_at), and Free's store is a scan or more behind, so the
+    file also keeps the last KEEP_PREV snapshots of itself in `prev` (newest first): the web takes the newest snapshot whose
+    crawl is not newer than the store's own scan, so Free never sees a fresher Kalshi price than its scan."""
     out = cfg.path("output", "venues.json")
     markets = (_read(cfg.path("output", "markets.json")) or {}).get("markets") or []
     ix = _read(cfg.path("output", "kalshi_index.json"))
     res = build(markets, (ix or {}).get("rows"))
+    fetched = int(((ix or {}).get("meta") or {}).get("fetched_at") or 0) or None
+    meta = {"n": len(res), "kalshi": bool(ix), "generated_at": int(time.time())}
+    if fetched:
+        meta["kalshi_fetched_at"] = fetched
+    old = _read(out) or {}
+    snaps = [{"meta": old["meta"], "venues": old["venues"]}] if old.get("meta") and isinstance(old.get("venues"), dict) else []
+    snaps += [x for x in old.get("prev") or [] if isinstance(x, dict) and x.get("meta")]
+    seen, prev = {fetched}, []
+    for x in snaps:
+        k = x["meta"].get("kalshi_fetched_at")
+        if k is not None and k not in seen and len(prev) < KEEP_PREV:
+            seen.add(k)
+            prev.append({"meta": x["meta"], "venues": x["venues"]})
     tmp = out + ".tmp"
     with open(tmp, "w") as f:
-        json.dump({"meta": {"n": len(res), "kalshi": bool(ix), "generated_at": int(time.time())}, "venues": res}, f, separators=(",", ":"))
+        json.dump({"meta": meta, "venues": res, "prev": prev}, f, separators=(",", ":"))
     os.replace(tmp, out)
-    log(f"[venues] {len(res)} markets on 2+ venues (kalshi index {'used' if ix else 'absent'})")
+    log(f"[venues] {len(res)} markets on 2+ venues (kalshi index {'used' if ix else 'absent'}), {len(prev)} older snapshots kept")
     return res

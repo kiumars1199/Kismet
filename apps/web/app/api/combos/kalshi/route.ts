@@ -3,6 +3,7 @@
 // KALSHI_DATA_PERMISSION=true (docs/18 §5.3): the check lives in the combo tray, which only Premium sees.
 import { ComboCheckBody, lookupCombo } from "@/lib/kalshiCombo";
 import { getMe } from "@/lib/auth/server";
+import { pausedResponse } from "@/lib/account/pause";
 import { canBeta } from "@/lib/beta";
 import { clientKey, rateLimit } from "@/lib/abuse";
 import { sameOrigin } from "@/lib/auth/server";
@@ -15,6 +16,8 @@ const allowed = async () => { const me = await getMe(); return canBeta(me, "comb
 export const GET = async () => Response.json({ enabled: await allowed() }, { headers: { "cache-control": "no-store" } });
 
 export async function POST(req: Request): Promise<Response> {
+  const paused = pausedResponse(await getMe());   // F8
+  if (paused) return paused;
   if (!(await allowed())) return Response.json({ error: "Not available" }, { status: 404 });
   if (!sameOrigin(req)) return Response.json({ error: "Bad origin" }, { status: 403 });
   const limited = await rateLimit("book", clientKey(req));   // each call is two Kalshi requests

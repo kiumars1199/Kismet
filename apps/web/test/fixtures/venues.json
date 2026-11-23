@@ -2,7 +2,8 @@
  "meta": {
   "n": 3,
   "kalshi": true,
-  "generated_at": 1794873437
+  "generated_at": 1794873437,
+  "kalshi_fetched_at": 1794873137
  },
  "venues": {
   "6674492": {
@@ -25,7 +26,9 @@
      "multiplier": null,
      "url": "https://kalshi.com/markets/kxfixture"
     }
-   ]
+   ],
+   "side": 0,
+   "kalshi_match_conf": 0.93
   },
   "7077573": {
    "venues": [
@@ -47,7 +50,9 @@
      "multiplier": null,
      "url": "https://kalshi.com/markets/kxfixture"
     }
-   ]
+   ],
+   "side": 0,
+   "kalshi_match_conf": 0.97
   },
   "7078474": {
    "venues": [
@@ -63,7 +68,8 @@
      "multiplier": 1.4083,
      "url": "https://polymarket.us/event/cfb-ballst-ohio-2026-11-17"
     }
-   ]
+   ],
+   "side": 1
   }
  }
 }

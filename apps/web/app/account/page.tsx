@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { AccountActions, CheckoutStatus, DeleteAccount } from "@/components/auth/AccountActions";
 import { PageTitle, card } from "@/components/kit";
 import { McpSetup } from "@/components/account/McpSetup";
+import { PauseCard } from "@/components/account/PauseCard";
 import { siteUrl } from "@/lib/site";
 import { isAdminEmail } from "@/lib/admin/core";
 import { accountsOffNote, authEnabled, getMe } from "@/lib/auth/server";
@@ -69,6 +70,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ c
         <p className="text-sm text-muted">An account can be signed in on up to 3 devices. Signing in on a 4th signs out the oldest.</p>
         <AccountActions kind="signout" tier={me.tier} billing={billing} hasCustomer={!!me.status} />
       </section>
+
+      <PauseCard />
 
       <McpSetup tier={me.tier} url={`${siteUrl()}/api/mcp`} />
 

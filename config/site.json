@@ -30,5 +30,17 @@
     "pro_yearly": 119.99,
     "premium_monthly": 19.99,
     "premium_yearly": 199.99
+  },
+  "helpline": {
+    "name": "National Problem Gambling Helpline",
+    "operator": "National Council on Problem Gambling",
+    "number_display": "1-800-MY-RESET",
+    "number_tel": "+18006973738",
+    "text_sms": "+18006973738",
+    "chat_url": "https://www.ncpgambling.org/chat/",
+    "hours": "24/7/365, call, text and chat",
+    "source_url": "https://www.ncpgambling.org/help-treatment/about-the-national-problem-gambling-helpline/",
+    "checked": "2026-11-22",
+    "_note": "1-800-GAMBLER (1-800-522-4700) is the older name; the operator's page lists 1-800-MY-RESET. Recheck before launch."
   }
 }

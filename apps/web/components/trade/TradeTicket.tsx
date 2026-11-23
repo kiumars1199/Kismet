@@ -2,6 +2,7 @@
 // Kalshi paper-trading ticket (docs/16 §3 "Order ticket"). Form → Confirm (every time) → live status.
 // Orders go web → extension (signs with the user's key) → Kalshi DEMO. The only order call is in the confirm handler
 // (test: lib/trade/no-auto-trade.test.ts). Mounted once by <TicketHost/>; opened with openTicket().
+import { RiskNote } from "./RiskNote";
 import { ExternalLink } from "@/components/kit/icons";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
@@ -68,6 +69,7 @@ function Ticket({ cfg, p }: { cfg: TradeConfig; p: TicketPrefill }) {
             {venue && <a href={venue} target="_blank" rel="noopener noreferrer" className={btn}>Open on Kalshi <ExternalLink size={15} /></a>}
             <button type="button" className={btnGhost} onClick={ping}>I installed it</button>
           </div>
+          {venue && <RiskNote className="text-left" />}
         </section>
       ) : !vault.connected ? (
         <section className={`${inner} flex flex-col gap-3 p-4`}>
