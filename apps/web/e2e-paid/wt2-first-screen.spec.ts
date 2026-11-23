@@ -3,7 +3,7 @@
 //     heading (cards, not just words), and the topic pill stays.
 //  2. The tour's first step opens over a card, never over an empty list.
 //  3. Onboarding step 1 does not shift when the "N open" counts arrive (CLS < 0.05).
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "./fixtures";
 
 async function signUp(page: Page, email: string) {
   await page.goto("/login");
