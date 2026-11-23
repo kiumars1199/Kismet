@@ -106,11 +106,10 @@ test("/check: the event line under a market's title drops '- More Markets'", asy
   expect(await page.locator("main").innerText()).not.toMatch(/more markets/i);
 });
 
-// CI measured the default columns NOT fitting at 1280 (a different font made the table wider), so the header stopped sticking. The
-// table's narrowest width (what it needs when squeezed) must leave real room in the box at 1280, whatever the font: at least 150 px
-// (about 15% wider text still fits), and the same at 1366.
+// The table is table-layout: fixed (every column but Market pinned), so its width does not depend on the font: it must leave 24 px
+// (scrollbar and slack) in the box at 1280 and 1366.
 for (const w of [1280, 1366]) {
-  test(`/markets at ${w}px: the default columns' narrowest width leaves at least 150 px of room in the box`, async ({ page }) => {
+  test(`/markets at ${w}px: the default columns' narrowest width leaves at least 24 px of room in the box`, async ({ page }) => {
     await open(page, w);
     const r = await page.evaluate(() => {
       const t = document.querySelector("table")!;
@@ -118,7 +117,7 @@ for (const w of [1280, 1366]) {
       return { box: t.parentElement!.clientWidth, min };
     });
     console.log(`/markets ${w}px: box ${r.box}, narrowest table ${Math.round(r.min)}, room ${Math.round(r.box - r.min)}`);
-    expect(r.box - r.min).toBeGreaterThanOrEqual(150);
+    expect(r.box - r.min).toBeGreaterThanOrEqual(24);   // a fixed table is as wide as its columns whatever the font: only scrollbar + slack needed (test/market-table-cols.test.ts)
   });
 }
 
@@ -194,5 +193,20 @@ for (const w of [1280, 1366, 1440]) {
     }
     console.log(`/markets ${w}px column widths at scrollY 0/300/700: ${at.map((a) => a.map(Math.round).join(",")).join(" | ")}`);
     for (const a of at.slice(1)) a.forEach((x, i) => expect(Math.abs(x - at[0]![i]!), `column ${i} at ${w}`).toBeLessThanOrEqual(1));
+  });
+}
+
+// Market gets the room the fixed layout frees: >= 260 px at 1280 and >= 300 px at 1366, and its titles fit in two lines (no clipping) for the fixture rows.
+for (const [w, min] of [[1280, 260], [1366, 300]] as const) {
+  test(`/markets at ${w}px: Market is at least ${min} px and its titles fit in 2 lines`, async ({ page }) => {
+    await open(page, w);
+    const m = await page.evaluate(() => ({
+      market: [...document.querySelectorAll("table thead th")].find((h) => h.textContent?.trim() === "Market")!.getBoundingClientRect().width,
+      clipped: [...document.querySelectorAll("table tbody tr[data-row] td:nth-child(2) a")].filter((a) => a.scrollHeight > a.clientHeight + 1).map((a) => a.textContent),
+      n: document.querySelectorAll("table tbody tr[data-row]").length,
+    }));
+    console.log(`/markets ${w}px: Market ${Math.round(m.market)} px, ${m.n} rows, clipped titles ${m.clipped.length}`);
+    expect(m.market).toBeGreaterThanOrEqual(min);
+    expect(m.clipped).toEqual([]);
   });
 }
