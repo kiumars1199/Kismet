@@ -27,7 +27,7 @@ export const ROW: Record<CollectionName, z.ZodObject> = {
   }).strict(),
   alert_rules: z.object({
     ...meta, name: str(80), enabled: z.boolean(),
-    kind: z.enum(["preset_match", "market_price", "edge_change", "closing_soon"]),
+    kind: z.enum(["preset_match", "market_price", "edge_change", "closing_soon", "settled", "big_trade"]),
     query: json.nullable(), market_id: str(100).nullable(), side_index: side.nullable(), threshold: num.nullable(),
     channels: z.array(z.enum(["inapp", "email", "push", "telegram", "discord"])).max(5),
     // docs/15: only Discord / Telegram webhook URLs

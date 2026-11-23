@@ -4,14 +4,15 @@
 // second run in the same cooldown bucket inserts nothing and sends nothing.
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { liveRoi, runRules, type Deps } from "@/lib/alerts";
+import { pushConfigured, sendPush, type PushSub } from "@/lib/alerts-push";
 import { sendEmail, siteUrl, unsubscribeUrl } from "@/lib/email";
 import { alertEmail, DISCLAIMER } from "@/lib/email/templates";
 import { can, effectiveTier, type Tier } from "@/lib/entitlements";
-import { UniqueViolation, type AlertEvent, type AlertRule, type OddsFormat, type Repo } from "@/lib/repo/types";
+import { UniqueViolation, type AlertEvent, type AlertKind, type AlertRule, type OddsFormat, type Repo } from "@/lib/repo/types";
 
 type Row = AlertRule & { user_id: string };
-export type Source = Pick<Deps, "fetchMarkets" | "fetchMarket" | "fetchBook">;
-export interface RunCounts { users: number; rules: number; events: number; emails: number; webhooks: number; errors: number }
+export type Source = Pick<Deps, "fetchMarkets" | "fetchMarket" | "fetchBook" | "fetchSettlement" | "fetchBigTrades">;
+export interface RunCounts { users: number; rules: number; events: number; emails: number; webhooks: number; pushes: number; errors: number }
 
 // docs/15: webhooks only to these prefixes (same as the alert_rules schema), checked again after URL normalization
 const HOOKS = { discord: "https://discord.com/api/webhooks/", telegram: "https://api.telegram.org/" } as const;
@@ -40,10 +41,32 @@ const must = <T>(r: { data: T | null; error: { message: string } | null }, what:
   return r.data as T;
 };
 
-export async function runServerAlerts(db: SupabaseClient, src: Source, now = new Date()): Promise<RunCounts> {
-  const rules = must<Row[]>(await db.from("alert_rules").select("*").eq("enabled", true), "alert_rules read") ?? [];
-  const counts: RunCounts = { users: 0, rules: 0, events: 0, emails: 0, webhooks: 0, errors: 0 };
+/** One trade-feed request per distinct event set per run, shared by every Premium user in it. */
+const memoTrades = (f: NonNullable<Source["fetchBigTrades"]>): NonNullable<Source["fetchBigTrades"]> => {
+  const seen = new Map<string, ReturnType<typeof f>>();
+  return (ids, since) => {
+    const k = `${since}|${[...new Set(ids)].sort().join(",")}`;
+    if (!seen.has(k)) seen.set(k, f(ids, since));
+    return seen.get(k)!;
+  };
+};
+
+/** ?kind= on /api/alerts/run. None: every kind (the daily cron). "bigtrade": only big-trade rules (refresh.yml, after
+ *  every scan, so a big trade is alerted within one scan). Anything else: null, and the route answers 400. */
+export function kindsFromQuery(url: string): AlertKind[] | undefined | null {
+  const k = new URL(url).searchParams.get("kind");
+  if (k === null) return undefined;
+  return k === "bigtrade" ? ["big_trade"] : null;
+}
+
+export async function runServerAlerts(db: SupabaseClient, src: Source, now = new Date(), opts: { kinds?: AlertKind[] } = {}): Promise<RunCounts> {
+  const all = must<Row[]>(await db.from("alert_rules").select("*").eq("enabled", true), "alert_rules read") ?? [];
+  const counts: RunCounts = { users: 0, rules: 0, events: 0, emails: 0, webhooks: 0, pushes: 0, errors: 0 };
+  const runs = (r: Row) => !opts.kinds || opts.kinds.includes(r.kind);
+  // users with nothing to evaluate in this run are skipped; their other rules stay in as context
+  const rules = all.filter((r) => all.some((x) => x.user_id === r.user_id && runs(x)));
   if (!rules.length) return counts;
+  const bigTrades = src.fetchBigTrades ? memoTrades(src.fetchBigTrades) : undefined;
   const users = [...new Set(rules.map((r) => r.user_id))];
   const profiles = must<{ user_id: string; timezone: string | null; odds_format: OddsFormat | null }[]>(
     await db.from("profiles").select("user_id, timezone, odds_format").in("user_id", users), "profiles read") ?? [];
@@ -88,7 +111,9 @@ export async function runServerAlerts(db: SupabaseClient, src: Source, now = new
       },
     } as unknown as Repo;
     const deps: Deps = {
-      ...src, repo, now, timeZone, odds: prof?.odds_format ?? "percent", memory,
+      ...src, repo, now, timeZone, odds: prof?.odds_format ?? "percent", memory, kinds: opts.kinds, owner: uid,
+      // F16: Premium only. Free and Pro get no feed, so a big_trade rule on those plans can never fire.
+      fetchBigTrades: tier === "premium" ? bigTrades : undefined,
       fetchBook: async (token, q, cat) => {
         const x = await src.fetchBook(token, q, cat);
         if (x) live.set(token, { ask: x.best_ask, roi: liveRoi(x) });
@@ -97,7 +122,7 @@ export async function runServerAlerts(db: SupabaseClient, src: Source, now = new
     };
 
     counts.users++;
-    counts.rules += mine.length;
+    counts.rules += mine.filter(runs).length;
     let events: AlertEvent[];
     try { events = await runRules(mine, deps); } catch (e) {
       console.error("[alerts/run] user failed:", (e as Error).message);
@@ -106,6 +131,15 @@ export async function runServerAlerts(db: SupabaseClient, src: Source, now = new
     }
     counts.events += events.length;
     let email: string | null | undefined;
+    // F10: this user's devices, read once and only when a fired rule asks for push on a plan that has it.
+    // Only events inserted this run get here (dedupe_key is unique), so each event is pushed at most once.
+    let devices: (PushSub & { id: string })[] = [];
+    const wantsPush = pushConfigured() && can(tier, "push") && events.some((e) => mine.find((r) => r.id === e.rule_id)?.channels.includes("push"));
+    if (wantsPush) {
+      const r = await db.from("push_subscriptions").select("id, endpoint, keys").eq("user_id", uid);
+      if (r.error) counts.errors++;
+      devices = (r.data ?? []) as (PushSub & { id: string })[];
+    }
     for (const ev of events) {
       const rule = mine.find((r) => r.id === ev.rule_id)!;
       const m = await src.fetchMarket(ev.market_id);
@@ -129,11 +163,25 @@ export async function runServerAlerts(db: SupabaseClient, src: Source, now = new
             if (url && (await postHook(ch, url, text))) { sent.push(ch); counts.webhooks++; }
           }
         }
+        if (devices.length && rule.channels.includes("push")) {
+          const p = ev.payload as { title?: string; message?: string } | null;
+          const body = { title: p?.title ?? rule.name, body: p?.message ?? "", url: `/m/${encodeURIComponent(ev.market_id)}` };
+          let ok = false;
+          for (const dev of [...devices]) {
+            const res = await sendPush({ endpoint: dev.endpoint, keys: dev.keys }, body);
+            if (res === "sent") ok = true;
+            else if (res === "gone") {   // the push service forgot this device: drop it
+              await db.from("push_subscriptions").delete().eq("id", dev.id).eq("user_id", uid);
+              devices = devices.filter((x) => x.id !== dev.id);
+            } else counts.errors++;
+          }
+          if (ok) { sent.push("push"); counts.pushes++; }
+        }
       } catch (e) {
         console.error("[alerts/run] delivery failed:", (e as Error).message);   // event stays; never re-sent
         counts.errors++;
       }
-      // record what actually went out (no server web push yet, so "push" is not claimed)
+      // record what actually went out: "push" only when a push service accepted it
       const u = await db.from("alert_events").update({ sent_channels: sent }).eq("id", ev.id);
       if (u.error) counts.errors++;
     }

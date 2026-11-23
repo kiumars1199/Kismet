@@ -4,10 +4,22 @@ import "@/lib/zod-jitless";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { COOKIE_OPTIONS, sameOrigin } from "@/lib/auth/server";
-import { STATE_COOKIE, validState } from "@/lib/venues/states";
+import { STATE_COOKIE, US_STATES, validState } from "@/lib/venues/states";
+import { statusesFor } from "@/lib/venues/availability";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+/** GET: the visitor's state and the three statuses, read from the httpOnly cookie. Static pages ("/" is force-static) have
+ *  no cookies at render time, so the client asks here once (AvailabilityProvider). Never cached. */
+export async function GET(req: Request) {
+  const raw = (req.headers.get("cookie") ?? "").split(/;\s*/).find((c) => c.startsWith(`${STATE_COOKIE}=`))?.slice(STATE_COOKIE.length + 1);
+  const state = validState(raw);
+  return Response.json(
+    { state, stateName: state ? US_STATES[state]! : null, statuses: statusesFor(state) },
+    { headers: { "Cache-Control": "private, no-store", Vary: "Cookie" } },
+  );
+}
 
 const Body = z.object({ state: z.string().max(2).nullable() }).strict();
 

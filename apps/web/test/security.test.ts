@@ -81,6 +81,7 @@ describe("web hardening greps", () => {
   it("server fetches only allow-listed hosts (plus Supabase from env)", () => {
     const ALLOWED = ["api.github.com", "api.resend.com", "clob.polymarket.com", "gamma-api.polymarket.com",
       "api.elections.kalshi.com", "demo-api.kalshi.co",   // Kalshi: combo quotes, only with KALSHI_DATA_PERMISSION
+      "data-api.polymarket.com",                          // F16 big trades (lib/bigtrade.ts), public Data API v2, no key
       "discord.com", "api.telegram.org",                  // alert webhooks: prefix re-checked by webhookUrl(), redirect: "error"
       "us.i.posthog.com"];                                // T-299 funnel steps sent server-side (lib/funnel-server.ts), only with the PostHog key
     const hosts = files().filter((f) => /\bfetch\(/.test(read(f)))
