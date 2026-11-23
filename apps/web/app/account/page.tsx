@@ -5,6 +5,7 @@ import { AccountActions, CheckoutStatus, DeleteAccount } from "@/components/auth
 import { PageTitle, card } from "@/components/kit";
 import { InvitePanel } from "@/components/share/InvitePanel";
 import { McpSetup } from "@/components/account/McpSetup";
+import { PauseCard } from "@/components/account/PauseCard";
 import { siteUrl } from "@/lib/site";
 import { isAdminEmail } from "@/lib/admin/core";
 import { accountsOffNote, authEnabled, getMe } from "@/lib/auth/server";
@@ -75,6 +76,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ c
         <h2 id="invite-h" className="text-lg font-semibold">Invite friends, earn a free month</h2>
         <InvitePanel />
       </section>
+
+      <PauseCard />
 
       <McpSetup tier={me.tier} url={`${siteUrl()}/api/mcp`} />
 
