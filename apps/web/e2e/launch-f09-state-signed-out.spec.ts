@@ -9,8 +9,9 @@ for (const size of [{ width: 390, height: 844 }, { width: 1440, height: 900 }]) 
     await expect(page.getByTestId("bet-card").first()).toBeVisible({ timeout: 30_000 });
     const note = page.locator('[data-testid="venue-availability"]:has(+ [data-testid="venue-button"])').first();
     await expect(note).toHaveText("Check your state");
+    await expect(note.getByRole("link")).toHaveAttribute("href", /^\/state\?next=%2F/);   // a real <a href>: works before hydration too
     await note.getByRole("link").click();
-    await expect(page).toHaveURL(/\/state\?next=/);
+    await expect(page).toHaveURL(/\/state\?next=/, { timeout: 30_000 });   // next dev compiles /state on this first hit
     await expect(page).not.toHaveURL(/signup|login|settings/);
     await page.getByTestId("state-select").selectOption("NV");
     await expect(page).toHaveURL(/\/\?us=0&g=0&ps=50$/, { timeout: 15_000 });

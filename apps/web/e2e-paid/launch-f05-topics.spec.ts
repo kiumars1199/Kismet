@@ -1,7 +1,7 @@
 // F5: pick topics at signup. New account picks NFL + Politics -> / and /bets open filtered with a visible "Your topics"
 // pill that clears in one tap (and stays cleared). Skipping setup leaves the views unfiltered. Filters only, never picks.
 import path from "node:path";
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 
 async function signUp(page: Page, email: string) {
   await page.goto("/login");
@@ -29,7 +29,10 @@ async function makePremium(page: Page) {
   expect((await (await page.request.get("/api/me")).json()).tier).toBe("premium");
 }
 
-const pill = (page: Page) => page.getByRole("button", { name: "Remove filter: Your topics" });
+/** The pill is a <button> in the server HTML: a tap before React attaches its handler does nothing (CI run 45147818583).
+ *  networkidle does not prove hydration, so wait for React's props on the element itself. */
+const hydrated = (el: Locator) => expect.poll(() => el.evaluate((n) => Object.keys(n).some((k) => k.startsWith("__reactProps$"))), { timeout: 30_000 }).toBe(true);
+const pill = (page: Page) => page.getByRole("link", { name: "Remove filter: Your topics" });
 
 const SHOTS = path.resolve(process.cwd(), "../../docs/launch/review/f05");   // repo-relative: <repo>/docs/launch/review/f05
 const SIZES = [{ w: 390, h: 844 }, { w: 1440, h: 900 }];
@@ -75,7 +78,7 @@ for (const { w, h } of SIZES) {
     await page.getByRole("button", { name: "Skip setup" }).click();   // finishing from any step saves; lands on Best bets
     await expect(page).toHaveURL(/fav=1/, { timeout: 60_000 });
     await expect(pill(page)).toBeVisible({ timeout: 30_000 });
-    expect(await page.locator("article[data-row]").count()).toBeGreaterThan(0);
+    await expect(page.locator("article[data-row]").first()).toBeVisible({ timeout: 30_000 });   // the cards arrive after the pill
     const landing = await readCls(page);
     console.log(`CLS post-onboarding landing at ${w}px: ${landing.toFixed(4)}  (${page.url()})`);
     expect(landing).toBeLessThan(0.1);
@@ -114,7 +117,8 @@ for (const { w, h } of SIZES) {
     if (await skip.isVisible()) await skip.click();
 
     // one tap clears it, saved to the account: the next visit stays unfiltered
-    await pill(page).click();   // the pill is in the server HTML; networkidle above means it is hydrated
+    await hydrated(pill(page));
+    await pill(page).click();
     await expect(page).not.toHaveURL(/fav=1/);
     await expect(pill(page)).toHaveCount(0);
     await page.waitForLoadState("networkidle");
@@ -195,4 +199,54 @@ test("a returning user's first /bets opens filtered (the hint outlives the tab)"
   const hop = await page.request.get("/bets", { maxRedirects: 0 });
   expect(hop.status()).toBe(307);
   expect(hop.headers().location).toMatch(/\/bets\?fav=1&t=sports\.nfl/);
+});
+
+// CI flake on #66/#67/#68: a tap on the server-rendered pill before hydration did nothing. The pill is now a real link, so
+// it works with JS off; the same test checks the hydrated page for errors and for anything covering the pill at 1440.
+test("the Your topics pill works before hydration, and nothing covers or breaks it at 1440", async ({ page, browser }) => {
+  test.setTimeout(300_000);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await signUp(page, `f05-nojs-${Date.now()}@example.com`);
+  await makePremium(page);
+  const nfl = page.getByRole("button", { name: /^NFL/ });
+  await expect(nfl).toContainText("open", { timeout: 60_000 });
+  await page.waitForTimeout(500);
+  await nfl.click();
+  await expect(nfl).toHaveAttribute("aria-pressed", "true", { timeout: 30_000 });
+  await page.getByRole("button", { name: "Skip setup" }).click();
+  await page.waitForURL(/fav=1/, { timeout: 60_000 });
+  await page.waitForLoadState("networkidle");   // let the landing settle: a goto during it is ERR_ABORTED
+
+  // (a) no React or uncaught errors on the hydrated page; (b) the pill is the topmost thing at its own centre
+  const errors: string[] = [];
+  page.on("pageerror", (e) => errors.push(`pageerror: ${e.message}`));
+  page.on("console", (m) => { if (m.type() === "error") errors.push(`console: ${m.text()}`); });
+  await page.goto("/bets?fav=1&t=sports.nfl%2Cpolitics.elections");
+  await expect(pill(page)).toBeVisible({ timeout: 30_000 });
+  await page.waitForLoadState("networkidle");
+  await hydrated(pill(page));
+  const covering = () => pill(page).evaluate((el) => { const r = el.getBoundingClientRect(); const t = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2); return t?.closest("a")?.getAttribute("aria-label") ?? `${t?.tagName}[${t?.getAttribute("data-testid") ?? t?.getAttribute("role") ?? t?.className?.toString().slice(0, 40)}]`; });
+  const skipTour = page.getByRole("button", { name: "Skip tour" });
+  if (await skipTour.isVisible()) {   // the first-run tour dims the page and takes the tap: not a product bug, a fresh account's first screen
+    expect(await covering(), "the tour covers the pill").not.toBe("Remove filter: Your topics");
+    await skipTour.click();
+  }
+  expect(await covering()).toBe("Remove filter: Your topics");
+  expect(errors.filter((e) => /hydrat|did not match|Minified React|Uncaught/i.test(e)), errors.join("\n")).toEqual([]);
+
+  // Before hydration: the app's script files never load (as on a slow phone), but the page's own inline scripts run, so the
+  // streamed pill is revealed and only React's handlers are missing. (With JavaScript disabled outright /bets stays on
+  // "Loading": streamed sections are revealed by an inline script.) The tap must still work, as a plain navigation.
+  const bare = await browser.newContext({ storageState: await page.context().storageState(), viewport: { width: 1440, height: 900 } });
+  await bare.route(/\/_next\/static\/.*\.js/, (r) => r.abort());
+  const p2 = await bare.newPage();
+  await p2.goto("/bets?fav=1&t=sports.nfl%2Cpolitics.elections");
+  const link = p2.getByRole("link", { name: "Remove filter: Your topics" });
+  await expect(link).toBeVisible({ timeout: 30_000 });
+  expect(await link.evaluate((n) => Object.keys(n).some((k) => k.startsWith("__reactProps$"))), "not hydrated").toBe(false);
+  await expect(link).toHaveAttribute("href", /fav=0/);
+  await link.click();
+  await expect(p2).not.toHaveURL(/fav=1/);
+  await expect(link).toHaveCount(0);
+  await bare.close();
 });

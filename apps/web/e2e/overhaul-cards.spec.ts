@@ -133,7 +133,7 @@ test("filter bar: three dropdowns land in the URL on Apply, and stay after a rel
   await expect(page).toHaveURL(/x1=2/);
   await expect(page).toHaveURL(/cw=/);
   // the bar shows them, so no duplicate pills
-  await expect(page.getByLabel("Applied filters").getByRole("button", { name: /Closes|Pays|Soccer/ })).toHaveCount(0);
+  await expect(page.getByLabel("Applied filters").getByRole("link", { name: /Closes|Pays|Soccer/ })).toHaveCount(0);
   await page.reload();
   await expect(bar.getByTestId("bar-sport")).toHaveValue("t:sports.soccer");
   await expect(bar.getByTestId("bar-mult")).toHaveValue("1.5-2");
@@ -168,7 +168,7 @@ test("sort menu changes the order in the URL", async ({ page }) => {
 
 test("a filter set outside the bar keeps its removable pill", async ({ page }) => {
   await page.goto("/?wp=0.6");
-  await expect(page.getByRole("button", { name: /^Remove filter: Chance ≥ 60/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: /^Remove filter: Chance ≥ 60/ })).toBeVisible();
 });
 
 for (const [w, h] of [[390, 844], [1440, 900]] as const) {
@@ -179,7 +179,7 @@ for (const [w, h] of [[390, 844], [1440, 900]] as const) {
     const small = await page.evaluate(() => {
       const sel = [
         "[data-testid=filter-bar] select", "[data-testid=bar-apply]", "[data-testid=bar-sort]", "[aria-label='More filters'] button", "article[data-testid=bet-card] h3 a", "article[data-testid=bet-card] summary",
-        "[data-testid=venue-button]", "[aria-label='Applied filters'] button",
+        "[data-testid=venue-button]", "[aria-label='Applied filters'] a",
       ].join(",");
       return [...document.querySelectorAll<HTMLElement>(sel)]
         .map((e) => ({ t: (e.textContent ?? "").trim().slice(0, 40), h: e.getBoundingClientRect().height }))

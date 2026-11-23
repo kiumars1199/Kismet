@@ -13,11 +13,13 @@ test("no state chosen: 'Check your state' above each bet button, linking to Sett
   expect(await page.locator('[data-testid="venue-availability"] + [data-testid="venue-button"]').count()).toBe(buttons);
   const first = page.getByTestId("venue-availability").first();
   await expect(first).toHaveText("Check your state");
-  await expect(first.getByRole("link")).toHaveAttribute("href", "/state");
+  await expect(first.getByRole("link")).toHaveAttribute("href", /^\/state\?next=%2F/);
 });
 
 test("restricted state: the note says not available, above the button, at 390 px and 1440 px", async ({ page }) => {
   await page.goto("/settings");
+  // picking before React attaches its handler is lost (the controlled value snaps back to ""): wait for hydration
+  await expect.poll(() => page.getByTestId("state-select").evaluate((n) => Object.keys(n).some((k) => k.startsWith("__reactProps$"))), { timeout: 30_000 }).toBe(true);
   await page.getByTestId("state-select").selectOption("NV");
   await expect(page.getByTestId("state-select")).toHaveValue("NV");
   await expect.poll(async () => (await page.context().cookies()).find((c) => c.name === "us_state")?.value).toBe("NV");
