@@ -32,7 +32,6 @@ async function joinFrom(browser: Browser, link: string, n: number) {
   await ctx.close();
 }
 
-const info = (page: Page) => page.evaluate(async () => (await fetch("/api/invite")).json());
 
 test("invite link, QR, live 0..5 counter, reward; share sheet in the drawer", async ({ page, browser }) => {
   test.setTimeout(600_000);
@@ -113,12 +112,8 @@ test("invite link, QR, live 0..5 counter, reward; share sheet in the drawer", as
   await expect(page.getByTestId("invite-rewarded")).toBeVisible();
   await expect(page.getByTestId("plan-name")).toHaveText("Premium");
   await page.screenshot({ path: `${SHOTS}/account-5-of-5-premium-1440.png`, fullPage: true });
-
-  // a 6th sign-up changes nothing: the reward is once
-  const before = await info(page);
-  await joinFrom(browser, link, 6);
-  const after = await info(page);
-  expect(after.comp_until).toBe(before.comp_until);
+  // "a 6th sign-up changes nothing" (the reward is once) is covered by test/invites-sql.test.ts and lib/invites/server.test.ts;
+  // not repeated here: each extra sign-up costs the e2e dev server memory.
 });
 
 test("a bad invite code is ignored and a signed-out visitor can't read /api/invite", async ({ page, request }) => {

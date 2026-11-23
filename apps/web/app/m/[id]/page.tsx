@@ -15,9 +15,7 @@ import { Breadcrumbs } from "@/components/shell/Breadcrumbs";
 import { topicCrumb } from "@/components/market/labels";
 import { authEnabled, getUser } from "@/lib/auth/server";
 import { TEASER_DESCRIPTION, marketTeaser } from "@/lib/teaser";
-import { getStoreFor } from "@/lib/data/store";
-import { betFacts } from "@/lib/share/bet-facts";
-import { verifyShareSig } from "@/lib/share/sig";
+import { shareableFacts } from "@/lib/share/card-data";
 
 export const dynamic = "force-dynamic";
 
@@ -41,8 +39,9 @@ const teaser = cache(async () => authEnabled() && !(await getUser()));
  *  for a valid signature, the sign-up line otherwise. */
 const preview = async (id: string, title: string, fallback: string, sp: { s?: string; sig?: string }): Promise<Metadata> => {
   const side = Number(sp.s);
-  const signed = typeof sp.sig === "string" && Number.isInteger(side) && verifyShareSig(id, side, sp.sig);
-  const facts = signed ? betFacts(await getStoreFor("free"), id, side) : null;
+  // the same rule as the image: a valid signature on a flagged bet
+  const facts = typeof sp.sig === "string" && Number.isInteger(side) ? await shareableFacts(id, side, sp.sig) : null;
+  const signed = !!facts;
   const description = facts && (facts.mult || facts.chance)
     ? `${[facts.mult && `Pays ${facts.mult}`, facts.chance].filter(Boolean).join(" · ")}. Market analytics, not financial advice.`
     : fallback;
