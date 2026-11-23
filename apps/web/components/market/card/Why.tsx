@@ -12,7 +12,7 @@ import { backLine, cardVenue, STAKE, INTL_ONLY, NOT_FOR_US, starsHelp } from "@/
 import { paysBand } from "@/lib/filters/bands";   // not ./apply: zod on the landing (T-295)
 import { costPct, ESTIMATE_HELP, money, pct, ret } from "@/lib/format";
 import { noLiveRecord, type Proof } from "@/lib/proof";
-import type { Execution, Market, Side } from "@/lib/types";
+import type { Execution } from "@/lib/types";
 import dynamic from "next/dynamic";
 // T-295: the star sits inside the closed "Why this bet?" body, so it loads on its own (keeps the landing under 150 kB)
 const WatchStar = dynamic(() => import("@/components/watch/WatchStar").then((m) => m.WatchStar), {
@@ -22,7 +22,7 @@ const WatchStar = dynamic(() => import("@/components/watch/WatchStar").then((m) 
 import { venueOf } from "@/lib/trade/venue";
 import { AlertLink } from "../bits";
 import { drawerHref, useOpenDrawer } from "../drawer";
-import { basisWords, pastBets, topicLabel } from "../labels";
+import { basisWords, pastBets } from "../labels";
 import { useBacktest } from "../TierNote";
 
 /** A count in words that never shows four digits on a card (lib/banned.ts): 240 → "240", 8,312 → "over 8 thousand". */

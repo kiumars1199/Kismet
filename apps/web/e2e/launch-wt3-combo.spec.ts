@@ -103,7 +103,7 @@ test("search hits are a dropdown over the page: the legs and the result below do
   await page.goto("/check/combo");
   const legs = page.getByTestId("combo-legs");
   const before = (await legs.boundingBox())!.y;
-  await page.getByLabel("Add a bet by link or words").fill("a");
+  await page.getByLabel("Add a bet by link or words").fill("Denmark");
   await page.getByRole("button", { name: "Add", exact: true }).click();
   const hits = page.getByTestId("combo-hits");
   await expect(hits).toBeVisible({ timeout: 20_000 });
@@ -121,7 +121,7 @@ for (const [name, size] of SIZES) {
       w.__cls = 0;
       new PerformanceObserver((l) => { for (const e of l.getEntries() as unknown as { value: number; hadRecentInput: boolean }[]) if (!e.hadRecentInput) w.__cls += e.value; }).observe({ type: "layout-shift", buffered: true });
     });
-    const legs = distinctEvents(await rows(page), 3);
+    const legs = distinctEvents(await rows(page), 2);   // the legs list reserves room for two
     await page.goto("/check/combo");
     for (const r of legs) await addByUrl(page, r);
     await page.getByTestId("combo-check-btn").click();

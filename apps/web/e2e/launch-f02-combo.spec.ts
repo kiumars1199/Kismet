@@ -93,5 +93,6 @@ test("legs arriving after a slow lookup keep CLS < 0.1 at 390 and 1440", async (
     await page.waitForTimeout(1500);
     expect(await page.evaluate(() => (window as unknown as { __cls: number }).__cls), `CLS at ${w}`).toBeLessThan(0.1);
     await page.unroute("**/api/check/leg");
+    await page.evaluate(() => sessionStorage.clear());   // T-wt3: legs are kept per tab; the next size starts empty
   }
 });

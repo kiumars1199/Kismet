@@ -23,7 +23,7 @@ const rows = (delay: number): [string, string, string, string][] => [
   ["All open markets", "Top 10 rows", "Unlimited", "Unlimited"],
   ["Estimated return on each bet", "As a range (exact on 3 a day)", "Exact", "Exact"],
   ["Bet and combo checker", `${quota("free", "checks_day")} check a day`, "Unlimited", "Unlimited"],
-  ["Suggested combos and the combo tray: 2- and 3-leg bets from Best bets", "—", "—", "Yes"],
+  ["Combos: suggested 2- and 3-leg bets from Best bets, plus the combo tray", "—", "—", "Yes"],
   ["Kalshi markets: prices, volume and Kalshi Combos", "Yes", "Yes", "Yes"],
   ["Filters", "Topic, sport, price", "All", "All"],
   ["Saved views", "1", "25", "Unlimited"],

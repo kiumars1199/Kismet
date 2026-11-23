@@ -22,7 +22,7 @@ export const PLANS = [
   { id: "pro", name: "Pro", monthly: SITE.prices.pro_monthly, yearly: SITE.prices.pro_yearly, line: "For people who bet every week.",
     points: ["Every Best bet, live prices, no row limit", "Exact estimated return on every bet", "Every best bet, every filter", "Full price check: order book, stake table, how much you can bet", PRO_CHECKER_POINT, "Alerts by email (checked once a day) and in the browser while Kismet is open, 20 rules", `${CONNECTOR_NAME}: ${connectorAllowance("pro")}`, "My bets with profit and closing-price tracking", "25 saved views · 3 dashboards · CSV export", "Kalshi markets: prices, volume, Kalshi Combos"] },
   { id: "premium", name: "Premium", monthly: SITE.prices.premium_monthly, yearly: SITE.prices.premium_yearly, line: "Everything in Pro, plus new features first.",
-    points: ["Everything in Pro", `${CONNECTOR_NAME}: ${connectorAllowance("premium")}`, "Suggested combos and the combo tray: 2- and 3-leg bets built from Best bets", "100 alert rules", "Unlimited saved views and dashboards"] },
+    points: ["Everything in Pro", `${CONNECTOR_NAME}: ${connectorAllowance("premium")}`, "Combos: suggested 2- and 3-leg bets built from Best bets, plus the combo tray", "100 alert rules", "Unlimited saved views and dashboards"] },
 ] as const;
 
 /** Yearly savings from the prices (T-291 #15): per plan on its card, the largest on the toggle as "up to". */
