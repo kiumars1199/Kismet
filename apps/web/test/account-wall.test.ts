@@ -41,6 +41,7 @@ describe("signedOutAccess (lib/auth/public-paths.ts)", () => {
   });
 
   it("/admin and the e2e mock guard themselves (404 to non-admins), so they aren't redirected", () => {
+    expect(signedOutAccess("/state")).toBe("public");   // F9: pick a state without an account
     expect(signedOutAccess("/admin")).toBe("public");
     expect(signedOutAccess("/admin/users")).toBe("public");
     expect(signedOutAccess("/e2e-mock/auth/v1/user")).toBe("public");

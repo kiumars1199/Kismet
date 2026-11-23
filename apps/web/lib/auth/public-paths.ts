@@ -8,6 +8,7 @@ export const PUBLIC_PAGES: readonly string[] = [
   "/terms", "/privacy", "/refunds", "/disclaimer", "/contact",
   "/login", "/signup", "/reset-password", "/auth", "/maintenance",
   "/m", "/event",
+  "/state",                               // F9: pick your state (cookie) without an account
 ];
 
 /** Static and discovery files: search engines, OAuth discovery, share images, icons, manifest. */
