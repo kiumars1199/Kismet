@@ -234,16 +234,35 @@ describe("group records with no live counterpart", () => {
 });
 
 describe("proofSummary: the one plain line above the plans", () => {
-  const led = { entries: 10, graded: 100, wins: 78, losses: 22, avg_pnl: -0.01 } as never;
-  const bt = { results: { None: { taker: { flags: 1234, win_rate: 0.74, roi_pct: 9.5 } } }, chosen_half_life_days: null } as never;
-  it("with a live record: the live hit rate with its count and return (never a win rate alone)", () => {
-    expect(proofSummary({ backtest: bt, ledger: led })).toMatch(/^Live so far: 78% of 100 settled best bets won, and together they returned [−-]/);
+  // test: 300 events at t = 5 -> needs ceil(300 x (2/5)^2) = 48 settled events on the Polymarket US record before live is comparable
+  const bt = (roi: number, win = 0.74) => ({ results: { None: { taker: { flags: 1234, events: 300, t_stat: 5, win_rate: win, roi_pct: roi } } }, chosen_half_life_days: null }) as never;
+  const live = (graded: number, wins: number, avg_pnl: number, usEvents?: number) => ({ entries: graded, graded, wins, losses: graded - wins, avg_pnl, avg_clv: null, by_category: {}, updated_at: 1794877967,
+    ...(usEvents === undefined ? {} : { us: { entries: graded, graded, wins, losses: graded - wins, avg_pnl, avg_clv: null, events: usEvents } }) }) as never;
+
+  it.each([1, 2, 5, 20])("%i settled bets is below the threshold: the testing line (with its return), never a 100%%-won live line", (n) => {
+    const out = proofSummary({ backtest: bt(9.5), ledger: live(n, n, 0.4, n) })!;   // every one won: the trap
+    expect(out).toBe("Tested on 1,234 past best bets: 74% won, and overall they made 9.5% on what was staked. Live record just started.");
+    expect(out).not.toMatch(/Live so far|100%/);
   });
-  it("without a live record: the test's size and win rate, in plain words", () => {
-    expect(proofSummary({ backtest: bt, ledger: null })).toBe("Tested on 1,234 past best bets: 74% won.");
+  it("above the threshold (events >= needs, the same rule as 'still too few to judge'): the live line, in plain words", () => {
+    const out = proofSummary({ backtest: bt(9.5), ledger: live(1155, 900, -0.0131, 60) })!;   // 60 US events >= 48
+    expect(out).toMatch(/^Live so far: 78% of 1,155 settled best bets won, but overall they lost \d+(\.\d)?% of what was staked\.$/);
+    expect(out).not.toMatch(/returned|[−+]\d/);
+  });
+  it("a live record that makes money reads 'made', joined with 'and'", () => {
+    expect(proofSummary({ backtest: bt(9.5), ledger: live(200, 160, 0.05, 60) })).toMatch(/^Live so far: 80% of 200 settled best bets won, and overall they made \d+(\.\d)?% on what was staked\.$/);
+  });
+  it("the testing line never states a win rate alone: a negative backtest ROI says so honestly", () => {
+    expect(proofSummary({ backtest: bt(-4.2, 0.81), ledger: null })).toBe("Tested on 1,234 past best bets: 81% won, but overall they lost 4.2% of what was staked.");
+  });
+  it("a positive backtest ROI says what the money did", () => {
+    expect(proofSummary({ backtest: bt(9.5, 0.86), ledger: null })).toBe("Tested on 1,234 past best bets: 86% won, and overall they made 9.5% on what was staked.");
+  });
+  it("zero ledger (null, or nothing settled): the testing line without 'live record just started'", () => {
+    expect(proofSummary({ backtest: bt(9.5), ledger: live(0, 0, 0) })).toBe("Tested on 1,234 past best bets: 74% won, and overall they made 9.5% on what was staked.");
+    expect(proofSummary({ backtest: bt(9.5), ledger: null })).not.toMatch(/Live record/);
   });
   it("nothing to say → null (the page shows a plain 'How it did in testing')", () => {
     expect(proofSummary({ backtest: null, ledger: null })).toBeNull();
   });
 });
-
