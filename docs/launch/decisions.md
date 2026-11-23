@@ -75,3 +75,12 @@ The reviewer noted that one Free combo check returns the model chance for each o
 Under the rolling 24 h limit, slots free up one at a time. The lead spends them on purpose:
 - Previews for exact merge heads go through create_deployment with the head SHA.
 - If a merge's production build is refused, the lead redeploys that SHA to production when the next slot frees, and runs the prod checks then.
+
+## Nov 23 06:45 UTC: F13 share cards only for flagged bets
+The reviewer noted that 245 of 501 fixture markets have a best side with edge ≤ 0, and their share cards still showed numbers. Sharing numbers for a bet we don't flag reads like a recommendation. Decision: only flagged bets (the recommended side with edge > 0) get a share card with numbers; everything else gets the teaser (image and og:description). Owner: onboarding, on #51.
+
+## Nov 23 06:45 UTC: F13 CI memory
+t291-plans hit ECONNRESET twice on F13 after next dev restarted at its memory threshold; it has never failed on final. Treated as caused by F13. Fix by cutting F13's memory use in the e2e-paid server; a heap bump only with before/after numbers; no retry that hides the reset.
+
+## Nov 23 06:45 UTC: signed-out state picker
+The F9 prod check showed that "Check your state" leads signed-out visitors to the sign-up wall. The state picker becomes reachable signed out (/api/state is already public), and F6's guide line will reuse it. Owner: trust.
