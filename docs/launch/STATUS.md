@@ -22,7 +22,7 @@ file after every merge. "Review result" says "passed review" only after the revi
 | F3 Every market searchable | data | merged 9ad7713; prod check FAIL (polymarket count); fix #59 4e52f3d PASS with notes (CI green); suites green on the exact final+#59 tree; preview for 4e52f3d building, then merge | kiumars1199/Kismet#42 (fix #59; follow-up #60 df67be8 PASS with notes, merges after #59) | fix PASS; prod recheck pending |
 | F4 Three venues side by side | data | review PASS with notes on 42ee0ba (CI green). Before merge: rebase after F1/F2/f01b with one kalshi_matched_ticker declaration + Kalshi fixture row and /check e2e | kiumars1199/Kismet#52 | PASS (pre-merge); rebase pending |
 | F5 Topics at signup | onboarding-invites | review PASS with notes on ff7c5eb (1-year uid-bound hint, sign-out clears it; CI green); migration 20261122000100 applied just before merge; merge waits on the Vercel limit | kiumars1199/Kismet#47 | PASS (pre-merge); post-merge check pending |
-| F6 How to place this bet | checker | all 4 fixes pushed (3668ac3: BetCard How to bet this + RiskNote); re-review queued; F9 wiring after #48 | kiumars1199/Kismet#46 | not reviewed |
+| F6 How to place this bet | checker | review PASS with notes on 3668ac3 (CI green; vitest 1546; every card has How to bet this with 3 steps and sources). Availability line reads "Check <venue> for your state" until the F9 statusesFor wiring (checker, now that #48 is merged). Merges after F2 | kiumars1199/Kismet#46 | PASS (pre-merge); F9 wiring + post-merge check pending |
 | F7 Live payments by config | trust | merged (cd9f672), prod READY, health ok | kiumars1199/Kismet#41 | passed review |
 | F8 Responsible betting | trust | merged (651462b); prod PASS with notes (help line, 18+, RiskNote on prod; pause/account verified on merged build with mock); follow-up #54 in review | kiumars1199/Kismet#44 | passed review |
 | F9 Venue availability | trust | merged 5a65227 (preview READY on 7b83e4f, CI green, suites green); prod deploy building; post-merge prod check next | kiumars1199/Kismet#48 | PASS (pre-merge); prod check pending |
@@ -63,6 +63,8 @@ Problems:
 - F13 deferred invite reward waits for the next sign-in if a trial lapses while signed in (reviewer). Follow-up: hook on Stripe subscription-ended. Owner: onboarding, after F13.
 - Pre-existing: at 390 on /bets?m=<id> with the tour flag set, the tour dialog sits behind the drawer and can't be dismissed (reviewer, F13). Owner: onboarding; fix kiumars1199/Kismet#61 (2da4dab, tour waits while a drawer is open), review queued.
 - Kalshi shows a price only, with the fee not counted (engine/venues.py TODO). The wording is honest; follow-up.
+
+- /event/<id> at 390: CLS 0.436 on 8 of 15 cold loads; the footer is pushed down when EventView streams in under a bare <Suspense> with no fallback (app/event/[id]/page.tsx:62). Found by the reviewer on final during F6. Owner: onboarding (sized fallback).
 
 ## Fixed log
 - F7: passed review (pre-merge PASS + post-merge PASS on cd9f672; evidence review/f07/).
