@@ -33,14 +33,15 @@ test("the Free plan says how the daily bets are picked", async ({ page }) => {
   await expect(page.locator("main")).not.toContainText("a day, chosen at random");
 });
 
-test("help line links are at least 44 px tall at 390", async ({ page }) => {
+test("help line links are at least 44 x 44 px at 390", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/pricing");
   const links = page.getByTestId("helpline").first().getByRole("link");
   expect(await links.count()).toBeGreaterThanOrEqual(3);
   for (const l of await links.all()) {
     const b = (await l.boundingBox())!;
-    expect(b.height, await l.innerText()).toBeGreaterThanOrEqual(44);
+    expect(b.height, `${await l.innerText()} height`).toBeGreaterThanOrEqual(44);
+    expect(b.width, `${await l.innerText()} width`).toBeGreaterThanOrEqual(44);
   }
 });
 

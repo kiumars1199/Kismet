@@ -3,7 +3,7 @@ import { HELPLINE, helplineLinks } from "@/lib/helpline";
 /** F8: where to get help, from config/site.json. Footer, /account and the pause screen. */
 export function HelpLine({ className = "" }: { className?: string }) {
   const l = helplineLinks();
-  const a = "inline-flex min-h-11 items-center underline underline-offset-2 hover:text-text";   // 44 px tap target, no taller line (-my)
+  const a = "inline-flex min-h-11 min-w-11 items-center justify-center underline underline-offset-2 hover:text-text";   // 44 x 44 px tap target, no taller line (-my)
   return (
     <p data-testid="helpline" className={className}>
       Gambling problem? Call or text{" "}
