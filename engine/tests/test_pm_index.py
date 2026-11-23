@@ -57,3 +57,11 @@ def test_run_writes_then_keeps_the_fresh_file_and_never_replaces_with_partial(tm
         raise RuntimeError("down")
     assert pm_index.run(cfg, log=lambda *_: None, fetch=boom) is False
     assert json.load(open(tmp_path / "polymarket_index.json"))["meta"]["n"] == 1   # last good file stays
+
+
+def test_meta_file_matches_the_index_and_is_written_with_it(tmp_path):
+    cfg = Cfg(d=str(tmp_path))
+    assert pm_index.run(cfg, log=lambda *_: None, fetch=pages([ev("A", [mk(1), mk(2)])], ), now=lambda: 1234.7) is True
+    idx = json.load(open(tmp_path / "polymarket_index.json"))
+    meta = json.load(open(tmp_path / "polymarket_index_meta.json"))
+    assert meta == {"fetched_at": 1234, "n": 2} and idx["meta"]["fetched_at"] == meta["fetched_at"]

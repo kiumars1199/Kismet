@@ -75,7 +75,11 @@ def run(cfg, log=print, fetch=None, now=time.time):
     if not complete or not rows:
         log(f"polymarket index: crawl incomplete ({len(rows)} rows); previous file kept")
         return False
-    dump_atomic(path, {"meta": {"source": "Polymarket", "fetched_at": int(now()), "n": len(rows), "columns": list(COLUMNS)},
+    at = int(now())   # one timestamp in both files: the web compares them
+    dump_atomic(path, {"meta": {"source": "Polymarket", "fetched_at": at, "n": len(rows), "columns": list(COLUMNS)},
                        "rows": rows}, separators=(",", ":"))
+    # Written AFTER the index and uploaded after it: a changed meta means a new index exists. A few bytes; the web reads it
+    # every 120 s and downloads the big file only when fetched_at changes.
+    dump_atomic(cfg.path("output", "polymarket_index_meta.json"), {"fetched_at": at, "n": len(rows)}, separators=(",", ":"))
     log(f"polymarket index: {len(rows)} open markets")
     return True
