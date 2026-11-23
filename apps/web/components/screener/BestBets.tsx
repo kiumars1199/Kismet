@@ -179,7 +179,7 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
     <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-4">
       <section className="flex flex-col gap-2">
         {/* P9: Free sees the day's sample, so the headline says "10 of 34", not a count it can't open */}
-        <BestBetsHeading total={total} shown={rows.length} sample={sample} onShowAll={() => set({ topics: undefined, categories: undefined, favorites_only: undefined })} />
+        <BestBetsHeading total={total} shown={rows.length} sample={sample} daily={daily} onShowAll={() => set({ topics: undefined, categories: undefined, favorites_only: undefined })} />
         <p className="max-w-[760px] text-sm leading-normal text-muted">
           Each one has won more often in the past than its price suggests, after the fee.
           {/* P9: when the stale banner shows, it carries the scan age; saying it here too was the third stale notice */}
@@ -213,7 +213,9 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
 
       {error && !data ? (
         <ErrorState onRetry={sc.retry} what="best bets" error={error} />
-      ) : !data ? (
+      ) : !data || (busy && sample && rows.length === 0) ? (
+        // no data yet, or the answer on screen is Free's empty sample (a short note and one locked card) and the next one is
+        // loading: reserve the list's height with the skeleton, so the cards landing push nothing down
         <ul className={LIST(desktop)} aria-busy="true" aria-label="Loading best bets">
           {Array.from({ length: desktop ? 8 : 4 }, (_, i) => <li key={i} className="flex"><CardSkeleton /></li>)}
         </ul>
