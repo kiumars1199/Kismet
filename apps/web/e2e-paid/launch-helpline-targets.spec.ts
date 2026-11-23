@@ -23,7 +23,8 @@ async function signIn(page: Page, email: string) {
 }
 
 async function checkHelpLines(page: Page) {
-  const helps = page.getByTestId("helpline");
+  // only the help lines a user can see: on /account the footer copy is hidden (T-wt2c), the pause card keeps it
+  const helps = page.getByTestId("helpline").filter({ visible: true });
   const n = await helps.count();
   expect(n).toBeGreaterThan(0);
   for (let h = 0; h < n; h++) {
@@ -56,6 +57,7 @@ for (const size of [{ width: 390, height: 844 }, { width: 1440, height: 900 }]) 
     await checkHelpLines(page);
     await signIn(page, `helpline-${size.width}-${Date.now()}@example.com`);
     await expect(page.getByTestId("pause-card").getByTestId("helpline")).toBeVisible();
+    await expect(page.getByTestId("helpline").filter({ visible: true }), "the help line is said once on /account").toHaveCount(1);
     await checkHelpLines(page);
   });
 }
