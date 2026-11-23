@@ -38,6 +38,7 @@ export function csp(nonce: string | null, dev = process.env.NODE_ENV !== "produc
     "img-src 'self' data: blob: https:",
     "font-src 'self'",
     `connect-src 'self' ${supabase} ${supabase.replace(/^https/, "wss")} ${posthog} https://*.posthog.com https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://api.stripe.com https://vitals.vercel-insights.com${dev ? " ws:" : ""}`.replace(/ +/g, " "),
+    "worker-src 'self'",   // F10: /sw.js (script-src's strict-dynamic would otherwise ignore 'self' for workers)
     "frame-src https://js.stripe.com https://checkout.stripe.com",
     "frame-ancestors 'none'",
     "object-src 'none'",

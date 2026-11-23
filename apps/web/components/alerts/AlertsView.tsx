@@ -9,6 +9,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { runAlertsNow } from "@/components/alerts/AlertRunner";
 import { InboxList, markAllRead, useInbox } from "@/components/alerts/Inbox";
+import { PushToggle } from "@/components/alerts/PushToggle";
 import { Dialog, NumberInput, PageTitle, Segmented, Switch, Tabs, btn, btnGhost, btnPrimary, card, input } from "@/components/kit";
 import { KIND_LABEL } from "@/lib/alerts";
 import { fetchMarket, fetchMarkets } from "@/lib/api";
@@ -71,6 +72,7 @@ function describe(r: AlertRule): string {
     case "market_price": return `When the price is ${price(r.threshold)} or lower`;
     case "edge_change": return `When estimated return crosses ${ret(r.threshold)}`;
     case "closing_soon": return `When ${r.market_id ? "this market" : "anything in My list"} closes within ${r.threshold ?? 6} h`;
+    case "settled": return r.market_id ? "When this market settles" : "When a market you have an alert on, or saved, settles";
   }
 }
 
@@ -124,6 +126,7 @@ export function AlertsView() {
           <Link href="/pricing" onClick={() => track("upgrade_clicked", { feature: "alerts" })} className="font-medium text-emerald-400 hover:underline">See plans</Link>
         </p>
       )}
+      {(DEMO || can("push")) && <PushToggle />}
       <Tabs label="Alerts" value={tab} onChange={setTab} tabs={[{ value: "rules", label: `Rules (${rules.length})` }, { value: "inbox", label: unread ? `Inbox (${formatCount(unread)} new)` : "Inbox" }]} />
 
       {tab === "rules" ? (
@@ -238,7 +241,7 @@ function RuleEditor({ draft, filters, email, onClose }: { draft: Draft | null; f
   };
 
   const kindDefaults: Record<AlertRule["kind"], Partial<Draft>> = {
-    preset_match: { threshold: 1 }, market_price: { threshold: null }, edge_change: { threshold: 5 }, closing_soon: { threshold: 6 },
+    preset_match: { threshold: 1 }, market_price: { threshold: null }, edge_change: { threshold: 5 }, closing_soon: { threshold: 6 }, settled: { threshold: null },
   };
 
   return (
@@ -267,7 +270,7 @@ function RuleEditor({ draft, filters, email, onClose }: { draft: Draft | null; f
 
         {d.kind !== "preset_match" && (
           <div className="flex flex-col gap-1.5">
-            <span className="text-xs font-medium text-muted">{d.kind === "closing_soon" ? "Market (leave empty for everything in My list)" : "Market"}</span>
+            <span className="text-xs font-medium text-muted">{d.kind === "closing_soon" || d.kind === "settled" ? "Market (leave empty for everything you have alerts on or saved)" : "Market"}</span>
             <MarketPicker marketId={d.market_id} onPick={(m) => set({ market_id: m.id, side_index: m.best.side_index, name: d.name || m.question.slice(0, 80) })} />
             {d.market_id && (
               <Segmented label="Side" value={String(d.side_index ?? 0)} onChange={(v) => set({ side_index: v === "1" ? 1 : 0 })}
@@ -308,7 +311,7 @@ function RuleEditor({ draft, filters, email, onClose }: { draft: Draft | null; f
 
         <div className="flex flex-col gap-3 rounded-inner border border-border p-3">
           <div className="flex items-center justify-between gap-3 text-sm"><span>In-app inbox (bell)</span><span className="text-muted">Always on</span></div>
-          <div className="flex items-center justify-between gap-3 text-sm"><span>Browser notification<span className="block text-xs text-muted">While Kismet is open in a tab</span></span><Switch label="Browser notification" checked={d.channels.includes("push")} onChange={toggleBrowser} /></div>
+          <div className="flex items-center justify-between gap-3 text-sm"><span>Browser notification<span className="block text-xs text-muted">In a tab, and on devices where you turned on phone alerts</span></span><Switch label="Browser notification" checked={d.channels.includes("push")} onChange={toggleBrowser} /></div>
           {email && <div className="flex items-center justify-between gap-3 text-sm"><span>Email<span className="block text-xs text-muted">Checked once a day, even when Kismet is closed</span></span><Switch label="Email" checked={d.channels.includes("email")} onChange={(v) => setD((x) => ({ ...x, channels: toggleChannel(x.channels, "email", v) }))} /></div>}
           <div className="flex items-center justify-between gap-3 text-sm"><span>Rule on</span><Switch label="Rule on" checked={d.enabled} onChange={(v) => set({ enabled: v })} /></div>
         </div>

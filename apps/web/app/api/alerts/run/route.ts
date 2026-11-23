@@ -10,6 +10,7 @@ import { DEMO_MODE } from "@/lib/config";
 import { cronAuthorized, unauthorized } from "@/lib/cron";
 import { marketsPage } from "@/lib/data/respond";
 import { getStore } from "@/lib/data/store";
+import { settleOne } from "@/lib/settle";
 import { getSettings } from "@/lib/settings";
 
 /** Last run's counts for the admin health page (app_settings "alerts_last_run"; not a setting, never audited). */
@@ -38,6 +39,7 @@ async function run(req: Request): Promise<Response> {
       fetchMarkets: async (q) => marketsPage(store, q),
       fetchMarket: async (id) => store.flagsById.get(id) ?? store.byId.get(id) ?? null,
       fetchBook: liveExecution,
+      fetchSettlement: settleOne,   // F10 "settled" rules: Polymarket's market status (cached 10 min, resolved forever)
     });
     await record({ ran: true, ...counts });
     return Response.json({ ran: true, ...counts });
