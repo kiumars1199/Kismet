@@ -1,3 +1,4 @@
+import { cleanEventLine } from "@/lib/format";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense, cache } from "react";
@@ -33,7 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return t ? { title: t.title, description: TEASER_DESCRIPTION } : { title: "Event" };
   }
   try {
-    return { title: (await load((await params).id))?.event ?? "Event" };
+    return { title: cleanEventLine((await load((await params).id))?.event ?? "Event") };
   } catch (e) {
     return e instanceof SlowDown ? { title: "Event", robots: { index: false } } : { title: "Event" };   // RT3-02: never index the slow-down state
   }

@@ -248,3 +248,6 @@ export function countdown(closesAt: number, now = Date.now()): string {
 export const delayWords = (min: number) => (min <= 0 ? "live" : `at least ${min} minute${min === 1 ? "" : "s"}`);
 /** "live", or "at least N minutes behind". */
 export const behindWords = (min: number) => (min <= 0 ? "live" : `${delayWords(min)} behind`);
+
+/** Polymarket names a game's second event "<game> - More Markets": drop the suffix wherever the event name is shown. */
+export const cleanEventLine = (e: string): string => e.replace(/\s+-\s+more markets\s*$/i, "").trim() || e;

@@ -79,6 +79,31 @@ describe("signed-out market and event pages are teasers", async () => {
     expect(eventDuplicatesTitle("Spread: Brazil (-3.5)", "Brazil vs Serbia")).toBe(false);
   });
 
+  it("cleanEventLine strips Polymarket's ' - More Markets' suffix; the rest stays", async () => {
+    const { cleanEventLine } = await import("@/lib/teaser");
+    expect(cleanEventLine("Denmark vs. Norway - More Markets")).toBe("Denmark vs. Norway");
+    expect(cleanEventLine("Denmark vs. Norway - more markets ")).toBe("Denmark vs. Norway");
+    expect(cleanEventLine("Denmark vs. Norway")).toBe("Denmark vs. Norway");
+    expect(cleanEventLine("More Markets")).toBe("More Markets");
+    const { eventDuplicatesTitle } = await import("@/components/market/Teaser");
+    expect(eventDuplicatesTitle("Denmark vs. Norway: Both Teams to Score", cleanEventLine("Denmark vs. Norway - More Markets"))).toBe(true);
+    expect(eventDuplicatesTitle("Over 2.5 goals", cleanEventLine("Denmark vs. Norway - More Markets"))).toBe(false);
+  });
+
+  it("eventTeaser strips ' - More Markets' from the title (h1 and <title> both read it)", async () => {
+    const { eventTeaser } = await import("@/lib/teaser");
+    const free = await getStoreFor("free");
+    const withSuffix = [...free.byEvent.entries()].find(([, ms]) => /\s-\smore markets\s*$/i.test(ms[0]!.event));
+    expect(withSuffix, "the fixture has a 'More Markets' event").toBeTruthy();
+    const [id, ms] = withSuffix!;
+    const t = await eventTeaser(id);
+    expect(t!.title).toBe(ms[0]!.event.replace(/\s+-\s+more markets\s*$/i, "").trim());
+    expect(t!.title).not.toMatch(/more markets/i);
+    const props = { params: Promise.resolve({ id }), searchParams: Promise.resolve({}) };
+    expect(await html(event.default(props as never))).not.toMatch(/More Markets/i);
+    expect(JSON.stringify(await event.generateMetadata(props as never))).not.toMatch(/More Markets/i);
+  });
+
   it("signupBetTitle reads the title from the store by id, only for a /m/<id> next", async () => {
     const { signupBetTitle } = await import("@/lib/teaser");
     const m = flagged[0]!;
