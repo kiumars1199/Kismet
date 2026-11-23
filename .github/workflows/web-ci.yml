@@ -16,7 +16,7 @@ concurrency:
 jobs:
   web:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45   # the full run (unit + build + 2 e2e shards) now takes ~30 min; 30 cancelled #66 and #51 mid-e2e
     defaults:
       run:
         working-directory: apps/web
