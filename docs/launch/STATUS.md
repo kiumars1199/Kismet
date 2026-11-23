@@ -19,7 +19,7 @@ file after every merge. "Review result" says "passed review" only after the revi
 |---|---|---|---|---|
 | F1 Bet checker | checker | round 2 fixes pushed (064f521: CLS, Kalshi own Yes price); re-review queued first | kiumars1199/Kismet#43 | not reviewed (round 3 queued) |
 | F2 Combo checker | checker | round 2 fixes pushed (ef73b2f: scores only on 'Check this combo', one server call); re-review queued | kiumars1199/Kismet#45 | not reviewed (round 3 queued) |
-| F3 Every market searchable | data | merged 9ad7713; prod check FAIL (polymarket count); fix PR #59 bb4ce62 (polymarket_index.json, 143K rows) queued first for review | kiumars1199/Kismet#42 | preview PASS; prod check pending |
+| F3 Every market searchable | data | merged 9ad7713; prod check FAIL (polymarket count); fix PR #59 bb4ce62 (polymarket_index.json, 143K rows) queued first for review | kiumars1199/Kismet#42 (fix #59) | prod check FAIL |
 | F4 Three venues side by side | data | review FAIL (Free sees undelayed venue prices; US row contradicts card; no basis); fixing | kiumars1199/Kismet#52 | not reviewed |
 | F5 Topics at signup | onboarding-invites | round 3 FAIL (9b07e14): 15-min hint makes the first visit each day unfiltered; sign-out race re-sets the cookie; fixing | kiumars1199/Kismet#47 | FAIL (round 3) |
 | F6 How to place this bet | checker | all 4 fixes pushed (3668ac3: BetCard How to bet this + RiskNote); re-review queued; F9 wiring after #48 | kiumars1199/Kismet#46 | not reviewed |
