@@ -22,16 +22,24 @@ import { useDesktop } from "./useDesktop";
 import { useMeta, useScreener } from "./useScreener";
 import { usePublishScan } from "@/lib/scanClock";
 import { SortNote } from "./SortNote";
+import { KalshiResults } from "./KalshiResults";
+import { RiskNote } from "@/components/trade/RiskNote";
+
+const VENUES = [["all", "All"], ["polymarket", "Polymarket"], ["kalshi", "Kalshi"]] as const;
 
 type Expanded = Record<string, { rows?: ApiRow[]; loading?: boolean }>;
 
 /** initial: the server's /api/markets page 1 for this URL (no first fetch). */
-export function MarketsScreener({ initial, scannedAt }: { initial?: MarketsResponse; scannedAt?: number } = {}) {
+export function MarketsScreener({ initial, scannedAt, kalshiOn }: { initial?: MarketsResponse; scannedAt?: number; kalshiOn?: boolean } = {}) {
   const sc = useScreener("markets", initial);
   const { state, set, reset, data, loading, error } = sc;
   const meta = useMeta();
   const desktop = useDesktop();
   const pro = useProfile().numbers_mode === "pro";
+  // F3: the venue chips are decided on the server (kalshiOn: permission on and a Kalshi index loaded), so the row is in the
+  // first paint and nothing shifts when /api/meta lands; the meta count is only the fallback when the page gave no answer.
+  const showVenues = kalshiOn ?? (meta?.counts.kalshi ?? 0) > 0;
+  const kalshiView = showVenues && state.venue === "kalshi";
 
   const [expanded, setExpanded] = useState<Expanded>({});
   useEffect(() => setExpanded({}), [data]);
@@ -93,30 +101,59 @@ export function MarketsScreener({ initial, scannedAt }: { initial?: MarketsRespo
           <div>
             <h1 className="text-[28px] font-bold leading-tight tracking-tight md:text-[34px]">All markets</h1>
             <p className="mt-1 text-sm text-muted">
-              {data ? `${formatCount(data.total)} ${data.total === 1 ? "market matches" : "markets match"}` : "Loading markets…"}
-              {meta && <> · {formatCount(meta.counts.markets)} open · scanned <Ago at={scanned} /></>}
+              {kalshiView
+                ? (data?.kalshi ? `${formatCount(data.kalshi.total)} ${data.kalshi.total === 1 ? "Kalshi market matches" : "Kalshi markets match"}` : "Loading markets…")
+                : data ? `${formatCount(data.total)} ${data.total === 1 ? "market matches" : "markets match"}` : "Loading markets…"}
+              {meta && (kalshiView
+                ? <> · {formatCount(meta.counts.kalshi)} open on Kalshi</>
+                : <> · {formatCount(meta.counts.markets)} open · scanned <Ago at={scanned} /></>)}
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <ExportCsv state={state} />
-          </div>
+          {/* the button mounts after /api/me answers: its row is reserved (min-h-11, own line on a phone), so the filter rows
+              below don't jump 56 px (CLS, F3 review). The Kalshi view has no export, so it has no row. */}
+          {!kalshiView && (
+            <div className="flex min-h-11 w-full flex-wrap items-center gap-2 md:w-auto">
+              <ExportCsv state={state} />
+            </div>
+          )}
         </header>
-        <FilterPills state={state} mode="markets" facets={sc.facets} meta={meta} onChange={set} onReset={reset} />
-        <PresetBar state={state} onChange={set} />
-        <QuickChips state={state} onChange={set} />
+        {showVenues && (
+          <div role="group" aria-label="Venue" className="flex flex-wrap items-center gap-2" data-testid="venue-chips">
+            {VENUES.map(([v, label]) => (
+              <button key={v} type="button" aria-pressed={state.venue === v} onClick={() => set({ venue: v })}
+                className={`min-h-11 rounded-full border px-4 text-sm ${state.venue === v ? "border-accent-border bg-accent-bg text-accent-soft" : "border-border bg-surface text-soft hover:border-accent-border"}`}>
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
+        <FilterPills state={state} mode="markets" facets={kalshiView ? undefined : sc.facets} meta={meta} onChange={set} onReset={reset} kalshiView={kalshiView} />
+        {!kalshiView && <PresetBar state={state} onChange={set} />}
+        {!kalshiView && <QuickChips state={state} onChange={set} />}
         <SearchChips q={state.q} search={data?.search} onChange={set} />
         <AppliedPills state={state} mode="markets" onChange={set} onReset={reset} />
-        <SortNote />
+        {!kalshiView && <SortNote />}
         <StaleBanner scannedAt={scanned} />
 
         {error && !data ? (
           <ErrorState onRetry={sc.retry} error={error} />
+        ) : data?.kalshi && state.venue === "kalshi" ? (
+          data.kalshi.total === 0 ? (
+            <EmptyState title="No Kalshi markets match" line="Try other words or clear the topic." onReset={() => set({ q: undefined, topics: undefined, categories: undefined })} resetLabel="Clear search and topics" />
+          ) : (
+            <>
+              <KalshiResults page={data.kalshi} />
+              <Pager page={data.kalshi.page} pages={data.kalshi.pages} onPage={(page) => set({ page })} />
+            </>
+          )
         ) : !data ? (
           <div className="flex flex-col gap-2" aria-busy="true" aria-label="Loading markets">
             {/* #9 (Nov 20): a filter change says it is loading, as Best bets' "Updating bets…" does */}
             <p role="status" data-testid="markets-updating" className="text-sm font-medium text-soft">Loading markets…</p>
             {Array.from({ length: 8 }, (_, i) => <Skeleton key={i} className="h-16" />)}
           </div>
+        ) : data.total === 0 && data.kalshi?.total ? (
+          <KalshiResults page={data.kalshi} />
         ) : data.total === 0 ? (
           <EmptyState
             title={state.q ? "No matches in open markets" : "No markets match these filters"}
@@ -127,9 +164,11 @@ export function MarketsScreener({ initial, scannedAt }: { initial?: MarketsRespo
         ) : (
           <>
             {error && <ErrorState onRetry={sc.retry} error={error} />}
+            <RiskNote className="text-left" />   {/* F8: the icon links on rows are too small for text */}
             {desktop !== false && <div className={desktop ? undefined : "hidden md:block"}>{table}</div>}
             {desktop !== true && <div className={desktop === false ? undefined : "md:hidden"}>{cards}</div>}
             <Pager page={data.page} pages={data.pages} onPage={(page) => set({ page })} />
+            {data.kalshi && <KalshiResults page={data.kalshi} also />}
           </>
         )}
       </div>

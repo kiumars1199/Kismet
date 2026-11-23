@@ -31,9 +31,12 @@ export const toQuery = (f: FilterState) => {
 
 export function parse(input: URLSearchParams | string | Record<string, string | string[] | undefined>): FilterState {
   const params =
-    input instanceof URLSearchParams ? input
+    input instanceof URLSearchParams ? new URLSearchParams(input)
     : typeof input === "string" ? new URLSearchParams(input)
     : new URLSearchParams(Object.entries(input).flatMap(([k, v]) => (v === undefined ? [] : [[k, Array.isArray(v) ? v[0] : v]])));
+  // F3: the long names `topic` and `venue` read as `t` and `ven` (links and docs use them; serialize() writes the short keys)
+  for (const [long, short] of [["topic", "t"], ["venue", "ven"]] as const)
+    if (params.has(long) && !params.has(short)) params.set(short, params.get(long)!);
   const shape = FilterState.shape;
   const obj: Record<string, unknown> = {};
   for (const [short, [field, kind]] of Object.entries(KEYS)) {

@@ -239,6 +239,7 @@ uploaded). New fields read both of Kalshi's encodings (`*_dollars` / `*_fp` stri
 export interface KalshiMarket {
   ticker: string; event_ticker: string; series_ticker: string;
   title: string; subtitle: string;                       // event title, market's yes label
+  topic?: string;                                        // F3: taxonomy id (lib/taxonomy.ts) from engine/kalshi_topics.py; "<category>.other" or "other" when unmapped
   yes_bid_cents: number | null; yes_ask_cents: number | null;
   no_bid_cents?: number | null; no_ask_cents?: number | null;   // added Nov 2026; optional for older files
   last_price_cents?: number | null;                      // last trade
@@ -270,6 +271,13 @@ export interface KalshiSettled {
   close_time: string | null;
   settled_seen_at: number;                               // unix s, the scan that first saw the result
   url: string; source: "Kalshi";
+}
+// F3, output/kalshi_index.json (side file, same permission): EVERY open market, one array per row in `meta.columns`
+// order. kalshi.json keeps only the top 2,000; this one feeds search and topic filters (/api/markets?venue=kalshi).
+export interface KalshiIndexFile {
+  meta: { source: "Kalshi"; attribution: string; fetched_at: number; n: number; columns: string[] };
+  rows: [ticker: string, title: string, subtitle: string, topic: string, series: string, yes_bid_cents: number | null,
+         yes_ask_cents: number | null, last_price_cents: number | null, volume: number, close_epoch: number | null][];
 }
 export interface KalshiFile {
   meta: {

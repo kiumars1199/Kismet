@@ -4,6 +4,7 @@
 import { z } from "zod";
 import { guard } from "@/lib/abuse";
 import { getMe } from "@/lib/auth/server";
+import { pausedResponse } from "@/lib/account/pause";
 import { getBook, MIN_EDGE } from "@/lib/book";
 import { check, edgeWarning, feeRate, STAKES } from "@/lib/execution";
 import { freeExecution } from "@/lib/data/gate";
@@ -38,6 +39,8 @@ async function batch(req: Request, params: Record<string, string>): Promise<Resp
   const parsed = Batch.safeParse(params);
   if (!parsed.success) return bad(parsed.error.issues[0]?.message ?? "bad query");
   const me = await getMe();
+  const paused = pausedResponse(me);   // F8
+  if (paused) return paused;
   if (!can(me.tier, "live_data")) return bad("live prices on cards are a Pro feature", 403);
   const refused = await guard(req, "book", me.user?.id);
   if (refused) return refused;
@@ -58,6 +61,8 @@ async function get(req: Request): Promise<Response> {
   const { token, q, cat } = parsed.data;
   const stake = typeof parsed.data.stake === "number" ? parsed.data.stake : null;
   const me = await getMe();
+  const paused = pausedResponse(me);   // F8
+  if (paused) return paused;
   const refused = await guard(req, "book", me.user?.id);   // BotID + 30/min
   if (refused) return refused;
   try {
