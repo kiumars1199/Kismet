@@ -58,10 +58,13 @@ Problems:
 Status: official walk on 137ad1f (22:50; evidence review/walkthrough-2/): FAIL. Signed-in steps were walked on a local build of 137ad1f with the E2E mock, and signed-out steps on prod (decisions.md). Fixes assigned: T-wt2b (data), T-wt2c (tracker). Dry-run items fixed: onboarding CLS (now 0.0006), "over over", locked-card copy, "- More Markets" (#81). The empty first screen is fixed only when the topic has bets that aren't in the sample.
 
 Problems:
-- [should-fix] The empty first screen still happens when a topic has no best bets today (15 of 18 topics today, NBA among them). The fallback needs total > 0. (data, T-wt2b)
-- [should-fix] On the fallback first screen the filter bar contradicts the cards ("NFL (1)", "10 of 34", but soccer cards). The tour also scrolls the explanatory h1 away. (data, T-wt2b)
+- ~~[should-fix] The empty first screen still happens when a topic has no best bets today~~ fixed by #98 (merged 957c14b)
+- ~~[should-fix] On the fallback first screen the filter bar contradicts the cards; the tour scrolls the h1 away~~ fixed by #98
 - [should-fix] The pause "Cancel" button is 46x20 and sits next to "Pause for 24 hours" (tracker, T-wt2c)
-- [nit] The h1 says "your topics" for a plain topic filter. The locked "Pro shows all 1" card is not in the first view. (data, T-wt2b)
+- ~~[nit] The h1 says "your topics" for a plain topic filter; the locked card is not in the first view on load~~ fixed by #98
+- [should-fix] (#98 review) After a filter change to an empty result, the locked card that says where the bet is sits 1.5 screens below; put it under the h1 when the result is empty. (tracker, T-wt2d)
+- [should-fix] (#98 review) A new Pro or Premium user who picks only a topic with no bets today lands on 0 cards and no tour. (tracker, T-wt2d)
+- [should-fix] (#98 review) A TopicsPicker tap before hydration is lost (the tile's name changes from "NBA" to "NBA none open" once counts load), so the user ends up unfiltered. (tracker, T-wt2d)
 - [nit] Tap targets: onboarding Back, "Track your bets with Pro", /markets rows, the drawer's See plans / Why two numbers? / Settings. (tracker, T-wt2c)
 - [nit] /account says "with Google or an email link" to password users. The help line is shown twice on /account. (tracker, T-wt2c)
 - [nit] The drawer has no single-bet "Check" entry. (tracker, T-wt2c)
@@ -85,6 +88,7 @@ Problems:
 - Not walked: signed-in headers at 768–1280, the Premium drawer path to the tray, WebKit, and signed-in steps on a production build. Re-walk after the fixes.
 
 ## Found in review, outside a lane
+- 23:58 #98 T-wt2b merged at 1b07d13 (final 957c14b): reviewer PASS with notes (three should-fix follow-ups, T-wt2d).
 - 23:20 #95 T-wt1c merged at 2dfcf1e (final 2fcbe82): reviewer PASS on the 2nd round (1st round: proof line could say "100% of 1 won" and a win rate without the return). Follow-up T-95b (tracker): bound the "Live record just started" note, drop ".0".
 - 21:50 Merged #85 (T-wt1: pricing, help line, locked copy) at 5b3b53c -> 137ad1f. Reviewer PASS, CI web green, preview ready. Batch complete: no launch PRs left open. Production 137ad1f is READY and /api/health is ok. The official walk-throughs 1, 2 and 3 have started in parallel: signed-out steps on prod; signed-in steps on a local build of 137ad1f with the E2E mock, per decisions.md (no live test accounts, no bot-protection bypass on prod).
 - 21:47 Merged #92 (T-89b combo checker review fixes) at b810a77. Reviewer PASS, CI web green, preview ready.
