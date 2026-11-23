@@ -72,3 +72,26 @@ test("/check/combo at 390px: no horizontal scroll", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Combo checker" })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
+
+// F2 review: legs that arrive after a lookup slower than 500 ms (so not "after input") must not shift the page: CLS < 0.1 at 390.
+test("legs arriving after a slow lookup keep CLS < 0.1 at 390 and 1440", async ({ page }) => {
+  test.setTimeout(120_000);
+  const all = await rows(page);
+  const distinct = all.filter((r, i) => all.findIndex((x) => x.market.event_id === r.market.event_id) === i).slice(0, 2);
+  for (const [w, h] of [[390, 844], [1440, 900]] as const) {
+    await page.setViewportSize({ width: w, height: h });
+    await page.route("**/api/check/leg", async (route) => { await new Promise((r) => setTimeout(r, 800)); await route.continue(); });
+    await page.addInitScript(() => {
+      (window as unknown as { __cls: number }).__cls = 0;
+      new PerformanceObserver((l) => {
+        for (const e of l.getEntries() as unknown as { value: number; hadRecentInput: boolean }[]) if (!e.hadRecentInput) (window as unknown as { __cls: number }).__cls += e.value;
+      }).observe({ type: "layout-shift", buffered: true });
+    });
+    await page.goto("/check/combo");
+    await expect(page.getByRole("heading", { name: "Combo checker" })).toBeVisible();
+    for (const r of distinct) await addByUrl(page, r);
+    await page.waitForTimeout(1500);
+    expect(await page.evaluate(() => (window as unknown as { __cls: number }).__cls), `CLS at ${w}`).toBeLessThan(0.1);
+    await page.unroute("**/api/check/leg");
+  }
+});
