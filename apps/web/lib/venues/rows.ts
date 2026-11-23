@@ -9,21 +9,20 @@ export interface VenueRow {
   venue: (typeof VENUE_ORDER)[number]; label: string;
   listed: boolean;
   chance: string;               // the venue's price as a % ("62%"), DASH when listed without a price
-  pays: string | null;          // "1.59x", or null when no payout after fees is known for this venue (Kalshi today)
+  pays: string | null;          // "1.59x", or null when no payout after fees is known for this venue (an old venues.json without Kalshi's)
   best: boolean;                // "Pays most here"
-  bestLabel: string | null;     // the badge text when best: qualified when a listed venue's fee is not counted
+  bestLabel: string | null;     // the badge text when best
+  missing: string;              // what an unlisted row says: "Not listed", or "Not available right now" for Kalshi when its snapshot was filtered by age or delay
 }
 
-/** "Pays most here" goes to the single highest multiplier among venues that HAVE one. A tie marks nobody, and a venue
- *  with no multiplier (Kalshi until its fee formula is sourced, engine/venues.py) never gets it. */
-export function venueRows(venues: VenueQuote[] | undefined): VenueRow[] {
+/** "Pays most here" goes to the single highest multiplier among venues that HAVE one (every venue's fee is counted: Kalshi's is
+ *  its standard taker fee, engine/venues.py). A tie marks nobody; a venue with no multiplier (an older venues.json) never gets it.
+ *  kalshiUnavailable: Kalshi lists this market but its snapshot is filtered out by age or delay (Market.kalshi_unavailable). */
+export function venueRows(venues: VenueQuote[] | undefined, kalshiUnavailable = false): VenueRow[] {
   const by = new Map((venues ?? []).map((v) => [v.venue, v]));
   const mults = (venues ?? []).flatMap((v) => (v.multiplier !== null && v.multiplier > 0 ? [v.multiplier] : []));
   const top = Math.max(...mults, 0);
   const leaders = mults.filter((x) => x === top).length;
-  // A listed venue with no multiplier is not in the comparison, so the badge must say so ("Kalshi fee not counted").
-  const uncounted = (venues ?? []).filter((v) => v.multiplier === null || v.multiplier <= 0).map((v) => VENUE_LABEL[v.venue]);
-  const badge = uncounted.length ? `Pays most here (${uncounted.join(" and ")} fee not counted)` : "Pays most here";
   return VENUE_ORDER.map((venue) => {
     const v = by.get(venue);
     const mult = v?.multiplier ?? null;
@@ -32,7 +31,8 @@ export function venueRows(venues: VenueQuote[] | undefined): VenueRow[] {
       venue, label: VENUE_LABEL[venue], listed: !!v,
       chance: v ? price(v.price) : DASH,
       pays: mult !== null && mult > 0 ? odds(1 / mult) : null,
-      best, bestLabel: best ? badge : null,
+      best, bestLabel: best ? "Pays most here" : null,
+      missing: venue === "kalshi" && kalshiUnavailable ? "Not available right now" : "Not listed",
     };
   });
 }
@@ -47,7 +47,7 @@ export function venueBasis(venues: VenueQuote[] | undefined): VenueBasis[] {
     if (!v) return [];
     const source = venue === "polymarket" ? "Polymarket's own best ask for this outcome, plus its fee"
       : venue === "us" ? "Polymarket US best ask for this outcome, plus its fee (the price on the card)"
-      : "Kalshi's price for this outcome, matched by title, date and numbers; no fee counted";
+      : "Kalshi's price for this outcome, matched by title, date and numbers; Kalshi's fee is counted in its payout (standard Kalshi fee: some Kalshi markets use a different one)";
     const match = venue === "kalshi" && v.conf != null ? `match ${Math.round(v.conf * 100)}% sure` : null;
     return [{ venue, label: VENUE_LABEL[venue], source, at: v.at ?? null, match }];
   });

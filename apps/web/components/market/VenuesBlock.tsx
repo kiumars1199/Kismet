@@ -4,9 +4,9 @@ import { Ago } from "@/components/clock";
 import { venueBasis, venueRows } from "@/lib/venues/rows";
 import type { Market } from "@/lib/types";
 
-export function VenuesBlock({ market }: { market: Pick<Market, "venues" | "best"> }) {
+export function VenuesBlock({ market }: { market: Pick<Market, "venues" | "best" | "kalshi_unavailable"> }) {
   if ((market.venues?.length ?? 0) < 2) return null;
-  const rows = venueRows(market.venues);
+  const rows = venueRows(market.venues, market.kalshi_unavailable);
   return (
     <section aria-labelledby="venues-h" className="rounded-card border border-border bg-surface p-4" data-testid="venues-block">
       <h3 id="venues-h" className="font-heading text-sm font-semibold">{market.best.outcome}: same outcome, every venue</h3>
@@ -23,12 +23,11 @@ export function VenuesBlock({ market }: { market: Pick<Market, "venues" | "best"
                 <span className={r.pays ? "ml-2 text-muted" : ""}>{r.chance}</span>
               </span>
             ) : (
-              <span className="text-sm text-muted">Not listed</span>
+              <span className="text-sm text-muted">{r.missing}</span>
             )}
           </li>
         ))}
       </ul>
-      {rows.some((r) => r.listed && !r.pays) && <p className="mt-2 text-xs text-muted">Kalshi shows its price only: its payout after fees is not worked out here yet.</p>}
       <details className="mt-2 text-xs text-muted" data-testid="venues-basis">
         <summary className="inline-flex min-h-11 cursor-pointer items-center text-soft">Where these prices come from<span aria-hidden="true" className="ml-1.5">▾</span></summary>
         <ul className="mt-1 flex flex-col gap-1">

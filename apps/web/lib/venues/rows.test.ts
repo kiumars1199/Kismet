@@ -12,20 +12,28 @@ describe("venueRows", () => {
     expect(rows.map((r) => r.pays)).toEqual(["1.55x", "1.64x", null]);
   });
 
-  it("badge text: qualified when a listed venue has no multiplier, plain when every listed venue has one", () => {
-    const withKalshi = venueRows([q("polymarket", 0.62, 1.55), q("us", 0.6, 1.64), q("kalshi", 0.6, null)]).find((r) => r.best)!;
-    expect(withKalshi.bestLabel).toBe("Pays most here (Kalshi fee not counted)");
-    const plain = venueRows([q("polymarket", 0.62, 1.55), q("us", 0.6, 1.64)]);
-    expect(plain.find((r) => r.best)!.bestLabel).toBe("Pays most here");   // Kalshi not listed is not "uncounted"
-    expect(plain.filter((r) => r.bestLabel).length).toBe(1);
-    expect(venueRows([q("polymarket", 0.6, 1.6), q("kalshi", 0.5, null)]).filter((r) => !r.best).every((r) => r.bestLabel === null)).toBe(true);
+  it("Kalshi has a multiplier and a %, and can win 'Pays most here'; the badge is plain (its fee is counted)", () => {
+    const rows = venueRows([q("polymarket", 0.7, 1.4), q("kalshi", 0.69, 1.4085)]);
+    const k = rows.find((r) => r.venue === "kalshi")!;
+    expect(k).toMatchObject({ listed: true, chance: "69%", pays: "1.41x", best: true, bestLabel: "Pays most here" });
+    expect(rows.find((r) => r.venue === "polymarket")!.best).toBe(false);
+    const three = venueRows([q("polymarket", 0.62, 1.55), q("us", 0.6, 1.64), q("kalshi", 0.6, 1.6)]);
+    expect(three.filter((r) => r.best).map((r) => r.venue)).toEqual(["us"]);
+    expect(three.find((r) => r.best)!.bestLabel).toBe("Pays most here");
+    expect(three.filter((r) => r.bestLabel).length).toBe(1);
   });
 
-  it("Kalshi has a % and no payout, and is never 'Pays most here', even at the lowest price", () => {
+  it("a venue with no multiplier (old venues.json) shows its % only and never wins", () => {
     const rows = venueRows([q("polymarket", 0.7, 1.4), q("kalshi", 0.2, null)]);
-    const k = rows.find((r) => r.venue === "kalshi")!;
-    expect(k).toMatchObject({ listed: true, chance: "20%", pays: null, best: false });
-    expect(rows.find((r) => r.venue === "polymarket")!.best).toBe(true);
+    expect(rows.find((r) => r.venue === "kalshi")).toMatchObject({ listed: true, chance: "20%", pays: null, best: false });
+    expect(rows.find((r) => r.venue === "polymarket")!.bestLabel).toBe("Pays most here");
+  });
+
+  it("Kalshi missing: 'Not listed', or 'Not available right now' when its snapshot was filtered by age or delay", () => {
+    const base = [q("polymarket", 0.5, 2), q("us", 0.5, 2.1)];
+    expect(venueRows(base).find((r) => r.venue === "kalshi")!.missing).toBe("Not listed");
+    expect(venueRows(base, true).find((r) => r.venue === "kalshi")!).toMatchObject({ listed: false, missing: "Not available right now" });
+    expect(venueRows(base, true).find((r) => r.venue === "us")!.missing).toBe("Not listed");   // only Kalshi's snapshot is time-filtered
   });
 
   it("a missing venue is 'not listed' (no price, no payout); a tie marks nobody", () => {
@@ -35,7 +43,7 @@ describe("venueRows", () => {
   });
 
   it("no cents anywhere: prices read as %, payouts as multipliers", () => {
-    for (const r of venueRows([q("polymarket", 0.625, 1.58), q("us", 0.04, 20), q("kalshi", 0.33, null)])) {
+    for (const r of venueRows([q("polymarket", 0.625, 1.58), q("us", 0.04, 20), q("kalshi", 0.33, 1.4)])) {
       expect(`${r.chance} ${r.pays ?? ""}`).not.toMatch(/¢|\$/);
     }
   });
