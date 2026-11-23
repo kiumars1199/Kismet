@@ -32,3 +32,7 @@ export async function countCheck(req: Request, tier: Tier, userId: string | null
   const r = await distinct(checkKey(userId, deviceOf(req), now), [`${marketId}:${side}`], limit, CHECK_TTL_MS);
   return { ok: r.ok, left: Math.max(0, limit - r.size) };
 }
+
+/** A combo counts once, under this key: the sorted market:side list, so the same set in any order is the same check. */
+export const comboKey = (legs: { m: string; side: number }[]): string =>
+  `combo:${createHash("sha256").update(legs.map((l) => `${l.m}:${l.side}`).sort().join("|")).digest("hex").slice(0, 24)}`;
