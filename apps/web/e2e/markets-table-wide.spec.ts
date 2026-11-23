@@ -210,3 +210,29 @@ for (const [w, min] of [[1280, 260], [1366, 300]] as const) {
     expect(m.clipped).toEqual([]);
   });
 }
+
+// Every column on (Pro, all 23): Market keeps its 140 px floor at every width (the box scrolls instead), its titles stay visible, and no
+// column overlaps the next. The table's min-width has to follow the same per-breakpoint widths that render.
+for (const w of [1280, 1366, 1440, 1920]) {
+  test(`/markets with all columns at ${w}px: Market is at least 140 px, titles visible, no column overlaps`, async ({ page }) => {
+    await withColumns(page, PRO);
+    await open(page, w);
+    await expect(page.locator("table thead th", { hasText: "Realistic edge" }).first()).toBeAttached();
+    await page.waitForTimeout(600);
+    const m = await page.evaluate(() => {
+      const th = [...document.querySelectorAll("table thead th")].map((h) => h.getBoundingClientRect());
+      const market = [...document.querySelectorAll("table thead th")].findIndex((h) => h.textContent?.trim() === "Market");
+      const titles = [...document.querySelectorAll("table tbody tr[data-row] td:nth-child(2) a")];
+      return {
+        count: th.length, market: th[market]!.width,
+        overlaps: th.slice(1).map((r, i) => th[i]!.right - r.left).filter((o) => o > 1),
+        hidden: titles.filter((a) => a.getBoundingClientRect().width < 100 || !(a.textContent ?? "").trim()).length, titles: titles.length,
+      };
+    });
+    console.log(`/markets all columns ${w}px: ${m.count} columns, Market ${Math.round(m.market)} px, titles ${m.titles} (${m.hidden} hidden), overlaps ${m.overlaps.length}`);
+    expect(m.count).toBe(23);
+    expect(m.market).toBeGreaterThanOrEqual(140);
+    expect(m.hidden).toBe(0);
+    expect(m.overlaps).toEqual([]);
+  });
+}

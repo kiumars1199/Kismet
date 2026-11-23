@@ -35,3 +35,9 @@ export const defaultSum = (viewport: number) => DEFAULT_COLUMNS.reduce((a, id) =
 /** What Market gets at a viewport width with these other columns visible: the box minus the others (never below MARKET_MIN). */
 export const marketAt = (viewport: number, ids: string[] = DEFAULT_COLUMNS) =>
   Math.max(MARKET_MIN, boxAt(viewport) - ids.filter((id) => id !== "market").reduce((a, id) => a + widthAt(id, viewport), 0));
+
+/** The viewport widths at which some column changes width (0 = the base widths). */
+export const BREAKPOINTS = [0, 1366, 1440] as const;
+
+/** The table's min-width for these visible columns at a breakpoint: every pinned column at its width there, plus Market's floor. */
+export const minWidthAt = (ids: string[], viewport: number) => ids.reduce((a, id) => a + widthAt(id, viewport), 0);

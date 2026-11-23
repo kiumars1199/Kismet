@@ -2,7 +2,7 @@
 
 // Desktop rows (F-01): TanStack Table for columns + visibility, TanStack Virtual over the window for rows.
 // Sorting is server-side (manualSorting): a header click asks the page to change `sort` in the URL.
-import { COL_CLASS, widthAt } from "@/lib/market-table-cols";
+import { BREAKPOINTS, COL_CLASS, minWidthAt } from "@/lib/market-table-cols";
 import { ClosesIn, ClosesLine } from "@/components/clock";
 import Link from "next/link";
 import { createColumnHelper, flexRender, getCoreRowModel, useReactTable, type ColumnDef, type VisibilityState } from "@tanstack/react-table";
@@ -190,7 +190,11 @@ export function MarketTable({ items, sort, onSort, onToggleGroup, pro = false, l
     // the overflowing content), so the class cannot flip-flop.
     <div className="relative rounded-card border border-border bg-surface">
       <div ref={boxRef} className={more ? "overflow-x-auto" : "overflow-x-auto xl:overflow-visible"}>
-      <table className={`w-full table-fixed border-collapse text-sm ${loading ? "opacity-60" : ""}`} style={{ minWidth: visible.reduce((a, c) => a + widthAt(c.id, 0), 0) }} aria-busy={loading}>
+      <table
+        className={`w-full min-w-(--mw-0) min-[1366px]:min-w-(--mw-1366) min-[1440px]:min-w-(--mw-1440) table-fixed border-collapse text-sm ${loading ? "opacity-60" : ""}`}
+        // one min-width per breakpoint, from the same widths that render (a single base sum let Bet and Topic eat Market's floor from 1440 px)
+        style={Object.fromEntries(BREAKPOINTS.map((bp) => [`--mw-${bp}`, `${minWidthAt(visible.map((c) => c.id), bp)}px`])) as React.CSSProperties}
+        aria-busy={loading}>
         <thead className="sticky top-0 z-10 bg-surface lg:top-16">
           <tr className="border-b border-border text-left text-xs text-muted">
             {table.getHeaderGroups()[0]!.headers.map((hd) => {
