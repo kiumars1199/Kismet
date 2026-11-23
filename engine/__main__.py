@@ -114,7 +114,7 @@ def scan_keeping_prev(cfg, run=None):
 def main():
     ap = argparse.ArgumentParser(prog="python -m engine")
     ap.add_argument("--config", default="config/demo.json")
-    ap.add_argument("cmd", choices=["update", "fit", "backtest", "backtest-even", "attach-even", "scan", "all", "grade", "kalshi", "pmindex"])
+    ap.add_argument("cmd", choices=["update", "fit", "backtest", "backtest-even", "attach-even", "scan", "all", "grade", "kalshi", "history", "pmindex"])
     a = ap.parse_args()
     cfg = config.load(a.config)
     if a.cmd in ("update", "all"):
@@ -136,6 +136,10 @@ def main():
         # F4: the same outcome on every venue (output/venues.json); Polymarket + US always, Kalshi when its index exists
         from . import venues
         venues.write(cfg)
+    if a.cmd in ("history", "all"):
+        # F14: price history for the drawer chart (output/history.json); its own step, never delays the scan
+        from . import history
+        history.run(cfg)
     if a.cmd in ("pmindex", "all"):   # F3 fix: every open Polymarket market, for search (own step after the scan upload)
         from . import pm_index
         pm_index.run(cfg)

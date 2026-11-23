@@ -1,0 +1,5 @@
+  ✓  1 [chromium] › e2e/launch-f14-history.spec.ts:5:3 › a market with history draws the chart and the basis line at 390px (1.7s)
+  ✓  2 [chromium] › e2e/launch-f14-history.spec.ts:5:3 › a market with history draws the chart and the basis line at 1440px (1.7s)
+  ✓  3 [chromium] › e2e/launch-f14-history.spec.ts:17:1 › a market with no history says "No price history yet" in the same-height box (1.6s)
+  ✓  4 [chromium] › e2e/launch-f14-history.spec.ts:25:1 › the history API serves the chart's points (143ms)
+  4 passed (1.8m)

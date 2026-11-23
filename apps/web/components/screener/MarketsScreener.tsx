@@ -102,7 +102,8 @@ export function MarketsScreener({ initial, scannedAt, kalshiOn }: { initial?: Ma
         <header className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <h1 className="text-[28px] font-bold leading-tight tracking-tight md:text-[34px]">All markets</h1>
-            <p className="mt-1 text-sm text-muted">
+            {/* two lines reserved on a phone (the Kalshi view's line stays on one): the meta part ("· N open … scanned …") lands after /api/meta and wraps (CLS) */}
+            <p data-testid="markets-count-line" className={`mt-1 text-sm text-muted ${kalshiView ? "min-h-5" : "min-h-10 md:min-h-5"}`}>
               {kalshiView
                 ? (data?.kalshi ? `${formatCount(data.kalshi.total)} ${data.kalshi.total === 1 ? "Kalshi market matches" : "Kalshi markets match"}` : "Loading markets…")
                 : data ? `${formatCount(data.total)} ${data.total === 1 ? "market matches" : "markets match"}` : "Loading markets…"}

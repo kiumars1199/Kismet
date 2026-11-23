@@ -109,7 +109,7 @@ def _rotate(storage, prev_at, gap, log):
     return False
 
 
-SIDE_FILES = ("kalshi.json", "kalshi_index.json", "venues.json", "polymarket_index.json", "polymarket_index_meta.json")   # uploaded on their own with --only
+SIDE_FILES = ("kalshi.json", "kalshi_index.json", "venues.json", "history.json", "polymarket_index.json", "polymarket_index_meta.json")   # uploaded on their own with --only
 
 
 def publish(out_dir, storage, log=print, rotate_min_sec=None):
