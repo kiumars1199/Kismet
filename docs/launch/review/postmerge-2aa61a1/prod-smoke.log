@@ -1,0 +1,7 @@
+/ 200 disc true
+trade_config GET -> 200 application/json {"enabled":false,"env":null,"extensionId":"","riskUrl":"https://kalshi.com/regulatory"}
+ext_token POST -> 401 application/json {"error":"Sign in to use this.","signin":"/login"}
+ext_token_refresh POST -> 401 application/json {"error":"Expired. Sign in again."}
+trade_nonce POST -> 401 application/json {"error":"Sign in to use this.","signin":"/login"}
+digest_optin GET -> 401 application/json {"error":"Sign in to use this.","signin":"/login"}
+by_slug GET -> 401 application/json {"error":"Sign in to use this."}

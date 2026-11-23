@@ -1,0 +1,8 @@
+/index status 200 https://kismetodds.com/index
+href /state?next=%2Findex
+hydrated click -> /state?next=%2F
+after pick -> /
+nojs href /state?next=%2Findex
+nojs click -> /state?next=%2Findex
+nojs Back href /index
+Back target status 200

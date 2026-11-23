@@ -87,6 +87,7 @@ Problems:
 - Merged 11:3x: #58 F11 (045dc79), #69 pill links + StateLink + timeout (0a5972f), #70 HowToBet state link (0e387e6), #72 extension pause follow-ups (40acce0); reviewer PASS on each.
 - #71 FAIL: CLS 0.765 at 1440 on Free after "Show today's free bets" with a slow /api/flags (heading collapse + list swap; the list swap is on final too, 0.52 on pill removal). With trust.
 - #72 notes: pausedUntilForUser fails open on DB errors (accepted while trading is off); background.ts pause wiring has no unit test; popup shows date only.
+- Post-merge 40acce0 (F11, #69, #70, #72) PASS on prod. Note: StateLink SSR href on / is /state?next=%2Findex (prerendered home); with tracker as a small fix.
 - Old: CI timeout #73 (one line, 30 → 45 min), split out of #69 so it lands first; #51 was also cancelled at 30 min (10:05–10:35).
 - CI blockers (10:05): #66 was cancelled by the 30-min job timeout (the run now takes ~30 min); #68 and #67 failed on the F5 pill tap before page load (AppliedPills is a client-only button). Both are being fixed in #69 (trust); after it merges, final gets merged into the waiting PRs.
 - F5 pill-click flake: e2e-paid/launch-f05-topics.spec.ts:59 at 1440 failed on CI after a server ECONNRESET (seen on #67). Part of trust's stabilize PR (D).

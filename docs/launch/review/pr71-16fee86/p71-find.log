@@ -1,0 +1,28 @@
+  try sports.nfl: btn=0 h1="1 bet where the odds lean your way"
+  try sports.nba: btn=0 h1="0 bets where the odds lean your way"
+  try sports.soccer: btn=0 h1="5 of 27 bets where the odds lean your way"
+  try sports.ncaab: btn=0 h1="0 bets where the odds lean your way"
+  try sports.nhl: btn=0 h1="0 bets where the odds lean your way"
+  try sports.ufc: btn=0 h1="0 bets where the odds lean your way"
+  try crypto.bitcoin: btn=0 h1="0 bets where the odds lean your way"
+  try crypto.other: btn=0 h1="0 bets where the odds lean your way"
+  try weather.precipitation: btn=0 h1="0 bets where the odds lean your way"
+  try weather.temperature: btn=0 h1="0 bets where the odds lean your way"
+  try finance.stocks: btn=0 h1="0 bets where the odds lean your way"
+  try sports.cfb: btn=0 h1="4 of 6 bets where the odds lean your way"
+free-390 t=undefined loadCLS=0.0152 h1="0 bets where the odds lean your way" btn=0 "null" cards=0 {"hs":false,"disc":true,"cents":false,"manifestLinks":1,"inHead":1}
+  try sports.nfl: btn=0 h1="1 bet where the odds lean your way"
+  try sports.nba: btn=0 h1="0 bets where the odds lean your way"
+  try sports.soccer: btn=0 h1="9 of 27 bets where the odds lean your way"
+  try sports.ncaab: btn=0 h1="0 bets where the odds lean your way"
+  try sports.nhl: btn=0 h1="0 bets where the odds lean your way"
+  try sports.ufc: btn=0 h1="0 bets where the odds lean your way"
+  try crypto.bitcoin: btn=0 h1="0 bets where the odds lean your way"
+  try crypto.other: btn=0 h1="0 bets where the odds lean your way"
+  try weather.precipitation: btn=0 h1="0 bets where the odds lean your way"
+  try weather.temperature: btn=0 h1="0 bets where the odds lean your way"
+  try finance.stocks: btn=0 h1="0 bets where the odds lean your way"
+  try sports.cfb: btn=1 h1="Today's free bets aren't in your topics"
+free-1440 t=sports.cfb loadCLS=0.0029 h1="Today's free bets aren't in your topics" btn=1 "Show today's free bets" cards=0 {"hs":false,"disc":true,"cents":false,"manifestLinks":1,"inHead":1}
+   after click: {"url":"/bets","h1":"Today's free bets aren't in your topics","cards":0,"pill":0,"btnH":44,"clsTotal":0.0029,"allInclInput":0.0141,"shifts":["0.0006 DIV y10->10","0.0023 BUTTON y399->399, BUTTON y399->399, saved-views y399->399","0.0112 (input) bets-list y577->559, P y519->459"]}
+PWA manifestUrl=http://localhost:3309/manifest.webmanifest errors=[] parsedName=Kismet installabilityErrors=[{"errorId":"in-incognito","errorArguments":[]}] sw=null links=1

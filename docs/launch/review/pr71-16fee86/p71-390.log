@@ -1,0 +1,6 @@
+  try sports.cfb: btn=0 h1="2 of 6 bets where the odds lean your way"
+  try sports.nfl: btn=0 h1="1 bet where the odds lean your way"
+free-390 t=undefined loadCLS=0.0152 h1="0 bets where the odds lean your way" btn=0 "null" cards=0 {"hs":false,"disc":true,"cents":false,"manifestLinks":1,"inHead":1}
+  try sports.cfb: btn=1 h1="Today's free bets aren't in your topics"
+free-390 t=sports.cfb loadCLS=0.0157 h1="Today's free bets aren't in your topics" btn=1 "Show today's free bets" cards=0 {"hs":false,"disc":true,"cents":false,"manifestLinks":1,"inHead":1}
+   after click: {"settleMs":748,"url":"/bets","h1":"10 of 34 bets where the odds lean your way","cards":10,"pill":0,"btnH":44,"clsTotal":0.0915,"allInclInput":0.0974,"shifts":["0.0005 freshness y68->68","0.0152 BUTTON y655->655, BUTTON y655->707, saved-views y707->707","0.0060 (input) P y827->767","0.0758 DIV y373->321, DIV y655->603, P y271->219, P y767->715, bets-list y0->813"]}

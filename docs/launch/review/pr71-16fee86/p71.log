@@ -1,0 +1,12 @@
+  try sports.cfb: btn=0 h1="1 of 6 bets where the odds lean your way"
+  try sports.soccer: btn=0 h1="8 of 27 bets where the odds lean your way"
+  try sports.nfl: btn=0 h1="1 bet where the odds lean your way"
+free-390 t=undefined loadCLS=0.0152 h1="0 bets where the odds lean your way" btn=0 "null" cards=0 {"hs":false,"disc":true,"cents":false,"manifestLinks":1,"inHead":1}
+out-390 t=undefined loadCLS=0 h1="Create your free account" btn=0 "null" cards=0 {"hs":false,"disc":true,"cents":false,"manifestLinks":1,"inHead":1}
+pro-390 t=undefined loadCLS=0.0157 h1="0 bets where the odds lean your way" btn=0 "null" cards=0 {"hs":false,"disc":true,"cents":false,"manifestLinks":1,"inHead":1}
+  try sports.cfb: btn=1 h1="Today's free bets aren't in your topics"
+free-1440 t=sports.cfb loadCLS=0.0029 h1="Today's free bets aren't in your topics" btn=1 "Show today's free bets" cards=0 {"hs":false,"disc":true,"cents":false,"manifestLinks":1,"inHead":1}
+   after click: {"settleMs":512,"url":"/bets","h1":"10 of 34 bets where the odds lean your way","cards":10,"pill":0,"btnH":44,"clsTotal":0.0029,"allInclInput":0.7795,"shifts":["0.0006 DIV y10->10","0.0023 BUTTON y399->399, BUTTON y399->399, saved-views y399->399","0.0112 (input) bets-list y577->559, P y519->459","0.7654 (input) bets-list y559->465, DIV y245->193, locked-bets y615->0, DIV y399->347, P y459->407"]}
+out-1440 t=sports.cfb loadCLS=0 h1="Create your free account" btn=0 "null" cards=0 {"hs":false,"disc":true,"cents":false,"manifestLinks":1,"inHead":1}
+pro-1440 t=sports.cfb loadCLS=0.0006 h1="6 bets where the odds lean your way" btn=0 "null" cards=3 {"hs":false,"disc":true,"cents":false,"manifestLinks":1,"inHead":1}
+PWA manifestUrl=http://localhost:3309/manifest.webmanifest errors=[] parsedName=Kismet installabilityErrors=[{"errorId":"in-incognito","errorArguments":[]}] sw=null links=1

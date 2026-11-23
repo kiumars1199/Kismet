@@ -1,0 +1,24 @@
+390 / -> 200 / {"links":2,"inHead":2,"disc":true,"hs":false,"cents":false,"stateHrefs":["/state?next=%2Findex"]}
+390 /journal -> 200 /signup?next=%2Fjournal {"links":2,"inHead":2,"disc":true,"hs":false,"cents":false,"stateHrefs":[]}
+390 /state -> 200 /state {"links":2,"inHead":1,"disc":true,"hs":false,"cents":false,"stateHrefs":[]}
+390 /pricing -> 200 /pricing {"links":2,"inHead":2,"disc":true,"hs":false,"cents":false,"stateHrefs":[]}
+390 /check -> 200 /check {"links":2,"inHead":2,"disc":true,"hs":false,"cents":false,"stateHrefs":[]}
+  settle POST -> 401 application/json {"error":"Sign in to use this.","signin":"/login"}
+  settle GET -> 401 application/json {"error":"Sign in to use this.","signin":"/login"}
+  journal api -> 401 application/json {"error":"Sign in to use this.","signin":"/login"}
+  manifest -> 200 application/manifest+json {"name":"Kismet","short_name":"Kismet","description":"Bets priced below their tr
+  pageerrors []
+1440 / -> 200 / {"links":2,"inHead":2,"disc":true,"hs":false,"cents":false,"stateHrefs":["/state?next=%2Findex"]}
+1440 /journal -> 200 /signup?next=%2Fjournal {"links":2,"inHead":1,"disc":true,"hs":false,"cents":false,"stateHrefs":[]}
+1440 /state -> 200 /state {"links":2,"inHead":1,"disc":true,"hs":false,"cents":false,"stateHrefs":[]}
+1440 /pricing -> 200 /pricing {"links":2,"inHead":2,"disc":true,"hs":false,"cents":false,"stateHrefs":[]}
+1440 /check -> 200 /check {"links":2,"inHead":1,"disc":true,"hs":false,"cents":false,"stateHrefs":[]}
+  pageerrors []
+next=%2F%2Fevil.example Back=/ final=/state?next=%2F%2Fevil.example offsite=[]
+next=https%3A%2F%2Fevil.example Back=/ final=/state?next=https%3A%2F%2Fevil.example offsite=[]
+next=%2F%5Cevil.example Back=/ final=/state?next=%2F%5Cevil.example offsite=[]
+next=%2F%09%2Fevil.example Back=/ final=/state?next=%2F%09%2Fevil.example offsite=[]
+next=javascript%3Aalert(1) Back=/ final=/state?next=javascript%3Aalert(1) offsite=[]
+next=%2F%2509%2Fevil.example Back=/%09/evil.example final=/%09/evil.example offsite=[]
+next=%20%2F%2Fevil.example Back=/ final=/state?next=%20%2F%2Fevil.example offsite=[]
+next=%2Fbets Back=/bets final=/signup?next=%2Fbets offsite=[]
