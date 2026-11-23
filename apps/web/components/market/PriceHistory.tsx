@@ -11,8 +11,8 @@ type Body = { points: HistoryPoint[]; interval_s: number | null; venue: string; 
 type State = { status: "loading" } | { status: "error" } | { status: "ok"; body: Body };
 
 const H = "h-[200px]";
-/** The whole card is one fixed height in every state (loading, chart, empty, error): nothing below it ever moves. */
-export const HISTORY_CARD_H = "h-[340px]";
+/** The card is 360 px in every state (loading, chart, empty, error) so nothing below it moves; opening the details (a tap) may grow it. */
+export const HISTORY_CARD_H = "min-h-[360px]";
 const day = (t: number) => new Date(t * 1000).toLocaleDateString("en-US", { month: "short", day: "numeric" });
 const when = (t: number) => new Date(t * 1000).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric" });
 
@@ -32,7 +32,7 @@ export function PriceHistory({ id, outcome }: { id: string; outcome: string }) {
   const body = state.status === "ok" ? state.body : null;
   const pts = body?.points ?? [];
   return (
-    <figure className={`m-0 flex ${HISTORY_CARD_H} flex-col overflow-hidden rounded-card border border-border bg-surface p-4`} data-testid="price-history">
+    <figure className={`m-0 flex ${HISTORY_CARD_H} flex-col rounded-card border border-border bg-surface p-4`} data-testid="price-history">
       <figcaption className="mb-2 h-5 shrink-0 text-sm font-semibold">Price over time</figcaption>
       <div className={`${H} w-full shrink-0`}>
         {state.status === "loading" ? (
@@ -64,7 +64,7 @@ export function PriceHistory({ id, outcome }: { id: string; outcome: string }) {
         {body && body.interval_s && pts.length >= 2 ? `${basisLine(body.venue, body.interval_s)}. Chance of ${outcome}.` : "Prices from Polymarket."}
       </p>
       <details className="mt-1 shrink-0 text-xs text-muted" data-testid="history-details">
-        <summary className="cursor-pointer py-1 text-soft">Where this comes from</summary>
+        <summary className="inline-flex min-h-11 cursor-pointer items-center text-soft">Where this comes from<span aria-hidden="true" className="ml-1.5">▾</span></summary>
         <p className="mt-1" data-testid="history-source">
           {body && pts.length >= 2
             ? <>Polymarket&apos;s own price history for this outcome{body.source === "live" ? ", fetched when you opened this" : ", saved with the latest scan"} · latest point <Ago at={body.as_of} />. Free accounts see it up to their delayed scan.</>

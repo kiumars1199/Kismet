@@ -15,7 +15,7 @@ import dynamic from "next/dynamic";
 import { VenuesBlock } from "./VenuesBlock";
 
 // F14: Recharts stays out of the first-load bundle (check:js), like CurveChart
-const PriceHistory = dynamic(() => import("./PriceHistory").then((m) => m.PriceHistory), { ssr: false, loading: () => <div className="h-[340px]" /> });
+const PriceHistory = dynamic(() => import("./PriceHistory").then((m) => m.PriceHistory), { ssr: false, loading: () => <div className="h-[360px]" /> });
 
 type Book = (Execution & { fetched_at: number }) | { verdict: string; book_ok: false };
 
