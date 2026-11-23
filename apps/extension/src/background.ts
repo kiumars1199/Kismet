@@ -1,6 +1,7 @@
 // Service worker: Kismet API calls (60 s cache per slug), sign-in token, side panel, and Kalshi paper trading.
 // Trading rules (docs/16 §3, docs/15): keys stay in the vault, orders only from our origin with a server nonce
 // that we check with our server before signing, caps checked here, nothing is ever placed on a timer.
+import { pausedUntil, pauseLine } from "./pause";
 import * as K from "./kalshi/client";
 import { importPrivateKey } from "./kalshi/sign";
 import { DEFAULT_CAPS, capError, maxCostCents, orderView, parseIntent, scopeError, toQuote, today, type Caps, type Spend } from "./kalshi/trade";
@@ -21,6 +22,22 @@ function parseAuth(x: unknown): Auth | null {
   return { token: a.token, exp: a.exp, tier: a.tier };
 }
 
+// F8: a paused account's API calls answer 423. Remember it (until the pause ends), stop serving cached event data,
+// and let the popup say why. Cleared by the next successful call.
+async function markPaused(res: Response): Promise<boolean> {
+  const until = pausedUntil({ status: res.status, body: await res.json().catch(() => null) });
+  if (!until) return false;
+  const stale = Object.keys(await chrome.storage.session.get(null)).filter((k) => k.startsWith("ev:"));
+  await chrome.storage.session.remove(stale);   // no data from before the pause
+  await chrome.storage.session.set({ paused: until });
+  return true;
+}
+const clearPaused = () => chrome.storage.session.remove("paused");
+async function currentPause(): Promise<string | null> {
+  const until = ((await chrome.storage.session.get("paused")).paused as string | undefined) ?? null;
+  return pauseLine(until) ? until : null;
+}
+
 async function tokenCall(path: string, token?: string): Promise<Auth | null> {
   try {
     const res = await fetch(`${API}${path}`, {
@@ -28,6 +45,7 @@ async function tokenCall(path: string, token?: string): Promise<Auth | null> {
       headers: token ? { authorization: `Bearer ${token}` } : {},
       credentials: token ? "omit" : "include",
     });
+    if (res.status === 423 && (await markPaused(res))) return null;
     return res.ok ? parseAuth(await res.json()) : null;
   } catch {
     return null;
@@ -48,11 +66,14 @@ async function apiGet<T>(path: string): Promise<T | null> {
   const a = await session();
   const res = await fetch(`${API}${path}`, { headers: a ? { authorization: `Bearer ${a.token}` } : {} });
   if (res.status === 404) return null;
+  if (res.status === 423 && (await markPaused(res))) throw new Error("paused");
+  if (res.ok) await clearPaused();
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return (await res.json()) as T;
 }
 
 async function eventBySlug(slug: string): Promise<EventResponse | null> {
+  if (await currentPause()) return null;   // paused: nothing is shown, cached or not
   const key = `ev:${slug}`;
   const hit = (await chrome.storage.session.get(key))[key] as { at: number; data: EventResponse | null } | undefined;
   if (hit && Date.now() - hit.at < TTL) return hit.data;
@@ -249,7 +270,7 @@ chrome.runtime.onMessage.addListener((msg: Msg | Record<string, unknown>, sender
     return false;
   }
   if (m.type === "session") {
-    session().then((a) => reply(a ? { signedIn: true, tier: a.tier } : { signedIn: false, tier: null }));
+    session().then(async (a) => reply({ ...(a ? { signedIn: true, tier: a.tier } : { signedIn: false, tier: null }), pausedUntil: await currentPause() }));
     return true;
   }
   // Vault and limits: extension pages only, never content scripts running inside polymarket.com.

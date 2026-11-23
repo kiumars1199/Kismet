@@ -3,19 +3,22 @@
 // alerts page and /pricing say "once a day" (#23/#64): change that copy if this schedule changes.
 // Vercel Cron sends GET; POST is kept for manual runs and the post-scan trigger. Both need the cron secret.
 // Evaluates every user's enabled Supabase alert_rules with the service role (lib/alerts-server.ts).
-import { runServerAlerts } from "@/lib/alerts-server";
+import { kindsFromQuery, runServerAlerts } from "@/lib/alerts-server";
+import { fetchBigTrades, tradeStats } from "@/lib/bigtrade";
 import { adminEnabled, supabaseAdmin } from "@/lib/auth/server";
 import { liveExecution } from "@/lib/book";
 import { DEMO_MODE } from "@/lib/config";
 import { cronAuthorized, unauthorized } from "@/lib/cron";
 import { marketsPage } from "@/lib/data/respond";
 import { getStore } from "@/lib/data/store";
+import { settleOne } from "@/lib/settle";
 import { getSettings } from "@/lib/settings";
 
-/** Last run's counts for the admin health page (app_settings "alerts_last_run"; not a setting, never audited). */
-async function record(result: object) {
+/** Last run's counts for the admin health page (app_settings "alerts_last_run"; not a setting, never audited).
+ *  The post-scan big-trade runs record under "alerts_last_bigtrade_run" so they don't hide the daily run's counts. */
+async function record(result: object, key = "alerts_last_run") {
   const { error } = await supabaseAdmin().from("app_settings")
-    .upsert({ key: "alerts_last_run", value: { at: new Date().toISOString(), ...result }, updated_at: new Date().toISOString() }, { onConflict: "key" });
+    .upsert({ key, value: { at: new Date().toISOString(), ...result }, updated_at: new Date().toISOString() }, { onConflict: "key" });
   if (error) console.error("[alerts/run] couldn't record the run:", error.message);
 }
 
@@ -25,25 +28,33 @@ export const maxDuration = 60;
 
 async function run(req: Request): Promise<Response> {
   if (!cronAuthorized(req)) return unauthorized();
+  const kinds = kindsFromQuery(req.url);
+  if (kinds === null) return Response.json({ error: "unknown kind" }, { status: 400 });
+  const key = kinds ? "alerts_last_bigtrade_run" : "alerts_last_run";
   if (DEMO_MODE) return Response.json({ ran: false, reason: "demo mode evaluates alerts in the browser" });
   if (!adminEnabled()) return Response.json({ ran: false, reason: "Supabase service role not configured" });
   if (!(await getSettings()).alerts_enabled) {   // admin kill switch (T-142)
     const out = { ran: false, reason: "alert sending is paused in admin settings" };
-    await record(out);
+    await record(out, key);
     return Response.json(out);
   }
   try {
     const store = await getStore();   // live data: only Pro and Premium rules fire
+    const trades = tradeStats();
     const counts = await runServerAlerts(supabaseAdmin(), {
       fetchMarkets: async (q) => marketsPage(store, q),
       fetchMarket: async (id) => store.flagsById.get(id) ?? store.byId.get(id) ?? null,
       fetchBook: liveExecution,
-    });
-    await record({ ran: true, ...counts });
+      fetchBigTrades: (ids, since) => fetchBigTrades(ids, since, trades),   // F16 (Premium only: the evaluator withholds it from Free and Pro)
+      fetchSettlement: settleOne,   // F10 "settled" rules: Polymarket's market status (cached 10 min, resolved forever)
+    }, new Date(), { kinds });
+    // F16: one line per run, so the first live run shows what the trade feed sent (and which way it is ordered)
+    if (trades.requests) console.log(`[alerts/run] big-trade feed: ${trades.requests} requests, ${trades.trades} trades, newest ${trades.newest ? new Date(trades.newest * 1000).toISOString() : "none"}`);
+    await record({ ran: true, ...counts }, key);
     return Response.json({ ran: true, ...counts });
   } catch (e) {
     console.error("[alerts/run]", (e as Error).message);
-    await record({ ran: false, error: "alert run failed" });
+    await record({ ran: false, error: "alert run failed" }, key);
     return Response.json({ ran: false, error: "alert run failed" }, { status: 500 });
   }
 }

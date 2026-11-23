@@ -27,7 +27,7 @@ export const ROW: Record<CollectionName, z.ZodObject> = {
   }).strict(),
   alert_rules: z.object({
     ...meta, name: str(80), enabled: z.boolean(),
-    kind: z.enum(["preset_match", "market_price", "edge_change", "closing_soon"]),
+    kind: z.enum(["preset_match", "market_price", "edge_change", "closing_soon", "settled", "big_trade"]),
     query: json.nullable(), market_id: str(100).nullable(), side_index: side.nullable(), threshold: num.nullable(),
     channels: z.array(z.enum(["inapp", "email", "push", "telegram", "discord"])).max(5),
     // docs/15: only Discord / Telegram webhook URLs
@@ -46,7 +46,7 @@ export const ROW: Record<CollectionName, z.ZodObject> = {
     question: str(500).nullable(), category: str(40).nullable(), niche: str(40).nullable(),
     price: z.number().min(0).max(1), shares: z.number().min(0).max(1e9), fee: z.number().min(0).max(1e6), placed_at: ts,
     model_win_prob: z.number().min(0).max(1).nullable(), model_edge: num.nullable(), closing_price: z.number().min(0).max(1).nullable(),
-    result: z.enum(["won", "lost", "void"]).nullable(), settled_at: ts.nullable(), pnl_usd: num.nullable(),
+    result: z.enum(["won", "lost", "void", "split"]).nullable(), settled_at: ts.nullable(), pnl_usd: num.nullable(),
     tags: z.array(str(40)).max(30), note: str(2000).nullable(),
   }).strict(),
 };

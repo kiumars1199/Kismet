@@ -28,6 +28,10 @@ export default defineConfig({
       STRIPE_SECRET_KEY: "sk_test_e2e", STRIPE_WEBHOOK_SECRET: "whsec_e2e", STRIPE_API_BASE: ORIGIN,
       STRIPE_PRICE_PRO_MONTHLY: "price_pro_m", STRIPE_PRICE_PRO_YEARLY: "price_pro_y",
       STRIPE_PRICE_PREMIUM_MONTHLY: "price_premium_m", STRIPE_PRICE_PREMIUM_YEARLY: "price_premium_y",
+      // next dev restarts itself (dropping in-flight requests) once used heap passes 80% of the V8 limit, and its heap
+      // grows ~350 MB/min for the whole run. Pin the limit so the restart point doesn't depend on the runner's RAM;
+      // `pnpm e2e` also runs this suite in two shards, each with its own server, so neither gets near it.
+      NODE_OPTIONS: [process.env.NODE_OPTIONS, "--max-old-space-size=8192"].filter(Boolean).join(" "),
     },
   },
 });

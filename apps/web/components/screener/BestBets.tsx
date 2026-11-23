@@ -20,6 +20,7 @@ import { savePresetFromState } from "@/lib/presets";
 import { usePublishScan } from "@/lib/scanClock";
 import { timeWindow } from "@/lib/search/parse";
 import { TAXONOMY } from "@/lib/taxonomy";
+import { LogUpsell } from "@/components/journal/LogBetButton";
 import { BetCard } from "@/components/market/BetCard";
 import { drawerHref, useOpenDrawer } from "@/components/market/drawer";
 import { SaveViewDialog } from "@/components/presets/SaveViewDialog";
@@ -243,6 +244,7 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
               <Cards slots={slots.slice(TOP)} desktop={desktop} label="more-h" />
             </>
           )}
+          <LogUpsell />
           {sample && <LockedBets total={data.total} shown={rows.length} daily={daily} />}
           {!sample && sc.hasMore && (
             <button

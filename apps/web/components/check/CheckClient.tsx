@@ -13,6 +13,8 @@ import { SCORE_FORMULA } from "@/lib/check/score";
 import { payoutMoney, pct, ret } from "@/lib/format";
 import { multX, INTL_ONLY, US_SMALL_PRINT } from "@/lib/card";
 import { gapPts } from "@/lib/betFigures";
+import { LogBetButton } from "@/components/journal/LogBetButton";
+import { HowToBet } from "./HowToBet";
 
 type Found = { kind: "ok"; data: CheckResponse } | { kind: "limit" } | { kind: "missing" } | { kind: "error"; text: string } | null;
 const pts = (e: number) => { const v = Math.round(e * 100); return `${v < 0 ? "−" : v > 0 ? "+" : ""}${Math.abs(v)} ${Math.abs(v) === 1 ? "point" : "points"}`; };
@@ -186,7 +188,11 @@ export function CheckClient() {
           {cur.base.venue !== "intl" && (
             <p data-testid="check-venue" className="text-xs text-muted">{cur.base.venue === "us" ? US_SMALL_PRINT : INTL_ONLY}</p>
           )}
-          <p className="text-[12px] text-muted">Bet only what you can afford to lose.</p>
+          {cur.base.venue !== "intl-only" && (
+            <LogBetButton key={`${data.market.id}:${side}`} className="w-full sm:w-auto" price={Number.isNaN(price) ? undefined : price} stakeUsd={Number.isNaN(stake) ? undefined : stake}
+              target={{ id: data.market.id, question: data.market.question, category: data.market.category, niche: data.market.niche, side_index: side, outcome: cur.outcome, win_prob: cur.base.winProb }} />
+          )}
+          <HowToBet links={data.market.links} />
         </section>
       )}
     </div>

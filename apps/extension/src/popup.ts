@@ -1,4 +1,5 @@
 import { ago } from "./format";
+import { pauseLine } from "./pause";
 import { API, type Msg, type SessionInfo } from "./types";
 
 const $ = (id: string) => document.getElementById(id)!;
@@ -24,7 +25,9 @@ chrome.runtime.sendMessage({ type: "session" } satisfies Msg).then((s: SessionIn
   $("tier").classList.toggle("on", s?.tier === "premium");
   $("who").replaceChildren(s?.signedIn ? dot("var(--accent)", "Signed in") : dot("var(--warning)", "Signed out"));
   ($("signin") as HTMLButtonElement).hidden = !!s?.signedIn;
-  if (s?.signedIn && s.tier !== "premium") $("hint").textContent = "Badges on Polymarket are part of Premium. Open Kismet to upgrade.";
+  const paused = pauseLine(s?.pausedUntil);
+  if (paused) $("hint").textContent = paused;   // F8: a paused account sees why nothing shows on Polymarket
+  else if (s?.signedIn && s.tier !== "premium") $("hint").textContent = "Badges on Polymarket are part of Premium. Open Kismet to upgrade.";
 });
 
 chrome.runtime.sendMessage({ type: "vault.status" }).then((v: { ok: boolean; connected?: boolean }) => {
