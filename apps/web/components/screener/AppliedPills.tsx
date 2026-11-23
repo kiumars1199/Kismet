@@ -6,10 +6,11 @@
 import type { FilterState } from "@/lib/filters/state";
 import { TAXONOMY } from "@/lib/taxonomy";
 import { money } from "@/lib/format";
+import { getRepo } from "@/lib/repo";
 import { VERDICT_LABEL } from "@/components/market/labels";
 import { BEST_BETS_VERDICTS, type Mode } from "./useScreener";
 
-type Pill = { key: string; label: string; patch: Partial<FilterState> };
+type Pill = { key: string; label: string; patch: Partial<FilterState>; onRemove?: () => Promise<unknown> };
 const c = (x: number) => `${Math.round(x * 1000) / 10}%`;
 const p = (x: number) => `${Math.round(x * 100)}%`;
 const catLabel = (id: string) => (TAXONOMY[id]?.label ?? id).split(" & ")[0]!;
@@ -28,7 +29,7 @@ function pillsFor(s: FilterState, mode: Mode): Pill[] {
   // the search itself shows as parsed chips (components/search/SearchChips.tsx)
   out.push(...each("categories", s.categories, catLabel));
   out.push(...each("exclude_categories", s.exclude_categories, (x) => `Hide ${catLabel(x)}`));
-  out.push(...each("topics", s.topics, (x) => TAXONOMY[x]?.label ?? x));
+  if (!s.favorites_only) out.push(...each("topics", s.topics, (x) => TAXONOMY[x]?.label ?? x));   // under "Your topics" they are that one pill
   out.push(...each("market_types", s.market_types, (x) => x));
   out.push(...each("periods", s.periods, (x) => (x === "full" ? "Full game" : x)));
   if (s.side !== "best") one("side", true, `Side: ${s.side}`, { side: "best" });
@@ -62,7 +63,7 @@ function pillsFor(s: FilterState, mode: Mode): Pill[] {
   if (s.liquidity_min !== undefined) one("liq", true, `Liquidity ≥ ${money(s.liquidity_min)}`, { liquidity_min: undefined });
   if (s.spread_max !== undefined) one("sp", true, `Buy/sell gap ≤ ${c(s.spread_max)}`, { spread_max: undefined });
   one("wl", s.watchlisted_only, "My list only", { watchlisted_only: undefined });
-  one("fav", s.favorites_only, "My topics only", { favorites_only: undefined });
+  if (s.favorites_only) out.push({ key: "fav", label: "Your topics", patch: { favorites_only: undefined, topics: undefined }, onRemove: () => getRepo().profile.patch({ topics_off: true }).catch(() => {}) });   // F5: stays cleared on every device
   if (!s.group_by_event) one("g", true, mode === "markets" ? "Not grouped by event" : "Every bet, not one per game", { group_by_event: true });
   return out;
 }
@@ -78,7 +79,7 @@ export function AppliedPills({ state, mode, onChange, onReset, omit }: {
         <li key={pl.key}>
           <button
             type="button"
-            onClick={() => onChange(pl.patch)}
+            onClick={() => { if (pl.onRemove) void pl.onRemove().then(() => onChange(pl.patch)); else onChange(pl.patch); }}   // F5: the save lands first, or the server would reopen the filter
             aria-label={`Remove filter: ${pl.label}`}
             className="flex min-h-11 items-center gap-1.5 rounded-full border border-accent-border bg-accent-bg py-1 pl-3 pr-2 text-[13px] text-accent-soft hover:border-accent"
           >

@@ -7,6 +7,12 @@ import { fakeSupabase } from "./fakeSupabase";
 const sendEmail = vi.fn(async (_e: { to: string; html: string; text: string; unsubscribeUrl: string }) => ({ sent: true }));
 vi.mock("@/lib/email", async (orig) => ({ ...(await orig<typeof import("@/lib/email")>()), sendEmail: (e: never) => sendEmail(e) }));
 
+// F10: never a real push. The sender is a mock; its result says what the push service answered.
+type Sub = { endpoint: string; keys: { p256dh: string; auth: string } };
+const sendPush = vi.fn(async (_s: Sub, _p: { title: string; body: string; url: string }): Promise<"sent" | "gone" | "failed"> => "sent");
+let pushOn = true;
+vi.mock("@/lib/alerts-push", () => ({ pushConfigured: () => pushOn, sendPush: (s: Sub, p: never) => sendPush(s, p) }));
+
 const { runServerAlerts, webhookUrl } = await import("@/lib/alerts-server");
 
 const side = (i: 0 | 1): Side => ({
@@ -37,7 +43,7 @@ const db = (rules: Record<string, unknown>[], tier = "pro", tz = "UTC") => fakeS
 }, { u1: "trader@example.test" });
 const NOON = new Date("2026-11-16T12:00:00Z");
 
-beforeEach(() => { vi.stubEnv("UNSUBSCRIBE_SECRET", "test-secret"); sendEmail.mockClear(); });
+beforeEach(() => { vi.stubEnv("UNSUBSCRIBE_SECRET", "test-secret"); sendEmail.mockClear(); sendPush.mockClear(); pushOn = true; });
 afterEach(() => { vi.unstubAllEnvs(); vi.unstubAllGlobals(); });
 
 describe("alerts cron (T-45)", () => {
@@ -99,5 +105,131 @@ describe("alerts cron (T-45)", () => {
     expect(webhookUrl("discord", "https://discord.com/api/webhooks/../../evil")).toBeNull();
     expect(webhookUrl("telegram", "https://api.telegram.org.evil.test/bot1/sendMessage")).toBeNull();
     expect(webhookUrl("telegram", "https://api.telegram.org/bot1:x/sendMessage?chat_id=5")).not.toBeNull();
+  });
+
+  describe("web push (F10)", () => {
+    const subs = (n = 1) => Array.from({ length: n }, (_, i) => ({ id: `s${i}`, user_id: "u1", endpoint: `https://fcm.googleapis.com/fcm/send/${i}`, keys: { p256dh: "p", auth: "a" } }));
+    const withSubs = (rules: Record<string, unknown>[], tier = "pro", n = 1) => {
+      const d = db(rules, tier);
+      d.tables.push_subscriptions = subs(n);
+      return d;
+    };
+
+    it("sends one push per event to each of the user's devices, and a second run sends none", async () => {
+      const d = withSubs([rule({ channels: ["push"] })], "pro", 2);
+      const first = await runServerAlerts(d as never, src(), NOON);
+      expect(first).toMatchObject({ events: 1, pushes: 1, errors: 0 });
+      expect(sendPush).toHaveBeenCalledTimes(2);   // one event, two devices
+      const body = sendPush.mock.calls[0]![1];
+      expect(body.title).toBeTruthy();
+      expect(body.url).toBe("/m/a");
+      expect(`${body.title} ${body.body}`).not.toMatch(/\d¢|cents|bet this/i);
+      expect(d.tables.alert_events![0]!.sent_channels).toEqual(["in_app", "push"]);
+      sendPush.mockClear();
+      expect((await runServerAlerts(d as never, src(), NOON)).pushes).toBe(0);
+      expect((await runServerAlerts(d as never, src(), new Date(NOON.getTime() + 60_000))).pushes).toBe(0);
+      expect(sendPush).not.toHaveBeenCalled();
+      expect(d.tables.alert_events).toHaveLength(1);
+    });
+
+    it("email, push and in-app on one rule all go out once", async () => {
+      const d = withSubs([rule({ channels: ["email", "push"] })], "premium");
+      const c = await runServerAlerts(d as never, src(), NOON);
+      expect(c).toMatchObject({ emails: 1, pushes: 1 });
+      expect(d.tables.alert_events![0]!.sent_channels).toEqual(["in_app", "email", "push"]);
+    });
+
+    it("a rule without the push channel sends no push", async () => {
+      const d = withSubs([rule({ channels: ["email"] })]);
+      await runServerAlerts(d as never, src(), NOON);
+      expect(sendPush).not.toHaveBeenCalled();
+    });
+
+    it("Free never gets a push, even with a stored subscription and a push rule", async () => {
+      const d = withSubs([rule({ channels: ["push"] })], "free");
+      expect((await runServerAlerts(d as never, src(), NOON)).pushes).toBe(0);
+      expect(sendPush).not.toHaveBeenCalled();
+    });
+
+    it("VAPID keys not set: no send and push is not claimed", async () => {
+      pushOn = false;
+      const d = withSubs([rule({ channels: ["push"] })]);
+      const c = await runServerAlerts(d as never, src(), NOON);
+      expect(c).toMatchObject({ events: 1, pushes: 0, errors: 0 });
+      expect(sendPush).not.toHaveBeenCalled();
+      expect(d.tables.alert_events![0]!.sent_channels).toEqual(["in_app"]);
+    });
+
+    it("a gone subscription (404/410) is deleted; a failure is counted and never retried", async () => {
+      const d = withSubs([rule({ channels: ["push"] })], "pro", 2);
+      sendPush.mockImplementationOnce(async () => "gone").mockImplementationOnce(async () => "failed");
+      const c = await runServerAlerts(d as never, src(), NOON);
+      expect(c).toMatchObject({ events: 1, pushes: 0, errors: 1 });
+      expect(d.tables.push_subscriptions!.map((s) => s.id)).toEqual(["s1"]);
+      expect(d.tables.alert_events![0]!.sent_channels).toEqual(["in_app"]);
+      sendPush.mockClear();
+      await runServerAlerts(d as never, src(), NOON);
+      expect(sendPush).not.toHaveBeenCalled();
+    });
+
+    it("a user with no device gets the in-app event only", async () => {
+      const d = db([rule({ channels: ["push"] })], "pro");
+      expect(await runServerAlerts(d as never, src(), NOON)).toMatchObject({ events: 1, pushes: 0, errors: 0 });
+      expect(d.tables.alert_events![0]!.sent_channels).toEqual(["in_app"]);
+    });
+  });
+
+  describe("settled alerts (F10)", () => {
+    const priced = rule({ id: "p1", kind: "market_price", market_id: "a", side_index: 0, threshold: 0.5, channels: [] });
+    const settledRule = (o: Record<string, unknown> = {}) => rule({ id: "s1", kind: "settled", market_id: null, query: null, threshold: null, channels: ["push"], ...o });
+    const closed = { fetchMarket: async () => null };
+    const settle = (resolved: boolean, winner: 0 | 1 | null = 0) => vi.fn(async () => ({ resolved, winner_side_index: winner, closing_prices: [null, null] as [null, null] }));
+    const withSubs = (rules: Record<string, unknown>[], tier = "pro") => {
+      const d = db(rules, tier);
+      d.tables.push_subscriptions = [{ id: "s0", user_id: "u1", endpoint: "https://fcm.googleapis.com/fcm/send/0", keys: { p256dh: "p", auth: "a" } }];
+      return d;
+    };
+
+    it("fires once when a market the user has a rule on resolves, then never again", async () => {
+      const d = withSubs([priced, settledRule()]);
+      const fetchSettlement = settle(true, 0);
+      const s = { ...src(), fetchSettlement };
+      const first = await runServerAlerts(d as never, s, NOON);
+      expect(first).toMatchObject({ events: 1, pushes: 1, errors: 0 });
+      const ev = d.tables.alert_events![0]!;
+      expect(ev).toMatchObject({ rule_id: "s1", market_id: "a", sent_channels: ["in_app", "push"] });
+      expect((ev.payload as { message: string }).message).toMatch(/Jaguars/);
+      // later runs, even past the rule's cooldown, stay silent
+      sendPush.mockClear();
+      const later = await runServerAlerts(d as never, s, new Date(NOON.getTime() + 3 * 3600_000));
+      expect(later.events).toBe(0);
+      expect(sendPush).not.toHaveBeenCalled();
+    });
+
+    it("stays quiet while the market is open", async () => {
+      const d = withSubs([priced, settledRule()]);
+      expect((await runServerAlerts(d as never, { ...src(), fetchSettlement: settle(false) }, NOON)).events).toBe(0);
+    });
+
+    it("a rule bound to one market watches that market only", async () => {
+      const d = withSubs([settledRule({ market_id: "zzz" })]);
+      const fetchSettlement = settle(true);
+      await runServerAlerts(d as never, { ...src(), fetchSettlement }, NOON);
+      expect(fetchSettlement).toHaveBeenCalledWith("zzz");
+      expect(d.tables.alert_events![0]!.market_id).toBe("zzz");
+    });
+
+    it("works when the market has already left the live data (no title) and says no winner for a void", async () => {
+      const d = withSubs([priced, settledRule()]);
+      await runServerAlerts(d as never, { ...closed, fetchMarkets: src().fetchMarkets, fetchBook: src().fetchBook, fetchSettlement: settle(true, null) }, NOON);
+      const p = d.tables.alert_events![0]!.payload as { title: string; message: string };
+      expect(p.title).toBeTruthy();
+      expect(p.message).toMatch(/no winner/i);
+    });
+
+    it("Free never gets it", async () => {
+      const d = withSubs([priced, settledRule()], "free");
+      expect((await runServerAlerts(d as never, { ...src(), fetchSettlement: settle(true) }, NOON)).events).toBe(0);
+    });
   });
 });

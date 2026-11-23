@@ -72,7 +72,7 @@ export function useScreener(mode: Mode, initial?: MarketsResponse) {
   const profile = useProfile();
   // "Mine" filters resolve in the browser (lib/filters/user.ts): favorites → topics, watchlist → keep().
   const watchKey = state.watchlisted_only ? watchlist.map((w) => w.market_id).join(",") : "";
-  const favKey = state.favorites_only ? profile.favorite_topics.join(",") : "";
+  const favKey = state.favorites_only && !state.topics?.length ? profile.favorite_topics.join(",") : "";   // F5: /bets?fav=1&t=… already carries the topics
   const { state: query, keep } = useMemo(
     () => resolveUserFilters(state, { favorites: favKey ? favKey.split(",") : [], watchlistIds: new Set(watchKey.split(",")) }),
     [state, favKey, watchKey],
