@@ -26,7 +26,7 @@ const SIZES = [{ width: 390, height: 844 }, { width: 1440, height: 900 }];
 
 async function fromCheck(page: Page) {
   await page.goto("/check");
-  const link = page.getByRole("link", { name: "Check a combo" });
+  const link = page.locator("main").getByRole("link", { name: "Check a combo" });
   await expect(link).toBeVisible();
   await expect(async () => {   // next dev can still be hydrating when the first tap lands: tap again until the page has moved
     if (!/\/check\/combo/.test(page.url())) await link.click({ timeout: 3_000 });
@@ -41,7 +41,7 @@ async function fromDrawer(page: Page) {
   const dialog = page.getByRole("dialog", { name: "Market details" });
   const link = dialog.getByRole("link", { name: "Add to combo checker" });
   await expect(link).toBeVisible({ timeout: 30_000 });
-  await expect(dialog.getByRole("button", { name: /^Add to combo$/ })).toHaveCount(0);   // the Premium tray is not shown to Free or Pro
+  await expect(dialog.getByRole("button", { name: /^Add to combo tray/ })).toHaveCount(0);   // the Premium tray is not shown to Free or Pro
   // next dev can still be hydrating when the first tap lands: tap again until the page has moved
   await expect(async () => {
     if (!/\/check\/combo/.test(page.url())) await link.click({ timeout: 3_000 });
@@ -55,6 +55,10 @@ test("signed out: /check and a bet's page lead to the combo checker at 390 and 1
   await page.context().setExtraHTTPHeaders({ "x-e2e-device": `wt3-${Date.now()}` });
   for (const size of SIZES) {
     await page.setViewportSize(size);
+    if (size.width >= 1024) {   // the desktop nav leads to /check for signed-out visitors too
+      await page.goto("/about");
+      await expect(page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Check a bet" })).toHaveAttribute("href", "/check");
+    }
     await fromCheck(page);
     await page.goto("/m/6674492");   // the signed-out teaser page
     const link = page.getByRole("link", { name: "Add to combo checker" });
@@ -102,6 +106,100 @@ test("Free, then Pro: both reach the combo checker from /check and the drawer; /
       await page.getByTestId("checkout-pro").click();
       await expect(page).toHaveURL(/\/account\?checkout=success/, { timeout: 45_000 });
       await expectPlanActive(page);
+    }
+  }
+});
+
+// Review of #89: Free's limit box is part of the result (inside it), so it never pushes the legs down; no shift > 0.02 at 390 or 1440.
+test("Free: the daily-limit box sits inside the result and moves nothing (CLS < 0.02 at 390 and 1440)", async ({ page }) => {
+  test.setTimeout(240_000);
+  await page.context().setExtraHTTPHeaders({ "x-e2e-device": `wt3-limit-${Date.now()}` });
+  await signIn(page, `wt3-limit-${Date.now()}@example.com`);
+  const rows = ((await (await page.request.get("/api/markets?limit=20")).json()).rows as { market: { id: string }; side: { side_index: number } }[]);
+  // use the day's one check, so the combo below hits the limit
+  const used = await page.request.post("/api/check", { data: { m: rows[0]!.market.id, side: 0 }, headers: { Origin: new URL(page.url()).origin } });
+  expect(used.status()).toBe(200);
+  await page.addInitScript(() => {
+    const w = window as unknown as { __cls: number };
+    w.__cls = 0;
+    new PerformanceObserver((l) => { for (const e of l.getEntries() as unknown as { value: number; hadRecentInput: boolean }[]) if (!e.hadRecentInput) w.__cls += e.value; }).observe({ type: "layout-shift", buffered: true });
+  });
+  for (const size of SIZES) {
+    await page.setViewportSize(size);
+    await page.goto("/check/combo");
+    await page.evaluate(() => sessionStorage.clear());
+    for (const [i, r] of rows.slice(1, 3).entries()) {
+      await page.goto(`/check/combo?m=${r.market.id}&side=${r.side.side_index}`);
+      await expect(page.getByTestId("combo-leg")).toHaveCount(i + 1, { timeout: 30_000 });
+    }
+    await page.waitForTimeout(800);
+    const legsTop = (await page.getByTestId("combo-legs").boundingBox())!.y;
+    const before = await page.evaluate(() => (window as unknown as { __cls: number }).__cls);
+    await page.getByTestId("combo-check-btn").click();
+    const box = page.getByTestId("check-upgrade");
+    await expect(box).toBeVisible({ timeout: 30_000 });
+    await page.waitForTimeout(800);
+    expect(await page.getByRole("region", { name: "Combo result" }).getByTestId("check-upgrade").count(), "inside the result").toBe(1);
+    expect((await page.getByTestId("combo-legs").boundingBox())!.y).toBe(legsTop);
+    const delta = (await page.evaluate(() => (window as unknown as { __cls: number }).__cls)) - before;
+    console.log(`limit box CLS at ${size.width}px: ${delta.toFixed(4)}`);
+    expect(delta).toBeLessThan(0.02);
+  }
+});
+
+// Review of #92: the header link must not crowd the header. It shows from 1440 px only; below that "Check a bet" is in the footer (and
+// the phone More menu). At 768, 1024, 1100, 1280 and 1440, for signed out, Free, Pro and Premium: the header is no taller, no nav item
+// clips, and the search box is no narrower than it is without the link (and at least 120 px where it had room).
+const HEADER_SIZES = [768, 1024, 1100, 1280, 1440];
+async function headerAt(page: Page, w: number, path: string, plan: string) {
+  await page.setViewportSize({ width: w, height: 900 });
+  await page.goto(path);
+  await expect(page.getByRole("navigation", { name: "Main" })).toBeVisible();
+  await page.waitForTimeout(plan === "signed out" ? 400 : 1500);   // the search box and bell load after the first paint
+  const m = await page.evaluate(() => {
+    const header = document.querySelector("header")!;
+    const nav = header.querySelector("nav[aria-label=Main]") as HTMLElement;
+    const link = [...nav.querySelectorAll("a")].find((a) => a.textContent?.trim() === "Check a bet") as HTMLElement | undefined;
+    const search = header.querySelector("[role=combobox]")?.closest("div[class*='max-w-']") as HTMLElement | null;
+    const measure = () => ({ h: Math.round(header.getBoundingClientRect().height), clipped: nav.scrollWidth > nav.clientWidth + 1, search: search ? Math.round(search.getBoundingClientRect().width) : null });
+    const withLink = measure();
+    const shown = !!link && getComputedStyle(link).display !== "none";
+    const prev = link?.style.display ?? "";
+    if (link) link.style.display = "none";
+    const without = measure();   // what final's header is: the same page with the link gone
+    if (link) link.style.display = prev;
+    return { withLink, without, shown, hasLink: !!link };
+  });
+  const tag = `${plan} at ${w}px`;
+  console.log(`header ${tag}: link ${m.shown ? "shown" : "hidden"}, height ${m.withLink.h} (final ${m.without.h}), search ${m.withLink.search} (final ${m.without.search}), nav clipped ${m.withLink.clipped}`);
+  expect(m.hasLink, tag).toBe(true);
+  expect(m.shown, `link shown only from 1440 (${tag})`).toBe(w >= 1440);
+  expect(m.withLink.h, `header no taller than final (${tag})`).toBeLessThanOrEqual(m.without.h);
+  expect(m.withLink.clipped, `no nav item clips (${tag})`).toBe(m.without.clipped);
+  if (m.withLink.search !== null && m.without.search !== null) {
+    expect(m.withLink.search, `search no narrower than final (${tag})`).toBeGreaterThanOrEqual(Math.min(m.without.search, 120));
+  }
+}
+
+test("header: 'Check a bet' from 1440 only, and the header never gets taller, clipped or its search narrower (signed out, Free, Pro, Premium)", async ({ page }) => {
+  test.setTimeout(540_000);
+  await page.context().setExtraHTTPHeaders({ "x-e2e-device": `wt3-hdr-${Date.now()}` });
+  for (const w of HEADER_SIZES) await headerAt(page, w, "/about", "signed out");
+  await signIn(page, `wt3-hdr-${Date.now()}@example.com`);
+  for (const [plan, next] of [["free", "pro"], ["pro", "premium"], ["premium", null]] as const) {
+    for (const w of HEADER_SIZES) await headerAt(page, w, "/bets", plan);
+    if (next === "pro") {
+      await page.goto("/pricing");
+      await page.getByTestId("checkout-pro").click();
+      await expect(page).toHaveURL(/\/account\?checkout=success/, { timeout: 45_000 });
+      await expectPlanActive(page);
+    } else if (next === "premium") {   // a Premium comp through the mock database (service role), as the f05 topics spec does
+      const me = await (await page.request.get("/api/me")).json();
+      const res = await page.request.patch(`/e2e-mock/supabase/rest/v1/subscriptions?user_id=eq.${me.user.id}`, {
+        headers: { authorization: "Bearer e2e-service", apikey: "e2e-service", "content-type": "application/json" }, data: { comp_tier: "premium" },
+      });
+      expect(res.status()).toBeLessThan(300);
+      expect((await (await page.request.get("/api/me")).json()).tier).toBe("premium");
     }
   }
 });
