@@ -7,12 +7,15 @@ import { currentUser, extensionId, tradingAllowed, tradingEnv } from "@/lib/trad
 export const dynamic = "force-dynamic";
 
 export async function GET(req: Request): Promise<Response> {
-  const paused = pausedResponse(await getMe());   // F8: 423 while paused, like the other data routes
-  if (paused) return paused;
   const env = tradingEnv();
   const id = extensionId();   // null in production without NEXT_PUBLIC_EXTENSION_ID: no ticket (RT-14)
-  const user = env && id ? await currentUser(req) : null;
-  const allowed = !!env && !!id && tradingAllowed(user?.email ?? null);
+  const off = { enabled: false, env, extensionId: id ?? "", riskUrl: KALSHI_RISK_URL };
+  // Trading off on this deploy: answer before reading anyone's profile.
+  if (!env || !id) return Response.json(off, { headers: { "cache-control": "no-store" } });
+  const paused = pausedResponse(await getMe());   // F8: 423 while paused, like the other data routes
+  if (paused) return paused;
+  const user = await currentUser(req);
+  const allowed = tradingAllowed(user?.email ?? null);
   return Response.json(
     { enabled: allowed, env, extensionId: id ?? "", riskUrl: KALSHI_RISK_URL },
     { headers: { "cache-control": "no-store" } },
