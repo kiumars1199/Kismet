@@ -85,6 +85,9 @@ export function tierFromPrice(p: { id: string; unit_amount?: number | null; meta
 
 const PAYING = new Set(["trialing", "active", "past_due"]);
 
+/** What the admin's daily revenue needs from an event: cents paid and the Stripe customer. */
+export interface LedgerExtra { amount_cents?: number | null; customer?: string | null }
+
 export interface SubscriptionRow {
   stripe_customer_id: string; stripe_subscription_id: string; tier: Tier; status: string;
   current_period_end: string | null; cancel_at_period_end: boolean; trialed_at?: string;
@@ -93,7 +96,8 @@ export interface SubscriptionRow {
 /** What the webhook needs from the database. Production: supabaseBillingDb() (service role). Tests: in memory. */
 export interface BillingDb {
   seen(eventId: string): Promise<boolean>;
-  markSeen(eventId: string, type: string): Promise<void>;
+  /** `extra`: the revenue ledger (F15), set for invoice.paid only. */
+  markSeen(eventId: string, type: string, extra?: LedgerExtra): Promise<void>;
   linkCustomer(userId: string, customerId: string): Promise<void>;
   userForCustomer(customerId: string): Promise<string | null>;
   /** The user's linked Stripe customer and subscription status, if any. */
@@ -191,6 +195,14 @@ export async function handleEvent(event: Stripe.Event, db: BillingDb, stripe: St
   }
 }
 
+/** invoice.paid: the cents actually paid (a whole number, else null) and the customer, for the events table's amount_cents. */
+export function ledgerExtra(event: Stripe.Event): LedgerExtra | undefined {
+  if (event.type !== "invoice.paid") return undefined;
+  const inv = event.data.object;
+  const cents = Number.isSafeInteger(inv.amount_paid) && inv.amount_paid >= 0 ? inv.amount_paid : null;
+  return { amount_cents: cents, customer: idOf(inv.customer) };
+}
+
 /** Verify (raw body, signature, 5-minute timestamp tolerance), dedupe by event.id, apply. */
 export async function handleWebhook(req: Request, db: BillingDb, stripe: Stripe | null, secret = process.env.STRIPE_WEBHOOK_SECRET): Promise<Response> {
   const sig = req.headers.get("stripe-signature");
@@ -210,6 +222,6 @@ export async function handleWebhook(req: Request, db: BillingDb, stripe: Stripe 
     return Response.json({ error: "Retry" }, { status: 500 });
   }
   await afterBillingEvent(event, db);   // T-299/T-300: funnel steps and lifecycle emails; never throws
-  await db.markSeen(event.id, event.type);   // after success, so a failed event is retried
+  await db.markSeen(event.id, event.type, ledgerExtra(event));   // after success, so a failed event is retried
   return Response.json({ received: true });
 }

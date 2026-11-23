@@ -11,7 +11,13 @@ export function supabaseBillingDb(): BillingDb {
   const db = supabaseAdmin();
   return {
     seen: async (id) => !!must(await db.from("stripe_events").select("id").eq("id", id).maybeSingle()).data,
-    markSeen: async (id, type) => { must(await db.from("stripe_events").upsert({ id, type }, { onConflict: "id", ignoreDuplicates: true })); },
+    markSeen: async (id, type, extra) => {
+      const row = { id, type, ...(extra?.amount_cents != null ? { amount_cents: extra.amount_cents } : {}), ...(extra?.customer ? { customer: extra.customer } : {}) };
+      const r = await db.from("stripe_events").upsert(row, { onConflict: "id", ignoreDuplicates: true });
+      // Before the F15 migration (20261122000300) the ledger columns don't exist: record the event without them.
+      if (r.error && ("amount_cents" in row || "customer" in row)) must(await db.from("stripe_events").upsert({ id, type }, { onConflict: "id", ignoreDuplicates: true }));
+      else must(r);
+    },
     linkCustomer: async (user_id, stripe_customer_id) => {
       must(await db.from("subscriptions").upsert({ user_id, stripe_customer_id, updated_at: new Date().toISOString() }, { onConflict: "user_id" }));
     },
