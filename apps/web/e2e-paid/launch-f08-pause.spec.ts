@@ -1,6 +1,6 @@
 // F8: pause the account for 24 h -> every app page shows only the pause screen, data routes answer 423, and the end
 // time is shown in the user's time zone. Supabase is the in-app mock.
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "./fixtures";
 
 test.use({ timezoneId: "Asia/Tokyo" });
 

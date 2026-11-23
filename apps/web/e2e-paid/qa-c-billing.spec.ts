@@ -1,7 +1,7 @@
 // Marc's QA list, Nov 20 (lane C): #32 "Start trial" keeps plan and period through sign-up and lands in checkout;
 // #18/#48 /account shows the plan, the trial-end date and "Manage billing or cancel" (Stripe portal), and Terms and
 // Refunds point there. Supabase and Stripe are the in-app mock (app/e2e-mock).
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 import { expectPlanActive } from "./checkout";
 
 test("#32 → #18: Start trial (Premium, yearly) signed out → sign-up → checkout → /account shows plan, trial end, cancel", async ({ page }) => {

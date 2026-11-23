@@ -1,6 +1,6 @@
 // /pricing layout shift stays under 0.1 at 390 and 1440 for a signed-out visitor, a Free account and a Pro account
 // (the Details expand and the plan buttons that wait for /api/me must not move the plans). Supabase/Stripe: the in-app mock.
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "./fixtures";
 import { expectPlanActive } from "./checkout";
 
 async function signIn(page: Page, email: string) {

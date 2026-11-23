@@ -1,7 +1,7 @@
 // Walk-through 1: the first visit from a shared bet link, signed out. /m teaser has the public facts (price, closes in),
 // a locked verdict row and no run-together copy; /signup?next=/m/<id> names the bet (title read server-side); the header
 // has no second "Sign up" button on the auth pages; /m CLS stays under 0.1.
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 import flagsFixture from "../test/fixtures/flags.json";
 
 const id = (flagsFixture as unknown as { flags: { id: string }[] }).flags[0]!.id;   // the id a shared link would carry
