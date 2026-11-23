@@ -74,6 +74,7 @@ Problems (from the dry run):
 - [nit] Search hits shift the result box (CLS 0.06-0.07).
 
 ## Found in review, outside a lane
+- 20:25 Reviews: #90 d14ddab FAIL (blocker: with all columns at 1440/1920 the Market column is 0 px; tracker lane fixing). #89 ee4ab70 PASS with notes (2 should-fix with the data lane). The Premium combo tray couldn't be confirmed on the mock (fixture markets read Closed); to check in the official walk.
 - 20:19 #88 (T-wt2b, distinct topic labels) merged as 130013b after reviewer PASS at cbb0d30, CI web green, Vercel READY. #85 CI was red on the s7-upgrade stale copy assertion; I fixed it at a56ac8b (one line). #89 PASS with notes; 2 should-fix items are with the data lane.
 - 20:12 #87 (T-wt-table) merged as bc946eb after reviewer PASS with notes at 52d7443, CI web green, Vercel READY. Follow-up #90 (stable column widths, no dot) is in progress.
 - 20:10 CI web takes about 31 of its 45 min: playwright install ~7 min, and the paid e2e shards run one after the other (~18 min). The trust lane is splitting the paid shards into parallel jobs and caching browsers (T-ci), keeping the required check named "web". Reviewer PASS: #85 50a700c, #87 52d7443 (pending CI).
