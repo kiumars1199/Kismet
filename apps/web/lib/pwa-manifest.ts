@@ -1,8 +1,8 @@
-// F10: web app manifest, served at /manifest.webmanifest. With public/sw.js it makes Kismet installable (Chrome, Android)
+// F10: web app manifest, served at /manifest.webmanifest (app/manifest.webmanifest/route.ts). With public/sw.js it makes Kismet installable (Chrome, Android)
 // and addable to the Home Screen on iOS 16.4+, which web push needs. Icons are generated from app/icon.svg.
 import type { MetadataRoute } from "next";
 
-export default function manifest(): MetadataRoute.Manifest {
+export function manifest(): MetadataRoute.Manifest {
   return {
     name: "Kismet",
     short_name: "Kismet",
