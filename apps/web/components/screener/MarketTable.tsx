@@ -10,7 +10,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { ApiGroup, ApiRow } from "@/lib/api";
 import type { SortKey } from "@/lib/filters/state";
 import type { FilterState } from "@/lib/filters/state";
-import { basis, DASH, edge, money, pct, price, RETURN_HELP, sideEdge, formatCount } from "@/lib/format";
+import { basis, DASH, edge, money, pct, price, RETURN_HELP, sideEdge, formatCount, cleanEventLine } from "@/lib/format";
 import { WatchStar } from "@/components/watch/WatchStar";
 import { checkHref } from "@/lib/check/href";
 import { drawerHref, useOpenDrawer } from "@/components/market/drawer";
@@ -148,7 +148,7 @@ export function MarketTable({ items, sort, onSort, onToggleGroup, pro = false, l
   // so the pager and footer don't jump from the first paint to the measured one (CLS, F3 review).
   const bottom = virtual.length ? v.getTotalSize() - (virtual.at(-1)!.end - margin) : v.getTotalSize();
 
-  // Below xl the table scrolls inside its own box: a fade on the right edge says more columns are off to the right. It is an overlay
+  // When the table scrolls inside its own box (below xl, or wider than the box with extra columns): a fade on the right edge says more columns are off to the right. It is an overlay
   // (absolute, no layout), so it can never shift the page.
   const boxRef = useRef<HTMLDivElement>(null);
   const [more, setMore] = useState(false);
@@ -172,9 +172,11 @@ export function MarketTable({ items, sort, onSort, onToggleGroup, pro = false, l
 
   return (
     // The table is about 1250 px wide at its narrowest (tighter column padding from xl): below 1280 px it scrolls inside its own box,
-    // never the page. From 1280 px it fits, so the box doesn't scroll and the sticky header keeps working there.
+    // never the page. From 1280 px, when it fits (`more` false), the box doesn't scroll and the sticky header keeps working; with extra
+    // columns it doesn't fit, so the box scrolls at every width. `more` is the same under overflow-visible (scrollWidth still counts
+    // the overflowing content), so the class cannot flip-flop.
     <div className="relative rounded-card border border-border bg-surface">
-      <div ref={boxRef} className="overflow-x-auto xl:overflow-visible">
+      <div ref={boxRef} className={more ? "overflow-x-auto" : "overflow-x-auto xl:overflow-visible"}>
       <table className={`w-full border-collapse text-sm ${loading ? "opacity-60" : ""}`} aria-busy={loading}>
         <thead className="sticky top-0 z-10 bg-surface lg:top-16">
           <tr className="border-b border-border text-left text-xs text-muted">
@@ -212,7 +214,7 @@ export function MarketTable({ items, sort, onSort, onToggleGroup, pro = false, l
                 <tr key={vi.key} data-index={vi.index} ref={v.measureElement} className="border-t border-border bg-background/40">
                   <td colSpan={visible.length} className="px-3 pb-1.5 pt-4">
                     <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                      <Link href={`/event/${it.g.event_id}`} className="font-heading text-[15px] font-semibold hover:text-accent-hover">{it.g.event}</Link>
+                      <Link href={`/event/${it.g.event_id}`} className="font-heading text-[15px] font-semibold hover:text-accent-hover">{cleanEventLine(it.g.event)}</Link>
                       <span className="text-xs text-muted"><ClosesLine at={it.g.closes_at} cap /></span>
                       {it.g.flagged > 0 && <span className="text-xs text-accent-softer">{it.g.flagged} best {it.g.flagged === 1 ? "bet" : "bets"}</span>}
                     </div>
@@ -259,7 +261,7 @@ export function MarketTable({ items, sort, onSort, onToggleGroup, pro = false, l
         </tbody>
       </table>
       </div>
-      <div aria-hidden="true" data-testid="table-fade" data-on={more ? "true" : "false"} className={`pointer-events-none absolute inset-y-0 right-0 w-10 rounded-r-card bg-gradient-to-l from-surface to-transparent transition-opacity xl:hidden ${more ? "opacity-100" : "opacity-0"}`} />
+      <div aria-hidden="true" data-testid="table-fade" data-on={more ? "true" : "false"} className={`pointer-events-none absolute inset-y-0 right-0 w-10 rounded-r-card bg-gradient-to-l from-surface to-transparent transition-opacity ${more ? "opacity-100" : "opacity-0"}`} />
     </div>
   );
 }
