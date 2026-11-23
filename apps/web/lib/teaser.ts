@@ -36,7 +36,7 @@ export async function eventTeaser(id: string): Promise<Teaser | null> {
   const ms = store.byEvent.get(id);
   if (!ms?.length) return null;
   const closes = ms.map((m) => m.closes_at).filter((t): t is number => typeof t === "number").sort((a, b) => a - b);
-  return { kind: "event", id, title: ms[0]!.event, category: label(ms[0]!.category), closes_at: closes[0] ?? null, markets: ms.length };
+  return { kind: "event", id, title: cleanEventLine(ms[0]!.event), category: label(ms[0]!.category), closes_at: closes[0] ?? null, markets: ms.length };
 }
 
 export const TEASER_LINE = "Kismet has a verdict on this market. Sign up free to see it.";
