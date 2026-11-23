@@ -155,7 +155,9 @@ export function MarketTable({ items, sort, onSort, onToggleGroup, pro = false, l
   };
 
   return (
-    <div className="rounded-card border border-border bg-surface">
+    // The table is about 1294 px wide at its narrowest: below 1440 px it scrolls inside its own box, never the page (at 768 and
+    // 1024 it made the whole page scroll sideways). From 1440 px it fits, so the box doesn't scroll and the sticky header keeps working.
+    <div className="overflow-x-auto rounded-card border border-border bg-surface min-[1440px]:overflow-visible">
       <table className={`w-full border-collapse text-sm ${loading ? "opacity-60" : ""}`} aria-busy={loading}>
         <thead className="sticky top-0 z-10 bg-surface lg:top-16">
           <tr className="border-b border-border text-left text-xs text-muted">
