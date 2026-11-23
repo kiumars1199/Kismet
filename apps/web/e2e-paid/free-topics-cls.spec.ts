@@ -1,5 +1,7 @@
 // #71 review: on Free, changing the topic filter must not shift the page. /api/flags is delayed 1.5 s (the answer lands
 // well outside the 500 ms input window, so every shift counts); CLS ignores entries with hadRecentInput.
+// Independent of the day's random Free sample: the answers for the filtered URLs are shaped from the real unfiltered one
+// (no rows, or a few rows), so the same transitions happen on any data.
 import { expect, test, type Page } from "@playwright/test";
 
 async function signUp(page: Page, email: string) {
@@ -32,102 +34,90 @@ const observeCls = (page: Page) => page.evaluate(() => {
   } })
     .observe({ type: "layout-shift", buffered: false });
 });
+const resetCls = (page: Page) => page.evaluate(() => { (window as unknown as { __cls: number }).__cls = 0; });
+const sources = (page: Page) => page.evaluate(() => (window as unknown as { __src: string[] }).__src.splice(0).join("\n"));
 const readCls = async (page: Page) => { await page.waitForLoadState("networkidle"); await page.waitForTimeout(1_500); return page.evaluate(() => (window as unknown as { __cls: number }).__cls); };
 
-type Flags = { rows: unknown[]; total: number; free_daily?: number; facets: { topics: Record<string, number> } };
+type Flags = { rows: unknown[]; groups?: unknown[]; total: number; free_daily?: number };
 
-/** A topic where today's Free sample has nothing (total > 0, no rows). Found from the data, not hard-coded. */
-async function topics(page: Page) {
-  const all = (await (await page.request.get("/api/flags")).json()) as Flags;
-  let empty: string | null = null;
-  for (const t of Object.keys(all.facets.topics).slice(0, 40)) {
-    const r = (await (await page.request.get(`/api/flags?t=${encodeURIComponent(t)}`)).json()) as Flags;
-    if (r.free_daily === undefined || r.total === 0) continue;
-    if (r.rows.length === 0 && !empty) empty = t;
-    if (empty) break;
-  }
-  return { empty };
+/** Answer /api/flags 1.5 s late. `shape` rewrites the real answer for URLs the test wants short or empty. */
+async function slowFlags(page: Page, shape: (j: Flags, url: URL) => Flags) {
+  await page.route("**/api/flags*", async (r) => {
+    await new Promise((x) => setTimeout(x, 1_500));
+    const res = await r.fetch();
+    await r.fulfill({ response: res, json: shape((await res.json()) as Flags, new URL(r.request().url())) });
+  });
 }
+/** Free's empty sample: bets match the filters (total > 0) but none is in today's sample. */
+const empty = (j: Flags): Flags => ({ ...j, rows: [], groups: [], total: Math.max(j.total, 5), free_daily: j.free_daily ?? 10 });
+/** A short sample: the first few rows. */
+const few = (j: Flags): Flags => ({ ...j, rows: j.rows.slice(0, 3), groups: undefined, total: Math.max(j.total, 5), free_daily: j.free_daily ?? 10 });
+const EMPTY_URL = "/bets?fav=1&t=sports.nfl";   // any topic: the answer for t= is shaped empty
+const push = (page: Page, u: string) => page.evaluate((x) => { window.history.pushState(null, "", x); }, u);
+const loadFull = async (page: Page, url = "/bets?fav=0") => {
+  await page.goto(url);
+  await expect(page.getByTestId("bets-list").locator("article").first()).toBeVisible({ timeout: 60_000 });
+  await skipTour(page);
+  await page.evaluate(() => window.scrollTo(0, 0));   // the filters sit at the top: that is where these changes are made from
+  await page.waitForLoadState("networkidle");
+};
 
 for (const { w, h } of [{ w: 390, h: 844 }, { w: 1440, h: 900 }]) {
   test.describe(`Free at ${w}px`, () => {
     test.beforeEach(async ({ page }) => { await page.setViewportSize({ width: w, height: h }); });
 
-    test("Show today's free bets: CLS < 0.1 when /api/flags is slow", async ({ page }) => {
-      test.setTimeout(150_000);
+    test("full → empty by a filter change, then Show today's free bets: CLS < 0.1 each way", async ({ page }) => {
+      test.setTimeout(300_000);
       await signUp(page, `cls-free-a-${w}-${Date.now()}@example.com`);
-      const { empty } = await topics(page);
-      expect(empty, "a topic with no bets in today's Free sample").not.toBeNull();
-      await page.goto(`/bets?t=${encodeURIComponent(empty!)}`);
+      await loadFull(page);
+      await slowFlags(page, (j, u) => (u.searchParams.has("t") ? empty(j) : j));
+      await observeCls(page);
+      await push(page, EMPTY_URL);   // full → empty
       const show = page.getByTestId("show-free-sample");
-      await expect(show).toBeVisible({ timeout: 60_000 });
+      await expect(show).toBeVisible({ timeout: 30_000 });
+      const forward = await readCls(page);
+      if (forward >= 0.1) console.log(await sources(page));
+      console.log(`CLS full → empty at ${w}px: ${forward.toFixed(3)}`);
       await skipTour(page);
-      await page.waitForLoadState("networkidle");
-      await page.route("**/api/flags*", async (r) => { await new Promise((x) => setTimeout(x, 1_500)); await r.continue(); });
-      await observeCls(page);
-      await show.click();
+      await page.evaluate(() => window.scrollTo(0, 0));
+      await resetCls(page);
+      await show.click();   // empty → full
       await expect(page.getByTestId("bets-list").locator("article").first()).toBeVisible({ timeout: 30_000 });
-      const cls = await readCls(page);
-      console.log(`CLS show-free-sample at ${w}px: ${cls.toFixed(3)}`);
-      expect(cls).toBeLessThan(0.1);
+      const back = await readCls(page);
+      if (back >= 0.1) console.log(await sources(page));
+      console.log(`CLS Show today's free bets at ${w}px: ${back.toFixed(3)}`);
+      expect(forward).toBeLessThan(0.1);
+      expect(back).toBeLessThan(0.1);
     });
 
-    test("removing a filter pill swaps the sample without shifting the page", async ({ page }) => {
-      test.setTimeout(150_000);
+    test("a few bets → empty, and removing a filter pill grows the list back: CLS < 0.1 each way", async ({ page }) => {
+      test.setTimeout(300_000);
       await signUp(page, `cls-free-b-${w}-${Date.now()}@example.com`);
-      // a "Return ≥ +N%" filter that leaves the Free sample short: removing its pill grows the list to the full sample
-      let roi: number | null = null;
-      for (const n of [5, 10, 15, 20, 30, 40, 60, 80, 120, 200]) {
-        const r = (await (await page.request.get(`/api/flags?roi=${n}`)).json()) as Flags;
-        if (r.free_daily !== undefined && r.rows.length >= 1 && r.rows.length <= 6) { roi = n; break; }
-      }
-      expect(roi, "a return filter that leaves 1 to 6 of today's Free bets").not.toBeNull();
-      await page.goto(`/bets?roi=${roi}`);
-      const pill = page.getByRole("link", { name: `Remove filter: Return ≥ +${roi}%` });
-      await expect(pill).toBeVisible({ timeout: 60_000 });
-      await expect(page.getByTestId("bets-list").locator("article").first()).toBeVisible({ timeout: 60_000 });
-      await skipTour(page);
+      await loadFull(page);
+      await slowFlags(page, (j, u) => (u.searchParams.has("t") ? empty(j) : u.searchParams.has("val") ? few(j) : j));
+      await push(page, "/bets?fav=0&val=1");   // a real pill ("Tested on past data"), answered with a few rows
+      const pill = page.getByRole("link", { name: "Remove filter: Tested on past data" });
+      await expect(pill).toBeVisible({ timeout: 30_000 });
+      await expect(async () => { expect(await page.getByTestId("bets-list").locator("article").count()).toBeLessThanOrEqual(3); }).toPass({ timeout: 30_000 });
       await page.waitForLoadState("networkidle");
-      await page.route("**/api/flags*", async (r) => { await new Promise((x) => setTimeout(x, 1_500)); await r.continue(); });
       await observeCls(page);
-      await pill.click();
-      await expect(page).not.toHaveURL(/[?&]roi=/);
-      const cls = await readCls(page);
-      console.log(`CLS remove pill at ${w}px: ${cls.toFixed(3)}`);
-      expect(cls).toBeLessThan(0.1);
+      await push(page, EMPTY_URL);   // a few → empty
+      await expect(page.getByTestId("show-free-sample")).toBeVisible({ timeout: 30_000 });
+      const toEmpty = await readCls(page);
+      if (toEmpty >= 0.1) console.log(await sources(page));
+      console.log(`CLS a few → empty at ${w}px: ${toEmpty.toFixed(3)}`);
+      await push(page, "/bets?fav=0&val=1");
+      await expect(page.getByTestId("bets-list").locator("article").first()).toBeVisible({ timeout: 30_000 });
+      await page.waitForLoadState("networkidle");
+      await resetCls(page);
+      await pill.click();   // a few → full, by removing the pill
+      await expect(page).not.toHaveURL(/[?&]val=/);
+      await expect(async () => { expect(await page.getByTestId("bets-list").locator("article").count()).toBeGreaterThan(3); }).toPass({ timeout: 30_000 });
+      const grow = await readCls(page);
+      if (grow >= 0.1) console.log(await sources(page));
+      console.log(`CLS remove pill at ${w}px: ${grow.toFixed(3)}`);
+      expect(toEmpty).toBeLessThan(0.1);
+      expect(grow).toBeLessThan(0.1);
     });
-
-    // The reverse direction: a full list on screen, then a filter change (a soft navigation, as the screener does) whose
-    // answer is Free's empty sample. The new heading row and the short list must not pull the page around.
-    for (const from of ["all", "one"] as const) {
-      test(`full → empty (${from === "all" ? "10 bets" : "a few bets"} on screen): CLS < 0.1 when /api/flags is slow`, async ({ page }) => {
-        test.setTimeout(300_000);
-        await signUp(page, `cls-free-c-${from}-${w}-${Date.now()}@example.com`);
-        const { empty } = await topics(page);
-        expect(empty, "a topic with no bets in today's Free sample").not.toBeNull();
-        let start = "/bets?fav=0";
-        if (from === "one") {
-          let roi: number | null = null;
-          for (const n of [5, 10, 15, 20, 30, 40, 60, 80, 120, 200]) {
-            const r = (await (await page.request.get(`/api/flags?roi=${n}`)).json()) as Flags;
-            if (r.free_daily !== undefined && r.rows.length >= 1 && r.rows.length <= 3) { roi = n; break; }
-          }
-          test.skip(roi === null, "no return filter leaves 1 to 3 of today's Free bets");
-          start = `/bets?fav=0&roi=${roi}`;
-        }
-        await page.goto(start);
-        await expect(page.getByTestId("bets-list").locator("article").first()).toBeVisible({ timeout: 60_000 });
-        await skipTour(page);
-        await page.waitForLoadState("networkidle");
-        await page.route("**/api/flags*", async (r) => { await new Promise((x) => setTimeout(x, 1_500)); await r.continue(); });
-        await observeCls(page);
-        await page.evaluate((u) => { window.history.pushState(null, "", u); }, `/bets?fav=1&t=${encodeURIComponent(empty!)}`);
-        await expect(page.getByTestId("show-free-sample")).toBeVisible({ timeout: 30_000 });
-        const cls = await readCls(page);
-          if (cls >= 0.1) console.log((await page.evaluate(() => (window as unknown as { __src: string[] }).__src)).join("\n"));   // what moved, when it fails
-        console.log(`CLS full → empty (${from}) at ${w}px: ${cls.toFixed(3)}`);
-        expect(cls).toBeLessThan(0.1);
-      });
-    }
   });
 }

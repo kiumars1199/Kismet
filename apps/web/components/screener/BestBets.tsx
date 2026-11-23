@@ -153,6 +153,7 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
   const [saved, setSaved] = useState<{ ok: boolean; msg: string } | null>(null);
 
   const rows = data ? [...data.rows, ...view!.more] : [];
+  const shortSample = sample && rows.length < (daily ?? 0);   // Free, with fewer than a day's allowance on the page
   const emptySample = sample && rows.length === 0;   // Free, and none of today's bets match (only meaningful once data is in)
   const slots = data ? slotsOf(rows, data.groups ? [...data.groups, ...view!.moreGroups] : undefined) : [];
   // QA-A #70/#71: bets left, in bets (`total` counts bets; a game slot holds `size` of them), never below 0. Live
@@ -234,10 +235,10 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
         <>
         {/* #45: the old list stays only as a dim backdrop that can't be used; a visible label says it is being replaced */}
         {busy && <p role="status" data-testid="bets-updating" className="sticky top-16 z-20 mx-auto -mb-2 rounded-full border border-border bg-surface px-4 py-1.5 text-sm font-medium text-text shadow">Updating bets…</p>}
-        {/* Free's empty sample is a short list (the locked card) replacing a long one. It keeps a screenful of height with the
-            card pinned to the bottom of it, so neither the card nor the footer jumps up into view when the answer lands
-            (the heading and its Show button already say what happened). */}
-        <div data-testid="bets-list" aria-busy={busy} inert={busy || undefined} className={`flex flex-col gap-4 transition-opacity duration-200 ease-out ${busy ? "pointer-events-none opacity-40" : ""} ${emptySample ? "min-h-[100svh]" : ""}`}>
+        {/* Free's sample can be short (few or none of the day's bets match) and is replaced by a long one, or the reverse. A short
+            one keeps a screenful of height with the locked card pinned to the bottom of it, so the card (and the footer) is below
+            the fold both before and after and never jumps across the screen when the answer lands. */}
+        <div data-testid="bets-list" aria-busy={busy} inert={busy || undefined} className={`flex flex-col gap-4 transition-opacity duration-200 ease-out ${busy ? "pointer-events-none opacity-40" : ""} ${shortSample ? "min-h-[100svh]" : ""}`}>
           {error && <ErrorState onRetry={sc.retry} what="best bets" error={error} />}
           {!emptySample && <h2 id="top-h" className="text-xl font-semibold">Today&apos;s top {Math.min(TOP, slots.length)}</h2>}
           {!emptySample && <Cards slots={slots.slice(0, TOP)} desktop={desktop} label="top-h" />}
@@ -247,7 +248,7 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
               <Cards slots={slots.slice(TOP)} desktop={desktop} label="more-h" />
             </>
           )}
-          <div className={emptySample ? "mt-auto flex flex-col gap-4" : "contents"}>
+          <div className={shortSample ? "mt-auto flex flex-col gap-4" : "contents"}>
             <LogUpsell />
             {sample && <LockedBets total={data.total} shown={rows.length} daily={daily} />}
           </div>
