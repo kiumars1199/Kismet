@@ -1,0 +1,41 @@
+﻿2026-11-23T21:28:41.5048560Z Current runner version: '2.338.2'
+2026-11-23T21:28:41.5082601Z ##[group]Runner Image Provisioner
+2026-11-23T21:28:41.5083779Z Hosted Compute Agent
+2026-11-23T21:28:41.5085024Z Version: 20261111.635
+2026-11-23T21:28:41.5085872Z Commit: b8a594ea514ff44cadb5342986c68b1eac6e22ed
+2026-11-23T21:28:41.5086967Z Build Date: 2026-11-11T01:49:01Z
+2026-11-23T21:28:41.5087881Z Worker ID: {be4f2df0-41cd-42d1-89c3-f5f146925136}
+2026-11-23T21:28:41.5088823Z Region: eastus3
+2026-11-23T21:28:41.5089627Z Cloud: Azure
+2026-11-23T21:28:41.5090334Z ##[endgroup]
+2026-11-23T21:28:41.5092469Z ##[group]Operating System
+2026-11-23T21:28:41.5093325Z Ubuntu
+2026-11-23T21:28:41.5094030Z 26.04.1
+2026-11-23T21:28:41.5095067Z LTS
+2026-11-23T21:28:41.5095847Z ##[endgroup]
+2026-11-23T21:28:41.5096652Z ##[group]Runner Image
+2026-11-23T21:28:41.5097457Z Image: ubuntu-26.04
+2026-11-23T21:28:41.5098216Z Version: 20261116.202.1
+2026-11-23T21:28:41.5099968Z Included Software: https://github.com/actions/runner-images/blob/ubuntu26/20261116.202/images/ubuntu/Ubuntu2604-Readme.md
+2026-11-23T21:28:41.5102128Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu26%2F20261116.202
+2026-11-23T21:28:41.5103463Z ##[endgroup]
+2026-11-23T21:28:41.5105351Z ##[group]GITHUB_TOKEN Permissions
+2026-11-23T21:28:41.5108428Z Contents: read
+2026-11-23T21:28:41.5109284Z Metadata: read
+2026-11-23T21:28:41.5110095Z ##[endgroup]
+2026-11-23T21:28:41.5112919Z Secret source: Actions
+2026-11-23T21:28:41.5114658Z Cache mode: write
+2026-11-23T21:28:41.5115721Z Prepare workflow directory
+2026-11-23T21:28:41.5585335Z Prepare all required actions
+2026-11-23T21:28:41.5735037Z Complete job name: web
+2026-11-23T21:28:41.6808906Z ##[group]Run echo "job results: $RESULTS"
+2026-11-23T21:28:41.6809788Z [36;1mecho "job results: $RESULTS"[0m
+2026-11-23T21:28:41.6810458Z [36;1mfor r in $RESULTS; do[0m
+2026-11-23T21:28:41.6811470Z [36;1m  if [ "$r" != "success" ]; then echo "a required job did not succeed ($r)"; exit 1; fi[0m
+2026-11-23T21:28:41.6812368Z [36;1mdone[0m
+2026-11-23T21:28:41.7139159Z shell: /usr/bin/bash -e {0}
+2026-11-23T21:28:41.7139982Z env:
+2026-11-23T21:28:41.7140661Z   RESULTS: success success success success
+2026-11-23T21:28:41.7141295Z ##[endgroup]
+2026-11-23T21:28:41.7337677Z job results: success success success success
+2026-11-23T21:28:41.7596842Z Cleaning up orphan processes

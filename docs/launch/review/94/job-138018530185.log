@@ -1,0 +1,404 @@
+﻿2026-11-23T21:18:53.3722031Z Current runner version: '2.338.2'
+2026-11-23T21:18:53.3755245Z ##[group]Runner Image Provisioner
+2026-11-23T21:18:53.3756151Z Hosted Compute Agent
+2026-11-23T21:18:53.3756896Z Version: 20261111.635
+2026-11-23T21:18:53.3757616Z Commit: b8a594ea514ff44cadb5342986c68b1eac6e22ed
+2026-11-23T21:18:53.3758582Z Build Date: 2026-11-11T01:49:01Z
+2026-11-23T21:18:53.3759694Z Worker ID: {903592c4-7c6e-40f8-8ca9-8ae88b81c9ae}
+2026-11-23T21:18:53.3760451Z Region: centralus
+2026-11-23T21:18:53.3761134Z Cloud: Azure
+2026-11-23T21:18:53.3761737Z ##[endgroup]
+2026-11-23T21:18:53.3763338Z ##[group]Operating System
+2026-11-23T21:18:53.3764039Z Ubuntu
+2026-11-23T21:18:53.3764603Z 26.04.1
+2026-11-23T21:18:53.3765264Z LTS
+2026-11-23T21:18:53.3765848Z ##[endgroup]
+2026-11-23T21:18:53.3766427Z ##[group]Runner Image
+2026-11-23T21:18:53.3767122Z Image: ubuntu-26.04
+2026-11-23T21:18:53.3767727Z Version: 20261116.202.1
+2026-11-23T21:18:53.3769272Z Included Software: https://github.com/actions/runner-images/blob/ubuntu26/20261116.202/images/ubuntu/Ubuntu2604-Readme.md
+2026-11-23T21:18:53.3770880Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu26%2F20261116.202
+2026-11-23T21:18:53.3771963Z ##[endgroup]
+2026-11-23T21:18:53.3773115Z ##[group]GITHUB_TOKEN Permissions
+2026-11-23T21:18:53.3775114Z Contents: read
+2026-11-23T21:18:53.3775807Z Metadata: read
+2026-11-23T21:18:53.3776481Z ##[endgroup]
+2026-11-23T21:18:53.3778602Z Secret source: Actions
+2026-11-23T21:18:53.3780083Z Cache mode: write
+2026-11-23T21:18:53.3780922Z Prepare workflow directory
+2026-11-23T21:18:53.4355319Z Prepare all required actions
+2026-11-23T21:18:53.4430272Z Getting action download info
+2026-11-23T21:18:53.6938702Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-11-23T21:18:53.7880787Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-11-23T21:18:53.9888011Z Complete job name: e2e-paid-webkit
+2026-11-23T21:18:54.0540825Z ##[group]Checking docker version
+2026-11-23T21:18:54.0554774Z ##[command]/usr/bin/docker version --format '{{.Server.APIVersion}}'
+2026-11-23T21:18:54.1557015Z '1.54'
+2026-11-23T21:18:54.1579276Z Docker daemon API version: '1.54'
+2026-11-23T21:18:54.1580153Z ##[command]/usr/bin/docker version --format '{{.Client.APIVersion}}'
+2026-11-23T21:18:54.1781649Z '1.54'
+2026-11-23T21:18:54.1799919Z Docker client API version: '1.54'
+2026-11-23T21:18:54.1805524Z ##[endgroup]
+2026-11-23T21:18:54.1809348Z ##[group]Clean up resources from previous jobs
+2026-11-23T21:18:54.1815982Z ##[command]/usr/bin/docker ps --all --quiet --no-trunc --filter "label=bd1cfc"
+2026-11-23T21:18:54.1985642Z ##[command]/usr/bin/docker network prune --force --filter "label=bd1cfc"
+2026-11-23T21:18:54.2158554Z ##[endgroup]
+2026-11-23T21:18:54.2159413Z ##[group]Create local container network
+2026-11-23T21:18:54.2169526Z ##[command]/usr/bin/docker network create --label bd1cfc github_network_2e5ad72f1f4c4fd7b09e7a67f1a69ccd
+2026-11-23T21:18:54.2705388Z 056598ce390c0d78d4572e8b0e708a7625a80c8e96b48db9e98e3ca52d1bbf7e
+2026-11-23T21:18:54.2714651Z ##[endgroup]
+2026-11-23T21:18:54.2739584Z ##[group]Starting job container
+2026-11-23T21:18:54.2762575Z ##[command]/usr/bin/docker pull mcr.microsoft.com/playwright:v1.65.1-noble
+2026-11-23T21:18:54.3758171Z v1.65.1-noble: Pulling from playwright
+2026-11-23T21:18:54.4351567Z 6802dea8d812: Pulling fs layer
+2026-11-23T21:18:54.4352970Z a41e11046077: Pulling fs layer
+2026-11-23T21:18:54.4353848Z 9e0eed0efbea: Pulling fs layer
+2026-11-23T21:18:54.4354651Z 80e9d9e1b5bb: Pulling fs layer
+2026-11-23T21:18:54.4355628Z 16013128adc1: Pulling fs layer
+2026-11-23T21:18:54.4356773Z 47752f912df1: Pulling fs layer
+2026-11-23T21:18:54.5970016Z 9e0eed0efbea: Download complete
+2026-11-23T21:18:55.3973846Z 80e9d9e1b5bb: Download complete
+2026-11-23T21:18:55.9986306Z 47752f912df1: Download complete
+2026-11-23T21:18:56.0010954Z a41e11046077: Download complete
+2026-11-23T21:18:57.6945449Z 6802dea8d812: Download complete
+2026-11-23T21:18:57.6957783Z 16013128adc1: Download complete
+2026-11-23T21:18:59.7953348Z 9e0eed0efbea: Pull complete
+2026-11-23T21:18:59.8015727Z a41e11046077: Pull complete
+2026-11-23T21:19:04.8962455Z 6802dea8d812: Pull complete
+2026-11-23T21:19:08.1974370Z 16013128adc1: Pull complete
+2026-11-23T21:19:09.7970762Z 47752f912df1: Pull complete
+2026-11-23T21:19:11.0633622Z 80e9d9e1b5bb: Pull complete
+2026-11-23T21:19:11.0636985Z Digest: sha256:1507cbfc550a63a6b7396791ca4f00df17beb56342d2447b3f106c306f525579
+2026-11-23T21:19:11.0638436Z Status: Downloaded newer image for mcr.microsoft.com/playwright:v1.65.1-noble
+2026-11-23T21:19:11.0649846Z mcr.microsoft.com/playwright:v1.65.1-noble
+2026-11-23T21:19:11.0786820Z ##[command]/usr/bin/docker create --name 610ef969fe714ba29796c36c2da21c40_mcrmicrosoftcomplaywrightv1651noble_059591 --label bd1cfc --workdir /__w/Kismet/Kismet --network github_network_2e5ad72f1f4c4fd7b09e7a67f1a69ccd  -e "HOME=/github/home" -e GITHUB_ACTIONS=true -e CI=true -v "/var/run/docker.sock":"/var/run/docker.sock" -v "/home/runner/work":"/__w" -v "/home/runner/actions-runner/cached/2.338.2/externals":"/__e":ro -v "/home/runner/work/_temp":"/__w/_temp" -v "/home/runner/work/_actions":"/__w/_actions" -v "/opt/hostedtoolcache":"/__t" -v "/home/runner/work/_temp/_github_home":"/github/home" -v "/home/runner/work/_temp/_github_workflow":"/github/workflow" --entrypoint "tail" mcr.microsoft.com/playwright:v1.65.1-noble "-f" "/dev/null"
+2026-11-23T21:19:14.3244593Z 18dc8dbaa07a0dc34e56977199e854cebf0a807e8285f39392709474e93b859c
+2026-11-23T21:19:14.3271355Z ##[command]/usr/bin/docker start 18dc8dbaa07a0dc34e56977199e854cebf0a807e8285f39392709474e93b859c
+2026-11-23T21:19:14.5293413Z 18dc8dbaa07a0dc34e56977199e854cebf0a807e8285f39392709474e93b859c
+2026-11-23T21:19:14.5337515Z ##[command]/usr/bin/docker ps --all --filter id=18dc8dbaa07a0dc34e56977199e854cebf0a807e8285f39392709474e93b859c --filter status=running --no-trunc --format "{{.ID}} {{.Status}}"
+2026-11-23T21:19:14.5550790Z 18dc8dbaa07a0dc34e56977199e854cebf0a807e8285f39392709474e93b859c Up Less than a second
+2026-11-23T21:19:14.5575395Z ##[command]/usr/bin/docker inspect --format "{{range .Config.Env}}{{println .}}{{end}}" 18dc8dbaa07a0dc34e56977199e854cebf0a807e8285f39392709474e93b859c
+2026-11-23T21:19:14.5719901Z HOME=/github/home
+2026-11-23T21:19:14.5720330Z GITHUB_ACTIONS=true
+2026-11-23T21:19:14.5720664Z CI=true
+2026-11-23T21:19:14.5720995Z PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+2026-11-23T21:19:14.5721380Z LANG=C.UTF-8
+2026-11-23T21:19:14.5721957Z LC_ALL=C.UTF-8
+2026-11-23T21:19:14.5722554Z PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+2026-11-23T21:19:14.5745109Z ##[endgroup]
+2026-11-23T21:19:14.5754197Z ##[group]Waiting for all services to be ready
+2026-11-23T21:19:14.5755996Z ##[endgroup]
+2026-11-23T21:19:14.6059971Z ##[group]Run actions/checkout@v4
+2026-11-23T21:19:14.6060607Z with:
+2026-11-23T21:19:14.6060834Z   repository: kiumars1199/Kismet
+2026-11-23T21:19:14.6063354Z   token: ***
+2026-11-23T21:19:14.6063576Z   ssh-strict: true
+2026-11-23T21:19:14.6063803Z   ssh-user: git
+2026-11-23T21:19:14.6064015Z   persist-credentials: true
+2026-11-23T21:19:14.6064269Z   clean: true
+2026-11-23T21:19:14.6064491Z   sparse-checkout-cone-mode: true
+2026-11-23T21:19:14.6064749Z   fetch-depth: 1
+2026-11-23T21:19:14.6064941Z   fetch-tags: false
+2026-11-23T21:19:14.6065146Z   show-progress: true
+2026-11-23T21:19:14.6065365Z   lfs: false
+2026-11-23T21:19:14.6065557Z   submodules: false
+2026-11-23T21:19:14.6065777Z   set-safe-directory: true
+2026-11-23T21:19:14.6066028Z   allow-unsafe-pr-checkout: false
+2026-11-23T21:19:14.6066495Z ##[endgroup]
+2026-11-23T21:19:14.6212153Z ##[command]/usr/bin/docker exec  18dc8dbaa07a0dc34e56977199e854cebf0a807e8285f39392709474e93b859c sh -c "cat /etc/*release | grep ^ID"
+2026-11-23T21:19:15.0039479Z Syncing repository: kiumars1199/Kismet
+2026-11-23T21:19:15.0041149Z ##[group]Getting Git version info
+2026-11-23T21:19:15.0041539Z Working directory is '/__w/Kismet/Kismet'
+2026-11-23T21:19:15.0042289Z [command]/usr/bin/git version
+2026-11-23T21:19:15.0061477Z git version 2.43.0
+2026-11-23T21:19:15.0089548Z ##[endgroup]
+2026-11-23T21:19:15.0111615Z Temporarily overriding HOME='/__w/_temp/df07ed87-27ec-46b7-acb5-f471bb74198c' before making global git config changes
+2026-11-23T21:19:15.0113242Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-23T21:19:15.0115692Z [command]/usr/bin/git config --global --add safe.directory /__w/Kismet/Kismet
+2026-11-23T21:19:15.0158751Z Deleting the contents of '/__w/Kismet/Kismet'
+2026-11-23T21:19:15.0164305Z ##[group]Initializing the repository
+2026-11-23T21:19:15.0168521Z [command]/usr/bin/git init /__w/Kismet/Kismet
+2026-11-23T21:19:15.0209765Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-23T21:19:15.0212071Z hint: is subject to change. To configure the initial branch name to use in all
+2026-11-23T21:19:15.0213466Z hint: of your new repositories, which will suppress this warning, call:
+2026-11-23T21:19:15.0214714Z hint: 
+2026-11-23T21:19:15.0215472Z hint: 	git config --global init.defaultBranch <name>
+2026-11-23T21:19:15.0216071Z hint: 
+2026-11-23T21:19:15.0216581Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-23T21:19:15.0217447Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-23T21:19:15.0218173Z hint: 
+2026-11-23T21:19:15.0218543Z hint: 	git branch -m <name>
+2026-11-23T21:19:15.0219792Z Initialized empty Git repository in /__w/Kismet/Kismet/.git/
+2026-11-23T21:19:15.0233616Z [command]/usr/bin/git remote add origin https://github.com/kiumars1199/Kismet
+2026-11-23T21:19:15.0270824Z ##[endgroup]
+2026-11-23T21:19:15.0271247Z ##[group]Disabling automatic garbage collection
+2026-11-23T21:19:15.0275321Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-23T21:19:15.0312802Z ##[endgroup]
+2026-11-23T21:19:15.0313637Z ##[group]Setting up auth
+2026-11-23T21:19:15.0329295Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-23T21:19:15.0360452Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-23T21:19:15.0676937Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-23T21:19:15.0712154Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-23T21:19:15.1005133Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-23T21:19:15.1050768Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-23T21:19:15.1329842Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-23T21:19:15.1379200Z ##[endgroup]
+2026-11-23T21:19:15.1379824Z ##[group]Fetching the repository
+2026-11-23T21:19:15.1391675Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +58f24baa0e6a4f64093ffeef8c205bc6ed3ae3df:refs/remotes/pull/94/merge
+2026-11-23T21:19:21.5645994Z From https://github.com/kiumars1199/Kismet
+2026-11-23T21:19:21.5646998Z  * [new ref]         58f24baa0e6a4f64093ffeef8c205bc6ed3ae3df -> pull/94/merge
+2026-11-23T21:19:21.5677414Z ##[endgroup]
+2026-11-23T21:19:21.5678002Z ##[group]Determining the checkout info
+2026-11-23T21:19:21.5678472Z ##[endgroup]
+2026-11-23T21:19:21.5679253Z [command]/usr/bin/git sparse-checkout disable
+2026-11-23T21:19:21.5790166Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-23T21:19:21.5827383Z ##[group]Checking out the ref
+2026-11-23T21:19:21.5833314Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/94/merge
+2026-11-23T21:19:22.5989426Z Updating files:  86% (1925/2226)
+2026-11-23T21:19:22.6106076Z Updating files:  87% (1937/2226)
+2026-11-23T21:19:22.6213168Z Updating files:  88% (1959/2226)
+2026-11-23T21:19:22.6326564Z Updating files:  89% (1982/2226)
+2026-11-23T21:19:22.6397141Z Updating files:  90% (2004/2226)
+2026-11-23T21:19:22.6482400Z Updating files:  91% (2026/2226)
+2026-11-23T21:19:22.6593422Z Updating files:  92% (2048/2226)
+2026-11-23T21:19:22.6607985Z Updating files:  93% (2071/2226)
+2026-11-23T21:19:22.6622076Z Updating files:  94% (2093/2226)
+2026-11-23T21:19:22.6635239Z Updating files:  95% (2115/2226)
+2026-11-23T21:19:22.6907031Z Updating files:  96% (2137/2226)
+2026-11-23T21:19:22.7217586Z Updating files:  97% (2160/2226)
+2026-11-23T21:19:22.7230108Z Updating files:  98% (2182/2226)
+2026-11-23T21:19:22.7245491Z Updating files:  99% (2204/2226)
+2026-11-23T21:19:22.7246927Z Updating files: 100% (2226/2226)
+2026-11-23T21:19:22.7247779Z Updating files: 100% (2226/2226), done.
+2026-11-23T21:19:22.7319325Z Note: switching to 'refs/remotes/pull/94/merge'.
+2026-11-23T21:19:22.7319852Z 
+2026-11-23T21:19:22.7320236Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-11-23T21:19:22.7321078Z changes and commit them, and you can discard any commits you make in this
+2026-11-23T21:19:22.7321926Z state without impacting any branches by switching back to a branch.
+2026-11-23T21:19:22.7322432Z 
+2026-11-23T21:19:22.7322750Z If you want to create a new branch to retain commits you create, you may
+2026-11-23T21:19:22.7323533Z do so (now or later) by using -c with the switch command. Example:
+2026-11-23T21:19:22.7324031Z 
+2026-11-23T21:19:22.7324206Z   git switch -c <new-branch-name>
+2026-11-23T21:19:22.7324506Z 
+2026-11-23T21:19:22.7324669Z Or undo this operation with:
+2026-11-23T21:19:22.7324943Z 
+2026-11-23T21:19:22.7325091Z   git switch -
+2026-11-23T21:19:22.7325294Z 
+2026-11-23T21:19:22.7325659Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-23T21:19:22.7326200Z 
+2026-11-23T21:19:22.7326796Z HEAD is now at 58f24ba Merge 9a35dc6f276138907be44a348e82dcf1aa03351f into 6450b507b83840e82e25a941e201d640b4484c69
+2026-11-23T21:19:22.7424699Z ##[endgroup]
+2026-11-23T21:19:22.7497911Z [command]/usr/bin/git log -1 --format=%H
+2026-11-23T21:19:22.7543838Z 58f24baa0e6a4f64093ffeef8c205bc6ed3ae3df
+2026-11-23T21:19:22.7986057Z Prepare all required actions
+2026-11-23T21:19:22.7986645Z Getting action download info
+2026-11-23T21:19:22.9431469Z Download action repository 'pnpm/action-setup@v4' (SHA:b906affcce14559ad1aafd4ab0e942779e9f58b1)
+2026-11-23T21:19:23.3372706Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+2026-11-23T21:19:23.4097399Z Download action repository 'actions/cache@v4' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+2026-11-23T21:19:23.4975667Z ##[group]Run ./.github/actions/web-setup
+2026-11-23T21:19:23.4975962Z with:
+2026-11-23T21:19:23.4976155Z   browsers: false
+2026-11-23T21:19:23.4976366Z   webkit-deps: true
+2026-11-23T21:19:23.4976573Z   extension: false
+2026-11-23T21:19:23.4976774Z ##[endgroup]
+2026-11-23T21:19:23.5037551Z ##[start-action display=Run pnpm/action-setup@v4;id=__self.__pnpm_action-setup]
+2026-11-23T21:19:23.5102086Z ##[group]Run pnpm/action-setup@v4
+2026-11-23T21:19:23.5102356Z with:
+2026-11-23T21:19:23.5102622Z   package_json_file: apps/web/package.json
+2026-11-23T21:19:23.5102912Z   dest: ~/setup-pnpm
+2026-11-23T21:19:23.5103131Z   run_install: null
+2026-11-23T21:19:23.5103334Z   cache: false
+2026-11-23T21:19:23.5103547Z   cache_dependency_path: pnpm-lock.yaml
+2026-11-23T21:19:23.5103811Z   standalone: false
+2026-11-23T21:19:23.5104013Z ##[endgroup]
+2026-11-23T21:19:23.5108218Z ##[command]/usr/bin/docker exec  18dc8dbaa07a0dc34e56977199e854cebf0a807e8285f39392709474e93b859c sh -c "cat /etc/*release | grep ^ID"
+2026-11-23T21:19:23.7785568Z ##[group]Running self-installer...
+2026-11-23T21:19:24.2258689Z (node:163) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-23T21:19:24.2260541Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-23T21:19:24.4089922Z Progress: resolved 1, reused 0, downloaded 0, added 0
+2026-11-23T21:19:24.5982101Z Packages: +3
+2026-11-23T21:19:24.5982565Z +++
+2026-11-23T21:19:25.3625671Z Progress: resolved 16, reused 0, downloaded 3, added 3, done
+2026-11-23T21:19:25.3803631Z .../.pnpm/pnpm@12.21.0/node_modules/pnpm preinstall$ node install.js
+2026-11-23T21:19:25.4601570Z .../.pnpm/pnpm@12.21.0/node_modules/pnpm preinstall: Done
+2026-11-23T21:19:25.4607105Z .../.pnpm/pnpm@12.21.0/node_modules/pnpm postinstall$ node install.js
+2026-11-23T21:19:25.5138438Z .../.pnpm/pnpm@12.21.0/node_modules/pnpm postinstall: Done
+2026-11-23T21:19:31.3586440Z 
+2026-11-23T21:19:31.3586856Z dependencies:
+2026-11-23T21:19:31.3587130Z + pnpm 12.21.0 (12.23.0 is available)
+2026-11-23T21:19:31.3587337Z 
+2026-11-23T21:19:31.3615332Z Done in 7.3s
+2026-11-23T21:19:31.4253202Z ##[endgroup]
+2026-11-23T21:19:31.4254109Z Installation Completed!
+2026-11-23T21:19:31.4410234Z ##[end-action id=__self.__pnpm_action-setup;outcome=success;conclusion=success;duration_ms=7937]
+2026-11-23T21:19:31.4414492Z ##[start-action display=Run actions/setup-node@v4;id=__self.__actions_setup-node]
+2026-11-23T21:19:31.4509682Z ##[group]Run actions/setup-node@v4
+2026-11-23T21:19:31.4510108Z with:
+2026-11-23T21:19:31.4510407Z   node-version: 22
+2026-11-23T21:19:31.4510737Z   cache: pnpm
+2026-11-23T21:19:31.4511130Z   cache-dependency-path: apps/web/pnpm-lock.yaml
+2026-11-23T21:19:31.4511643Z   always-auth: false
+2026-11-23T21:19:31.4511993Z   check-latest: false
+2026-11-23T21:19:31.4516591Z   token: ***
+2026-11-23T21:19:31.4516908Z env:
+2026-11-23T21:19:31.4517317Z   PNPM_HOME: /github/home/setup-pnpm/node_modules/.bin
+2026-11-23T21:19:31.4517837Z ##[endgroup]
+2026-11-23T21:19:31.4527058Z ##[command]/usr/bin/docker exec  18dc8dbaa07a0dc34e56977199e854cebf0a807e8285f39392709474e93b859c sh -c "cat /etc/*release | grep ^ID"
+2026-11-23T21:19:31.7181611Z (node:202) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-23T21:19:31.7184570Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-23T21:19:31.7190765Z Found in cache @ /__t/node/22.23.5/x64
+2026-11-23T21:19:31.7192290Z ##[group]Environment details
+2026-11-23T21:19:32.1294375Z node: v22.23.5
+2026-11-23T21:19:32.1294998Z npm: 10.9.9
+2026-11-23T21:19:32.1295446Z yarn: 1.22.22
+2026-11-23T21:19:32.1296343Z ##[endgroup]
+2026-11-23T21:19:32.1305128Z [command]/github/home/setup-pnpm/node_modules/.bin/pnpm store path --silent
+2026-11-23T21:19:32.1499374Z /__w/.pnpm-store/v11
+2026-11-23T21:19:32.3308472Z pnpm cache is not found
+2026-11-23T21:19:32.3482549Z ##[end-action id=__self.__actions_setup-node;outcome=success;conclusion=success;duration_ms=906]
+2026-11-23T21:19:32.3484922Z ##[start-action display=Run pnpm i --frozen-lockfile;id=__self.__run]
+2026-11-23T21:19:32.3520091Z ##[group]Run pnpm i --frozen-lockfile
+2026-11-23T21:19:32.3520468Z [36;1mpnpm i --frozen-lockfile[0m
+2026-11-23T21:19:32.3523656Z shell: bash --noprofile --norc -e -o pipefail {0}
+2026-11-23T21:19:32.3523995Z env:
+2026-11-23T21:19:32.3524266Z   PNPM_HOME: /github/home/setup-pnpm/node_modules/.bin
+2026-11-23T21:19:32.3524591Z ##[endgroup]
+2026-11-23T21:19:32.4843579Z ? Verifying lockfile against supply-chain policies (685 entries)...
+2026-11-23T21:19:32.5108353Z Packages are hard linked from the content-addressable store to the virtual store.
+2026-11-23T21:19:32.5109573Z   Content-addressable store is at: /__w/.pnpm-store/v11
+2026-11-23T21:19:32.5110342Z   Virtual store is at:             node_modules/.pnpm
+2026-11-23T21:19:32.6768533Z Downloading posthog-js@1.440.0: 0.00 B/8.33 MB
+2026-11-23T21:19:32.9461096Z Downloading @electric-sql/pglite@0.5.14: 0.00 B/9.32 MB
+2026-11-23T21:19:33.1940453Z Downloading @next/swc-linux-x64-gnu@15.5.29: 0.00 B/47.55 MB
+2026-11-23T21:19:33.7281777Z Downloading @img/sharp-libvips-linux-x64@1.3.4: 0.00 B/8.21 MB
+2026-11-23T21:19:34.0574924Z Downloading next@15.5.29: 0.00 B/31.33 MB
+2026-11-23T21:19:34.0636171Z Downloading @rolldown/binding-linux-x64-gnu@1.2.19: 0.00 B/8.83 MB
+2026-11-23T21:19:35.1045235Z Downloading next@15.5.29: 13.47 MB/31.33 MB
+2026-11-23T21:19:36.1457750Z Progress: resolved 549, reused 0, downloaded 356, added 356
+2026-11-23T21:19:37.1550596Z Progress: resolved 549, reused 0, downloaded 467, added 450
+2026-11-23T21:19:37.5362103Z ✓ Lockfile passes supply-chain policies (685 entries in 5.1s)
+2026-11-23T21:19:37.5362991Z Lockfile is up to date, resolution step is skipped
+2026-11-23T21:19:38.0243825Z Packages: +549
+2026-11-23T21:19:38.0244307Z ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+2026-11-23T21:19:38.0516251Z Progress: resolved 549, reused 0, downloaded 548, added 549, done
+2026-11-23T21:19:38.1296561Z 
+2026-11-23T21:19:38.1297121Z dependencies:
+2026-11-23T21:19:38.1297692Z + @modelcontextprotocol/server 2.4.0
+2026-11-23T21:19:38.1298272Z + @sentry/nextjs 11.9.0
+2026-11-23T21:19:38.1298713Z + @supabase/ssr 0.12.7
+2026-11-23T21:19:38.1299386Z + @supabase/supabase-js 2.118.0
+2026-11-23T21:19:38.1299933Z + @tanstack/react-table 8.21.3
+2026-11-23T21:19:38.1300632Z + @tanstack/react-virtual 3.14.26
+2026-11-23T21:19:38.1301146Z + @upstash/ratelimit 2.2.1
+2026-11-23T21:19:38.1301761Z + @upstash/redis 1.41.0
+2026-11-23T21:19:38.1302161Z + botid 1.5.13
+2026-11-23T21:19:38.1302551Z + minisearch 7.2.0
+2026-11-23T21:19:38.1302926Z + next 15.5.29
+2026-11-23T21:19:38.1303303Z + posthog-js 1.440.0
+2026-11-23T21:19:38.1303682Z + qrcode 1.5.4
+2026-11-23T21:19:38.1304028Z + react 19.3.1
+2026-11-23T21:19:38.1304481Z + react-dom 19.3.1
+2026-11-23T21:19:38.1304870Z + recharts 3.10.1
+2026-11-23T21:19:38.1305269Z + server-only 0.0.1
+2026-11-23T21:19:38.1305640Z + stripe 23.1.0
+2026-11-23T21:19:38.1305990Z + web-push 4.0.0
+2026-11-23T21:19:38.1306344Z + zod 4.6.7
+2026-11-23T21:19:38.1306672Z + zustand 5.1.0
+2026-11-23T21:19:38.1306880Z 
+2026-11-23T21:19:38.1307049Z devDependencies:
+2026-11-23T21:19:38.1307483Z + @axe-core/playwright 4.14.0
+2026-11-23T21:19:38.1307964Z + @electric-sql/pglite 0.5.14
+2026-11-23T21:19:38.1308436Z + @eslint/eslintrc 3.3.7
+2026-11-23T21:19:38.1309379Z + @modelcontextprotocol/client 2.4.0
+2026-11-23T21:19:38.1309943Z + @playwright/test 1.65.1
+2026-11-23T21:19:38.1310411Z + @tailwindcss/postcss 4.3.5
+2026-11-23T21:19:38.1310930Z + @testing-library/react 16.3.3
+2026-11-23T21:19:38.1311397Z + @types/node 26.6.6
+2026-11-23T21:19:38.1311797Z + @types/qrcode 1.5.5
+2026-11-23T21:19:38.1312214Z + @types/react 19.3.0
+2026-11-23T21:19:38.1312622Z + @types/react-dom 19.3.0
+2026-11-23T21:19:38.1313055Z + @types/web-push 3.6.4
+2026-11-23T21:19:38.1313441Z + eslint 9.39.5
+2026-11-23T21:19:38.1313858Z + eslint-config-next 15.5.29
+2026-11-23T21:19:38.1314299Z + fast-check 4.10.2
+2026-11-23T21:19:38.1314657Z + jsdom 31.0.1
+2026-11-23T21:19:38.1315023Z + tailwindcss 4.3.5
+2026-11-23T21:19:38.1315416Z + typescript 5.9.3
+2026-11-23T21:19:38.1315775Z + vitest 5.1.0
+2026-11-23T21:19:38.1315989Z 
+2026-11-23T21:19:38.1533303Z Done in 5.7s using pnpm v12.21.0
+2026-11-23T21:19:38.1823231Z ##[end-action id=__self.__run;outcome=success;conclusion=success;duration_ms=5833]
+2026-11-23T21:19:38.1825703Z ##[start-action display=Run pnpm i --frozen-lockfile;id=__self.__run_2]
+2026-11-23T21:19:38.1832089Z ##[end-action id=__self.__run_2;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-23T21:19:38.1834598Z ##[start-action display=Run echo "version=$(pnpm exec playwright --version | awk '{print $NF}')" >> "$GITHUB_OUTPUT";id=__self.pw]
+2026-11-23T21:19:38.1839424Z ##[end-action id=__self.pw;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-23T21:19:38.1841306Z ##[start-action display=Run actions/cache@v4;id=__self.pwcache]
+2026-11-23T21:19:38.1844750Z ##[end-action id=__self.pwcache;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-23T21:19:38.1874755Z ##[start-action display=Run libs="chromium"%3B if [ "true" = "true" %5D%3B then libs="chromium webkit"%3B fi;id=__self.__run_3]
+2026-11-23T21:19:38.1879137Z ##[end-action id=__self.__run_3;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-23T21:19:38.1881254Z ##[start-action display=Run pnpm exec playwright install chromium webkit;id=__self.__run_4]
+2026-11-23T21:19:38.1887328Z ##[end-action id=__self.__run_4;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-23T21:19:38.1923917Z ##[group]Run v="$(pnpm exec playwright --version | awk '{print $NF}')"
+2026-11-23T21:19:38.1924448Z [36;1mv="$(pnpm exec playwright --version | awk '{print $NF}')"[0m
+2026-11-23T21:19:38.1924840Z [36;1mecho "package $v, image 1.65.1"[0m
+2026-11-23T21:19:38.1925119Z [36;1m[ "$v" = "1.65.1" ][0m
+2026-11-23T21:19:38.1925643Z shell: sh -e {0}
+2026-11-23T21:19:38.1925843Z env:
+2026-11-23T21:19:38.1926093Z   PNPM_HOME: /github/home/setup-pnpm/node_modules/.bin
+2026-11-23T21:19:38.1926407Z ##[endgroup]
+2026-11-23T21:19:38.8139987Z package 1.65.1, image 1.65.1
+2026-11-23T21:19:38.8205918Z ##[group]Run pnpm e2e:paid --project=iphone-390 --project=iphone-430
+2026-11-23T21:19:38.8206469Z [36;1mpnpm e2e:paid --project=iphone-390 --project=iphone-430[0m
+2026-11-23T21:19:38.8207049Z shell: sh -e {0}
+2026-11-23T21:19:38.8207243Z env:
+2026-11-23T21:19:38.8207486Z   PNPM_HOME: /github/home/setup-pnpm/node_modules/.bin
+2026-11-23T21:19:38.8207796Z ##[endgroup]
+2026-11-23T21:19:38.9049954Z $ playwright test -c playwright.paid.config.ts --project=iphone-390 --project=iphone-430
+2026-11-23T21:19:41.5783669Z 
+2026-11-23T21:19:41.5784373Z Running 16 tests using 1 worker
+2026-11-23T21:19:49.6071796Z [WebServer] <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (114kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+2026-11-23T21:19:49.6095127Z [WebServer] <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (268kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+2026-11-23T21:20:10.3641520Z [WebServer] [abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+2026-11-23T21:21:20.4659865Z ················
+2026-11-23T21:21:20.4664813Z   16 passed (1.7m)
+2026-11-23T21:21:20.5000988Z Post job cleanup.
+2026-11-23T21:21:20.5005269Z ##[start-action display=Run actions/setup-node@v4;id=__d5f0e8e8-9a64-4463-8427-52f5fb7b85cf.__actions_setup-node]
+2026-11-23T21:21:20.5054066Z Post job cleanup.
+2026-11-23T21:21:20.5061216Z ##[command]/usr/bin/docker exec  18dc8dbaa07a0dc34e56977199e854cebf0a807e8285f39392709474e93b859c sh -c "cat /etc/*release | grep ^ID"
+2026-11-23T21:21:20.7476957Z (node:1451) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-23T21:21:20.7478449Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-23T21:21:20.7734530Z [command]/usr/bin/tar --posix -cf cache.tzst --exclude cache.tzst -P -C /__w/Kismet/Kismet --files-from manifest.txt --use-compress-program zstdmt
+2026-11-23T21:21:23.8007740Z (node:1451) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-23T21:21:24.7910746Z Sent 0 of 194948857 (0.0%), 0.0 MBs/sec
+2026-11-23T21:21:25.7667464Z Sent 194948857 of 194948857 (100.0%), 93.9 MBs/sec
+2026-11-23T21:21:25.9379271Z Cache saved with the key: node-cache-Linux-x64-pnpm-c77e8fe9f388c56a3b7e0ad757394a8746b2f23493ae1da9583566833e514faf
+2026-11-23T21:21:25.9520984Z ##[end-action id=__d5f0e8e8-9a64-4463-8427-52f5fb7b85cf.__actions_setup-node;outcome=success;conclusion=success;duration_ms=5451]
+2026-11-23T21:21:25.9525269Z ##[start-action display=Run pnpm/action-setup@v4;id=__d5f0e8e8-9a64-4463-8427-52f5fb7b85cf.__pnpm_action-setup]
+2026-11-23T21:21:25.9571307Z Post job cleanup.
+2026-11-23T21:21:25.9577326Z ##[command]/usr/bin/docker exec  18dc8dbaa07a0dc34e56977199e854cebf0a807e8285f39392709474e93b859c sh -c "cat /etc/*release | grep ^ID"
+2026-11-23T21:21:26.2126051Z Pruning is unnecessary.
+2026-11-23T21:21:26.2268900Z ##[end-action id=__d5f0e8e8-9a64-4463-8427-52f5fb7b85cf.__pnpm_action-setup;outcome=success;conclusion=success;duration_ms=274]
+2026-11-23T21:21:26.2341144Z Post job cleanup.
+2026-11-23T21:21:26.2348706Z ##[command]/usr/bin/docker exec  18dc8dbaa07a0dc34e56977199e854cebf0a807e8285f39392709474e93b859c sh -c "cat /etc/*release | grep ^ID"
+2026-11-23T21:21:26.4333536Z [command]/usr/bin/git version
+2026-11-23T21:21:26.4380797Z git version 2.43.0
+2026-11-23T21:21:26.4480654Z Temporarily overriding HOME='/__w/_temp/c8d5ec10-0bfa-4e2e-81eb-218016070dc1' before making global git config changes
+2026-11-23T21:21:26.4501069Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-23T21:21:26.4510062Z [command]/usr/bin/git config --global --add safe.directory /__w/Kismet/Kismet
+2026-11-23T21:21:26.4541092Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-23T21:21:26.4591332Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-23T21:21:26.4907931Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-23T21:21:26.4937381Z http.https://github.com/.extraheader
+2026-11-23T21:21:26.4951041Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-23T21:21:26.4987924Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-23T21:21:26.5306162Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-23T21:21:26.5352709Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-23T21:21:26.5796429Z Stop and remove container: 610ef969fe714ba29796c36c2da21c40_mcrmicrosoftcomplaywrightv1651noble_059591
+2026-11-23T21:21:26.5801428Z ##[command]/usr/bin/docker rm --force 18dc8dbaa07a0dc34e56977199e854cebf0a807e8285f39392709474e93b859c
+2026-11-23T21:21:26.7335228Z 18dc8dbaa07a0dc34e56977199e854cebf0a807e8285f39392709474e93b859c
+2026-11-23T21:21:26.7370769Z Remove container network: github_network_2e5ad72f1f4c4fd7b09e7a67f1a69ccd
+2026-11-23T21:21:26.7375156Z ##[command]/usr/bin/docker network rm github_network_2e5ad72f1f4c4fd7b09e7a67f1a69ccd
+2026-11-23T21:21:26.7972238Z github_network_2e5ad72f1f4c4fd7b09e7a67f1a69ccd
+2026-11-23T21:21:26.8051147Z Cleaning up orphan processes
+2026-11-23T21:21:26.8549199Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4, pnpm/action-setup@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

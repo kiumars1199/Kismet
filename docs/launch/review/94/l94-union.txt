@@ -1,0 +1,85 @@
+  [chromium] › admin.spec.ts:79:1 › admin: sees /admin with a user count, flips the banner and everyone sees it
+  [chromium] › admin.spec.ts:137:1 › normal user and anonymous visitor: 404 on every admin page and API route, no Admin link; Kalshi yes, Combos Premium only
+  [chromium] › dropped-socket.spec.ts:14:1 › a request whose socket is dropped once succeeds on the retry (page.request, and a fresh browser context)
+  [chromium] › dropped-socket.spec.ts:28:1 › a server that always drops the socket still fails (one retry, not forever)
+  [chromium] › dropped-socket.spec.ts:36:1 › an HTTP 500 is not retried
+  [chromium] › free-topics-cls.spec.ts:69:5 › Free at 390px › full → empty by a filter change, then Show today's free bets: CLS < 0.1 each way
+  [chromium] › free-topics-cls.spec.ts:93:5 › Free at 390px › a few bets → empty, and removing a filter pill grows the list back: CLS < 0.1 each way
+  [chromium] › free-topics-cls.spec.ts:69:5 › Free at 1440px › full → empty by a filter change, then Show today's free bets: CLS < 0.1 each way
+  [chromium] › free-topics-cls.spec.ts:93:5 › Free at 1440px › a few bets → empty, and removing a filter pill grows the list back: CLS < 0.1 each way
+  [chromium] › launch-f01-limit.spec.ts:34:1 › Free: 1 check a day, the second is 429 check_limit; Pro: 20 checks all 200
+  [chromium] › launch-f01-limit.spec.ts:73:1 › signed out: /check?m=<id>&side=0 stays on /check
+  [chromium] › launch-f01-limit.spec.ts:84:1 › signed out: /api/check/search finds markets and leaks nothing else
+  [chromium] › launch-f01-limit.spec.ts:102:1 › Free: scoring a combo uses the day's check; the same set is free; another combo and a single check get 429
+  [chromium] › launch-f01-limit.spec.ts:141:1 › Free: 3 legs, one explicit check, then dropping a leg recomputes without a second check
+  [chromium] › launch-f05-topics.spec.ts:53:1 › warm-up: first hits compile the routes
+  [chromium] › launch-f05-topics.spec.ts:62:3 › picks NFL + Politics at 390px: / and /bets open filtered with a Your topics pill; one tap clears it
+  [chromium] › launch-f05-topics.spec.ts:62:3 › picks NFL + Politics at 1440px: / and /bets open filtered with a Your topics pill; one tap clears it
+  [chromium] › launch-f05-topics.spec.ts:134:1 › skipping setup keeps / and /bets unfiltered; topics are editable in /settings
+  [chromium] › launch-f05-topics.spec.ts:149:1 › topics cleared elsewhere stop filtering here; sign-out drops the hint; another account never reads it
+  [chromium] › launch-f05-topics.spec.ts:187:1 › a returning user's first /bets opens filtered (the hint outlives the tab)
+  [chromium] › launch-f05-topics.spec.ts:208:1 › the Your topics pill works before hydration, and nothing covers or breaks it at 1440
+  [chromium] › launch-f08-age.spec.ts:5:1 › signup: the 18+ and Terms box is required and recorded
+  [chromium] › launch-f08-pause.spec.ts:29:1 › pause 24 h: pause screen on every app page, 423 on data routes, end time in the user's zone
+  [chromium] › launch-f09-state-static.spec.ts:6:3 › signed out at 390: / → Check your state → NV → / says not available in Nevada, CLS < 0.1
+  [chromium] › launch-f09-state-static.spec.ts:6:3 › signed out at 1440: / → Check your state → NV → / says not available in Nevada, CLS < 0.1
+  [chromium] › launch-f13-invite.spec.ts:36:1 › invite link, QR, live 0..5 counter, reward; share sheet in the drawer
+  [chromium] › launch-f13-invite.spec.ts:119:1 › a bad invite code is ignored and a signed-out visitor can't read /api/invite
+  [chromium] › launch-f13-invite.spec.ts:125:1 › at 390 px: /account invite panel and the share sheet fit, no horizontal scroll, CLS under 0.1
+  [chromium] › launch-f15-admin.spec.ts:25:1 › admin 30-day table: counts, dollars from cents, dashes before the ledger
+  [chromium] › launch-pricing-cls.spec.ts:35:1 › /pricing CLS < 0.1 at 390 and 1440: signed out, Free, Pro
+  [chromium] › launch-walk1-shared-bet.spec.ts:10:3 › shared bet -> teaser -> sign-up at 390px
+  [chromium] › launch-walk1-shared-bet.spec.ts:10:3 › shared bet -> teaser -> sign-up at 1440px
+  [chromium] › launch-walk1-shared-bet.spec.ts:48:1 › /signup ignores a title in the URL and a next that is not a market
+  [chromium] › markets-bet-wide.spec.ts:54:1 › /markets: Free and Pro, Bet does not wrap at 1440 and 1920
+  [chromium] › markets-no-sideways-scroll.spec.ts:26:3 › /markets signed in: the page does not scroll sideways at 390px, CLS < 0.1
+  [chromium] › markets-no-sideways-scroll.spec.ts:26:3 › /markets signed in: the page does not scroll sideways at 768px, CLS < 0.1
+  [chromium] › markets-no-sideways-scroll.spec.ts:26:3 › /markets signed in: the page does not scroll sideways at 1024px, CLS < 0.1
+  [chromium] › overhaul-funnel.spec.ts:34:1 › funnel: every step fires exactly once per user (signed-out steps once per visit)
+  [chromium] › overhaul-funnel.spec.ts:113:1 › admin /admin/funnel shows daily counts and step-to-step conversion
+  [chromium] › overhaul-landing.spec.ts:13:1 › server HTML of / has no banned word or count above 3 digits
+  [chromium] › overhaul-landing.spec.ts:35:3 › landing at 390×844: words, order, first screen
+  [chromium] › overhaul-landing.spec.ts:35:3 › landing at 1440×900: words, order, first screen
+  [chromium] › password.spec.ts:35:1 › password: sign up, confirm by email, stay signed in, sign out, sign in again
+  [chromium] › password.spec.ts:82:1 › password: forgot → reset link → set a new one → sign in with it
+  [chromium] › paywall-pages.spec.ts:12:1 › signed out: data APIs are 401, app pages redirect with next, public pages carry no paid fields
+  [chromium] › paywall-pages.spec.ts:57:1 › signed out: public pages make no API call that gets a 401
+  [chromium] › paywall-pages.spec.ts:90:1 › redirect with next: a signed-out deep link → sign up → onboarding → back on that page
+  [chromium] › qa-c-404.spec.ts:5:1 › #33 signed out: unknown URLs are a 404 page; app pages still ask for an account
+  [chromium] › qa-c-billing.spec.ts:7:1 › #32 → #18: Start trial (Premium, yearly) signed out → sign-up → checkout → /account shows plan, trial end, cancel
+  [chromium] › qa-c-billing.spec.ts:48:1 › #48: Terms and Refunds send cancellation to /account's Manage billing or cancel
+  [chromium] › qa-c-header.spec.ts:47:1 › #17/#73 admin: Combos, Kalshi, Admin, Account on every page without waiting for /api/me
+  [chromium] › qa-c-header.spec.ts:65:1 › #17/#73 normal user: Account everywhere, no Admin, Kalshi (live for every plan), no Combos (Premium)
+  [chromium] › qa-c-settings.spec.ts:33:1 › #21/#22 settings: linked from /account, saved to the account, seen on a second device
+  [chromium] › qa-c-settings.spec.ts:60:1 › #22 onboarding banner: never flashes once setup is done; dismissing is saved to the account
+  [chromium] › qa-c-upsell.spec.ts:23:1 › #9 Free: the filter sheet with the Pro pitch closes with ✕, Escape and a click outside; /markets shows loading
+  [chromium] › qa-c2-alerts.spec.ts:32:1 › #23/#64 Pro: /alerts renders before its scripts load, says where alerts go, and a new rule can email
+  [chromium] › qa-c2-alerts.spec.ts:65:1 › Nov 21: Free sees a short upgrade note on /alerts, and no email switch
+  [chromium] › qa-c2-alerts.spec.ts:76:1 › #64 /pricing sells no Telegram or Discord alerts and says email is checked once a day
+  [chromium] › qa-c2-alerts.spec.ts:83:1 › #38/#58/#72 /pricing states the AI connector allowance the same way on the table and the cards
+  [chromium] › s7-upgrade.spec.ts:35:1 › S7 sign up → upgrade with Stripe → Pro unlocks live data and exact numbers
+  [chromium] › s7-upgrade.spec.ts:85:1 › account delete: type the email, everything goes, signed out
+  [chromium] › s7-upgrade.spec.ts:103:1 › keyboard only: search → drawer → save → upgrade reaches /pricing
+  [chromium] › t291-plans.spec.ts:5:1 › plan buttons in the server HTML: Start trial / Start free, never a disabled Coming soon
+  [chromium] › wt2-first-screen.spec.ts:37:3 › new Free user, topics with none of today's sample, at 390px: free bets under a plain heading, pill kept, tour over a card
+  [chromium] › wt2-first-screen.spec.ts:62:3 › onboarding step 1 at 390px: CLS < 0.05 once the counts arrive
+  [chromium] › wt2-first-screen.spec.ts:37:3 › new Free user, topics with none of today's sample, at 1440px: free bets under a plain heading, pill kept, tour over a card
+  [chromium] › wt2-first-screen.spec.ts:62:3 › onboarding step 1 at 1440px: CLS < 0.05 once the counts arrive
+  [chromium] › wt3-combo-entry.spec.ts:53:1 › signed out: /check and a bet's page lead to the combo checker at 390 and 1440
+  [chromium] › wt3-combo-entry.spec.ts:71:1 › Free, then Pro: both reach the combo checker from /check and the drawer; /combos says what they have; only Free sees the check note
+  [iphone-390] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /
+  [iphone-390] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /pricing
+  [iphone-390] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /about
+  [iphone-390] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /track-record
+  [iphone-390] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /signup
+  [iphone-390] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /login
+  [iphone-390] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /reset-password
+  [iphone-390] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /terms
+  [iphone-430] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /
+  [iphone-430] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /pricing
+  [iphone-430] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /about
+  [iphone-430] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /track-record
+  [iphone-430] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /signup
+  [iphone-430] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /login
+  [iphone-430] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /reset-password
+  [iphone-430] › overhaul-iphone.spec.ts:6:3 › iPhone signed out /terms
