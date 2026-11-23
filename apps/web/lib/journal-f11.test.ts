@@ -30,9 +30,15 @@ describe("F11 settlement hand math", () => {
     expect(p.result).toBe("lost");
     expect(p.pnl_usd).toBeCloseTo(-6.072, 10);
   });
-  it("4 void refunds: result void, P&L 0", () => {
-    expect(settlePatch(bet({ fee }), { resolved: true, winner_side_index: null, closing_prices: [0.5, 0.5] }, now))
-      .toMatchObject({ result: "void", pnl_usd: 0 });
+  it("4 a Polymarket 50/50 market pays $0.50 a share: P&L = 0.5 x shares - cost, fees included", () => {
+    // 10 x 0.5 - 10 x (0.6 + 0.0072) = 5 - 6.072 = -1.072 ; at 40% it is a gain: 5 - 4 = +1
+    const p = settlePatch(bet({ fee }), { resolved: true, winner_side_index: null, closing_prices: [0.5, 0.5] }, now)!;
+    expect(p.result).toBe("split");
+    expect(p.pnl_usd).toBeCloseTo(-1.072, 10);
+    expect(settlePatch(bet({ price: 0.4 }), { resolved: true, winner_side_index: null, closing_prices: [null, null] }, now)!.pnl_usd).toBeCloseTo(1, 10);
+  });
+  it("4b a void bet (Kalshi or edited by hand) gets the stake back: P&L 0", () => {
+    expect(pnl(bet({ fee }), "void")).toBe(0);
   });
   it("5 an unresolved market with no closing price leaves the bet untouched", () => {
     expect(settlePatch(bet(), { resolved: false, winner_side_index: null, closing_prices: [null, null] }, now)).toBeNull();

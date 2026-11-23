@@ -1,7 +1,8 @@
 // My bets math (docs/05 F-12). `price` and `fee` are per share (0–1), payout $1/share.
 //   won  pnl =  shares × (1 − price − fee)
 //   lost pnl = −shares × (price + fee)
-//   void pnl = 0 (stake returned)
+//   void pnl = 0 (stake returned: Kalshi or a bet marked void by hand)
+//   split pnl = shares × (0.5 − price − fee): a Polymarket 50/50 market redeems each share for $0.50
 //   CLV = closing_price − price
 import type { JournalEntry, Patch } from "@/lib/repo/types";
 import { cell } from "@/lib/csv";
@@ -14,6 +15,7 @@ export const stake = (b: Bet) => b.shares * (b.price + b.fee);
 export function pnl(b: Bet, result: Result): number {
   if (result === "won") return b.shares * (1 - b.price - b.fee);
   if (result === "lost") return -b.shares * (b.price + b.fee);
+  if (result === "split") return b.shares * (0.5 - b.price - b.fee);
   return 0;
 }
 
@@ -33,7 +35,7 @@ export function settlePatch(e: JournalEntry, s: Settlement | undefined, now = ne
   const p: Patch<JournalEntry> = {};
   if (closing !== null && e.closing_price !== closing) p.closing_price = closing;
   if (s.resolved && e.result === null) {
-    const result: Result = s.winner_side_index === null ? "void" : s.winner_side_index === e.side_index ? "won" : "lost";
+    const result: Result = s.winner_side_index === null ? "split" : s.winner_side_index === e.side_index ? "won" : "lost";
     Object.assign(p, { result, pnl_usd: pnl(e, result), settled_at: now.toISOString() });
   }
   return Object.keys(p).length ? p : null;
@@ -48,7 +50,7 @@ const mean = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.l
 
 export function summarize(rows: JournalEntry[]): Summary {
   const settled = rows.filter((r) => r.result !== null);
-  const decided = settled.filter((r) => r.result !== "void");
+  const decided = settled.filter((r) => r.result !== "void" && r.result !== "split");
   const settledStake = settled.filter((r) => r.result !== "void").reduce((a, r) => a + stake(r), 0);
   const total = settled.reduce((a, r) => a + (r.pnl_usd ?? pnl(r, r.result!)), 0);
   return {
@@ -72,7 +74,7 @@ export function cumulative(rows: JournalEntry[]) {
     .sort((a, b) => (a.settled_at ?? a.placed_at).localeCompare(b.settled_at ?? b.placed_at))
     .map((r, i) => {
       real += r.pnl_usd ?? pnl(r, r.result!);
-      exp += r.result === "void" ? 0 : (r.model_edge ?? 0) * r.shares;
+      exp += r.result === "void" || r.result === "split" ? 0 : (r.model_edge ?? 0) * r.shares;
       return { n: i + 1, date: r.settled_at ?? r.placed_at, pnl: real, expected: exp };
     });
 }
@@ -165,7 +167,7 @@ export function fromCsv(text: string): { rows: JournalImport[]; skipped: number 
       category: get(r, "category"), niche: get(r, "niche"), price, shares, fee: num(r, "fee") ?? 0,
       placed_at: placed && !Number.isNaN(Date.parse(placed)) ? new Date(placed).toISOString() : new Date().toISOString(),
       model_win_prob: num(r, "model_win_prob"), model_edge: num(r, "model_edge"), closing_price: num(r, "closing_price"),
-      result: result === "won" || result === "lost" || result === "void" ? result : null,
+      result: result === "won" || result === "lost" || result === "void" || result === "split" ? result : null,
       settled_at: get(r, "settled_at"), pnl_usd: num(r, "pnl_usd"), tags: [], note: get(r, "note"),
     });
   }

@@ -430,7 +430,7 @@ create table journal (                  -- bets the user says they placed (manua
   placed_at timestamptz not null default now(),
   model_win_prob numeric, model_edge numeric,          -- Kismet numbers at entry
   closing_price numeric,                               -- filled after the market closes (CLV)
-  result text check (result in ('won','lost','void')), settled_at timestamptz,
+  result text check (result in ('won','lost','void','split')), settled_at timestamptz,
   pnl_usd numeric, tags text[], note text
 );
 

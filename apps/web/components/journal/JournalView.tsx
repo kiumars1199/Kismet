@@ -182,7 +182,7 @@ function PnlSplit({ rows, total }: { rows: JournalEntry[]; total: number }) {
   return <div className="grid gap-4 md:grid-cols-2">{table("Profit by sport", "pnl-sport", sports)}{table("Topic totals", "pnl-topic", topics)}</div>;
 }
 
-const RESULT_TEXT: Record<Result | "open", string> = { won: "Won", lost: "Lost", void: "Void · refunded", open: "Open" };
+const RESULT_TEXT: Record<Result | "open", string> = { won: "Won", lost: "Lost", void: "Void · refunded", split: "Split 50/50", open: "Open" };
 
 function BetTable({ rows, tz, pro, onEdit }: { rows: JournalEntry[]; tz: string; pro: boolean; onEdit: (r: JournalEntry) => void }) {
   const odds = useOdds();
@@ -281,7 +281,7 @@ function EditDialog({ row, onClose }: { row: JournalEntry | null; onClose: () =>
           <div className="flex flex-col gap-1.5">
             <span className="text-xs font-medium text-muted">Result</span>
             <Segmented label="Result" value={result} onChange={setResult}
-              options={[{ value: "open", label: "Open" }, { value: "won", label: "Won" }, { value: "lost", label: "Lost" }, { value: "void", label: "Void" }]} />
+              options={[{ value: "open", label: "Open" }, { value: "won", label: "Won" }, { value: "lost", label: "Lost" }, { value: "void", label: "Void" }, { value: "split", label: "Split 50/50" }]} />
           </div>
           <label className="flex flex-col gap-1.5 text-xs font-medium text-muted">Note<textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} className={input} /></label>
           <div className="flex justify-between gap-2">
