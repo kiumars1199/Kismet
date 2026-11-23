@@ -1,0 +1,13 @@
+/ 200 text/html; charset=utf-8
+/pricing 200 text/html; charset=utf-8
+/bets 307 
+/manifest.webmanifest 200 application/manifest+json
+/sw.js 200 application/javascript; charset=UTF-8
+/icon-192.png 404 text/html; charset=utf-8
+/ links=1
+/pricing links=1
+/bets links=1
+/state links=1
+/login links=1
+{"name":"Kismet","short_name":"Kismet","description":"Bets priced below their true win chance, after fees. Market analytics, not financial advice. 18+.","start_url":"/","scope":"/","display":"standalone","background_color":"#070a09","theme_color":"#070a09","icons":[{"src":"/icons/icon-192.png","sizes":"192x192","type":"image/png","purpose":"any"},{"src":"/icons/icon-512.png","sizes":"512x512","type":"image/png","purpose":"any"},{"src":"/icons/icon-maskable-512.png","sizes":"512x512","type":"image/png","purpose":"maskable"}]}
+cache-control: public, max-age=3600
