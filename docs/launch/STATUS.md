@@ -73,6 +73,7 @@ Problems:
 - /markets at 390: the count line ("N markets match · …") wraps from 1 to 2 lines about 1–2 s in on 2 of 9 loads, CLS 0.068 (reviewer, F3 prod). Under budget; low. Owner: data, after F4.
 - f01b + #52 both declare `kalshi_matched_ticker`: whichever merges second drops one line (data, in the #52 rebase). Until #52 lands, pasted Kalshi links still show "missing".
 
+- F8 gap (reviewer, #66): /api/ext/token and /api/ext/token/refresh don't check pause, so an already-connected extension keeps refreshing its token while the user is paused; its token-authenticated data calls may not be pause-gated either. Owner: trust, after #63/HowToBet. #66 (trade config checks the deploy's trading switch first) PASS with notes, merges on green CI.
 - #54 note: /api/trade/config reads the user's profile even when trading is off on the deploy; check tradingEnv/extensionId first (reviewer). Low; owner trust, after #63.
 
 ## Fixed log
