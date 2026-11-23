@@ -112,6 +112,7 @@ Problems:
 - #83 merged 17:50 as 723a14d (PASS 18de41d, CI web green, preview READY). #80 d21a714 CI green, awaiting review. #81 CI flaked twice on ECONNRESET (paywall-pages:105, password:10; keep-alive race) → rerun 5b1ffa2 + tracker fixing at the root in its own PR.
 - 18:03 check-in: F14 post-merge PASS a98ee96 → 16/16 rows passed review. #71 dfbede9 PASS with notes (CLS ≤0.053; blank on short Free list judged fine; optional cap 0-row reserve at ~60svh on lg+). #82 4f8d1fd and #80 d21a714 CI green, awaiting review. #81 CI rerun.
 - #82 merged 18:06 as fbf5407 (PASS 4f8d1fd, CI all green, preview READY).
+- #71 merged 18:09 as efa7343 (PASS r3 dfbede9, CI all green, preview READY).
 - Old: CI timeout #73 (one line, 30 → 45 min), split out of #69 so it lands first; #51 was also cancelled at 30 min (10:05–10:35).
 - CI blockers (10:05): #66 was cancelled by the 30-min job timeout (the run now takes ~30 min); #68 and #67 failed on the F5 pill tap before page load (AppliedPills is a client-only button). Both are being fixed in #69 (trust); after it merges, final gets merged into the waiting PRs.
 - F5 pill-click flake: e2e-paid/launch-f05-topics.spec.ts:59 at 1440 failed on CI after a server ECONNRESET (seen on #67). Part of trust's stabilize PR (D).
