@@ -1,0 +1,23 @@
+HYDRATION 390 []
+TEASER 390 Home | Denmark vs. Norway: Both Teams to Score | SPORTS | Denmark vs. Norway: Both Teams to Score | Closed · Nov 17, 2026, 2:45 PM EST | Yes: 68% priced by the market | Kismet has a verdict on this market. Sign up free to see it. | We compare the price with how often bets like this one have won, after the fee and the spread. Free accounts get 10 best bets a day, no card needed. | 🔒 Kismet's verdict: sign up to unlock it. | Add to combo checker | Sign up free | Log in
+COMBO 390 http://localhost:3711/check/combo?m=6674492 {"text":"Combo checker | Add 2 to 10 bets. Every leg has to win, so the payout is bigger and the chance is lower. | Add a bet by link or words | Add | Denmark vs. Norway: Both Teams to Score | Bet Yes at 68% | ✕ | Add at least one more leg. | How it works: every leg has to win, so the chances multiply and so do the payouts. Add 2 to 10 bets, then check the set. | 2 to 10 legs. Bet only what you can afford to lose.","hs":false,"disc":true,"cents":false}
+COMBO api 390 [
+ "200 http://localhost:3711/api/check/leg {\"market\":{\"id\":\"6674492\",\"question\":\"Denmark vs. Norway: Both Teams to Score\",\"event\":\"Denmark vs. Norway - More Markets\",\"event_id\":\"1313371\"},\"side\":0,\"outcome\":\"Yes\",\"price\":0.68,\"venue\":\"intl-only\"}"
+]
+HYDRATION 1440 []
+TEASER 1440 Home | Denmark vs. Norway: Both Teams to Score | SPORTS | Denmark vs. Norway: Both Teams to Score | Closed · Nov 17, 2026, 2:45 PM EST | Yes: 68% priced by the market | Kismet has a verdict on this market. Sign up free to see it. | We compare the price with how often bets like this one have won, after the fee and the spread. Free accounts get 10 best bets a day, no card needed. | 🔒 Kismet's verdict: sign up to unlock it. | Add to combo checker | Sign up free | Log in
+node:internal/process/promises:394
+    triggerUncaughtException(err, true /* fromPromise */);
+    ^
+
+page.screenshot: Timeout 30000ms exceeded.
+Call log:
+[2m  - taking page screenshot[22m
+[2m  - waiting for fonts to load...[22m
+
+    at /tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/wt1/local.js:25:13 {
+  log: [ '  - taking page screenshot', '  - waiting for fonts to load...' ],
+  name: 'TimeoutError'
+}
+
+Node.js v22.23.5

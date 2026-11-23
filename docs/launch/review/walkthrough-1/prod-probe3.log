@@ -1,0 +1,25 @@
+A390 /m/6596313?ref=abcd1234 {"navTop":787,"cls":0,"lcp":1092,"ttfb":843,"dcl":946,"load":1541,"ctas":["Sign up free top=739 bottom=787 visibleAboveTabBar=true clearance=0"]}
+A390 /signup?next=%2Fm%2F6596313 {"navTop":787,"cls":0,"lcp":324,"ttfb":184,"dcl":321,"load":693,"ctas":["Continue with Google top=458 bottom=506 visibleAboveTabBar=true clearance=281","Create account top=826 bottom=874 visibleAboveTabBar=false clearance=-87"]}
+A390 /pricing {"navTop":787,"cls":0,"lcp":228,"ttfb":88,"dcl":195,"load":641,"ctas":["Start free top=859 bottom=903 visibleAboveTabBar=false clearance=-116","Start trial top=1493 bottom=1537 visibleAboveTabBar=false clearance=-750","Start trial top=1927 bottom=1971 visibleAboveTabBar=false clearance=-1184"]}
+A390 / {"navTop":787,"cls":0.0024,"lcp":288,"ttfb":108,"dcl":236,"load":474,"ctas":["Sign up free top=314 bottom=370 visibleAboveTabBar=true clearance=417","Start free top=4304 bottom=4348 visibleAboveTabBar=false clearance=-3561","Start trial top=4938 bottom=4982 visibleAboveTabBar=false clearance=-4195","Start trial top=5372 bottom=5416 visibleAboveTabBar=false clearance=-4629"]}
+B 390 state link on home: [ 'A "Check your state" [96x44]' ]
+B 390 state page url https://kismetodds.com/state?next=%2F
+B 390 select {"name":"","n":52,"box":"316x44","labelFor":"State\nNot set\nAlabama\nAlaska\nArizona\nArkansas\nCalifornia\nColorado\nConnecticut\nDelaware\nDistrict of Columbia\nFlorida\nGeorgia\nHawaii\nIdaho\nIllinois\nIndiana\nIowa\nKansas\nKentucky\nLouisiana\nMaine\nMaryland\nMassachusetts\nMichigan\nMinnesota\nMississippi\nMissouri\nMontana\nNebraska\nNevada\nNew Hampshire\nNew Jersey\nNew Mexico\nNew York\nNorth Carolina\nNorth Dakota\nOhio\nOklahoma\nOregon\nPennsylvania\nRhode Island\nSouth Carolina\nSouth Dakota\nTennessee\nTexas\nUtah\nVermont\nVirginia\nWashington\nWest Virginia\nWisconsin\nWyoming"}
+B 390 after pick url https://kismetodds.com/ text: Which Polymarket bets are worth it today? | Placing a bet or two? Kismet shows which Polymarket bets look like good value today, how often bets like them win, and what $10 pays. | Sign up free | 10 bets a day, free. No card. | ONE OF TODAY'S BETS | Manchester City vs SSC Napoli: 4 or fewer goals | Bet Under | 85% chance to win | +20–50% est. return | Pays 1.43x | Polymarket US price, incl. its fee | Tue 3:00 PM · closes in 21h | Polymarket US: not available in Nevada | Bet on Polymarket US | Bet only what you can afford to lose. | Check | How to bet this | Why this bet? | How it works | 1 | Si
+B 390 buttons [ 'BUTTON:Yearly · save up to 16%->' ]
+B 390 after save url https://kismetodds.com/
+B 390 notes ["Polymarket US: not available in Nevada","Polymarket US: not available in Nevada","Polymarket US: not available in Nevada","Polymarket US: not available in Nevada"]
+B 390 bad [] errs []
+B 1440 state link on home: [ 'A "Check your state" [96x44]' ]
+B 1440 state page url https://kismetodds.com/state?next=%2F
+B 1440 select {"name":"","n":52,"box":"320x44","labelFor":"State\nNot set\nAlabama\nAlaska\nArizona\nArkansas\nCalifornia\nColorado\nConnecticut\nDelaware\nDistrict of Columbia\nFlorida\nGeorgia\nHawaii\nIdaho\nIllinois\nIndiana\nIowa\nKansas\nKentucky\nLouisiana\nMaine\nMaryland\nMassachusetts\nMichigan\nMinnesota\nMississippi\nMissouri\nMontana\nNebraska\nNevada\nNew Hampshire\nNew Jersey\nNew Mexico\nNew York\nNorth Carolina\nNorth Dakota\nOhio\nOklahoma\nOregon\nPennsylvania\nRhode Island\nSouth Carolina\nSouth Dakota\nTennessee\nTexas\nUtah\nVermont\nVirginia\nWashington\nWest Virginia\nWisconsin\nWyoming"}
+B 1440 after pick url https://kismetodds.com/ text: Which Polymarket bets are worth it today? | Placing a bet or two? Kismet shows which Polymarket bets look like good value today, how often bets like them win, and what $10 pays. | Sign up free | 10 bets a day, free. No card. | ONE OF TODAY'S BETS | Manchester City vs SSC Napoli: 4 or fewer goals | Bet Under | 85% chance to win | +20–50% est. return | Pays 1.43x | Polymarket US price, incl. its fee | Tue 3:00 PM · closes in 21h | Polymarket US: not available in Nevada | Bet on Polymarket US | Bet only what you can afford to lose. | Check | How to bet this | Why this bet? | How it works | 1 | Si
+B 1440 buttons [ 'BUTTON:Yearly · save up to 16%->' ]
+B 1440 after save url https://kismetodds.com/
+B 1440 notes ["Polymarket US: not available in Nevada","Polymarket US: not available in Nevada","Polymarket US: not available in Nevada","Polymarket US: not available in Nevada"]
+B 1440 bad [] errs []
+C 390 https://kismetodds.com/check/combo?m=6596313 Combo checker | Add 2 to 10 bets. Every leg has to win, so the payout is bigger and the chance is lower. | Add a bet by link or words | Add | Something went wrong. Try again in a moment. | Add at least two bets to check a combo. | How it works: every leg has to win, so the chances multiply and so do the payouts. Add 2 to 10 bets, then check the set. | 2 to 10 legs. Bet only what you can afford to lose.
+C bad [
+ "403 POST https://kismetodds.com/api/check/leg srv=Vercel "
+] errs []
+D 1440 loads 18 errors []
