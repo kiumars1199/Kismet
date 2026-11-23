@@ -1,6 +1,6 @@
 // Marc's QA list #17/#73 (Nov 20): signed in, the header is the same on every page, /kalshi and the 404 page included,
 // and it doesn't wait for /api/me (no links popping in). Supabase/Stripe are the in-app mock.
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "./fixtures";
 
 const ADMIN = "admin-e2e@example.com";   // playwright.paid.config.ts ADMIN_EMAILS (beta tester: sees Combos, Kalshi)
 

@@ -2,7 +2,7 @@
 // clicks, a second paid invoice), and assert each step is recorded exactly once. The sink is the funnel_events table
 // in the in-app Supabase mock (read with the mock's service key); the server sends PostHog exactly the rows it inserts
 // (lib/funnel-server.ts, unit-tested), and no PostHog key is set here, so nothing leaves the machine.
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "./fixtures";
 import { expectPlanActive } from "./checkout";
 import Stripe from "stripe";
 

@@ -1,6 +1,6 @@
 // Admin dashboard (T-141/T-142): an ADMIN_EMAILS address sees /admin and flips the site-wide banner; a normal
 // user and an anonymous visitor get a 404 on every admin page and API route. Supabase/Stripe are the in-app mock.
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "./fixtures";
 
 const ADMIN = "admin-e2e@example.com";   // playwright.paid.config.ts ADMIN_EMAILS
 const PAGES = ["/admin", "/admin/users", "/admin/settings", "/admin/health", "/admin/audit", "/admin/users/00000000-0000-0000-0000-000000000000"];

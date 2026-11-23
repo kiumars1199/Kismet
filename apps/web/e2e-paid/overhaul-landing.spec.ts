@@ -3,7 +3,7 @@
 // hydrated page (title + meta included), sections in order, one primary button and a real bet card in the first screen
 // at 390×844 and 1440×900 (R1-1, R1-3, R1-4).
 // LANDING_SHOTS=1 also writes the first-screen and full-page screenshots to docs/overhaul-evidence/A/.
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "./fixtures";
 import { bannedHits, readableText } from "../lib/banned";
 
 const SIZES = [{ width: 390, height: 844 }, { width: 1440, height: 900 }] as const;

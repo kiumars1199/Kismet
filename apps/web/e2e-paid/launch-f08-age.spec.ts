@@ -1,6 +1,6 @@
 // F8: signup needs the 18+ / Terms box. Unticked: the form refuses and no sign-in email is sent. Ticked: it goes through
 // and the server records profiles.accepted_terms_at (/auth/callback, service role). Supabase is the in-app mock.
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 test("signup: the 18+ and Terms box is required and recorded", async ({ page }) => {
   test.setTimeout(240_000);

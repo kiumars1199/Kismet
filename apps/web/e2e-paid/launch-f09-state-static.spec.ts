@@ -1,6 +1,6 @@
 // F9 (#63 review): signed out, not demo (paid env), "/" is force-static so the layout can't read the state cookie. The note
 // must still show the picked state after Check your state → /state → pick NV → back on "/", with no layout shift.
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 for (const size of [{ width: 390, height: 844 }, { width: 1440, height: 900 }]) {
   test(`signed out at ${size.width}: / → Check your state → NV → / says not available in Nevada, CLS < 0.1`, async ({ page }) => {

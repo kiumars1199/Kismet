@@ -1,6 +1,6 @@
 // Marc's QA list #9 (Nov 20): on Free, the "More filters" sheet is mostly the Pro upgrade pitch. It closes with a ✕, with
 // Escape and with a click outside it. A filter change on All markets says it is loading. Supabase/Stripe: the in-app mock.
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "./fixtures";
 
 async function signIn(page: Page, email: string) {
   await page.goto("/login?next=/account");
