@@ -19,7 +19,7 @@ file after every merge. "Review result" says "passed review" only after the revi
 |---|---|---|---|---|
 | F1 Bet checker | checker | review PASS with notes on 064f521 (CLS fixed); suites green on final+#59+F1 (vitest 1555, e2e 123), CI green; preview refused by the Vercel API daily cap at 06:50, retrying. Follow-up launch/checker-f01b c7e0a4b PASS with notes (Kalshi Use it per side, 640 px card, F2 CLS fix); merges after #43/#45, before F4 #52 | kiumars1199/Kismet#43 | PASS (pre-merge); post-merge check pending |
 | F2 Combo checker | checker | review PASS with notes on ef73b2f (one server call per check; CI green); merge after F1, waits on the Vercel limit. Low: CLS 0.141 at 390 when legs arrive after a slow lookup (follow-up) | kiumars1199/Kismet#45 | PASS (pre-merge); post-merge check pending |
-| F3 Every market searchable | data | merged 9ad7713; prod check FAIL (polymarket count); fix #59 merged 67cab85 (preview READY, CI green, suites green on final+#59; vitest 1555/1555 alone); prod READY (dpl_FZRXbSbQGLv3hXSxriFbVvUXh8Rn, redeployed after git deploy was refused), health ok 06:58; F3 prod recheck with reviewer | kiumars1199/Kismet#42 (fix #59; follow-up #60 df67be8 PASS with notes, merges next after F1) | fix PASS; prod recheck pending |
+| F3 Every market searchable | data | merged 9ad7713 + fix #59 67cab85; prod READY, health ok. Prod recheck PASS with notes: counts.polymarket 143222 vs keyset crawl 143401 (99.9%); 12/12 sampled open markets found (local stand-in, prod search is behind sign-up); /markets CLS 0.02–0.068 at 390 (the count line wraps on 2 of 9 loads; low) | kiumars1199/Kismet#42, kiumars1199/Kismet#59 (follow-up #60 in batch 1) | passed review |
 | F4 Three venues side by side | data | review PASS with notes on 42ee0ba (CI green). Before merge: rebase after F1/F2/f01b with one kalshi_matched_ticker declaration + Kalshi fixture row and /check e2e | kiumars1199/Kismet#52 | PASS (pre-merge); rebase pending |
 | F5 Topics at signup | onboarding-invites | review PASS with notes on ff7c5eb (1-year uid-bound hint, sign-out clears it; CI green); migration 20261122000100 applied just before merge; merge waits on the Vercel limit | kiumars1199/Kismet#47 | PASS (pre-merge); post-merge check pending |
 | F6 How to place this bet | checker | PASS with notes on 3668ac3; F9 wiring 57ed4de PASS with notes (CA/NV/none verified in browser, F9 JSON not in client bundle, check:js 146.6 kB). Merge after F1/F2 once CI web is green on 57ed4de. Guide line will reuse trust's signed-out state picker | kiumars1199/Kismet#46 | PASS (pre-merge); post-merge check pending |
@@ -36,7 +36,7 @@ file after every merge. "Review result" says "passed review" only after the revi
 
 Merge order: F3, F1, F2, F5, F7, F8, F9, then F4, F6, F10–F16.
 
-Batch 1 (decisions.md, Vercel cap): F1 #43 064f521, F2 #45 ef73b2f, f01b kiumars1199/Kismet#64 ae4e3eb, #60 df67be8, F6 #46 57ed4de. Integ tree integ-b1 suites running; one preview when a slot frees (~08:40 UTC), then merges and one prod build.
+Batch 1 (decisions.md, Vercel cap): F1 #43 064f521, F2 #45 ef73b2f, f01b kiumars1199/Kismet#64 ae4e3eb, #60 df67be8, F6 #46 57ed4de. Integ tree integ-b1 (c5abb7f) green: tsc, lint, vitest 1594 + timing test passes alone, pytest 164, build, check:js 146.8 kB, e2e 129. f01b delta PASS; one preview when a slot frees (~08:40 UTC), then merges and one prod build.
 
 ## Walk-through 1: first-time visitor from a TikTok link
 Status: not yet walked (after all merges).
@@ -70,8 +70,12 @@ Problems:
 
 - CI: e2e-paid on `next dev` fails with memory restarts / ECONNRESET on three branches (F13, F14, #61), never on final (reviewer). Owner: trust, PR "CI: run paid e2e on a production server".
 
+- /markets at 390: the count line ("N markets match · …") wraps from 1 to 2 lines about 1–2 s in on 2 of 9 loads, CLS 0.068 (reviewer, F3 prod). Under budget; low. Owner: data, after F4.
+- f01b + #52 both declare `kalshi_matched_ticker`: whichever merges second drops one line (data, in the #52 rebase). Until #52 lands, pasted Kalshi links still show "missing".
+
 ## Fixed log
 - F7: passed review (pre-merge PASS + post-merge PASS on cd9f672; evidence review/f07/).
+- F3: passed review (prod recheck on 67cab85, evidence review/f03/prod67cab85/).
 - F15: merged 34f672f with #50; migration 20261122000300 applied to live; prod deploy READY, /api/health ok (03:35 UTC).
 
 ## What Q must do
