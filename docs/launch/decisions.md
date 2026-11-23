@@ -84,3 +84,6 @@ t291-plans hit ECONNRESET twice on F13 after next dev restarted at its memory th
 
 ## Nov 23 06:45 UTC: signed-out state picker
 The F9 prod check showed that "Check your state" leads signed-out visitors to the sign-up wall. The state picker becomes reachable signed out (/api/state is already public), and F6's guide line will reuse it. Owner: trust.
+
+## Nov 23 06:50 UTC: Vercel API deployment cap
+create_deployment for the F1 preview was refused: 402 "api-deployments-free-per-day" (more than 100). The #59 prod redeploy got through just before. The preview gate is still not waived. Until slots free up, merges wait and each freed slot goes first to a production build for anything already merged, then to a preview of the next PR in the merge order. The lead retries at each check-in. Upgrading the Vercel plan stays on Q's list.
