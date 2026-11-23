@@ -1,14 +1,13 @@
 // /api/digest/run: the morning digest (F12), Vercel Cron (apps/web/vercel.json). GET only, needs the cron secret.
-// Emails opted-in users (profiles.digest_opt_in) the top bets in their chosen topics; same bets for everyone with
-// the same topics. Sends through the existing mail abstraction (lib/email sendEmail); no Resend key = nothing is sent.
+// Emails opted-in users (profiles.digest_opt_in), skipping paused accounts. Pro/Premium get the live top bets in their chosen
+// topics; Free gets its own daily Free sample (the delayed Free store), nothing a Free user could not see on /bets. Sends through the existing mail abstraction (lib/email sendEmail); no Resend key = nothing is sent.
 import { adminEnabled, supabaseAdmin } from "@/lib/auth/server";
 import { DEMO_MODE } from "@/lib/config";
 import { cronAuthorized, unauthorized } from "@/lib/cron";
-import { marketsPage } from "@/lib/data/respond";
-import { getStore } from "@/lib/data/store";
-import { FilterState } from "@/lib/filters/state";
+import { getStore, getStoreFor } from "@/lib/data/store";
+import { effectiveTier } from "@/lib/entitlements";
+import { digestBets } from "@/lib/email/digest-bets";
 import { defaultSend, defaultUnsubscribe, runDigest, supabaseDigestClaims, type DigestUser } from "@/lib/email/digest";
-import { MAX_DIGEST_BETS } from "@/lib/email/digest-templates";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -20,23 +19,25 @@ async function run(req: Request): Promise<Response> {
   if (!adminEnabled()) return Response.json({ ran: false, reason: "Supabase service role not configured" });
   const db = supabaseAdmin();
   try {
-    const store = await getStore();
+    const live = await getStore();
+    const free = getStoreFor("free").catch(() => null);   // Free's delayed copy may not exist yet: its users get no email this run
     const result = await runDigest({
       users: async () => {
-        const { data, error } = await db.from("profiles").select("user_id, favorite_topics").eq("digest_opt_in", true);
+        const { data, error } = await db.from("profiles").select("user_id, favorite_topics, paused_until").eq("digest_opt_in", true);
         if (error) throw new Error(error.message);
         const out: DigestUser[] = [];
-        for (const p of (data ?? []) as { user_id: string; favorite_topics: string[] | null }[]) {
+        for (const p of (data ?? []) as { user_id: string; favorite_topics: string[] | null; paused_until?: string | null }[]) {
           const email = (await db.auth.admin.getUserById(p.user_id)).data.user?.email;
-          if (email) out.push({ user_id: p.user_id, email, topics: p.favorite_topics ?? [] });
+          if (!email) continue;
+          const sub = await db.from("subscriptions").select("*").eq("user_id", p.user_id).maybeSingle();
+          out.push({ user_id: p.user_id, email, topics: p.favorite_topics ?? [], tier: effectiveTier(sub.error ? null : sub.data), paused_until: p.paused_until ?? null });
         }
         return out;
       },
-      betsFor: async (topics) => {
-        const page = marketsPage(store, FilterState.parse({ view: "flags", tier: "best", page_size: MAX_DIGEST_BETS, ...(topics.length ? { topics } : {}) }));
-        return page.rows.slice(0, MAX_DIGEST_BETS).map(({ market: m, side }) => ({
-          id: m.id, title: `${m.niche.toUpperCase()} · ${m.question}`, outcome: side.outcome, ask: side.ask, win_prob: side.win_prob, side_index: side.side_index, closes_at: m.closes_at,
-        }));
+      betsFor: async (topics, u) => {
+        const freeStore = await free;
+        if (u.tier === "free" && !freeStore) return [];
+        return digestBets({ live, free: freeStore ?? live }, u.tier, u.user_id, topics);
       },
       ...supabaseDigestClaims(db),
       send: defaultSend,

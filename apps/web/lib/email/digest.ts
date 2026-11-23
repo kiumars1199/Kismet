@@ -4,14 +4,17 @@
 // Pure over injected deps so tests use a fake send; the route wires Supabase + the existing sendEmail.
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { isPaused } from "@/lib/account/pause";
+import type { Tier } from "@/lib/entitlements";
 import { digestEmail, MAX_DIGEST_BETS, type DigestBet } from "./digest-templates";
 import { digestUnsubscribeUrl, sendEmail, type Email } from "./index";
 
-export interface DigestUser { user_id: string; email: string; topics: string[] }
+export interface DigestUser { user_id: string; email: string; topics: string[]; tier: Tier; paused_until?: string | null }
 export interface DigestDeps {
   users: () => Promise<DigestUser[]>;
-  /** Top flags for a topic set (empty = no topic filter), already limited to MAX_DIGEST_BETS. */
-  betsFor: (topics: string[]) => Promise<DigestBet[]>;
+  /** Top flags for a topic set (empty = no topic filter), already limited to MAX_DIGEST_BETS. Paid users share one list per
+   *  topic set (the live top bets); a Free user's list is their own daily Free sample, so it is asked for per user. */
+  betsFor: (topics: string[], user: DigestUser) => Promise<DigestBet[]>;
   claim: (userId: string, day: string) => Promise<boolean>;
   release: (userId: string, day: string) => Promise<void>;
   send: (e: Email) => Promise<{ sent: boolean }>;
@@ -21,19 +24,22 @@ export interface DigestDeps {
 
 export const topicsKey = (topics: string[]) => [...new Set(topics)].sort().join("|");
 
-export async function runDigest(deps: DigestDeps, now = Date.now()): Promise<{ users: number; sent: number; skipped_no_bets: number; failed: number }> {
+export async function runDigest(deps: DigestDeps, now = Date.now()): Promise<{ users: number; sent: number; skipped_no_bets: number; skipped_paused: number; failed: number }> {
   const users = await deps.users();
   const day = new Date(now).toISOString().slice(0, 10);
   const cache = new Map<string, Promise<DigestBet[]>>();
-  const betsOf = (topics: string[]) => {
+  const betsOf = (u: DigestUser) => {
+    const topics = [...new Set(u.topics)].sort();
+    if (u.tier === "free") return deps.betsFor(topics, u).then((b) => b.slice(0, MAX_DIGEST_BETS));   // their own Free sample: never shared
     const k = topicsKey(topics);
-    if (!cache.has(k)) cache.set(k, deps.betsFor([...new Set(topics)].sort()).then((b) => b.slice(0, MAX_DIGEST_BETS)));
+    if (!cache.has(k)) cache.set(k, deps.betsFor(topics, u).then((b) => b.slice(0, MAX_DIGEST_BETS)));
     return cache.get(k)!;
   };
-  let sent = 0, skipped = 0, failed = 0;
+  let sent = 0, skipped = 0, paused = 0, failed = 0;
   for (const u of users) {
     try {
-      const bets = await betsOf(u.topics);
+      if (isPaused(u.paused_until, now)) { paused++; continue; }   // F8 self-pause: no email until it ends
+      const bets = await betsOf(u);
       if (!bets.length) { skipped++; continue; }   // nothing to say today: no empty email
       if (!(await deps.claim(u.user_id, day))) continue;
       try {
@@ -48,7 +54,7 @@ export async function runDigest(deps: DigestDeps, now = Date.now()): Promise<{ u
       console.error("[digest] send failed:", e instanceof Error ? e.message : e);
     }
   }
-  return { users: users.length, sent, skipped_no_bets: skipped, failed };
+  return { users: users.length, sent, skipped_no_bets: skipped, skipped_paused: paused, failed };
 }
 
 /** digest_emails (supabase/migrations/20261122000400_digest.sql): service role only. */

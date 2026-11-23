@@ -1,16 +1,24 @@
 // F12: the morning digest email. Same flags for everyone with the same topics; plain wording, multipliers and
 // percentages only (CLAUDE.md rule 6), the disclaimer, and a one-click unsubscribe (RFC 8058) on the optional mail.
 import { closesIn, pct } from "@/lib/format";
-import { formatOdds } from "@/lib/odds";
+import { multX } from "@/lib/card";
 import { siteUrl, type Email } from "./index";
 import { layout } from "./templates";
 
 export const MAX_DIGEST_BETS = 5;
 
-export interface DigestBet { id: string; title: string; outcome: string; ask: number; win_prob: number; side_index: 0 | 1; closes_at: number }
+/** `pays` is the site's own payout text (lib/betFigures betQuote().paysText: after the fee, at the price the card shows). Without it
+ *  the multiplier is worked out here from ask + fee, also after the fee: never the bare price. */
+export interface DigestBet { id: string; title: string; outcome: string; ask: number; fee: number | null; pays?: string | null; win_prob: number; side_index: 0 | 1; closes_at: number }
+
+export function paysOf(b: Pick<DigestBet, "ask" | "fee" | "pays">): string | null {
+  if (b.pays) return b.pays;
+  const cost = b.ask + (b.fee ?? 0);
+  return cost > 0 && cost < 1 ? multX(1 / cost) : null;
+}
 
 const line = (b: DigestBet, now: number) =>
-  `${b.title}: ${b.outcome} · pays ${formatOdds(b.ask, "decimal")} · won ${pct(b.win_prob)} before${b.closes_at ? ` · closes ${closesIn(b.closes_at, now)}` : ""}`;
+  `${b.title}: ${b.outcome}${paysOf(b) ? ` · pays ${paysOf(b)}` : ""} · won ${pct(b.win_prob)} before${b.closes_at ? ` · closes ${closesIn(b.closes_at, now)}` : ""}`;
 
 export function digestEmail(i: { to: string; bets: DigestBet[]; unsubscribeUrl: string; now: number; timeZone?: string }): Email {
   const bets = i.bets.slice(0, MAX_DIGEST_BETS);
