@@ -104,6 +104,11 @@ export interface VenueQuote {
 // price, so the first and last values are the real ones. Served by GET /api/markets/<id>/history as { id, side,
 // interval_s, venue: "Polymarket", points: [{ t, p }] } (p 0..1; points [] = "No price history yet"). Polymarket only:
 // Polymarket US and Kalshi have no history here; the chart says "Prices from Polymarket, every <interval>".
+// Coverage: history.json holds the Best bets rows only; for any other market the store holds, the route fetches its best
+// side's series live from Polymarket's public CLOB the first time (<= 200 points, <= 90 days, 10 min in-memory cache, one
+// request in flight per market, 3 s timeout; `source: "live"`, else `"file"`). The response also carries `as_of` (unix s of
+// the latest point). The tier's delay applies: points newer than the scan the tier's store is from are cut, so Free's chart
+// is never fresher than its numbers. No series / failed fetch / US-native row = points [], "No price history for this market yet".
 export interface HistorySeries {
   side: 0 | 1;
   t0: number;                // unix s of the first point

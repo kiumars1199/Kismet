@@ -14,7 +14,7 @@ const call = async (id: string) => {
 };
 
 describe("/api/markets/[id]/history", () => {
-  afterEach(() => { vi.unstubAllEnvs(); h.tier = "premium"; });
+  afterEach(() => { vi.unstubAllGlobals(); vi.unstubAllEnvs(); h.tier = "premium"; });
 
   it("a market with a series: points as { t, p } (0..1), the side, the interval and the venue", async () => {
     const res = await call("6674492");
@@ -28,7 +28,8 @@ describe("/api/markets/[id]/history", () => {
     expect(b.points.map((x) => x.t)).toEqual([...b.points.map((x) => x.t)].sort((a, c) => a - c));
   });
 
-  it("a known market with no history: 200 and an empty series (the chart's empty state)", async () => {
+  it("a known market with no history and no CLOB answer: 200 and an empty series (the chart's empty state)", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => { throw new Error("offline"); }));
     const res = await call("7078474");
     expect(res.status).toBe(200);
     expect(((await res.json()) as Body).points).toEqual([]);
