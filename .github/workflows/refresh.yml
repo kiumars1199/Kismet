@@ -160,6 +160,7 @@ jobs:
             python ops/upload.py output
             python ops/upload.py --only output/kalshi.json   # Nov 21: side file, not in the main upload
             if [ -f output/kalshi_index.json ]; then python ops/upload.py --only output/kalshi_index.json; fi   # F3: every open Kalshi market
+            if [ -f output/polymarket_index.json ]; then python ops/upload.py --only output/polymarket_index.json; fi   # F3 fix: every open Polymarket market
           fi
 
       # F16 "within one scan" (docs/launch/decisions.md): after every scan, run only the big-trade alert rules.

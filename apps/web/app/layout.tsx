@@ -1,4 +1,6 @@
 import type { Metadata, Viewport } from "next";
+import { AvailabilityProvider } from "@/components/venues/VenueAvailability";
+import { requestAvailability } from "@/lib/venues/state-server";
 import { Inter, Space_Grotesk } from "next/font/google";
 import { Header } from "@/components/shell/Header";
 import { Footer } from "@/components/shell/Footer";
@@ -14,9 +16,12 @@ import { DEMO_MODE } from "@/lib/config";
 import type { HeaderHint } from "@/lib/me";
 import { unstable_rethrow } from "next/navigation";
 import { ClockProvider } from "@/components/clock";
-import { PauseScreen } from "@/components/account/PauseScreen";
+import { HelpLine } from "@/components/shell/HelpLine";
+import dynamic from "next/dynamic";
 import { isPaused } from "@/lib/account/pause";
 import "./globals.css";
+
+const PauseScreen = dynamic(() => import("@/components/account/PauseScreen").then((m) => m.PauseScreen));   // only while paused
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 const grotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-space-grotesk", display: "swap" });
@@ -42,6 +47,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   // Nov 21: demo mode too (getMe answers from config there), so Combos/Kalshi don't pop into the header after /api/me
   const hint = (authEnabled() && session) || DEMO_MODE ? await headerHint() : null;
   const pausedUntil = (authEnabled() && session) ? await pausedUntilOf() : null;   // F8: getMe() is cached, no second read
+  const avail = await requestAvailability();   // F9: the visitor's chosen state
   const now = Date.now();   // one clock for the server render and the hydration render (components/clock.tsx)
   const banner = settings.banner_on && settings.banner_text ? settings.banner_text : null;
   return (
@@ -51,6 +57,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <head><link rel="manifest" href="/manifest.webmanifest" /></head>
       <body className="flex min-h-dvh flex-col bg-background text-text">
         <ClockProvider zone={clock.zone} saved={clock.saved} now={now}>
+        <AvailabilityProvider value={avail}>
         <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:rounded-input focus:bg-accent focus:px-3 focus:py-2 focus:text-on-accent">
           Skip to content
         </a>
@@ -61,7 +68,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         )}
         {pausedUntil ? (
           <>
-            <main id="main" className="flex-1 px-4 py-10 md:px-8"><PauseScreen until={pausedUntil} /></main>
+            <main id="main" className="flex-1 px-4 py-10 md:px-8"><PauseScreen until={pausedUntil} help={<HelpLine className="text-sm text-muted" />} /></main>
             <Footer />
           </>
         ) : (
@@ -75,6 +82,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <LazyHosts />
           </>
         )}
+        </AvailabilityProvider>
         </ClockProvider>
       </body>
     </html>

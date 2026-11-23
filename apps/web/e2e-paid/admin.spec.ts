@@ -77,6 +77,7 @@ async function expectNoAdmin(page: Page) {
 }
 
 test("admin: sees /admin with a user count, flips the banner and everyone sees it", async ({ page, browser }) => {
+  test.setTimeout(300_000);   // ~15 routes compile on first hit under `next dev` (3-25 s each): the 120 s default ends mid-navigation as ERR_ABORTED
   await signIn(page, ADMIN);
   await expect(page.getByRole("link", { name: "Admin panel" })).toBeVisible();
 
@@ -134,6 +135,7 @@ test("admin: sees /admin with a user count, flips the banner and everyone sees i
 });
 
 test("normal user and anonymous visitor: 404 on every admin page and API route, no Admin link; Kalshi yes, Combos Premium only", async ({ page, browser }) => {
+  test.setTimeout(300_000);   // same: cold dev compiles of every admin and app route
   await signIn(page, `user-${Date.now()}@example.com`);
   await expect(page.getByRole("link", { name: "Admin panel" })).toHaveCount(0);
   await expect(page.getByRole("link", { name: "Admin", exact: true })).toHaveCount(0);
