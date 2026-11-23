@@ -77,7 +77,12 @@ Problems:
 - #54 note: /api/trade/config reads the user's profile even when trading is off on the deploy; check tradingEnv/extensionId first (reviewer). Low; owner trust, after #63.
 - F5 copy nit (reviewer, post-merge): Free with a 1-bet daily sample filtered to 0 by topics reads "0 of 1 bet where the odds lean your way". Should say plainly that today's free pick isn't in their topics. Low; owner onboarding, after F13.
 - F10 nit (reviewer, post-merge): `link rel=manifest` appears twice in prod HTML. Low; owner: whichever lane frees first.
-- F8 gap now fixed in kiumars1199/Kismet#67 (5ca579b), in review.
+- F8 gap fixed in kiumars1199/Kismet#67: 5ca579b PASS with notes (an existing token is refused after pause; other users unaffected). CI web red only on the F5 pill-click ECONNRESET flake; final merged in (149c524) to rerun. Follow-ups (owner trust, post-launch; trading is off in prod):
+  - allow trade cancel while paused;
+  - move supabaseAdmin() inside the try in pausedUntilForUser;
+  - add a unit test for an unpaused nonce;
+  - show a pause message in the extension popup on 423, and clear cached by-slug data.
+- F5 pill-click flake: e2e-paid/launch-f05-topics.spec.ts:59 at 1440 failed on CI after a server ECONNRESET (seen on #67). Part of trust's stabilize PR (D).
 
 ## Fixed log
 - F7: passed review (pre-merge PASS + post-merge PASS on cd9f672; evidence review/f07/).
