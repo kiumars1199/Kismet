@@ -63,7 +63,8 @@ describe("one Best bets count (T-288)", () => {
     expect(s.first.rows).toHaveLength(FREE_BEST_BETS_A_DAY);
     const locked = await html(createElement(LockedBets, { total: s.first.total, shown: s.first.rows.length, daily: s.first.free_daily!, desktop: true }));
     expect(locked).toContain(`Unlock ${s.shared - FREE_BEST_BETS_A_DAY} more bets`);   // under 1,000: formatCount is exact
-    expect(locked).toContain(`Free shows ${FREE_BEST_BETS_A_DAY} Best bets a day`);
+    expect(locked).toContain(`Free shows ${FREE_BEST_BETS_A_DAY} of today`);   // "of today&#x27;s best bets, picked at random each day, with delayed prices" (renderToStaticMarkup escapes the apostrophe)
+    expect(locked).toContain("best bets, picked at random each day, with delayed prices.");
   });
 
   it("Pro: the same number on /status, Best bets and /api/flags, with no Free sample marker", async () => {
