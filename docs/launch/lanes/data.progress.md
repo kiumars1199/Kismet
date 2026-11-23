@@ -40,3 +40,17 @@ Raw evidence files in docs/launch/review/f14/ (typecheck, lint, vitest, pytest, 
 ## F4 · PR open https://github.com/kiumars1199/Kismet/pull/52 (head da59363, merged with origin/final 9ad7713). pytest 161, tsc/lint 0, vitest 1475 (+1 timing flake, alone 7/7), check:js 142.5 kB OK, e2e f04 4 passed.
 ## F14 · PR open https://github.com/kiumars1199/Kismet/pull/53 (head 05e7f98, stacked on F4). pytest 173, tsc/lint 0, vitest 1486, check:js 142.5 kB OK, e2e f14 4 passed. Merge #52 first.
 ## F3 follow-ups: live branch (fetched 2026-11-22, last commit 20:52 UTC) has no kalshi_index.json yet, so topic "other" share and its size cannot be measured until the first scheduled refresh after F3. Live branch today: markets.json 32.7 MB, flags.json 9.1 MB, plus *-prev copies. Kalshi fee multiplier still null (PDF 429).
+
+## Nov 23 respawn: F3 production fix (branch launch/data-f03b, from origin/final 651462b) - IN PROGRESS
+Finding (read-only): counts.polymarket = markets.json rows = rows the model scores (2 outcomes, bid+ask, close 0.5h-240h, <=500 events/tag). Railway logs 2026-11-22 21:19..2026-11-23 03:11: "open markets fetched" 74308->68709, "scanned" 14402..16316, recovering overnight (15428 at 03:11): the window, not a pagination bug.
+Replay of fetch_open on 2026-11-23 (Gamma GET /events?closed=false&active=true&order=volume&tag_slug=<27 tags>, pages of 100 to 500): 102,504 ids, 34,049 closed/not accepting, 68,455 kept; dropped before model: 21,446 >240h, 20,596 no bid/ask, 7,515 bad quote, 3,050 <0.5h, 389 no date; 15,459 scored. 8 tags hit the 500-event cap.
+Whole venue (GET /events/keyset?closed=false&active=true&limit=100): 16,277 events, 300,732 markets, 143,349 accepting orders (all binary), 75,880 with bid+ask.
+Fix (main approved): engine/pm_index.py -> output/polymarket_index.json (143,194 rows, 34.7 MB plain, 2.06 MB gzipped, 92 s crawl, hourly, scheduler step after kalshi, side file); web: lib/data/polymarket-index.ts, `unpriced` in /api/markets (top 10 + total, "Not priced yet", no price, never flags), /api/meta counts.polymarket = priced + unpriced, counts.polymarket_priced kept; Kalshi index keeps last good copy.
+Perf (local, real 13,971-market store + real 143K PM index + synthetic 172,680 Kalshi index): next-server VmHWM 676 MB (<1 GB); 40 requests (20 queries x2) p95 0.199 s, max 0.343 s.
+
+## Nov 23 respawn summary (end of this run)
+- F3 fix PR #59 (launch/data-f03b, head 4e52f3d): passed review, merging. Finding + numbers in the PR body.
+- F4 #52 (launch/data-f04): pushed 39e3f74 (venues from the card's own row, Kalshi snapshot <= store scan, basis expand, 44 px summary). LOCAL, NOT PUSHED: commit "expose the matched Kalshi ticker (kalshi_matched_ticker)". Main asked for kalshi_ticker itself; I used a separate field because kalshi_ticker flips the bet venue (venueOf/Trade/combos/MCP); awaiting main's call. Hold the /check e2e until F1 #43 is in final; rebase on final after #59 lands.
+- F14 #53 (launch/data-f14): pushed f292928 (360 px card, live CLOB fallback, Free cut, details). Needs `git merge launch/data-f04` after the local F4 commit is pushed.
+- Follow-up (launch/data-f03c, df67be8, stacked on #59 head, LOCAL, NOT PUSHED): polymarket_index_meta.json conditional download, scheduler comment. PR title suggestion "F3: download the Polymarket index only when it changed".
+- Vercel daily deploy limit hit 03:57 UTC: one push per round.
