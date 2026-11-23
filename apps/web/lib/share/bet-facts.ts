@@ -7,7 +7,7 @@ import type { Store } from "@/lib/data/store";
 
 export interface BetFacts { title: string; side: string; mult: string | null; chance: string | null }
 
-/** The drawer's own figures (lib/betFigures: "Pays 1.39x", "wins about 1 in 7", "won 15% before") computed on the
+/** The drawer's own figures (lib/betFigures: "Pays 1.39x", "wins about 1 in 7") computed on the
  *  Free-banded market, so the image never disagrees with the drawer for the same viewer tier. */
 export function betFacts(store: Store, id: string, side?: number): BetFacts | null {
   const exact = store.flagsById.get(id) ?? store.byId.get(id);   // exact rows: band them before use
@@ -19,6 +19,6 @@ export function betFacts(store: Store, id: string, side?: number): BetFacts | nu
   return {
     title: plainTitle(m, s), side: sideLabel(s),
     mult: none(f.pays) ? null : f.pays,
-    chance: none(f.wins) ? null : `wins about ${f.wins} · won ${f.winPct} before`,
+    chance: none(f.wins) ? null : `Bets like this won ${/^over/.test(f.wins) ? "" : "about "}${f.wins} before`,
   };
 }

@@ -1,18 +1,26 @@
 "use client";
 // F13: share one bet. A button (mounted in the bet drawer) opens a sheet with the bet's share image
 // (/api/og/bet/<id>), Share / Copy link / Save image, and your invite link with the live "n of 5" counter.
-// The image and link are the same for everyone: nothing here depends on the user.
+// The link is signed by the server (/api/share/link): only a link made here renders numbers in the public image.
 import { useEffect, useId, useRef, useState } from "react";
-import { InvitePanel, useInvite } from "./InvitePanel";
+import { InvitePanel } from "./InvitePanel";
 
-export function ShareSheet({ marketId, side, className }: { marketId: string; side: number; className?: string }) {
+export function ShareSheet({ marketId, className }: { marketId: string; className?: string }) {
   const ref = useRef<HTMLDialogElement>(null);
   const id = useId();
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [canShare, setCanShare] = useState(false);
   const [imgOk, setImgOk] = useState(true);
-  const { info } = useInvite(open);   // the sharer's code rides on the shared link so a friend's sign-up counts
+  // the server signs the link (market + the recommended side) and puts the sharer's invite code on it
+  const [made, setMade] = useState<{ path: string; image: string } | null>(null);
+  useEffect(() => {
+    if (!open) return;
+    let live = true;
+    fetch(`/api/share/link?m=${encodeURIComponent(marketId)}`, { credentials: "same-origin", cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null)).then((j) => { if (live && j?.path) setMade(j); }).catch(() => {});
+    return () => { live = false; };
+  }, [open, marketId]);
   useEffect(() => setCanShare(typeof navigator !== "undefined" && typeof navigator.share === "function"), []);
   useEffect(() => {
     const d = ref.current;
@@ -21,8 +29,8 @@ export function ShareSheet({ marketId, side, className }: { marketId: string; si
     if (!open && d.open) d.close();
   }, [open]);
 
-  const img = `/api/og/bet/${encodeURIComponent(marketId)}?side=${side}`;
-  const link = () => `${location.origin}/m/${encodeURIComponent(marketId)}${info?.code ? `?ref=${info.code}` : ""}`;
+  const img = made?.image ?? "";
+  const link = () => `${location.origin}${made?.path ?? `/m/${encodeURIComponent(marketId)}`}`;
 
   return (
     <>
@@ -41,7 +49,8 @@ export function ShareSheet({ marketId, side, className }: { marketId: string; si
               <button type="button" onClick={() => setOpen(false)} className="min-h-11 rounded-input px-3 text-sm text-muted hover:text-text">Close</button>
             </div>
             <div className="aspect-[1200/630] w-full overflow-hidden rounded-input border border-border bg-muted-bg">
-              {imgOk
+              {!img ? <p className="flex size-full items-center justify-center p-4 text-center text-sm text-muted">Making your share card…</p>
+                : imgOk
                 ? <img src={img} alt="Share card for this bet" width={1200} height={630} onError={() => setImgOk(false)} className="size-full object-cover" /> // eslint-disable-line @next/next/no-img-element
                 : <p className="flex size-full items-center justify-center p-4 text-center text-sm text-muted">The image isn&apos;t available right now. You can still copy the link.</p>}
             </div>
@@ -52,7 +61,7 @@ export function ShareSheet({ marketId, side, className }: { marketId: string; si
               )}
               <button type="button" onClick={async () => { try { await navigator.clipboard.writeText(link()); setCopied(true); setTimeout(() => setCopied(false), 2000); } catch { /* no clipboard */ } }}
                 className="min-h-11 rounded-input border border-border bg-muted-bg px-4 text-sm font-medium hover:border-accent-border">{copied ? "Link copied" : "Copy link"}</button>
-              <a href={img} download={`kismet-bet-${marketId}.png`} className="inline-flex min-h-11 items-center rounded-input border border-border bg-muted-bg px-4 text-sm font-medium hover:border-accent-border">Save image</a>
+              <a href={img || undefined} aria-disabled={!img} download={`kismet-bet-${marketId}.png`} className="inline-flex min-h-11 items-center rounded-input border border-border bg-muted-bg px-4 text-sm font-medium hover:border-accent-border">Save image</a>
             </div>
             <section aria-labelledby={`${id}-i`} className="flex flex-col gap-3 border-t border-border pt-5">
               <h3 id={`${id}-i`} className="text-sm font-semibold text-soft">Invite friends, earn a free month</h3>

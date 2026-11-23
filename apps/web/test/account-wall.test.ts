@@ -58,7 +58,7 @@ describe("signedOutAccess (lib/auth/public-paths.ts)", () => {
       "/api/unsubscribe", "/api/alerts/run", "/api/settle/run", "/api/ext/token/refresh", "/api/events/by-slug/x", "/api/mcp", "/api/mcp/sse", "/api/og/bet/abc", "/api/invite/ref"])
       expect(signedOutAccess(p), p).toBe("public");
     for (const p of ["/api/flags", "/api/markets", "/api/markets/1", "/api/events/1", "/api/suggest", "/api/book", "/api/data",
-      "/api/stripe/checkout", "/api/stripe/portal", "/api/ext/token", "/api/admin", "/api/healthz", "/api/mcpx", "/api/ogx", "/api/invite", "/api/og", "/api"])
+      "/api/stripe/checkout", "/api/stripe/portal", "/api/ext/token", "/api/admin", "/api/healthz", "/api/mcpx", "/api/ogx", "/api/invite", "/api/share/link", "/api/og", "/api"])
       expect(signedOutAccess(p), p).toBe("api401");
   });
 });

@@ -338,7 +338,7 @@ function Actions({ m, s }: { m: StoreMarket; s: Side }) {
           </svg>
           <span role="status" className="sr-only">{copied ? "Link copied" : ""}</span>
         </button>
-        <ShareSheet marketId={m.id} side={s.side_index} className={icon} />   {/* F13: share image + invite */}
+        <ShareSheet marketId={m.id} className={icon} />   {/* F13: share image + invite */}
       </div>
     </div>
   );

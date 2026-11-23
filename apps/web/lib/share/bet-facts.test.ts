@@ -14,8 +14,9 @@ describe("betFacts (share image text)", () => {
       const m = gateMarket(store.flagsById.get(id)!, "free");
       const d = betFigures(m.best, { market: m });
       expect(f.mult ?? "—").toBe(d.pays);
-      expect(f.chance).toBe(d.wins === "—" ? null : `wins about ${d.wins} · won ${d.winPct} before`);
-      const pct = Number(/won (\d+)% before/.exec(f.chance ?? "")?.[1] ?? 0);
+      expect(f.chance).toBe(d.wins === "—" ? null : `Bets like this won ${/^over/.test(d.wins) ? "" : "about "}${d.wins} before`);
+      if (f.chance) expect(f.chance).not.toMatch(/%/);   // one figure, said once
+      const pct = Math.round(Number(m.best.win_prob) * 100);
       if (pct > 1 && pct < 99) expect(pct % 5).toBe(0);   // Free sees the chance in 5-point steps, never the exact one
     }
   });

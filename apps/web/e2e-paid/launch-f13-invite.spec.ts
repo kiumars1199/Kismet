@@ -68,32 +68,43 @@ test("invite link, QR, live 0..5 counter, reward; share sheet in the drawer", as
   await page.getByTestId("share-bet").click();
   const img = page.getByRole("img", { name: "Share card for this bet" });
   await expect(img).toBeVisible({ timeout: 30_000 });
-  const ogRes = await page.request.get(`/api/og/bet/${id}?side=0`);
-  console.log("OG status", ogRes.status(), ogRes.headers()["content-type"]);
   await expect.poll(() => img.evaluate((el: HTMLImageElement) => [el.naturalWidth, el.naturalHeight]), { timeout: 60_000 }).toEqual([1200, 630]);
   await expect(page.getByRole("dialog").getByTestId("invite-counter")).toContainText("3 of 5", { timeout: 30_000 });
   await page.screenshot({ path: `${SHOTS}/share-sheet-3-of-5-1440.png` });
 
-  // the shared link carries the sharer's invite code
+  // the shared link is signed by the server and carries the sharer's invite code
   await page.context().grantPermissions(["clipboard-read", "clipboard-write"]);
   await page.getByRole("button", { name: "Copy link" }).first().click();   // the sheet's own (the invite panel below has another)
   const code = link.split("/").pop()!;
-  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(`http://localhost:${new URL(page.url()).port}/m/${id}?ref=${code}`);
+  const shared = await page.evaluate(() => navigator.clipboard.readText());
+  const m = new RegExp(`^http://localhost:${new URL(page.url()).port}(/m/${id}\\?ref=${code}&s=(\\d)&sig=([A-Za-z0-9_-]{22}))$`).exec(shared);
+  expect(m, shared).not.toBeNull();
+  const [, sharedPath, sharedSide, sharedSig] = m!;
   await page.keyboard.press("Escape");
 
-  // share previews work signed out: the image route answers a crawler, and /m/<id>'s og:image / twitter:image point at it
+  // share previews work signed out. A signed link's image shows the numbers, and its description says the same; an
+  // unsigned or forged request gets the teaser card and the sign-up line (T-276: no model output without an account)
   const origin = new URL(page.url()).origin;
   const crawler = await browser.newContext({ baseURL: origin });
   const cp = await crawler.newPage();
-  const og = await crawler.request.get(`/api/og/bet/${id}`);
-  expect(og.status()).toBe(200);
-  expect(og.headers()["content-type"]).toContain("image/png");
-  const html = await (await crawler.request.get(`/m/${id}?ref=${code}`)).text();
-  expect(html).toMatch(new RegExp(`<meta property="og:image" content="[^"]*/api/og/bet/${id}"`));
-  expect(html).toMatch(new RegExp(`<meta name="twitter:image" content="[^"]*/api/og/bet/${id}"`));
+  const bytes = async (u: string) => { const r = await crawler.request.get(u); expect(r.status(), u).toBe(200); expect(r.headers()["content-type"]).toContain("image/png"); return r.body(); };
+  const numbers = await bytes(`/api/og/bet/${id}?s=${sharedSide}&sig=${sharedSig}`);
+  const bare = await bytes(`/api/og/bet/${id}`);
+  const forged = await bytes(`/api/og/bet/${id}?s=${sharedSide}&sig=AAAAAAAAAAAAAAAAAAAAAA`);
+  expect(bare.equals(forged)).toBe(true);
+  expect(numbers.equals(bare)).toBe(false);
+  const signedHtml = await (await crawler.request.get(sharedPath!)).text();
+  expect(signedHtml).toMatch(new RegExp(`<meta property="og:image" content="[^"]*/api/og/bet/${id}\\?s=${sharedSide}&amp;sig=${sharedSig}"`));
+  expect(signedHtml).toMatch(new RegExp(`<meta name="twitter:image" content="[^"]*sig=${sharedSig}"`));
+  expect(signedHtml).toMatch(/<meta name="description" content="Pays \d/);
+  const bareHtml = await (await crawler.request.get(`/m/${id}`)).text();
+  expect(bareHtml).toMatch(new RegExp(`<meta property="og:image" content="[^"]*/api/og/bet/${id}"`));
+  expect(bareHtml).toMatch(/<meta name="description" content="[^"]*Sign up free/);
+  expect(bareHtml).not.toMatch(/content="Pays /);
   // and the ?ref= on a shared link is remembered for the sign-up
-  await cp.goto(`/m/${id}?ref=${code}`);
+  await cp.goto(sharedPath!);
   await expect.poll(async () => (await crawler.cookies()).some((c) => c.name === "me_invite" && c.value === code), { timeout: 30_000 }).toBe(true);
+  expect((await crawler.request.get(`/api/share/link?m=${id}`)).status()).toBe(401);   // only a signed-in person can make a signed link
   await crawler.close();
 
   for (let n = 4; n <= 5; n++) await joinFrom(browser, link, n);
