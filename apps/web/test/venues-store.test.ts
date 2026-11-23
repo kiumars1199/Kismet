@@ -3,11 +3,12 @@
 import { describe, expect, it } from "vitest";
 import { buildStore, kalshiSnapshot, loadRaw } from "@/lib/data/store";
 import { cardVenue } from "@/lib/card";
+import { venueOf } from "@/lib/trade/venue";
 import type { VenuesFile, VenuesSnapshot } from "@/lib/types";
 
 const snap = (kalshi_fetched_at: number, price = 0.52, side: 0 | 1 = 0): VenuesSnapshot => ({
   meta: { n: 1, kalshi: true, generated_at: kalshi_fetched_at + 60, kalshi_fetched_at },
-  venues: { "6674492": { side, kalshi_match_conf: 0.93, venues: [{ venue: "polymarket", price: 0.01, multiplier: 99, url: "stale" }, { venue: "us", price: 0.01, multiplier: 99, url: "stale" }, { venue: "kalshi", price, multiplier: null, url: "https://kalshi.com/markets/kx" }] } },
+  venues: { "6674492": { side, kalshi_ticker: "KXFIXTURE-1", kalshi_match_conf: 0.93, venues: [{ venue: "polymarket", price: 0.01, multiplier: 99, url: "stale" }, { venue: "us", price: 0.01, multiplier: 99, url: "stale" }, { venue: "kalshi", price, multiplier: null, url: "https://kalshi.com/markets/kx" }] } },
 });
 
 describe("venues in the store", () => {
@@ -60,6 +61,22 @@ describe("venues in the store", () => {
     expect(s.byId.get("6635049")!.us).toBeNull();
     expect(s.byId.get("6635049")!.venues).toBeUndefined();   // international only, no Kalshi match: one venue
     expect(s.markets.filter((m) => m.venue === "us").every((m) => !m.venues)).toBe(true);
+  });
+
+  it("a market with a Kalshi match exposes the matched ticker for link lookups, WITHOUT making Kalshi its bet venue", async () => {
+    const raw = await loadRaw();
+    const s = buildStore({ ...raw, venues: snap(raw.markets.meta.scanned_at) });
+    const m = s.byId.get("6674492")!;
+    expect(m.kalshi_matched_ticker).toBe("KXFIXTURE-1");
+    expect(m.kalshi_match_conf).toBe(0.93);
+    expect(m.kalshi_ticker ?? null).toBeNull();   // kalshi_ticker = "this market is bet on Kalshi" (venueOf, Trade, combos, MCP)
+    expect(venueOf(m).name).toBe("Polymarket");
+    expect(s.flagsById.get("6674492")!.kalshi_matched_ticker).toBe("KXFIXTURE-1");
+    // no Kalshi row for this scan (snapshot newer than the scan) = no matched ticker either
+    const at = raw.markets.meta.scanned_at;
+    expect(buildStore({ ...raw, venues: snap(at + 900) }).byId.get("6674492")!.kalshi_matched_ticker).toBeUndefined();
+    // the venues.json fixture carries one for each Kalshi-matched market
+    expect(buildStore(raw).byId.get("7077573")!.kalshi_matched_ticker).toBeTruthy();
   });
 
   it("flags carry the same venues as their market", async () => {

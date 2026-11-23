@@ -42,7 +42,7 @@ export const Market = z.object({
   backtest: z.object({ flags: z.number(), pnl_cents: z.number(), t: z.number() }).nullable(),
   sides: z.array(Side), best: Side,
   volume_24h: opt.nullable(), created_at: opt.nullable(), competitive: opt,
-  kalshi_ticker: z.string().nullable().optional(), kalshi_match_conf: opt,
+  kalshi_ticker: z.string().nullable().optional(), kalshi_match_conf: opt, kalshi_matched_ticker: z.string().optional(),
   venues: z.array(z.object({
     venue: z.enum(["polymarket", "us", "kalshi"]), price: z.number().nullable(), multiplier: z.number().nullable(), url: z.string(),
   })).optional(),
