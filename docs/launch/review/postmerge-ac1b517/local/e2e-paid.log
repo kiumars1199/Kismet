@@ -1,0 +1,27 @@
+✓ Lockfile passes supply-chain policies (verified 9h ago)
+Lockfile is up to date, resolution step is skipped
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+  ✓   1 [chromium] › e2e-paid/launch-f01-limit.spec.ts:34:1 › Free: 1 check a day, the second is 429 check_limit; Pro: 20 checks all 200 (3.7m)
+  ✓   2 [chromium] › e2e-paid/launch-f01-limit.spec.ts:73:1 › signed out: /check?m=<id>&side=0 stays on /check (5.4s)
+  ✓   3 [chromium] › e2e-paid/launch-f01-limit.spec.ts:84:1 › signed out: /api/check/search finds markets and leaks nothing else (7.9s)
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+  ✓   4 [chromium] › e2e-paid/launch-f01-limit.spec.ts:102:1 › Free: scoring a combo uses the day's check; the same set is free; another combo and a single check get 429 (41.7s)
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+  ✓   5 [chromium] › e2e-paid/launch-f01-limit.spec.ts:141:1 › Free: 3 legs, one explicit check, then dropping a leg recomputes without a second check (24.4s)
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+  ✓   6 [chromium] › e2e-paid/launch-f05-topics.spec.ts:50:1 › warm-up: first hits compile the routes (1.0m)
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+  ✓   7 [chromium] › e2e-paid/launch-f05-topics.spec.ts:59:3 › picks NFL + Politics at 390px: / and /bets open filtered with a Your topics pill; one tap clears it (2.2m)
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+  ✓   8 [chromium] › e2e-paid/launch-f05-topics.spec.ts:59:3 › picks NFL + Politics at 1440px: / and /bets open filtered with a Your topics pill; one tap clears it (1.3m)
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+  ✓   9 [chromium] › e2e-paid/launch-f05-topics.spec.ts:128:1 › skipping setup keeps / and /bets unfiltered; topics are editable in /settings (16.0s)
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+  ✘  10 [chromium] › e2e-paid/launch-f05-topics.spec.ts:143:1 › topics cleared elsewhere stop filtering here; sign-out drops the hint; another account never reads it (1.0m)
+  ✘  11 [chromium] › e2e-paid/launch-f05-topics.spec.ts:181:1 › a returning user's first /bets opens filtered (the hint outlives the tab) (1.4s)
+  ✘  12 [chromium] › e2e-paid/launch-f08-pause.spec.ts:29:1 › pause 24 h: pause screen on every app page, 423 on data routes, end time in the user's zone (1.5s)
+    Error: apiRequestContext.get: socket hang up (ECONNRESET)
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3304/login
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3304/login?next=/account
+  3 failed
+  9 passed (11.0m)

@@ -1,0 +1,26 @@
+390 / status=200 cards=4 checkLinks=4 first=/check?m=6970124&side=1 m=null event=null tour=false {"cls":0,"hs":false,"disc":true,"cents":false}
+  health: 200 ct=application/json {"ok":true}
+  meta: {"counts":{"markets":18369,"flags":3896,"events":2059,"polymarket":143430,"polymarket_priced":18369,"kalshi":169569},"scanned":null}
+  tradeConfig: 200 ct=application/json {"enabled":false,"env":null,"extensionId":"","riskUrl":"https://kalshi.com/regulatory"}
+  digestRun: 401 ct=application/json {"error":"unauthorized"}
+  digestOptin: 401 ct=application/json {"error":"Sign in to use this.","signin":"/login"}
+  pushSub: 401 ct=application/json {"error":"Sign in to use this.","signin":"/login"}
+  alerts: 401 ct=application/json {"error":"Sign in to use this.","signin":"/login"}
+  manifest: 200 ct=application/manifest+json {"name":"Kismet","short_name":"Kismet","description":"Bets priced below their true win chance, after fees. Market analytics, not financial advice. 18+.","start_url":"/","scope":"/","display":"standalone","background_colo
+  sw: 200 ct=application/javascript; charset=utf-8 // Kismet service worker (F10). Does two things only: shows a web push, and opens the right page when it is tapped. // It caches nothing and never intercepts a request, so pages and data are always the live ones. // The 
+  icon192: 192x192
+  icon512: 512x512
+  search: 403 ct=application/json {"error":"Automated access is not allowed."}
+  state: 405 ct=null 
+  swReg: []
+  links: ["https://kismetodds.com/manifest.webmanifest","https://kismetodds.com/manifest.webmanifest"]
+  sw controller after reload: null
+390 check /check?m=6970124&side=1 status=200 {"score":null,"limit":false,"missing":false,"h1":"Bet checker"} {"cls":0.4325,"hs":false,"disc":true,"cents":false}
+390 combo /check/combo status=200 {"score":null,"limit":false,"missing":false,"h1":"Combo checker"} {"cls":0,"hs":false,"disc":true,"cents":false}
+390 m: no link
+390 event: no link
+1440 / status=200 cards=4 checkLinks=4 first=/check?m=6970124&side=1 m=null event=null tour=false {"cls":0,"hs":false,"disc":true,"cents":false}
+1440 check /check?m=6970124&side=1 status=200 {"score":null,"limit":false,"missing":false,"h1":"Bet checker"} {"cls":0.0251,"hs":false,"disc":true,"cents":false}
+1440 combo /check/combo status=200 {"score":null,"limit":false,"missing":false,"h1":"Combo checker"} {"cls":0,"hs":false,"disc":true,"cents":false}
+1440 m: no link
+1440 event: no link
