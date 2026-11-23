@@ -15,6 +15,7 @@ import { betQuote, quoteStars, RETURN_HELP_ONE } from "@/lib/betFigures";
 import { checkHref } from "@/lib/check/href";
 import { cardVenue, chanceLine, INTL_ONLY, plainTitle, sideLabel, starsHelp, US_SMALL_PRINT } from "@/lib/card";
 import { useEntitlements } from "@/lib/entitlements";
+import { LogBetButton } from "@/components/journal/LogBetButton";
 import { VenueButton } from "@/components/trade/VenueButton";
 import { HowToBet } from "@/components/check/HowToBet";
 import { venueLinks } from "@/lib/venues/guides";
@@ -82,6 +83,7 @@ export function BetCard({ r }: { r: ApiRow; pro?: boolean }) {
         {v.kind === "intl-only"
           ? <p data-testid="intl-only" className="flex min-h-11 items-center justify-center rounded-xl border border-border bg-raised/60 px-3 text-center text-xs text-muted">{INTL_ONLY}</p>
           : <VenueButton m={m} s={s} className="min-h-12 w-full sm:min-h-11" />}
+        {v.kind !== "intl-only" && <LogBetButton market={m} side={s} className="mt-2 w-full" />}
         <Link href={checkHref(m.id, s.side_index)} data-testid="check-link" aria-label={`Check this bet: ${m.question}`}
           className="relative z-10 mt-1 flex min-h-11 items-center justify-center rounded-xl text-sm font-semibold text-accent-hover hover:text-accent-soft">Check</Link>
         <div className="relative z-10 mt-1"><HowToBet links={venueLinks(m)} /></div>

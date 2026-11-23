@@ -144,6 +144,7 @@ describe("/api/events/by-slug: open CORS for the extension, but needs a session 
     vi.doMock("@/lib/auth/server", async (orig) => ({
       ...(await orig<typeof import("@/lib/auth/server")>()),
       authEnabled: () => true,
+      pausedUntilForUser: async () => null,
       getUser: async () => (user ? { ...user, verified: true } : null),
       getMe: async () => ({ user, tier: "free", status: null, current_period_end: null, cancel_at_period_end: false, beta: false }),
     }));

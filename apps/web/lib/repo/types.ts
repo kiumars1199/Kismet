@@ -68,7 +68,7 @@ export interface JournalEntry {
   price: number; shares: number; fee: number; placed_at: string;
   model_win_prob: number | null; model_edge: number | null;
   closing_price: number | null;
-  result: "won" | "lost" | "void" | null; settled_at: string | null;
+  result: "won" | "lost" | "void" | "split" | null; settled_at: string | null;
   pnl_usd: number | null; tags: string[]; note: string | null;
 }
 
