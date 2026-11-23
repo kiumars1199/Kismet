@@ -3,6 +3,7 @@
 // wrote the file. Signed out: 401 from the account wall (middleware). Same body for every plan, but behind sign-in, so
 // never in a shared cache (QA-D: a public s-maxage would hand it to signed-out visitors from the CDN).
 import { getMe } from "@/lib/auth/server";
+import { pausedResponse } from "@/lib/account/pause";
 import { canBeta } from "@/lib/beta";
 import { getKalshi } from "@/lib/data/store";
 
@@ -12,7 +13,10 @@ export const dynamic = "force-dynamic";
 const MAX_MARKETS = 200;
 
 export async function GET(): Promise<Response> {
-  const data = canBeta(await getMe(), "kalshi") ? await getKalshi() : undefined;
+  const me = await getMe();
+  const paused = pausedResponse(me);   // F8
+  if (paused) return paused;
+  const data = canBeta(me, "kalshi") ? await getKalshi() : undefined;
   if (!data) return Response.json({ error: "Not available" }, { status: 404, headers: { "Cache-Control": "no-store" } });
   return Response.json(
     { ...data, markets: data.markets.slice(0, MAX_MARKETS) },

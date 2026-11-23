@@ -1,6 +1,8 @@
 // Admin overview (T-141): users, plans, revenue estimate, activity. Counts only; nothing per-bet or per-user ranked.
 import { SignupsChart } from "@/components/admin/Controls";
+import { Metrics } from "@/components/admin/Metrics";
 import { Stats } from "@/components/admin/Stats";
+import { summarize, toCents, type RawMetrics } from "@/lib/admin/metrics";
 import { requireAdmin } from "@/lib/admin/server";
 import { exactCount, money } from "@/lib/format";
 import { SITE } from "@/lib/site";
@@ -27,7 +29,10 @@ const pct = (a: number, b: number) => (b > 0 ? `${Math.round((a / b) * 100)}%` :
 
 export default async function Page() {
   const { db } = await requireAdmin();
-  const [{ data, error }, act] = await Promise.all([db.rpc("admin_overview"), db.rpc("admin_activation")]);
+  const [{ data, error }, act, met] = await Promise.all([
+    db.rpc("admin_overview"), db.rpc("admin_activation"),
+    db.rpc("admin_metrics", { pro_cents: toCents(SITE.prices.pro_monthly), premium_cents: toCents(SITE.prices.premium_monthly) }),   // F15
+  ]);
   if (error || !data) {
     return <p role="alert" className="rounded-card border border-warning/40 bg-warning/10 px-4 py-3 text-sm">Couldn&apos;t load the overview. Has the admin migration (supabase/migrations/20261118000000_admin.sql) been applied?</p>;
   }
@@ -36,7 +41,8 @@ export default async function Page() {
   const mrr = o.paying.pro * SITE.prices.pro_monthly + o.paying.premium * SITE.prices.premium_monthly;
   const signups = o.signups.map((d) => ({ ...d, label: new Date(`${d.day}T00:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" }) }));
   const last30 = signups.reduce((n, d) => n + d.n, 0);
-  const a = act.error ? null : (act.data as Activation | null);   // null until the owner applies the migration
+  const a = act.error ? null : (act.data as Activation | null);
+  const metrics = met.error || !met.data ? null : summarize(met.data as RawMetrics);   // null until 20261122000300_admin_metrics.sql is applied   // null until the owner applies the migration
 
   return (
     <div className="flex flex-col gap-8">
@@ -46,6 +52,12 @@ export default async function Page() {
         { k: "Pro", v: exactCount(o.tiers.pro), sub: o.tiers.comped ? `${exactCount(o.tiers.comped)} comped across plans` : undefined },
         { k: "Premium", v: exactCount(o.tiers.premium), sub: `${exactCount(o.tiers.trialing)} on a free trial` },
       ]} />
+
+      {metrics ? <Metrics s={metrics} /> : (
+        <p className="text-sm text-muted" data-testid="admin-metrics-missing">
+          The 30-day table (sign-ups, trials, payments, revenue, cancellations, invites) needs supabase/migrations/20261122000300_admin_metrics.sql.
+        </p>
+      )}
 
       <section aria-labelledby="signups-h" className="flex flex-col gap-2.5">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
