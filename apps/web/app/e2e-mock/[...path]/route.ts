@@ -319,6 +319,19 @@ async function rpc(req: Request, fn: string) {
     for (const [t, id] of db().refresh) if (id === a.uid) { db().refresh.delete(t); n++; }
     return json(n);
   }
+  if (fn === "grant_invite_reward") {   // F13: the SQL function in 20261122000200_invites.sql, for the simple cases the e2e needs
+    const id = String(a.p_inviter);
+    const n = table("invites").filter((r) => r.inviter_id === id && r.status === "verified").length;
+    const rewards = table("invite_rewards");
+    if (n < 5) return json({ granted: false, reason: "below_threshold", verified: n });
+    if (rewards.some((r) => r.inviter_id === id)) return json({ granted: false, reason: "already_rewarded", verified: n });
+    const s = sub(id);
+    const live = !!s.comp_tier && (!s.comp_expires_at || Date.parse(String(s.comp_expires_at)) > Date.now());
+    const end = new Date((live ? Date.parse(String(s.comp_expires_at)) : Date.now()) + 30 * 86_400_000).toISOString();
+    rewards.push({ inviter_id: id, outcome: "granted", comp_until: end });
+    Object.assign(s, { comp_tier: "premium", comp_expires_at: end });
+    return json({ granted: true, comp_until: end, verified: n });
+  }
   return json({ message: `mock: rpc ${fn} not implemented` }, 404);
 }
 

@@ -8,6 +8,7 @@ export const PUBLIC_PAGES: readonly string[] = [
   "/terms", "/privacy", "/refunds", "/disclaimer", "/contact",
   "/login", "/signup", "/reset-password", "/auth", "/maintenance",
   "/m", "/event",
+  "/invite",   // F13: /invite/<code> remembers the code and goes to /signup
   "/check",                   // F1 bet checker: signed out gets the same 1 check a day as Free (counted per device)
   "/state",                   // F9: pick your state (cookie) without an account
 ];
@@ -28,6 +29,8 @@ export const PUBLIC_API: readonly string[] = [
   "/api/backtest",            // backtest.json summary: the same figures /track-record shows publicly (landing cards read it)
   "/api/auth",                // sign-in, sign-up, reset, Google, sign-out
   "/api/stripe/webhook",      // Stripe signature
+  "/api/invite/ref",          // F13: a shared bet link carries the sharer's invite code; the visitor is signed out
+  "/api/og/bet",              // F13 share image: Free-banded numbers, the same for everyone; link-preview crawlers are signed out
   "/api/unsubscribe",         // signed token from the email
   "/api/alerts/run",          // CRON_SECRET
   "/api/settle/run",          // CRON_SECRET

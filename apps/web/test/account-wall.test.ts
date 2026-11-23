@@ -56,10 +56,10 @@ describe("signedOutAccess (lib/auth/public-paths.ts)", () => {
 
   it("API: only the listed routes are public; everything else is api401", () => {
     for (const p of ["/api/health", "/api/meta", "/api/me", "/api/backtest", "/api/auth/password", "/api/auth/google", "/api/stripe/webhook",
-      "/api/unsubscribe", "/api/alerts/run", "/api/settle/run", "/api/ext/token/refresh", "/api/events/by-slug/x", "/api/mcp", "/api/mcp/sse", "/api/digest/run"])
+      "/api/unsubscribe", "/api/alerts/run", "/api/settle/run", "/api/ext/token/refresh", "/api/events/by-slug/x", "/api/mcp", "/api/mcp/sse", "/api/og/bet/abc", "/api/invite/ref", "/api/digest/run"])
       expect(signedOutAccess(p), p).toBe("public");
     for (const p of ["/api/flags", "/api/markets", "/api/markets/1", "/api/events/1", "/api/suggest", "/api/book", "/api/data",
-      "/api/stripe/checkout", "/api/stripe/portal", "/api/ext/token", "/api/admin", "/api/healthz", "/api/mcpx", "/api"])
+      "/api/stripe/checkout", "/api/stripe/portal", "/api/ext/token", "/api/admin", "/api/healthz", "/api/mcpx", "/api/ogx", "/api/invite", "/api/share/link", "/api/og", "/api"])
       expect(signedOutAccess(p), p).toBe("api401");
   });
 });

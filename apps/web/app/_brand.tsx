@@ -7,7 +7,20 @@ export const TAGLINE = "Good-value bets on Polymarket.";
 export const C = { bg: "#070a09", surface: "#0c120f", border: "#1a2520", text: "#e6efe9", muted: "#a9bab1", accent: "#10b981", onAccent: "#04140d", soft: "#d1fae5" };
 
 // withDefault: keep next/og's own Noto Sans first (the default face), for cards whose body text predates the brand fonts.
-export async function brandFonts({ withDefault = false } = {}) {
+// Read once per server process and reused: every share image used to re-read ~0.5 MB of font files, and the dev server
+// kept each copy alive. A failed read is not cached.
+const fontCache = new Map<boolean, ReturnType<typeof loadFonts>>();
+export function brandFonts({ withDefault = false } = {}) {
+  let p = fontCache.get(withDefault);
+  if (!p) {
+    p = loadFonts(withDefault);
+    fontCache.set(withDefault, p);
+    p.catch(() => fontCache.delete(withDefault));
+  }
+  return p;
+}
+
+async function loadFonts(withDefault: boolean) {
   const [grotesk, inter, noto] = await Promise.all([
     readFile(join(process.cwd(), "app/SpaceGrotesk-Bold.ttf")),
     readFile(join(process.cwd(), "app/Inter-Regular.ttf")),

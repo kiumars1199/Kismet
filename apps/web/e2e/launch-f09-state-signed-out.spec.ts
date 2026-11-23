@@ -29,3 +29,10 @@ test("/state refuses an off-site next and still works on its own", async ({ page
   await expect.poll(() => new URL(page.url()).pathname).toBe("/state");
   await expect(page.getByRole("link", { name: "Back" })).toHaveAttribute("href", "/");
 });
+
+test("the server-rendered StateLink on the prerendered home returns to /, not /index (no JS)", async ({ request }) => {
+  const html = await (await request.get("/")).text();
+  const hrefs = [...html.matchAll(/<a[^>]*data-testid="state-link"[^>]*>/g)].map((m) => /href="([^"]+)"/.exec(m[0])![1]!.replace(/&amp;/g, "&"));
+  expect(hrefs.length).toBeGreaterThan(0);
+  for (const h of hrefs) expect(h).toBe("/state?next=%2F");
+});
