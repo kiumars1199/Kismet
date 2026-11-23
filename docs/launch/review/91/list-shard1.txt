@@ -1,0 +1,21 @@
+  [chromium] › admin.spec.ts:79:1 › admin: sees /admin with a user count, flips the banner and everyone sees it
+  [chromium] › admin.spec.ts:137:1 › normal user and anonymous visitor: 404 on every admin page and API route, no Admin link; Kalshi yes, Combos Premium only
+  [chromium] › dropped-socket.spec.ts:14:1 › a request whose socket is dropped once succeeds on the retry (page.request, and a fresh browser context)
+  [chromium] › dropped-socket.spec.ts:28:1 › a server that always drops the socket still fails (one retry, not forever)
+  [chromium] › dropped-socket.spec.ts:36:1 › an HTTP 500 is not retried
+  [chromium] › free-topics-cls.spec.ts:69:5 › Free at 390px › full → empty by a filter change, then Show today's free bets: CLS < 0.1 each way
+  [chromium] › free-topics-cls.spec.ts:93:5 › Free at 390px › a few bets → empty, and removing a filter pill grows the list back: CLS < 0.1 each way
+  [chromium] › free-topics-cls.spec.ts:69:5 › Free at 1440px › full → empty by a filter change, then Show today's free bets: CLS < 0.1 each way
+  [chromium] › free-topics-cls.spec.ts:93:5 › Free at 1440px › a few bets → empty, and removing a filter pill grows the list back: CLS < 0.1 each way
+  [chromium] › launch-f01-limit.spec.ts:34:1 › Free: 1 check a day, the second is 429 check_limit; Pro: 20 checks all 200
+  [chromium] › launch-f01-limit.spec.ts:73:1 › signed out: /check?m=<id>&side=0 stays on /check
+  [chromium] › launch-f01-limit.spec.ts:84:1 › signed out: /api/check/search finds markets and leaks nothing else
+  [chromium] › launch-f01-limit.spec.ts:102:1 › Free: scoring a combo uses the day's check; the same set is free; another combo and a single check get 429
+  [chromium] › launch-f01-limit.spec.ts:141:1 › Free: 3 legs, one explicit check, then dropping a leg recomputes without a second check
+  [chromium] › launch-f05-topics.spec.ts:53:1 › warm-up: first hits compile the routes
+  [chromium] › launch-f05-topics.spec.ts:62:3 › picks NFL + Politics at 390px: / and /bets open filtered with a Your topics pill; one tap clears it
+  [chromium] › launch-f05-topics.spec.ts:62:3 › picks NFL + Politics at 1440px: / and /bets open filtered with a Your topics pill; one tap clears it
+  [chromium] › launch-f05-topics.spec.ts:134:1 › skipping setup keeps / and /bets unfiltered; topics are editable in /settings
+  [chromium] › launch-f05-topics.spec.ts:149:1 › topics cleared elsewhere stop filtering here; sign-out drops the hint; another account never reads it
+  [chromium] › launch-f05-topics.spec.ts:187:1 › a returning user's first /bets opens filtered (the hint outlives the tab)
+  [chromium] › launch-f05-topics.spec.ts:208:1 › the Your topics pill works before hydration, and nothing covers or breaks it at 1440

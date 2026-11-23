@@ -1,0 +1,13 @@
+  [chromium] › launch-f08-age.spec.ts:5:1 › signup: the 18+ and Terms box is required and recorded
+  [chromium] › launch-f08-pause.spec.ts:29:1 › pause 24 h: pause screen on every app page, 423 on data routes, end time in the user's zone
+  [chromium] › launch-f09-state-static.spec.ts:6:3 › signed out at 390: / → Check your state → NV → / says not available in Nevada, CLS < 0.1
+  [chromium] › launch-f09-state-static.spec.ts:6:3 › signed out at 1440: / → Check your state → NV → / says not available in Nevada, CLS < 0.1
+  [chromium] › launch-f13-invite.spec.ts:36:1 › invite link, QR, live 0..5 counter, reward; share sheet in the drawer
+  [chromium] › launch-f13-invite.spec.ts:119:1 › a bad invite code is ignored and a signed-out visitor can't read /api/invite
+  [chromium] › launch-f13-invite.spec.ts:125:1 › at 390 px: /account invite panel and the share sheet fit, no horizontal scroll, CLS under 0.1
+  [chromium] › launch-f15-admin.spec.ts:25:1 › admin 30-day table: counts, dollars from cents, dashes before the ledger
+  [chromium] › launch-pricing-cls.spec.ts:35:1 › /pricing CLS < 0.1 at 390 and 1440: signed out, Free, Pro
+  [chromium] › launch-walk1-shared-bet.spec.ts:10:3 › shared bet -> teaser -> sign-up at 390px
+  [chromium] › launch-walk1-shared-bet.spec.ts:10:3 › shared bet -> teaser -> sign-up at 1440px
+  [chromium] › launch-walk1-shared-bet.spec.ts:48:1 › /signup ignores a title in the URL and a next that is not a market
+  [chromium] › markets-bet-wide.spec.ts:54:1 › /markets: Free and Pro, Bet does not wrap at 1440 and 1920

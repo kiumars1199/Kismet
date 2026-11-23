@@ -1,0 +1,275 @@
+Listing tests:
+  [chromium] › a11y.spec.ts:36:28 › axe /
+  [chromium] › a11y.spec.ts:36:28 › axe /markets
+  [chromium] › a11y.spec.ts:36:28 › axe /about
+  [chromium] › a11y.spec.ts:36:28 › axe /pricing
+  [chromium] › a11y.spec.ts:36:28 › axe /login
+  [chromium] › a11y.spec.ts:36:28 › axe /signup
+  [chromium] › a11y.spec.ts:36:28 › axe /onboarding
+  [chromium] › a11y.spec.ts:36:28 › axe /account
+  [chromium] › a11y.spec.ts:36:28 › axe /watchlist
+  [chromium] › a11y.spec.ts:36:28 › axe /journal
+  [chromium] › a11y.spec.ts:36:28 › axe /alerts
+  [chromium] › a11y.spec.ts:36:28 › axe /dashboards
+  [chromium] › a11y.spec.ts:36:28 › axe /settings
+  [chromium] › a11y.spec.ts:36:28 › axe /tools
+  [chromium] › a11y.spec.ts:36:28 › axe /track-record
+  [chromium] › a11y.spec.ts:36:28 › axe /status
+  [chromium] › a11y.spec.ts:36:28 › axe /terms
+  [chromium] › a11y.spec.ts:36:28 › axe /privacy
+  [chromium] › a11y.spec.ts:36:28 › axe /refunds
+  [chromium] › a11y.spec.ts:36:28 › axe /disclaimer
+  [chromium] › a11y.spec.ts:36:28 › axe /contact
+  [chromium] › a11y.spec.ts:36:28 › axe /ext/connect
+  [chromium] › a11y.spec.ts:36:28 › axe /combos
+  [chromium] › a11y.spec.ts:36:28 › axe /no-such-page
+  [chromium] › a11y.spec.ts:38:1 › axe /event, /m and the open drawer
+  [chromium] › a11y.spec.ts:49:1 › keyboard: the drawer traps focus and Escape returns it to the opener
+  [chromium] › a11y.spec.ts:71:1 › keyboard: Pricing is a visible footer link, not inside a hidden dialog
+  [chromium] › alerts.spec.ts:11:1 › Run now fires one alert, running again keeps one
+  [chromium] › event-cls.spec.ts:7:3 › /event/<id> cold-load CLS is under 0.1 at 390px, every time
+  [chromium] › event-cls.spec.ts:7:3 › /event/<id> cold-load CLS is under 0.1 at 1440px, every time
+  [chromium] › headers.spec.ts:5:1 › security headers and a strict nonce CSP
+  [chromium] › headers.spec.ts:33:1 › prerendered pages: static CSP and a shared cache header
+  [chromium] › headers.spec.ts:48:1 › pages hydrate under the CSP
+  [chromium] › launch-f01-checker.spec.ts:20:1 › checker = card = drawer on 3 fixture markets: chance, market %, multiplier, edge, return
+  [chromium] › launch-f01-checker.spec.ts:54:1 › price 60% → 50% updates multiplier, edge and score in under 100 ms with no network call
+  [chromium] › launch-f01-checker.spec.ts:82:1 › 0%, 100%, 0.5% and 99.5% are rejected, unknown links say so, the formula is on the page
+  [chromium] › launch-f01-checker.spec.ts:100:1 › the venue line matches the card: International only, not on Polymarket US
+  [chromium] › launch-f01-checker.spec.ts:110:3 › /check at 390px: no horizontal scroll, CLS < 0.1 loading ?m=, empty and with a result
+  [chromium] › launch-f01-checker.spec.ts:110:3 › /check at 1440px: no horizontal scroll, CLS < 0.1 loading ?m=, empty and with a result
+  [chromium] › launch-f01-checker.spec.ts:126:3 › unknown link result at 390px: CLS < 0.1 (the skeleton and the answer keep the same height)
+  [chromium] › launch-f01-checker.spec.ts:126:3 › unknown link result at 1440px: CLS < 0.1 (the skeleton and the answer keep the same height)
+  [chromium] › launch-f01-checker.spec.ts:138:1 › Check on a card at /bets, 390px, lands on that bet's result with the card's numbers
+  [chromium] › launch-f01-checker.spec.ts:152:1 › every card on /, /bets and /markets has a Check link to /check?m=…&side=…
+  [chromium] › launch-f01-checker.spec.ts:163:1 › /check?m=<id>&side=0 opens no drawer and the page is not inert
+  [chromium] › launch-f02-combo.spec.ts:16:1 › 3 legs: combined numbers, drop the weakest with one tap, numbers update
+  [chromium] › launch-f02-combo.spec.ts:52:1 › a 2nd leg from the same event shows the same-event warning; a duplicate is refused
+  [chromium] › launch-f02-combo.spec.ts:69:1 › /check/combo at 390px: no horizontal scroll
+  [chromium] › launch-f02-combo.spec.ts:77:1 › legs arriving after a slow lookup keep CLS < 0.1 at 390 and 1440
+  [chromium] › launch-f03-search.spec.ts:6:1 › GET /api/markets?venue=kalshi&topic=sports.nfl returns Kalshi NFL rows
+  [chromium] › launch-f03-search.spec.ts:13:1 › q finds a Kalshi row by a title word
+  [chromium] › launch-f03-search.spec.ts:18:1 › /api/meta counts by venue
+  [chromium] › launch-f03-search.spec.ts:25:3 › /markets Kalshi venue: topic filter, rows, "No price yet", no horizontal scroll at 390px
+  [chromium] › launch-f03-search.spec.ts:25:3 › /markets Kalshi venue: topic filter, rows, "No price yet", no horizontal scroll at 1440px
+  [chromium] › launch-f03-search.spec.ts:38:1 › the venue chip switches to Kalshi and the URL round-trips
+  [chromium] › launch-f03-search.spec.ts:48:1 › a direct load of /markets?q=<word> carries the Kalshi matches in the server HTML and on screen
+  [chromium] › launch-f03-search.spec.ts:57:1 › a direct load of the Kalshi view ships its rows and chips in the server HTML
+  [chromium] › launch-f03-search.spec.ts:65:3 › Kalshi view at 390px: the header counts Kalshi rows and the Polymarket-only controls are gone
+  [chromium] › launch-f03-search.spec.ts:83:3 › the venue chip row never shifts on /markets at 390px (it is in the server HTML)
+  [chromium] › launch-f03-search.spec.ts:65:3 › Kalshi view at 1440px: the header counts Kalshi rows and the Polymarket-only controls are gone
+  [chromium] › launch-f03-search.spec.ts:83:3 › the venue chip row never shifts on /markets at 1440px (it is in the server HTML)
+  [chromium] › launch-f03-search.spec.ts:112:3 › a market the scan does not price is found by search and says "Not priced yet" at 390px
+  [chromium] › launch-f03-search.spec.ts:112:3 › a market the scan does not price is found by search and says "Not priced yet" at 1440px
+  [chromium] › launch-f03-search.spec.ts:124:1 › /api/meta counts every open Polymarket market and keeps the priced count
+  [chromium] › launch-f03-search.spec.ts:130:1 › a market past its close time that still accepts orders says it is waiting for the result
+  [chromium] › launch-f04-venues.spec.ts:5:3 › /m/<id> with 3 venues shows 3 rows and exactly one "Pays most here" at 390px
+  [chromium] › launch-f04-venues.spec.ts:5:3 › /m/<id> with 3 venues shows 3 rows and exactly one "Pays most here" at 1440px
+  [chromium] › launch-f04-venues.spec.ts:26:1 › a market on 2 venues shows Kalshi as Not listed
+  [chromium] › launch-f04-venues.spec.ts:33:1 › a market on one venue has no block
+  [chromium] › launch-f04-venues.spec.ts:39:1 › 6674492: the card says international only, so the block lists Polymarket US as Not listed
+  [chromium] › launch-f04-venues.spec.ts:47:1 › 7078474: the block's Polymarket US payout is the card's (1.34x)
+  [chromium] › launch-f04-venues.spec.ts:53:1 › basis: source, time and Kalshi match confidence are one tap away
+  [chromium] › launch-f04-venues.spec.ts:68:1 › /check: a pasted Kalshi link resolves to its market (not 'missing') and shows Kalshi's own price
+  [chromium] › launch-f06-howto.spec.ts:5:1 › how to bet this at 390px: 3 steps, the venue link, close
+  [chromium] › launch-f06-howto.spec.ts:33:1 › how to bet this from a card at 390px: pick a venue, 3 steps, sources, link, close
+  [chromium] › launch-f06-howto.spec.ts:52:1 › the guide's check-your-state line opens the signed-out state picker, then comes back
+  [chromium] › launch-f08-risknote.spec.ts:6:3 › /bets: a risk note next to every bet button at 390 px, CLS < 0.1
+  [chromium] › launch-f08-risknote.spec.ts:6:3 › /bets: a risk note next to every bet button at 1440 px, CLS < 0.1
+  [chromium] › launch-f09-availability.spec.ts:8:1 › no state chosen: 'Check your state' above each bet button, linking to Settings
+  [chromium] › launch-f09-availability.spec.ts:19:1 › restricted state: the note says not available, above the button, at 390 px and 1440 px
+  [chromium] › launch-f09-availability.spec.ts:49:1 › an unknown state is refused and clearing works
+  [chromium] › launch-f09-availability.spec.ts:57:1 › Polymarket US says available in a state its Trust page does not restrict
+  [chromium] › launch-f09-markets-link.spec.ts:4:1 › /markets: a visible availability line above the list, and in each icon link's label
+  [chromium] › launch-f09-markets-link.spec.ts:24:1 › /markets with no state chosen says 'Check your state'
+  [chromium] › launch-f09-state-signed-out.spec.ts:6:3 › signed out at 390: Check your state → pick NV → the note shows Nevada, no sign-up
+  [chromium] › launch-f09-state-signed-out.spec.ts:6:3 › signed out at 1440: Check your state → pick NV → the note shows Nevada, no sign-up
+  [chromium] › launch-f09-state-signed-out.spec.ts:24:1 › /state refuses an off-site next and still works on its own
+  [chromium] › launch-f09-state-signed-out.spec.ts:33:1 › the server-rendered StateLink on the prerendered home returns to /, not /index (no JS)
+  [chromium] › launch-f11-log.spec.ts:9:1 › one tap from a Best bets card adds a row to /journal
+  [chromium] › launch-f11-log.spec.ts:27:1 › settled fixture bets: sport and topic totals equal the profit tile
+  [chromium] › launch-f11-log.spec.ts:49:1 › one tap on the /check result logs the bet
+  [chromium] › launch-f11-log.spec.ts:60:1 › bets list at 390: loading the plan moves nothing (CLS under 0.02)
+  [chromium] › launch-f14-history.spec.ts:5:3 › a market with history draws the chart and the basis line at 390px
+  [chromium] › launch-f14-history.spec.ts:5:3 › a market with history draws the chart and the basis line at 1440px
+  [chromium] › launch-f14-history.spec.ts:17:1 › a market with no history says "No price history for this market yet" in the same-height box
+  [chromium] › launch-f14-history.spec.ts:25:1 › the history API serves the chart's points
+  [chromium] › launch-f14-history.spec.ts:54:5 › /m/6674492 (chart): the card's slot is 360px in every frame at 390px
+  [chromium] › launch-f14-history.spec.ts:54:5 › /m/7078474 (empty state): the card's slot is 360px in every frame at 390px
+  [chromium] › launch-f14-history.spec.ts:54:5 › /m/6674492 (chart): the card's slot is 360px in every frame at 1440px
+  [chromium] › launch-f14-history.spec.ts:54:5 › /m/7078474 (empty state): the card's slot is 360px in every frame at 1440px
+  [chromium] › launch-f14-history.spec.ts:82:1 › the empty state says it plainly, and the details name the source
+  [chromium] › launch-f14-history.spec.ts:89:1 › with a chart, the details say where it is from and when the latest point is, and no point is newer than the scan
+  [chromium] › launch-f14-history.spec.ts:106:5 › /m/7078474 whole-page CLS under 0.1 at 390px
+  [chromium] › launch-f14-history.spec.ts:106:5 › /m/6674492 whole-page CLS under 0.1 at 390px
+  [chromium] › launch-f14-history.spec.ts:106:5 › /m/7078474 whole-page CLS under 0.1 at 1440px
+  [chromium] › launch-f14-history.spec.ts:106:5 › /m/6674492 whole-page CLS under 0.1 at 1440px
+  [chromium] › launch-f14-history.spec.ts:126:3 › /m/6674492 at 390px, trading and combos on: Trade (paper) and Add to combo mount late without moving anything (CLS < 0.1)
+  [chromium] › launch-f14-history.spec.ts:126:3 › /m/7078474 at 390px, trading and combos on: Trade (paper) and Add to combo mount late without moving anything (CLS < 0.1)
+  [chromium] › launch-f14-history.spec.ts:145:1 › trading config says enabled:false: no empty Trade slot is left in the action row
+  [chromium] › launch-pricing-plain.spec.ts:11:1 › 390x844: the plans start in the first screen; the stats are in a Details expand
+  [chromium] › launch-pricing-plain.spec.ts:29:1 › the Free plan says how the daily bets are picked
+  [chromium] › launch-pricing-plain.spec.ts:36:1 › help line links are at least 44 x 44 px at 390
+  [chromium] › launch-pricing-plain.spec.ts:49:3 › /pricing CLS under 0.1 at 390
+  [chromium] › launch-pricing-plain.spec.ts:49:3 › /pricing CLS under 0.1 at 1440
+  [chromium] › launch-wt3-combo.spec.ts:15:3 › /check has a "Check a combo" link to /check/combo at 390px
+  [chromium] › launch-wt3-combo.spec.ts:27:3 › the drawer and /m have "Add to combo checker" (opens /check/combo with the leg) at 390px
+  [chromium] › launch-wt3-combo.spec.ts:15:3 › /check has a "Check a combo" link to /check/combo at 1440px
+  [chromium] › launch-wt3-combo.spec.ts:27:3 › the drawer and /m have "Add to combo checker" (opens /check/combo with the leg) at 1440px
+  [chromium] › launch-wt3-combo.spec.ts:45:1 › legs already chosen are kept when another bet is added from its drawer or page
+  [chromium] › launch-wt3-combo.spec.ts:56:1 › same-event legs: no score ('—'), the formula line says why, chance and pays stay
+  [chromium] › launch-wt3-combo.spec.ts:76:1 › different events still get a score
+  [chromium] › launch-wt3-combo.spec.ts:86:1 › Why these numbers?: each leg's basis is the drawer's plain wording, not the model code
+  [chromium] › launch-wt3-combo.spec.ts:101:1 › search hits are a dropdown over the page: the legs and the result below do not move
+  [chromium] › launch-wt3-combo.spec.ts:117:3 › a scored combo does not shift the page: CLS < 0.02 at 390px
+  [chromium] › launch-wt3-combo.spec.ts:117:3 › a scored combo does not shift the page: CLS < 0.02 at 1440px
+  [chromium] › m-cls.spec.ts:8:5 › /m/6674492 cold-load CLS is under 0.1 at 390px, every time
+  [chromium] › m-cls.spec.ts:8:5 › /m/6674492 cold-load CLS is under 0.1 at 1440px, every time
+  [chromium] › m-cls.spec.ts:8:5 › /m/7078474 cold-load CLS is under 0.1 at 390px, every time
+  [chromium] › m-cls.spec.ts:8:5 › /m/7078474 cold-load CLS is under 0.1 at 1440px, every time
+  [chromium] › manifest-link.spec.ts:5:3 › / has exactly one rel=manifest link, in <head>
+  [chromium] › manifest-link.spec.ts:5:3 › /pricing has exactly one rel=manifest link, in <head>
+  [chromium] › manifest-link.spec.ts:5:3 › /bets has exactly one rel=manifest link, in <head>
+  [chromium] › manifest-link.spec.ts:13:1 › the manifest still serves
+  [chromium] › markets-count-line-cls.spec.ts:6:1 › /markets?ven=kalshi count line is one line (20 px) before and after /api/meta at 390px
+  [chromium] › markets-count-line-cls.spec.ts:20:3 › /markets count line keeps its height when /api/meta lands (390px)
+  [chromium] › markets-count-line-cls.spec.ts:20:3 › /markets count line keeps its height when /api/meta lands (768px)
+  [chromium] › markets-count-line-cls.spec.ts:20:3 › /markets count line keeps its height when /api/meta lands (1440px)
+  [chromium] › markets-table-wide.spec.ts:16:3 › /markets at 1280px: the table fits, the page does not scroll sideways
+  [chromium] › markets-table-wide.spec.ts:16:3 › /markets at 1366px: the table fits, the page does not scroll sideways
+  [chromium] › markets-table-wide.spec.ts:16:3 › /markets at 1440px: the table fits, the page does not scroll sideways
+  [chromium] › markets-table-wide.spec.ts:25:1 › /markets at 1280px: the header still sticks under the top bar (64 px) after the page scrolls
+  [chromium] › markets-table-wide.spec.ts:33:1 › /markets at 768px: a right-edge fade shows before scrolling, is gone at the end, and costs no layout shift
+  [chromium] › markets-table-wide.spec.ts:52:1 › /markets at 1280px: default columns, no fade (nothing to scroll)
+  [chromium] › markets-table-wide.spec.ts:61:3 › /markets with all 21 columns at 1280px: the page does not scroll sideways, the box does, and the fade is on and stays on
+  [chromium] › markets-table-wide.spec.ts:61:3 › /markets with all 21 columns at 1440px: the page does not scroll sideways, the box does, and the fade is on and stays on
+  [chromium] › markets-table-wide.spec.ts:61:3 › /markets with six extra columns at 1280px: the page does not scroll sideways, the box does, and the fade is on and stays on
+  [chromium] › markets-table-wide.spec.ts:77:1 › /markets default columns at 1280px: data-on stays false (no flip-flop) and the box is overflow-visible
+  [chromium] › markets-table-wide.spec.ts:84:1 › /markets: an event group row says 'Denmark vs. Norway', not '... - More Markets'
+  [chromium] › markets-table-wide.spec.ts:91:1 › /markets at 390px: the card list's event group header drops '- More Markets' too
+  [chromium] › markets-table-wide.spec.ts:102:1 › /check: the event line under a market's title drops '- More Markets'
+  [chromium] › markets-table-wide.spec.ts:113:3 › /markets at 1280px: the default columns' narrowest width leaves at least 150 px of room in the box
+  [chromium] › markets-table-wide.spec.ts:113:3 › /markets at 1366px: the default columns' narrowest width leaves at least 150 px of room in the box
+  [chromium] › markets-table-wide.spec.ts:125:1 › /markets with one extra column (Volume) at 1280px: it fits now (Bet and Topic wrap when squeezed), no scroll, header sticks
+  [chromium] › markets-table-wide.spec.ts:154:3 › /markets at 1440px: Bet never wraps, rows stay one line, header sticks, no sideways scroll, CLS < 0.05
+  [chromium] › markets-table-wide.spec.ts:154:3 › /markets at 1920px: Bet never wraps, rows stay one line, header sticks, no sideways scroll, CLS < 0.05
+  [chromium] › markets-table-wide.spec.ts:171:1 › /markets at 1280px: where Bet wraps, line 2 never starts with a dot; no sideways scroll, CLS < 0.05
+  [chromium] › multipliers.spec.ts:14:1 › long shot: a 10x+ payout filter with international bets brings it in, with its losing band record
+  [chromium] › multipliers.spec.ts:27:1 › drawer: long-shot line under 25% chance
+  [chromium] › multipliers.spec.ts:33:1 › combo #15: a second leg from the same event (by event id) is refused
+  [chromium] › multipliers.spec.ts:66:1 › combos page: payout tabs, each card pays at least the floor, Build this combo opens the tray
+  [chromium] › multipliers.spec.ts:103:1 › combo #42: a saved leg that has closed leaves the tray, with a note
+  [chromium] › overhaul-cards.spec.ts:29:1 › every card face: at most 7 slots, no loose text, 'Why this bet?' starts with the payout line
+  [chromium] › overhaul-cards.spec.ts:51:1 › venue: a US quote gets 'Bet on Polymarket US' to its US link; us null gets no primary button
+  [chromium] › overhaul-cards.spec.ts:86:1 › /bets reads plainly: no banned words, Today's top 5 then More bets
+  [chromium] › overhaul-cards.spec.ts:101:1 › 'On Polymarket US' is on by default; turning it off includes international bets
+  [chromium] › overhaul-cards.spec.ts:121:1 › filter bar: three dropdowns land in the URL on Apply, and stay after a reload
+  [chromium] › overhaul-cards.spec.ts:144:1 › filter bar: every sport and topic is listed, and dates can be picked as a range (Marc, Nov 22)
+  [chromium] › overhaul-cards.spec.ts:162:1 › sort menu changes the order in the URL
+  [chromium] › overhaul-cards.spec.ts:169:1 › a filter set outside the bar keeps its removable pill
+  [chromium] › overhaul-cards.spec.ts:175:3 › tap targets at 390px: chips and controls 44px, bet button 48px full width on phones
+  [chromium] › overhaul-cards.spec.ts:175:3 › tap targets at 1440px: chips and controls 44px, bet button 48px full width on phones
+  [chromium] › overhaul-cards.spec.ts:200:1 › 390×844: one return figure in the value slot, 7 slots, nothing overflows
+  [chromium] › phone-first-html.spec.ts:10:42 › before hydration, phone /markets: cards, no table
+  [chromium] › phone-first-html.spec.ts:10:42 › before hydration, phone /bets: cards, no table
+  [chromium] › phone-first-html.spec.ts:19:1 › before hydration, desktop /markets shows the table
+  [chromium] › phone-first-html.spec.ts:26:1 › after hydration, phone /markets keeps one layout only
+  [chromium] › proof.spec.ts:9:3 › /track-record: the test return sits beside the live record
+  [chromium] › proof.spec.ts:9:3 › /about: the test return sits beside the live record
+  [chromium] › proof.spec.ts:9:3 › /pricing: the test return sits beside the live record
+  [chromium] › proof.spec.ts:21:1 › FAQ: cancel names the account button and links to it; no 'same numbers'; hit rate vs profit agree
+  [chromium] › proof.spec.ts:36:1 › Best bets: no test return without its live record; one link to the track record
+  [chromium] › proof.spec.ts:43:1 › drawer: the category's test record has its live record beside it
+  [chromium] › proof.spec.ts:51:1 › group records with no live counterpart say so: lower-confidence band and combos
+  [chromium] › push.spec.ts:7:1 › manifest, icons and the service worker are served
+  [chromium] › push.spec.ts:19:1 › turn on phone alerts: asks permission, subscribes, saves once; turn off removes it
+  [chromium] › push.spec.ts:55:3 › iPhone Safari, not installed › is told to add Kismet to the Home Screen
+  [chromium] › qa-c-views.spec.ts:5:1 › #19/#53 saved views: suggested name, then apply, rename and delete from /bets and /markets
+  [chromium] › s1-landing.spec.ts:5:1 › S1 / is Best bets → All markets rows + freshness pill
+  [chromium] › s1-landing.spec.ts:16:1 › S1 old landing at /about, linked from the footer; /flags redirects to /
+  [chromium] › s1-landing.spec.ts:26:1 › S1 /bets is Best bets too
+  [chromium] › s2-filters.spec.ts:4:1 › S2 filters live in the URL
+  [chromium] › s3-drawer.spec.ts:13:1 › S3 drawer: price check, stake table, curve, custom stake
+  [chromium] › s3-drawer.spec.ts:37:1 › card's 'Why this bet?' and the drawer show the same return and win chance
+  [chromium] › s4-presets.spec.ts:7:1 › S4 presets: save, switch, re-apply, share
+  [chromium] › s5-mylist.spec.ts:5:1 › S5 star two markets from the screener
+  [chromium] › s5-mylist.spec.ts:24:1 › S5 My list shows saved markets with since-saved and unstars
+  [chromium] › s6-tools.spec.ts:4:1 › S6 Kelly calculator: q=0.6, p=0.5 gives 20%
+  [chromium] › s6.spec.ts:10:1 › S6: Results tiles equal backtest.json
+  [chromium] › s6.spec.ts:22:1 › landing (/about): headline, counters, preview cards, Open screener
+  [chromium] › s6.spec.ts:41:1 › pricing: yearly toggle shows the yearly price
+  [chromium] › s6.spec.ts:55:1 › status page lists scan, fit and backtest times
+  [chromium] › search.spec.ts:34:1 › bar → FC Barcelona suggested on the 3rd letter, within 300 ms
+  [chromium] › search.spec.ts:49:1 › barca 3x → the line says how it's understood
+  [chromium] › search.spec.ts:55:1 › barcelona 3x good edge → honest fallback, Barcelona rows
+  [chromium] › search.spec.ts:63:1 › nyc weather → New York weather, shown as chips
+  [chromium] › search.spec.ts:74:1 › over 2.5 goals → soccer over/under 2.5
+  [chromium] › search.spec.ts:80:1 › safe bets → every row 80%+
+  [chromium] › search.spec.ts:87:1 › pills: Pays 3–5x and Biggest payout land in the URL; long shots toggle
+  [chromium] › t291-ui.spec.ts:6:1 › Best bets: Show more appends cards and keeps the scroll position
+  [chromium] › t291-ui.spec.ts:34:1 › Best bets: a filter change keeps the current list, dimmed and busy, until the new one arrives
+  [chromium] › timezone.spec.ts:21:5 › America/New_York › first visit: placeholder, then the cookie makes the next first paint local
+  [chromium] › timezone.spec.ts:44:5 › America/New_York › the edge zone header is used when there is no cookie
+  [chromium] › timezone.spec.ts:21:5 › Asia/Tokyo › first visit: placeholder, then the cookie makes the next first paint local
+  [chromium] › timezone.spec.ts:44:5 › Asia/Tokyo › the edge zone header is used when there is no cookie
+  [chromium] › timezone.spec.ts:62:1 › no zone known: times hidden until mount, no hydration error
+  [chromium] › tour-drawer.spec.ts:6:3 › the tour waits behind an open drawer and resumes once it closes (390px)
+  [chromium] › tour-drawer.spec.ts:33:3 › a normal tour start puts focus on its Next button (390px)
+  [chromium] › tour-drawer.spec.ts:6:3 › the tour waits behind an open drawer and resumes once it closes (1440px)
+  [chromium] › tour-drawer.spec.ts:33:3 › a normal tour start puts focus on its Next button (1440px)
+  [chromium] › trading-paper.spec.ts:99:1 › trading-paper: connect key, resting order, cancel, marketable order, fill in My bets
+  [iphone-390] › overhaul-iphone.spec.ts:10:26 › iPhone /
+  [iphone-390] › overhaul-iphone.spec.ts:10:26 › iPhone /bets
+  [iphone-390] › overhaul-iphone.spec.ts:10:26 › iPhone /markets
+  [iphone-390] › overhaul-iphone.spec.ts:10:26 › iPhone /combos
+  [iphone-390] › overhaul-iphone.spec.ts:10:26 › iPhone /watchlist
+  [iphone-390] › overhaul-iphone.spec.ts:10:26 › iPhone /journal
+  [iphone-390] › overhaul-iphone.spec.ts:10:26 › iPhone /alerts
+  [iphone-390] › overhaul-iphone.spec.ts:10:26 › iPhone /settings
+  [iphone-390] › overhaul-iphone.spec.ts:10:26 › iPhone /account
+  [iphone-390] › overhaul-iphone.spec.ts:10:26 › iPhone /tools
+  [iphone-390] › overhaul-iphone.spec.ts:10:26 › iPhone /dashboards
+  [iphone-390] › overhaul-iphone.spec.ts:10:26 › iPhone /kalshi
+  [iphone-390] › overhaul-iphone.spec.ts:10:26 › iPhone /onboarding
+  [iphone-390] › overhaul-iphone.spec.ts:10:26 › iPhone /pricing
+  [iphone-390] › overhaul-iphone.spec.ts:10:26 › iPhone /about
+  [iphone-390] › overhaul-iphone.spec.ts:10:26 › iPhone /track-record
+  [iphone-390] › overhaul-iphone.spec.ts:10:26 › iPhone /status
+  [iphone-390] › overhaul-iphone.spec.ts:10:26 › iPhone /contact
+  [iphone-390] › overhaul-iphone.spec.ts:10:26 › iPhone /terms
+  [iphone-390] › overhaul-iphone.spec.ts:10:26 › iPhone /privacy
+  [iphone-390] › overhaul-iphone.spec.ts:10:26 › iPhone /disclaimer
+  [iphone-390] › overhaul-iphone.spec.ts:10:26 › iPhone /refunds
+  [iphone-390] › overhaul-iphone.spec.ts:10:26 › iPhone /maintenance
+  [iphone-390] › overhaul-iphone.spec.ts:10:26 › iPhone /no-such-page
+  [iphone-390] › overhaul-iphone.spec.ts:18:1 › iPhone event and market pages
+  [iphone-390] › overhaul-iphone.spec.ts:25:1 › iPhone drawer: fits the screen, closes, keeps focus usable
+  [iphone-390] › overhaul-iphone.spec.ts:41:1 › iPhone search input stays visible when focused
+  [iphone-430] › overhaul-iphone.spec.ts:10:26 › iPhone /
+  [iphone-430] › overhaul-iphone.spec.ts:10:26 › iPhone /bets
+  [iphone-430] › overhaul-iphone.spec.ts:10:26 › iPhone /markets
+  [iphone-430] › overhaul-iphone.spec.ts:10:26 › iPhone /combos
+  [iphone-430] › overhaul-iphone.spec.ts:10:26 › iPhone /watchlist
+  [iphone-430] › overhaul-iphone.spec.ts:10:26 › iPhone /journal
+  [iphone-430] › overhaul-iphone.spec.ts:10:26 › iPhone /alerts
+  [iphone-430] › overhaul-iphone.spec.ts:10:26 › iPhone /settings
+  [iphone-430] › overhaul-iphone.spec.ts:10:26 › iPhone /account
+  [iphone-430] › overhaul-iphone.spec.ts:10:26 › iPhone /tools
+  [iphone-430] › overhaul-iphone.spec.ts:10:26 › iPhone /dashboards
+  [iphone-430] › overhaul-iphone.spec.ts:10:26 › iPhone /kalshi
+  [iphone-430] › overhaul-iphone.spec.ts:10:26 › iPhone /onboarding
+  [iphone-430] › overhaul-iphone.spec.ts:10:26 › iPhone /pricing
+  [iphone-430] › overhaul-iphone.spec.ts:10:26 › iPhone /about
+  [iphone-430] › overhaul-iphone.spec.ts:10:26 › iPhone /track-record
+  [iphone-430] › overhaul-iphone.spec.ts:10:26 › iPhone /status
+  [iphone-430] › overhaul-iphone.spec.ts:10:26 › iPhone /contact
+  [iphone-430] › overhaul-iphone.spec.ts:10:26 › iPhone /terms
+  [iphone-430] › overhaul-iphone.spec.ts:10:26 › iPhone /privacy
+  [iphone-430] › overhaul-iphone.spec.ts:10:26 › iPhone /disclaimer
+  [iphone-430] › overhaul-iphone.spec.ts:10:26 › iPhone /refunds
+  [iphone-430] › overhaul-iphone.spec.ts:10:26 › iPhone /maintenance
+  [iphone-430] › overhaul-iphone.spec.ts:10:26 › iPhone /no-such-page
+  [iphone-430] › overhaul-iphone.spec.ts:18:1 › iPhone event and market pages
+  [iphone-430] › overhaul-iphone.spec.ts:25:1 › iPhone drawer: fits the screen, closes, keeps focus usable
+  [iphone-430] › overhaul-iphone.spec.ts:41:1 › iPhone search input stays visible when focused
+Total: 273 tests in 40 files

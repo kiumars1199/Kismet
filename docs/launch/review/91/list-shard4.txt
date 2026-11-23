@@ -1,0 +1,17 @@
+  [chromium] › qa-c-settings.spec.ts:33:1 › #21/#22 settings: linked from /account, saved to the account, seen on a second device
+  [chromium] › qa-c-settings.spec.ts:60:1 › #22 onboarding banner: never flashes once setup is done; dismissing is saved to the account
+  [chromium] › qa-c-upsell.spec.ts:23:1 › #9 Free: the filter sheet with the Pro pitch closes with ✕, Escape and a click outside; /markets shows loading
+  [chromium] › qa-c2-alerts.spec.ts:32:1 › #23/#64 Pro: /alerts renders before its scripts load, says where alerts go, and a new rule can email
+  [chromium] › qa-c2-alerts.spec.ts:65:1 › Nov 21: Free sees a short upgrade note on /alerts, and no email switch
+  [chromium] › qa-c2-alerts.spec.ts:76:1 › #64 /pricing sells no Telegram or Discord alerts and says email is checked once a day
+  [chromium] › qa-c2-alerts.spec.ts:83:1 › #38/#58/#72 /pricing states the AI connector allowance the same way on the table and the cards
+  [chromium] › s7-upgrade.spec.ts:35:1 › S7 sign up → upgrade with Stripe → Pro unlocks live data and exact numbers
+  [chromium] › s7-upgrade.spec.ts:85:1 › account delete: type the email, everything goes, signed out
+  [chromium] › s7-upgrade.spec.ts:103:1 › keyboard only: search → drawer → save → upgrade reaches /pricing
+  [chromium] › t291-plans.spec.ts:5:1 › plan buttons in the server HTML: Start trial / Start free, never a disabled Coming soon
+  [chromium] › wt2-first-screen.spec.ts:37:3 › new Free user, topics with none of today's sample, at 390px: free bets under a plain heading, pill kept, tour over a card
+  [chromium] › wt2-first-screen.spec.ts:62:3 › onboarding step 1 at 390px: CLS < 0.05 once the counts arrive
+  [chromium] › wt2-first-screen.spec.ts:37:3 › new Free user, topics with none of today's sample, at 1440px: free bets under a plain heading, pill kept, tour over a card
+  [chromium] › wt2-first-screen.spec.ts:62:3 › onboarding step 1 at 1440px: CLS < 0.05 once the counts arrive
+  [chromium] › wt3-combo-entry.spec.ts:53:1 › signed out: /check and a bet's page lead to the combo checker at 390 and 1440
+  [chromium] › wt3-combo-entry.spec.ts:71:1 › Free, then Pro: both reach the combo checker from /check and the drawer; /combos says what they have; only Free sees the check note
