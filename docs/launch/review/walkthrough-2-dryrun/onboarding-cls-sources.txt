@@ -1,0 +1,33 @@
+1440 [
+ {
+  "v": 0.0006,
+  "t": 2874,
+  "src": [
+   "div.relative w-full max-w-[340px] 'Search markets /' y10->10 h44->44"
+  ]
+ },
+ {
+  "v": 0.1031,
+  "t": 3770,
+  "src": [
+   "fieldset.flex flex-col gap-2.5 'Crypto Bitcoin 2 open Ethereum 6 open So' y638->550 h134->158",
+   "fieldset.flex flex-col gap-2.5 'Weather & Climate Highest temperature 10' y796->732 h94->110",
+   "fieldset.flex flex-col gap-2.5 'Finance & Economics Stocks 11 open Commo' y0->866 h0->34",
+   "button.flex min-h-12 flex-col items-start justify-center gap-0.5 rounded-inpu 'Tennis 25 open' y454->466 h48->60",
+   "button.flex min-h-12 flex-col items-start justify-center gap-0.5 rounded-inpu 'Esports 5 open' y510->466 h48->60"
+  ]
+ }
+]
+390 [
+ {
+  "v": 0.0619,
+  "t": 3566,
+  "src": [
+   "fieldset.flex flex-col gap-2.5 'Crypto Bitcoin 2 open Ethereum 6 open So' y0->771 h0->73",
+   "button.flex min-h-12 flex-col items-start justify-center gap-0.5 rounded-inpu 'Soccer 83 open' y611->551 h48->60",
+   "button.flex min-h-12 flex-col items-start justify-center gap-0.5 rounded-inpu 'Hockey 10 open' y611->619 h48->60",
+   "button.flex min-h-12 flex-col items-start justify-center gap-0.5 rounded-inpu 'Tennis 25 open' y667->619 h48->60",
+   "button.flex min-h-12 flex-col items-start justify-center gap-0.5 rounded-inpu 'Esports 5 open' y723->687 h48->60"
+  ]
+ }
+]

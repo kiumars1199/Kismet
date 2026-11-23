@@ -1,0 +1,6 @@
+pro-390 /markets?m=6674492 {"cls":0,"shifts":[],"title":"All markets · Kismet","h1":"All markets","crumbs":[],"more":true,"hs":false,"disc":true,"cents":false}
+pro-390 drawer from event (card "/markets?m=6674492") {"dialog":true,"ev":[{"t":"Denmark vs. Norway","h":20,"w":128},{"t":"All 11 markets in this event","h":20,"w":160}],"headH":55,"headerBlockH":101,"lineH":"19.5px","cls":0}
+pro-390 /markets?m=6654452 {"cls":0,"shifts":[],"title":"All markets · Kismet","h1":"All markets","crumbs":[],"more":true,"hs":false,"disc":true,"cents":false}
+pro-390 drawer from event (card "/markets?m=6654452") {"dialog":true,"ev":[{"t":"Singapore vs. Brazil","h":20,"w":122}],"headH":28,"headerBlockH":74,"lineH":"19.5px","cls":0}
+pro-390 /bets?m=6674167 {"cls":0,"shifts":[],"title":"Best bets · Kismet","h1":"34 bets where the odds lean your way","crumbs":[],"more":false,"hs":false,"disc":true,"cents":false}
+pro-390 drawer from event (card "/bets?m=6674167") {"dialog":true,"ev":[{"t":"RCD Mallorca vs. FC Barcelona","h":20,"w":191},{"t":"All 17 markets in this event","h":20,"w":162}],"headH":28,"headerBlockH":74,"lineH":"19.5px","cls":0}

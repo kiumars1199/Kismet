@@ -53,9 +53,14 @@ Problems (dry run; fixes assigned):
 - [nit] /m close time absolute only (onboarding)
 
 ## Walk-through 2: new Free user
-Status: not yet walked.
-Problems:
-- not walked yet
+Status: dry run on the paid mock at eef7345 (18:35). The official walk on prod comes after the merges. Fixes go to the trust lane (T-wt2).
+Problems (from the dry run):
+- [should-fix] A first-time Free user with one topic can land on an empty first screen, because the random 10-bet sample may have none in that topic.
+- [should-fix] Tour step 1 opens over an empty list.
+- [should-fix] Onboarding step 1 has a CLS of 0.104 at 1440, from chip height growth and a late fieldset.
+- [nit] "Why this bet?" says "over over".
+- [nit] The copy on the locked card is unclear when 0 Free bets match.
+- [nit] "- More Markets" shows on the /markets group header (fixed in #81).
 
 ## Walk-through 3: Pro user building a combo
 Status: not yet walked.
