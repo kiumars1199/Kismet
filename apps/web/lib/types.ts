@@ -70,9 +70,6 @@ export interface Market {
   kalshi_ticker?: string | null;
   kalshi_matched_ticker?: string;   // F4 (#52): the matcher's Kalshi ticker, kept apart from kalshi_ticker so the bet venue doesn't flip to Kalshi
   kalshi_match_conf?: number;
-  // F4: the Kalshi ticker the venue matcher paired with this market (set with `venues` when a same-side Kalshi quote is in this
-  // scan's snapshot). For link lookups only: it is NOT `kalshi_ticker`, which makes Kalshi the market's bet venue.
-  kalshi_matched_ticker?: string;
   market_slug?: string;     // Gamma market slug (event slug is `slug`)
   us?: UsQuote | null;      // Polymarket US twin; absent on scans before it shipped
   // "us" = a US-only market scored at US prices (engine/us_native.py): id "us-<US id>", event_id "us:<US event id>",
