@@ -203,7 +203,7 @@ function BetTable({ rows, tz, pro, onEdit }: { rows: JournalEntry[]; tz: string;
     </Link>
   );
   return (
-    <section aria-label="Bets" className={`${card} overflow-hidden`}>
+    <section aria-label="Bets" data-testid="bet-table" className={`${card} overflow-hidden`}>
       <table className="hidden w-full text-sm md:table">
         <thead className="border-b border-border text-left text-xs text-muted">
           <tr>

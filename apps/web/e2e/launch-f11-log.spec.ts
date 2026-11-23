@@ -1,7 +1,13 @@
 // F11: one tap on a card adds a row to /journal; a settled fixture bet shows P&L, and the splits add up to the total.
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+
+// The fixture markets are real Polymarket ids from a scan a week old, and several have since resolved there (7077574 closed
+// 2026-11-18 as a win). /api/settle would then settle a just-logged bet at once. Settlement has its own unit tests, so
+// these flows pin every market as still open instead of calling the live Gamma API.
+const OPEN_MARKETS = (page: Page) => page.route("**/api/settle", (r) => r.fulfill({ json: {} }));
 
 test("one tap from a Best bets card adds a row to /journal", async ({ page }) => {
+  await OPEN_MARKETS(page);
   await page.goto("/bets");
   const card = page.getByTestId("bet-card").first();
   await card.waitFor();
@@ -10,11 +16,12 @@ test("one tap from a Best bets card adds a row to /journal", async ({ page }) =>
 
   await card.getByRole("link", { name: "See My bets" }).click();
   await expect(page).toHaveURL(/\/journal/);
-  await expect(page.locator("tbody tr").first()).toBeVisible();
-  await expect(page.locator("tbody tr").first()).toContainText("Open");
+  const rows = () => page.getByTestId("bet-table").locator("tbody tr");
+  await expect(rows().first()).toBeVisible();
+  await expect(rows().first()).toContainText("Open");
 
   await page.reload();   // kept after a reload
-  await expect(page.locator("tbody tr").first()).toBeVisible();
+  await expect(rows().first()).toBeVisible();
 });
 
 test("settled fixture bets: sport and topic totals equal the profit tile", async ({ page }) => {
@@ -40,13 +47,14 @@ test("settled fixture bets: sport and topic totals equal the profit tile", async
 });
 
 test("one tap on the /check result logs the bet", async ({ page }) => {
+  await OPEN_MARKETS(page);
   await page.goto("/bets");
   const id = await page.getByTestId("bet-card").first().getAttribute("data-market-id");
   await page.goto(`/check?m=${id}&side=0`);
   await page.getByTestId("log-bet").click();
   await expect(page.getByTestId("log-bet-done")).toContainText("Logged");
   await page.goto("/journal");
-  await expect(page.locator("tbody tr").first()).toContainText("Open");
+  await expect(page.getByTestId("bet-table").locator("tbody tr").first()).toContainText("Open");
 });
 
 test("bets list at 390: loading the plan moves nothing (CLS under 0.02)", async ({ browser }) => {
