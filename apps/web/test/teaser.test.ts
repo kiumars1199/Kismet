@@ -53,14 +53,64 @@ describe("signed-out market and event pages are teasers", async () => {
       expect(out).toContain(TEASER_LINE);
       expect(out).toContain(`/signup?next=${encodeURIComponent(`/m/${m.id}`)}`);
       for (const re of MODEL) expect(out, `${m.id}: ${re}`).not.toMatch(re);
+      expect(out).toContain('data-testid="teaser-price"');   // walk-through 1: the market's own price (side 0 mid), not a model number
+      expect(out).toContain('data-testid="teaser-closes-in"');
+      expect(out).toContain('data-testid="teaser-verdict"');
+      expect(out).not.toMatch(/get\d/);   // a JSX newline once ate the space in "get 10 best bets"
+      const fm = (await getStoreFor("free")).byId.get(m.id);   // the teaser reads the delayed Free store
+      const shown = pct(fm?.sides?.[0]?.mid);
+      expect(out).toContain(shown);
       for (const s of m.sides ?? []) {
-        if (typeof s.ask === "number") expect(out).not.toContain(price(s.ask));
-        if (typeof s.win_prob === "number") expect(out).not.toContain(pct(s.win_prob));
+        if (typeof s.ask === "number" && price(s.ask) !== shown) expect(out).not.toContain(price(s.ask));
+        if (typeof s.win_prob === "number" && pct(s.win_prob) !== shown) expect(out).not.toContain(pct(s.win_prob));
       }
       const meta = await market.generateMetadata(props);
       expect(meta.description).toBe(TEASER_DESCRIPTION);
       expect(JSON.stringify(meta)).not.toMatch(/\d+¢|\d+%/);
     }
+  });
+
+  it("eventDuplicatesTitle: a truncated or near-equal subtitle is hidden, a different one stays", async () => {
+    const { eventDuplicatesTitle } = await import("@/components/market/Teaser");
+    expect(eventDuplicatesTitle("Will Trump publicly insult someone on Truth Social this week?", "Will Trump publicly insult someone on...?")).toBe(true);
+    expect(eventDuplicatesTitle("Will Arsenal win?", "Will Arsenal win?")).toBe(true);
+    expect(eventDuplicatesTitle("Will Arsenal win?", "will arsenal win")).toBe(true);
+    expect(eventDuplicatesTitle("Will Arsenal win?", "Arsenal vs Chelsea")).toBe(false);
+    expect(eventDuplicatesTitle("Spread: Brazil (-3.5)", "Brazil vs Serbia")).toBe(false);
+  });
+
+  it("cleanEventLine strips Polymarket's ' - More Markets' suffix; the rest stays", async () => {
+    const { cleanEventLine } = await import("@/lib/teaser");
+    expect(cleanEventLine("Denmark vs. Norway - More Markets")).toBe("Denmark vs. Norway");
+    expect(cleanEventLine("Denmark vs. Norway - more markets ")).toBe("Denmark vs. Norway");
+    expect(cleanEventLine("Denmark vs. Norway")).toBe("Denmark vs. Norway");
+    expect(cleanEventLine("More Markets")).toBe("More Markets");
+    const { eventDuplicatesTitle } = await import("@/components/market/Teaser");
+    expect(eventDuplicatesTitle("Denmark vs. Norway: Both Teams to Score", cleanEventLine("Denmark vs. Norway - More Markets"))).toBe(true);
+    expect(eventDuplicatesTitle("Over 2.5 goals", cleanEventLine("Denmark vs. Norway - More Markets"))).toBe(false);
+  });
+
+  it("eventTeaser strips ' - More Markets' from the title (h1 and <title> both read it)", async () => {
+    const { eventTeaser } = await import("@/lib/teaser");
+    const free = await getStoreFor("free");
+    const withSuffix = [...free.byEvent.entries()].find(([, ms]) => /\s-\smore markets\s*$/i.test(ms[0]!.event));
+    expect(withSuffix, "the fixture has a 'More Markets' event").toBeTruthy();
+    const [id, ms] = withSuffix!;
+    const t = await eventTeaser(id);
+    expect(t!.title).toBe(ms[0]!.event.replace(/\s+-\s+more markets\s*$/i, "").trim());
+    expect(t!.title).not.toMatch(/more markets/i);
+    const props = { params: Promise.resolve({ id }), searchParams: Promise.resolve({}) };
+    expect(await html(event.default(props as never))).not.toMatch(/More Markets/i);
+    expect(JSON.stringify(await event.generateMetadata(props as never))).not.toMatch(/More Markets/i);
+  });
+
+  it("signupBetTitle reads the title from the store by id, only for a /m/<id> next", async () => {
+    const { signupBetTitle } = await import("@/lib/teaser");
+    const m = flagged[0]!;
+    expect(await signupBetTitle(`/m/${encodeURIComponent(m.id)}`)).toBe(m.question);
+    expect(await signupBetTitle("/m/nope-nope")).toBeNull();
+    expect(await signupBetTitle("/bets")).toBeNull();
+    expect(await signupBetTitle("/")).toBeNull();
   });
 
   it("/event/[id]: same teaser, no numbers", async () => {

@@ -9,6 +9,7 @@ import { getSettings } from "@/lib/settings";
 import { tradingEnv } from "@/lib/trade/server";
 import { behindWords, usd } from "@/lib/format";
 import { SITE } from "@/lib/site";
+import { FREE_BEST_BETS_A_DAY } from "@/lib/entitlements";
 import { CONNECTOR_NAME, connectorAllowance } from "@/lib/connector-plan";
 
 export const dynamic = "force-static";   // T-295: prerendered + revalidated (lib/static-routes.ts); signed in: app/signed-in/*
@@ -17,7 +18,7 @@ export const metadata = { title: "Pricing", description: "Free, Pro and Premium 
 
 const up = (s: string) => s.replace(/^./, (c) => c.toUpperCase());
 const rows = (delay: number): [string, string, string, string][] => [
-  ["Best bets", "10 a day, chosen at random", "All", "All"],
+  ["Best bets", `${FREE_BEST_BETS_A_DAY} of today's best bets, picked at random each day`, "All", "All"],
   ["Prices", behindWords(delay).replace(/^./, (c) => c.toUpperCase()), "Updated every ~15 min", "Updated every ~15 min"],
   ["All open markets", "Top 10 rows", "Unlimited", "Unlimited"],
   ["Estimated return on each bet", "As a range (exact on 3 a day)", "Exact", "Exact"],
@@ -60,7 +61,13 @@ export default async function Page() {
           Start free. Upgrade when you want live prices, every best bet and alerts. Results are free for everyone, so you can judge
           the method before you pay. <Link href="/track-record" className="text-accent-hover underline-offset-4 hover:underline">See results</Link>
         </p>
-        {proof?.test ? <ProofLine p={proof} className="text-[15px] leading-relaxed text-soft" /> : null}
+        {/* Rule 3: plain by default. The test-result numbers (and their basis, on hover/tap) are one tap away, not above the plans */}
+        {proof?.test ? (
+          <details data-testid="proof-details" className="group text-[15px] leading-relaxed text-soft">
+            <summary className="inline-flex min-h-11 cursor-pointer items-center text-accent-hover underline-offset-4 hover:underline">How it did in testing</summary>
+            <ProofLine p={proof} className="pb-2 text-[15px] leading-relaxed text-soft" />
+          </details>
+        ) : null}
       </header>
 
       <Plans delay={delay} ctx={ctx} />

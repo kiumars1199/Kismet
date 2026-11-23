@@ -11,9 +11,9 @@ for (const [name, size] of [["390", { width: 390, height: 844 }], ["1440", { wid
     await expect(block.getByTestId("pays-most")).toHaveCount(1);
     await expect(block.getByTestId("pays-most")).toHaveText("Pays most here");
     await expect(block.locator('li[data-venue="polymarket"]').getByTestId("pays-most")).toBeVisible();   // 1.32x vs US 1.29x after each fee
-    // Kalshi: a multiplier and a % side by side (its standard fee is counted: 76% + 2 c fee = 1.28x), not the highest here
+    // Kalshi: a multiplier and a % side by side (its standard fee for a $100 bet is counted: 1.29x), not the highest here
     const kalshi = block.locator('li[data-venue="kalshi"]');
-    await expect(kalshi).toContainText("1.28x");
+    await expect(kalshi).toContainText("1.29x");
     await expect(kalshi).toContainText("76%");
     await expect(kalshi.getByTestId("pays-most")).toHaveCount(0);
     await expect(block).not.toContainText("fee not counted");
@@ -58,8 +58,7 @@ test("basis: source, time and Kalshi match confidence are one tap away", async (
   await expect(basis.locator('li[data-basis="polymarket"]')).toContainText("best ask");
   await expect(basis.locator('li[data-basis="polymarket"] [data-ago]')).toBeVisible();
   await expect(basis.locator('li[data-basis="kalshi"]')).toContainText("97% sure");
-  await expect(basis.locator('li[data-basis="kalshi"]')).toContainText("Kalshi's fee is counted");
-  await expect(basis.locator('li[data-basis="kalshi"]')).toContainText("standard Kalshi fee");
+  await expect(basis.locator('li[data-basis="kalshi"]')).toContainText("Kalshi's standard fee is counted in its payout, worked out for a $100 bet (some Kalshi markets charge a different fee).");
   await expect(basis.locator('li[data-basis="kalshi"] [data-ago]')).toBeVisible();
 });
 

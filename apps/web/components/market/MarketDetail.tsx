@@ -8,7 +8,7 @@ import { softNav } from "@/lib/softNav";
 import { useEffect, useRef, useState } from "react";
 import { fetchBook, fetchMarket, type BookResponse, type MarketResponse } from "@/lib/api";
 import { useWhen } from "./When";
-import { ago, basis, edge, money, pct, points, price, ret, sideEdge, formatCount, LONG_SHOT_LINE } from "@/lib/format";
+import { ago, cleanEventLine, basis, edge, money, pct, points, price, ret, sideEdge, formatCount, LONG_SHOT_LINE } from "@/lib/format";
 import { betFigures, betQuote, edgeAbove0, PTS_HELP, RETURN_HELP_ONE, RETURN_LABEL_LONG, RETURNS_FAQ } from "@/lib/betFigures";
 import { useProfile } from "@/lib/repo/hooks";
 import { useEntitlements } from "@/lib/entitlements";
@@ -33,7 +33,10 @@ const card = "rounded-inner border border-border bg-raised p-4";
 const LEVEL = { all: "all markets", cat: "category", niche: "niche", nmt: "niche + type" } as const;
 
 /** Loads the market (unless given) and renders the detail. `onClose` = drawer mode. */
-export function MarketDetail({ id, side, initial, onClose }: { id: string; side?: 0 | 1; initial?: MarketResponse; onClose?: () => void }) {
+/** reserve: which late-arriving action buttons this user will get (decided on the server by the /m page), so the row keeps their slots. */
+export interface ActionReserve { trade: boolean; combo: boolean }
+const NO_RESERVE: ActionReserve = { trade: false, combo: false };
+export function MarketDetail({ id, side, initial, onClose, reserve = NO_RESERVE }: { id: string; side?: 0 | 1; initial?: MarketResponse; onClose?: () => void; reserve?: ActionReserve }) {
   const [res, setRes] = useState<{ id: string; data?: MarketResponse; error?: boolean }>(initial ? { id, data: initial } : { id: "" });
   const [retry, setRetry] = useState(0);
   useEffect(() => {
@@ -72,7 +75,7 @@ export function MarketDetail({ id, side, initial, onClose }: { id: string; side?
         </div>
       </Frame>
     );
-  return <Detail data={data} side={side} onClose={onClose} />;
+  return <Detail data={data} side={side} onClose={onClose} reserve={reserve} />;
 }
 
 function Frame({ onClose, children, title }: { onClose?: () => void; children: React.ReactNode; title?: React.ReactNode }) {
@@ -114,7 +117,7 @@ function useLiveBook(m: StoreMarket, s: Side, stake?: number): Live {
   return live;
 }
 
-function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side?: 0 | 1; onClose?: () => void }) {
+function Detail({ data, side: sideParam, onClose, reserve }: { data: MarketResponse; side?: 0 | 1; onClose?: () => void; reserve: ActionReserve }) {
   const m = data.market;
   const when = useWhen(m.closes_at);
   const s = m.sides.find((x) => x.side_index === sideParam) ?? m.best;
@@ -154,11 +157,11 @@ function Detail({ data, side: sideParam, onClose }: { data: MarketResponse; side
           {/* page mode (no onClose): the breadcrumbs above already name the topic and the game */}
           <div className="text-xs text-muted">{onClose && <>{topicLabel(m)} · </>}<span title={when.full} suppressHydrationWarning>{when.game}</span> · <span suppressHydrationWarning>{when.closes}</span></div>
           <H className="mt-1.5 text-[22px] font-semibold leading-tight">{m.question}</H>
-          {onClose && m.event !== m.question && <Link href={`/event/${m.event_id}`} className="mt-1 inline-block text-[13px] text-accent-hover hover:text-accent-soft">{m.event}</Link>}
+          {onClose && m.event !== m.question && <Link href={`/event/${m.event_id}`} className="mt-1 inline-block text-[13px] text-accent-hover hover:text-accent-soft">{cleanEventLine(m.event)}</Link>}
         </div>
       }
     >
-      <Actions m={m} s={s} />
+      <Actions m={m} s={s} reserve={reserve} />
 
       <section aria-label="Headline" className="rounded-inner border border-accent-border bg-accent-bg p-[18px]">
         <div className="flex flex-wrap items-center justify-between gap-2">
@@ -294,7 +297,7 @@ function LiveBet({ s, pays, ask }: { s: Side; pays: string; ask?: number }) {
   );
 }
 
-function Actions({ m, s }: { m: StoreMarket; s: Side }) {
+function Actions({ m, s, reserve }: { m: StoreMarket; s: Side; reserve: ActionReserve }) {
   const [copied, setCopied] = useState(false);
   const share = async () => {
     try {
@@ -324,8 +327,8 @@ function Actions({ m, s }: { m: StoreMarket; s: Side }) {
               <p className="text-center text-xs text-muted">{NOT_FOR_US}</p>
             </div>}
       <div className="flex flex-wrap gap-1.5 sm:gap-2">
-        <TradeButton m={m} s={s} className={btn} />
-        <AddToCombo m={m} s={s} className={btn} />
+        <TradeButton m={m} s={s} className={btn} reserve={reserve.trade} />
+        <AddToCombo m={m} s={s} className={btn} reserve={reserve.combo} />
         <div className={`flex flex-none ${box}`}><WatchStar marketId={m.id} side={s.side_index} market={m} tipAlign="left" /></div>
         <Link href={`/alerts?market=${m.id}&side=${s.side_index}`} className={btn}>
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg>

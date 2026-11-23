@@ -11,9 +11,9 @@ for (const id of ["6674492", "7078474"]) {
       for (let i = 0; i < 6; i++) {
         const ctx = await browser.newContext({ viewport: { width: w, height: h }, baseURL: test.info().project.use.baseURL });
         const page = await ctx.newPage();
-        // The e2e server runs with KALSHI_TRADING_ENV=demo, so the paper "Trade" button appears after /api/trade/config answers and
-        // wraps the button row (+50 px at 390). Production has no ticket (docs/16 §2); measure the page as production serves it.
-        await page.route("**/api/trade/config", (r) => r.fulfill({ json: { enabled: false, env: null, extensionId: "", riskUrl: "" }, headers: { "cache-control": "no-store" } }));
+        // The e2e server runs with KALSHI_TRADING_ENV=demo, so the paper "Trade" button appears after /api/trade/config answers. The
+        // /m page now decides that on the server (F14, lib/trade/reserve.ts) and keeps its slot from the first paint, so the real
+        // answer is used here (mocking it "off" would remove a slot the server reserved and move the page).
         await page.addInitScript(() => {
           const win = window as unknown as { __cls: number };
           win.__cls = 0;

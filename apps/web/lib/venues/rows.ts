@@ -47,7 +47,7 @@ export function venueBasis(venues: VenueQuote[] | undefined): VenueBasis[] {
     if (!v) return [];
     const source = venue === "polymarket" ? "Polymarket's own best ask for this outcome, plus its fee"
       : venue === "us" ? "Polymarket US best ask for this outcome, plus its fee (the price on the card)"
-      : "Kalshi's price for this outcome, matched by title, date and numbers; Kalshi's fee is counted in its payout (standard Kalshi fee: some Kalshi markets use a different one)";
+      : "Kalshi's price for this outcome, matched by title, date and numbers; Kalshi's standard fee is counted in its payout, worked out for a $100 bet (some Kalshi markets charge a different fee).";
     const match = venue === "kalshi" && v.conf != null ? `match ${Math.round(v.conf * 100)}% sure` : null;
     return [{ venue, label: VENUE_LABEL[venue], source, at: v.at ?? null, match }];
   });

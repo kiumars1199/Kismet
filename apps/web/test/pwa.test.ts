@@ -2,11 +2,20 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import manifest from "@/app/manifest";
+import { manifest } from "@/lib/pwa-manifest";
 import { PUBLIC_FILES, signedOutAccess } from "@/lib/auth/public-paths";
 import { csp } from "@/middleware";
 
 const root = join(__dirname, "..");
+
+describe("one manifest link (F10)", () => {
+  it("the layout owns the only <link rel=manifest>; no Next metadata manifest file adds a second", () => {
+    expect(existsSync(join(root, "app/manifest.ts"))).toBe(false);
+    const layout = readFileSync(join(root, "app/layout.tsx"), "utf8");
+    expect(layout.match(/rel="manifest"/g)).toHaveLength(1);
+    expect(layout).toMatch(/<head><link rel="manifest" href="\/manifest\.webmanifest" \/><\/head>/);
+  });
+});
 
 describe("installable app (F10)", () => {
   const m = manifest();

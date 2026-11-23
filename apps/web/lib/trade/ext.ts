@@ -30,17 +30,20 @@ export function ext<T>(extId: string, msg: Record<string, unknown>, timeoutMs = 
 export interface TradeConfig { enabled: boolean; env: "demo" | null; extensionId: string; riskUrl: string }
 
 let configP: Promise<TradeConfig | null> | null = null;
-/** /api/trade/config, fetched once per page load. Null while loading or when trading is off. */
-export function useTradeConfig(): TradeConfig | null {
-  const [c, setC] = useState<TradeConfig | null>(null);
+/** /api/trade/config, fetched once per page load. `cfg` is null while loading or when trading is off for this user; `ready` is true
+ *  once the answer is in (so "still loading" and "answered: off" can be told apart). */
+export function useTradeConfigState(): { cfg: TradeConfig | null; ready: boolean } {
+  const [st, setSt] = useState<{ cfg: TradeConfig | null; ready: boolean }>({ cfg: null, ready: false });
   useEffect(() => {
     configP ??= fetch("/api/trade/config").then((r) => (r.ok ? (r.json() as Promise<TradeConfig>) : null)).catch(() => null);
     let live = true;
-    configP.then((v) => live && setC(v?.enabled ? v : null));
+    configP.then((v) => live && setSt({ cfg: v?.enabled ? v : null, ready: true }));
     return () => { live = false; };
   }, []);
-  return c;
+  return st;
 }
+/** Null while loading or when trading is off. */
+export const useTradeConfig = (): TradeConfig | null => useTradeConfigState().cfg;
 
 /** One side of what the ticket trades. Index 0 = Kalshi "Yes", 1 = "No". */
 export interface TicketSide { label: string; winProb: number | null; ask: number | null }
