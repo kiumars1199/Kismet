@@ -1,10 +1,12 @@
 // My bets math (docs/05 F-12). `price` and `fee` are per share (0–1), payout $1/share.
 //   won  pnl =  shares × (1 − price − fee)
 //   lost pnl = −shares × (price + fee)
-//   void pnl = 0 (stake returned)
+//   void pnl = 0 (stake returned: Kalshi or a bet marked void by hand)
+//   split pnl = shares × (0.5 − price − fee): a Polymarket 50/50 market redeems each share for $0.50
 //   CLV = closing_price − price
 import type { JournalEntry, Patch } from "@/lib/repo/types";
 import { cell } from "@/lib/csv";
+import { TAXONOMY } from "@/lib/taxonomy";
 
 export type Result = NonNullable<JournalEntry["result"]>;
 type Bet = Pick<JournalEntry, "price" | "shares" | "fee">;
@@ -14,6 +16,7 @@ export const stake = (b: Bet) => b.shares * (b.price + b.fee);
 export function pnl(b: Bet, result: Result): number {
   if (result === "won") return b.shares * (1 - b.price - b.fee);
   if (result === "lost") return -b.shares * (b.price + b.fee);
+  if (result === "split") return b.shares * (0.5 - b.price - b.fee);
   return 0;
 }
 
@@ -33,7 +36,7 @@ export function settlePatch(e: JournalEntry, s: Settlement | undefined, now = ne
   const p: Patch<JournalEntry> = {};
   if (closing !== null && e.closing_price !== closing) p.closing_price = closing;
   if (s.resolved && e.result === null) {
-    const result: Result = s.winner_side_index === null ? "void" : s.winner_side_index === e.side_index ? "won" : "lost";
+    const result: Result = s.winner_side_index === null ? "split" : s.winner_side_index === e.side_index ? "won" : "lost";
     Object.assign(p, { result, pnl_usd: pnl(e, result), settled_at: now.toISOString() });
   }
   return Object.keys(p).length ? p : null;
@@ -48,7 +51,7 @@ const mean = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.l
 
 export function summarize(rows: JournalEntry[]): Summary {
   const settled = rows.filter((r) => r.result !== null);
-  const decided = settled.filter((r) => r.result !== "void");
+  const decided = settled.filter((r) => r.result !== "void" && r.result !== "split");
   const settledStake = settled.filter((r) => r.result !== "void").reduce((a, r) => a + stake(r), 0);
   const total = settled.reduce((a, r) => a + (r.pnl_usd ?? pnl(r, r.result!)), 0);
   return {
@@ -72,16 +75,42 @@ export function cumulative(rows: JournalEntry[]) {
     .sort((a, b) => (a.settled_at ?? a.placed_at).localeCompare(b.settled_at ?? b.placed_at))
     .map((r, i) => {
       real += r.pnl_usd ?? pnl(r, r.result!);
-      exp += r.result === "void" ? 0 : (r.model_edge ?? 0) * r.shares;
+      exp += r.result === "void" || r.result === "split" ? 0 : (r.model_edge ?? 0) * r.shares;
       return { n: i + 1, date: r.settled_at ?? r.placed_at, pnl: real, expected: exp };
     });
 }
 
-export function byTopic(rows: JournalEntry[]) {
-  const m = new Map<string, number>();
-  for (const r of rows) if (r.result) m.set(r.niche ?? r.category ?? "other", (m.get(r.niche ?? r.category ?? "other") ?? 0) + (r.pnl_usd ?? 0));
-  return [...m].map(([topic, pnl]) => ({ topic, pnl })).sort((a, b) => b.pnl - a.pnl);
+/** "Beat the closing price": you paid less than the price just before the market closed. null until the close is known. */
+export const beatClose = (b: Pick<JournalEntry, "price" | "closing_price">): boolean | null =>
+  b.closing_price == null ? null : b.closing_price > b.price;
+
+const settledPnl = (r: JournalEntry) => r.pnl_usd ?? pnl(r, r.result!);
+
+/** One label source for the tables and the chart: the taxonomy's name for a sport, topic or category. */
+export function groupLabel(category: string | null, niche: string | null): string {
+  const t = (id: string) => TAXONOMY[id]?.label;
+  return (niche && category && t(`${category}.${niche}`)) || (category && t(category)) || (niche ?? category ?? "Other");
 }
+
+/**
+ * Settled P&L grouped by sport (a sports bet by its sport, e.g. NFL; any other bet by its category), by category,
+ * or by topic (niche, else category). Rows with neither go to "other", so the groups always add up to summarize().pnl.
+ */
+export function breakdown(rows: JournalEntry[], by: "category" | "topic" | "sport") {
+  const m = new Map<string, { pnl: number; bets: number; label: string }>();
+  for (const r of rows) {
+    if (!r.result) continue;
+    const useNiche = by === "topic" || (by === "sport" && r.category === "sports");
+    const key = (useNiche ? r.niche ?? r.category : r.category) ?? "other";
+    const g = m.get(key) ?? { pnl: 0, bets: 0, label: useNiche && r.niche ? groupLabel(r.category, r.niche) : groupLabel(r.category, null) };
+    g.pnl += settledPnl(r);
+    g.bets += 1;
+    m.set(key, g);
+  }
+  return [...m].map(([key, g]) => ({ key, ...g })).sort((a, b) => b.pnl - a.pnl);
+}
+
+export const byTopic = (rows: JournalEntry[]) => breakdown(rows, "topic").map((g) => ({ topic: g.key, label: g.label, pnl: g.pnl }));
 
 /** Date in the user's time zone: "Nov 16, 2026". */
 export function day(iso: string | null | undefined, timeZone: string): string {
@@ -146,7 +175,7 @@ export function fromCsv(text: string): { rows: JournalImport[]; skipped: number 
       category: get(r, "category"), niche: get(r, "niche"), price, shares, fee: num(r, "fee") ?? 0,
       placed_at: placed && !Number.isNaN(Date.parse(placed)) ? new Date(placed).toISOString() : new Date().toISOString(),
       model_win_prob: num(r, "model_win_prob"), model_edge: num(r, "model_edge"), closing_price: num(r, "closing_price"),
-      result: result === "won" || result === "lost" || result === "void" ? result : null,
+      result: result === "won" || result === "lost" || result === "void" || result === "split" ? result : null,
       settled_at: get(r, "settled_at"), pnl_usd: num(r, "pnl_usd"), tags: [], note: get(r, "note"),
     });
   }

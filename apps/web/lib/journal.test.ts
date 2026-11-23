@@ -29,7 +29,8 @@ describe("journal P&L", () => {
     expect(settlePatch(bet({ side_index: 1 }), { resolved: true, winner_side_index: 0, closing_prices: [null, null] }, now))
       .toMatchObject({ result: "lost" });
     expect(settlePatch(bet(), { resolved: true, winner_side_index: null, closing_prices: [null, null] }, now))
-      .toMatchObject({ result: "void", pnl_usd: 0 });
+      .toMatchObject({ result: "split", pnl_usd: pnl(bet(), "split") });
+    expect(pnl(bet(), "split")).toBeCloseTo(100 * (0.5 - 0.6 - 0.012), 10);
     expect(settlePatch(bet(), { resolved: false, winner_side_index: null, closing_prices: [null, null] })).toBeNull();
     expect(settlePatch(bet({ result: "won" }), { resolved: true, winner_side_index: 1, closing_prices: [null, null] })).toBeNull();
   });

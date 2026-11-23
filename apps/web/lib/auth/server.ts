@@ -111,7 +111,7 @@ export const getMe = cache(async function getMe(): Promise<Me> {
 });
 
 /** profiles.paused_until (F8). A failed read (before the migration, or a hiccup) reads as not paused. */
-async function pausedUntilOf(db: SupabaseClient, userId: string): Promise<string | null> {
+export async function pausedUntilOf(db: SupabaseClient, userId: string): Promise<string | null> {
   try {
     const { data, error } = await db.from("profiles").select("paused_until").eq("user_id", userId).maybeSingle();
     return error ? null : ((data as { paused_until?: string | null } | null)?.paused_until ?? null);
@@ -142,6 +142,11 @@ export async function getMeForUser(user: SessionUser): Promise<Me> {
   const { data, error } = await supabaseAdmin().from("subscriptions").select("*").eq("user_id", user.id).maybeSingle();
   if (error) throw new Error(`subscriptions read failed: ${error.message}`);
   return { ...meOf(user, data), paused_until: await pausedUntilOf(supabaseAdmin(), user.id) };
+}
+
+/** profiles.paused_until for a user known only by id (the extension's bearer token). Service role; failed read = not paused. */
+export async function pausedUntilForUser(userId: string): Promise<string | null> {
+  try { return await pausedUntilOf(supabaseAdmin(), userId); } catch { return null; }   // no service key configured, or a hiccup
 }
 
 export const getTier = async (): Promise<Tier> => (await getMe()).tier;
