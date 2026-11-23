@@ -53,7 +53,7 @@ describe("/api/markets/[id]/history with a live fallback", () => {
     expect(b.source).toBe("live");
     expect(b.points.length).toBeGreaterThan(10);
     expect(b.points.length).toBeLessThanOrEqual(200);
-    expect(b.points.at(-1)!.t).toBe(b.as_of);
+    expect(b.as_of).toBe(Math.min(b.points.at(-1)!.t + b.interval_s, 1794873437));   // the last bucket's end, never past the scan
     expect(b.interval_s % 3600).toBe(0);
   });
 
@@ -99,6 +99,43 @@ describe("/api/markets/[id]/history with a live fallback", () => {
     const b = (await (await call("6674492", { DATA_DIR: dir, DATA_SOURCE: "local" })).json()) as { source: string };
     expect(calls.length).toBe(1);
     expect(b.source).toBe("live");
+  });
+});
+
+describe("the Free cut is at the scan, bucket and all (review finding)", () => {
+  const SCAN = 1794873437;   // fixture scan; 6674492's series has dt 11 h and its last bucket starts 4 h BEFORE the scan
+  afterEach(() => { vi.unstubAllEnvs(); vi.unstubAllGlobals(); h.tier = "premium"; });
+  const call = async (id: string) => {
+    vi.resetModules();
+    vi.stubEnv("DATA_CLOCK", "scan");
+    const { GET } = await import("@/app/api/markets/[id]/history/route");
+    return GET(new Request(`http://test/api/markets/${id}/history`), { params: Promise.resolve({ id }) });
+  };
+  type B = { points: { t: number; p: number }[]; interval_s: number; as_of: number };
+
+  it("engine series, delayed tier: a bucket that ends after the scan is dropped (its price can be from after it); as_of is the bucket's end", async () => {
+    h.tier = "free";
+    const b = (await (await call("6674492")).json()) as B;
+    expect(b.points.length).toBeGreaterThan(10);
+    for (const x of b.points) expect(x.t + b.interval_s).toBeLessThanOrEqual(SCAN);
+    expect(b.as_of).toBe(b.points.at(-1)!.t + b.interval_s);
+    expect(b.as_of).toBeLessThanOrEqual(SCAN);
+  });
+
+  it("engine series, live tier: the freshest bucket (starting before the scan) stays; as_of never passes the scan", async () => {
+    const b = (await (await call("6674492")).json()) as B;
+    expect(b.points.at(-1)!.t).toBeGreaterThan(SCAN - b.interval_s);   // the straddling bucket is kept
+    expect(b.as_of).toBeLessThanOrEqual(SCAN);
+  });
+
+  it("live CLOB path: raw points are cut at the scan BEFORE downsampling, so no price from after it reaches the chart", async () => {
+    h.tier = "free";
+    const raw = [...Array.from({ length: 300 }, (_, i) => ({ t: SCAN - (300 - i) * 3600 + 1800, p: 0.4 })), { t: SCAN - 600, p: 0.41 }, { t: SCAN + 300, p: 0.99 }, { t: SCAN + 5000, p: 0.99 }];
+    vi.stubGlobal("fetch", vi.fn(async () => Response.json({ history: raw })));
+    const b = (await (await call("7078474")).json()) as B;
+    expect(Math.max(...b.points.map((x) => x.p))).toBeLessThan(0.9);
+    expect(b.points.at(-1)!.p).toBe(0.41);   // the last real price at or before the scan
+    expect(b.as_of).toBeLessThanOrEqual(SCAN);
   });
 });
 

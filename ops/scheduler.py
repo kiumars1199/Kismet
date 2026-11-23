@@ -118,9 +118,9 @@ CMDS = {
     # Nov 21: Kalshi runs after the Polymarket upload (fresh best bets first), then only kalshi.json is uploaded.
     "scan": [["-m", "engine", "scan"], ["ops/upload.py", "output"],
              ["-m", "engine", "kalshi"], ["ops/upload.py", "--only", "output/kalshi.json"],
-             ["ops/upload.py", "--only", "output/kalshi_index.json"],
+             ["ops/upload.py", "--only", "output/kalshi_index.json"],   # F3: every open Kalshi market (skipped when the crawl wrote none)
              ["ops/upload.py", "--only", "output/venues.json"],   # F4: the same outcome on every venue
-             ["-m", "engine", "history"], ["ops/upload.py", "--only", "output/history.json"]],   # F14: price history   # F3: every open Kalshi market (skipped when the crawl wrote none)
+             ["-m", "engine", "history"], ["ops/upload.py", "--only", "output/history.json"]],   # F14: price history
 }
 
 

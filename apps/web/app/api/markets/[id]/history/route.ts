@@ -8,6 +8,8 @@
 import { getHistory } from "@/lib/data/history";
 import { liveHistory } from "@/lib/data/history-live";
 import { notFound, withTier } from "@/lib/data/respond";
+import { can } from "@/lib/entitlements";
+import { downsample } from "@/lib/history/downsample";
 import { pointsOf } from "@/lib/history/points";
 
 export const runtime = "nodejs";
@@ -15,23 +17,32 @@ export const dynamic = "force-dynamic";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  return withTier(req, "markets", async (store) => {
+  return withTier(req, "markets", async (store, tier) => {
     const m = store.byId.get(id) ?? store.flagsById.get(id);
     if (!m) return notFound("Market");
     const side = m.best.side_index;
+    const cut = store.meta.scanned_at;
+    // A bucket's price is the last raw price inside it, so a bucket that ENDS after the cut can carry a price from after it.
+    // A delayed tier (Free) therefore keeps only buckets that end at or before the cut; a live tier keeps the one that starts
+    // before it. On the live CLOB path the raw points are cut first and downsampled after, so neither case can leak.
+    const delayed = !can(tier, "live_data");
     const file = await getHistory();
     const held = file?.series[id];
     let series = held && held.side === side ? held : null;
     let source: "file" | "live" = "file";
+    let points = series ? pointsOf(series).filter((x) => (delayed ? x.t + series!.dt <= cut : x.t <= cut)) : [];
     if (!series && m.venue !== "us") {   // US-native rows have no international token
-      series = await liveHistory(m.tokens?.[side] || undefined, side);
+      const raw = await liveHistory(m.tokens?.[side] || undefined, side);
+      series = raw ? downsample(raw.filter((x) => x.t <= cut), cut, side) : null;
       source = "live";
+      points = series ? pointsOf(series) : [];
     }
-    const cut = store.meta.scanned_at;
-    const points = series ? pointsOf(series).filter((x) => x.t <= cut) : [];
+    const last = points.at(-1);
     return Response.json({
-      id, side: points.length ? series!.side : null, interval_s: points.length ? series!.dt : null, venue: "Polymarket",
-      source: points.length ? source : null, as_of: points.length ? points.at(-1)!.t : null,
+      id, side: last ? series!.side : null, interval_s: last ? series!.dt : null, venue: "Polymarket",
+      source: last ? source : null,
+      // the value is the last price inside its bucket: the bucket's end (never past the cut) says how new it can be
+      as_of: last ? Math.min(last.t + series!.dt, cut) : null,
       points,
     });
   });

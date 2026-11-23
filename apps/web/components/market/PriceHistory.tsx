@@ -36,16 +36,16 @@ export function PriceHistory({ id, outcome }: { id: string; outcome: string }) {
       <figcaption className="mb-2 h-5 shrink-0 text-sm font-semibold">Price over time</figcaption>
       <div className={`${H} w-full shrink-0`}>
         {state.status === "loading" ? (
-          <div className={`${H} animate-pulse rounded-input bg-muted-bg`} aria-busy="true" aria-label="Loading price history" />
+          <div key="loading" className={`${H} animate-pulse rounded-input bg-muted-bg`} aria-busy="true" aria-label="Loading price history" />
         ) : state.status === "error" ? (
-          <div className={`${H} flex flex-col items-start justify-center gap-2 text-sm text-muted`} role="alert">
+          <div key="error" className={`${H} flex flex-col items-start justify-center gap-2 text-sm text-muted`} role="alert">
             <p>Couldn&apos;t load the price history.</p>
             <button type="button" onClick={() => setRetry((n) => n + 1)} className="min-h-11 rounded-input border border-border px-4 text-text hover:border-accent-border">Try again</button>
           </div>
         ) : pts.length < 2 ? (
-          <div className={`${H} flex items-center text-sm text-muted`} data-testid="history-empty">No price history for this market yet</div>
+          <div key="empty" className={`${H} flex items-center text-sm text-muted`} data-testid="history-empty">No price history for this market yet</div>
         ) : (
-          <div className={`${H} w-full`} role="img" aria-label={`Chart: the price of ${outcome} from ${tickPct(pts[0]!.p)} on ${day(pts[0]!.t)} to ${tickPct(pts.at(-1)!.p)} on ${day(pts.at(-1)!.t)}.`} data-testid="history-chart">
+          <div key="chart" className={`${H} w-full`} role="img" aria-label={`Chart: the price of ${outcome} from ${tickPct(pts[0]!.p)} on ${day(pts[0]!.t)} to ${tickPct(pts.at(-1)!.p)} on ${day(pts.at(-1)!.t)}.`} data-testid="history-chart">
             <LineChart responsive style={{ width: "100%", height: "100%" }} data={pts} margin={{ top: 8, right: 8, bottom: 0, left: -18 }}>
               <CartesianGrid stroke="var(--border)" vertical={false} />
               <XAxis dataKey="t" type="number" domain={["dataMin", "dataMax"]} tickFormatter={day} stroke="var(--muted)" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} minTickGap={32} />
