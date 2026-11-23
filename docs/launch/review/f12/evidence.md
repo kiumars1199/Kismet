@@ -5,4 +5,4 @@ Branch launch/onboarding-f12 on origin/final. In apps/web:
 - `pnpm build && pnpm check:js`: "/: first-load JS 144.6 kB gzipped; budget 150 kB: OK".
 - chromium paid e2e qa-c-settings + overhaul-funnel (onboarding path with the new unticked checkbox): 4 passed (run on the F13 base, same onboarding code).
 - Never sent: tests use a fake send; no Resend key is read outside lib/email sendEmail (disabled when unset).
-- Needs lead: apply supabase/migrations/20261122000300_digest.sql (profiles.digest_opt_in default false, digest_emails). Cron: /api/digest/run daily 12:17 UTC in vercel.json.
+- Needs lead: apply supabase/migrations/20261122000400_digest.sql (profiles.digest_opt_in default false, digest_emails). Cron: /api/digest/run daily 12:17 UTC in vercel.json.

@@ -51,7 +51,7 @@ export async function runDigest(deps: DigestDeps, now = Date.now()): Promise<{ u
   return { users: users.length, sent, skipped_no_bets: skipped, failed };
 }
 
-/** digest_emails (supabase/migrations/20261122000300_digest.sql): service role only. */
+/** digest_emails (supabase/migrations/20261122000400_digest.sql): service role only. */
 export function supabaseDigestClaims(db: SupabaseClient) {
   return {
     claim: async (user_id: string, day: string) => {
