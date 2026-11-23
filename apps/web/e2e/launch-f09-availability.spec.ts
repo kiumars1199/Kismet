@@ -13,7 +13,7 @@ test("no state chosen: 'Check your state' above each bet button, linking to Sett
   expect(await page.locator('[data-testid="venue-availability"] + [data-testid="venue-button"]').count()).toBe(buttons);
   const first = page.getByTestId("venue-availability").first();
   await expect(first).toHaveText("Check your state");
-  await expect(first.getByRole("link")).toHaveAttribute("href", "/settings#state");
+  await expect(first.getByRole("link")).toHaveAttribute("href", "/state");
 });
 
 test("restricted state: the note says not available, above the button, at 390 px and 1440 px", async ({ page }) => {
