@@ -1,7 +1,7 @@
 "use client";
 // "Open on Kalshi / Polymarket" (every bet, on by default) and the paper "Trade" button (docs/16 §2, §4).
 import { ExternalLink } from "@/components/kit/icons";
-import { openTicket, useTradeConfig } from "@/lib/trade/ext";
+import { openTicket, useTradeConfigState } from "@/lib/trade/ext";
 import type { Market, Side } from "@/lib/types";
 
 /** Kalshi when the market has a mapped ticker, else Polymarket. */
@@ -39,11 +39,11 @@ export function VenueIconLink({ m, className = "" }: { m: Pick<Market, "url" | "
 
 /** Shown only when KALSHI_TRADING_ENV=demo and the user is allow-listed (or demo mode). */
 export function TradeButton({ m, s, className, reserve = false }: { m: Market; s: Side; className: string; reserve?: boolean }) {
-  const cfg = useTradeConfig();
-  // `reserve`: paper trading is configured on this deployment (server-known), so until /api/trade/config answers keep an invisible
-  // button of the same size in the row. Mounting the real one then changes nothing: without it the action row wrapped, the link icon
-  // dropped to a second row and the page below jumped 50 px at 390 px.
-  if (!cfg) return reserve ? <span aria-hidden="true" data-testid="trade-slot" className={`${className} invisible`}>Trade <span className="rounded-full px-1.5 text-[11px]">paper</span></span> : null;
+  const { cfg, ready } = useTradeConfigState();
+  // `reserve`: the server says this user can use paper trading (same allow-list check as /api/trade/config), so until the config
+  // answers keep an invisible button with the real one's markup in the row: mounting the real one then changes nothing (without it the
+  // row wrapped and the page below jumped 50 px at 390 px). Once the config has answered "off" the slot is gone.
+  if (!cfg) return reserve && !ready ? <TradeLabel className={`${className} invisible`} slot /> : null;
   const yes = m.sides[0], no = m.sides[1];
   return (
     <button
@@ -62,7 +62,13 @@ export function TradeButton({ m, s, className, reserve = false }: { m: Market; s
         })
       }
     >
-      Trade <span className="rounded-full bg-warning/15 px-1.5 text-[11px] font-medium text-warning">paper</span>
+      <TradeLabel />
     </button>
   );
+}
+
+/** The button's content; also the invisible slot (same markup, so the same width). */
+function TradeLabel({ className, slot }: { className?: string; slot?: boolean }) {
+  const inner = <>Trade <span className="rounded-full bg-warning/15 px-1.5 text-[11px] font-medium text-warning">paper</span></>;
+  return slot ? <span aria-hidden="true" data-testid="trade-slot" className={className}>{inner}</span> : inner;
 }

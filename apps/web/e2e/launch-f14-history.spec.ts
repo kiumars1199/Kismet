@@ -119,19 +119,36 @@ for (const [name, size] of [["390", { width: 390, height: 844 }], ["1440", { wid
   }
 }
 
-// Review finding: TradeButton rendered nothing until /api/trade/config answered; when "Trade (paper)" mounted the action row wrapped
-// and the link icon dropped to a second row, pushing the recommendation down 50 px (0.15 to 0.18 at 390). Here trading is ON
-// (config not failed): the slot is reserved from the first paint, so the row has the same height before and after.
+// Review findings (twice): TradeButton and AddToCombo render nothing until /api/trade/config and /api/me answer. When they mount the
+// action row wraps (Trade + Add to combo + star + Alert + link = 2 lines at 390 px, the page below jumps 50 px, 0.15 to 0.19). The e2e
+// server is a production build (next start) with trading ON and a premium user (combos on). The two answers are held back 700 ms so
+// the late items appear AFTER the first paint on every run (on a fast machine they could land before it and hide the shift). Every
+// non-footer shift on the page is counted.
 for (const id of ["6674492", "7078474"]) {
-  test(`/m/${id} at 390px with paper trading ON: the Trade (paper) button mounts without moving the page (CLS < 0.1)`, async ({ page }) => {
+  test(`/m/${id} at 390px, trading and combos on: Trade (paper) and Add to combo mount late without moving anything (CLS < 0.1)`, async ({ page }) => {
+    const slow = (pattern: string) => page.route(pattern, async (r) => { await new Promise((ok) => setTimeout(ok, 700)); await r.continue(); });
+    await slow("**/api/trade/config");
+    await slow("**/api/me");
     await page.setViewportSize({ width: 390, height: 844 });
     await page.addInitScript(OWN_CLS_INIT);
     await page.goto(`/m/${id}`);
     await page.waitForLoadState("networkidle");
-    await expect(page.getByRole("button", { name: /^Trade/ })).toBeVisible();   // the config answered: the button is there
+    await expect(page.getByRole("button", { name: /^Trade/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Add to combo/ })).toBeVisible();
     await page.waitForTimeout(1200);
     const cls = await page.evaluate(OWN_CLS_READ);
-    console.log(`own CLS /m/${id} 390px, paper trading on: ${cls.toFixed(4)}`);
+    console.log(`own CLS /m/${id} 390px, trading + combos on, late answers: ${cls.toFixed(4)}`);
     expect(cls).toBeLessThan(0.1);
   });
 }
+
+// A user who is NOT on the trading allow-list gets no empty slot: the server decides the reservation per request (same check as
+// /api/trade/config), and the slot goes away whenever the config says enabled:false.
+test("trading config says enabled:false: no empty Trade slot is left in the action row", async ({ page }) => {
+  await page.route("**/api/trade/config", (r) => r.fulfill({ json: { enabled: false, env: null, extensionId: "", riskUrl: "" } }));
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/m/6674492");
+  await page.waitForLoadState("networkidle");
+  await expect(page.getByRole("button", { name: /^Trade/ })).toHaveCount(0);
+  await expect(page.getByTestId("trade-slot")).toHaveCount(0);
+});
