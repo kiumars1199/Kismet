@@ -274,7 +274,7 @@ async function unpricedPage(f: FilterState, store: Store): Promise<MarketsRespon
   if (extra.size) return undefined;
   const ix = await getPolymarketIndex();
   if (!ix) return undefined;
-  const page = searchUnpriced(ix, store.byId, { q: f.q, topics: f.topics, categories: f.categories, excludeCategories: f.exclude_categories });
+  const page = searchUnpriced(ix, store.byId, { q: f.q, topics: f.topics, categories: f.categories, excludeCategories: f.exclude_categories }, process.env.DATA_CLOCK === "scan" ? store.meta.scanned_at : undefined);
   return page.total ? page : undefined;
 }
 

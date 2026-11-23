@@ -13,6 +13,8 @@ export interface PolymarketIndex { fetchedAt: number; rows: Tuple[]; hay: string
 export interface UnpricedRow {
   id: string; question: string; event: string; volume: number;
   closes_at: number | null;   // unix s
+  /** Past its close time but still accepting orders: waiting for the result. */
+  waiting: boolean;
   url: string;
   venue: "polymarket";
 }
@@ -39,8 +41,8 @@ export function indexFromPmFile(f: PolymarketIndexFile): PolymarketIndex {
   return { fetchedAt: f.meta.fetched_at, rows, hay: rows.map(hayOf), topics };
 }
 
-const rowOf = (t: Tuple): UnpricedRow => ({
-  id: t[0], question: t[1], event: t[2], volume: t[7], closes_at: t[8], url: `https://polymarket.com/event/${t[3]}`, venue: "polymarket",
+const rowOf = (t: Tuple, now: number): UnpricedRow => ({
+  id: t[0], question: t[1], event: t[2], volume: t[7], closes_at: t[8], waiting: t[8] !== null && t[8] <= now, url: `https://polymarket.com/event/${t[3]}`, venue: "polymarket",
 });
 
 const tokens = (q: string) => q.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
@@ -50,7 +52,7 @@ export interface UnpricedQuery { q?: string; topics?: string[]; categories?: str
 /** Index rows not in `priced` (the store's market ids), matching every word of q and, when given, one of the topics and
  *  one of the categories; open ones before those waiting for a result, biggest volume first. total counts all matches,
  *  rows the first `limit`. */
-export function searchUnpriced(ix: PolymarketIndex, priced: { has(id: string): boolean }, query: UnpricedQuery): UnpricedPage {
+export function searchUnpriced(ix: PolymarketIndex, priced: { has(id: string): boolean }, query: UnpricedQuery, now = Date.now() / 1000): UnpricedPage {
   const words = query.q ? tokens(query.q) : [];
   const topics = query.topics?.length ? query.topics : undefined;
   const cats = query.categories?.length ? query.categories : undefined;
@@ -65,7 +67,7 @@ export function searchUnpriced(ix: PolymarketIndex, priced: { has(id: string): b
     if (query.excludeCategories?.includes(t[4])) continue;
     if (words.length && !words.every((w) => ix.hay[i]!.includes(w))) continue;
     total++;
-    if (rows.length < limit) rows.push(rowOf(t));
+    if (rows.length < limit) rows.push(rowOf(t, now));
   }
   return { total, rows };
 }

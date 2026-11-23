@@ -29,6 +29,8 @@ describe("searchUnpriced (pure)", () => {
     expect(searchUnpriced(ix, none, { q: "zorbland" }).rows.map((r) => r.id)).toEqual(["9000001"]);
     expect(searchUnpriced(ix, none, { topics: ["sports.nba"] }).total).toBe(3);   // the past-dated NBA row still accepts orders: counted, listed last
     expect(searchUnpriced(ix, none, { topics: ["sports.nba"] }).rows.map((r) => r.id)).toEqual(["9000002", "9000003", "9000025"]);
+    const nba = searchUnpriced(ix, none, { topics: ["sports.nba"] }, 1794873437);
+    expect(nba.rows.map((r) => r.waiting)).toEqual([false, false, true]);   // the past-dated row says so
     expect(searchUnpriced(ix, none, { categories: ["sports"], excludeCategories: ["sports"] }).total).toBe(0);
     expect(searchUnpriced(ix, none, { categories: ["crypto"] }).total).toBe(20);
     expect(searchUnpriced(ix, new Set(["9000001"]), { q: "zorbland" }).total).toBe(0);

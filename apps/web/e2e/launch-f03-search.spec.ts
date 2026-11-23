@@ -126,3 +126,10 @@ test("/api/meta counts every open Polymarket market and keeps the priced count",
   expect(b.counts.polymarket_priced).toBe(b.counts.markets);
   expect(b.counts.polymarket).toBe(b.counts.markets + 25);   // 26 fixture rows, one is already priced
 });
+
+test("a market past its close time that still accepts orders says it is waiting for the result", async ({ page }) => {
+  await page.goto("/markets?t=sports.nba");
+  const waiting = page.getByTestId("unpriced-row").filter({ hasText: "Past close time, waiting for the result" });
+  await expect(waiting).toHaveCount(1);
+  await expect(waiting).toContainText("Already closed market");
+});

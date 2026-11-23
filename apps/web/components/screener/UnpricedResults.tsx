@@ -17,7 +17,7 @@ export function UnpricedResults({ page, also = false }: { page: UnpricedPage; al
             <div className="min-w-0">
               <a href={r.url} target="_blank" rel="noopener noreferrer" className="font-medium text-text underline-offset-2 hover:underline">{r.question}</a>
               {r.event && r.event !== r.question && <span className="block text-xs text-muted">{r.event}</span>}
-              <span className="block text-xs text-muted">Closes in {r.closes_at ? closesIn(r.closes_at) : DASH} · {formatCount(r.volume)} traded</span>
+              <span className="block text-xs text-muted">{r.waiting ? <span data-testid="unpriced-waiting">Past close time, waiting for the result</span> : <>Closes in {r.closes_at ? closesIn(r.closes_at) : DASH}</>} · {formatCount(r.volume)} traded</span>
             </div>
             <span className="shrink-0 text-sm text-muted" data-testid="unpriced-label">Not priced yet</span>
           </li>
