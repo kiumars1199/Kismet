@@ -11,6 +11,7 @@ import { getRepo } from "@/lib/repo";
 import { useProfile } from "@/lib/repo/hooks";
 import { savedWhere } from "@/lib/saved-where";
 import type { Execution, Market } from "@/lib/types";
+import { VenuesBlock } from "./VenuesBlock";
 
 type Book = (Execution & { fetched_at: number }) | { verdict: string; book_ok: false };
 
@@ -26,6 +27,7 @@ async function fetchBook(token: string, q: number, cat: string, stake?: number):
 export function DrawerExtras({ market, side }: { market: Market; side: 0 | 1 }) {
   return (
     <div className="flex flex-col gap-4">
+      <VenuesBlock market={market} />
       <Sizing market={market} side={side} />
       <LogBet key={`${market.id}:${side}`} market={market} side={side} />
     </div>

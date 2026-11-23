@@ -133,6 +133,9 @@ def main():
         # Nov 21: its own step, run by ops/scheduler.py AFTER the Polymarket upload, so a long Kalshi crawl never
         # delays fresh best bets. No-op unless KALSHI_DATA_PERMISSION=true.
         __import__("pipeline.fetch_kalshi").fetch_kalshi.run_if_enabled(cfg.path("output", "kalshi.json"), cfg.path("data", "kalshi_cache"))
+        # F4: the same outcome on every venue (output/venues.json); Polymarket + US always, Kalshi when its index exists
+        from . import venues
+        venues.write(cfg)
     if a.cmd in ("pmindex", "all"):   # F3 fix: every open Polymarket market, for search (own step after the scan upload)
         from . import pm_index
         pm_index.run(cfg)

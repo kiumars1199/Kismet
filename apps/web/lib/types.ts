@@ -68,6 +68,7 @@ export interface Market {
   competitive?: number;         // abs(mid - 0.5) of the market mid
   // docs/16 §3 market matching (engine job kalshi_match, not built yet). Set only when confidence >= 0.9.
   kalshi_ticker?: string | null;
+  kalshi_unavailable?: true;   // F4: Kalshi lists this market but its snapshot is filtered out by age or delay for this store: the block says "Not available right now"
   kalshi_matched_ticker?: string;   // F4 (#52): the matcher's Kalshi ticker, kept apart from kalshi_ticker so the bet venue doesn't flip to Kalshi
   kalshi_match_conf?: number;
   market_slug?: string;     // Gamma market slug (event slug is `slug`)
@@ -76,7 +77,30 @@ export interface Market {
   // slug = US event slug, market_slug = US market slug, url = its polymarket.us/event page, tokens ["", ""]
   // (no CLOB book; the US book is read server-side). Absent = a Polymarket (international) market.
   venue?: "us";
+  // F4: the same outcome on each venue it is listed on, built when the store loads: the Polymarket and Polymarket US rows
+// come from this market's own scan row (the same numbers its card shows), the Kalshi row from output/venues.json (engine/
+// venues.py), a snapshot no newer than this store's scan (so Free's delayed store never sees a fresher Kalshi price).
+// Absent = listed on one venue only, or the Kalshi snapshot does not fit this scan.
+  venues?: VenueQuote[];
 }
+// F4: one venue's price for the market's best side. `url` is the venue's plain market page (F6 reuses it for deep links).
+// multiplier = 1 / (price + fee) with the venue's own fee (Kalshi: its standard taker fee, engine/venues.py); null = none known, show the % only.
+// at = unix s of the data (the scan for Polymarket and US, the Kalshi crawl for Kalshi); conf = Kalshi match score 0..1.
+export interface VenueQuote {
+  venue: "polymarket" | "us" | "kalshi";
+  price: number | null;       // 0..1
+  multiplier: number | null;
+  url: string;
+  at?: number;
+  conf?: number;
+}
+// output/venues.json: only markets on 2+ venues, for the scan it was built from, plus its last two snapshots in `prev`
+// (the store takes the newest snapshot whose Kalshi crawl (kalshi_fetched_at) is no newer than its own scan).
+export interface VenuesSnapshot {
+  meta: { n: number; kalshi: boolean; generated_at: number; kalshi_fetched_at?: number };
+  venues: Record<string, { venues: VenueQuote[]; side?: 0 | 1; kalshi_ticker?: string; kalshi_match_conf?: number }>;
+}
+export interface VenuesFile extends VenuesSnapshot { prev?: VenuesSnapshot[] }
 // Polymarket US (docs/research/polymarket-us.md): the best side priced on the CFTC-regulated US venue, the only
 // Polymarket US users can trade. null = not listed on Polymarket US. ask/fee/edge null = listed, no live book.
 export interface UsQuote {

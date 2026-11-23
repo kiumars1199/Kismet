@@ -4,7 +4,7 @@
   "attribution": "Market data from Kalshi (kalshi.com)",
   "fetched_at": 1795111601,
   "api": "https://api.elections.kalshi.com/trade-api/v2",
-  "n_markets": 28,
+  "n_markets": 29,
   "n_combos": 2
  },
  "markets": [
@@ -399,6 +399,20 @@
    "close_time": "2026-12-20T03:00:00Z",
    "url": "https://kalshi.com/markets/kxnewthing",
    "source": "Kalshi"
+  },
+  {
+   "ticker": "KXFIXTURE-6674492",
+   "event_ticker": "KXFIXTURE-6674492",
+   "series_ticker": "KXFIXTURE",
+   "title": "Denmark vs. Norway: Both Teams to Score",
+   "subtitle": "Yes",
+   "yes_bid_cents": 67,
+   "yes_ask_cents": 69,
+   "volume": 42000,
+   "close_time": "2026-11-30T03:00:00Z",
+   "url": "https://kalshi.com/markets/kxfixture",
+   "source": "Kalshi",
+   "topic": "sports.soccer"
   }
  ],
  "combos": [

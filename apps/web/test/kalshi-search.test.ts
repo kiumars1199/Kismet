@@ -120,7 +120,7 @@ describe("/api/markets and /api/meta with Kalshi (fixture)", () => {
     vi.stubEnv("KALSHI_DATA_PERMISSION", "true");
     const b = (await (await (await load()).meta()).json()) as MetaResponse;
     expect(b.counts.polymarket).toBeGreaterThanOrEqual(b.counts.markets);
-    expect(b.counts.kalshi).toBe(28);
+    expect(b.counts.kalshi).toBe(29);
     vi.unstubAllEnvs();
     expect(((await (await (await load()).meta()).json()) as MetaResponse).counts.kalshi).toBe(0);
   });
