@@ -3,10 +3,26 @@
   "framework": "nextjs",
   "installCommand": "rm -rf node_modules && pnpm install --frozen-lockfile",
   "buildCommand": "pnpm build",
-  "regions": ["iad1"],
+  "regions": [
+    "iad1"
+  ],
   "crons": [
-    { "path": "/api/alerts/run", "schedule": "0 13 * * *" },
-    { "path": "/api/settle/run", "schedule": "30 7 * * *" },
-    { "path": "/api/lifecycle/run", "schedule": "41 15 * * *" }
-  ]
+    {
+      "path": "/api/alerts/run",
+      "schedule": "0 13 * * *"
+    },
+    {
+      "path": "/api/settle/run",
+      "schedule": "30 7 * * *"
+    },
+    {
+      "path": "/api/lifecycle/run",
+      "schedule": "41 15 * * *"
+    }
+  ],
+  "git": {
+    "deploymentEnabled": {
+      "claude/brave-turing-j05kro": false
+    }
+  }
 }
