@@ -3,7 +3,7 @@
 // button is a separate task (BetCard is shared). Steps and sources: lib/venues/guides.ts.
 import { useState } from "react";
 import { RiskNote } from "@/components/trade/RiskNote";
-import { useAvailability } from "@/components/venues/VenueAvailability";
+import { StateLink, useAvailability } from "@/components/venues/VenueAvailability";
 import { availabilityNote, defaultVenue, GUIDES, venueStatus, type VenueId } from "@/lib/venues/guides";
 
 export function HowToBet({ links }: { links: { venue: VenueId; url: string | null }[] }) {
@@ -53,7 +53,9 @@ export function HowToBet({ links }: { links: { venue: VenueId; url: string | nul
                   ))}
                 </ol>
               </details>
-              <p data-testid="howto-avail-line" className="text-[13px] text-soft">{availabilityNote(cur.venue, status(cur.venue), stateName)}</p>
+              <p data-testid="howto-avail-line" className="text-[13px] text-soft">
+                {stateName ? availabilityNote(cur.venue, status(cur.venue), stateName) : <StateLink>{availabilityNote(cur.venue, status(cur.venue), stateName)}</StateLink>}
+              </p>
               {cur.url
                 ? <><a data-testid="howto-link" href={cur.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center self-start rounded-input bg-accent px-4 text-sm font-semibold text-on-accent hover:bg-accent-hover">Open on {g.name}</a><RiskNote className="!text-left" /></>
                 : <p data-testid="howto-nolink" className="text-[13px] text-muted">We don&apos;t have a direct link to this market on {g.name}. Search for it there.</p>}
