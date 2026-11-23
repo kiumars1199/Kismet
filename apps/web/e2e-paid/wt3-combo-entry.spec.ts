@@ -26,7 +26,7 @@ const SIZES = [{ width: 390, height: 844 }, { width: 1440, height: 900 }];
 
 async function fromCheck(page: Page) {
   await page.goto("/check");
-  const link = page.getByRole("link", { name: "Check a combo" });
+  const link = page.locator("main").getByRole("link", { name: "Check a combo" });
   await expect(link).toBeVisible();
   await expect(async () => {   // next dev can still be hydrating when the first tap lands: tap again until the page has moved
     if (!/\/check\/combo/.test(page.url())) await link.click({ timeout: 3_000 });

@@ -15,7 +15,7 @@ for (const [name, size] of SIZES) {
   test(`/check has a "Check a combo" link to /check/combo at ${name}px`, async ({ page }) => {
     await page.setViewportSize(size);
     await page.goto("/check");
-    const link = page.getByRole("link", { name: "Check a combo" });
+    const link = page.locator("main").getByRole("link", { name: "Check a combo" });
     await expect(link).toBeVisible();
     await expect(link).toHaveAttribute("href", "/check/combo");
     expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
