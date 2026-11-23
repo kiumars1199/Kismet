@@ -8,6 +8,8 @@
 // `maxRetries` "retries network errors, currently only ECONNRESET" (never HTTP status codes, never assertions). This
 // fixture makes it the default for every APIRequestContext (page.request, context.request, the `request` fixture, and
 // contexts from browser.newContext) so no test has to remember it. An explicit maxRetries on a call still wins.
+// Caution: an ECONNRESET can also arrive after the server already handled a POST, so this retry is only safe against the
+// e2e mock and `next dev`, never a real service. ESLint (no-restricted-imports) bans "@playwright/test" in e2e-paid specs.
 import { request, test as base } from "@playwright/test";
 
 export * from "@playwright/test";
