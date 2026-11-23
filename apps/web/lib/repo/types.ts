@@ -13,6 +13,7 @@ export interface Profile {
   odds_format: OddsFormat;
   favorite_topics: string[];          // taxonomy ids, e.g. "sports.nfl"
   onboarded_at: string | null;
+  topics_off: boolean;               // F5: cleared the "Your topics" pill; Best bets stops opening filtered to favorite_topics
   // display prefs (F-17)
   density: "comfortable" | "compact";
   theme: "dark" | "light";
@@ -43,7 +44,7 @@ export interface WatchlistItem {
   created_at: string;
 }
 
-export type AlertKind = "preset_match" | "market_price" | "edge_change" | "closing_soon";
+export type AlertKind = "preset_match" | "market_price" | "edge_change" | "closing_soon" | "settled" | "big_trade";
 export type AlertChannel = "inapp" | "email" | "push" | "telegram" | "discord";
 export interface AlertRule {
   id: string; name: string; enabled: boolean; kind: AlertKind;
@@ -118,6 +119,6 @@ export interface Repo {
 export const DEFAULT_PROFILE: Profile = {
   display_name: null, timezone: "America/New_York", bankroll_usd: null,
   kelly_fraction: 0.25, default_stake_usd: 100, odds_format: "percent",
-  favorite_topics: [], onboarded_at: null,
+  favorite_topics: [], onboarded_at: null, topics_off: false,
   density: "comfortable", theme: "dark", numbers_mode: "simple",
 };

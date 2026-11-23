@@ -97,3 +97,36 @@ describe("Kalshi index keeps the last good copy (F3 fix)", () => {
     expect((await getKalshiIndex())!.rows).toHaveLength(300);   // not the ~25 rows of the kalshi.json fallback
   });
 });
+
+describe("Polymarket index is downloaded only when its meta changes (follow-up)", () => {
+  afterEach(() => { vi.unstubAllEnvs(); vi.useRealTimers(); });
+  const write = (dir: string, fetchedAt: number, ids: string[], withMeta = true) => {
+    const rows = ids.map((id) => [id, `Q ${id}`, "E", "e", "sports", "nba", ["sports", "nba"], 1, null]);
+    writeFileSync(path.join(dir, "polymarket_index.json"), JSON.stringify({ meta: { source: "Polymarket", fetched_at: fetchedAt, n: rows.length, columns: [] }, rows }));
+    if (withMeta) writeFileSync(path.join(dir, "polymarket_index_meta.json"), JSON.stringify({ fetched_at: fetchedAt, n: rows.length }));
+  };
+  it("same meta = the held index, the big file is not read; a new meta = a new index; no meta = reads as before", async () => {
+    const dir = mkdtempSync(path.join(tmpdir(), "pmix-"));
+    write(dir, 100, ["a", "b"]);
+    vi.resetModules();
+    vi.stubEnv("DATA_DIR", dir);
+    vi.stubEnv("DATA_SOURCE", "local");
+    vi.useFakeTimers({ toFake: ["Date"] });
+    const { getPolymarketIndex } = await import("@/lib/data/store");
+    const first = await getPolymarketIndex();
+    expect(first!.rows).toHaveLength(2);
+    // the big file changes on disk but its meta does not: not re-read (a real publisher changes both)
+    write(dir, 100, ["a", "b", "c"], false);
+    vi.setSystemTime(Date.now() + 10 * 60_000);
+    expect(await getPolymarketIndex()).toBe(first);
+    write(dir, 200, ["a", "b", "c"]);
+    vi.setSystemTime(Date.now() + 20 * 60_000);
+    const second = await getPolymarketIndex();
+    expect(second!.rows).toHaveLength(3);
+    expect(second!.fetchedAt).toBe(200);
+    rmSync(path.join(dir, "polymarket_index_meta.json"));
+    write(dir, 300, ["a"], false);
+    vi.setSystemTime(Date.now() + 30 * 60_000);
+    expect((await getPolymarketIndex())!.rows).toHaveLength(1);   // an older publisher with no meta still works
+  });
+});

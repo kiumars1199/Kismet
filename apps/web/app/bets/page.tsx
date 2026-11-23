@@ -11,7 +11,7 @@ type Search = Record<string, string | string[] | undefined>;
 export default async function Page({ searchParams }: { searchParams: Promise<Search> }) {
   const sp = await searchParams;
   const params = new URLSearchParams(Object.entries(sp).flatMap(([k, v]) => (v === undefined ? [] : [[k, Array.isArray(v) ? v[0]! : v]])));
-  const [initial, user] = await Promise.all([firstPage(params, "flags"), getUser()]);   // P6: page 1 + Closing soon ship with the HTML
+  const [initial, user] = await Promise.all([firstPage(params, "flags"), getUser()]);   // P6: page 1 + Closing soon ship with the HTML   // P6: page 1 + Closing soon ship with the HTML
   if (user) markFirstBetsVisit(user.id);   // T-276: admin activation count (first visit only)
   const nudge = await nudgeOnServer(user?.id ?? null, !authEnabled());
   return (

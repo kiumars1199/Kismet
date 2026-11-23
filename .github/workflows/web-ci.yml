@@ -41,6 +41,9 @@ jobs:
       - run: pnpm exec playwright install --with-deps chromium webkit
       - run: pnpm i --frozen-lockfile   # e2e/trading-paper builds the extension
         working-directory: apps/extension
+      - run: |   # runner RAM and Node's default heap limit, to size the paid e2e server's heap against
+          free -m
+          node -p 'Math.round(require("v8").getHeapStatistics().heap_size_limit / 2 ** 20) + " MB default heap limit"'
       - run: pnpm e2e
 
       - uses: actions/upload-artifact@v4

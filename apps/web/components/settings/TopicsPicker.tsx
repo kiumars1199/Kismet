@@ -4,7 +4,7 @@
 // Used by /onboarding and the /settings page (Lane D2 renders <TopicsPicker />).
 import { useEffect, useState } from "react";
 import { fetchMeta } from "@/lib/api";
-import { getRepo } from "@/lib/repo";
+import { getRepo, isRepoReady, repoReady } from "@/lib/repo";
 import { useProfile } from "@/lib/repo/hooks";
 import { TAXONOMY_TREE, type TaxNode } from "@/lib/taxonomy";
 import { formatCount } from "@/lib/format";
@@ -24,9 +24,14 @@ export function TopicsPicker() {
     return () => ac.abort();
   }, []);
 
-  const toggle = (id: string) => {
-    const next = favorite_topics.includes(id) ? favorite_topics.filter((x) => x !== id) : [...favorite_topics, id];
-    getRepo().profile.patch({ favorite_topics: next });
+  // F5: a tap before AuthBoot has switched to the account store would land in this browser's store and be dropped by
+  // the switch (the tile looked chosen, the account never got it). Wait for the account store, then toggle against
+  // its current topics, so quick taps don't overwrite each other either.
+  const toggle = async (id: string) => {
+    if (!isRepoReady()) await Promise.race([repoReady, new Promise((r) => setTimeout(r, 8_000))]);
+    const cur = getRepo().profileSnapshot();
+    const next = cur.favorite_topics.includes(id) ? cur.favorite_topics.filter((x) => x !== id) : [...cur.favorite_topics, id];
+    getRepo().profile.patch(cur.topics_off ? { favorite_topics: next, topics_off: false } : { favorite_topics: next });   // choosing topics turns "Your topics" back on; topics_off is only written when set, so a save never depends on the migration
   };
 
   return (

@@ -11,7 +11,7 @@
     "test": "vitest run && pnpm test:ops",
     "check:bundle": "node scripts/check-bundle.mjs",
     "check:js": "node scripts/perf/landing-js.mjs --route / --budget-kb 150",
-    "e2e": "playwright test && playwright test -c playwright.paid.config.ts",
+    "e2e": "playwright test && playwright test -c playwright.paid.config.ts --shard=1/2 && playwright test -c playwright.paid.config.ts --shard=2/2",
     "e2e:preview": "playwright test -c playwright.preview.config.ts --trace off",
     "test:ops": "node --test \"../../ops/tests/*.test.mjs\"",
     "preflight": "node ../../ops/preflight.mjs"
@@ -35,6 +35,7 @@
     "recharts": "^3.10.1",
     "server-only": "0.0.1",
     "stripe": "23.1.0",
+    "web-push": "4.0.0",
     "zod": "^4.6.7",
     "zustand": "^5.1.0"
   },
@@ -50,6 +51,7 @@
     "@types/qrcode": "1.5.5",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "@types/web-push": "3.6.4",
     "eslint": "9.39.5",
     "eslint-config-next": "15.5.29",
     "fast-check": "^4.10.2",
