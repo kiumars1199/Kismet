@@ -4,6 +4,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { accountsOffNote, authEnabled, getUser, safeNext } from "@/lib/auth/server";
+import { signupBetTitle } from "@/lib/teaser";
 import { FREE_BEST_BETS_A_DAY } from "@/lib/entitlements";
 
 const ERRORS: Record<string, string> = {
@@ -36,12 +37,14 @@ export async function AuthPage({ mode, searchParams }: {
   const next = safeNext(sp.next);
   if (await getUser()) redirect(next);
   const c = COPY[mode];
+  const betTitle = mode === "signup" ? await signupBetTitle(next) : null;   // from the store by id, never from the URL
   const other = next === "/" ? c.other.href : `${c.other.href}?next=${encodeURIComponent(next)}`;
 
   return (
     <section className="mx-auto flex w-full max-w-[420px] flex-col gap-7 py-6 md:py-14">
       <header className="flex flex-col gap-2.5">
         <h1 className="text-balance text-[32px] font-bold leading-[1.05] tracking-[-0.02em] md:text-[40px]">{c.title}</h1>
+        {betTitle ? <p data-testid="signup-bet" className="text-[15px] font-medium leading-relaxed text-accent-soft">Sign up to see Kismet&apos;s verdict on {betTitle}.</p> : null}
         <p className="text-[15px] leading-relaxed text-muted">{c.lede}</p>
       </header>
       {authEnabled() ? (
