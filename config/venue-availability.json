@@ -1,0 +1,992 @@
+{
+ "_note": "F9. Every entry has a source_url and a checked date (unit test). status: available | restricted | unverified. Only mark available/restricted from an official page; never from memory or third-party sites.",
+ "checked": "2026-11-22",
+ "states": {
+  "AL": "Alabama",
+  "AK": "Alaska",
+  "AZ": "Arizona",
+  "AR": "Arkansas",
+  "CA": "California",
+  "CO": "Colorado",
+  "CT": "Connecticut",
+  "DE": "Delaware",
+  "DC": "District of Columbia",
+  "FL": "Florida",
+  "GA": "Georgia",
+  "HI": "Hawaii",
+  "ID": "Idaho",
+  "IL": "Illinois",
+  "IN": "Indiana",
+  "IA": "Iowa",
+  "KS": "Kansas",
+  "KY": "Kentucky",
+  "LA": "Louisiana",
+  "ME": "Maine",
+  "MD": "Maryland",
+  "MA": "Massachusetts",
+  "MI": "Michigan",
+  "MN": "Minnesota",
+  "MS": "Mississippi",
+  "MO": "Missouri",
+  "MT": "Montana",
+  "NE": "Nebraska",
+  "NV": "Nevada",
+  "NH": "New Hampshire",
+  "NJ": "New Jersey",
+  "NM": "New Mexico",
+  "NY": "New York",
+  "NC": "North Carolina",
+  "ND": "North Dakota",
+  "OH": "Ohio",
+  "OK": "Oklahoma",
+  "OR": "Oregon",
+  "PA": "Pennsylvania",
+  "RI": "Rhode Island",
+  "SC": "South Carolina",
+  "SD": "South Dakota",
+  "TN": "Tennessee",
+  "TX": "Texas",
+  "UT": "Utah",
+  "VT": "Vermont",
+  "VA": "Virginia",
+  "WA": "Washington",
+  "WV": "West Virginia",
+  "WI": "Wisconsin",
+  "WY": "Wyoming"
+ },
+ "venues": {
+  "kalshi": {
+   "name": "Kalshi",
+   "entries": {
+    "AL": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "AK": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "AZ": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "AR": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "CA": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "CO": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "CT": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "DE": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "DC": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "FL": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "GA": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "HI": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "ID": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "IL": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "IN": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "IA": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "KS": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "KY": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "LA": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "ME": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "MD": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "MA": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "MI": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "MN": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "MS": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "MO": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "MT": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "NE": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "NV": {
+     "status": "unverified",
+     "source_url": "https://www.gaming.nv.gov/about-us/press-releases-public-statements/timeline-of-nevada-gaming-control-board-ngcb-actions-against-prediction-markets/",
+     "checked": "2026-11-22",
+     "note": "Kalshi publishes no per-state list. The Nevada Gaming Control Board reports a state-court order (2026) barring Kalshi sports, election and entertainment contracts in Nevada (gaming.nv.gov, seen in search 2026-11-22, page not opened); other categories unclear, so check Kalshi."
+    },
+    "NH": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "NJ": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "NM": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "NY": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "NC": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "ND": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "OH": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "OK": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "OR": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "PA": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "RI": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "SC": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "SD": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "TN": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "TX": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "UT": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "VT": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "VA": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "WA": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "WV": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "WI": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    },
+    "WY": {
+     "status": "unverified",
+     "source_url": "https://help.kalshi.com/en/collections/18616603-getting-started",
+     "checked": "2026-11-22",
+     "note": "No per-state list is published on the venue's own pages (read 2026-11-22); ask the venue before betting."
+    }
+   }
+  },
+  "polymarket_us": {
+   "name": "Polymarket US",
+   "entries": {
+    "AL": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "AK": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "AZ": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "AR": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "CA": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "CO": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "CT": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "DE": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "DC": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "FL": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "GA": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "HI": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "ID": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "IL": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "IN": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "IA": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "KS": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "KY": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "LA": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "ME": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "MD": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "MA": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "MI": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "MN": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "MS": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "MO": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "MT": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "NE": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "NV": {
+     "status": "restricted",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page says: \"Trading currently not available in Nevada.\""
+    },
+    "NH": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "NJ": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "NM": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "NY": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "NC": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "ND": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "OH": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "OK": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "OR": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "PA": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "RI": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "SC": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "SD": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "TN": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "TX": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "UT": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "VT": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "VA": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "WA": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "WV": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "WI": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    },
+    "WY": {
+     "status": "available",
+     "source_url": "https://polymarket.us/trust",
+     "checked": "2026-11-22",
+     "note": "Polymarket US's Trust & Safety page lists US users as \"Legal nationwide\" with one exception, Nevada; this state is not listed as restricted."
+    }
+   }
+  },
+  "polymarket_intl": {
+   "name": "Polymarket (international)",
+   "entries": {
+    "AL": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "AK": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "AZ": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "AR": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "CA": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "CO": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "CT": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "DE": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "DC": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "FL": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "GA": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "HI": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "ID": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "IL": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "IN": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "IA": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "KS": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "KY": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "LA": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "ME": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "MD": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "MA": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "MI": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "MN": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "MS": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "MO": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "MT": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "NE": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "NV": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "NH": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "NJ": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "NM": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "NY": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "NC": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "ND": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "OH": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "OK": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "OR": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "PA": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "RI": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "SC": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "SD": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "TN": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "TX": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "UT": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "VT": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "VA": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "WA": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "WV": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "WI": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    },
+    "WY": {
+     "status": "restricted",
+     "source_url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "checked": "2026-11-22",
+     "note": "Polymarket's Geographic Restrictions page lists the United States as a blocked country."
+    }
+   }
+  }
+ }
+}

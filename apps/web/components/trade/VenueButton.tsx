@@ -4,6 +4,8 @@
 // that isn't (us === null) has no primary button at all: the card says "International only" and keeps the
 // international link inside "Why this bet?". A scan from before the US venue shipped (no `us` field) keeps the
 // international venue as before. Keep the props stable.
+import { VenueAvailability } from "@/components/venues/VenueAvailability";
+import type { VenueKey } from "@/lib/venues/availability-text";
 import type { Market, Side } from "@/lib/types";
 import { funnel } from "@/lib/telemetry";
 import { venueOf } from "@/lib/trade/venue";
@@ -21,11 +23,15 @@ export function primaryVenue(m: VenueMarket, s?: Pick<Side, "side_index">): { na
   return null;
 }
 
+/** The availability venue for a button's data-venue key. */
+export const venueKeyOf = (key: string): VenueKey => (key === "polymarket-us" ? "polymarket_us" : key === "kalshi" ? "kalshi" : "polymarket_intl");
+
 export function VenueButton({ m, s, className = "" }: { m: VenueMarket; s?: Pick<Side, "side_index">; className?: string }) {
   const v = primaryVenue(m, s);
   if (!v) return null;
   return (
     <>
+    <VenueAvailability venue={venueKeyOf(v.key)} className="mb-1" />
     <a data-venue={v.key} data-testid="venue-button" href={v.href} target="_blank" rel="noopener noreferrer"
       onClick={(e) => { e.stopPropagation(); funnel("first_bet_click"); }}
       className={`relative z-10 inline-flex min-h-11 items-center justify-center rounded-xl bg-accent px-4 text-sm font-semibold text-on-accent hover:bg-accent-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${className}`}>

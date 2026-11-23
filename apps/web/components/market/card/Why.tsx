@@ -3,6 +3,7 @@
 // words. First line is the payout with the stake added back (Polymarket's own sheet says "To win $X" meaning the total
 // payout; the card says "$10 wins $5.60" for the profit, so this line spells out both). No banned words (lib/banned.ts):
 // no "edge", "spread", "model", "pts"; counts stay under four digits.
+import { VenueAvailability } from "@/components/venues/VenueAvailability";
 import { RiskNote } from "@/components/trade/RiskNote";
 import { useState, type ReactNode } from "react";
 import type { ApiRow } from "@/lib/api";
@@ -178,7 +179,8 @@ export function Why({ r, livePrice }: { r: ApiRow; livePrice?: ReactNode }) {
         {notes.length > 0 && <ul className="mt-1 space-y-0.5 text-xs text-warning">{notes.map((n) => <li key={n}>{n}</li>)}</ul>}
         {v.kind === "intl-only" && (
           <p data-testid="why-intl" className="mt-2 text-xs text-muted">
-            {INTL_ONLY}.{" "}
+            {INTL_ONLY}.
+            <VenueAvailability venue="polymarket_intl" className="mt-1 text-left" />
             <a href={intl.href} target="_blank" rel="noopener noreferrer" data-venue="polymarket-intl"
               className="inline-flex min-h-11 items-center text-soft underline underline-offset-4 hover:text-text">
               Open on international Polymarket
