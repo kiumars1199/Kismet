@@ -1,6 +1,7 @@
 "use client";
 
 // /markets "All markets" (F-01): grouped rows on desktop, compact cards on mobile, URL-driven.
+import { cleanEventLine } from "@/lib/format";
 import { Ago } from "@/components/clock";
 import { useEffect, useMemo, useState } from "react";
 import { fetchEvent, groupRows, type ApiGroup, type ApiRow, type MarketsResponse } from "@/lib/api";
@@ -82,7 +83,7 @@ export function MarketsScreener({ initial, scannedAt, kalshiOn }: { initial?: Ma
               <ul className={`flex flex-col gap-2.5 ${loading ? "opacity-60" : ""}`}>
                 {items.map((it) =>
                   it.kind === "group" ? (
-                    <li key={`g${it.g.event_id}`} className="px-1 pt-3 font-heading text-sm font-semibold text-soft">{it.g.event}</li>
+                    <li key={`g${it.g.event_id}`} className="px-1 pt-3 font-heading text-sm font-semibold text-soft">{cleanEventLine(it.g.event)}</li>
                   ) : it.kind === "row" ? (
                     <li key={`${it.r.market.id}:${it.r.side.side_index}`}><MarketCard r={it.r} pro={pro} /></li>
                   ) : (
