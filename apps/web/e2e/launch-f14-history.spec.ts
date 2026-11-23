@@ -100,12 +100,10 @@ test("with a chart, the details say where it is from and when the latest point i
 // The four state branches now have their own React keys (no reused animated node). The footer swap that inflated this number on a
 // first load is NOT the chart's: it comes from the bare <Suspense> in app/m/[id]/page.tsx (fixed in onboarding's #62), so the
 // whole-page counter below leaves out shifts whose only nodes are the footer or nodes that were removed from the page.
-// (/api/trade/config is failed here: with KALSHI_TRADING_ENV=demo the paper-Trade button mounts after it and adds a button row
-// above the card at 390 px, a shift of its own that has nothing to do with the chart.)
+// (The paper-Trade and Add-to-combo slots are reserved from the first paint, see the tests below.)
 for (const [name, size] of [["390", { width: 390, height: 844 }], ["1440", { width: 1440, height: 900 }]] as const) {
   for (const id of ["7078474", "6674492"]) {
-    test(`/m/${id} whole-page CLS under 0.1 with paper trading off at ${name}px`, async ({ page }) => {
-      await page.route("**/api/trade/config", (r) => r.fulfill({ status: 404, body: "" }));
+    test(`/m/${id} whole-page CLS under 0.1 at ${name}px`, async ({ page }) => {
       await page.setViewportSize(size);
       await page.addInitScript(OWN_CLS_INIT);
       await page.goto(`/m/${id}`);
@@ -113,7 +111,7 @@ for (const [name, size] of [["390", { width: 390, height: 844 }], ["1440", { wid
       await page.getByTestId(id === "6674492" ? "history-chart" : "history-empty").waitFor();
       await page.waitForTimeout(1200);
       const cls = await page.evaluate(OWN_CLS_READ);
-      console.log(`whole-page CLS /m/${id} ${name}px, paper trading off: ${cls.toFixed(4)}`);
+      console.log(`whole-page CLS /m/${id} ${name}px: ${cls.toFixed(4)}`);
       expect(cls).toBeLessThan(0.1);
     });
   }

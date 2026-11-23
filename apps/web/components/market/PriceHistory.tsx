@@ -36,7 +36,7 @@ export function PriceHistory({ id, outcome }: { id: string; outcome: string }) {
       <figcaption className="mb-2 h-5 shrink-0 text-sm font-semibold">Price over time</figcaption>
       <div className={`${H} w-full shrink-0`}>
         {state.status === "loading" ? (
-          <div key="loading" className={`${H} animate-pulse rounded-input bg-muted-bg`} aria-busy="true" aria-label="Loading price history" />
+          <div key="loading" className={`${H} animate-pulse rounded-input bg-muted-bg`} role="status" aria-busy="true" aria-label="Loading price history" />
         ) : state.status === "error" ? (
           <div key="error" className={`${H} flex flex-col items-start justify-center gap-2 text-sm text-muted`} role="alert">
             <p>Couldn&apos;t load the price history.</p>
