@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { getMe } from "@/lib/auth/server";
 import { canBeta } from "@/lib/beta";
+import { COMBOS_PAGE_FREE_PRO } from "@/lib/check/copy";
 import { ComboBrowser } from "./ComboBrowser";
 
 export const metadata = { title: "Combos", description: "Two- and three-leg combos from Best bets on different events, by payout.", alternates: { canonical: "/combos" } };
@@ -28,7 +29,10 @@ export default async function Page() {
         </Suspense>
       ) : (
         <div data-testid="combos-upgrade" className="flex flex-col items-start gap-3 rounded-card border border-border bg-surface p-5">
-          <p className="text-sm text-soft">Combos are part of Premium: browse them by payout and build your own in the combo tray.</p>
+          <p className="text-sm text-soft">
+            <Link href="/check/combo" className="text-accent-hover underline-offset-4 hover:underline">{COMBOS_PAGE_FREE_PRO.have}</Link>{" "}
+            {COMBOS_PAGE_FREE_PRO.premium}
+          </p>
           <Link href="/pricing" className="inline-flex min-h-11 items-center rounded-input bg-accent px-4 text-sm font-semibold text-on-accent hover:bg-accent-hover">See Premium</Link>
         </div>
       )}

@@ -53,6 +53,7 @@ export function TeaserView({ t, path, zone = null }: { t: Teaser; path: string; 
             <span aria-hidden>🔒</span> <span className="font-semibold text-accent-soft">Kismet&apos;s verdict</span>: sign up to unlock it.
           </p>
         ) : null}
+        {t.kind === "market" ? <Link href={`/check/combo?m=${encodeURIComponent(t.id)}`} className="inline-flex min-h-11 items-center text-sm font-medium text-accent-hover underline-offset-4 hover:underline">Add to combo checker</Link> : null}
         <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
           <Link href={`/signup?next=${next}`} className="inline-flex min-h-12 items-center justify-center rounded-input bg-accent px-6 font-semibold text-on-accent hover:bg-accent-hover">
             Sign up free

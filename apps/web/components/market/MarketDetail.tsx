@@ -343,6 +343,8 @@ function Actions({ m, s, reserve }: { m: StoreMarket; s: Side; reserve: ActionRe
         </button>
         <ShareSheet marketId={m.id} className={icon} />   {/* F13: share image + invite */}
       </div>
+      {/* T-wt3: the combo checker is open to every plan (Free within its daily check); its own row, so the button row above keeps its shape */}
+      <Link href={`/check/combo?m=${m.id}&side=${s.side_index}`} data-testid="add-combo-checker" className="flex min-h-11 items-center justify-center rounded-input text-[13px] font-medium text-accent-hover underline-offset-4 hover:underline">Add to combo checker</Link>
     </div>
   );
 }
