@@ -6,9 +6,9 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CheckSearchResponse } from "@/app/api/check/search/route";
-import { checkCombo, MAX_COMBO_LEGS, MIN_COMBO_LEGS, type ComboLeg } from "@/lib/check/combo";
-import { addStored, readStored, writeStored } from "@/lib/check/comboLegs";
-import { COMBO_CHECK_FREE_NOTE } from "@/lib/check/copy";
+import { checkCombo, MAX_COMBO_LEGS, MIN_COMBO_LEGS, sameEventAdvice, type ComboLeg } from "@/lib/check/combo";
+import { addStored, comboUrl, parseLegsParam, readStored, writeStored } from "@/lib/check/comboLegs";
+import { COMBO_CHECK_FREE_NOTE, COMBO_LIMIT_USED } from "@/lib/check/copy";
 import { useMe } from "@/lib/me";
 import { parseLink } from "@/lib/check/parse-link";
 import type { ComboLegsResponse, LegLookup } from "@/lib/check/response";
@@ -33,21 +33,36 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
   const [limit, setLimit] = useState(false);
   const [scored, setScored] = useState<Scored | null>(null);
   const [hits, setHits] = useState<CheckSearchResponse["markets"]>([]);
+  const [loaded, setLoaded] = useState(false);   // the legs of this tab (or of the link) are in; until then the legs region is hidden, not moved
+  const [known, setKnown] = useState<Map<string, ComboLeg["base"]>>(new Map());   // every leg's numbers once scored: they stay after a 429 or an added leg
+  const [copied, setCopied] = useState("");
   const me = useMe();
   const legsRef = useRef(legs);
   legsRef.current = legs;
   const started = useRef("");
   const seq = useRef(0);
-  const restored = useRef(false);
   const box = useRef<HTMLDivElement>(null);
 
-  // Legs chosen earlier in this tab (from a card, the drawer or /m) are kept: restored before a ?m= leg is added, saved on every change.
+  // The legs come from the link (?legs=id:side,... : a shared or reloaded URL, scored again when it says check=1), else from what this
+  // tab kept (a card, the drawer or /m added them). Until they are in, the legs region is hidden (it keeps its place), so restoring
+  // them moves nothing visible.
   useEffect(() => {
-    const stored = readStored();
-    if (stored.length) { legsRef.current = stored; setLegs(stored); }
-    restored.current = true;
-  }, []);
-  useEffect(() => { if (restored.current) writeStored(legs); }, [legs]);
+    const refs = parseLegsParam(sp.get("legs"));
+    const wantCheck = sp.get("check") === "1";
+    void (async () => {
+      let initial: Listed[];
+      if (refs.length) {
+        setBusy(true);
+        const got = await Promise.all(refs.map((r) => lookup({ m: r.m, side: r.side })));
+        initial = got.filter((x): x is Listed => !!x);
+        if (initial.length < refs.length) setNote("Some bets in that link aren't open any more.");
+        setBusy(false);
+      } else initial = readStored();
+      legsRef.current = initial; setLegs(initial);
+      setLoaded(true);
+      if (wantCheck && initial.length >= MIN_COMBO_LEGS) await checkNow(initial);
+    })();
+  }, []);   // eslint-disable-line react-hooks/exhaustive-deps -- once, on mount
   // the search dropdown closes on Escape or a tap outside it
   useEffect(() => {
     if (!hits.length) return;
@@ -57,6 +72,14 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
     document.addEventListener("keydown", esc);
     return () => { document.removeEventListener("pointerdown", away); document.removeEventListener("keydown", esc); };
   }, [hits.length]);
+
+  /** One leg's lookup (no model numbers, not a check). null = not found or not reachable. */
+  async function lookup(body: { m?: string; link?: string; side?: 0 | 1 }): Promise<Listed | null> {
+    try {
+      const r = await fetch("/api/check/leg", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      return r.ok ? listed((await r.json()) as LegLookup) : null;
+    } catch { return null; }
+  }
 
   async function add(body: { m?: string; link?: string; side?: 0 | 1 }) {
     setBusy(true); setNote(""); setHits([]);
@@ -74,30 +97,32 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
     finally { setBusy(false); }
   }
 
+  // A card, the drawer or /m links here with ?m=<id>&side=<n>: add that bet once the tab's legs are in. The URL then holds the legs
+  // (below), so a reload keeps them and never says "already in your combo".
   useEffect(() => {
     const m = sp.get("m");
     const key = `${m}|${sp.get("side")}`;
-    if (!m || started.current === key) return;
+    if (!loaded || !m || started.current === key) return;
     started.current = key;
-    void add({ m, side: sp.get("side") === "1" ? 1 : 0 });
-  }, [sp]);
+    void add({ m, side: sp.get("side") === "1" ? 1 : 0 }).then(() => window.history.replaceState(window.history.state, "", comboUrl(legsRef.current.map((l) => ({ m: l.marketId, side: l.side })), false)));
+  }, [sp, loaded]);   // eslint-disable-line react-hooks/exhaustive-deps
 
   // Scoring is an explicit tap ("Check this combo"): one Free check for this set. The response carries every leg's inputs, so
   // removing legs afterwards (including "Drop that leg") recomputes here and never asks the server again. Adding a leg is a new set.
-  const setKey = useMemo(() => setKeyOf(legs), [legs]);
-  async function checkNow() {
-    if (legs.length < MIN_COMBO_LEGS || scoring) return;
+  async function checkNow(list: Listed[] = legsRef.current) {
+    if (list.length < MIN_COMBO_LEGS || scoring) return;
     const mine = ++seq.current;
     setScoring(true); setLimit(false); setNote("");
     try {
-      const r = await fetch("/api/check/combo", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ legs: legs.map((l) => ({ m: l.marketId, side: l.side })) }) });
+      const r = await fetch("/api/check/combo", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ legs: list.map((l) => ({ m: l.marketId, side: l.side })) }) });
       if (mine !== seq.current) return;
-      if (r.status === 429) { setLimit(true); setScored(null); return; }
+      if (r.status === 429) { setLimit(true); setScored(null); return; }   // the legs keep the numbers they already have (known)
       if (!r.ok) { setNote("Couldn't score this combo. Try again in a moment."); return; }
       const out = ((await r.json()) as ComboLegsResponse).legs;
       const map = new Map<string, { base: ComboLeg["base"]; basis: string }>();
       for (const d of out) map.set(`${d.m}:${d.side}`, { base: d.base, basis: d.basis });
-      setScored({ setKey, legs: map });
+      setScored({ setKey: setKeyOf(list), legs: map });
+      setKnown((prev) => { const next = new Map(prev); for (const [k, v] of map) next.set(k, v.base); return next; });
     } catch { if (mine === seq.current) setNote("Couldn't reach Kismet. Check your connection and try again."); }
     finally { if (mine === seq.current) setScoring(false); }
   }
@@ -122,6 +147,32 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
       if (!list.length) setNote("No open markets match those words.");
     } catch { setNote("Search is unavailable right now."); }
     finally { setBusy(false); }
+  }
+
+  // The legs are kept in this tab and in the URL (a reload or a shared link brings them back; check=1 scores them again).
+  useEffect(() => { if (loaded) writeStored(legs); }, [legs, loaded]);
+  useEffect(() => {
+    if (!loaded) return;
+    const m = new URLSearchParams(window.location.search).get("m");
+    if (m && started.current !== `${m}|${new URLSearchParams(window.location.search).get("side")}`) return;   // a ?m= add is still to come: it writes the URL
+    window.history.replaceState(window.history.state, "", comboUrl(legs.map((l) => ({ m: l.marketId, side: l.side })), ready));
+  }, [legs, ready, loaded]);
+
+  async function copyLink() {
+    const url = `${window.location.origin}${comboUrl(legs.map((l) => ({ m: l.marketId, side: l.side })), true)}`;
+    try {
+      if (window.matchMedia("(pointer: coarse)").matches && typeof navigator.share === "function") {
+        await navigator.share({ title: "A combo on Kismet", url });
+        setCopied("Shared");
+      } else {
+        await navigator.clipboard.writeText(url);
+        setCopied("Link copied");
+      }
+    } catch (e) {
+      if ((e as Error).name === "AbortError") return;   // the share sheet was closed
+      try { await navigator.clipboard.writeText(url); setCopied("Link copied"); } catch { setCopied("Couldn't copy. Copy the address bar instead."); }
+    }
+    setTimeout(() => setCopied(""), 2500);
   }
 
   const smallest = ready ? Math.min(...combos.map((l) => l.base.n ?? 0)) : null;
@@ -154,10 +205,11 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
       {/* This region always holds the height of the legs and a scored result (the sub-line wraps to 36 px once scored, the result
           grows to about 533 px on a phone and 360 on a desktop: those final sizes are reserved), so adding legs and scoring grow inside
           it and the page below never moves. The empty result card itself stays small: the room is blank space under it, not a box. */}
-      <div className="flex min-h-[760px] flex-col gap-5 md:min-h-[700px]">
-      <ul data-testid="combo-legs" className={`flex flex-col gap-2 ${legs.length || reserve ? "min-h-[176px] sm:min-h-[148px]" : ""}`}>
+      <div className={`flex min-h-[760px] flex-col gap-5 md:min-h-[700px] ${loaded || reserve ? "" : "invisible"}`}>
+      <ul data-testid="combo-legs" style={{ "--n": Math.max(legs.length, reserve, 2) } as React.CSSProperties}
+        className={`flex flex-col gap-2 ${legs.length || reserve ? "min-h-[calc(var(--n)*84px+(var(--n)-1)*8px)] sm:min-h-[calc(var(--n)*70px+(var(--n)-1)*8px)]" : ""}`}>
         {legs.map((l, i) => {
-          const b = ready ? scored!.legs.get(l.key)?.base : undefined;
+          const b = known.get(l.key);
           return (
             <li key={l.key} data-testid="combo-leg" className="flex items-center gap-3 rounded-card border border-border bg-surface p-3">
               <div className="min-w-0 flex-1">
@@ -173,7 +225,7 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
       <section aria-label="Combo result" className={`flex flex-col gap-3 rounded-card border border-border bg-surface p-4 md:p-5 ${Math.max(legs.length, reserve) >= MIN_COMBO_LEGS ? "min-h-[560px] md:min-h-[380px]" : ""}`}>
         {limit && (
         <div data-testid="check-upgrade" className="flex flex-col items-start gap-3 rounded-input border border-accent-border bg-bg p-4">
-          <p className="text-sm text-soft">Free includes 1 bet check a day, and you&apos;ve used it. Pro and Premium check as many bets and combos as you like.</p>
+          <p className="text-sm text-soft">{COMBO_LIMIT_USED}</p>
           <Link href="/pricing" className="inline-flex min-h-11 items-center rounded-input bg-accent px-4 text-sm font-semibold text-on-accent hover:bg-accent-hover">See plans</Link>
         </div>
         )}
@@ -189,7 +241,7 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
         {ready && c.error === "no_model" && <p data-testid="combo-msg" className="text-sm text-soft">No model chance for &ldquo;{c.noModel}&rdquo;, so this combo can&apos;t be scored. Remove that leg.</p>}
         {ready && c.sameEvent.length > 0 && (
           <p data-testid="combo-same-event" className="rounded-input border border-border bg-bg p-3 text-[13px] text-soft">
-            Same event ({c.sameEvent.map(cleanEventLine).join(", ")}): these legs move together, the combined chance is likely off.
+            Same event ({c.sameEvent.map(cleanEventLine).join(", ")}): these legs move together, the combined chance is likely off. {sameEventAdvice(legs).join(" ")}
           </p>
         )}
         {n && (
@@ -219,6 +271,12 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
               </div>
             </details>
           </>
+        )}
+        {legs.length >= MIN_COMBO_LEGS && (
+          <div className="flex items-center gap-3">
+            <button type="button" onClick={() => void copyLink()} className="min-h-11 rounded-input border border-border px-4 text-sm font-medium text-text hover:border-accent-border">Copy link</button>
+            <span role="status" data-testid="combo-copied" className="text-[13px] text-accent-softer empty:hidden">{copied}</span>
+          </div>
         )}
         <p className="text-[12px] text-muted">{MIN_COMBO_LEGS} to {MAX_COMBO_LEGS} legs. Bet only what you can afford to lose.</p>
       </section>
