@@ -117,7 +117,7 @@ test("Free: scoring a combo uses the day's check; the same set is free; another 
   const first = await post("/api/check/combo", { legs: A });
   expect(first.status()).toBe(200);
   const legsOut = (await first.json()).legs as Record<string, unknown>[];
-  for (const l of legsOut) expect(Object.keys(l).sort()).toEqual(["base", "basis", "m", "side"]);   // no per-leg chance/edge/score for Free
+  for (const l of legsOut) expect(Object.keys(l).sort()).toEqual(["base", "basis", "m", "side"]);   // each leg carries its inputs (base: winProb, edge, price, fee, sample; intended, decisions.md Nov 23) and basis, but no per-leg score/result or other side
   expect((await post("/api/check/combo", { legs: [...A].reverse() })).status()).toBe(200);   // same set again: free
   const single = await post("/api/check", { m: ids[2], side: 0 });
   expect(single.status()).toBe(429);

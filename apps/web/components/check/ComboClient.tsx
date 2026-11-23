@@ -132,7 +132,8 @@ export function ComboClient() {
         </div>
       )}
 
-      <ul data-testid="combo-legs" className="flex flex-col gap-2">
+      {/* room for two legs from the start, so legs arriving after a slow lookup don't push the result down */}
+      <ul data-testid="combo-legs" className="flex min-h-[148px] flex-col gap-2">
         {legs.map((l, i) => {
           const b = ready ? scored!.legs.get(l.key)?.base : undefined;
           return (
@@ -147,7 +148,7 @@ export function ComboClient() {
         })}
       </ul>
 
-      <section aria-label="Combo result" className="flex flex-col gap-3 rounded-card border border-border bg-surface p-4 md:p-5">
+      <section aria-label="Combo result" className="flex min-h-[150px] flex-col gap-3 rounded-card border border-border bg-surface p-4 md:p-5">
         {legs.length < MIN_COMBO_LEGS && <p data-testid="combo-msg" className="text-sm text-soft">{legs.length === 0 ? "Add at least two bets to check a combo." : "Add at least one more leg."}</p>}
         {legs.length >= MIN_COMBO_LEGS && !ready && !limit && (
           <div className="flex flex-col items-start gap-2">
