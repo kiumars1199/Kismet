@@ -7,11 +7,14 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CheckSearchResponse } from "@/app/api/check/search/route";
 import { checkCombo, MAX_COMBO_LEGS, MIN_COMBO_LEGS, type ComboLeg } from "@/lib/check/combo";
+import { addStored, readStored, writeStored } from "@/lib/check/comboLegs";
+import { COMBO_CHECK_FREE_NOTE } from "@/lib/check/copy";
+import { useMe } from "@/lib/me";
 import { parseLink } from "@/lib/check/parse-link";
 import type { ComboLegsResponse, LegLookup } from "@/lib/check/response";
 import { SCORE_FORMULA } from "@/lib/check/score";
 import { multX } from "@/lib/card";
-import { pct } from "@/lib/format";
+import { cleanEventLine, pct } from "@/lib/format";
 
 const pts = (e: number) => { const v = Math.round(e * 100); return `${v < 0 ? "−" : v > 0 ? "+" : ""}${Math.abs(v)} ${Math.abs(v) === 1 ? "point" : "points"}`; };
 
@@ -30,10 +33,30 @@ export function ComboClient() {
   const [limit, setLimit] = useState(false);
   const [scored, setScored] = useState<Scored | null>(null);
   const [hits, setHits] = useState<CheckSearchResponse["markets"]>([]);
+  const me = useMe();
   const legsRef = useRef(legs);
   legsRef.current = legs;
   const started = useRef("");
   const seq = useRef(0);
+  const restored = useRef(false);
+  const box = useRef<HTMLDivElement>(null);
+
+  // Legs chosen earlier in this tab (from a card, the drawer or /m) are kept: restored before a ?m= leg is added, saved on every change.
+  useEffect(() => {
+    const stored = readStored();
+    if (stored.length) { legsRef.current = stored; setLegs(stored); }
+    restored.current = true;
+  }, []);
+  useEffect(() => { if (restored.current) writeStored(legs); }, [legs]);
+  // the search dropdown closes on Escape or a tap outside it
+  useEffect(() => {
+    if (!hits.length) return;
+    const away = (e: Event) => { if (box.current && !box.current.contains(e.target as Node)) setHits([]); };
+    const esc = (e: KeyboardEvent) => { if (e.key === "Escape") setHits([]); };
+    document.addEventListener("pointerdown", away);
+    document.addEventListener("keydown", esc);
+    return () => { document.removeEventListener("pointerdown", away); document.removeEventListener("keydown", esc); };
+  }, [hits.length]);
 
   async function add(body: { m?: string; link?: string; side?: 0 | 1 }) {
     setBusy(true); setNote(""); setHits([]);
@@ -43,9 +66,10 @@ export function ComboClient() {
       if (!r.ok) return setNote("Something went wrong. Try again in a moment.");
       const l = listed((await r.json()) as LegLookup);
       const cur = legsRef.current;
-      if (cur.some((x) => x.marketId === l.marketId)) return setNote("That bet is already in your combo.");
-      if (cur.length >= MAX_COMBO_LEGS) return setNote(`A combo holds at most ${MAX_COMBO_LEGS} legs.`);
-      setLegs([...cur, l]); setText("");
+      const r2 = addStored(cur, l);
+      if (r2.refused === "duplicate") return setNote("That bet is already in your combo.");
+      if (r2.refused === "full") return setNote(`A combo holds at most ${MAX_COMBO_LEGS} legs.`);
+      legsRef.current = r2.legs; setLegs(r2.legs); setText("");
     } catch { setNote("Couldn't reach Kismet. Check your connection and try again."); }
     finally { setBusy(false); }
   }
@@ -104,26 +128,27 @@ export function ComboClient() {
 
   return (
     <div className="flex flex-col gap-5" data-testid="combo-check">
+      <div ref={box} className="relative">
       <form onSubmit={submit} className="flex flex-col gap-2 sm:flex-row">
         <label className="sr-only" htmlFor="combo-q">Add a bet by link or words</label>
         <input id="combo-q" value={text} onChange={(e) => setText(e.target.value)} placeholder="Add a bet: paste a link or type a team or topic"
           className="min-h-11 min-w-0 flex-1 rounded-input border border-border bg-surface px-3 text-sm text-text placeholder:text-muted" />
         <button type="submit" disabled={busy} className="min-h-11 rounded-input bg-accent px-4 text-sm font-semibold text-on-accent hover:bg-accent-hover disabled:opacity-60">Add</button>
       </form>
-      <div className="min-h-6 text-[13px] text-muted" role="status" aria-live="polite" data-testid="combo-note">{busy ? "Looking it up…" : scoring ? "Scoring your combo…" : note}</div>
-
       {hits.length > 0 && (
-        <ul data-testid="combo-hits" className="flex flex-col gap-2">
+        <ul data-testid="combo-hits" className="absolute inset-x-0 top-full z-30 mt-1 flex max-h-72 flex-col gap-1 overflow-auto rounded-card border border-border bg-surface p-1.5 shadow-lg">
           {hits.map((h) => (
             <li key={`${h.id}-${h.side_index}`}>
               <button type="button" onClick={() => void add({ m: h.id, side: h.side_index })}
-                className="flex min-h-11 w-full items-center justify-between gap-3 rounded-card border border-border bg-surface px-3 py-2 text-left text-sm hover:border-accent-border">
+                className="flex min-h-11 w-full items-center justify-between gap-3 rounded-input px-3 py-2 text-left text-sm hover:bg-raised">
                 <span className="min-w-0 truncate">{h.question}</span><span className="flex-none text-muted">{h.outcome}</span>
               </button>
             </li>
           ))}
         </ul>
       )}
+      </div>
+      <div className="min-h-6 text-[13px] text-muted" role="status" aria-live="polite" data-testid="combo-note">{busy ? "Looking it up…" : scoring ? "Scoring your combo…" : note}</div>
 
       {limit && (
         <div data-testid="check-upgrade" className="flex flex-col items-start gap-3 rounded-card border border-accent-border bg-surface p-5">
@@ -133,14 +158,14 @@ export function ComboClient() {
       )}
 
       {/* room for two legs from the start, so legs arriving after a slow lookup don't push the result down */}
-      <ul data-testid="combo-legs" className="flex min-h-[148px] flex-col gap-2">
+      <ul data-testid="combo-legs" className="flex min-h-[168px] flex-col gap-2 sm:min-h-[148px]">
         {legs.map((l, i) => {
           const b = ready ? scored!.legs.get(l.key)?.base : undefined;
           return (
             <li key={l.key} data-testid="combo-leg" className="flex items-center gap-3 rounded-card border border-border bg-surface p-3">
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold">{l.question}</p>
-                <p className="text-[12px] text-muted">Bet {l.outcome} at {pct(l.price)}{b ? ` · ${b.winProb === null ? "No model chance" : `${pct(b.winProb)} chance`} · pays ${multX(1 / (b.ask + b.fee))}` : ""}</p>
+                <p className="min-h-8 text-[12px] text-muted sm:min-h-4">Bet {l.outcome} at {pct(l.price)}{b ? ` · ${b.winProb === null ? "No model chance" : `${pct(b.winProb)} chance`} · pays ${multX(1 / (b.ask + b.fee))}` : ""}</p>
               </div>
               <button type="button" aria-label={`Remove ${l.question}`} onClick={() => setLegs(legs.filter((_, j) => j !== i))} className="min-h-11 min-w-11 rounded-input border border-border text-soft">✕</button>
             </li>
@@ -148,18 +173,19 @@ export function ComboClient() {
         })}
       </ul>
 
-      <section aria-label="Combo result" className="flex min-h-[150px] flex-col gap-3 rounded-card border border-border bg-surface p-4 md:p-5">
+      <section aria-label="Combo result" className="flex min-h-[485px] flex-col gap-3 rounded-card border border-border bg-surface p-4 md:min-h-[150px] md:p-5">
         {legs.length < MIN_COMBO_LEGS && <p data-testid="combo-msg" className="text-sm text-soft">{legs.length === 0 ? "Add at least two bets to check a combo." : "Add at least one more leg."}</p>}
         {legs.length >= MIN_COMBO_LEGS && !ready && !limit && (
           <div className="flex flex-col items-start gap-2">
-            <p data-testid="combo-msg" className="text-sm text-soft">{scoring ? "Scoring your combo…" : "Ready when you are. Free includes 1 check a day; this combo counts as one."}</p>
+            <p data-testid="combo-msg" className="text-sm text-soft">{scoring ? "Scoring your combo…" : "Ready when you are."}</p>
+            <p data-testid="combo-free-note" className="min-h-10 text-[13px] text-muted sm:min-h-5">{me?.tier === "free" && !scoring ? COMBO_CHECK_FREE_NOTE : ""}</p>
             <button type="button" data-testid="combo-check-btn" disabled={scoring} onClick={() => void checkNow()} className="min-h-11 rounded-input bg-accent px-4 text-sm font-semibold text-on-accent hover:bg-accent-hover disabled:opacity-60">Check this combo</button>
           </div>
         )}
         {ready && c.error === "no_model" && <p data-testid="combo-msg" className="text-sm text-soft">No model chance for &ldquo;{c.noModel}&rdquo;, so this combo can&apos;t be scored. Remove that leg.</p>}
         {ready && c.sameEvent.length > 0 && (
           <p data-testid="combo-same-event" className="rounded-input border border-border bg-bg p-3 text-[13px] text-soft">
-            Same event ({c.sameEvent.join(", ")}): these legs move together, the combined chance is likely off.
+            Same event ({c.sameEvent.map(cleanEventLine).join(", ")}): these legs move together, the combined chance is likely off.
           </p>
         )}
         {n && (
@@ -170,7 +196,7 @@ export function ComboClient() {
               <Stat id="edge" label="Edge after fee" value={pts(n.edge)} />
               <Stat id="score" label="Score (of 100)" value={n.score === null ? "—" : String(n.score)} />
             </dl>
-            <p data-testid="combo-formula" className="text-[13px] leading-relaxed text-muted">{SCORE_FORMULA} For a combo, the chance is each leg&apos;s chance multiplied together and the sample is the smallest leg&apos;s. That assumes the legs are independent; legs from the same event aren&apos;t.</p>
+            <p data-testid="combo-formula" className="text-[13px] leading-relaxed text-muted">{c.scoreNote ? `${c.scoreNote}. ` : ""}{SCORE_FORMULA} For a combo, the chance is each leg&apos;s chance multiplied together and the sample is the smallest leg&apos;s. That assumes the legs are independent; legs from the same event aren&apos;t.</p>
             {c.drop && dropLeg && c.drop.numbers.score !== null && n.score !== null && c.drop.numbers.score > n.score && (
               <div data-testid="combo-drop" className="flex flex-col gap-2 rounded-input border border-accent-border bg-bg p-3">
                 <p className="text-[13px] text-soft">Weakest leg: &ldquo;{dropLeg.question}&rdquo;. Without it: {pct(c.drop.numbers.chance)} chance, pays {multX(c.drop.numbers.multiplier)}, score {c.drop.numbers.score}.</p>

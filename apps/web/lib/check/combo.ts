@@ -8,6 +8,9 @@ import { score } from "./score";
 export const MIN_COMBO_LEGS = 2;
 export const MAX_COMBO_LEGS = 10;
 
+/** Legs from one event move together, so the combined chance (a product) is likely off and a score on it would mislead: no score. */
+export const NOT_SCORED_SAME_EVENT = "Not scored: legs from the same event";
+
 export interface ComboLeg {
   key: string;            // market id + side, for duplicates
   marketId: string;
@@ -25,6 +28,7 @@ export interface ComboCheck {
   noModel: string | null;       // the first leg without a model chance
   numbers: ComboNumbers | null;
   sameEvent: string[];          // event names that appear on more than one leg
+  scoreNote: string | null;     // why there is no score (same-event legs), else null
   drop: { index: number; numbers: ComboNumbers } | null;   // the leg whose removal raises the score most
 }
 
@@ -36,7 +40,7 @@ function numbersOf(legs: ComboLeg[]): ComboNumbers | null {
   const multiplier = legs.reduce((a, l) => a * legMult(l), 1);
   const edge = chance - 1 / multiplier;
   const n = Math.min(...legs.map((l) => l.base.n ?? 0));
-  return { legs: legs.length, chance, multiplier, edge, score: score(edge, n) };
+  return { legs: legs.length, chance, multiplier, edge, score: sameEvents(legs).length ? null : score(edge, n) };
 }
 
 export function sameEvents(legs: Pick<ComboLeg, "eventId" | "event">[]): string[] {
@@ -48,8 +52,8 @@ export function sameEvents(legs: Pick<ComboLeg, "eventId" | "event">[]): string[
 export function checkCombo(legs: ComboLeg[]): ComboCheck {
   const sameEvent = sameEvents(legs);
   const blocked = legs.find((l) => l.base.winProb === null);
-  if (legs.length < MIN_COMBO_LEGS) return { error: "too_few", noModel: blocked?.question ?? null, numbers: null, sameEvent, drop: null };
-  if (blocked) return { error: "no_model", noModel: blocked.question, numbers: null, sameEvent, drop: null };
+  if (legs.length < MIN_COMBO_LEGS) return { error: "too_few", noModel: blocked?.question ?? null, numbers: null, sameEvent, scoreNote: null, drop: null };
+  if (blocked) return { error: "no_model", noModel: blocked.question, numbers: null, sameEvent, scoreNote: null, drop: null };
   const numbers = numbersOf(legs)!;
   let drop: ComboCheck["drop"] = null;
   if (legs.length > MIN_COMBO_LEGS) {
@@ -58,7 +62,7 @@ export function checkCombo(legs: ComboLeg[]): ComboCheck {
       if (!drop || (n.score ?? -1) > (drop.numbers.score ?? -1) || ((n.score ?? -1) === (drop.numbers.score ?? -1) && n.edge > drop.numbers.edge)) drop = { index: i, numbers: n };
     });
   }
-  return { error: null, noModel: null, numbers, sameEvent, drop };
+  return { error: null, noModel: null, numbers, sameEvent, scoreNote: sameEvent.length ? NOT_SCORED_SAME_EVENT : null, drop };
 }
 
 /** Adds a leg: refused when it's already there (same market, either side) or the combo is full. */

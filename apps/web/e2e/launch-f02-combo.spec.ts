@@ -35,7 +35,7 @@ test("3 legs: combined numbers, drop the weakest with one tap, numbers update", 
   await expect(page.getByTestId("combo-why-pays")).toContainText("×");
   await expect(page.getByTestId("combo-why-sample")).toContainText("similar past bets");
   await expect(page.getByTestId("combo-why-leg")).toHaveCount(3);
-  await expect(page.getByTestId("combo-why-leg").first()).toContainText("eff. samples");
+  await expect(page.getByTestId("combo-why-leg").first()).toContainText(/similar past bets in/);
   const drop = page.getByTestId("combo-drop");
   if (await drop.count()) {
     await drop.getByRole("button", { name: "Drop that leg" }).click();
@@ -93,5 +93,6 @@ test("legs arriving after a slow lookup keep CLS < 0.1 at 390 and 1440", async (
     await page.waitForTimeout(1500);
     expect(await page.evaluate(() => (window as unknown as { __cls: number }).__cls), `CLS at ${w}`).toBeLessThan(0.1);
     await page.unroute("**/api/check/leg");
+    await page.evaluate(() => sessionStorage.clear());   // T-wt3: legs are kept per tab; the next size starts empty
   }
 });

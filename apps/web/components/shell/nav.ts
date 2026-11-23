@@ -18,6 +18,7 @@ export const MORE_LINKS = [
   { href: "/journal", label: "My bets" },
   { href: "/track-record", label: "Results" },
   { href: "/tools", label: "Tools" },
+  { href: "/check/combo", label: "Check a combo" },
   { href: "/alerts", label: "Alerts" },
   { href: "/dashboards", label: "Dashboards" },
   { href: "/settings", label: "Settings" },
