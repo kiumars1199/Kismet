@@ -16,7 +16,7 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push() {}, replace() {}, prefetch() {} }),
 }));
 
-const { eventsNeeded, HIT_RATE_VS_PROFIT, SAME_FOR_EVERYONE, hitRateLive, withLiveHitRate, JUDGE_T, liveReturn, proofLine, siteProof, sinceDay, testSpan } = await import("@/lib/proof");
+const { proofSummary, eventsNeeded, HIT_RATE_VS_PROFIT, SAME_FOR_EVERYONE, hitRateLive, withLiveHitRate, JUDGE_T, liveReturn, proofLine, siteProof, sinceDay, testSpan } = await import("@/lib/proof");
 const { ret } = await import("@/lib/format");
 const { chosenResult } = await import("@/lib/data/model");
 
@@ -230,5 +230,39 @@ describe("group records with no live counterpart", () => {
     const { noLiveRecord, LIVE_NOT_BY_BAND } = await import("@/lib/proof");
     expect(noLiveRecord("combos")).toBe("No live record for combos yet: the live record tracks single best bets only.");
     expect(LIVE_NOT_BY_BAND).toMatch(/^No live record by payout band yet/);
+  });
+});
+
+describe("proofSummary: the one plain line above the plans", () => {
+  // test: 300 events at t = 5 -> needs ceil(300 x (2/5)^2) = 48 settled events on the Polymarket US record before live is comparable
+  const bt = (roi: number, win = 0.74) => ({ results: { None: { taker: { flags: 1234, events: 300, t_stat: 5, win_rate: win, roi_pct: roi } } }, chosen_half_life_days: null }) as never;
+  const live = (graded: number, wins: number, avg_pnl: number, usEvents?: number) => ({ entries: graded, graded, wins, losses: graded - wins, avg_pnl, avg_clv: null, by_category: {}, updated_at: 1794877967,
+    ...(usEvents === undefined ? {} : { us: { entries: graded, graded, wins, losses: graded - wins, avg_pnl, avg_clv: null, events: usEvents } }) }) as never;
+
+  it.each([1, 2, 5, 20])("%i settled bets is below the threshold: the testing line (with its return), never a 100%%-won live line", (n) => {
+    const out = proofSummary({ backtest: bt(9.5), ledger: live(n, n, 0.4, n) })!;   // every one won: the trap
+    expect(out).toBe("Tested on 1,234 past best bets: 74% won, and overall they made 9.5% on what was staked. Live record just started.");
+    expect(out).not.toMatch(/Live so far|100%/);
+  });
+  it("above the threshold (events >= needs, the same rule as 'still too few to judge'): the live line, in plain words", () => {
+    const out = proofSummary({ backtest: bt(9.5), ledger: live(1155, 900, -0.0131, 60) })!;   // 60 US events >= 48
+    expect(out).toMatch(/^Live so far: 78% of 1,155 settled best bets won, but overall they lost \d+(\.\d)?% of what was staked\.$/);
+    expect(out).not.toMatch(/returned|[−+]\d/);
+  });
+  it("a live record that makes money reads 'made', joined with 'and'", () => {
+    expect(proofSummary({ backtest: bt(9.5), ledger: live(200, 160, 0.05, 60) })).toMatch(/^Live so far: 80% of 200 settled best bets won, and overall they made \d+(\.\d)?% on what was staked\.$/);
+  });
+  it("the testing line never states a win rate alone: a negative backtest ROI says so honestly", () => {
+    expect(proofSummary({ backtest: bt(-4.2, 0.81), ledger: null })).toBe("Tested on 1,234 past best bets: 81% won, but overall they lost 4.2% of what was staked.");
+  });
+  it("a positive backtest ROI says what the money did", () => {
+    expect(proofSummary({ backtest: bt(9.5, 0.86), ledger: null })).toBe("Tested on 1,234 past best bets: 86% won, and overall they made 9.5% on what was staked.");
+  });
+  it("zero ledger (null, or nothing settled): the testing line without 'live record just started'", () => {
+    expect(proofSummary({ backtest: bt(9.5), ledger: live(0, 0, 0) })).toBe("Tested on 1,234 past best bets: 74% won, and overall they made 9.5% on what was staked.");
+    expect(proofSummary({ backtest: bt(9.5), ledger: null })).not.toMatch(/Live record/);
+  });
+  it("nothing to say → null (the page shows a plain 'How it did in testing')", () => {
+    expect(proofSummary({ backtest: null, ledger: null })).toBeNull();
   });
 });

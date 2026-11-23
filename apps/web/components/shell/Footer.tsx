@@ -22,7 +22,7 @@ export function Footer() {
           // Kalshi page only once it is out of beta (testers reach it from the nav) and KALSHI_DATA_PERMISSION=true
           // (same check as kalshiDataEnabled; inlined so the OG images that import DISCLAIMER from here don't pull in zod)
           ...(!BETA_FEATURES.includes("kalshi") && process.env.KALSHI_DATA_PERMISSION === "true" ? [{ href: "/kalshi", label: "Kalshi markets" }] : [])].map((p) => (
-          <Link key={p.href} href={p.href} className="inline-flex min-h-11 items-center px-2 hover:text-text md:min-h-0 md:px-1 md:py-0.5">{p.label}</Link>
+          <Link key={p.href} href={p.href} className="inline-flex min-h-11 items-center px-2 hover:text-text md:min-h-6 md:px-1 md:py-0.5 md:pointer-coarse:min-h-11">{p.label}</Link>
         ))}
       </nav>
     </footer>
