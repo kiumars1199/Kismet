@@ -1,0 +1,24 @@
+tier free
+
+== free @390 free-note ""
+    < 200 /api/check/combo {"legs":[{"m":"6417673","side":1,"base":{"winProb":0.9884,"n":129.9,"ask":0.85,"fee":0.0121,"edge":0.1263,"feeRate":0.09490196078431372,"venue":"us"},"basis":"a
+  1st check: main "Combo checker\n\nAdd 2 to 10 bets. Every leg has to win, so the payout is bigger and the chance is lower.\n\nAdd a bet by link or words\nAdd\n\nColts vs. Texans\n\nBet Texans at 85% · 99% chance · pays 1.16x\n\n✕\n\nDenmark vs. Norway: O/U 2.5\n\nBet Over at 67% · 86% chance · pays 1.45x\n\n✕\nCombined chance\n85%\nPays\n1.68x\nEdge after fee\n+26 points\nScore (of 100)\n87\n\nScore = 50 + 250 × (our chance − price after fee) × √(past bets behind it ÷ 400, at most 1), kept between 0 and 100. 50 means the price is fair; higher means a better price than bets like this usually get; fewer past bets pull it toward 50. For a combo, the chance is each leg's chance multiplied together and the sample is the smallest leg's. That assumes the legs are independent; legs from the same event aren't.\n\nWhy these numbers?\n\n2 to 10 legs. Bet only what you can afford to lose."
+    < 200 /api/check/combo {"legs":[{"m":"6417673","side":1,"base":{"winProb":0.9884,"n":129.9,"ask":0.85,"fee":0.0121,"edge":0.1263,"feeRate":0.09490196078431372,"venue":"us"},"basis":"a
+  same set after reload: "Combo checker\n\nAdd 2 to 10 bets. Every leg has to win, so the payout is bigger and the chance is lower.\n\nAdd a bet by link or words\nAdd\n\nColts vs. Texans\n\nBet Texans at 85% · 99% chance · pays 1.16x\n\n✕\n\nDenmark vs. Norway: O/U 2.5\n\nBet Over at 67% · 86% chance · pays 1.45x\n\n✕\nCombined chance\n85%\nPays\n1.68x\nEdge after fee\n+26 points\nScore (of 100)\n87\n\nScore = 50 + 250 × (our chance − price after fee) × √(past bets behind it ÷ 400, at most 1), kept between 0 and 100. 50 means the price is fair; higher means a better price than bets like this usually get; fewer past bets pull it toward 50. For a combo, the chance is each leg's chance multiplied together and the sample is the smallest leg's. Tha"
+  different set: CLS tap 0.0000 [{"t":3719,"v":0.0013,"input":true,"src":"P y747->777 h18->18"}]
+  main "Combo checker\n\nAdd 2 to 10 bets. Every leg has to win, so the payout is bigger and the chance is lower.\n\nAdd a bet by link or words\nAdd\n\nSingapore vs. Brazil: O/U 4.5\n\nBet Over at 65%\n\n✕\n\nMiami (OH) vs. Kent State: 1Q Moneyline\n\nBet Miami (OH) at 69%\n\n✕\n\nFree includes 1 bet check a day, and you've used it. Pro and Premium check as many bets and combos as you like.\n\nSee plans\n\n2 to 10 legs. Bet only what you can afford to lose."
+  controls ["Add→ 358x44","✕→ 44x44","✕→ 44x44","See plans→/pricing 98x44"]
+  facts {"disc":true,"cents":false,"hs":false}
+    < 429 /api/check/combo 
+
+== free @1440 free-note "Free includes 1 check a day; this combo counts as one."
+  1st check: main "Combo checker\n\nAdd 2 to 10 bets. Every leg has to win, so the payout is bigger and the chance is lower.\n\nAdd a bet by link or words\nAdd\n\nColts vs. Texans\n\nBet Texans at 85%\n\n✕\n\nSingapore vs. Brazil: O/U 4.5\n\nBet Over at 65%\n\n✕\n\nFree includes 1 bet check a day, and you've used it. Pro and Premium check as many bets and combos as you like.\n\nSee plans\n\n2 to 10 legs. Bet only what you can afford to lose."
+    < 429 /api/check/combo 
+  same set after reload: "Combo checker\n\nAdd 2 to 10 bets. Every leg has to win, so the payout is bigger and the chance is lower.\n\nAdd a bet by link or words\nAdd\n\nColts vs. Texans\n\nBet Texans at 85%\n\n✕\n\nSingapore vs. Brazil: O/U 4.5\n\nBet Over at 65%\n\n✕\n\nFree includes 1 bet check a day, and you've used it. Pro and Premium check as many bets and combos as you like.\n\nSee plans\n\n2 to 10 legs. Bet only what you can afford to lose."
+    < 429 /api/check/combo 
+  different set: CLS tap 0.0000 [{"t":4013,"v":0.0004,"input":true,"src":"P y577->607 h18->18"}]
+  main "Combo checker\n\nAdd 2 to 10 bets. Every leg has to win, so the payout is bigger and the chance is lower.\n\nAdd a bet by link or words\nAdd\n\nSingapore vs. Brazil: O/U 4.5\n\nBet Over at 65%\n\n✕\n\nMiami (OH) vs. Kent State: 1Q Moneyline\n\nBet Miami (OH) at 69%\n\n✕\n\nFree includes 1 bet check a day, and you've used it. Pro and Premium check as many bets and combos as you like.\n\nSee plans\n\n2 to 10 legs. Bet only what you can afford to lose."
+  controls ["Add→ 59x44","✕→ 44x44","✕→ 44x44","See plans→/pricing 98x44"]
+  facts {"disc":true,"cents":false,"hs":false}
+ERRORS []
+    < 429 /api/check/combo 

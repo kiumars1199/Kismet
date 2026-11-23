@@ -69,15 +69,20 @@ Problems:
 - Accepted, not a problem: the console logs 429 on the 2nd Free check (decisions.md).
 
 ## Walk-through 3: Pro user building a combo
-Status: official walk in progress on 137ad1f (21:50). Dry run was on the paid mock at eef7345 (18:58). Dry-run fixes merged: #89, #92. Fixes are with the data lane (T-wt3).
-Problems (from the dry run):
-- [blocker] A Pro user has no way into /check/combo: no link anywhere, and the Add-to-combo tray is Premium-only.
-- [should-fix] /combos and /pricing copy tells Pro that building combos is Premium-only.
-- [should-fix] Same-event legs still show a confident "Score 100" under the "likely off" warning.
-- [nit] The same-event warning shows the raw " - More Markets" event name.
-- [nit] Pro sees Free's "1 check a day" copy.
-- [nit] The leg basis in "Why these numbers?" uses engine wording.
-- [nit] Search hits shift the result box (CLS 0.06-0.07).
+Status: official walk on 137ad1f (23:35; evidence review/walkthrough-3/): FAIL. Signed-in steps ran on a local build of 137ad1f with the E2E mock, and signed-out steps on prod (decisions.md). The Premium tray was confirmed on time-shifted open fixtures. Fixes assigned: T-wt3b and T-wt3c (data). Dry-run items fixed: Pro entry to /check/combo, /combos and /pricing copy, same-event "Score 100", " - More Markets", Free copy for Pro, engine wording. The search-hit shift was partly fixed; the first-leg part is in #96 (T-89c).
+
+Problems:
+- [should-fix] The tray and the checker disagree on the same legs: 2.6x / 55% vs 2.50x / 65% (different fee venue and chance rule). This breaks F2's "Done when". (data, T-wt3c)
+- [should-fix] Restoring legs on a fresh mount of /check/combo at 390: CLS 0.10–0.115 (re-measure after #96). (data, T-wt3b)
+- [should-fix] "Check this combo" at 390 with 3–4 legs and a result arriving after more than 500 ms: CLS 0.39–0.41. (data, T-wt3b)
+- [should-fix] No way to share a combo result; the URL holds only the last leg. (data, T-wt3b)
+- [should-fix] `?m=` stays in the URL after an add: reload says "already in your combo" and drops the result; a removed leg comes back. (data, T-wt3b)
+- [nit] With a same-event pair the drop suggestion is hidden. (data, T-wt3b)
+- [nit] The Free pre-check note and the limit box say it differently; after a 429 the legs lose chance and payout. (data, T-wt3b)
+- [nit] The tray refuses same-event legs and the checker accepts them, without pointing the user to the checker. (data, T-wt3c)
+- [nit] At 390 with the Premium tray, "Check this combo" sits under the tray. (data, T-wt3c)
+- [nit] "2 to 10" is said 3 times (fixed in #96, pending merge). Desktop footer links are 20 px (fixed by #95, merged).
+- Not walked: signed-in headers at 768–1280, the Premium drawer path to the tray, WebKit, and signed-in steps on a production build. Re-walk after the fixes.
 
 ## Found in review, outside a lane
 - 23:20 #95 T-wt1c merged at 2dfcf1e (final 2fcbe82): reviewer PASS on the 2nd round (1st round: proof line could say "100% of 1 won" and a win rate without the return). Follow-up T-95b (tracker): bound the "Live record just started" note, drop ".0".

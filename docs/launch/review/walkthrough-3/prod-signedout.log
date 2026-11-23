@@ -1,0 +1,35 @@
+prod header @768: {"navVisible":true,"h":69,"link":true,"shown":false,"size":"0x0","clipped":false,"items":["How it works","Results","Pricing"]}
+prod header @1024: {"navVisible":true,"h":64,"link":true,"shown":false,"size":"0x0","clipped":false,"items":["How it works","Results","Pricing"]}
+prod header @1280: {"navVisible":true,"h":64,"link":true,"shown":false,"size":"0x0","clipped":false,"items":["How it works","Results","Pricing"]}
+prod header @1440: {"navVisible":true,"h":64,"link":true,"shown":true,"size":"103x36","clipped":false,"items":["How it works","Results","Pricing","Check a bet"]}
+prod 390 /check {"url":"/check","cls":0,"shifts":[],"disc":true,"cents":false,"hs":false,"h1":"Bet checker"}
+  /check "Check a combo": 1 104x44
+  footer check links: ["Check a bet→/check 84x44","Check a combo→/check/combo 105x44"]
+  (no More button at 390)
+  /check -> /check/combo (SPA): {"url":"/check/combo","cls":0,"shifts":[],"disc":true,"cents":false,"hs":false,"h1":"Combo checker","delta":0}
+  /check/combo full load {"url":"/check/combo","cls":0,"shifts":[],"disc":true,"cents":false,"hs":false,"h1":"Combo checker"}; copy: "Combo checker\n\nAdd 2 to 10 bets. Every leg has to win, so the payout is bigger and the chance is lower.\n\nAdd a bet by link or words\nAdd\n\nAdd at least two bets to check a combo.\n\nHow it works: every leg has to win, so the chances multiply and so do the payouts. Add 2 to 10 bets, then check the set.\n\n2 to 10 legs. Bet only what you can afford to lose."
+  ids on /: ["6970124","7226531","6756585","6756678"]
+  /m/6970124 {"url":"/m/6970124","cls":0,"shifts":[],"disc":true,"cents":false,"hs":false,"h1":"Manchester City FC vs. SSC Napoli: O/U 4.5"}
+  /m "Add to combo checker": 1 href /check/combo?m=6970124 308x44
+    > POST /api/check/leg
+  /m -> combo (SPA): legs 0 note "Something went wrong. Try again in a moment." CLS delta 0.0000 [] {"url":"/check/combo?m=6970124","cls":0,"disc":true,"cents":false,"hs":false,"h1":"Combo checker"}
+    > POST /api/check/leg
+  reload with ?m= (fresh doc): legs 0 note "Something went wrong. Try again in a moment." {"url":"/check/combo?m=6970124","cls":0,"shifts":[],"disc":true,"cents":false,"hs":false,"h1":"Combo checker"}
+    > POST /api/check/leg
+  2nd leg: legs 0 [] msg ["Add at least two bets to check a combo."] free-note "(none)" {"url":"/check/combo?m=7226531","cls":0,"shifts":[],"disc":true,"cents":false,"hs":false,"h1":"Combo checker"}
+prod 1440 /check {"url":"/check","cls":0,"shifts":[],"disc":true,"cents":false,"hs":false,"h1":"Bet checker"}
+  /check "Check a combo": 1 104x44
+  footer check links: ["Check a bet→/check 76x20","Check a combo→/check/combo 97x20"]
+  (no More button at 1440)
+  /check -> /check/combo (SPA): {"url":"/check/combo","cls":0,"shifts":[],"disc":true,"cents":false,"hs":false,"h1":"Combo checker","delta":0}
+  /check/combo full load {"url":"/check/combo","cls":0,"shifts":[],"disc":true,"cents":false,"hs":false,"h1":"Combo checker"}; copy: "Combo checker\n\nAdd 2 to 10 bets. Every leg has to win, so the payout is bigger and the chance is lower.\n\nAdd a bet by link or words\nAdd\n\nAdd at least two bets to check a combo.\n\nHow it works: every leg has to win, so the chances multiply and so do the payouts. Add 2 to 10 bets, then check the set.\n\n2 to 10 legs. Bet only what you can afford to lose."
+  ids on /: ["6970124","7226531","6756585","6756678"]
+  /m/6970124 {"url":"/m/6970124","cls":0,"shifts":[],"disc":true,"cents":false,"hs":false,"h1":"Manchester City FC vs. SSC Napoli: O/U 4.5"}
+  /m "Add to combo checker": 1 href /check/combo?m=6970124 670x44
+    > POST /api/check/leg
+  /m -> combo (SPA): legs 0 note "Something went wrong. Try again in a moment." CLS delta 0.0000 [] {"url":"/check/combo?m=6970124","cls":0,"disc":true,"cents":false,"hs":false,"h1":"Combo checker"}
+    > POST /api/check/leg
+  reload with ?m= (fresh doc): legs 0 note "Something went wrong. Try again in a moment." {"url":"/check/combo?m=6970124","cls":0,"shifts":[],"disc":true,"cents":false,"hs":false,"h1":"Combo checker"}
+    > POST /api/check/leg
+  2nd leg: legs 0 [] msg ["Add at least two bets to check a combo."] free-note "(none)" {"url":"/check/combo?m=7226531","cls":0,"shifts":[],"disc":true,"cents":false,"hs":false,"h1":"Combo checker"}
+PROD ERRORS: ["HTTP 403 /api/check/leg","console@/check/combo?m=6970124 Failed to load resource: the server responded with a status of 403 (Forbidden)","HTTP 403 /api/check/leg","console@/check/combo?m=6970124 Failed to load resource: the server responded with a status of 403 (Forbidden)","HTTP 403 /api/check/leg","console@/check/combo?m=7226531 Failed to load resource: the server responded with a status of 403 (Forbidden)","HTTP 403 /api/check/leg","console@/check/combo?m=6970124 Failed to load resource: the server responded with a status of 403 (Forbidden)","HTTP 403 /api/check/leg","console@/check/combo?m=6970124 Failed to load resource: the server responded with a status of 403 (Forbidden)","HTTP 403 /api/check/leg","console@/check/combo?m=7226531 Failed to load resource: the server responded with a status of 403 (Forbidden)"]

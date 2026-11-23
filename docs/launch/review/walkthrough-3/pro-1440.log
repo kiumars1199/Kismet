@@ -1,0 +1,74 @@
+signed in wt3r-pro-1795474702647@example.com tier=pro
+
+===== pro @ 1440 =====
+pro 1440 [home] {"url":"/","cls":0.0004,"shifts":["0.0004 DIV y10->10 h44->44"],"disc":true,"cents":false,"hs":false,"h1":"34 bets where the odds lean your way"}
+  header "Check a bet": count 1 visible true 103x36
+  footer check links: ["Check a bet→/check 76x20","Check a combo→/check/combo 97x20"]
+  small targets on /: ["a:\"Best bets\" 87x36","a:\"All markets\" 97x36","a:\"My list\" 67x36","a:\"My bets\" 77x36","a:\"Results\" 72x36","a:\"Check a bet\" 103x36","a:\"Kalshi\" 64x36","inline a:\"source\" 39x15","a:\"How it works\" 82x20","a:\"Pricing\" 47x20","a:\"Check a bet\" 76x20","a:\"Check a combo\" 97x20","a:\"Terms\" 43x20","a:\"Privacy\" 50x20","a:\"Refunds\" 55x20","a:\"Disclaimer\" 67x20","a:\"Contact\" 53x20","a:\"Status\" 44x20","a:\"Kalshi markets\" 91x20"]
+  drawer: "Add to combo checker" 407x44, tray button count 0, combo texts ["Add to combo checker"]
+  drawer small targets: ["a:\"Best bets\" 87x36","a:\"All markets\" 97x36","a:\"My list\" 67x36","a:\"My bets\" 77x36","a:\"Results\" 72x36","a:\"Check a bet\" 103x36","a:\"Kalshi\" 64x36","inline a:\"source\" 39x15","a:\"How it works\" 82x20","a:\"Pricing\" 47x20","a:\"Check a bet\" 76x20","a:\"Check a combo\" 97x20","a:\"Terms\" 43x20","a:\"Privacy\" 50x20","a:\"Refunds\" 55x20","a:\"Disclaimer\" 67x20","a:\"Contact\" 53x20","a:\"Status\" 44x20","a:\"Kalshi markets\" 91x20","a:\"Miami (OH) vs. Kent State\" 158x20","inline a:\"Why two numbers?\" 109x15","inline a:\"Settings\" 54x17"]
+pro 1440 [drawer] {"url":"/bets?m=7077574&side=0","cls":0.0004,"shifts":["0.0004 DIV y10->10 h44->44"],"disc":true,"cents":false,"hs":false}
+    > POST /api/check/leg
+    < 200 /api/check/leg 1871ms
+  leg shown 1288ms after URL change
+  first leg via drawer rep0: url /check/combo?m=7077574&side=0 legs 1 CLS 0.018 ["0.0004 DIV y10->10 h44->44","0.0176 SECTION y296->444 h146->146"]
+    > POST /api/check/leg
+    < 200 /api/check/leg 370ms
+  leg shown 817ms after URL change
+  first leg via drawer rep1: url /check/combo?m=7077574&side=0 legs 1 CLS 0.018 ["0.0004 DIV y10->10 h44->44","0.0176 SECTION y296->444 h146->146"]
+    > POST /api/check/leg
+    < 200 /api/check/leg 218ms
+  leg shown 200ms after URL change
+  first leg via drawer rep2: url /check/combo?m=7077574&side=0 legs 1 CLS 0.0176 ["0.0176 SECTION y296->444 h146->146"]
+  FIRST-LEG CLS @1440: [0.018,0.018,0.0176] max 0.018
+pro 1440 [checker-1leg] {"url":"/check/combo?m=7077574&side=0","cls":0.0176,"shifts":["0.0176 SECTION y296->444 h146->146"],"disc":true,"cents":false,"hs":false,"msg":"Add at least one more leg.","how":"How it works: every leg has to win, so the chances multiply and so do the payouts. Add 2 to 10 bets, then check the set."}
+pro 1440 [/markets] {"url":"/markets","cls":0.0004,"shifts":["0.0004 DIV y10->10 h44->44"],"disc":true,"cents":false,"hs":false}
+  /markets row links: 26
+    > POST /api/check/leg
+    < 200 /api/check/leg 125ms
+  leg 2 from /markets row "Denmark vs. Norway: Both Teams to Score": legs 2 note "" url /check/combo?m=6674492&side=0
+  /m/6417673 combo link visible true tray btn 0
+pro 1440 [/m] {"url":"/m/6417673","cls":0.0004,"shifts":["0.0004 DIV y10->10 h44->44"],"disc":true,"cents":false,"hs":false}
+    > POST /api/check/leg
+    < 200 /api/check/leg 1344ms
+  CLS[leg via /m (nav)] 0.2344 ["0.2144 FOOTER y0->707 h0->193","0.0200 FOOTER y707->746 h193->154,SECTION y444->522 h200->200"]
+  after /m: legs 3 note ""
+  free-note (pre-check): ""; msg "Ready when you are."
+    > GET /api/check/search?q=Denmark
+    < 200 /api/check/search?q=Denmark 3371ms
+  CLS[search "Denmark"] 0 []
+    > POST /api/check/leg
+  CLS[add hit /Denmark vs\. Norway: O\/U 2\.5/] 0 []
+  added /Denmark vs\. Norway: O\/U 2\.5/: {"legs":3,"note":"Looking it up…"}
+    < 200 /api/check/leg 6536ms
+  CLS[search "Denmark"] 0.0164 ["0.0164 FOOTER y746->824 h154->76,SECTION y522->600 h200->200"]
+  no hit /Denmark vs\. Norway: Both Teams to Score\s*\n?\s*Yes|Both Teams to Score Yes|^Denmark vs\. Norway: Both Teams to Score(?! in)/ in []
+  legs now: ["Miami (OH) vs. Kent State: 1Q Moneyline\n\nBet Miami (OH) at 69%\n\n✕","Denmark vs. Norway: Both Teams to Score\n\nBet Yes at 68%\n\n✕","Colts vs. Texans\n\nBet Texans at 85%\n\n✕","Denmark vs. Norway: O/U 2.5\n\nBet Over at 67%\n\n✕"]
+  small targets on checker: ["a:\"Best bets\" 86x36","a:\"All markets\" 97x36","a:\"My list\" 67x36","a:\"My bets\" 77x36","a:\"Results\" 72x36","a:\"Check a bet\" 104x36","a:\"Kalshi\" 64x36","inline a:\"source\" 39x15","a:\"How it works\" 82x20","a:\"Pricing\" 47x20","a:\"Check a bet\" 76x20","a:\"Check a combo\" 97x20","a:\"Terms\" 43x20","a:\"Privacy\" 50x20","a:\"Refunds\" 55x20","a:\"Disclaimer\" 67x20","a:\"Contact\" 53x20","a:\"Status\" 44x20","a:\"Kalshi markets\" 91x20"]
+  check btn visible true; free-note ""
+    > POST /api/check/combo
+    < 200 /api/check/combo 5036ms
+  CLS[Check this combo] 0.0122 ["0.0122 FOOTER y824->0 h76->0,P y733->0 h18->0"]
+  RESULT (same-event pair in): {"chance":"70%","mult":"3.42x","edge":"+41 points","score":"—","drop":null,"same":"Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off.","formula":"Not scored: legs from the same event. Score = 50 + 250 × (our chance − price after fee) × √(past bets behind it ÷ 400, at most 1), kept between 0 and 100. 50 means the price is fair; higher means a better price than bets like this usually get; fewer past bets pull it toward 50. For a combo, the chance is each leg's chance multiplied together and the sample is the smallest leg's. That assumes the legs are independent; legs from the same event aren't."}
+  score-100 text anywhere: false; "More Markets" anywhere in main: false
+  CLS[open Why] 0 []
+  WHY: "Why these numbers?\n\nPays 1.41x × 1.45x × 1.16x × 1.45x = 3.42x: each leg's payout after its fee, multiplied.\n\nCombined chance 90% × 92% × 99% × 86% = 70%.\n\nScore sample: the smallest leg, about 130 similar past bets.\n\nMiami (OH) vs. Kent State: 1Q Moneyline (Miami (OH)): about 274 similar past bets in College football in-game bets\nDenmark vs. Norway: Both Teams to Score (Yes): about 519 similar past bets in UEFA Nations League in-game bets\nColts vs. Texans (Texans): about 130 similar past bets in NFL match-winner bets\nDenmark vs. Norway: O/U 2.5 (Over): about 350 similar past bets in UEFA Nations League over/under bets"
+  why engine words: ["Moneyline"]
+  share/copy controls in main: []; url /check/combo?m=6417673&side=1
+  checker facts {"url":"/check/combo?m=6417673&side=1","cls":0.2634,"shifts":["0.0004 DIV y10->10 h44->44","0.2144 FOOTER y0->707 h0->193","0.0200 FOOTER y707->746 h193->154,SECTION y444->522 h200->200","0.0164 FOOTER y746->824 h154->76,SECTION y522->600 h200->200","0.0122 FOOTER y824->0 h76->0,P y733->0 h18->0"],"disc":true,"cents":false,"hs":false}
+  CLS[remove same-event leg] 0 []
+  after remove: legs 3 {"chance":"77%","mult":"2.36x","edge":"+34 points","score":"99","drop":"Weakest leg: “Colts vs. Texans”. Without it: 78% chance, pays 2.04x, score 100.\n\nDrop that leg","same":null,"formula":"Score = 50 + 250 × (our chance − price after fee) × √(past bets behind it ÷ 400, at most 1), kept between 0 and 100. 50 means the price is fair; higher means a better price than bets like this usually get; fewer past bets pull it toward 50. For a combo, the chance is each leg's chance multiplied together and the sample is the smallest leg's. That assumes the legs are independent; legs from the same event aren't."}
+    > POST /api/check/leg
+    < 200 /api/check/leg 1923ms
+  RELOAD at /check/combo?m=6417673&side=1: legs 3 -> 3; note "That bet is already in your combo."; scored kept: 0; cls {"cls":0.0718,"n":2,"s":["0.0714 FOOTER y707->746 h193->154,SECTION y296->522 h146->200","0.0004 DIV y10->10 h44->44"]}
+  legs after reload: ["Miami (OH) vs. Kent State: 1Q Moneyline","Colts vs. Texans","Denmark vs. Norway: O/U 2.5"]
+    > POST /api/check/leg
+    < 200 /api/check/leg 1322ms
+  removed the ?m=6417673 leg (2 left), reload -> legs 3 ["Miami (OH) vs. Kent State: 1Q Moneyline","Denmark vs. Norway: O/U 2.5","Colts vs. Texans"]
+  /check copy lines: ["Bet checker"]
+pro 1440 [/check] {"url":"/check","cls":0,"shifts":[],"disc":true,"cents":false,"hs":false}
+  /combos copy lines: ["Check any combo you build in the combo checker. Premium adds suggested combos and the combo tray."]
+pro 1440 [/combos] {"url":"/combos","cls":0,"shifts":[],"disc":true,"cents":false,"hs":false}
+  /pricing copy lines: ["1 bet or combo check a day","Bet and combo checker, unlimited","Combos: suggested 2- and 3-leg bets built from Best bets, plus the combo tray","Bet and combo checker\t1 check a day\tUnlimited\tUnlimited","Combos: suggested 2- and 3-leg bets from Best bets, plus the combo tray\t—\t—\tYes"]
+pro 1440 [/pricing] {"url":"/pricing","cls":0,"shifts":[],"disc":true,"cents":false,"hs":false}
+ERRORS pro: []

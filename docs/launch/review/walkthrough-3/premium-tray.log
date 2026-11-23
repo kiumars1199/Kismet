@@ -1,0 +1,44 @@
+tier premium
+
+===== premium tray @ 390 =====
+  /m/6417673: tray btn 0 136x46; checker link /check/combo?m=6417673&side=1; "Closed" on page: false
+  after "Add to combo tray": button now "In combo ✓", tray 1, summary "Add one more bet to see the combo", alerts [], CLS delta 0.0000 []
+  /m/6674485: tray btn 1 136x46; checker link /check/combo?m=6674485&side=0; "Closed" on page: false
+  after "Add to combo tray": button now "In combo ✓", tray 1, summary "Pays 1.7x · wins about 8 in 10", alerts [], CLS delta 0.0000 []
+  /m/6654461: tray btn 1 136x46; checker link /check/combo?m=6654461&side=0; "Closed" on page: false
+  after "Add to combo tray": button now "In combo ✓", tray 1, summary "Pays 2.6x · wins about 5–6 in 10", alerts [], CLS delta 0.0000 []
+  same-event add: alerts ["Your combo already has a bet from this event. Results in one event move together, so pick a different event."]; tray legs "Your combo · 3 legs"
+  tray on /bets: 1 rect {"y":706,"h":70,"b":776}
+  TRAY expanded: "Your combo · 3 legs\nPays 2.6x · wins about 5–6 in 10\n1\n\nColts vs. Texans\n\nBet Texans · Pays 1.2x after fee · 95% chance to win (cautious)\n\nOpen\nColts vs. Texans on Polymarket\n2\n\nDenmark vs. Norway: O/U 2.5\n\nBet Over · Pays 1.5x after fee · 82% chance to win (cautious)\n\nOpen\nDenmark vs. Norway: O/U 2.5 on Polymarket\n3\n\nSingapore vs. Brazil: O/U 4.5\n\nBet Over · Pays 1.5x after fee · 71% chance to win (cautious)\n\nOpen\nSingapore vs. Brazil: O/U 4.5 on Polymarket\nChance to win\n55% (about 5–6 in 10)\nPays\n2.6x\nEstimated return at 55%\n+43%\nAgainst the price\nBeats it\n\nThe combo wins only if every leg wins, so the legs' chances multiply: 95% × 82% × 71% ≈ 55%. Chances are our cautious ones (our central estimate is 65%). Payouts include each leg's fee: every leg bought and the winnings rolled into the next. Prices are from when you added each leg. Small errors in each leg multiply in a combo. 3-leg combos: won 65% of the time, +26% return in testing. No live record for combos yet: the live record tracks single best bets only.\n\nClear combo"
+  tray small targets: []
+  facts {"url":"/bets","cls":0,"shifts":[],"disc":true,"cents":false,"hs":false}
+  /check/combo with tray: tray {"y":706,"h":70,"b":776} check button {"y":773,"h":44,"b":817} viewport h 844
+  after scrollIntoView: tray {"y":706,"h":70,"b":776} button {"y":773,"h":44,"b":817}; elementFromPoint at button centre is button: false
+  CHECKER same legs: chance 65% pays 2.50x edge +25 points score 86
+  bottom: disclaimer {"y":348,"h":32,"b":380} tray {"y":706,"h":70,"b":776} overlap false; disclaimer topmost: true
+  reload: tray 1 summary "Pays 2.6x · wins about 5–6 in 10"; checker legs 3
+  checker facts {"url":"/check/combo?m=6654461&side=0","cls":0.2972,"shifts":["0.2972 SECTION y0->38 h0->485,FOOTER y465->547 h379->297"],"disc":true,"cents":false,"hs":false}
+  /combos: "Combos\n\nBest bets from different events, closing within a day, in one bet. Every leg has to win, so the payout is bigger and the chance is lower. A combo is shown only if it still beats its price when every leg uses our cautious chance.\n\nPays 2x+\nPays 3x+\nPays 5x+\nPays 10x+\n\nLoading combos…"
+  /combos facts {"url":"/combos","cls":0,"shifts":[],"disc":true,"cents":false,"hs":false}
+
+===== premium tray @ 1440 =====
+  /m/6417673: tray btn 0 277x46; checker link /check/combo?m=6417673&side=1; "Closed" on page: false
+  after "Add to combo tray": button now "In combo ✓", tray 1, summary "Add one more bet to see the combo", alerts [], CLS delta 0.0000 []
+  /m/6674485: tray btn 1 277x46; checker link /check/combo?m=6674485&side=0; "Closed" on page: false
+  after "Add to combo tray": button now "In combo ✓", tray 1, summary "Pays 1.7x · wins about 8 in 10", alerts [], CLS delta 0.0000 []
+  /m/6654461: tray btn 1 277x46; checker link /check/combo?m=6654461&side=0; "Closed" on page: false
+  after "Add to combo tray": button now "In combo ✓", tray 1, summary "Pays 2.6x · wins about 5–6 in 10", alerts [], CLS delta 0.0000 []
+  same-event add: alerts ["Your combo already has a bet from this event. Results in one event move together, so pick a different event."]; tray legs "Your combo · 3 legs"
+  tray on /bets: 1 rect {"y":814,"h":70,"b":884}
+  TRAY expanded: "Your combo · 3 legs\nPays 2.6x · wins about 5–6 in 10\nEstimated return\n+43%\n1\n\nColts vs. Texans\n\nBet Texans · Pays 1.2x after fee · 95% chance to win (cautious)\n\nOpen\nColts vs. Texans on Polymarket\n2\n\nDenmark vs. Norway: O/U 2.5\n\nBet Over · Pays 1.5x after fee · 82% chance to win (cautious)\n\nOpen\nDenmark vs. Norway: O/U 2.5 on Polymarket\n3\n\nSingapore vs. Brazil: O/U 4.5\n\nBet Over · Pays 1.5x after fee · 71% chance to win (cautious)\n\nOpen\nSingapore vs. Brazil: O/U 4.5 on Polymarket\nChance to win\n55% (about 5–6 in 10)\nPays\n2.6x\nEstimated return at 55%\n+43%\nAgainst the price\nBeats it\n\nThe combo wins only if every leg wins, so the legs' chances multiply: 95% × 82% × 71% ≈ 55%. Chances are our cautious ones (our central estimate is 65%). Payouts include each leg's fee: every leg bought and the winnings rolled into the next. Prices are from when you added each leg. Small errors in each leg multiply in a combo. 3-leg combos: won 65% of the time, +26% return in testing. No live record for combos yet: the live record tracks single best bets only.\n\nClear combo"
+  tray small targets: []
+  facts {"url":"/bets","cls":0,"shifts":[],"disc":true,"cents":false,"hs":false}
+  /check/combo with tray: tray {"y":814,"h":70,"b":884} check button {"y":599,"h":44,"b":643} viewport h 900
+  after scrollIntoView: tray {"y":814,"h":70,"b":884} button {"y":599,"h":44,"b":643}; elementFromPoint at button centre is button: true
+  CHECKER same legs: chance 65% pays 2.50x edge +25 points score 86
+  bottom: disclaimer {"y":672,"h":16,"b":688} tray {"y":814,"h":70,"b":884} overlap false; disclaimer topmost: true
+  reload: tray 1 summary "Pays 2.6x · wins about 5–6 in 10"; checker legs 3
+  checker facts {"url":"/check/combo?m=6654461&side=0","cls":0.0714,"shifts":["0.0714 FOOTER y707->746 h193->154,SECTION y296->522 h146->200","0.0000 KBD y23->23 h18->18"],"disc":true,"cents":false,"hs":false}
+  /combos: "Combos\n\nBest bets from different events, closing within a day, in one bet. Every leg has to win, so the payout is bigger and the chance is lower. A combo is shown only if it still beats its price when every leg uses our cautious chance.\n\nPays 2x+\nPays 3x+\nPays 5x+\nPays 10x+\n\nTwo- and three-leg combos paying 2.0x to 3.0x.\n\n2-leg combos\n\n2-leg combos: won 75% of the time, +17% return in testing. No live record for combos yet: the live record tracks single best bets only.\n\nCombo · 2 legs\n\nPays 2.0x"
+  /combos facts {"url":"/combos","cls":0.2145,"shifts":["0.0000 KBD y23->23 h18->18","0.2144 FOOTER y707->0 h193->0"],"disc":true,"cents":false,"hs":false}
+ERRORS premium tray: []
