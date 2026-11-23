@@ -69,12 +69,26 @@ describe("extension routes while paused", () => {
     expect(res.headers.get("access-control-allow-origin")).toBe("*");
   });
 
-  it("POST /api/trade/nonce: 423 paused", async () => {
-    const { POST } = await import("@/app/api/trade/nonce/route");
-    const order = { action: "cancel", payload: { orderId: "o1" } };
-    const ok = await POST(post("/api/trade/nonce", {}, order));
-    expect(ok.status).not.toBe(423);
-    pause();
-    await expect423(await POST(post("/api/trade/nonce", {}, order)));
+  describe("POST /api/trade/nonce", () => {
+    const place = { action: "place", payload: { ticker: "KXTEST-1", side: "yes", price_cents: 40, count: 3, client_order_id: "6f1c2c3e-1c2b-4d6e-9c0a-0a1b2c3d4e5f" } };
+    const cancel = { action: "cancel", payload: { order_id: "o1", ticker: "KXTEST-1" } };
+    it("unpaused: a valid order gets a nonce", async () => {
+      const { POST } = await import("@/app/api/trade/nonce/route");
+      const res = await POST(post("/api/trade/nonce", {}, place));
+      expect(res.status).toBe(200);
+      expect(typeof (await res.json()).nonce).toBe("string");
+    });
+    it("paused: no new order (423)", async () => {
+      const { POST } = await import("@/app/api/trade/nonce/route");
+      pause();
+      await expect423(await POST(post("/api/trade/nonce", {}, place)));
+    });
+    it("paused: cancelling an open order still works", async () => {
+      const { POST } = await import("@/app/api/trade/nonce/route");
+      pause();
+      const res = await POST(post("/api/trade/nonce", {}, cancel));
+      expect(res.status).toBe(200);
+      expect(typeof (await res.json()).nonce).toBe("string");
+    });
   });
 });

@@ -13,14 +13,15 @@ export const dynamic = "force-dynamic";
 export async function POST(req: Request): Promise<Response> {
   if (!tradingEnv()) return Response.json({ error: "Trading is off." }, { status: 404 });
   if (!sameOrigin(req)) return Response.json({ error: "Bad origin." }, { status: 403 });
-  const paused = pausedResponse(await getMe());   // F8: no new orders while paused
-  if (paused) return paused;
   const user = await currentUser(req);
   if (!tradingAllowed(user?.email ?? null)) return Response.json({ error: "Trading isn't enabled for this account." }, { status: 403 });
   const raw = await readJson(req, 16_384);   // RT-12: bounded
   if (raw === TOO_LARGE) return tooLarge();
   const body = NonceRequest.safeParse(raw);
   if (!body.success) return Response.json({ error: "Bad order." }, { status: 400 });
+  // F8: no new orders while paused; cancelling one that is already open stays possible
+  const paused = body.data.action === "place" ? pausedResponse(await getMe()) : null;
+  if (paused) return paused;
   const nonce = issueNonce(body.data.action, body.data.payload);
   if (!nonce) return Response.json({ error: "Trading isn't configured (EXT_SIGNING_SECRET)." }, { status: 503 });
   return Response.json({ nonce }, { headers: { "cache-control": "no-store" } });

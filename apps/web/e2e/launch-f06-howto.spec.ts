@@ -48,3 +48,19 @@ test("how to bet this from a card at 390px: pick a venue, 3 steps, sources, link
   await guide.getByRole("button", { name: "Close" }).click();
   await expect(card.getByTestId("howto")).toHaveCount(0);
 });
+
+test("the guide's check-your-state line opens the signed-out state picker, then comes back", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+  const id = await page.locator("[data-row] h3 a").first().getAttribute("href").then((x) => new URL(x!, "http://x").searchParams.get("m")!);
+  await page.goto(`/check?m=${id}&side=0`);
+  await expect(page.getByTestId("chk-score")).toBeVisible({ timeout: 20_000 });
+  await page.getByRole("button", { name: "How to bet this" }).click();
+  const guide = page.getByTestId("howto");
+  await guide.locator("[data-testid^=howto-venue-]").first().click();
+  const link = guide.getByTestId("howto-avail-line").getByTestId("state-link");
+  await expect(link).toHaveAttribute("href", /^\/state\?next=%2Fcheck/);
+  await link.click();
+  await expect(page).toHaveURL(/\/state\?next=%2Fcheck/);   // the F9 picker, not /settings#state
+  await expect(page).not.toHaveURL(/settings/);
+});
