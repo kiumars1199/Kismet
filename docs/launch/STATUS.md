@@ -82,6 +82,7 @@ Problems:
   - move supabaseAdmin() inside the try in pausedUntilForUser;
   - add a unit test for an unpaused nonce;
   - show a pause message in the extension popup on 423, and clear cached by-slug data.
+- CI blockers (10:05): #66 was cancelled by the 30-min job timeout (the run now takes ~30 min); #68 and #67 failed on the F5 pill tap before page load (AppliedPills is a client-only button). Both are being fixed in #69 (trust); after it merges, final gets merged into the waiting PRs.
 - F5 pill-click flake: e2e-paid/launch-f05-topics.spec.ts:59 at 1440 failed on CI after a server ECONNRESET (seen on #67). Part of trust's stabilize PR (D).
 
 ## Fixed log
