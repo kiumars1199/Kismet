@@ -30,7 +30,7 @@ export function VenuesBlock({ market }: { market: Pick<Market, "venues" | "best"
       </ul>
       {rows.some((r) => r.listed && !r.pays) && <p className="mt-2 text-xs text-muted">Kalshi shows its price only: its payout after fees is not worked out here yet.</p>}
       <details className="mt-2 text-xs text-muted" data-testid="venues-basis">
-        <summary className="cursor-pointer py-1 text-soft">Where these prices come from</summary>
+        <summary className="inline-flex min-h-11 cursor-pointer items-center text-soft">Where these prices come from<span aria-hidden="true" className="ml-1.5">▾</span></summary>
         <ul className="mt-1 flex flex-col gap-1">
           {venueBasis(market.venues).map((b) => (
             <li key={b.venue} data-basis={b.venue}>
