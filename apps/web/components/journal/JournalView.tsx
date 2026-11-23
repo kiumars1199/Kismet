@@ -6,7 +6,7 @@ import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart, ResponsiveContaine
 import { Dialog, NumberInput, Segmented, Stat, btn, btnDanger, btnGhost, btnPrimary, card, input } from "@/components/kit";
 import { drawerHref } from "@/components/market/drawer";
 import { DASH, edge, formatCount, money, pct, price, ret, RETURN_HELP } from "@/lib/format";
-import { byTopic, clv, cumulative, day, entryReturn, fromCsv, pnl, settlePatch, stake, summarize, toCsv, type Result, type Settlement } from "@/lib/journal";
+import { beatClose, breakdown, byTopic, clv, cumulative, day, entryReturn, fromCsv, pnl, settlePatch, stake, summarize, toCsv, type Result, type Settlement } from "@/lib/journal";
 import { useOdds } from "@/lib/odds";
 import { getRepo } from "@/lib/repo";
 import { useCollection, useProfile } from "@/lib/repo/hooks";
@@ -47,6 +47,10 @@ export function JournalView() {
   const sorted = useMemo(() => [...rows].sort((a, b) => b.placed_at.localeCompare(a.placed_at)), [rows]);
   const [editing, setEditing] = useState<JournalEntry | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
+  const beat = useMemo(() => {
+    const known = rows.map(beatClose).filter((x): x is boolean => x !== null);
+    return { n: known.filter(Boolean).length, of: known.length };
+  }, [rows]);
   const clvRel = useMemo(() => {
     const xs = rows.filter((r) => r.closing_price !== null && r.price > 0).map((r) => (clv(r)! / r.price) * 100);
     return xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null;
@@ -79,7 +83,7 @@ export function JournalView() {
       {!rows.length ? (
         <div className={`${card} flex flex-col items-start gap-3 p-6`}>
           <h2 className="text-lg font-semibold">No bets logged yet</h2>
-          <p className="max-w-xl text-sm text-muted">Open any market and use <span className="text-text">Log this bet</span> after you place it on Polymarket. Results settle automatically when the market resolves, and your profit, return and closing-price record show up here.</p>
+          <p className="max-w-xl text-sm text-muted">Tap <span className="text-text">I placed this</span> on any bet card after you place it on Polymarket. Results settle automatically when the market resolves, and your profit, return and closing-price record show up here.</p>
           <Link href="/" className={btnPrimary}>Browse Best bets</Link>
         </div>
       ) : (
@@ -90,11 +94,12 @@ export function JournalView() {
             <Stat label="Profit / loss" value={s.settled ? money(s.pnl, true) : DASH} tone={tone(s.pnl)} title="Settled bets only" />
             <Stat label="Return (ROI)" value={ret(s.roi)} tone={tone(s.roi)} title="Profit ÷ money staked on settled bets" />
             <Stat label="Win rate" value={pct(s.win_rate)} title="Won ÷ (won + lost); voids excluded" />
-            <Stat label="Vs closing price" value={pro ? edge(s.avg_clv) : ret(clvRel)} tone={tone(s.avg_clv)}
-              title="Average of (closing price − your price). Beating the closing price over many bets is the best early sign your bets are well priced." />
+            <Stat label="Beat the closing price" value={beat.of ? `${formatCount(beat.n)} of ${formatCount(beat.of)} bets` : DASH} tone={tone(s.avg_clv)}
+              title={`You beat the closing price when you paid less than the price just before the market closed. On average: ${pro ? edge(s.avg_clv) : ret(clvRel)}. Beating it over many bets is the best early sign your bets are well priced.`} />
             <Stat label="Estimated return at entry" value={ret(s.avg_entry_return)} tone="accent" title={RETURN_HELP} />
           </div>
           <Charts rows={rows} />
+          <PnlSplit rows={rows} total={s.pnl} />
           <BetTable rows={sorted} tz={profile.timezone} pro={pro} onEdit={setEditing} />
         </>
       )}
@@ -141,7 +146,7 @@ function Charts({ rows }: { rows: JournalEntry[] }) {
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={topics} layout="vertical" margin={{ top: 0, right: 8, bottom: 0, left: 0 }}>
               <XAxis type="number" {...axis} tickFormatter={(v: number) => money(v)} />
-              <YAxis type="category" dataKey="topic" {...axis} width={80} tickFormatter={(t: string) => t.toUpperCase()} />
+              <YAxis type="category" dataKey="label" {...axis} width={110} />
               <Tooltip {...tip} cursor={{ fill: "var(--muted-bg)" }} formatter={(v) => [money(Number(v), true), "Profit"]} />
               <Bar dataKey="pnl" radius={4} isAnimationActive={false}>
                 {topics.map((t) => <Cell key={t.topic} fill={t.pnl >= 0 ? "var(--positive)" : "var(--negative)"} />)}
@@ -154,7 +159,30 @@ function Charts({ rows }: { rows: JournalEntry[] }) {
   );
 }
 
-const RESULT_TEXT: Record<Result | "open", string> = { won: "Won", lost: "Lost", void: "Void · refunded", open: "Open" };
+/** Profit by sport and by topic as plain tables; each ends with a Total row equal to the Profit / loss tile. */
+function PnlSplit({ rows, total }: { rows: JournalEntry[]; total: number }) {
+  const sports = useMemo(() => breakdown(rows, "sport"), [rows]);
+  const topics = useMemo(() => breakdown(rows, "topic"), [rows]);
+  if (!sports.length) return null;
+  const table = (title: string, id: string, g: typeof sports) => (
+    <section data-testid={id} className={`${card} p-5`} aria-labelledby={`${id}-h`}>
+      <h2 id={`${id}-h`} className="font-semibold">{title}</h2>
+      <table className="mt-3 w-full text-sm">
+        <thead className="text-left text-xs text-muted"><tr><th className="py-1 font-medium">Name</th><th className="py-1 text-right font-medium">Settled bets</th><th className="py-1 text-right font-medium">Profit / loss</th></tr></thead>
+        <tbody className="divide-y divide-border">
+          {g.map((x) => (
+            <tr key={x.key}><td className="py-2">{x.label}</td><td className="py-2 text-right text-muted">{formatCount(x.bets)}</td>
+              <td className={`py-2 text-right font-medium ${tone(x.pnl) === "pos" ? "text-positive" : tone(x.pnl) === "neg" ? "text-negative" : ""}`}>{money(x.pnl, true)}</td></tr>
+          ))}
+        </tbody>
+        <tfoot><tr className="border-t border-border font-semibold"><td className="py-2">Total</td><td className="py-2 text-right text-muted">{formatCount(g.reduce((a, x) => a + x.bets, 0))}</td><td className="py-2 text-right" data-testid={`${id}-total`}>{money(total, true)}</td></tr></tfoot>
+      </table>
+    </section>
+  );
+  return <div className="grid gap-4 md:grid-cols-2">{table("Profit by sport", "pnl-sport", sports)}{table("Topic totals", "pnl-topic", topics)}</div>;
+}
+
+const RESULT_TEXT: Record<Result | "open", string> = { won: "Won", lost: "Lost", void: "Void · refunded", split: "Split 50/50", open: "Open" };
 
 function BetTable({ rows, tz, pro, onEdit }: { rows: JournalEntry[]; tz: string; pro: boolean; onEdit: (r: JournalEntry) => void }) {
   const odds = useOdds();
@@ -175,7 +203,7 @@ function BetTable({ rows, tz, pro, onEdit }: { rows: JournalEntry[]; tz: string;
     </Link>
   );
   return (
-    <section aria-label="Bets" className={`${card} overflow-hidden`}>
+    <section aria-label="Bets" data-testid="bet-table" className={`${card} overflow-hidden`}>
       <table className="hidden w-full text-sm md:table">
         <thead className="border-b border-border text-left text-xs text-muted">
           <tr>
@@ -194,7 +222,7 @@ function BetTable({ rows, tz, pro, onEdit }: { rows: JournalEntry[]; tz: string;
               <td className="px-4 py-3 text-right">{odds(r.price)}</td>
               <td className="px-4 py-3 text-right">{money(stake(r))}</td>
               <td className={`px-4 py-3 text-right ${(r.model_edge ?? 0) > 0 ? "text-accent" : "text-muted"}`}>{pro ? edge(r.model_edge) : ret(entryReturn(r))}</td>
-              <td className="px-4 py-3 text-right">{r.closing_price === null ? DASH : <>{price(r.closing_price)}{pro && <span className="ml-1 text-xs text-muted">({edge(clv(r))})</span>}</>}</td>
+              <td className="px-4 py-3 text-right">{r.closing_price === null ? DASH : <>{price(r.closing_price)}{beatClose(r) !== null && <span className={`ml-1 text-xs ${beatClose(r) ? "text-positive" : "text-muted"}`}>{beatClose(r) ? "Beat it" : "Missed it"}</span>}{pro && <span className="ml-1 text-xs text-muted">({edge(clv(r))})</span>}</>}</td>
               <td className="px-4 py-3">{result(r)}</td>
               <td className={`px-4 py-3 text-right font-medium ${r.pnl_usd === null ? "text-muted" : r.pnl_usd > 0 ? "text-positive" : r.pnl_usd < 0 ? "text-negative" : ""}`}>{r.pnl_usd === null ? DASH : money(r.pnl_usd, true)}</td>
               <td className="px-2 py-1.5">{actions(r)}</td>
@@ -253,7 +281,7 @@ function EditDialog({ row, onClose }: { row: JournalEntry | null; onClose: () =>
           <div className="flex flex-col gap-1.5">
             <span className="text-xs font-medium text-muted">Result</span>
             <Segmented label="Result" value={result} onChange={setResult}
-              options={[{ value: "open", label: "Open" }, { value: "won", label: "Won" }, { value: "lost", label: "Lost" }, { value: "void", label: "Void" }]} />
+              options={[{ value: "open", label: "Open" }, { value: "won", label: "Won" }, { value: "lost", label: "Lost" }, { value: "void", label: "Void" }, { value: "split", label: "Split 50/50" }]} />
           </div>
           <label className="flex flex-col gap-1.5 text-xs font-medium text-muted">Note<textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} className={input} /></label>
           <div className="flex justify-between gap-2">
