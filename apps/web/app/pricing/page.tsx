@@ -9,7 +9,7 @@ import { getSettings } from "@/lib/settings";
 import { tradingEnv } from "@/lib/trade/server";
 import { behindWords, usd } from "@/lib/format";
 import { SITE } from "@/lib/site";
-import { FREE_BEST_BETS_A_DAY } from "@/lib/entitlements";
+import { FREE_BEST_BETS_A_DAY, quota } from "@/lib/entitlements";
 import { CONNECTOR_NAME, connectorAllowance } from "@/lib/connector-plan";
 
 export const dynamic = "force-static";   // T-295: prerendered + revalidated (lib/static-routes.ts); signed in: app/signed-in/*
@@ -22,7 +22,8 @@ const rows = (delay: number): [string, string, string, string][] => [
   ["Prices", behindWords(delay).replace(/^./, (c) => c.toUpperCase()), "Updated every ~15 min", "Updated every ~15 min"],
   ["All open markets", "Top 10 rows", "Unlimited", "Unlimited"],
   ["Estimated return on each bet", "As a range (exact on 3 a day)", "Exact", "Exact"],
-  ["Combos: 2- and 3-leg bets from Best bets, and your own combo builder", "—", "—", "Yes"],
+  ["Bet and combo checker", `${quota("free", "checks_day")} check a day`, "Unlimited", "Unlimited"],
+  ["Suggested combos and the combo tray: 2- and 3-leg bets from Best bets", "—", "—", "Yes"],
   ["Kalshi markets: prices, volume and Kalshi Combos", "Yes", "Yes", "Yes"],
   ["Filters", "Topic, sport, price", "All", "All"],
   ["Saved views", "1", "25", "Unlimited"],

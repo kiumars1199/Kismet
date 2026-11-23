@@ -35,7 +35,7 @@ test("3 legs: combined numbers, drop the weakest with one tap, numbers update", 
   await expect(page.getByTestId("combo-why-pays")).toContainText("×");
   await expect(page.getByTestId("combo-why-sample")).toContainText("similar past bets");
   await expect(page.getByTestId("combo-why-leg")).toHaveCount(3);
-  await expect(page.getByTestId("combo-why-leg").first()).toContainText("eff. samples");
+  await expect(page.getByTestId("combo-why-leg").first()).toContainText(/similar past bets in/);
   const drop = page.getByTestId("combo-drop");
   if (await drop.count()) {
     await drop.getByRole("button", { name: "Drop that leg" }).click();

@@ -62,3 +62,22 @@ export const NOTE_TONE: Record<Note["tone"], string> = { warning: "text-warning"
 export { PTS_HELP } from "@/lib/betFigures";
 /** Tone class for a verdict (lib/betFigures `verdict`). */
 export const VERDICT_TONE = { up: "text-soft", thin: "text-muted", down: "text-negative" } as const;
+
+const TYPE_WORDS: Record<Market["market_type"], string> = {
+  moneyline: "match-winner bets", spreads: "handicap bets", totals: "over/under bets", props: "in-game bets",
+  "yes/no": "yes/no bets", "multi-outcome": "multiple-choice bets",
+};
+/** What the estimate is built from, in words: model_level nmt / niche / cat / all. */
+export function basisWords(m: Pick<Market, "category" | "niche" | "tags" | "market_type">, s: { model_level: string }): string {
+  const topic = topicLabel(m);
+  switch (s.model_level) {
+    case "nmt": return `${topic} ${TYPE_WORDS[m.market_type]}`;
+    case "niche": return `${topic} bets`;
+    case "cat": return `${topic} bets of every kind`;
+    default: return "bets of every kind";
+  }
+}
+/** "about 240 similar past bets"; never a four-digit count on a card. */
+export const pastBets = (n: number) => (n >= 1000 ? "over a thousand similar past bets" : `about ${Math.max(1, Math.round(n))} similar past bets`);
+/** The drawer's and cards' plain sentence for what an estimate stands on: "about 130 similar past bets in NFL match-winner bets". */
+export const similarBasis = (m: Pick<Market, "category" | "niche" | "tags" | "market_type">, s: { model_level: string; model_neff: number }) => `${pastBets(s.model_neff)} in ${basisWords(m, s)}`;
