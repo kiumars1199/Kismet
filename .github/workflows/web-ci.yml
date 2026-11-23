@@ -67,6 +67,12 @@ jobs:
       - uses: ./.github/actions/web-setup
         with:
           browsers: "true"
+          webkit-deps: "false"   # only the shard that holds overhaul-iphone (WebKit) gets them, next step
+      - name: WebKit libraries, if this shard runs a WebKit spec
+        run: |
+          if pnpm exec playwright test -c playwright.paid.config.ts --shard=${{ matrix.shard }}/5 --list | grep -q overhaul-iphone; then
+            for i in 1 2 3; do pnpm exec playwright install-deps webkit && exit 0; echo "install-deps try $i failed"; sleep 10; done; exit 1
+          fi
       - run: |   # runner RAM and Node's default heap limit, to size the paid e2e server's heap against
           free -m
           node -p 'Math.round(require("v8").getHeapStatistics().heap_size_limit / 2 ** 20) + " MB default heap limit"'

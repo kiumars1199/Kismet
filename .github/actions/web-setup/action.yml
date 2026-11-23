@@ -4,6 +4,9 @@ inputs:
   browsers:
     description: "true to make Chromium and WebKit available (cached on the @playwright/test version)"
     default: "false"
+  webkit-deps:
+    description: "true to install WebKit's OS libraries too (a big apt download); Chromium's are always installed"
+    default: "true"
   extension:
     description: "true to also install apps/extension (e2e/trading-paper builds it)"
     default: "false"
@@ -37,16 +40,17 @@ runs:
         path: ~/.cache/ms-playwright
         key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}-chromium-webkit
     # Cache hit: the browsers are on disk, only the OS libraries are missing on a fresh runner.
-    # (apt occasionally serves a runner at ~150 kB/s: one run spent 15 min here. Bound each try and retry; apt resumes.)
-    - if: inputs.browsers == 'true' && steps.pwcache.outputs.cache-hit == 'true'
+    # OS libraries come from apt, which occasionally serves a runner at ~150 kB/s (one run spent 15 min here). WebKit's set is
+    # about 140 MB, Chromium's a few MB, so jobs that don't need WebKit skip its libraries. A failed try is retried.
+    - if: inputs.browsers == 'true'
       run: |
-        for i in 1 2 3; do timeout 240 pnpm exec playwright install-deps chromium webkit && exit 0; echo "install-deps try $i did not finish"; done
+        libs="chromium"; if [ "${{ inputs['webkit-deps'] }}" = "true" ]; then libs="chromium webkit"; fi
+        for i in 1 2 3; do pnpm exec playwright install-deps $libs && exit 0; echo "install-deps try $i failed"; sleep 10; done
         exit 1
       shell: bash
       working-directory: apps/web
+    # Browsers themselves (downloaded from Playwright's CDN, cached above); only a cache miss downloads them.
     - if: inputs.browsers == 'true' && steps.pwcache.outputs.cache-hit != 'true'
-      run: |
-        for i in 1 2 3; do timeout 600 pnpm exec playwright install --with-deps chromium webkit && exit 0; echo "install try $i did not finish"; done
-        exit 1
+      run: pnpm exec playwright install chromium webkit
       shell: bash
       working-directory: apps/web
