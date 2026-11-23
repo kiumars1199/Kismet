@@ -74,6 +74,7 @@ Problems (from the dry run):
 - [nit] Search hits shift the result box (CLS 0.06-0.07).
 
 ## Found in review, outside a lane
+- 21:00 Reviews: #93 e04da39 (T-90b) PASS: no partial 3rd title line; the header sits at the top of the scroll box; default columns unchanged. #92 b2f973f (T-89b) FAIL: the "Check a bet" header link wraps the header at 768 and squeezes the search box to 13-107 px at 1024-1280. Fix: show it from 1440, More menu below (decisions.md). #85 merged final in at 28db8c9 (a56ac8b had no Vercel preview). #91 24243f5 red: the browser-deps retry kept the apt lock; trust lane fixing.
 - 20:40 Review: #90 f702290 PASS. With all 23 columns on, Market is 140 px at 1280, 1366, 1440 and 1920; no regressions with the default columns. Two should-fixes (the title shows a sliver of a 3rd line; the sticky header leaves a blank band inside the scroll box) go to the tracker lane as T-90b.
 - 20:31 Merged #89 (combo checker entry points) at ee4ab70 -> 07e4923. Reviewer PASS, CI web green, preview ready. The reviewer's should-fix notes go in a T-89b follow-up from the data lane. #91 shard 2 failed in qa-c-upsell (probably test accounts shared across parallel shards); with the trust lane.
 - 20:25 Reviews: #90 d14ddab FAIL (blocker: with all columns at 1440/1920 the Market column is 0 px; tracker lane fixing). #89 ee4ab70 PASS with notes (2 should-fix with the data lane). The Premium combo tray couldn't be confirmed on the mock (fixture markets read Closed); to check in the official walk.

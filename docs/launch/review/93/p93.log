@@ -1,0 +1,18 @@
+{"plan":"signed-out","w":390,"view":"default","page":{"sw":390,"iw":390,"disc":true,"cents":false},"cls":{"c":0,"s":[]},"cards":{"n":0,"lh":[]}}
+{"plan":"signed-out","w":1440,"view":"default","page":{"sw":1440,"iw":1440,"disc":true,"cents":false},"cls":{"c":0,"s":[]},"cards":{"n":0,"lh":[]}}
+signed-out errs []
+{"plan":"free","w":390,"view":"default","page":{"sw":390,"iw":390,"disc":true,"cents":false},"cls":{"c":0,"s":[]},"cards":{"n":0,"lh":[]}}
+{"plan":"free","w":1440,"view":"default","page":{"sw":1440,"iw":1440,"disc":true,"cents":false},"cls":{"c":0,"s":[]},"geo":{"band":0,"cover":-44,"ovx":"visible","theadTopCls":"64px","rowH":[53],"boxSW":1374,"boxCW":1374,"fade":"false"},"title":{"n":10,"partial":0,"bad":[],"lh":["22px"],"maxLines":2,"aH":[44]},"scrolled":{"theadTop":64,"theadBottom":121,"inThead":true}}
+free errs []
+{"plan":"pro","w":390,"view":"default","page":{"sw":390,"iw":390,"disc":true,"cents":false},"cls":{"c":0,"s":[]},"cards":{"n":0,"lh":[]}}
+{"plan":"pro","w":1100,"view":"default","page":{"sw":1100,"iw":1100,"disc":true,"cents":false},"cls":{"c":0,"s":["0.0000 KBD y23->23 h18->18"]},"geo":{"band":0,"cover":-44,"ovx":"auto","theadTopCls":"0px","rowH":[69,53],"boxSW":1067,"boxCW":1034,"fade":"true"},"title":{"n":11,"partial":0,"bad":[],"lh":["22px"],"maxLines":2,"aH":[44]},"scrolled":{"theadTop":-54,"theadBottom":2,"inThead":false}}
+{"plan":"pro","w":1280,"view":"default","page":{"sw":1280,"iw":1280,"disc":true,"cents":false},"cls":{"c":0.0007,"s":["0.0007 DIV y10->10 h44->44"]},"geo":{"band":0,"cover":-44,"ovx":"visible","theadTopCls":"64px","rowH":[69,53],"boxSW":1214,"boxCW":1214,"fade":"false"},"title":{"n":11,"partial":0,"bad":[],"lh":["22px"],"maxLines":2,"aH":[44]},"scrolled":{"theadTop":64,"theadBottom":121,"inThead":true}}
+{"plan":"pro","w":1440,"view":"default","page":{"sw":1440,"iw":1440,"disc":true,"cents":false},"cls":{"c":0.0006,"s":["0.0006 DIV y10->10 h44->44"]},"geo":{"band":0,"cover":-44,"ovx":"visible","theadTopCls":"64px","rowH":[53],"boxSW":1374,"boxCW":1374,"fade":"false"},"title":{"n":12,"partial":0,"bad":[],"lh":["22px"],"maxLines":2,"aH":[44]},"scrolled":{"theadTop":64,"theadBottom":121,"inThead":true}}
+{"plan":"pro","w":1280,"view":"ALL","turned":13,"geo":{"band":0,"cover":-44,"ovx":"auto","theadTopCls":"0px","rowH":[69,53],"boxSW":2439,"boxCW":1214,"fade":"true"},"title":{"n":18,"partial":0,"bad":[],"lh":["22px"],"maxLines":2,"aH":[44]},"mkt":140,"sw":1280,"scrolled":{"theadTop":-306,"theadBottom":-250,"inThead":false}}
+{"plan":"pro","w":1440,"view":"ALL","turned":13,"geo":{"band":0,"cover":-44,"ovx":"auto","theadTopCls":"0px","rowH":[53],"boxSW":2595,"boxCW":1374,"fade":"true"},"title":{"n":19,"partial":0,"bad":[],"lh":["22px"],"maxLines":2,"aH":[44]},"mkt":140,"sw":1440,"scrolled":{"theadTop":-306,"theadBottom":-250,"inThead":false}}
+{"plan":"pro","w":1920,"view":"ALL","turned":13,"geo":{"band":0,"cover":-44,"ovx":"auto","theadTopCls":"0px","rowH":[53],"boxSW":2595,"boxCW":1598,"fade":"true"},"title":{"n":19,"partial":0,"bad":[],"lh":["22px"],"maxLines":2,"aH":[44]},"mkt":140,"sw":1920,"scrolled":{"theadTop":-358,"theadBottom":-302,"inThead":false}}
+pro errs []
+{"plan":"premium","w":390,"view":"default","page":{"sw":390,"iw":390,"disc":true,"cents":false},"cls":{"c":0,"s":[]},"cards":{"n":0,"lh":[]}}
+{"plan":"premium","w":1440,"view":"default","page":{"sw":1440,"iw":1440,"disc":true,"cents":false},"cls":{"c":0.0006,"s":["0.0006 undefined y10->10 h44->44"]},"geo":{"band":0,"cover":-44,"ovx":"visible","theadTopCls":"64px","rowH":[53],"boxSW":1374,"boxCW":1374,"fade":"false"},"title":{"n":12,"partial":0,"bad":[],"lh":["22px"],"maxLines":2,"aH":[44]},"scrolled":{"theadTop":64,"theadBottom":121,"inThead":true}}
+premium errs []
+rc=0
