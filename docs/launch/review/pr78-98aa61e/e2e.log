@@ -1,0 +1,50 @@
+
+Running 8 tests using 1 worker
+
+[1/8] [chromium] › e2e/launch-f04-venues.spec.ts:5:3 › /m/<id> with 3 venues shows 3 rows and exactly one "Pays most here" at 390px
+[WebServer] <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (114kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+
+[WebServer] <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (268kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+
+[WebServer] [abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+
+  1) [chromium] › e2e/launch-f04-venues.spec.ts:5:3 › /m/<id> with 3 venues shows 3 rows and exactly one "Pays most here" at 390px 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByTestId('venues-block').getByTestId('pays-most')
+    Expected: "Pays most here"
+    Error: Test timeout of 30000ms exceeded.
+
+    Call log:
+      - Expect "toHaveText" getByTestId('venues-block').getByTestId('pays-most') with timeout 5000ms
+      - waiting for getByTestId('venues-block').getByTestId('pays-most')
+      - Test timeout of 30000ms exceeded.
+
+
+      10 |     await expect(block.locator("li[data-venue]")).toHaveCount(3);
+      11 |     await expect(block.getByTestId("pays-most")).toHaveCount(1);
+    > 12 |     await expect(block.getByTestId("pays-most")).toHaveText("Pays most here");
+         |                                                  ^
+      13 |     await expect(block.locator('li[data-venue="polymarket"]').getByTestId("pays-most")).toBeVisible();   // 1.32x vs US 1.29x after each fee
+      14 |     // Kalshi: a multiplier and a % side by side (its standard fee for a $100 bet is counted: 1.29x), not the highest here
+      15 |     const kalshi = block.locator('li[data-venue="kalshi"]');
+        at /tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/wt78/apps/web/e2e/launch-f04-venues.spec.ts:12:50
+
+    Error Context: test-results/launch-f04-venues--m-id-wi-8f4c9-one-Pays-most-here-at-390px-chromium/error-context.md
+
+
+[2/8] [chromium] › e2e/launch-f04-venues.spec.ts:5:3 › /m/<id> with 3 venues shows 3 rows and exactly one "Pays most here" at 1440px
+[3/8] [chromium] › e2e/launch-f04-venues.spec.ts:26:1 › a market on 2 venues shows Kalshi as Not listed
+[4/8] [chromium] › e2e/launch-f04-venues.spec.ts:33:1 › a market on one venue has no block
+[5/8] [chromium] › e2e/launch-f04-venues.spec.ts:39:1 › 6674492: the card says international only, so the block lists Polymarket US as Not listed
+[6/8] [chromium] › e2e/launch-f04-venues.spec.ts:47:1 › 7078474: the block's Polymarket US payout is the card's (1.34x)
+[7/8] [chromium] › e2e/launch-f04-venues.spec.ts:53:1 › basis: source, time and Kalshi match confidence are one tap away
+[8/8] [chromium] › e2e/launch-f04-venues.spec.ts:69:1 › /check: a pasted Kalshi link resolves to its market (not 'missing') and shows Kalshi's own price
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+  1 failed
+    [chromium] › e2e/launch-f04-venues.spec.ts:5:3 › /m/<id> with 3 venues shows 3 rows and exactly one "Pays most here" at 390px 
+  7 passed (1.0m)

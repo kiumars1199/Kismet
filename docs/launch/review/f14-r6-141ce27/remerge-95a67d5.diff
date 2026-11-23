@@ -1,0 +1,19 @@
+95a67d5
+
+diff --git a/apps/web/app/m/[id]/page.tsx b/apps/web/app/m/[id]/page.tsx
+remerge CONFLICT (content): Merge conflict in apps/web/app/m/[id]/page.tsx
+index a816a5e..90bb7aa 100644
+--- a/apps/web/app/m/[id]/page.tsx
++++ b/apps/web/app/m/[id]/page.tsx
+@@ -8,11 +8,8 @@ import { PendingState } from "@/components/screener/States";
+ import { SlowDownState } from "@/components/screener/SlowDownState";
+ import { betLine, sideRet } from "@/lib/format";
+ import { MarketDetail } from "@/components/market/MarketDetail";
+-<<<<<<< d494061 (Merge final into launch/data-f14 (picks up #69 pill-link fix))
+ import { actionReserve } from "@/lib/trade/reserve";
+-=======
+ import { InviteRef } from "@/components/share/InviteRef";
+->>>>>>> 5881b35 (Merge pull request #76 from kiumars1199/fix/f05-pill-timeout)
+ import { MarketSkeleton } from "@/components/market/MarketSkeleton";
+ import { TeaserView } from "@/components/market/Teaser";
+ import { requestZone } from "@/lib/zone-server";

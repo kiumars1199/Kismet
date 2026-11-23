@@ -1,0 +1,15 @@
+# F14 #53 at 141ce27: conflict-resolution check
+- 95a67d5 merges final 5881b35. git show --remerge-diff shows one conflict, in apps/web/app/m/[id]/page.tsx imports. Both lines were kept (actionReserve from F14, InviteRef from F13). Nothing else differs from the automatic merge.
+- 141ce27 merges final a7c3ae5. The remerge-diff is empty (a clean merge).
+- Both sides are intact:
+  - InviteRef is in the teaser branch (line 83), and reserve={await actionReserve()} is passed to MarketDetail (line 98).
+  - PriceHistory is in DrawerExtras next to F4's VenuesBlock.
+  - kalshi_unavailable is in types.ts.
+  - The engine has kalshi_fee from F4 and history from F14.
+  - refresh.yml uploads both venues.json and history.
+- Runtime: paid mock on next dev :3331 (HISTORY_LIVE=off, trading demo allowlist), probe p53.mjs. /m CLS matches round 5 exactly:
+  - Signed out: 0 at both widths.
+  - Free: 0.0034 / 0.0079 at 390 and 0.0056 / 0.0064 at 1440.
+  - Paid: 0 at 390 and 0.0006 at 1440.
+  - Chart, empty state, history API per tier (401 / 196 / 197 points) and Trade/combo gating are unchanged.
+  - The first signed-out 390 run hit a cold-compile timeout on /pricing; the rerun (p53-out390.log) is clean.
