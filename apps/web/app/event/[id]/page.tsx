@@ -5,6 +5,7 @@ import { SlowDown, eventBody, pageBudget, pageStore, pendingLine } from "@/lib/d
 import { PendingState } from "@/components/screener/States";
 import { SlowDownState } from "@/components/screener/SlowDownState";
 import { EventView } from "@/components/screener/EventView";
+import { EventSkeleton } from "@/components/screener/EventSkeleton";
 import { TeaserView } from "@/components/market/Teaser";
 import { requestZone } from "@/lib/zone-server";
 import { authEnabled, getUser } from "@/lib/auth/server";
@@ -59,7 +60,7 @@ export default async function Page({ params }: Props) {
   }
   if (!ev) notFound();
   return (
-    <Suspense>
+    <Suspense fallback={<EventSkeleton rows={ev.markets.length} />}>
       <EventView ev={ev} />
     </Suspense>
   );
