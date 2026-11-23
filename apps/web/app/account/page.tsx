@@ -1,4 +1,5 @@
 // Account (docs/14 §1, T-47): email, plan, billing portal, JSON export, sign out (everywhere), delete.
+import { signInClause } from "@/lib/auth/method";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AccountActions, CheckoutStatus, DeleteAccount } from "@/components/auth/AccountActions";
@@ -67,7 +68,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ c
 
       <section aria-labelledby="acct-h" className={`${card} flex flex-col gap-4 p-5 md:p-6`}>
         <h2 id="acct-h" className="text-lg font-semibold">Sign-in</h2>
-        <p className="text-sm text-soft">Signed in as <span className="font-medium text-text">{me.user.email}</span>, with Google or an email link.</p>
+        <p className="text-sm text-soft">Signed in as <span className="font-medium text-text">{me.user.email}</span>{signInClause(me.user.method)}.</p>
         <p className="text-sm text-muted">An account can be signed in on up to 3 devices. Signing in on a 4th signs out the oldest.</p>
         <AccountActions kind="signout" tier={me.tier} billing={billing} hasCustomer={!!me.status} />
       </section>

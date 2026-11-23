@@ -160,7 +160,7 @@ export function Onboarding({ next }: { next?: string }) {
 
       <div className="sticky bottom-[64px] z-10 -mx-4 flex items-center justify-between gap-3 border-t border-border bg-background px-4 py-4 md:bottom-0 md:mx-0 md:px-0">
         {step > 0
-          ? <button type="button" onClick={() => setStep(step - 1)} className="rounded-input px-4 py-2.5 text-sm text-muted hover:text-text">Back</button>
+          ? <button type="button" onClick={() => setStep(step - 1)} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-input px-4 text-sm text-muted hover:text-text">Back</button>
           : <span />}
         <button type="button" onClick={() => (step < 2 ? setStep(step + 1) : finish())}
           className="rounded-input bg-accent px-5 py-3 text-sm font-semibold text-on-accent hover:bg-accent-hover">
