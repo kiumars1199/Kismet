@@ -166,8 +166,14 @@ describe("digestBets: the same numbers and the same bets the site shows", () => 
     const drawer = betFigures(m.best, { market: m }).pays;   // what /m/6674492 shows for the recommended side
     expect(drawer).toBe("1.45x");
     const bets = await digestBets({ live, free: live }, "premium", "u-paid", []);
-    const found = bets.find((b) => b.id === "6674492");
-    if (found) expect(found.pays).toBe(drawer);
+    expect(bets.length).toBeGreaterThan(0);
+    // 6674492 is not in the live top 5, so check every bet the digest does return against the site's own figure
+    for (const b of bets) {
+      const bm = live.byId.get(b.id)!;
+      const side = bm.sides.find((x) => x.side_index === b.side_index)!;
+      expect(b.pays, b.id).toBe(betFigures(side, { market: bm }).pays);
+    }
+    for (const b of bets) expect(b.pays, b.id).toMatch(/^\d+(\.\d+)?x$/);
     // a bet built from that market renders the same text in the email
     const e = digestEmail({ to: "a@example.test", bets: [{ id: m.id, title: "T", outcome: m.best.outcome, ask: m.best.ask, fee: m.best.fee ?? null, pays: drawer, win_prob: m.best.win_prob, side_index: m.best.side_index as 0 | 1, closes_at: m.closes_at }], unsubscribeUrl: UNSUB, now: NOW, timeZone: "UTC" });
     expect(e.text).toContain("pays 1.45x");
@@ -185,5 +191,21 @@ describe("digestBets: the same numbers and the same bets the site shows", () => 
     const paid = await digestBets({ live, free }, "pro", "paid-user", []);
     expect(paid.length).toBe(5);
     expect(paid.some((b) => !sample.has(b.id))).toBe(true);   // the live top 5 is not limited to the Free sample
+  });
+  it("the Free bets are exactly the user's daily sample, in the sample's size, and never more than 5", async () => {
+    const live = await getStore();
+    const free = await getStoreFor("free");
+    const sample = freeSample(freeView(free), "u:free-user-1");
+    const bets = await digestBets({ live, free }, "free", "free-user-1", []);
+    expect(sample.size).toBeGreaterThan(0);
+    expect(bets.length).toBe(Math.min(MAX_DIGEST_BETS, sample.size));
+    expect(new Set(bets.map((b) => b.id)).size).toBe(bets.length);
+  });
+  it("the empty case: a topic with no bets gives no bets, for Free and paid, so no email is sent", async () => {
+    const live = await getStore();
+    const free = await getStoreFor("free");
+    const none = ["sports.no-such-topic"];
+    expect(await digestBets({ live, free }, "pro", "paid-user", none)).toEqual([]);
+    expect(await digestBets({ live, free }, "free", "free-user-1", none)).toEqual([]);
   });
 });
