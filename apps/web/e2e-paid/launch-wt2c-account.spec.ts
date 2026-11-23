@@ -70,10 +70,12 @@ test("Free, signed in by email link: /account names the method, one help line, p
   expect(u.width).toBeGreaterThanOrEqual(44);
 
   // 5 + drawer links for a Free account
-  await page.goto("/markets?m=6674492&side=0");
+  const id = ((await (await page.request.get("/api/markets?limit=5")).json()) as { rows: { market: { id: string } }[] }).rows[0]!.market.id;
+  await page.goto(`/markets?m=${id}&side=0`);
   const dlg = page.getByRole("dialog", { name: "Market details" });
   await expect(dlg).toBeVisible({ timeout: 60_000 });
-  await expect(dlg.getByTestId("check-this-bet")).toHaveAttribute("href", "/check?m=6674492&side=0");
+  await expect(dlg.getByTestId("check-this-bet")).toBeVisible({ timeout: 60_000 });   // the drawer fills in after its data loads
+  await expect(dlg.getByTestId("check-this-bet")).toHaveAttribute("href", `/check?m=${id}&side=0`);
   for (const name of ["See plans", "Why two numbers?", "Settings"]) {
     const l = dlg.getByRole("link", { name, exact: true });
     if (!(await l.count())) continue;
