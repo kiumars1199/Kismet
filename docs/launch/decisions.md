@@ -60,3 +60,8 @@ Vercel refused new builds at 03:57 ("Deployment rate limited — retry in 24 hou
 
 ## Nov 23 — F2 Free combo exposes per-leg chances
 The reviewer noted that one Free combo check returns the model chance for each of up to 10 legs. SPEC F2 allows 2–10 legs, and Access says a combo "counts against the same daily check". Neither asks to hide the leg numbers. Showing them is also how the weakest-leg suggestion works. Kept as built. The inaccurate comment in the paid test gets fixed in the F2 follow-up, which also reserves the result block's height for the 0.141 CLS after slow leg lookups.
+
+## Nov 23 — Kalshi match ticker gets its own field
+`kalshi_ticker` drives the bet venue: venueOf, TradeButton, ComboTray and the MCP server all read it. Copying the matcher's ticker into it would turn every matched Polymarket market's bet button into a Kalshi one.
+- F4 #52 adds `Market.kalshi_matched_ticker` instead, with types.ts, the schema and docs/03 agreeing. It is set only when that scan's same-side Kalshi quote is used.
+- F1's resolveLink reads `kalshi_matched_ticker ?? kalshi_ticker`. That change is in the checker's follow-up branch, launch/checker-f01b.
