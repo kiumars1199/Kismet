@@ -17,22 +17,22 @@ file after every merge. "Review result" says "passed review" only after the revi
 ## Features
 | Feature | Owner | Status | PR | Review result |
 |---|---|---|---|---|
-| F1 Bet checker | checker | fixes pushed (8818178); re-review queued; Kalshi own price after F3 merge | kiumars1199/Kismet#43 | not reviewed |
-| F2 Combo checker | checker | fixes pushed (leg route lookup only, combo counted once, "Why these numbers?"); re-review queued | kiumars1199/Kismet#45 | not reviewed |
-| F3 Every market searchable | data | merged (9ad7713); reviewer round 2 PASS on preview; prod post-merge check pending | kiumars1199/Kismet#42 | preview PASS; prod check pending |
-| F4 Three venues side by side | data | PR open (da59363; matcher precision 1.000/50; Kalshi % only, multiplier null pending fee source); in review queue | kiumars1199/Kismet#52 | not reviewed |
-| F5 Topics at signup | onboarding-invites | fixes pushed (2325297: HTTP 307, CLS 0.051/0.017); re-review queued; migration topics_off | kiumars1199/Kismet#47 | not reviewed |
-| F6 How to place this bet | checker | review FAIL (no How-to-bet on cards; intl default without availability; step sources not shown; duplicate afford note); fixing | kiumars1199/Kismet#46 | not reviewed |
+| F1 Bet checker | checker | re-review round 2 FAIL (CLS 0.371/0.298 at 390 on /check unknown-link and Free-limit states); fixing | kiumars1199/Kismet#43 | not reviewed |
+| F2 Combo checker | checker | re-review round 2 FAIL (Free auto-scores at 2 legs, so 3+ leg combos always 429 for Free); fixing | kiumars1199/Kismet#45 | not reviewed |
+| F3 Every market searchable | data | merged (9ad7713); prod check FAIL: counts.polymarket 14402 < 15000 (upstream scan count falling; data investigating, see decisions Nov 23); kalshi 172680 OK | kiumars1199/Kismet#42 | preview PASS; prod check pending |
+| F4 Three venues side by side | data | review FAIL (Free sees undelayed venue prices; US row contradicts card; no basis); fixing | kiumars1199/Kismet#52 | not reviewed |
+| F5 Topics at signup | onboarding-invites | re-review round 2 FAIL (me_topics cookie stale across devices; cookie survives sign-out); fixing | kiumars1199/Kismet#47 | not reviewed |
+| F6 How to place this bet | checker | all 4 fixes pushed (3668ac3: BetCard How to bet this + RiskNote); re-review queued; F9 wiring after #48 | kiumars1199/Kismet#46 | not reviewed |
 | F7 Live payments by config | trust | merged (cd9f672), prod READY, health ok | kiumars1199/Kismet#41 | passed review |
-| F8 Responsible betting | trust | merged (651462b; merge of final d37fb2d, suites green 102 e2e, check:js 144.6 kB); migration applied; prod post-merge check queued. Follow-up 423 on /api/trade/config in progress | kiumars1199/Kismet#44 | preview PASS; prod check pending |
-| F9 Venue availability | trust | fixes pushed (9336157: visible availability line on /markets, PM US available except NV per polymarket.us/trust, Kalshi unverified by decision); merging final in, then re-review | kiumars1199/Kismet#48 | not reviewed |
-| F10 Install and web push | alerts | wave 2 started (alerts lane); plan pending | | not reviewed |
+| F8 Responsible betting | trust | merged (651462b); prod PASS with notes (help line, 18+, RiskNote on prod; pause/account verified on merged build with mock); follow-up #54 in review | kiumars1199/Kismet#44 | passed review |
+| F9 Venue availability | trust | fixes pushed + final merged in (aaa9198); re-review queued | kiumars1199/Kismet#48 | not reviewed |
+| F10 Install and web push | alerts | PR open (3234b82; Lighthouse PWA 1; migration 20261122000500); in review queue | kiumars1199/Kismet#56 | not reviewed |
 | F11 Bet tracker | tracker | not started | | not reviewed |
-| F12 Morning digest | onboarding-invites | plan approved; building | | not reviewed |
-| F13 Share and invite | onboarding-invites | PR ready (cd2e444; check:js 142.6 kB; e2e 3 pass, CLS 0); in review queue; migration 20261122000200 (lead applies before merge) | kiumars1199/Kismet#51 | not reviewed |
-| F14 Price history chart | data | PR open (05e7f98, stacked on #52; Polymarket history only; ~0.85 MB gz at full scale); in review queue | kiumars1199/Kismet#53 |
-| F15 Admin metrics | trust | PR open (head c8d68a1); in review queue; migration 20261122000300 (lead applies before merge) | kiumars1199/Kismet#49 | not reviewed |
-| F16 Big trade alert | alerts | not started | | not reviewed |
+| F12 Morning digest | onboarding-invites | PR open (3862060; opt-in default off); migration renamed to 000400 pending; in review queue | kiumars1199/Kismet#55 | not reviewed |
+| F13 Share and invite | onboarding-invites | review FAIL (/api/og/bet 401 signed out and not used as og:image; pending invites never promoted; OG chance differs from drawer; reward skipped permanently for trial/paid Premium at 5th invite; conflicts); fixing | kiumars1199/Kismet#51 | not reviewed |
+| F14 Price history chart | data | review FAIL (empty-state CLS 0.188/0.108; history only for flag rows); fixing | kiumars1199/Kismet#53 |
+| F15 Admin metrics | trust | review PASS with notes (MRR/churn blocks disagree; yearly at monthly price); suites running; merging with #50 | kiumars1199/Kismet#49 | PASS with notes (merge pending) |
+| F16 Big trade alert | alerts | PR open (e3287b0, stacked on F10; migration 000600); in review queue | kiumars1199/Kismet#57 | not reviewed |
 
 Merge order: F3, F1, F2, F5, F7, F8, F9, then F4, F6, F10–F16.
 
