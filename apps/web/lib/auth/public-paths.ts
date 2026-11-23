@@ -10,6 +10,7 @@ export const PUBLIC_PAGES: readonly string[] = [
   "/m", "/event",
   "/invite",   // F13: /invite/<code> remembers the code and goes to /signup
   "/check",                   // F1 bet checker: signed out gets the same 1 check a day as Free (counted per device)
+  "/state",                   // F9: pick your state (cookie) without an account
 ];
 
 /** Static and discovery files: search engines, OAuth discovery, share images, icons, manifest. */
