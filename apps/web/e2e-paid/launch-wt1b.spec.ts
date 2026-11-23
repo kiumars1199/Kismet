@@ -35,6 +35,7 @@ for (const size of SIZES) {
 test("/m: the Log in link is >= 44 x 44", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`/m/${id}`);
+  await expect(page.getByTestId("teaser")).toBeVisible({ timeout: 60_000 });   // same wait as the other /m tests (cold next dev compile)
   const login = await box(page.getByTestId("teaser").getByRole("link", { name: "Log in" }));
   expect(login.width).toBeGreaterThanOrEqual(44);
   expect(login.height).toBeGreaterThanOrEqual(44);
