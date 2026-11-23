@@ -119,8 +119,10 @@ for (const { w, h } of SIZES) {
     // one tap clears it, saved to the account: the next visit stays unfiltered
     await hydrated(pill(page));
     await pill(page).click();
-    await expect(page).not.toHaveURL(/fav=1/);
-    await expect(pill(page)).toHaveCount(0);
+    // The pill waits for the profile save (topics_off) before it changes the URL; on CI's next dev that first
+    // PATCH can take longer than the 5 s default (seen on #74 15:47), so wait like the other steps here.
+    await expect(page).not.toHaveURL(/fav=1/, { timeout: 30_000 });
+    await expect(pill(page)).toHaveCount(0, { timeout: 30_000 });
     await page.waitForLoadState("networkidle");
     await page.screenshot({ path: `${SHOTS}/${w}-3-cleared.png` });
     await page.goto("/bets");

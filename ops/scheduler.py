@@ -124,6 +124,7 @@ CMDS = {
     "scan": [["-m", "engine", "scan"], ["ops/upload.py", "output"],
              ["-m", "engine", "kalshi"], ["ops/upload.py", "--only", "output/kalshi.json"],
              ["ops/upload.py", "--only", "output/kalshi_index.json"],
+             ["ops/upload.py", "--only", "output/venues.json"],   # F4: the same outcome on every venue
              ["-m", "engine", "pmindex"], ["ops/upload.py", "--only", "output/polymarket_index.json"],
              ["ops/upload.py", "--only", "output/polymarket_index_meta.json"]],
 }

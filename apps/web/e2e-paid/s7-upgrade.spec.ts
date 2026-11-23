@@ -138,5 +138,6 @@ test("keyboard only: search → drawer → save → upgrade reaches /pricing", a
   const plans = dialog.getByRole("link", { name: "See plans" });
   await tabTo(plans);
   await page.keyboard.press("Enter");
-  await expect(page).toHaveURL(/\/pricing$/);
+  // a real navigation: on CI's next dev the first /pricing compile can take longer than the 5 s default
+  await expect(page).toHaveURL(/\/pricing$/, { timeout: 30_000 });
 });

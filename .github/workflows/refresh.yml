@@ -160,6 +160,7 @@ jobs:
             python ops/upload.py output
             python ops/upload.py --only output/kalshi.json   # Nov 21: side file, not in the main upload
             if [ -f output/kalshi_index.json ]; then python ops/upload.py --only output/kalshi_index.json; fi   # F3: every open Kalshi market
+            if [ -f output/venues.json ]; then python ops/upload.py --only output/venues.json; fi   # F4: the same outcome on every venue
             if [ -f output/polymarket_index.json ]; then python ops/upload.py --only output/polymarket_index.json; fi   # F3 fix: every open Polymarket market
             if [ -f output/polymarket_index_meta.json ]; then python ops/upload.py --only output/polymarket_index_meta.json; fi   # after the index: a changed meta = a new index
           fi
