@@ -138,12 +138,13 @@ export function LoginForm({ next, error: initialError, mode = "login" }: { next:
           onChange={(e) => { setAccept(e.target.checked); setTermsError(false); }}
           className="mt-0.5 size-5 flex-none accent-[var(--accent)]"
         />
-        <span>
-          I&apos;m 18 or older and agree to the{" "}
-          <Link href="/terms" className="text-accent-hover underline underline-offset-4" target="_blank">Terms</Link> and{" "}
-          <Link href="/privacy" className="text-accent-hover underline underline-offset-4" target="_blank">Privacy Policy</Link>.
-        </span>
+        <span>I&apos;m 18 or older and agree to the Terms and Privacy Policy.</span>
       </label>
+      {/* outside the label: their own 44 px targets that never share the checkbox's hit area */}
+      <p className="flex flex-wrap gap-x-5 text-sm">
+        <Link href="/terms" className="inline-flex min-h-11 min-w-11 items-center text-accent-hover underline underline-offset-4" target="_blank">Terms</Link>
+        <Link href="/privacy" className="inline-flex min-h-11 min-w-11 items-center text-accent-hover underline underline-offset-4" target="_blank">Privacy Policy</Link>
+      </p>
       {termsError && !accept && <p className="text-xs text-warning">Tick this box to continue.</p>}
     </div>
   );

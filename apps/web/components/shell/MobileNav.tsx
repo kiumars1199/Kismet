@@ -30,7 +30,7 @@ export function MobileNav({ signedOutHint = false, hint = null }: { signedOutHin
             {t.label}
           </Link>
         ))}
-        <Link href="/signup" className={`${tab} font-semibold text-accent`}>Sign up</Link>
+        <Link href="/signup" aria-current={pathname === "/signup" ? "page" : undefined} className={`${tab} ${pathname === "/signup" ? on : "font-semibold text-accent"}`}>Sign up</Link>
       </nav>
     );
   }

@@ -41,18 +41,18 @@ export async function AuthPage({ mode, searchParams }: {
   const other = next === "/" ? c.other.href : `${c.other.href}?next=${encodeURIComponent(next)}`;
 
   return (
-    <section className="mx-auto flex w-full max-w-[420px] flex-col gap-7 py-6 md:py-14">
-      <header className="flex flex-col gap-2.5">
+    <section className="mx-auto flex w-full max-w-[420px] flex-col gap-5 py-4 md:gap-7 md:py-14">
+      <header className="flex flex-col gap-1.5 md:gap-2.5">
         <h1 className="text-balance text-[32px] font-bold leading-[1.05] tracking-[-0.02em] md:text-[40px]">{c.title}</h1>
-        {betTitle ? <p data-testid="signup-bet" className="text-[15px] font-medium leading-relaxed text-accent-soft">Sign up to see Kismet&apos;s verdict on {betTitle}.</p> : null}
+        {betTitle ? <p data-testid="signup-bet" className="text-[13px] font-medium leading-snug text-accent-soft md:text-[15px]">Sign up to see Kismet&apos;s verdict on {betTitle}{/[?!.]$/.test(betTitle) ? "" : "."}</p> : null}
         <p className="text-[15px] leading-relaxed text-muted">{c.lede}</p>
       </header>
       {authEnabled() ? (
         <>
           <LoginForm mode={mode} next={next} error={sp.error ? ERRORS[sp.error] ?? ERRORS.unavailable : undefined} />
-          <p className="text-sm text-muted">
+          <p className="flex flex-wrap items-center gap-x-1.5 text-sm text-muted">
             {c.other.q}{" "}
-            <Link href={other} className="font-medium text-accent-hover underline-offset-4 hover:underline">{c.other.label}</Link>
+            <Link href={other} className="inline-flex min-h-11 min-w-11 items-center font-medium text-accent-hover underline-offset-4 hover:underline">{c.other.label}</Link>
           </p>
         </>
       ) : (
