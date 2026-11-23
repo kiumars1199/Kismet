@@ -20,7 +20,7 @@ file after every merge. "Review result" says "passed review" only after the revi
 | F1 Bet checker | checker | review PASS with notes on 064f521 (CLS fixed); merge waits on the Vercel limit. Follow-up launch/checker-f01b a302292 (Kalshi Use it per side, card 640 px) in review queue; must merge before F4 #52 | kiumars1199/Kismet#43 | PASS (pre-merge); post-merge check pending |
 | F2 Combo checker | checker | review PASS with notes on ef73b2f (one server call per check; CI green); merge after F1, waits on the Vercel limit. Low: CLS 0.141 at 390 when legs arrive after a slow lookup (follow-up) | kiumars1199/Kismet#45 | PASS (pre-merge); post-merge check pending |
 | F3 Every market searchable | data | merged 9ad7713; prod check FAIL (polymarket count); fix #59 4e52f3d PASS with notes (CI green); suites on final+F9+#59 green; merges after F9, blocked on the Vercel limit | kiumars1199/Kismet#42 (fix #59) | fix PASS; prod recheck pending |
-| F4 Three venues side by side | data | round 2 fixes pushed (17229de: delay-safe Kalshi snapshot, rows from the market's own row, price basis); re-review queued | kiumars1199/Kismet#52 | not reviewed |
+| F4 Three venues side by side | data | round 3 head 39e3f74 (round-2 fixes + 44 px tap target for 'Where these prices come from'); re-review queued; f01b must merge first | kiumars1199/Kismet#52 | not reviewed (round 3 queued) |
 | F5 Topics at signup | onboarding-invites | round 3 fixes pushed (ff7c5eb: 1-year uid-bound hint, sign-out race fixed); re-review queued | kiumars1199/Kismet#47 | FAIL (round 3) |
 | F6 How to place this bet | checker | all 4 fixes pushed (3668ac3: BetCard How to bet this + RiskNote); re-review queued; F9 wiring after #48 | kiumars1199/Kismet#46 | not reviewed |
 | F7 Live payments by config | trust | merged (cd9f672), prod READY, health ok | kiumars1199/Kismet#41 | passed review |
@@ -30,7 +30,7 @@ file after every merge. "Review result" says "passed review" only after the revi
 | F11 Bet tracker | tracker | PR open, 31bf544 (one-tap log, P&L by sport, beat-the-close, 50/50 = split); migration 20261123000100_journal_split pending; review queued | kiumars1199/Kismet#58 | not reviewed |
 | F12 Morning digest | onboarding-invites | PR open (3862060; opt-in default off); migration renamed to 000400 pending; in review queue | kiumars1199/Kismet#55 | not reviewed |
 | F13 Share and invite | onboarding-invites | round 2 fixes pushed (f1b08ce: public OG image, pending invites promoted, deferred grant for Premium inviters, ?ref links); re-review queued; migration 000200 pending | kiumars1199/Kismet#51 | not reviewed |
-| F14 Price history chart | data | fixing (option C: stored history for flags + on-demand CLOB fallback; CLS + delay cut first) | kiumars1199/Kismet#53 |
+| F14 Price history chart | data | option C pushed f292928 (on F4 39e3f74): 360 px card in every state, engine history + live CLOB fallback, Free cut at scan time; local pytest 175, vitest 1522, e2e 118; review queued after F4 | kiumars1199/Kismet#53 | not reviewed |
 | F15 Admin metrics | trust | merged 34f672f with #50 (1376182); migration 000300 live; full suites green (search 300 ms flake passed 21/21 alone). Notes left for follow-up: MRR/churn blocks disagree; yearly priced at monthly | kiumars1199/Kismet#49 | passed review |
 | F16 Big trade alert | alerts | PR open (e3287b0, stacked on F10; migration 000600); in review queue | kiumars1199/Kismet#57 | not reviewed |
 
@@ -55,6 +55,8 @@ Problems:
 - /markets at 390 px: CLS 0.27 on `final` from the "Quick filters" row shifting (reviewer, F3 review). Owner: data, in the F3 fix PR (same page, same kind of shift).
 - ~~e2e-paid/admin.spec.ts ERR_ABORTED on final~~ fixed by #50 (merged).
 - F15 review notes (admin only, not user-facing): the MRR and churn blocks disagree, and yearly plans are counted at the monthly price. Owner: lead to assign as a small follow-up once a lane frees up.
+
+- /m at 390: CLS 0.17–0.19 in the e2e env from the paper-trade button mounting after /api/trade/config (data, F14). Reviewer to measure on prod; owner decided after that.
 
 ## Fixed log
 - F7: passed review (pre-merge PASS + post-merge PASS on cd9f672; evidence review/f07/).
