@@ -31,7 +31,7 @@ file after every merge. "Review result" says "passed review" only after the revi
 | F12 Morning digest | onboarding-invites | PR open (3862060; opt-in default off); migration renamed to 000400 pending; in review queue | kiumars1199/Kismet#55 | not reviewed |
 | F13 Share and invite | onboarding-invites | review FAIL (/api/og/bet 401 signed out and not used as og:image; pending invites never promoted; OG chance differs from drawer; reward skipped permanently for trial/paid Premium at 5th invite; conflicts); fixing | kiumars1199/Kismet#51 | not reviewed |
 | F14 Price history chart | data | review FAIL (empty-state CLS 0.188/0.108; history only for flag rows); fixing | kiumars1199/Kismet#53 |
-| F15 Admin metrics | trust | review PASS with notes (MRR/churn blocks disagree; yearly at monthly price); suites running; merging with #50 | kiumars1199/Kismet#49 | PASS with notes (merge pending) |
+| F15 Admin metrics | trust | merged 34f672f with #50 (1376182); migration 000300 live; full suites green (search 300 ms flake passed 21/21 alone). Notes left for follow-up: MRR/churn blocks disagree; yearly priced at monthly | kiumars1199/Kismet#49 | passed review |
 | F16 Big trade alert | alerts | PR open (e3287b0, stacked on F10; migration 000600); in review queue | kiumars1199/Kismet#57 | not reviewed |
 
 Merge order: F3, F1, F2, F5, F7, F8, F9, then F4, F6, F10–F16.
@@ -53,10 +53,12 @@ Problems:
 
 ## Found in review, outside a lane
 - /markets at 390 px: CLS 0.27 on `final` from the "Quick filters" row shifting (reviewer, F3 review). Owner: data, in the F3 fix PR (same page, same kind of shift).
-- e2e-paid/admin.spec.ts fails on clean `final` (page.goto ERR_ABORTED) (trust, F15). Owner: trust, separate fix PR.
+- ~~e2e-paid/admin.spec.ts ERR_ABORTED on final~~ fixed by #50 (merged).
+- F15 review notes (admin only, not user-facing): the MRR and churn blocks disagree, and yearly plans are counted at the monthly price. Owner: lead to assign as a small follow-up once a lane frees up.
 
 ## Fixed log
 - F7: passed review (pre-merge PASS + post-merge PASS on cd9f672; evidence review/f07/).
+- F15: merged 34f672f with #50; migration 20261122000300 applied to live.
 
 ## What Q must do
 - Add repo secret `VERCEL_AUTOMATION_BYPASS_SECRET` (Vercel → Settings → Deployment Protection) for preview smoke S3/S5.
