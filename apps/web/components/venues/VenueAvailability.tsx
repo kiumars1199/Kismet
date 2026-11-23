@@ -2,7 +2,7 @@
 // F9: "Kalshi: available in Texas" above a bet button or deep link. The server hands the visitor's state and the three
 // statuses to <AvailabilityProvider> (root layout); no state chosen: "Check your state", linking to where it is set.
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useState, type MouseEvent, type ReactNode } from "react";
 import { availabilityLine, type AvailStatus, type VenueKey } from "@/lib/venues/availability-text";
 
@@ -41,7 +41,11 @@ export function useStateLink() {
  *  action is needed, e.g. F6's How to bet guide. Safe inside a card's full-cover link (stops propagation, sits above it). */
 export function StateLink({ children, className = "" }: { children: ReactNode; className?: string }) {
   const toState = useStateLink();
-  return <Link href="/state" data-testid="state-link" className={`relative z-10 -my-3.5 inline-flex min-h-11 items-center underline underline-offset-2 hover:text-text ${className}`} onClick={toState}>{children}</Link>;
+  // The server-rendered href already carries the page to come back to (the path; the query is added on click, since a
+  // static page like "/" is rendered without it), so a tap before hydration or "open in new tab" still returns here.
+  const pathname = usePathname();
+  const href = pathname && pathname !== "/state" ? `/state?next=${encodeURIComponent(pathname)}` : "/state";
+  return <Link href={href} data-testid="state-link" className={`relative z-10 -my-3.5 inline-flex min-h-11 items-center underline underline-offset-2 hover:text-text ${className}`} onClick={toState}>{children}</Link>;
 }
 
 export function VenueAvailability({ venue, className = "" }: { venue: VenueKey; className?: string }) {
