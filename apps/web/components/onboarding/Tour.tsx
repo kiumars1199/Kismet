@@ -29,22 +29,24 @@ const find = (sel: readonly string[]) => {
 };
 
 const DRAWER = '[role="dialog"][aria-label="Market details"]';
-/** True while the bet drawer is open (it is mounted only then). */
-function useDrawerOpen() {
+/** True while the bet drawer is open (it is mounted only then). Observes the page only while a tour step is pending
+ *  (`active`); otherwise it is disconnected, so a visitor with no tour pays nothing for it. */
+function useDrawerOpen(active: boolean) {
   const [open, setOpen] = useState(false);
   useEffect(() => {
+    if (!active) { setOpen(false); return; }
     const check = () => setOpen(!!document.querySelector(DRAWER));
     check();
     const mo = new MutationObserver(check);
     mo.observe(document.body, { childList: true, subtree: true });
     return () => mo.disconnect();
-  }, []);
+  }, [active]);
   return open;
 }
 
 export function Tour() {
   const [step, setStep] = useState<number | null>(null);
-  const drawerOpen = useDrawerOpen();
+  const drawerOpen = useDrawerOpen(step !== null);
   const live = step !== null && !drawerOpen;
   const [rect, setRect] = useState<DOMRect | null>(null);
   const card = useRef<HTMLDivElement>(null);
@@ -94,7 +96,6 @@ export function Tour() {
     ro.observe(document.body);
     addEventListener("scroll", measure, { passive: true });
     addEventListener("resize", measure);
-    next.current?.focus({ preventScroll: true });
     return () => { clearTimeout(timer); ro.disconnect(); removeEventListener("scroll", measure); removeEventListener("resize", measure); };
   }, [step, live]);
 
@@ -113,6 +114,13 @@ export function Tour() {
     if (rect.left - gap - w >= 16) return setPos({ top: clampY(rect.top), left: rect.left - gap - w });   // left
     setPos({ top: vh - h - 16, left: x });   // phone, tall target: pinned to the bottom edge
   }, [rect, step, live]);
+
+  // Keyboard users land on the tour's controls: focus Next once the card is visible (it is hidden until positioned), at a
+  // normal start and again on a resume after the drawer closed.
+  const shown = pos !== null;
+  useEffect(() => {
+    if (live && shown) next.current?.focus({ preventScroll: true });
+  }, [live, shown, step]);
 
   useEffect(() => {
     if (!live) return;

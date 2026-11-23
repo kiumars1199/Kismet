@@ -22,8 +22,22 @@ for (const { w, h } of [{ w: 390, h: 844 }, { w: 1440, h: 900 }]) {
     // now the tour is on top and dismissable
     await expect(tour).toBeVisible({ timeout: 15_000 });
     await expect(page.getByRole("dialog", { name: "A best bet" })).toBeVisible();
+    await expect(page.getByTestId("tour").getByRole("button", { name: "Next", exact: true })).toBeFocused();   // keyboard users land on the tour's controls after the resume
+    await page.keyboard.press("Tab");
+    await expect(page.getByRole("dialog", { name: "A best bet" }).getByRole("button").first()).toBeVisible();
     await page.getByRole("button", { name: "Skip tour" }).click();
     await expect(tour).toHaveCount(0);
     expect(await page.evaluate(() => localStorage.getItem("me:v1:tour"))).toBeNull();
+  });
+
+  test(`a normal tour start puts focus on its Next button (${w}px)`, async ({ page }) => {
+    test.setTimeout(120_000);
+    await page.setViewportSize({ width: w, height: h });
+    await page.addInitScript(() => { try { localStorage.setItem("me:v1:tour", "1"); } catch { /* storage off */ } });
+    await page.goto("/bets");
+    await expect(page.getByTestId("tour")).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId("tour").getByRole("button", { name: "Next", exact: true })).toBeFocused();
+    await page.keyboard.press("Enter");
+    await expect(page.getByText("2 of 5")).toBeVisible();
   });
 }
