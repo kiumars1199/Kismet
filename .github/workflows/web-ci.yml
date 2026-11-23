@@ -50,15 +50,16 @@ jobs:
           path: apps/web/test-results/
           retention-days: 7
 
-  # Paid-flow specs against the e2e mock and `next dev`, one dev server per shard. The shards were one job after another
-  # (about 18 min); as a matrix of 5 they take as long as the slowest one. Every spec still runs, none is skipped.
+  # Paid-flow specs against the e2e mock and `next dev`, one dev server per shard. The Chromium specs are sharded across
+  # machines (each its own job); the WebKit (iPhone) specs run in their own job below. Together they are exactly the
+  # tests of `playwright test -c playwright.paid.config.ts` (the PR checked the test-ID lists). None is skipped.
   e2e-paid:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4, 5]
+        shard: [1, 2, 3, 4]
     defaults:
       run:
         working-directory: apps/web
@@ -67,20 +68,41 @@ jobs:
       - uses: ./.github/actions/web-setup
         with:
           browsers: "true"
-          webkit-deps: "false"   # only the shard that holds overhaul-iphone (WebKit) gets them, next step
-      - name: WebKit libraries, if this shard runs a WebKit spec
-        run: |
-          if pnpm exec playwright test -c playwright.paid.config.ts --shard=${{ matrix.shard }}/5 --list | grep -q overhaul-iphone; then
-            for i in 1 2 3; do pnpm exec playwright install-deps webkit && exit 0; echo "install-deps try $i failed"; sleep 10; done; exit 1
-          fi
+          webkit-deps: "false"   # these shards run Chromium only
       - run: |   # runner RAM and Node's default heap limit, to size the paid e2e server's heap against
           free -m
           node -p 'Math.round(require("v8").getHeapStatistics().heap_size_limit / 2 ** 20) + " MB default heap limit"'
-      - run: pnpm e2e:paid --shard=${{ matrix.shard }}/5
+      - run: pnpm e2e:paid --project=chromium --shard=${{ matrix.shard }}/4
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: playwright-report-paid-${{ matrix.shard }}
+          path: apps/web/test-results/
+          retention-days: 7
+
+  # The paid iPhone specs (WebKit). In Playwright's own container image, which already has the browsers and every OS
+  # library, so there is no apt download (installing WebKit's libraries took about 10 min on a runner). The image tag
+  # must match @playwright/test; the first step fails loudly if it ever doesn't.
+  e2e-paid-webkit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    container: mcr.microsoft.com/playwright:v1.65.1-noble
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/web-setup
+      - name: Playwright image matches the package
+        run: |
+          v="$(pnpm exec playwright --version | awk '{print $NF}')"
+          echo "package $v, image 1.65.1"
+          [ "$v" = "1.65.1" ]
+      - run: pnpm e2e:paid --project=iphone-390 --project=iphone-430
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report-paid-webkit
           path: apps/web/test-results/
           retention-days: 7
 
@@ -90,7 +112,7 @@ jobs:
   web:
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    needs: [checks, e2e-demo, e2e-paid]
+    needs: [checks, e2e-demo, e2e-paid, e2e-paid-webkit]
     if: always()
     steps:
       - env:
