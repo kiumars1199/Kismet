@@ -38,11 +38,19 @@ describe("LockedBets", () => {
 
   it("says when none of the free bets match the filters, and offers Pro in plain words", () => {
     const { container } = render(<LockedBets total={30} shown={0} daily={10} />);
-    expect(container.textContent).toContain("None of today's 10 free bets match these filters. Pro shows all 30, live.");
+    expect(container.textContent).toContain("None of today's 10 free bets match these filters. Pro shows the 30 bets that match, live.");
     expect(screen.getByRole("link").textContent).toBe("See it with Pro");
     expect(screen.getByRole("link").getAttribute("href")).toBe("/pricing");
     cleanup();
     const big = render(<LockedBets total={2778} shown={0} daily={10} />);
-    expect(big.container.textContent).toContain("Pro shows all 2,778, live.");
+    expect(big.container.textContent).toContain("Pro shows the 2,778 bets that match, live.");
+  });
+
+  it("T-wt2b: with a topic it names it and reads naturally, singular included", () => {
+    const one = render(<LockedBets total={1} shown={0} daily={10} topic="NBA" />);
+    expect(one.container.textContent).toContain("None of today's 10 free bets are in NBA. Pro shows the 1 bet in NBA, live.");
+    cleanup();
+    const many = render(<LockedBets total={3} shown={0} daily={10} topic="NFL" />);
+    expect(many.container.textContent).toContain("Pro shows the 3 bets in NFL, live.");
   });
 });

@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import { FilterState } from "@/lib/filters/state";
 import { getStoreFor } from "@/lib/data/store";
 import { freeSample, listBody } from "@/lib/data/respond";
+import { TAXONOMY } from "@/lib/taxonomy";
 
 const flags = (extra: Record<string, unknown>) => FilterState.parse({ view: "flags", ...extra });
 
@@ -57,3 +58,41 @@ describe("Free first screen fallback", () => {
     throw new Error("fixture has no topic with a bet in the day's sample");
   });
 });
+
+// T-wt2b: a topic with NO best bets today (total 0) also gets the first-screen fallback, and the answer says which case it is.
+describe("Free first screen fallback: a topic with no best bets today", () => {
+  async function zeroTopic() {
+    const store = await getStoreFor("free");
+    const counts = (await listBody(store, flags({}), "free", "probe"))!.facets.topics;
+    const t = Object.keys(TAXONOMY).find((id) => id.includes(".") && !counts[id] && !id.endsWith(".other"));
+    if (!t) throw new Error("fixture has no topic without best bets");
+    return { store, t };
+  }
+  it("fav=1 with a topic that has 0 best bets returns the user's own unfiltered sample, marked, with the topic's count 0", async () => {
+    const { store, t } = await zeroTopic();
+    const key = "u:test-zero";
+    const raw = (await listBody(store, flags({ topics: [t] }), "free", key))!;
+    expect(raw.total).toBe(0);
+    const b = (await listBody(store, flags({ topics: [t], favorites_only: true }), "free", key))!;
+    const plain = (await listBody(store, flags({}), "free", key))!;
+    expect(b.free_fallback).toBe(true);
+    expect(b.free_fallback_topic_total).toBe(0);
+    expect(b.rows.map((r) => r.market.id)).toEqual(plain.rows.map((r) => r.market.id));
+    expect(b.rows).toHaveLength(10);
+    expect(b.total).toBe(plain.total);
+  });
+  it("when the topic has bets but none in the sample the count is that topic's, so the page can tell the two apart", async () => {
+    const { store, key, t } = await emptyCase();
+    const own = (await listBody(store, flags({ topics: [t] }), "free", key))!.total;
+    const b = (await listBody(store, flags({ topics: [t], favorites_only: true }), "free", key))!;
+    expect(b.free_fallback_topic_total).toBe(own);
+    expect(own).toBeGreaterThan(0);
+  });
+  it("a plain topic filter with 0 best bets still answers empty (no fallback)", async () => {
+    const { store, t } = await zeroTopic();
+    const b = (await listBody(store, flags({ topics: [t] }), "free", "u:test-zero"))!;
+    expect(b.rows).toHaveLength(0);
+    expect(b.free_fallback).toBeUndefined();
+  });
+});
+

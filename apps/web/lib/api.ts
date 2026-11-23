@@ -58,6 +58,7 @@ export interface MarketsResponse {
   facets: Facets;                          // counts for the current filter minus that facet
   search?: { chips: Chip[]; relaxed?: string };   // how q was understood; relaxed = "No bets match … Showing …"
   free_daily?: number;                     // Free Best bets only: the page is the day's sample of this many (docs/19 P3)
+  free_fallback_topic_total?: number;      // with free_fallback: how many best bets the chosen topics have today (0 = the topic has none, else none of them is in the sample)
   free_fallback?: boolean;                 // Free, fav=1: none of the day's sample is in the chosen topics, so these rows are the unfiltered sample
   scanned_at?: number;                     // the scan these rows come from (unix s); the header shows it (QA-A #46)
   // F3: Kalshi matches (venue=kalshi: the only rows, `rows` is empty; venue=all with q: the top 5 beside the Polymarket

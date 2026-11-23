@@ -1,12 +1,13 @@
 "use client";
 // The Best bets headline. Free sees the day's sample, so it reads "10 of 34 bets ...". When the user's topics filter that
 // sample down to nothing it says so plainly, with one button to see it; the line is the same for every Free user
-// (it depends on counts only: no personalized picks).
+// (it depends on counts only: no personalized picks). T-wt2b: a topic with no best bets today says so; a plain topic filter
+// says "this filter" or the topic, never "your topics".
 import { useEffect, useState, type ReactNode } from "react";
 import { Count } from "@/components/kit";
 
 /** `daily`: the Free allowance (free_daily), which decides "pick" or "bets": a topic with one match still leaves Free ten a day. */
-export function BestBetsHeading({ total, shown, sample = false, daily, fallback = false, onShowAll, children }: { total?: number; shown: number; sample?: boolean; daily?: number; fallback?: boolean; onShowAll: () => void; children?: ReactNode }) {
+export function BestBetsHeading({ total, shown, sample = false, daily, fallback = false, topicTotal, topic, yours = false, onShowAll, children }: { total?: number; shown: number; sample?: boolean; daily?: number; fallback?: boolean; topicTotal?: number; topic?: string; yours?: boolean; onShowAll: () => void; children?: ReactNode }) {
   // The tap switches the line at once, so the row loses the button's height inside the 500 ms input window instead of
   // when the (slower) answer lands, where it would count as layout shift.
   const [asked, setAsked] = useState(false);
@@ -16,7 +17,7 @@ export function BestBetsHeading({ total, shown, sample = false, daily, fallback 
     const what = daily === 1 ? "pick" : "bets";
     return (
       <>
-        <h1 className={cls}>{daily === 1 ? "Today's free pick isn't in your topics" : "Today's free bets aren't in your topics"}</h1>
+        <h1 className={cls}>{`Today's free ${daily === 1 ? "pick isn't" : "bets aren't"} in ${yours ? "your topics" : topic ?? "this filter"}`}</h1>
         {/* The button takes the blurb's place (same grid cell, the blurb stays and only hides), so the row doesn't grow */}
         <div className="grid">
           <div aria-hidden="true" className="invisible [grid-area:1/1]">{children}</div>
@@ -31,7 +32,9 @@ export function BestBetsHeading({ total, shown, sample = false, daily, fallback 
   if (fallback && sample && shown > 0) {   // first screen after onboarding: the chosen topics had none of today's sample
     return (
       <>
-        <h1 className={cls}>None of today&apos;s free bets are in your topics. Here are today&apos;s free bets.</h1>
+        <h1 data-free-fallback="" className={cls}>{topicTotal === 0
+          ? `No best bets in ${topic ?? "your topics"} today. Here are today's free bets.`
+          : "None of today's free bets are in your topics. Here are today's free bets."}</h1>
         {children}
       </>
     );
