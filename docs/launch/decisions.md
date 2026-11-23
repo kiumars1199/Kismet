@@ -53,3 +53,7 @@ Vercel refused new builds at 03:57 ("Deployment rate limited — retry in 24 hou
 - **Fewer lane pushes.** Lanes commit locally and push once per review round. After each merge, only the next branch in merge order is updated from `final`.
 - **Recovery.** When builds work again, get a preview of the exact head SHA, by redeploying that commit if Vercel's API allows it. If a new commit is needed, rerun CI web and integ.
 - **Order once unblocked.** F9 #48 first, then #59, since integ-59 was run on final+F9+#59.
+
+## Nov 23 — F1 Kalshi notes
+- The reviewer passed F1 with notes. On final, Kalshi links 404 because nothing writes `kalshi_ticker` until F4 #52. This is accepted for F1, because the Done-when Kalshi item is the parse-link unit test.
+- "Use it" puts the Yes ask on any side. That is unreachable until #52, so the fix ships as a follow-up PR (launch/checker-f01b) gated to merge before #52, instead of reopening #43.
