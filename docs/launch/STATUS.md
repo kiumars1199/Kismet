@@ -18,7 +18,7 @@ file after every merge. "Review result" says "passed review" only after the revi
 | Feature | Owner | Status | PR | Review result |
 |---|---|---|---|---|
 | F1 Bet checker | checker | review PASS with notes on 064f521 (CLS fixed); merge waits on the Vercel limit. Follow-up launch/checker-f01b a302292 (Kalshi Use it per side, card 640 px) in review queue; must merge before F4 #52 | kiumars1199/Kismet#43 | PASS (pre-merge); post-merge check pending |
-| F2 Combo checker | checker | round 2 fixes pushed (ef73b2f: scores only on 'Check this combo', one server call); re-review queued | kiumars1199/Kismet#45 | not reviewed (round 3 queued) |
+| F2 Combo checker | checker | review PASS with notes on ef73b2f (one server call per check; CI green); merge after F1, waits on the Vercel limit. Low: CLS 0.141 at 390 when legs arrive after a slow lookup (follow-up) | kiumars1199/Kismet#45 | PASS (pre-merge); post-merge check pending |
 | F3 Every market searchable | data | merged 9ad7713; prod check FAIL (polymarket count); fix #59 4e52f3d PASS with notes (CI green); suites on final+F9+#59 green; merges after F9, blocked on the Vercel limit | kiumars1199/Kismet#42 (fix #59) | fix PASS; prod recheck pending |
 | F4 Three venues side by side | data | round 2 fixes pushed (17229de: delay-safe Kalshi snapshot, rows from the market's own row, price basis); re-review queued | kiumars1199/Kismet#52 | not reviewed |
 | F5 Topics at signup | onboarding-invites | round 3 fixes pushed (ff7c5eb: 1-year uid-bound hint, sign-out race fixed); re-review queued | kiumars1199/Kismet#47 | FAIL (round 3) |

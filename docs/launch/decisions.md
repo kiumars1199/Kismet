@@ -57,3 +57,6 @@ Vercel refused new builds at 03:57 ("Deployment rate limited — retry in 24 hou
 ## Nov 23 — F1 Kalshi notes
 - The reviewer passed F1 with notes. On final, Kalshi links 404 because nothing writes `kalshi_ticker` until F4 #52. This is accepted for F1, because the Done-when Kalshi item is the parse-link unit test.
 - "Use it" puts the Yes ask on any side. That is unreachable until #52, so the fix ships as a follow-up PR (launch/checker-f01b) gated to merge before #52, instead of reopening #43.
+
+## Nov 23 — F2 Free combo exposes per-leg chances
+The reviewer noted that one Free combo check returns the model chance for each of up to 10 legs. SPEC F2 allows 2–10 legs, and Access says a combo "counts against the same daily check". Neither asks to hide the leg numbers. Showing them is also how the weakest-leg suggestion works. Kept as built. The inaccurate comment in the paid test gets fixed in the F2 follow-up, which also reserves the result block's height for the 0.141 CLS after slow leg lookups.
