@@ -105,7 +105,7 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
     if (!loaded || !m || started.current === key) return;
     started.current = key;
     void add({ m, side: sp.get("side") === "1" ? 1 : 0 }).then(() => window.history.replaceState(window.history.state, "", comboUrl(legsRef.current.map((l) => ({ m: l.marketId, side: l.side })), false)));
-  }, [sp, loaded]);   // eslint-disable-line react-hooks/exhaustive-deps
+  }, [sp, loaded]);
 
   // Scoring is an explicit tap ("Check this combo"): one Free check for this set. The response carries every leg's inputs, so
   // removing legs afterwards (including "Drop that leg") recomputes here and never asks the server again. Adding a leg is a new set.
