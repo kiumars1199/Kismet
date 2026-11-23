@@ -51,14 +51,14 @@ jobs:
           retention-days: 7
 
   # Paid-flow specs against the e2e mock and `next dev`, one dev server per shard. The shards were one job after another
-  # (about 18 min); as a matrix they take as long as the slowest one. Every spec still runs, none is skipped.
+  # (about 18 min); as a matrix of 5 they take as long as the slowest one. Every spec still runs, none is skipped.
   e2e-paid:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3]
+        shard: [1, 2, 3, 4, 5]
     defaults:
       run:
         working-directory: apps/web
@@ -70,7 +70,7 @@ jobs:
       - run: |   # runner RAM and Node's default heap limit, to size the paid e2e server's heap against
           free -m
           node -p 'Math.round(require("v8").getHeapStatistics().heap_size_limit / 2 ** 20) + " MB default heap limit"'
-      - run: pnpm e2e:paid --shard=${{ matrix.shard }}/3
+      - run: pnpm e2e:paid --shard=${{ matrix.shard }}/5
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
