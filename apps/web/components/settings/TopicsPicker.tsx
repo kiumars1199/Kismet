@@ -40,10 +40,10 @@ export function TopicsPicker() {
         {favorite_topics.length ? `${favorite_topics.length} chosen. They show first in your quick filters.` : "Choose any you follow. You can change them later in Settings."}
       </p>
       {GROUPS.map((g) => {
-        // P9: a topic with nothing open is a dead choice for a new user; hide it unless already chosen. With no counts
-        // (still loading, or the fetch failed) every topic shows.
-        const known = !!counts && Object.keys(counts).length > 0;
-        const topics = g.topics.filter((t) => !known || (counts[t.id] ?? 0) > 0 || favorite_topics.includes(t.id));
+        // Every group and topic from the static taxonomy is on screen from the first paint, and each tile reserves its count
+        // line: when the "N open" counts arrive (a fetch after paint) nothing is added, removed or resized, so the page
+        // doesn't shift (walk-through 2: CLS 0.1037 at 1440). A topic with nothing open says so instead of vanishing.
+        const topics = g.topics;
         if (!topics.length) return null;
         return (
         <fieldset key={g.label} className="flex flex-col gap-2.5">
@@ -63,8 +63,8 @@ export function TopicsPicker() {
                     </span>
                     {t.label}
                   </span>
-                  <span className={`ml-6 whitespace-nowrap text-xs tabular-nums ${on ? "text-accent-softer" : "text-muted"}`}>
-                    {counts === null ? "" : `${formatCount(n ?? 0)} open`}
+                  <span className={`ml-6 block h-4 whitespace-nowrap text-xs leading-4 tabular-nums ${on ? "text-accent-softer" : "text-muted"}`}>
+                    {counts === null ? "" : n ? `${formatCount(n)} open` : "none open"}
                   </span>
                 </button>
               );

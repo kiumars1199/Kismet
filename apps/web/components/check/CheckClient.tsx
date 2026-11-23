@@ -2,6 +2,7 @@
 // /check (SPEC F1): paste a link or search by words, pick a side, edit price and stake; every number updates as you type.
 // Only the first lookup calls /api/check (it counts toward Free's daily check); edits recompute here with the same
 // pure function the server used (lib/check/compute.ts), so nothing waits on the network.
+import { cleanEventLine } from "@/lib/format";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -123,7 +124,7 @@ export function CheckClient() {
         <section aria-label="Check result" style={{ minHeight: "var(--check-h)" }} className="flex flex-col gap-4 rounded-card border border-border bg-surface p-4 shadow-sm md:p-5">
           <div>
             <h2 className="font-heading text-[20px] font-bold leading-tight">{data.market.question}</h2>
-            <p className="mt-1 text-[13px] text-muted">{data.market.event}</p>
+            <p className="mt-1 text-[13px] text-muted">{cleanEventLine(data.market.event)}</p>
           </div>
 
           <div role="group" aria-label="Side" className="flex flex-wrap gap-2">

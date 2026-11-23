@@ -89,6 +89,7 @@ export function Tour() {
       el = find(STEPS[step].sel);
       if (el) { el.scrollIntoView({ block: "center" }); measure(); }
       else if (++tries < 40) timer = window.setTimeout(look, 250);   // up to 10 s for the list to load
+      else if (step === 0) setStep(1);   // still no card (an empty list): skip "A best bet" instead of pointing at nothing
       else setRect(null);
     };
     let timer = window.setTimeout(look, 0);
@@ -119,7 +120,15 @@ export function Tour() {
   // normal start and again on a resume after the drawer closed.
   const shown = pos !== null;
   useEffect(() => {
-    if (live && shown) next.current?.focus({ preventScroll: true });
+    if (!live || !shown) return;
+    // The page behind a closing drawer is still inert for a moment: retry until the button really holds focus.
+    let tries = 0;
+    const focus = () => {
+      next.current?.focus({ preventScroll: true });
+      if (document.activeElement !== next.current && ++tries < 10) timer = window.setTimeout(focus, 100);
+    };
+    let timer = window.setTimeout(focus, 0);
+    return () => clearTimeout(timer);
   }, [live, shown, step]);
 
   useEffect(() => {
@@ -130,6 +139,7 @@ export function Tour() {
   }, [live, end]);
 
   if (step === null || !live) return null;
+  if (step === 0 && !rect) return null;   // "A best bet" opens only over a rendered card
   const s = STEPS[step];
   const last = step === STEPS.length - 1;
   const pad = 6;

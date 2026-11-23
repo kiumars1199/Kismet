@@ -10,7 +10,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { ApiGroup, ApiRow } from "@/lib/api";
 import type { SortKey } from "@/lib/filters/state";
 import type { FilterState } from "@/lib/filters/state";
-import { basis, DASH, edge, money, pct, price, RETURN_HELP, sideEdge, formatCount } from "@/lib/format";
+import { basis, DASH, edge, money, pct, price, RETURN_HELP, sideEdge, formatCount, cleanEventLine } from "@/lib/format";
 import { WatchStar } from "@/components/watch/WatchStar";
 import { checkHref } from "@/lib/check/href";
 import { drawerHref, useOpenDrawer } from "@/components/market/drawer";
@@ -38,7 +38,7 @@ function columns(pro: boolean): Col[] {
       header: "Market",
       cell: ({ row: { original: r } }) => <MarketCell r={r} />,
     }),
-    h.display({ id: "bet", header: "Bet", meta: { label: "Bet" }, cell: ({ row: { original: r } }) => { const q = betQuote(r.market, r.side); return <span className="whitespace-nowrap font-medium">{r.side.outcome} · {pct(q.ask)} <span className="text-xs font-normal tabular-nums text-muted" title={PAYS_AFTER_FEE_HELP}>· pays {q.paysText ?? DASH}</span></span>; } }),
+    h.display({ id: "bet", header: "Bet", meta: { label: "Bet" }, cell: ({ row: { original: r } }) => { const q = betQuote(r.market, r.side); return <span className="font-medium"><span className="whitespace-nowrap">{r.side.outcome} · {pct(q.ask)}</span>{" "}<span className="whitespace-nowrap text-xs font-normal tabular-nums text-muted" title={PAYS_AFTER_FEE_HELP}>· pays {q.paysText ?? DASH}</span></span>; } }),   // the two halves wrap onto two lines only when the table is squeezed (1280 px, any font)
     h.display({
       id: "return", meta: { label: pro ? "Edge" : "Estimated return", sort: pro ? "edge" : "roi", right: true, help: RETURN_HELP },
       header: pro ? "Edge" : "Estimated return",
@@ -53,7 +53,7 @@ function columns(pro: boolean): Col[] {
       cell: ({ row: { original: r } }) => { const c = betFigures(r.side, { market: r.market }).chance; return <span className={`whitespace-nowrap ${chanceTone(c)}`}>{c ?? <Val v={DASH} />}</span>; },
     }),
     h.display({ id: "closes", header: "Closes", meta: { label: "Closes", sort: "closes", right: true }, cell: ({ row: { original: r } }) => <span className="whitespace-nowrap"><ClosesIn at={r.market.closes_at} /></span> }),
-    h.display({ id: "topic", header: "Topic", meta: { label: "Topic" }, cell: ({ row: { original: r } }) => <span className="whitespace-nowrap text-xs text-muted">{topicLabel(r.market)}</span> }),
+    h.display({ id: "topic", header: "Topic", meta: { label: "Topic" }, cell: ({ row: { original: r } }) => <span className="text-xs text-muted">{topicLabel(r.market)}</span> }),
     // optional Pro columns (hidden by default)
     h.display({ id: "mid", header: "Mid", meta: { label: "Mid", pro: true, right: true }, cell: ({ row: { original: r } }) => <Val v={price(r.side.mid)} /> }),
     h.display({ id: "spread", header: "Spread", meta: { label: "Spread", pro: true, sort: "spread", right: true }, cell: ({ row: { original: r } }) => <Val v={price(r.market.spread)} /> }),
@@ -148,6 +148,22 @@ export function MarketTable({ items, sort, onSort, onToggleGroup, pro = false, l
   // so the pager and footer don't jump from the first paint to the measured one (CLS, F3 review).
   const bottom = virtual.length ? v.getTotalSize() - (virtual.at(-1)!.end - margin) : v.getTotalSize();
 
+  // When the table scrolls inside its own box (below xl, or wider than the box with extra columns): a fade on the right edge says more columns are off to the right. It is an overlay
+  // (absolute, no layout), so it can never shift the page.
+  const boxRef = useRef<HTMLDivElement>(null);
+  const [more, setMore] = useState(false);
+  useEffect(() => {
+    const el = boxRef.current;
+    if (!el) return;
+    const check = () => setMore(el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
+    check();
+    el.addEventListener("scroll", check, { passive: true });
+    const ro = new ResizeObserver(check);
+    ro.observe(el);
+    if (el.firstElementChild) ro.observe(el.firstElementChild);
+    return () => { el.removeEventListener("scroll", check); ro.disconnect(); };
+  }, []);
+
   const sortBy = (key?: SortKey) => {
     if (!key) return;
     const dir = sort.key === key ? (sort.dir === "desc" ? "asc" : "desc") : key === "closes" || key === "price" ? "asc" : "desc";
@@ -155,9 +171,12 @@ export function MarketTable({ items, sort, onSort, onToggleGroup, pro = false, l
   };
 
   return (
-    // The table is about 1294 px wide at its narrowest: below 1440 px it scrolls inside its own box, never the page (at 768 and
-    // 1024 it made the whole page scroll sideways). From 1440 px it fits, so the box doesn't scroll and the sticky header keeps working.
-    <div className="overflow-x-auto rounded-card border border-border bg-surface min-[1440px]:overflow-visible">
+    // The table is about 1250 px wide at its narrowest (tighter column padding from xl): below 1280 px it scrolls inside its own box,
+    // never the page. From 1280 px, when it fits (`more` false), the box doesn't scroll and the sticky header keeps working; with extra
+    // columns it doesn't fit, so the box scrolls at every width. `more` is the same under overflow-visible (scrollWidth still counts
+    // the overflowing content), so the class cannot flip-flop.
+    <div className="relative rounded-card border border-border bg-surface">
+      <div ref={boxRef} className={more ? "overflow-x-auto" : "overflow-x-auto xl:overflow-visible"}>
       <table className={`w-full border-collapse text-sm ${loading ? "opacity-60" : ""}`} aria-busy={loading}>
         <thead className="sticky top-0 z-10 bg-surface lg:top-16">
           <tr className="border-b border-border text-left text-xs text-muted">
@@ -169,7 +188,7 @@ export function MarketTable({ items, sort, onSort, onToggleGroup, pro = false, l
                   key={hd.id}
                   scope="col"
                   aria-sort={active ? (sort.dir === "asc" ? "ascending" : "descending") : undefined}
-                  className={`px-3 py-2.5 font-medium ${meta?.right ? "text-right" : ""} ${hd.id === "star" ? "w-11" : ""} ${hd.id === "market" ? "w-[38%]" : ""}`}
+                  className={`px-3 py-2.5 font-medium xl:px-2 ${meta?.right ? "text-right" : ""} ${hd.id === "star" ? "w-11" : ""} ${hd.id === "market" ? "w-[38%]" : ""}`}
                 >
                   {hd.id === "star" ? (
                     <ColumnChooser cols={table.getAllLeafColumns().map((c) => ({ id: c.id, label: (c.columnDef as Col).meta?.label ?? c.id, pro: !!(c.columnDef as Col).meta?.pro, on: c.getIsVisible(), toggle: () => c.toggleVisibility() }))} />
@@ -195,7 +214,7 @@ export function MarketTable({ items, sort, onSort, onToggleGroup, pro = false, l
                 <tr key={vi.key} data-index={vi.index} ref={v.measureElement} className="border-t border-border bg-background/40">
                   <td colSpan={visible.length} className="px-3 pb-1.5 pt-4">
                     <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                      <Link href={`/event/${it.g.event_id}`} className="font-heading text-[15px] font-semibold hover:text-accent-hover">{it.g.event}</Link>
+                      <Link href={`/event/${it.g.event_id}`} className="font-heading text-[15px] font-semibold hover:text-accent-hover">{cleanEventLine(it.g.event)}</Link>
                       <span className="text-xs text-muted"><ClosesLine at={it.g.closes_at} cap /></span>
                       {it.g.flagged > 0 && <span className="text-xs text-accent-softer">{it.g.flagged} best {it.g.flagged === 1 ? "bet" : "bets"}</span>}
                     </div>
@@ -230,7 +249,7 @@ export function MarketTable({ items, sort, onSort, onToggleGroup, pro = false, l
                 {row.getVisibleCells().map((c) => {
                   const meta = (c.column.columnDef as Col).meta;
                   return (
-                    <td key={c.id} className={`px-3 py-1 align-middle tabular-nums ${meta?.right ? "text-right" : ""}`}>
+                    <td key={c.id} className={`px-3 py-1 align-middle tabular-nums xl:px-2 ${meta?.right ? "text-right" : ""}`}>
                       {flexRender(c.column.columnDef.cell, c.getContext())}
                     </td>
                   );
@@ -241,6 +260,8 @@ export function MarketTable({ items, sort, onSort, onToggleGroup, pro = false, l
           {bottom > 0 && <tr aria-hidden="true" style={{ height: bottom }} />}
         </tbody>
       </table>
+      </div>
+      <div aria-hidden="true" data-testid="table-fade" data-on={more ? "true" : "false"} className={`pointer-events-none absolute inset-y-0 right-0 w-10 rounded-r-card bg-gradient-to-l from-surface to-transparent transition-opacity ${more ? "opacity-100" : "opacity-0"}`} />
     </div>
   );
 }

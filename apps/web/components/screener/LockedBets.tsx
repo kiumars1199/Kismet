@@ -10,10 +10,11 @@ import { track } from "@/lib/telemetry";
 
 /** `total`: every Best bet matching the filters (the real N, lib/data/counts.ts); `shown`: how many of the day's
  *  sample match them and are on the page; `daily`: the Free allowance the server sampled (FREE_BEST_BETS_A_DAY). */
-export function LockedBets({ total, shown }: { total: number; shown: number; daily: number; desktop?: boolean }) {
+export function LockedBets({ total, shown, daily }: { total: number; shown: number; daily: number; desktop?: boolean }) {
   const locked = total - shown;
   if (locked <= 0) return null;
-  const label = `Unlock ${plural(locked, "more bet", "more bets")}`;
+  const none = shown === 0;   // none of today's free bets match: nothing to "unlock more" of, so offer the whole list
+  const label = none ? "See it with Pro" : `Unlock ${plural(locked, "more bet", "more bets")}`;
   return (
     <section aria-label={label} data-testid="locked-bets"
       className="flex flex-col items-start gap-3 rounded-xl border border-accent-border bg-surface p-5 shadow-sm shadow-black/20 sm:flex-row sm:items-center sm:gap-5">
@@ -23,10 +24,9 @@ export function LockedBets({ total, shown }: { total: number; shown: number; dai
         </svg>
       </span>
       <p className="flex-1 text-[13px] leading-relaxed text-muted">
-        {shown === 0
-          ? "Your free bets for today don't match these filters."
-          : `Free shows ${FREE_BEST_BETS_A_DAY} of today's best bets, picked at random each day, with delayed prices.`}{" "}
-        Pro shows every one, live.
+        {none
+          ? `None of today's ${daily} free bets match these filters. Pro shows all ${total.toLocaleString("en-US")}, live.`
+          : `Free shows ${FREE_BEST_BETS_A_DAY} of today's best bets, picked at random each day, with delayed prices. Pro shows every one, live.`}
       </p>
       <Link href="/pricing" onClick={() => track("upgrade_clicked", { source: "locked_bets" })} data-testid="unlock-all"
         className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent px-5 font-semibold text-on-accent hover:bg-accent-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent sm:min-h-11 sm:w-auto">
