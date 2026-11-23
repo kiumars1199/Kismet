@@ -63,9 +63,15 @@ Problems (from the dry run):
 - [nit] "- More Markets" shows on the /markets group header (fixed in #81).
 
 ## Walk-through 3: Pro user building a combo
-Status: not yet walked.
-Problems:
-- not walked yet
+Status: dry run on the paid mock at eef7345 (18:58). The official walk on prod comes after the merges. Fixes are with the data lane (T-wt3).
+Problems (from the dry run):
+- [blocker] A Pro user has no way into /check/combo: no link anywhere, and the Add-to-combo tray is Premium-only.
+- [should-fix] /combos and /pricing copy tells Pro that building combos is Premium-only.
+- [should-fix] Same-event legs still show a confident "Score 100" under the "likely off" warning.
+- [nit] The same-event warning shows the raw " - More Markets" event name.
+- [nit] Pro sees Free's "1 check a day" copy.
+- [nit] The leg basis in "Why these numbers?" uses engine wording.
+- [nit] Search hits shift the result box (CLS 0.06-0.07).
 
 ## Found in review, outside a lane
 - /markets at 390 px: CLS 0.27 on `final` from the "Quick filters" row shifting (reviewer, F3 review). Owner: data, in the F3 fix PR (same page, same kind of shift).

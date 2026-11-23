@@ -1,0 +1,44 @@
+390 [home] {"url":"/","cls":0,"h1":"34 bets where the odds lean your way","disc":true,"cents":false,"hs":false,"combo":[]}
+390 more menu combo links: []
+390 first card combo actions: []
+390 [drawer] {"url":"/?m=6674492","cls":0,"h1":"34 bets where the odds lean your way","disc":true,"cents":false,"hs":false,"combo":[]}
+390 [/m] {"url":"/m/6674492","cls":0,"h1":"Denmark vs. Norway: Both Teams to Score","disc":true,"cents":false,"hs":false,"combo":[]}
+390 [/combos] {"url":"/combos","cls":0,"h1":"Combos","disc":true,"cents":false,"hs":false,"main":"Combos\n\nBest bets from different events, closing within a day, in one bet. Every leg has to win, so the payout is bigger and the chance is lower. A combo is shown only if it still beats its price when every leg uses our cautious chance.\n\nCombos are part of Premium: browse them by payout and build your own in the combo tray.\n\nSee Premium"}
+390 [/check] {"url":"/check","cls":0,"h1":"Bet checker","disc":true,"cents":false,"hs":false,"combo":[]}
+390 [/tools] {"url":"/tools","cls":0,"h1":"Calculators","disc":true,"cents":false,"hs":false,"combo":[],"links":[]}
+390 [checker-empty] {"url":"/check/combo","cls":0,"h1":"Combo checker","disc":true,"cents":false,"hs":false,"msg":"Add at least two bets to check a combo."}
+390 add1 {"q":"Denmark","n":0,"first":[],"note":"Looking it up…","legs":0}
+390 msg after 1: Add at least two bets to check a combo.
+390 add2 {"q":"Texans","n":4,"first":["Colts vs. Texans | Texans","Texans Team Total: O/U 12.5 | Over","Texans Team Total: O/U 34.5 | Under","Colts Team Total: O/U 12.5 | Over"],"note":"Looking it up…","legs":0}
+390 add3 {"q":"Bitcoin","n":0,"first":[],"note":"","legs":1}
+390 [checker-3legs] {"url":"/check/combo","cls":0.0709,"h1":"Combo checker","disc":true,"cents":false,"hs":false,"msg":"Add at least one more leg.","legs":["Colts vs. Texans\n\nBet Texans at 85%\n\n✕"]}
+390 [checker-scored] {"url":"/check/combo","cls":0.0709,"h1":"Combo checker","disc":true,"cents":false,"hs":false,"chance":null,"mult":null,"edge":null,"score":null,"drop":null,"same":null,"msg":["Add at least one more leg."]}
+390 formula: null
+390 result section text: "Add at least one more leg.\n\n2 to 10 legs. Bet only what you can afford to lose."
+390 add same-event {"q":"Denmark","n":4,"first":["Spread: Denmark (-1.5) | Norway","Denmark vs. Norway: Both Teams to Score | Yes","Denmark vs. Norway: Denmark O/U 2.5 | Under","Denmark vs. Norway: O/U 2.5 | Over"],"note":"","legs":2}
+390 [checker-same-event] {"url":"/check/combo","cls":0.2431,"h1":"Combo checker","disc":true,"cents":false,"hs":false,"chance":"91%","mult":"1.68x","edge":"+31 points","score":"94","drop":null,"same":null,"msg":[]}
+390 add dup {"q":"Texans","n":0,"first":[],"note":"Looking it up…","legs":2}
+390 combo tray visible: 1
+390 errors []
+1440 [home] {"url":"/","cls":0.0006,"h1":"34 bets where the odds lean your way","disc":true,"cents":false,"hs":false,"combo":[]}
+1440 first card combo actions: []
+1440 [drawer] {"url":"/?m=6674492","cls":0.0006,"h1":"34 bets where the odds lean your way","disc":true,"cents":false,"hs":false,"combo":[]}
+1440 [/m] {"url":"/m/6674492","cls":0.0006,"h1":"Denmark vs. Norway: Both Teams to Score","disc":true,"cents":false,"hs":false,"combo":[]}
+1440 [/combos] {"url":"/combos","cls":0.0006,"h1":"Combos","disc":true,"cents":false,"hs":false,"main":"Combos\n\nBest bets from different events, closing within a day, in one bet. Every leg has to win, so the payout is bigger and the chance is lower. A combo is shown only if it still beats its price when every leg uses our cautious chance.\n\nCombos are part of Premium: browse them by payout and build your own in the combo tray.\n\nSee Premium"}
+1440 [/check] {"url":"/check","cls":0.0006,"h1":"Bet checker","disc":true,"cents":false,"hs":false,"combo":[]}
+1440 [/tools] {"url":"/tools","cls":0.0294,"h1":"Calculators","disc":true,"cents":false,"hs":false,"combo":[],"links":[]}
+1440 [checker-empty] {"url":"/check/combo","cls":0.0006,"h1":"Combo checker","disc":true,"cents":false,"hs":false,"msg":"Add at least two bets to check a combo."}
+1440 add1 {"q":"Denmark","n":0,"first":[],"note":"Looking it up…","legs":0}
+1440 msg after 1: Add at least two bets to check a combo.
+1440 add2 {"q":"Texans","n":4,"first":["Colts vs. Texans | Texans","Texans Team Total: O/U 12.5 | Over","Texans Team Total: O/U 34.5 | Under","Colts Team Total: O/U 12.5 | Over"],"note":"","legs":1}
+1440 add3 {"q":"Bitcoin","n":2,"first":["Will the price of Bitcoin be less than $62,000 on November 19? | No","Will the price of Bitcoin be greater than $74,000 on November 21? | No"],"note":"","legs":2}
+1440 [checker-3legs] {"url":"/check/combo","cls":0.0673,"h1":"Combo checker","disc":true,"cents":false,"hs":false,"msg":"Ready when you are. Free includes 1 check a day; this combo counts as one.","legs":["Colts vs. Texans\n\nBet Texans at 85%\n\n✕","Will the price of Bitcoin be less than $62,000 on November 19?\n\nBet No at 86%\n\n✕"]}
+1440 [checker-scored] {"url":"/check/combo","cls":0.087,"h1":"Combo checker","disc":true,"cents":false,"hs":false,"chance":"90%","mult":"1.34x","edge":"+15 points","score":"71","drop":null,"same":null,"msg":[]}
+1440 formula: Score = 50 + 250 × (our chance − price after fee) × √(past bets behind it ÷ 400, at most 1), kept between 0 and 100. 50 means the price is fair; higher means a better price than bets like this usually get; fewer past bets pull it toward 50. For a combo, the chance is each leg's chance multiplied together and the sample is the smallest leg's. That assumes the legs are independent; legs from the same event aren't.
+1440 why: "Why these numbers?\n\nPays 1.16x × 1.16x = 1.34x: each leg's payout after its fee, multiplied.\n\nCombined chance 99% × 91% = 90%.\n\nScore sample: the smallest leg, about 130 similar past bets.\n\nColts vs. Texans (Texans): Model: NFL · moneyline · ~72 h · 129 eff. samples · 284 events (niche + type level)\nWill the price of Bitcoin be less than $62,000 on November 19? (No): Model: BITCOIN · multi-outcome · ~72 h · 2,717 eff. samples · 11.1K events (all markets level)"
+1440 result section text: "Combined chance\n90%\nPays\n1.34x\nEdge after fee\n+15 points\nScore (of 100)\n71\n\nScore = 50 + 250 × (our chance − price after fee) × √(past bets behind it ÷ 400, at most 1), kept between 0 and 100. 50 means the price is fair; higher means a better price than bets like this usually get; fewer past bets pull it toward 50. For a combo, the chance is each leg's chance multiplied together and the sample is the smallest leg's. That assumes the legs are independent; legs from the same event aren't.\n\nWhy these numbers?\n\nPays 1.16x × 1.16x = 1.34x: each leg's payout after its fee, multiplied.\n\nCombined chance 99% × 91% = 90%.\n\nScore sample: the smallest leg, about 130 similar past bets.\n\nColts vs. Texans (Texans): Model: NFL · moneyline · ~72 h · 129 eff. samples · 284 events (niche + type level)\nWill the price of Bitcoin be less than $62,000 on November 19? (No): Model: BITCOIN · multi-outcome · ~72 h · 2,717 eff. samples · 11.1K events (all markets level)\n\n2 to 10 legs. Bet only what you can afford to lose."
+1440 add same-event {"q":"Denmark","n":4,"first":["Spread: Denmark (-1.5) | Norway","Denmark vs. Norway: Both Teams to Score | Yes","Denmark vs. Norway: Denmark O/U 2.5 | Under","Denmark vs. Norway: O/U 2.5 | Over"],"note":"","legs":3}
+1440 [checker-same-event] {"url":"/check/combo","cls":0.1726,"h1":"Combo checker","disc":true,"cents":false,"hs":false,"chance":"82%","mult":"1.94x","edge":"+31 points","score":"94","drop":"Weakest leg: “Colts vs. Texans”. Without it: 83% chance, pays 1.68x, score 100.\n\nDrop that leg","same":null,"msg":[]}
+1440 add dup {"q":"Texans","n":4,"first":["Colts vs. Texans | Texans","Texans Team Total: O/U 12.5 | Over","Texans Team Total: O/U 34.5 | Under","Colts Team Total: O/U 12.5 | Over"],"note":"That bet is already in your combo.","legs":3}
+1440 combo tray visible: 1
+1440 errors []

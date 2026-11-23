@@ -1,0 +1,34 @@
+390 load cls=0 []
+390 add Denmark//Both Teams/ -> legs 1 in 1656ms; note="" hitsStill=0
+390 after add Denmark cls=0 []
+390 1-leg msg: Add at least one more leg.
+390 add Denmark//Norway: O\/U 2\.5/ -> legs 2 in 8451ms; note="" hitsStill=0
+390 after add Denmark cls=0.0123 ["0.0123 FOOTER y752->758 h92->86,P y627->699 h18->18"]
+390 pre-check msg: Ready when you are. Free includes 1 check a day; this combo counts as one.
+390 same-event: "Same event (Denmark vs. Norway - More Markets): these legs move together, the combined chance is likely off." mult=2.09x chance=79% score=100
+390 after check cls=0.0669 ["0.0669 FOOTER y752->0 h92->0,P y679->0 h18->0"]
+390 add Texans//Colts vs\. Texans/ -> legs 3 in 1629ms; note="" hitsStill=0
+390 after add Texans cls=0 []
+390 add Texans//Colts vs\. Texans/ -> legs 3 in 1733ms; note="That bet is already in your combo." hitsStill=0
+390 after add Texans cls=0 []
+390 after recheck cls=0 []
+390 drop: "NONE"
+390 legs: ["Denmark vs. Norway: Both Teams to Score\n\nBet Yes at 68% · 92% chance · pays 1.45x\n\n✕","Denmark vs. Norway: O/U 2.5\n\nBet Over at 67% · 86% chance · pays 1.45x\n\n✕","Colts vs. Texans\n\nBet Texans at 85% · 99% chance · pays 1.16x\n\n✕"]
+390 hs=false errors []
+1440 load cls=0.0006 ["0.0006 DIV y10->10 h44->44"]
+1440 add Denmark//Both Teams/ -> legs 1 in 1641ms; note="" hitsStill=0
+1440 after add Denmark cls=0 []
+1440 1-leg msg: Add at least one more leg.
+1440 add Denmark//Norway: O\/U 2\.5/ -> legs 2 in 1568ms; note="" hitsStill=0
+1440 after add Denmark cls=0 []
+1440 pre-check msg: Ready when you are. Free includes 1 check a day; this combo counts as one.
+1440 same-event: "Same event (Denmark vs. Norway - More Markets): these legs move together, the combined chance is likely off." mult=2.09x chance=79% score=100
+1440 after check cls=0 []
+1440 add Texans//Colts vs\. Texans/ -> legs 3 in 1631ms; note="" hitsStill=0
+1440 after add Texans cls=0.06 ["0.0600 SECTION y444->664 h358->236,combo-legs y276->496 h148->148,FOOTER y826->0 h74->0"]
+1440 add Texans//Colts vs\. Texans/ -> legs 3 in 1785ms; note="That bet is already in your combo." hitsStill=0
+1440 after add Texans cls=0 []
+1440 after recheck cls=0 []
+1440 drop: "NONE"
+1440 legs: ["Denmark vs. Norway: Both Teams to Score\n\nBet Yes at 68% · 92% chance · pays 1.45x\n\n✕","Denmark vs. Norway: O/U 2.5\n\nBet Over at 67% · 86% chance · pays 1.45x\n\n✕","Colts vs. Texans\n\nBet Texans at 85% · 99% chance · pays 1.16x\n\n✕"]
+1440 hs=false errors []
