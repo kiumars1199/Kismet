@@ -39,9 +39,18 @@ Merge order: F3, F1, F2, F5, F7, F8, F9, then F4, F6, F10–F16.
 Batch 1 MERGED (08:20–08:50 UTC: #43, #45, #64, #60, #61, #62; then #47, #54, #55; #46 merged 2a987ba at 09:31). Was: Batch 1 (decisions.md, Vercel cap): F1 #43 064f521, F2 #45 ef73b2f, f01b kiumars1199/Kismet#64 ae4e3eb, #60 df67be8, F6 #46 57ed4de, #61 0107058, #62 70d8f6b. Integ tree integ-b1 v1 (c5abb7f, first five) green: tsc, lint, vitest 1594 + timing test passes alone, pytest 164, build, check:js 146.8 kB, e2e 129. f01b delta PASS; v2 (b99788b, +#61 +#62, tree 61da2d4) green: tsc, lint, vitest, pytest 164, build, check:js 146.8 kB, e2e 139; pushed as launch/integ-batch1; one preview when a slot frees (~08:40 UTC), then merges and one prod build.
 
 ## Walk-through 1: first-time visitor from a TikTok link
-Status: not yet walked (after all merges).
-Problems:
-- not walked yet
+Status: dry run on prod a7c3ae5 (16:45; evidence review/walkthrough-1-dryrun/). Official walk after all merges.
+
+Problems (dry run; fixes assigned):
+- [should-fix] /m teaser "get10 best bets" missing space (onboarding)
+- [should-fix] /m subtitle repeats a truncated title (onboarding)
+- [should-fix] /m teaser gives nothing concrete: add market price %, relative close time, locked verdict row (onboarding)
+- [should-fix] /signup from a bet is generic: name the bet (onboarding)
+- [should-fix] /pricing at 390: 470 px of stats above the plans (tracker)
+- [nit] Free plan copy "chosen at random" (tracker)
+- [nit] helpline links are 15 px tap targets (tracker)
+- [nit] header "Sign up" shows on /signup and /login (onboarding)
+- [nit] /m close time absolute only (onboarding)
 
 ## Walk-through 2: new Free user
 Status: not yet walked.

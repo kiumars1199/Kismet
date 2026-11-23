@@ -1,0 +1,25 @@
+390 / -> 200 / {"manifest":2,"mHead":2,"disc":true,"hs":false,"cents":false,"stateNext":["/state?next=%2F","/state?next=%2F","/state?next=%2F","/state?next=%2F"],"invite":[],"mlinks":0}
+390 /bets -> 200 /signup?next=%2Fbets {"manifest":2,"mHead":2,"disc":true,"hs":false,"cents":false,"stateNext":[],"invite":[],"mlinks":0}
+390 /account -> 200 /signup?next=%2Faccount {"manifest":2,"mHead":1,"disc":true,"hs":false,"cents":false,"stateNext":[],"invite":[],"mlinks":0}
+390 /pricing -> 200 /pricing {"manifest":2,"mHead":2,"disc":true,"hs":false,"cents":false,"stateNext":[],"invite":[],"mlinks":0}
+390 /state -> 200 /state {"manifest":2,"mHead":1,"disc":true,"hs":false,"cents":false,"stateNext":[],"invite":[],"mlinks":0}
+  probe og 6596313 -> 200
+390 /m/6596313 -> 200 {"disc":true,"hs":false,"cents":false,"venues":false,"pays":0,"og":"https://kismetodds.com/api/og/bet/6596313","text":"Skip to content | Kismet | Log in | Sign up | Home | Will Donald Trump publicly insult someone on November 26, 2026? |  | CULTURE |  | Will Donald Trump publicly insult someone on November 26, 2026? |  | Will Trump publicl"}
+  invite/ref POST good-shape -> 204 null 0B
+  invite/ref POST empty -> 204 null 0B
+  invite/ref GET -> 405 null 0B
+  invite GET -> 401 application/json 50B
+  markets/[id] -> 401 application/json 50B
+  markets/[id]?detail=1 -> 401 application/json 50B
+  og/bet teaser -> 200 image/png 48796B PNG 1200x630
+  og/bet forged sig -> 200 image/png 48796B PNG 1200x630
+  og/bet unknown id -> 404 text/plain;charset=UTF-8 9B
+  pageerrors [] 5xx []
+1440 / -> 200 / {"manifest":2,"mHead":2,"disc":true,"hs":false,"cents":false,"stateNext":["/state?next=%2F","/state?next=%2F","/state?next=%2F","/state?next=%2F"],"invite":[],"mlinks":0}
+1440 /bets -> 200 /signup?next=%2Fbets {"manifest":2,"mHead":2,"disc":true,"hs":false,"cents":false,"stateNext":[],"invite":[],"mlinks":0}
+1440 /account -> 200 /signup?next=%2Faccount {"manifest":2,"mHead":1,"disc":true,"hs":false,"cents":false,"stateNext":[],"invite":[],"mlinks":0}
+1440 /pricing -> 200 /pricing {"manifest":2,"mHead":2,"disc":true,"hs":false,"cents":false,"stateNext":[],"invite":[],"mlinks":0}
+1440 /state -> 200 /state {"manifest":2,"mHead":1,"disc":true,"hs":false,"cents":false,"stateNext":[],"invite":[],"mlinks":0}
+  probe og 6596313 -> 200
+1440 /m/6596313 -> 200 {"disc":true,"hs":false,"cents":false,"venues":false,"pays":0,"og":"https://kismetodds.com/api/og/bet/6596313","text":"Skip to content | Kismet | How it works | Results | Pricing | Updated | 17 min ago | Log in | Sign up | Home | Will Donald Trump publicly insult someone on November 26, 2026? |  | CULTURE |  | Will Donald Trump publicly insult s"}
+  pageerrors [] 5xx []

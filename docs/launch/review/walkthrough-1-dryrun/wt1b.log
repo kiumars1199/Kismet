@@ -1,0 +1,5 @@
+invite/ref requests ["POST {\"code\":\"abcd1234\"}"]
+cookies ["me_invite(httpOnly)","tz(httpOnly)"]
+in-page CTA -> /m/6596313?ref=abcd1234 hidden next = /m/6596313
+h1 Create your free account | sub 10 best bets a day free, no card. Save views and keep My list on every device.
+bottom of /m: {"navTop":607,"ih":664,"covered":[]}
