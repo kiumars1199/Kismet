@@ -3,12 +3,14 @@
 // Applied-filter pills (F-03): one removable pill per active filter, in plain words (no "edge" or "spread":
 // lib/banned.ts). Best bets (T-302) passes `omit` for the filters its chip row already shows (sport, chance, closes,
 // Polymarket US), so a choice never shows twice.
+import type { MouseEvent } from "react";
+import { usePathname } from "next/navigation";
 import type { FilterState } from "@/lib/filters/state";
 import { TAXONOMY } from "@/lib/taxonomy";
 import { money } from "@/lib/format";
 import { getRepo } from "@/lib/repo";
 import { VERDICT_LABEL } from "@/components/market/labels";
-import { BEST_BETS_VERDICTS, type Mode } from "./useScreener";
+import { BEST_BETS_VERDICTS, queryFor, type Mode } from "./useScreener";
 
 type Pill = { key: string; label: string; patch: Partial<FilterState>; onRemove?: () => Promise<unknown> };
 const c = (x: number) => `${Math.round(x * 1000) / 10}%`;
@@ -71,25 +73,36 @@ function pillsFor(s: FilterState, mode: Mode): Pill[] {
 export function AppliedPills({ state, mode, onChange, onReset, omit }: {
   state: FilterState; mode: Mode; onChange: (p: Partial<FilterState>) => void; onReset: () => void; omit?: (key: string) => boolean;
 }) {
+  const pathname = usePathname();
   const pills = pillsFor(state, mode).filter((pl) => !omit?.(pl.key));
   if (!pills.length) return null;
+  // Each pill is a real link to the same view without that filter: a tap before hydration (a slow phone) still works.
+  // Once hydrated the click is handled here instead (soft navigation, and the topics save first). Removing "Your topics"
+  // links to fav=0 so the middleware does not send a bare /bets straight back to the filtered view; only the click
+  // handler also saves topics_off.
+  const hrefFor = (patch: Partial<FilterState>) => {
+    const next = { ...state, page: 1, ...patch };
+    if (state.favorites_only && !next.favorites_only) next.favorites_only = false;
+    return pathname + queryFor(next, mode);
+  };
+  const plain = (e: MouseEvent) => e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey;
   return (
     <ul aria-label="Applied filters" className="flex flex-wrap items-center gap-2">
       {pills.map((pl) => (
         <li key={pl.key}>
-          <button
-            type="button"
-            onClick={() => { if (pl.onRemove) void pl.onRemove().then(() => onChange(pl.patch)); else onChange(pl.patch); }}   // F5: the save lands first, or the server would reopen the filter
+          <a
+            href={hrefFor(pl.patch)}
+            onClick={(e) => { if (!plain(e)) return; e.preventDefault(); if (pl.onRemove) void pl.onRemove().then(() => onChange(pl.patch)); else onChange(pl.patch); }}   // F5: the save lands first, or the server would reopen the filter
             aria-label={`Remove filter: ${pl.label}`}
             className="flex min-h-11 items-center gap-1.5 rounded-full border border-accent-border bg-accent-bg py-1 pl-3 pr-2 text-[13px] text-accent-soft hover:border-accent"
           >
             {pl.label}
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
-          </button>
+          </a>
         </li>
       ))}
       <li>
-        <button type="button" onClick={onReset} className="min-h-11 px-2 text-[13px] text-muted hover:text-text">Clear all</button>
+        <a href={pathname + (state.favorites_only ? "?fav=0" : "")} onClick={(e) => { if (!plain(e)) return; e.preventDefault(); onReset(); }} className="inline-flex min-h-11 items-center px-2 text-[13px] text-muted hover:text-text">Clear all</a>
       </li>
     </ul>
   );
