@@ -98,7 +98,7 @@ describe("API contract (fixture store)", () => {
 });
 
 describe("apply() timing", () => {
-  it("p95 < 150 ms over 15k rows", { retry: 1 }, async () => {
+  it("p95 < 150 ms over 15k rows", { timeout: 60_000 }, async () => {
     const raw = await loadRaw();
     const copy = (m: Market, k: number) => ({ ...m, id: `${m.id}-${k}`, event_id: `${m.event_id}-${k}`, slug: `${m.slug}-${k}` });
     const rows = Array.from({ length: 30 }, (_, k) => raw.markets.markets.map((m) => copy(m, k))).flat();
@@ -107,15 +107,19 @@ describe("apply() timing", () => {
 
     const states = [FilterState.parse({}), FilterState.parse({ categories: ["sports"], q: "texans" }), FilterState.parse({ sort: { key: "win_prob", dir: "desc" }, group_by_event: false })];
     for (const s of states) apply(store, s); // warm up (taxonomy membership memo)
-    const times: number[] = [];
+    // CPU time, not wall clock: apply() is a pure synchronous function, and wall time also counts the moments the
+    // process spent waiting for a core while other test files and lanes ran (p95 400-540 ms on a busy 4-core box,
+    // ~60 ms idle). The budget is the same 150 ms p95; it now measures our work, not the machine's load.
+    const cpuMs = () => { const u = process.cpuUsage(); return (u.user + u.system) / 1000; };
+    const wall: number[] = [], cpu: number[] = [];
     for (let i = 0; i < 30; i++) {
-      const t = performance.now();
+      const c0 = cpuMs(), t0 = performance.now();
       apply(store, states[i % states.length]);
-      times.push(performance.now() - t);
+      wall.push(performance.now() - t0);
+      cpu.push(cpuMs() - c0);
     }
-    times.sort((a, b) => a - b);
-    const p95 = times[Math.floor(times.length * 0.95)];
-    console.log(`apply() over 15k rows: p50 ${times[15].toFixed(1)} ms, p95 ${p95.toFixed(1)} ms`);
-    expect(p95).toBeLessThan(150);
+    const pct = (a: number[], q: number) => [...a].sort((x, y) => x - y)[Math.floor(a.length * q)];
+    console.log(`apply() over 15k rows: cpu p50 ${pct(cpu, 0.5).toFixed(1)} ms, p95 ${pct(cpu, 0.95).toFixed(1)} ms (wall p50 ${pct(wall, 0.5).toFixed(1)}, p95 ${pct(wall, 0.95).toFixed(1)})`);
+    expect(pct(cpu, 0.95)).toBeLessThan(150);
   });
 });
