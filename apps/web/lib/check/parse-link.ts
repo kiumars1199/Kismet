@@ -27,7 +27,7 @@ type Idx = { markets: StoreMarket[]; bySlug: Map<string, StoreMarket[]> };
 export function resolveLink(p: ParsedLink, store: Idx): StoreMarket | null {
   const low = p.parts.map((s) => s.toLowerCase());
   const has = (v: string | null | undefined) => !!v && low.includes(v.toLowerCase());
-  if (p.venue === "kalshi") return store.markets.find((m) => has(m.kalshi_ticker)) ?? null;
+  if (p.venue === "kalshi") return store.markets.find((m) => has(m.kalshi_matched_ticker ?? m.kalshi_ticker)) ?? null;
   if (p.venue === "polymarket") {
     const specific = store.markets.find((m) => m.venue !== "us" && has(m.market_slug));
     return specific ?? (store.bySlug.get(low[0]!) ?? []).find((m) => m.venue !== "us") ?? null;
