@@ -1,6 +1,6 @@
 // F15: /admin "Last 30 days": daily sign-ups, trials, payments, revenue in dollars, cancellations and invites.
 // Supabase is the in-app mock (admin_metrics is mirrored in app/e2e-mock). Non-admins still get a 404 (admin.spec.ts).
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "./fixtures";
 
 const ADMIN = "admin-e2e@example.com";   // playwright.paid.config.ts ADMIN_EMAILS
 

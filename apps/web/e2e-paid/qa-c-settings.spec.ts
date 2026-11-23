@@ -1,7 +1,7 @@
 // Marc's QA list #21/#22 (Nov 20): /settings is one tap from /account (and back); settings are saved to the account, so a
 // second device sees them; the "Choose your topics" banner never flashes for someone who finished or dismissed setup,
 // and dismissing it is saved to the account. Supabase/Stripe: the in-app mock.
-import { expect, test, type Browser, type Page } from "@playwright/test";
+import { expect, test, type Browser, type Page } from "./fixtures";
 
 /** Magic-link sign-in. `onboard`: skip setup on /onboarding (first sign-in); false: leave it unfinished. */
 async function signIn(page: Page, email: string, onboard = true) {

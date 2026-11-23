@@ -1,6 +1,6 @@
 // S7 (docs/12): sign up → upgrade (Stripe mocked) → gated feature unlocks. Plus account delete.
 // Supabase and Stripe are the in-app mock (app/e2e-mock); the magic link is read from its inbox.
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "./fixtures";
 import { expectPlanActive } from "./checkout";
 import type { MarketsResponse } from "@/lib/api";
 

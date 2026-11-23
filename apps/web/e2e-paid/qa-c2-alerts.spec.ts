@@ -1,7 +1,7 @@
 // Marc's QA list, Nov 20 (lane C2): #23 /alerts never renders blank on first load; #23/#64 the page says plainly
 // where alerts go, a Pro rule can turn email on (the server cron emails it), and /pricing no longer sells
 // Telegram/Discord alerts. Supabase and Stripe are the in-app mock (app/e2e-mock).
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "./fixtures";
 import { expectPlanActive } from "./checkout";
 
 async function signUp(page: Page, email: string) {

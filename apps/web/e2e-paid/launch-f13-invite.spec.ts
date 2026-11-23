@@ -1,7 +1,7 @@
 // F13: invite link + QR + live counter, the 5-sign-up reward, and the share sheet. Supabase: the in-app mock.
 // Five browsers open the inviter's link and sign up with a confirmed email; the inviter's /account goes 0 -> 5 of 5 and
 // the plan becomes Premium (comp). The share sheet in the bet drawer shows the card image (1200x630) and the same counter.
-import { expect, test, type Browser, type Page } from "@playwright/test";
+import { expect, test, type Browser, type Page } from "./fixtures";
 
 import path from "node:path";
 
