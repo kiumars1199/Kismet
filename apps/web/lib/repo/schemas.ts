@@ -56,7 +56,7 @@ export const PROFILE_PATCH = z.object({
   kelly_fraction: z.number().min(0).max(1), default_stake_usd: z.number().min(0).max(1e9),
   odds_format: z.enum(["cents", "percent", "decimal", "american"]), favorite_topics: z.array(str(60)).max(100),
   onboarded_at: ts.nullable(), density: z.enum(["comfortable", "compact"]), theme: z.enum(["dark", "light"]),
-  numbers_mode: z.enum(["simple", "pro"]),
+  numbers_mode: z.enum(["simple", "pro"]), topics_off: z.boolean(),
 }).partial().strict();
 
 const COLLECTIONS = Object.keys(ROW) as CollectionName[];

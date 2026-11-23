@@ -6,6 +6,7 @@
 //   CLV = closing_price − price
 import type { JournalEntry, Patch } from "@/lib/repo/types";
 import { cell } from "@/lib/csv";
+import { TAXONOMY } from "@/lib/taxonomy";
 
 export type Result = NonNullable<JournalEntry["result"]>;
 type Bet = Pick<JournalEntry, "price" | "shares" | "fee">;
@@ -85,16 +86,23 @@ export const beatClose = (b: Pick<JournalEntry, "price" | "closing_price">): boo
 
 const settledPnl = (r: JournalEntry) => r.pnl_usd ?? pnl(r, r.result!);
 
+/** One label source for the tables and the chart: the taxonomy's name for a sport, topic or category. */
+export function groupLabel(category: string | null, niche: string | null): string {
+  const t = (id: string) => TAXONOMY[id]?.label;
+  return (niche && category && t(`${category}.${niche}`)) || (category && t(category)) || (niche ?? category ?? "Other");
+}
+
 /**
- * Settled P&L grouped by sport (category) or topic (niche, else category). Rows with neither go to "other", so the
- * groups always add up to summarize().pnl.
+ * Settled P&L grouped by sport (a sports bet by its sport, e.g. NFL; any other bet by its category), by category,
+ * or by topic (niche, else category). Rows with neither go to "other", so the groups always add up to summarize().pnl.
  */
-export function breakdown(rows: JournalEntry[], by: "category" | "topic") {
-  const m = new Map<string, { pnl: number; bets: number }>();
+export function breakdown(rows: JournalEntry[], by: "category" | "topic" | "sport") {
+  const m = new Map<string, { pnl: number; bets: number; label: string }>();
   for (const r of rows) {
     if (!r.result) continue;
-    const key = (by === "category" ? r.category : r.niche ?? r.category) ?? "other";
-    const g = m.get(key) ?? { pnl: 0, bets: 0 };
+    const useNiche = by === "topic" || (by === "sport" && r.category === "sports");
+    const key = (useNiche ? r.niche ?? r.category : r.category) ?? "other";
+    const g = m.get(key) ?? { pnl: 0, bets: 0, label: useNiche && r.niche ? groupLabel(r.category, r.niche) : groupLabel(r.category, null) };
     g.pnl += settledPnl(r);
     g.bets += 1;
     m.set(key, g);
@@ -102,7 +110,7 @@ export function breakdown(rows: JournalEntry[], by: "category" | "topic") {
   return [...m].map(([key, g]) => ({ key, ...g })).sort((a, b) => b.pnl - a.pnl);
 }
 
-export const byTopic = (rows: JournalEntry[]) => breakdown(rows, "topic").map((g) => ({ topic: g.key, pnl: g.pnl }));
+export const byTopic = (rows: JournalEntry[]) => breakdown(rows, "topic").map((g) => ({ topic: g.key, label: g.label, pnl: g.pnl }));
 
 /** Date in the user's time zone: "Nov 16, 2026". */
 export function day(iso: string | null | undefined, timeZone: string): string {

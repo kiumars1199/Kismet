@@ -146,7 +146,7 @@ function Charts({ rows }: { rows: JournalEntry[] }) {
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={topics} layout="vertical" margin={{ top: 0, right: 8, bottom: 0, left: 0 }}>
               <XAxis type="number" {...axis} tickFormatter={(v: number) => money(v)} />
-              <YAxis type="category" dataKey="topic" {...axis} width={80} tickFormatter={(t: string) => t.toUpperCase()} />
+              <YAxis type="category" dataKey="label" {...axis} width={110} />
               <Tooltip {...tip} cursor={{ fill: "var(--muted-bg)" }} formatter={(v) => [money(Number(v), true), "Profit"]} />
               <Bar dataKey="pnl" radius={4} isAnimationActive={false}>
                 {topics.map((t) => <Cell key={t.topic} fill={t.pnl >= 0 ? "var(--positive)" : "var(--negative)"} />)}
@@ -161,7 +161,7 @@ function Charts({ rows }: { rows: JournalEntry[] }) {
 
 /** Profit by sport and by topic as plain tables; each ends with a Total row equal to the Profit / loss tile. */
 function PnlSplit({ rows, total }: { rows: JournalEntry[]; total: number }) {
-  const sports = useMemo(() => breakdown(rows, "category"), [rows]);
+  const sports = useMemo(() => breakdown(rows, "sport"), [rows]);
   const topics = useMemo(() => breakdown(rows, "topic"), [rows]);
   if (!sports.length) return null;
   const table = (title: string, id: string, g: typeof sports) => (
@@ -171,7 +171,7 @@ function PnlSplit({ rows, total }: { rows: JournalEntry[]; total: number }) {
         <thead className="text-left text-xs text-muted"><tr><th className="py-1 font-medium">Name</th><th className="py-1 text-right font-medium">Settled bets</th><th className="py-1 text-right font-medium">Profit / loss</th></tr></thead>
         <tbody className="divide-y divide-border">
           {g.map((x) => (
-            <tr key={x.key}><td className="py-2 capitalize">{x.key}</td><td className="py-2 text-right text-muted">{formatCount(x.bets)}</td>
+            <tr key={x.key}><td className="py-2">{x.label}</td><td className="py-2 text-right text-muted">{formatCount(x.bets)}</td>
               <td className={`py-2 text-right font-medium ${tone(x.pnl) === "pos" ? "text-positive" : tone(x.pnl) === "neg" ? "text-negative" : ""}`}>{money(x.pnl, true)}</td></tr>
           ))}
         </tbody>

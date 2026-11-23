@@ -15,29 +15,38 @@ import { getRepo } from "@/lib/repo";
 import { useProfile } from "@/lib/repo/hooks";
 import type { Market, Side } from "@/lib/types";
 
-interface Props { market: Market; side: Side | 0 | 1; price?: number; stakeUsd?: number; className?: string }
+/** What a journal row needs from a bet when the caller has no full Market (the /check result). */
+export interface LogTarget { id: string; question: string; category: string | null; niche: string | null; side_index: 0 | 1; outcome: string | null; win_prob: number | null }
+interface Props { market?: Market; side?: Side | 0 | 1; target?: LogTarget; price?: number; stakeUsd?: number; className?: string }
 
-export function LogBetButton({ market, side, price, stakeUsd, className = "" }: Props) {
+/** The one Free upsell, shown once per list (not on every card). Renders nothing for paid plans and until the plan is known. */
+export function LogUpsell() {
+  const { can, known } = useEntitlements();
+  if (!known || can("journal")) return null;
+  return <p data-testid="log-bet-upgrade" className="text-center text-sm text-muted">Want to track the bets you place? <Link href="/pricing" className="text-accent-hover hover:underline">Track your bets with Pro</Link></p>;
+}
+
+export function LogBetButton({ market, side = 0, target, price, stakeUsd, className = "" }: Props) {
   const { can, known } = useEntitlements();
   const profile = useProfile();
   const [saved, setSaved] = useState<{ id: string; stake: number; p: number } | null>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState(false);
-  const s = typeof side === "number" ? market.sides[side] ?? market.best : side;
-  const cardAsk = cardVenue(market, s).ask;
-  const p = price ?? (typeof cardAsk === "number" ? cardAsk : s.ask);
+  const s = market ? (typeof side === "number" ? market.sides[side] ?? market.best : side) : null;
+  const t: LogTarget | null = target ?? (market && s ? { id: market.id, question: market.question, category: market.category, niche: market.niche, side_index: s.side_index, outcome: s.outcome, win_prob: s.win_prob } : null);
+  const cardAsk = market && s ? cardVenue(market, s).ask : undefined;
+  const p = price ?? (typeof cardAsk === "number" ? cardAsk : s?.ask ?? 0);
   const stake = stakeUsd ?? profile.default_stake_usd;
   const base = `relative z-10 inline-flex min-h-11 items-center justify-center rounded-xl border border-border px-3 text-sm font-medium text-soft hover:bg-raised hover:text-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${className}`;
 
-  if (!known) return null;
-  if (!can("journal")) {
-    return <Link data-testid="log-bet-upgrade" href="/pricing" onClick={(e) => e.stopPropagation()} className={base}>Track your bets with Pro</Link>;
-  }
+  // Reserve the button's height until the plan is known, so it mounting late moves nothing (CLS)
+  if (!known) return <div aria-hidden="true" data-testid="log-bet-slot" className={`min-h-11 ${className}`} />;
+  if (!can("journal") || !t) return null;
   if (saved) {
     return (
-      <p data-testid="log-bet-done" role="status" className="relative z-10 text-xs text-muted">
-        Logged {money(saved.stake)} at {fmtPrice(saved.p)}.{" "}
-        <Link href="/journal" onClick={(e) => e.stopPropagation()} className="text-accent-hover hover:underline">See My bets</Link>{" "}
+      <p data-testid="log-bet-done" role="status" className="relative z-10 flex min-h-11 items-center text-xs text-muted">
+        Logged {money(saved.stake)} at {fmtPrice(saved.p)}.&nbsp;
+        <Link href="/journal" onClick={(e) => e.stopPropagation()} className="text-accent-hover hover:underline">See My bets</Link>&nbsp;
         <button type="button" className="underline-offset-2 hover:text-text hover:underline"
           onClick={(e) => { e.stopPropagation(); void getRepo().journal.remove(saved.id); setSaved(null); }}>Undo</button>
       </p>
@@ -48,13 +57,13 @@ export function LogBetButton({ market, side, price, stakeUsd, className = "" }: 
     e.stopPropagation();
     if (!valid || busy) return;
     setBusy(true); setErr(false);
-    const fee = feePerShare(p, feeRate(market.category));
+    const fee = feePerShare(p, feeRate(t.category));
     const shares = stake / (p + fee);
     try {
       const row = await getRepo().journal.insert({
-        market_id: market.id, side_index: s.side_index, outcome: s.outcome, question: market.question,
-        category: market.category, niche: market.niche, price: p, shares, fee, placed_at: new Date().toISOString(),
-        model_win_prob: s.win_prob, model_edge: s.win_prob - p - fee, closing_price: null,
+        market_id: t.id, side_index: t.side_index, outcome: t.outcome, question: t.question,
+        category: t.category, niche: t.niche, price: p, shares, fee, placed_at: new Date().toISOString(),
+        model_win_prob: t.win_prob, model_edge: t.win_prob == null ? null : t.win_prob - p - fee, closing_price: null,
         result: null, settled_at: null, pnl_usd: null, tags: [], note: null,
       });
       setSaved({ id: row.id, stake, p });
@@ -63,7 +72,7 @@ export function LogBetButton({ market, side, price, stakeUsd, className = "" }: 
   return (
     <>
       <button type="button" data-testid="log-bet" disabled={!valid || busy} onClick={log} className={base}
-        aria-label={`I placed this: log ${money(stake)} on ${s.outcome ?? "this side"} at ${fmtPrice(p)} in My bets`}>
+        aria-label={`I placed this: log ${money(stake)} on ${t.outcome ?? "this side"} at ${fmtPrice(p)} in My bets`}>
         I placed this
       </button>
       {err && <span role="alert" className="text-xs text-negative">Couldn&apos;t save. Try again.</span>}

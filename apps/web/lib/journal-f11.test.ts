@@ -93,6 +93,14 @@ describe("F11 P&L by sport and topic adds up to the total", () => {
     expect(breakdown(rows, "topic").reduce((a, t) => a + t.pnl, 0)).toBeCloseTo(total, 10);
     expect(breakdown(rows, "category").map((t) => t.key).sort()).toEqual(["other", "politics", "sports"]);
   });
+  it("by sport groups a sports bet under its sport, other bets under their category, with taxonomy labels", () => {
+    const g = breakdown(rows, "sport");
+    expect(g.map((t) => t.key).sort()).toEqual(["nba", "nfl", "other", "politics"]);
+    expect(g.find((t) => t.key === "nfl")).toMatchObject({ label: "NFL", bets: 2 });
+    expect(g.find((t) => t.key === "politics")!.label).toBe("Politics & Elections");
+    expect(g.reduce((a, t) => a + t.pnl, 0)).toBeCloseTo(summarize(rows).pnl, 10);
+    expect(breakdown([bet({ category: "sports", niche: "cfb", result: "won", pnl_usd: 1 })], "topic")[0]!.label).toBe("College football");
+  });
   it("counts settled bets per group and ranks best first", () => {
     const t = breakdown(rows, "topic");
     expect(t[0]).toMatchObject({ key: "politics", bets: 1 });

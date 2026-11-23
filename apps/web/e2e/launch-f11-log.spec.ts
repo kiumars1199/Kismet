@@ -31,4 +31,39 @@ test("settled fixture bets: sport and topic totals equal the profit tile", async
   await expect(page.getByTestId("pnl-sport-total")).toHaveText("+$0.50");
   await expect(page.getByTestId("pnl-topic-total")).toHaveText("+$0.50");
   await expect(page.getByText("2 of 3 bets")).toBeVisible();   // beat the closing price
+  // by sport, not category: NFL and NBA are separate rows, politics keeps its category name; one label source
+  const sport = page.getByTestId("pnl-sport");
+  await expect(sport.getByRole("cell", { name: "NFL", exact: true })).toBeVisible();
+  await expect(sport.getByRole("cell", { name: "NBA", exact: true })).toBeVisible();
+  await expect(sport.getByRole("cell", { name: "Sports", exact: true })).toHaveCount(0);
+  await expect(page.getByTestId("pnl-topic").getByRole("cell", { name: "NFL", exact: true })).toBeVisible();
+});
+
+test("one tap on the /check result logs the bet", async ({ page }) => {
+  await page.goto("/bets");
+  const id = await page.getByTestId("bet-card").first().getAttribute("data-market-id");
+  await page.goto(`/check?m=${id}&side=0`);
+  await page.getByTestId("log-bet").click();
+  await expect(page.getByTestId("log-bet-done")).toContainText("Logged");
+  await page.goto("/journal");
+  await expect(page.locator("tbody tr").first()).toContainText("Open");
+});
+
+test("bets list at 390: loading the plan moves nothing (CLS under 0.02)", async ({ browser }) => {
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, baseURL: test.info().project.use.baseURL });
+  const page = await ctx.newPage();
+  await page.addInitScript(() => {
+    const w = window as unknown as { __cls: number };
+    w.__cls = 0;
+    new PerformanceObserver((l) => { for (const e of l.getEntries() as unknown as { value: number; hadRecentInput: boolean }[]) if (!e.hadRecentInput) w.__cls += e.value; }).observe({ type: "layout-shift", buffered: true });
+  });
+  await page.route("**/api/trade/config", (r) => r.fulfill({ json: { enabled: false, env: null, extensionId: "", riskUrl: "" } }));
+  await page.goto("/bets");
+  await page.getByTestId("log-bet").first().waitFor();
+  await page.waitForLoadState("networkidle");
+  await page.waitForTimeout(1_500);
+  const cls = await page.evaluate(() => (window as unknown as { __cls: number }).__cls);
+  console.log(`CLS /bets at 390 (paid): ${cls.toFixed(4)}`);
+  expect(cls).toBeLessThan(0.02);
+  await ctx.close();
 });

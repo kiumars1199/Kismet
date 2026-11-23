@@ -68,6 +68,7 @@ export interface Market {
   competitive?: number;         // abs(mid - 0.5) of the market mid
   // docs/16 §3 market matching (engine job kalshi_match, not built yet). Set only when confidence >= 0.9.
   kalshi_ticker?: string | null;
+  kalshi_matched_ticker?: string;   // F4 (#52): the matcher's Kalshi ticker, kept apart from kalshi_ticker so the bet venue doesn't flip to Kalshi
   kalshi_match_conf?: number;
   market_slug?: string;     // Gamma market slug (event slug is `slug`)
   us?: UsQuote | null;      // Polymarket US twin; absent on scans before it shipped
@@ -263,6 +264,13 @@ export interface KalshiSettled {
 export interface KalshiIndexFile {
   meta: { source: "Kalshi"; attribution: string; fetched_at: number; n: number; columns: string[] };
   rows: [string, string, string, string, string, number | null, number | null, number | null, number, number | null][];
+}
+/** output/polymarket_index.json (F3 fix, engine/pm_index.py): every open two-outcome Polymarket market, one array per row
+ *  in `meta.columns` order ("id", "question", "event", "slug", "category", "niche", "tags", "volume", "close_epoch").
+ *  No prices. Server only: the browser gets at most 10 matches in /api/markets (`unpriced`). */
+export interface PolymarketIndexFile {
+  meta: { source: "Polymarket"; fetched_at: number; n: number; columns: string[] };
+  rows: [string, string, string, string, string, string, string[], number, number | null][];
 }
 export interface KalshiFile {
   meta: {
