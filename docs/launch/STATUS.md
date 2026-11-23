@@ -29,7 +29,7 @@ file after every merge. "Review result" says "passed review" only after the revi
 | F10 Install and web push | alerts | PR open (3234b82; Lighthouse PWA 1; migration 20261122000500); in review queue | kiumars1199/Kismet#56 | not reviewed |
 | F11 Bet tracker | tracker | PR open, 31bf544 (one-tap log, P&L by sport, beat-the-close, 50/50 = split); migration 20261123000100_journal_split pending; review queued | kiumars1199/Kismet#58 | not reviewed |
 | F12 Morning digest | onboarding-invites | PR open (3862060; opt-in default off); migration renamed to 000400 pending; in review queue | kiumars1199/Kismet#55 | not reviewed |
-| F13 Share and invite | onboarding-invites | round 3 4c3d82a: every product check passes (signed links, teaser fallback, og text, one line, recommended side only). FAIL on CI: t291-plans ECONNRESET after next dev hit its memory threshold (2nd time, never on final). Onboarding is cutting memory use; decided non-flagged bets get the teaser | kiumars1199/Kismet#51 | FAIL (CI); round 4 in progress |
+| F13 Share and invite | onboarding-invites | round 4 79639df: only flagged bets get numbers (image, og:description, link signing); fonts loaded once; one redundant paid sign-up dropped (paid dev server peak RSS 4.9→4.2 GB). CI web pending; re-review queued | kiumars1199/Kismet#51 | FAIL (round 3 CI); round 4 queued |
 | F14 Price history chart | data | 59831df review FAIL: the reserved trade slot stays empty forever for users not on the allow-list; the 50 px jump at 390 remains (0.15–0.19; AddToCombo also mounts late and wraps the row); conflicts with final, so no CI. Free cut, as_of and empty state still pass. Data fixing | kiumars1199/Kismet#53 | FAIL (round 4) |
 | F15 Admin metrics | trust | merged 34f672f with #50 (1376182); migration 000300 live; full suites green (search 300 ms flake passed 21/21 alone). Notes left for follow-up: MRR/churn blocks disagree; yearly priced at monthly | kiumars1199/Kismet#49 | passed review |
 | F16 Big trade alert | alerts | PR open (e3287b0, stacked on F10; migration 000600); in review queue | kiumars1199/Kismet#57 | not reviewed |
@@ -63,10 +63,10 @@ Problems:
 - Kalshi links stay unresolvable after #52: store.ts withVenues drops kalshi_ticker (reviewer, f01b). Owner: data, in #52.
 
 - F13 deferred invite reward waits for the next sign-in if a trial lapses while signed in (reviewer). Follow-up: hook on Stripe subscription-ended. Owner: onboarding, after F13.
-- Pre-existing: at 390 on /bets?m=<id> with the tour flag set, the tour dialog sits behind the drawer and can't be dismissed (reviewer, F13). Owner: onboarding; fix kiumars1199/Kismet#61 2da4dab: product PASS, CI FAIL (e2e-paid flake). Adding: observer only while a tour is pending, focus moves into the tour.
+- Pre-existing: at 390 on /bets?m=<id> with the tour flag set, the tour dialog sits behind the drawer and can't be dismissed (reviewer, F13). Owner: onboarding; fix kiumars1199/Kismet#61 now 0107058 (observer only while a tour is pending; focus to Next; CI green); delta review queued.
 - Kalshi shows a price only, with the fee not counted (engine/venues.py TODO). The wording is honest; follow-up.
 
-- /event/<id> at 390: CLS 0.436 on 8 of 15 cold loads; the footer is pushed down when EventView streams in under a bare <Suspense> with no fallback (app/event/[id]/page.tsx:62). Found by the reviewer on final during F6. Owner: onboarding; fix kiumars1199/Kismet#62 (6fc0eb3, EventSkeleton fallback; 390 cold 0.003–0.004), review queued.
+- /event/<id> at 390: CLS 0.436 on 8 of 15 cold loads; the footer is pushed down when EventView streams in under a bare <Suspense> with no fallback (app/event/[id]/page.tsx:62). Found by the reviewer on final during F6. Owner: onboarding; fix kiumars1199/Kismet#62 70d8f6b covers /event and /m (skeleton fallbacks; 24 cold loads 0.001–0.004; CI green), review queued.
 
 - CI: e2e-paid on `next dev` fails with memory restarts / ECONNRESET on three branches (F13, F14, #61), never on final (reviewer). Owner: trust, PR "CI: run paid e2e on a production server".
 
