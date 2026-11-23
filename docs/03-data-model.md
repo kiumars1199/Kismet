@@ -103,6 +103,27 @@ export interface VenueQuote {
   at?: number;
   conf?: number;
 }
+// F14, output/history.json (side file, `python -m engine history`, uploaded with kalshi.json): the price history behind the
+// drawer chart. One series per flag row, for the best side's token (Polymarket CLOB batch-prices-history, 60 min fidelity),
+// downsampled to <= 200 points (dt grows in whole hours to fit) and capped at 90 days. Empty buckets carry the previous
+// price, so the first and last values are the real ones. Served by GET /api/markets/<id>/history as { id, side,
+// interval_s, venue: "Polymarket", points: [{ t, p }] } (p 0..1; points [] = "No price history yet"). Polymarket only:
+// Polymarket US and Kalshi have no history here; the chart says "Prices from Polymarket, every <interval>".
+// Coverage: history.json holds the Best bets rows only; for any other market the store holds, the route fetches its best
+// side's series live from Polymarket's public CLOB the first time (<= 200 points, <= 90 days, 10 min in-memory cache, one
+// request in flight per market, 3 s timeout; `source: "live"`, else `"file"`). The response also carries `as_of` (unix s of
+// the latest point). The tier's delay applies: points newer than the scan the tier's store is from are cut, so Free's chart
+// is never fresher than its numbers. No series / failed fetch / US-native row = points [], "No price history for this market yet".
+export interface HistorySeries {
+  side: 0 | 1;
+  t0: number;                // unix s of the first point
+  dt: number;                // seconds between points (a whole number of hours)
+  p: number[];               // price in per-mille (0..1000)
+}
+export interface HistoryFile {
+  meta: { generated_at: number; interval_s: number; max_points: number; max_days: number; n: number; source: "Polymarket" };
+  series: Record<string, HistorySeries>;
+}
 // output/venues.json (side file, written by `python -m engine kalshi` after the crawl). Only markets on 2+ venues. Kalshi
 // matches need hard gates (category, close within 48 h, same numbers, side name in Kalshi's label) and a score >= 0.9; no
 // match = not listed. `kalshi_ticker` is copied onto Market.kalshi_matched_ticker (link lookups), NOT onto Market.kalshi_ticker

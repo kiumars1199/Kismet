@@ -94,6 +94,17 @@ export interface VenueQuote {
   at?: number;
   conf?: number;
 }
+// F14, output/history.json: the best side's price history per flag row, columnar, <= 200 points, <= 90 days, Polymarket only.
+export interface HistorySeries {
+  side: 0 | 1;
+  t0: number;                // unix s of the first point
+  dt: number;                // seconds between points (a whole number of hours)
+  p: number[];               // price in per-mille (0..1000)
+}
+export interface HistoryFile {
+  meta: { generated_at: number; interval_s: number; max_points: number; max_days: number; n: number; source: "Polymarket" };
+  series: Record<string, HistorySeries>;
+}
 // output/venues.json: only markets on 2+ venues, for the scan it was built from, plus its last two snapshots in `prev`
 // (the store takes the newest snapshot whose Kalshi crawl (kalshi_fetched_at) is no newer than its own scan).
 export interface VenuesSnapshot {

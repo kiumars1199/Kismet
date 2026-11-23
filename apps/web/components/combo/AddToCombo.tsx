@@ -7,15 +7,17 @@ import type { Side, StoreMarket } from "@/lib/types";
 import { useCombo } from "./useCombo";
 import { BetaBadge } from "@/components/beta/BetaBadge";
 
-export function AddToCombo({ m, s, className }: { m: StoreMarket; s: Side; className: string }) {
+/** reserve: the server says this user has combos; until /api/me answers keep an invisible same-size slot so the row does not re-wrap. */
+export function AddToCombo({ m, s, className, reserve = false }: { m: StoreMarket; s: Side; className: string; reserve?: boolean }) {
   const leg = useCombo((c) => c.legs.find((l) => l.market_id === m.id));
   const add = useCombo((c) => c.add);
   const remove = useCombo((c) => c.remove);
   const [error, setError] = useState<string | null>(null);
   const inCombo = leg?.side_index === s.side_index;
   // Combos are Premium (lib/beta.ts live rule; out of beta since Nov 21)
-  const allowed = useEntitlements().canBeta("combos");
-  if (!allowed) return null;
+  const ent = useEntitlements();
+  const allowed = ent.canBeta("combos");
+  if (!allowed) return reserve && !ent.known ? <span aria-hidden="true" data-testid="combo-slot" className={`${className} invisible`}>Add to combo <BetaBadge className="ml-1.5" /></span> : null;
   return (
     <>
       <button

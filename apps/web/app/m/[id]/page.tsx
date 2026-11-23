@@ -8,6 +8,7 @@ import { PendingState } from "@/components/screener/States";
 import { SlowDownState } from "@/components/screener/SlowDownState";
 import { betLine, sideRet } from "@/lib/format";
 import { MarketDetail } from "@/components/market/MarketDetail";
+import { actionReserve } from "@/lib/trade/reserve";
 import { InviteRef } from "@/components/share/InviteRef";
 import { MarketSkeleton } from "@/components/market/MarketSkeleton";
 import { TeaserView } from "@/components/market/Teaser";
@@ -94,7 +95,7 @@ export default async function Page({ params, searchParams }: Props) {
     <div className="mx-auto w-full max-w-[720px]">
       <Breadcrumbs className="mb-3" items={[{ label: "Best bets", href: "/bets" }, topicCrumb(m), ...(m.event && m.event !== m.question ? [{ label: m.event, href: `/event/${encodeURIComponent(m.event_id)}` }] : []), { label: m.question }]} />
       <Suspense fallback={<MarketSkeleton />}>
-        <MarketDetail id={id} side={side === "0" ? 0 : side === "1" ? 1 : undefined} initial={data} />
+        <MarketDetail id={id} side={side === "0" ? 0 : side === "1" ? 1 : undefined} initial={data} reserve={await actionReserve()} />
       </Suspense>
     </div>
   );
