@@ -25,14 +25,14 @@ file after every merge. "Review result" says "passed review" only after the revi
 | F6 How to place this bet | checker | PASS with notes (3668ac3 + 57ed4de). GitHub reported a conflict with final, so final was merged in (ea5ccff, same tree as a clean merge); CI web failed on the next dev memory restart (fixed by #65). Merges after #65 | kiumars1199/Kismet#46 | PASS (pre-merge); waits on CI |
 | F7 Live payments by config | trust | merged (cd9f672), prod READY, health ok | kiumars1199/Kismet#41 | passed review |
 | F8 Responsible betting | trust | merged (651462b); prod PASS with notes (help line, 18+, RiskNote on prod; pause/account verified on merged build with mock); follow-up #54 1979f82 PASS with notes (paused users get 423 from trade config; CI green), batch 2 | kiumars1199/Kismet#44 | passed review |
-| F9 Venue availability | trust | merged 5a65227, prod READY, health ok. Prod check FAIL: signed out, "Check your state" goes to /settings#state behind the sign-up wall, so the note can never change. Fix #63 315b0db review FAIL: open redirect via tab/CR/LF in next; NV note never shows on static "/" (cookie read server-side). Trust fixing after the CI heap PR | kiumars1199/Kismet#48 | FAIL (prod); fix in progress |
-| F10 Install and web push | alerts | code PASS (3234b82 + delta 62f1858); final merged in at 8685ed2, CI web green. Migrations 000500 + 000550 applied just before merge | kiumars1199/Kismet#56 | PASS (pre-merge); merge pending |
+| F9 Venue availability | trust | merged 5a65227; prod FAIL (signed-out state link hit the sign-up wall). Fix #63 round 2 e52cafb PASS with notes (open redirect closed: 20 hostile `next` values all land on "/"; NV note shows on static "/" for all plans at 390/1440, CLS ≤ 0.0006). CI web red only from the next-dev memory restart; trust merging final (#65) to re-run | kiumars1199/Kismet#48, kiumars1199/Kismet#63 | FAIL (prod); fix PASS pre-merge, waits on CI |
+| F10 Install and web push | alerts | migrations 000500 + 000550 applied; merged 3299561. Post-merge prod check queued | kiumars1199/Kismet#56 | PASS (pre-merge); post-merge check pending |
 | F11 Bet tracker | tracker | 31bf544 review FAIL: conflict with final in BetCard; "I placed this" missing on /check; new CLS 0.063 at 390 (Pro/Premium); profit grouped by category not sport, "Cfb" label; Free upsell on every card. Tracker fixing | kiumars1199/Kismet#58 | FAIL (round 1) |
 | F12 Morning digest | onboarding-invites | round 2 eabe0f5 PASS with notes (cron reaches route, after-fee payout, Free gets its own daily sample, paused users skipped); migration 000400 applied; merged b9fd607, prod READY. Post-merge check queued | kiumars1199/Kismet#55 | PASS (pre-merge); post-merge check pending |
 | F13 Share and invite | onboarding-invites | round 5 163b468: all four code checks PASS; CI web failed only on the next dev memory restart. Re-run after #65 by merging final in | kiumars1199/Kismet#51 | PASS (code); waits on CI |
 | F14 Price history chart | data | round 5 9978ce7 local (server-decided Trade slot, reserved AddToCombo slot, own CLS 0.0036 at 390); final merged (7875508). Push after batch 1 with #62's page.tsx resolved, then review | kiumars1199/Kismet#53 | FAIL (round 4); round 5 waits on batch 1 |
 | F15 Admin metrics | trust | merged 34f672f with #50 (1376182); migration 000300 live; full suites green (search 300 ms flake passed 21/21 alone). Notes left for follow-up: MRR/churn blocks disagree; yearly priced at monthly | kiumars1199/Kismet#49 | passed review |
-| F16 Big trade alert | alerts | round 2 PASS (code); head 27df90e (+F10 merge, AlertsView copy "checked about every 30 minutes"), CI web green. Migration 000600 before merge, after F10 | kiumars1199/Kismet#57 | PASS (pre-merge); merge pending after F10 |
+| F16 Big trade alert | alerts | migration 000600 applied; merged 5045e21. Post-merge prod check queued. First live run's log line shows the feed order | kiumars1199/Kismet#57 | PASS (pre-merge); post-merge check pending |
 
 Merge order: F3, F1, F2, F5, F7, F8, F9, then F4, F6, F10–F16.
 
@@ -68,7 +68,7 @@ Problems:
 
 - /event/<id> at 390: CLS 0.436 on 8 of 15 cold loads; the footer is pushed down when EventView streams in under a bare <Suspense> with no fallback (app/event/[id]/page.tsx:62). Found by the reviewer on final during F6. Owner: onboarding; fix kiumars1199/Kismet#62 70d8f6b review PASS with notes (48 cold loads, no footer swap; CI green); joins batch 1.
 
-- CI: e2e-paid on `next dev` fails with memory restarts / ECONNRESET on three branches (F13, F14, #61), never on final (reviewer). Owner: trust, PR "CI: run paid e2e on a production server".
+- CI: e2e-paid on `next dev` hit its memory restart (default heap 4144 MB on the runner). Fixed by kiumars1199/Kismet#65 (two shards + pinned 8192 MB heap), review PASS, merged 44ea8b6. Still open (low): a rare `read ECONNRESET` without a restart; trust investigates.
 
 - /markets at 390: the count line ("N markets match · …") wraps from 1 to 2 lines about 1–2 s in on 2 of 9 loads, CLS 0.068 (reviewer, F3 prod). Under budget; low. Owner: data, after F4.
 - f01b + #52 both declare `kalshi_matched_ticker`: whichever merges second drops one line (data, in the #52 rebase). Until #52 lands, pasted Kalshi links still show "missing".
