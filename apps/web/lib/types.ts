@@ -68,6 +68,7 @@ export interface Market {
   competitive?: number;         // abs(mid - 0.5) of the market mid
   // docs/16 §3 market matching (engine job kalshi_match, not built yet). Set only when confidence >= 0.9.
   kalshi_ticker?: string | null;
+  kalshi_unavailable?: true;   // F4: Kalshi lists this market but its snapshot is filtered out by age or delay for this store: the block says "Not available right now"
   kalshi_matched_ticker?: string;   // F4 (#52): the matcher's Kalshi ticker, kept apart from kalshi_ticker so the bet venue doesn't flip to Kalshi
   kalshi_match_conf?: number;
   market_slug?: string;     // Gamma market slug (event slug is `slug`)
@@ -83,7 +84,7 @@ export interface Market {
   venues?: VenueQuote[];
 }
 // F4: one venue's price for the market's best side. `url` is the venue's plain market page (F6 reuses it for deep links).
-// multiplier = 1 / (price + fee) with the venue's own fee; null = no sourced fee formula yet (Kalshi), show the % only.
+// multiplier = 1 / (price + fee) with the venue's own fee (Kalshi: its standard taker fee, engine/venues.py); null = none known, show the % only.
 // at = unix s of the data (the scan for Polymarket and US, the Kalshi crawl for Kalshi); conf = Kalshi match score 0..1.
 export interface VenueQuote {
   venue: "polymarket" | "us" | "kalshi";

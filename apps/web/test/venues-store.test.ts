@@ -44,6 +44,27 @@ describe("venues in the store", () => {
     expect(kalshiSnapshot(file, at + 1000)!.meta.kalshi_fetched_at).toBe(at + 900);
   });
 
+  it("kalshi_unavailable: set when Kalshi's snapshot was filtered by delay or age, not when Kalshi never listed it", async () => {
+    const raw = await loadRaw();
+    const at = raw.markets.meta.scanned_at;
+    // 7078474 is on Polymarket + Polymarket US (best side 1), so its block shows whatever Kalshi says
+    const sn = (t: number, side: 0 | 1 = 1): VenuesSnapshot => ({ meta: { n: 1, kalshi: true, generated_at: t + 60, kalshi_fetched_at: t }, venues: { "7078474": { side, kalshi_ticker: "KXFIXTURE-2", venues: [{ venue: "kalshi", price: 0.5, multiplier: 1.9, url: "https://kalshi.com/markets/kx" }] } } });
+    const id = "7078474";
+    const delayed = buildStore({ ...raw, venues: sn(at + 900) });   // crawl newer than this (delayed) store's scan
+    expect(delayed.byId.get(id)!.kalshi_unavailable).toBe(true);
+    expect(delayed.byId.get(id)!.venues!.map((v) => v.venue)).toEqual(["polymarket", "us"]);
+    expect(buildStore({ ...raw, venues: sn(at - 4 * 3600) }).byId.get(id)!.kalshi_unavailable).toBe(true);   // over 3 h old
+    expect(buildStore({ ...raw, venues: sn(at - 60) }).byId.get(id)!.kalshi_unavailable).toBeUndefined();   // shown
+    expect(buildStore({ ...raw, venues: sn(at - 60, 0) }).byId.get(id)!.kalshi_unavailable).toBeUndefined();   // other side: not listed
+    expect(buildStore({ ...raw, venues: undefined }).byId.get(id)!.kalshi_unavailable).toBeUndefined();   // no file: not listed
+  });
+
+  it("the Kalshi multiplier from venues.json is kept (not nulled by the store)", async () => {
+    const raw = await loadRaw();
+    const s = buildStore({ ...raw, venues: { ...snap(raw.markets.meta.scanned_at - 60, 0.52), venues: { "6674492": { ...snap(1).venues["6674492"]!, venues: [{ venue: "kalshi", price: 0.52, multiplier: 1.85, url: "https://kalshi.com/markets/kx" }] } } } });
+    expect(s.byId.get("6674492")!.venues!.find((v) => v.venue === "kalshi")!.multiplier).toBe(1.85);
+  });
+
   it("a Kalshi quote for the other side of the market is dropped; stale (over 3 h) and malformed files give no Kalshi row", async () => {
     const raw = await loadRaw();
     const at = raw.markets.meta.scanned_at;

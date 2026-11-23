@@ -76,6 +76,7 @@ export interface Market {
   kalshi_match_conf?: number;     // 0..1
   // F4: the Kalshi ticker the venue matcher paired with this market (from venues.json, same side, this scan's snapshot; set with
   // `venues`). For link lookups only: it is NOT kalshi_ticker, which makes Kalshi the market's bet venue.
+  kalshi_unavailable?: true;   // Kalshi lists it but its snapshot is filtered out by age or delay for this store: "Not available right now"
   kalshi_matched_ticker?: string;
   market_slug?: string;     // Gamma market slug (event slug is `slug`)
   us?: UsQuote | null;      // Polymarket US twin; absent on scans before it shipped
@@ -89,8 +90,9 @@ export interface Market {
   venues?: VenueQuote[];
 }
 // F4: one venue's price for the market's best side. `url` = the venue's plain market page (the "How to bet this" deep links
-// of F6 reuse it, so the name is stable). multiplier = 1 / (price + fee) with that venue's own fee; null = no sourced fee
-// formula yet (Kalshi: engine/venues.py TODO), the UI shows the % only and never marks that venue "Pays most here".
+// of F6 reuse it, so the name is stable). multiplier = 1 / (price + fee) with that venue's own fee; Kalshi's is its standard taker
+// fee (engine/venues.py kalshi_fee: round_up_to_cent(0.07 x P x (1 - P)) per contract; some Kalshi markets use another multiplier).
+// null = none known (an older venues.json): the UI shows the % only and that venue never wins "Pays most here".
 // at = unix s of the data (the scan for Polymarket/US, the Kalshi crawl for Kalshi); conf = Kalshi match score 0..1. Both
 // are the basis shown under "Where these prices come from".
 export interface VenueQuote {

@@ -111,9 +111,9 @@ const mult = (ask: number | null | undefined, fee: number | null | undefined) =>
 
 /** F4: the venues of one market. Polymarket and Polymarket US come from the market's own row, exactly what its card shows
  *  (cardVenue): US only when the scan lists the twin (m.us). Kalshi comes from the snapshot, only for the same side. */
-function venuesOf(m: Market, scannedAt: number, k: VenuesSnapshot | undefined): { venues: VenueQuote[]; kalshi_matched_ticker?: string; kalshi_match_conf?: number } | undefined {
+function venuesOf(m: Market, scannedAt: number, k: VenuesSnapshot | undefined, all?: VenuesFile): { venues: VenueQuote[]; kalshi_matched_ticker?: string; kalshi_match_conf?: number; kalshi_unavailable?: true } | undefined {
   if (m.venue === "us") return undefined;   // US-native rows are priced on US only
-  let extra: { kalshi_matched_ticker?: string; kalshi_match_conf?: number } = {};
+  let extra: { kalshi_matched_ticker?: string; kalshi_match_conf?: number; kalshi_unavailable?: true } = {};
   const out: VenueQuote[] = [{ venue: "polymarket", price: m.best.ask, multiplier: mult(m.best.ask, m.best.fee), url: m.url, at: scannedAt }];
   if (m.us) out.push({ venue: "us", price: m.us.ask, multiplier: mult(m.us.ask, m.us.fee), url: m.us.url, at: scannedAt });
   const e = k?.venues[m.id];
@@ -122,7 +122,10 @@ function venuesOf(m: Market, scannedAt: number, k: VenuesSnapshot | undefined): 
     // The matched Kalshi ticker is exposed for link lookups (a pasted kalshi.com link finds this market) as its OWN field:
     // Market.kalshi_ticker means "this market is bet on Kalshi" (venueOf, the Trade ticket, combos, MCP) and stays unset.
     if (e.kalshi_ticker) extra = { kalshi_matched_ticker: e.kalshi_ticker, ...(e.kalshi_match_conf != null ? { kalshi_match_conf: e.kalshi_match_conf } : {}) };
-    out.push({ ...kq, multiplier: null, at: k!.meta.kalshi_fetched_at ?? k!.meta.generated_at, ...(e.kalshi_match_conf != null ? { conf: e.kalshi_match_conf } : {}) });
+    out.push({ ...kq, at: k!.meta.kalshi_fetched_at ?? k!.meta.generated_at, ...(e.kalshi_match_conf != null ? { conf: e.kalshi_match_conf } : {}) });
+  }
+  else if (all && [all, ...(all.prev ?? [])].some((x) => { const q = x?.venues?.[m.id]; return !!q?.venues?.some((v) => v.venue === "kalshi") && (q.side === undefined || q.side === m.best.side_index); })) {
+    extra = { kalshi_unavailable: true };   // Kalshi lists it, but every snapshot is newer than this store's scan (delay) or over 3 h old
   }
   return out.length >= 2 ? { venues: out, ...extra } : undefined;
 }
@@ -132,7 +135,7 @@ export function buildStore(raw: RawData, loadedAt = Date.now()): Store {
   validate("flags.json", raw.flags.meta, raw.flags.flags, FlagSchema);
   const scannedAt = raw.markets.meta.scanned_at;
   const ksnap = kalshiSnapshot(raw.venues, scannedAt);
-  const withVenues = <T extends Market>(m: T): T => { const v = venuesOf(m, scannedAt, ksnap); return v ? { ...m, ...v } : m; };
+  const withVenues = <T extends Market>(m: T): T => { const v = venuesOf(m, scannedAt, ksnap, raw.venues); return v ? { ...m, ...v } : m; };
 
   const flags: StoreMarket[] = raw.flags.flags.map((f) => ({ ...withVenues(f), derived: derive(f) }));
   const flagsById = new Map(flags.map((f) => [f.id, f]));
