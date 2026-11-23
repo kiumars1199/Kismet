@@ -95,7 +95,7 @@ function MarketCell({ r }: { r: ApiRow }) {
           if (e.metaKey || e.ctrlKey) window.open(r.market.url, "_blank", "noopener,noreferrer");
           else open(r.market.id, r.side.side_index);
         }}
-        className="line-clamp-2 min-h-11 font-medium leading-snug text-text hover:text-accent-hover"
+        className="line-clamp-2 min-h-11 font-medium leading-[22px] text-text hover:text-accent-hover"   /* 2 x 22 px = the 44 px tap target, so no sliver of a 3rd line shows under the clamp */
       >
         {r.market.question}
       </a>
@@ -195,7 +195,9 @@ export function MarketTable({ items, sort, onSort, onToggleGroup, pro = false, l
         // one min-width per breakpoint, from the same widths that render (a single base sum let Bet and Topic eat Market's floor from 1440 px)
         style={Object.fromEntries(BREAKPOINTS.map((bp) => [`--mw-${bp}`, `${minWidthAt(visible.map((c) => c.id), bp)}px`])) as React.CSSProperties}
         aria-busy={loading}>
-        <thead className="sticky top-0 z-10 bg-surface lg:top-16">
+        {/* Page-sticky (under the 64 px top bar) only where the box does not scroll: from xl, when the columns fit. In a scrolling box (below xl, or
+            with extra columns) the box is the sticky container, so top-16 would leave a 64 px blank band over the first row. */}
+        <thead className={`sticky top-0 z-10 bg-surface ${more ? "" : "xl:top-16"}`}>
           <tr className="border-b border-border text-left text-xs text-muted">
             {table.getHeaderGroups()[0]!.headers.map((hd) => {
               const meta = (hd.column.columnDef as Col).meta;

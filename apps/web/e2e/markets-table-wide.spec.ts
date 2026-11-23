@@ -236,3 +236,44 @@ for (const w of [1280, 1366, 1440, 1920]) {
     expect(m.overlaps).toEqual([]);
   });
 }
+
+// T-90b: (1) the title link clamps to 2 lines and is 44 px tall, so its line height must be 22 px: with leading-snug (19.25 px) a sliver of
+// a third line showed under the clamp at 140 px Market. Only whole lines may be visible. (2) When the table box scrolls sideways (below xl,
+// or with extra columns) it is the sticky header's scroll container, so the header must sit at the box top (top-0): top-16 left a 64 px
+// blank band and covered the first row. With the default columns from 1280 px the header still sticks at 64 under the page's top bar.
+for (const [label, cols, w] of [["all columns", PRO, 1440], ["default columns", [], 1440], ["all columns", PRO, 1280]] as const) {
+  test(`/markets ${label} at ${w}px: only whole lines of a title show (22 px line height)`, async ({ page }) => {
+    if (cols.length) await withColumns(page, [...cols]);
+    await open(page, w);
+    if (cols.length) await expect(page.locator("table thead th", { hasText: "Realistic edge" }).first()).toBeAttached();
+    await page.waitForTimeout(500);
+    const r = await page.evaluate(() => [...document.querySelectorAll("table tbody tr[data-row] td:nth-child(2) a")].map((a) => {
+      const lh = parseFloat(getComputedStyle(a).lineHeight);
+      return { lh, lines: a.clientHeight / lh };
+    }));
+    expect(r.length).toBeGreaterThan(5);
+    for (const x of r) { expect(x.lh).toBe(22); expect(Math.abs(x.lines - Math.round(x.lines))).toBeLessThan(0.05); }
+  });
+}
+
+for (const [label, cols, w, scrolls] of [["all columns", PRO, 1440, true], ["default columns", [], 1100, true], ["default columns", [], 1440, false]] as const) {
+  test(`/markets ${label} at ${w}px: the header ${scrolls ? "sits at the top of the scrolling box (no blank band over the first row)" : "sticks at 64 under the top bar"}`, async ({ page }) => {
+    if (cols.length) await withColumns(page, [...cols]);
+    await open(page, w);
+    if (cols.length) await expect(page.locator("table thead th", { hasText: "Realistic edge" }).first()).toBeAttached();
+    await page.waitForTimeout(600);
+    expect(await page.evaluate(() => getComputedStyle(document.querySelector("table")!.parentElement!).overflowX)).toBe(scrolls ? "auto" : "visible");
+    const g = await page.evaluate(() => {
+      const t = document.querySelector("table")!, head = t.querySelector("thead")!.getBoundingClientRect(), row = t.querySelector("tbody tr[data-row]")!.getBoundingClientRect();
+      return { band: head.top - t.getBoundingClientRect().top, overlap: head.bottom - row.top };
+    });
+    console.log(`/markets ${label} ${w}px: header offset in table ${Math.round(g.band)}, header over first row ${Math.round(g.overlap)}`);
+    expect(Math.round(g.band)).toBe(0);                 // at rest the header is the table's first row: no band
+    expect(g.overlap).toBeLessThanOrEqual(1);           // and it doesn't cover the first row
+    if (!scrolls) {
+      await page.mouse.wheel(0, 700);
+      await page.waitForTimeout(500);
+      expect(Math.round(await page.locator("table thead").evaluate((el) => el.getBoundingClientRect().top))).toBe(64);
+    }
+  });
+}
