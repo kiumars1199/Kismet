@@ -28,7 +28,8 @@
     }
    ],
    "side": 0,
-   "kalshi_match_conf": 0.93
+   "kalshi_match_conf": 0.93,
+   "kalshi_ticker": "KXFIXTURE-6674492"
   },
   "7077573": {
    "venues": [
@@ -52,7 +53,8 @@
     }
    ],
    "side": 0,
-   "kalshi_match_conf": 0.97
+   "kalshi_match_conf": 0.97,
+   "kalshi_ticker": "KXFIXTURE-7077573"
   },
   "7078474": {
    "venues": [

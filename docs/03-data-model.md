@@ -74,6 +74,9 @@ export interface Market {
   // docs/16 §3 market matching (engine job kalshi_match, not built yet). Set only when confidence >= 0.9.
   kalshi_ticker?: string | null;  // e.g. "KXHIGHCHI-26NOV17-B56.5"; drives "Open on Kalshi" + paper Trade ticket
   kalshi_match_conf?: number;     // 0..1
+  // F4: the Kalshi ticker the venue matcher paired with this market (from venues.json, same side, this scan's snapshot; set with
+  // `venues`). For link lookups only: it is NOT kalshi_ticker, which makes Kalshi the market's bet venue.
+  kalshi_matched_ticker?: string;
   market_slug?: string;     // Gamma market slug (event slug is `slug`)
   us?: UsQuote | null;      // Polymarket US twin; absent on scans before it shipped
   // "us" = a US-only market scored at US prices (engine/us_native.py): id "us-<US id>", event_id "us:<US event id>",
@@ -100,8 +103,8 @@ export interface VenueQuote {
 }
 // output/venues.json (side file, written by `python -m engine kalshi` after the crawl). Only markets on 2+ venues. Kalshi
 // matches need hard gates (category, close within 48 h, same numbers, side name in Kalshi's label) and a score >= 0.9; no
-// match = not listed. `kalshi_ticker` is informational: it is NOT copied onto Market.kalshi_ticker (that would switch the
-// bet button to Kalshi). `side` = the side the Kalshi price is for; the web drops it when the market's best side differs.
+// match = not listed. `kalshi_ticker` is copied onto Market.kalshi_matched_ticker (link lookups), NOT onto Market.kalshi_ticker
+// (that would switch the bet button to Kalshi). `side` = the side the Kalshi price is for; the web drops it when the market's best side differs.
 // Delay: the file keeps its last 2 snapshots in `prev`; a store (Free's is a scan or more behind) takes the newest
 // snapshot whose Kalshi crawl (meta.kalshi_fetched_at) is not newer than its own scan, and none over 3 h older.
 export interface VenuesSnapshot {
