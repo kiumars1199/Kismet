@@ -19,8 +19,8 @@ file after every merge. "Review result" says "passed review" only after the revi
 |---|---|---|---|---|
 | F1 Bet checker | checker | review PASS with notes on 064f521 (CLS fixed); merge waits on the Vercel limit. Follow-up launch/checker-f01b c7e0a4b PASS with notes (Kalshi Use it per side, 640 px card, F2 CLS fix); merges after #43/#45, before F4 #52 | kiumars1199/Kismet#43 | PASS (pre-merge); post-merge check pending |
 | F2 Combo checker | checker | review PASS with notes on ef73b2f (one server call per check; CI green); merge after F1, waits on the Vercel limit. Low: CLS 0.141 at 390 when legs arrive after a slow lookup (follow-up) | kiumars1199/Kismet#45 | PASS (pre-merge); post-merge check pending |
-| F3 Every market searchable | data | merged 9ad7713; prod check FAIL (polymarket count); fix #59 4e52f3d PASS with notes (CI green); suites on final+F9+#59 green; merges after F9, blocked on the Vercel limit | kiumars1199/Kismet#42 (fix #59; follow-up #60 df67be8: index download only when it changed) | fix PASS; prod recheck pending |
-| F4 Three venues side by side | data | round 3 head 42ee0ba (delay-safe Kalshi snapshot, rows from the market's own row, price basis, 44 px tap target, kalshi_matched_ticker); review queued; merges after F1/F2/f01b, then rebase | kiumars1199/Kismet#52 | not reviewed (round 3 queued) |
+| F3 Every market searchable | data | merged 9ad7713; prod check FAIL (polymarket count); fix #59 4e52f3d PASS with notes (CI green); suites on final+F9+#59 green; merges after F9, blocked on the Vercel limit | kiumars1199/Kismet#42 (fix #59; follow-up #60 df67be8 PASS with notes, merges after #59) | fix PASS; prod recheck pending |
+| F4 Three venues side by side | data | review PASS with notes on 42ee0ba (CI green). Before merge: rebase after F1/F2/f01b with one kalshi_matched_ticker declaration + Kalshi fixture row and /check e2e | kiumars1199/Kismet#52 | PASS (pre-merge); rebase pending |
 | F5 Topics at signup | onboarding-invites | review PASS with notes on ff7c5eb (1-year uid-bound hint, sign-out clears it; CI green); migration 20261122000100 applied just before merge; merge waits on the Vercel limit | kiumars1199/Kismet#47 | PASS (pre-merge); post-merge check pending |
 | F6 How to place this bet | checker | all 4 fixes pushed (3668ac3: BetCard How to bet this + RiskNote); re-review queued; F9 wiring after #48 | kiumars1199/Kismet#46 | not reviewed |
 | F7 Live payments by config | trust | merged (cd9f672), prod READY, health ok | kiumars1199/Kismet#41 | passed review |
@@ -29,8 +29,8 @@ file after every merge. "Review result" says "passed review" only after the revi
 | F10 Install and web push | alerts | PR open (3234b82; Lighthouse PWA 1; migration 20261122000500); in review queue | kiumars1199/Kismet#56 | not reviewed |
 | F11 Bet tracker | tracker | PR open, 31bf544 (one-tap log, P&L by sport, beat-the-close, 50/50 = split); migration 20261123000100_journal_split pending; review queued | kiumars1199/Kismet#58 | not reviewed |
 | F12 Morning digest | onboarding-invites | PR open (3862060; opt-in default off); migration renamed to 000400 pending; in review queue | kiumars1199/Kismet#55 | not reviewed |
-| F13 Share and invite | onboarding-invites | round 2 fixes pushed (f1b08ce: public OG image, pending invites promoted, deferred grant for Premium inviters, ?ref links); re-review queued; migration 000200 pending | kiumars1199/Kismet#51 | not reviewed |
-| F14 Price history chart | data | option C, head 581a9de (on F4 42ee0ba): 360 px card in every state, engine history + live CLOB fallback, Free cut at scan time; local pytest 175, vitest 1522, e2e 118; review queued after F4 | kiumars1199/Kismet#53 | not reviewed |
+| F13 Share and invite | onboarding-invites | round 2 f1b08ce: product checks pass, CI red (t291-plans ECONNRESET, likely flake). Round 3 fixes: signed share links so the public OG image shows numbers only when signed (T-276), one-line wording, non-recommended side card | kiumars1199/Kismet#51 | FAIL (CI; round 3 fixes in progress) |
+| F14 Price history chart | data | review PASS with notes on 581a9de, two findings being fixed: Free cut leaks up to one bucket past scan time; empty state CLS 0.20 at 390 | kiumars1199/Kismet#53 | fixes in progress |
 | F15 Admin metrics | trust | merged 34f672f with #50 (1376182); migration 000300 live; full suites green (search 300 ms flake passed 21/21 alone). Notes left for follow-up: MRR/churn blocks disagree; yearly priced at monthly | kiumars1199/Kismet#49 | passed review |
 | F16 Big trade alert | alerts | PR open (e3287b0, stacked on F10; migration 000600); in review queue | kiumars1199/Kismet#57 | not reviewed |
 
@@ -59,6 +59,10 @@ Problems:
 - /m at 390: CLS 0.17–0.19 in the e2e env from the paper-trade button mounting after /api/trade/config (data, F14). Reviewer to measure on prod; owner decided after that.
 
 - Kalshi links stay unresolvable after #52: store.ts withVenues drops kalshi_ticker (reviewer, f01b). Owner: data, in #52.
+
+- F13 deferred invite reward waits for the next sign-in if a trial lapses while signed in (reviewer). Follow-up: hook on Stripe subscription-ended. Owner: onboarding, after F13.
+- Pre-existing: at 390 on /bets?m=<id> with the tour flag set, the tour dialog sits behind the drawer and can't be dismissed (reviewer, F13). Owner: lead to assign.
+- Kalshi shows a price only, with the fee not counted (engine/venues.py TODO). The wording is honest; follow-up.
 
 ## Fixed log
 - F7: passed review (pre-merge PASS + post-merge PASS on cd9f672; evidence review/f07/).

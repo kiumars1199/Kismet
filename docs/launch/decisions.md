@@ -65,3 +65,13 @@ The reviewer noted that one Free combo check returns the model chance for each o
 `kalshi_ticker` drives the bet venue: venueOf, TradeButton, ComboTray and the MCP server all read it. Copying the matcher's ticker into it would turn every matched Polymarket market's bet button into a Kalshi one.
 - F4 #52 adds `Market.kalshi_matched_ticker` instead, with types.ts, the schema and docs/03 agreeing. It is set only when that scan's same-side Kalshi quote is used.
 - F1's resolveLink reads `kalshi_matched_ticker ?? kalshi_ticker`. That change is in the checker's follow-up branch, launch/checker-f01b.
+
+## Nov 23 — F13 public share image
+`/api/og/bet/<id>` is public, so it gave anyone Free-banded model numbers for any id. That goes around T-276 and the Free quota.
+- **Signed links.** Share links now carry an HMAC of id|side, made with an existing server secret, so Q has no new env var. Only a signed request renders numbers; any other request gets the teaser card.
+- **Wording.** The share card uses one line: "Bets like this won about N in 10 before".
+
+## Nov 23 — Vercel slots
+Under the rolling 24 h limit, slots free up one at a time. The lead spends them on purpose:
+- Previews for exact merge heads go through create_deployment with the head SHA.
+- If a merge's production build is refused, the lead redeploys that SHA to production when the next slot frees, and runs the prod checks then.
