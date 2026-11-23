@@ -42,7 +42,7 @@ test("S7 sign up → upgrade with Stripe → Pro unlocks live data and exact num
   expect((await (await page.request.get("/api/me")).json()).tier).toBe("free");
   // T-288: Free is exactly 10 Best bets a day, and says so (never "Free shows 89 …")
   await page.goto("/bets");
-  await expect(page.getByTestId("locked-bets")).toContainText("Free shows 10 Best bets a day");
+  await expect(page.getByTestId("locked-bets")).toContainText("Free shows 10 of today's best bets");
 
   // §B (T-302): Free Best bets end in one solid inline card, "Unlock N more bets" → /pricing. It covers nothing, so it
   // has no close button (the T-291 #11 overlay it replaced did).

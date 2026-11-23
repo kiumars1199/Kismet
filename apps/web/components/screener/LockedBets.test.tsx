@@ -31,7 +31,7 @@ describe("LockedBets", () => {
 
   it("T-288: states the daily allowance, never the number of rows on the page", () => {
     const { container } = render(<LockedBets total={1070} shown={4} daily={10} desktop />);
-    expect(container.textContent).toContain("Free shows 10 Best bets a day, chosen at random");
+    expect(container.textContent).toContain("Free shows 10 of today's best bets, picked at random each day, with delayed prices.");
     expect(screen.getByRole("link").textContent).toBe("Unlock 1,066 more bets");
     expect(container.textContent).not.toMatch(/Free shows 4\b/);
   });

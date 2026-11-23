@@ -4,6 +4,7 @@
 // locked rows (lib/data/respond.ts freeFlagsPage), and the card says so plainly. It sits inline in the list, so it
 // covers nothing and needs no close button (the T-291 #11 overlay it replaces did).
 import Link from "next/link";
+import { FREE_BEST_BETS_A_DAY } from "@/lib/entitlements";
 import { plural } from "@/lib/format";
 import { track } from "@/lib/telemetry";
 
@@ -25,7 +26,7 @@ export function LockedBets({ total, shown, daily }: { total: number; shown: numb
       <p className="flex-1 text-[13px] leading-relaxed text-muted">
         {none
           ? `None of today's ${daily} free bets match these filters. Pro shows all ${total.toLocaleString("en-US")}, live.`
-          : `Free shows ${daily} Best bets a day, chosen at random, with delayed prices. Pro shows every one, live.`}
+          : `Free shows ${FREE_BEST_BETS_A_DAY} of today's best bets, picked at random each day, with delayed prices. Pro shows every one, live.`}
       </p>
       <Link href="/pricing" onClick={() => track("upgrade_clicked", { source: "locked_bets" })} data-testid="unlock-all"
         className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent px-5 font-semibold text-on-accent hover:bg-accent-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent sm:min-h-11 sm:w-auto">
