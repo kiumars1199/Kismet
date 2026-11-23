@@ -59,7 +59,7 @@ test("the guide's check-your-state line opens the signed-out state picker, then 
   const guide = page.getByTestId("howto");
   await guide.locator("[data-testid^=howto-venue-]").first().click();
   const link = guide.getByTestId("howto-avail-line").getByTestId("state-link");
-  await expect(link).toHaveAttribute("href", "/state");
+  await expect(link).toHaveAttribute("href", /^\/state\?next=%2Fcheck/);
   await link.click();
   await expect(page).toHaveURL(/\/state\?next=%2Fcheck/);   // the F9 picker, not /settings#state
   await expect(page).not.toHaveURL(/settings/);
