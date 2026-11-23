@@ -1,7 +1,7 @@
 // F5: pick topics at signup. New account picks NFL + Politics -> / and /bets open filtered with a visible "Your topics"
 // pill that clears in one tap (and stays cleared). Skipping setup leaves the views unfiltered. Filters only, never picks.
 import path from "node:path";
-import { expect, test, type Locator, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "./fixtures";
 
 async function signUp(page: Page, email: string) {
   await page.goto("/login");

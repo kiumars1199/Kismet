@@ -2,7 +2,7 @@
 // well outside the 500 ms input window, so every shift counts); CLS ignores entries with hadRecentInput.
 // Independent of the day's random Free sample: the answers for the filtered URLs are shaped from the real unfiltered one
 // (no rows, or a few rows), so the same transitions happen on any data.
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "./fixtures";
 
 async function signUp(page: Page, email: string) {
   await page.goto("/login");

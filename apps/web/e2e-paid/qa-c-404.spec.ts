@@ -1,6 +1,6 @@
 // Marc's QA list #33 (Nov 20): signed out, a URL that is no page shows the 404 page (header, footer, disclaimer),
 // not a redirect to /signup. The app's real pages still go to sign-up.
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 test("#33 signed out: unknown URLs are a 404 page; app pages still ask for an account", async ({ page }) => {
   for (const p of ["/nope-xyz", "/pricingx", "/some/deep/path"]) {

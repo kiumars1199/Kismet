@@ -1,6 +1,6 @@
 // F1 (SPEC): Free account: the first check answers 200, a second check the same UTC day answers 429 { code: "check_limit" }
 // (counted on the server, per account). Pro: 20 checks, all 200. Supabase/Stripe: the in-app mock.
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "./fixtures";
 import { expectPlanActive } from "./checkout";
 
 async function signIn(page: Page, email: string) {
