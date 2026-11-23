@@ -40,15 +40,15 @@ function columns(pro: boolean): Col[] {
     }),
     h.display({ id: "bet", header: "Bet", meta: { label: "Bet" }, cell: ({ row: { original: r } }) => {
       const q = betQuote(r.market, r.side);
-      // The separator dot rides at the END of the first half (shown from 1400 px, where the Market column is capped so this seldom wraps):
-      // if "pays" does drop to line 2, the dot stays on line 1 and no line starts with "·". Squeezed below 1400 px there is no dot.
+      // No separator before "pays": the muted extra-small "pays 1.47x" sets the halves apart. The two halves wrap onto two lines only when
+      // the table is squeezed (1280 px, any font).
       return (
         <span data-testid="bet-cell" className="font-medium">
-          <span data-testid="bet-side" className="whitespace-nowrap">{r.side.outcome} · {pct(q.ask)}<span data-testid="bet-dot" aria-hidden="true" className="hidden min-[1400px]:inline"> ·</span></span>{" "}
+          <span data-testid="bet-side" className="whitespace-nowrap">{r.side.outcome} · {pct(q.ask)}</span>{" "}
           <span data-testid="bet-pays" className="whitespace-nowrap text-xs font-normal tabular-nums text-muted" title={PAYS_AFTER_FEE_HELP}>pays {q.paysText ?? DASH}</span>
         </span>
       );
-    } }),   // the two halves wrap onto two lines only when the table is squeezed (1280 px, any font)
+    } }),
     h.display({
       id: "return", meta: { label: pro ? "Edge" : "Estimated return", sort: pro ? "edge" : "roi", right: true, help: RETURN_HELP },
       header: pro ? "Edge" : "Estimated return",
@@ -102,6 +102,19 @@ function MarketCell({ r }: { r: ApiRow }) {
     </div>
   );
 }
+
+/** Pinned column widths (px), so the table never re-sizes while the virtualiser mounts rows (table-layout: fixed). The base widths are each
+ *  column's narrowest content; their default-column sum (1057) is what the 1280 room guard measures (e2e/markets-table-wide.spec.ts). Wider
+ *  boxes share the extra space in proportion; from 1400 px Market, Bet and Topic get their own, roomier widths (the Bet cell never wraps).
+ *  Whole class strings, so Tailwind sees them. */
+const COL_W: Record<string, [px: number, cls: string]> = {
+  star: [60, "w-[60px]"], market: [130, "w-[130px] min-[1400px]:w-[288px]"], bet: [136, "w-[136px] min-[1400px]:w-[240px]"], return: [126, "w-[126px]"],
+  won: [97, "w-[97px]"], says: [100, "w-[100px]"], chance: [120, "w-[120px]"], closes: [70, "w-[70px]"], topic: [60, "w-[60px] min-[1400px]:w-[112px]"], alert: [158, "w-[158px]"],
+  mid: [88, "w-[88px]"], spread: [96, "w-[96px]"], fee: [80, "w-[80px]"], volume: [96, "w-[96px]"], volume_24h: [110, "w-[110px]"], liquidity: [100, "w-[100px]"],
+  evidence: [104, "w-[104px]"], level: [120, "w-[120px]"], type: [120, "w-[120px]"], retention: [104, "w-[104px]"], capacity: [104, "w-[104px]"],
+  verdict: [120, "w-[120px]"], realistic: [130, "w-[130px]"],
+};
+const colW = (id: string): [number, string] => COL_W[id] ?? [100, "w-[100px]"];
 
 const COLS_KEY = "me.columns.v1";
 const PRO_IDS = ["mid", "spread", "fee", "volume", "volume_24h", "liquidity", "evidence", "level", "type", "retention", "capacity", "verdict", "realistic"];
@@ -187,7 +200,7 @@ export function MarketTable({ items, sort, onSort, onToggleGroup, pro = false, l
     // the overflowing content), so the class cannot flip-flop.
     <div className="relative rounded-card border border-border bg-surface">
       <div ref={boxRef} className={more ? "overflow-x-auto" : "overflow-x-auto xl:overflow-visible"}>
-      <table className={`w-full border-collapse text-sm ${loading ? "opacity-60" : ""}`} aria-busy={loading}>
+      <table className={`w-full table-fixed border-collapse text-sm ${loading ? "opacity-60" : ""}`} style={{ minWidth: visible.reduce((a, c) => a + colW(c.id)[0], 0) }} aria-busy={loading}>
         <thead className="sticky top-0 z-10 bg-surface lg:top-16">
           <tr className="border-b border-border text-left text-xs text-muted">
             {table.getHeaderGroups()[0]!.headers.map((hd) => {
@@ -198,7 +211,7 @@ export function MarketTable({ items, sort, onSort, onToggleGroup, pro = false, l
                   key={hd.id}
                   scope="col"
                   aria-sort={active ? (sort.dir === "asc" ? "ascending" : "descending") : undefined}
-                  className={`px-3 py-2.5 font-medium xl:px-2 ${meta?.right ? "text-right" : ""} ${hd.id === "star" ? "w-11" : ""} ${hd.id === "market" ? "w-[38%] min-[1400px]:w-[18rem]" : ""} ${hd.id === "bet" ? "min-[1400px]:w-60" : ""} ${hd.id === "topic" ? "min-[1400px]:w-28" : ""}`}
+                  className={`px-3 py-2.5 font-medium xl:px-2 ${meta?.right ? "text-right" : ""} ${colW(hd.id)[1]}`}
                 >
                   {hd.id === "star" ? (
                     <ColumnChooser cols={table.getAllLeafColumns().map((c) => ({ id: c.id, label: (c.columnDef as Col).meta?.label ?? c.id, pro: !!(c.columnDef as Col).meta?.pro, on: c.getIsVisible(), toggle: () => c.toggleVisibility() }))} />

@@ -136,13 +136,13 @@ test("/markets with one extra column (Volume) at 1280px: it fits now (Bet and To
   expect(Math.round(await page.locator("table thead").evaluate((el) => el.getBoundingClientRect().top))).toBe(64);
 });
 
-// Bet cell at wide widths (follow-up to #81): the Market column used to take all the slack, so "Yes · 69% · pays 1.45x" wrapped on almost
-// every row (53 px rows became 69 px) and line 2 began with a stray "·". Cap the Market column; the dot shows only where it cannot wrap.
+// Bet cell and column widths (follow-ups to #81): the Market column used to take all the slack, so "Yes · 69% · pays 1.45x" wrapped on almost
+// every row. Columns are now pinned (table-layout: fixed), so they never re-size as the virtualiser mounts rows, and nothing separates the
+// two halves of the Bet cell: the muted "pays 1.47x" does. A wrap is a 10 px drop between the two halves.
 const betCells = (page: Page) => page.evaluate(() => [...document.querySelectorAll('[data-testid="bet-cell"]')].map((c) => {
   const first = c.querySelector('[data-testid="bet-side"]')!.getBoundingClientRect();
   const pays = c.querySelector('[data-testid="bet-pays"]')!.getBoundingClientRect();
-  const dot = c.querySelector('[data-testid="bet-dot"]') as HTMLElement | null;
-  return { wrapped: pays.top >= first.bottom - 1, leadingDot: !!dot && getComputedStyle(dot).display !== "none" && dot.getBoundingClientRect().top >= pays.top - 1 && pays.top >= first.bottom - 1, row: (c.closest("tr") as HTMLElement).getBoundingClientRect().height };
+  return { wrapped: pays.top - first.top > 10, hasDot: !!c.querySelector('[data-testid="bet-dot"]') || /·\s*pays/.test((c as HTMLElement).innerText), row: (c.closest("tr") as HTMLElement).getBoundingClientRect().height };
 }));
 const cls = (page: Page) => page.addInitScript(() => {
   const w = window as unknown as { __cls: number };
@@ -168,13 +168,31 @@ for (const w of [1440, 1920]) {
   });
 }
 
-test("/markets at 1280px: where Bet wraps, line 2 never starts with a dot; no sideways scroll, CLS < 0.05", async ({ page }) => {
+test("/markets at 1280px: no dot between the halves of Bet (so no line starts with one); no sideways scroll, CLS < 0.05", async ({ page }) => {
   await cls(page);
   await open(page, 1280);
   await page.waitForTimeout(800);
   const cells = await betCells(page);
   expect(cells.length).toBeGreaterThan(5);
-  expect(cells.filter((c) => c.leadingDot)).toHaveLength(0);
+  expect(cells.filter((c) => c.hasDot)).toHaveLength(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBe(0);
   expect(await page.evaluate(() => (window as unknown as { __cls: number }).__cls)).toBeLessThan(0.05);
 });
+
+// The columns must not jump while the page scrolls (the virtualiser mounts and unmounts rows): widths within 1 px at scrollY 0, 300, 700.
+const widths = (page: Page) => page.evaluate(() => [...document.querySelectorAll("table thead th")].map((h) => h.getBoundingClientRect().width));
+for (const w of [1280, 1366, 1440]) {
+  test(`/markets at ${w}px: column widths stay within 1 px as the page scrolls (0, 300, 700)`, async ({ page }) => {
+    await open(page, w);
+    await page.waitForTimeout(500);
+    const at: number[][] = [await widths(page)];
+    for (const y of [300, 700]) {
+      await page.mouse.wheel(0, y === 300 ? 300 : 400);
+      await page.waitForFunction((t) => Math.abs(window.scrollY - t) < 2, y, { timeout: 5_000 }).catch(() => {});
+      await page.waitForTimeout(500);
+      at.push(await widths(page));
+    }
+    console.log(`/markets ${w}px column widths at scrollY 0/300/700: ${at.map((a) => a.map(Math.round).join(",")).join(" | ")}`);
+    for (const a of at.slice(1)) a.forEach((x, i) => expect(Math.abs(x - at[0]![i]!), `column ${i} at ${w}`).toBeLessThanOrEqual(1));
+  });
+}
