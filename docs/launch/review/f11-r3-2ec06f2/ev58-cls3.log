@@ -1,0 +1,13 @@
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+page.waitForURL: Navigation failed because page crashed!
+=========================== logs ===========================
+waiting for navigation until "load"
+============================================================
+Node.js v22.23.5
+premium tier=premium delay=2500ms cls=[0,0,0] cards=12 logBtns=12 slotsLeft=0 upsell=0 knownAfterLoadMs=[4142,4082,3628]
+premium /check log: "Logged $100 at 69%. See My bets Undo" journal first row: "Nov 23, 2026Miami (OH) vs. Kent State: 1Q MoneylineMiami (OH) · CFB69%$100+28%—Open—EditDelete"
+free tier=free delay=2500ms cls=[0,0.0005,0] cards=10 logBtns=0 slotsLeft=0 upsell=1 knownAfterLoadMs=[4612,4726,4706]
+pro tier=pro delay=2500ms cls=[0,0,0] cards=12 logBtns=12 slotsLeft=0 upsell=0 knownAfterLoadMs=[4637,4252,4641]
+pro /check log: "Logged $100 at 69%. See My bets Undo" journal first row: "Nov 23, 2026Miami (OH) vs. Kent State: 1Q MoneylineMiami (OH) · CFB69%$100+28%—Open—EditDelete"

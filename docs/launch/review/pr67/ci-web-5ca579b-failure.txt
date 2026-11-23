@@ -1,0 +1,36 @@
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+[WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+F···················
+
+  1) [chromium] › e2e-paid/launch-f05-topics.spec.ts:59:3 › picks NFL + Politics at 1440px: / and /bets open filtered with a Your topics pill; one tap clears it 
+
+    Error: expect(page).not.toHaveURL(expected) failed
+
+    Expected pattern: not /fav=1/
+    Received string: "http://localhost:3100/bets?fav=1&t=sports.nfl%2Cpolitics.elections"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "not toHaveURL" with timeout 5000ms
+        14 × locator resolved to <html lang="en" data-theme="dark" data-density="comfortable" class="__variable_d8ebd1 __variable_c219ed">…</html>
+           - unexpected value "http://localhost:3100/bets?fav=1&t=sports.nfl%2Cpolitics.elections"
+
+
+      116 |     // one tap clears it, saved to the account: the next visit stays unfiltered
+      117 |     await pill(page).click();   // the pill is in the server HTML; networkidle above means it is hydrated
+    > 118 |     await expect(page).not.toHaveURL(/fav=1/);
+          |                            ^
+      119 |     await expect(pill(page)).toHaveCount(0);
+      120 |     await page.waitForLoadState("networkidle");
+      121 |     await page.screenshot({ path: `${SHOTS}/${w}-3-cleared.png` });
+        at /home/runner/work/Kismet/Kismet/apps/web/e2e-paid/launch-f05-topics.spec.ts:118:28
+
+    Error Context: test-results/launch-f05-topics-picks-NF-adaa2-pics-pill-one-tap-clears-it-chromium/error-context.md
+
+  1 failed
+    [chromium] › e2e-paid/launch-f05-topics.spec.ts:59:3 › picks NFL + Politics at 1440px: / and /bets open filtered with a Your topics pill; one tap clears it 
+  28 passed (11.9m)
