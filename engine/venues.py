@@ -8,10 +8,10 @@ least two venues. It is a side file because the Kalshi crawl runs after the scan
 Kalshi matching is conservative: precision over recall. A pair must pass hard gates (same category family, closes within
 48 h, same numbers, the side's name appears in Kalshi's label) and then a score >= MIN_SCORE. No match = "Not listed".
 
-Kalshi multiplier is None on purpose: Kalshi's fee formula is in its fee schedule PDF
-(https://kalshi.com/docs/kalshi-fee-schedule.pdf, linked from https://help.kalshi.com/en/articles/13823805-fees), which
-returned HTTP 429 on every fetch on 2026-11-22, and the help page itself carries no formula. TODO: read the formula from
-that PDF and fill `multiplier`; until then Kalshi shows its price only and never wins "Pays most here".
+Kalshi multiplier (Nov 23, 2026): Kalshi's published taker fee, fee = round_up_to_cent(0.07 x C x P x (1 - P)), from
+https://kalshi.com/docs/kalshi-fee-schedule.pdf (found by web search on 2026-11-23; docs/launch/decisions.md). For one
+contract (C = 1) the multiplier is 1 / (P + fee), the fee rounded up to the next cent first. This is Kalshi's STANDARD
+fee: some Kalshi markets use a different fee multiplier, so the web labels it "(standard Kalshi fee)", never "exact".
 """
 import json
 import os
@@ -94,6 +94,20 @@ def kalshi_price(pm, k):
     return None if k["yes_ask"] is None else round(k["yes_ask"] / 100, 4)
 
 
+def kalshi_fee(price):
+    """Standard Kalshi taker fee in dollars for ONE contract at `price` (0-1): 0.07 * P * (1 - P) rounded UP to the cent.
+    Integer cents so float noise cannot add a cent (see the module doc for the source)."""
+    c = round(price * 100)
+    return -(-7 * c * (100 - c) // 10000) / 100
+
+
+def kalshi_multiplier(price):
+    """1 / (price + fee) for one contract, or None without a usable price."""
+    if not price or price <= 0:
+        return None
+    return round(1 / (price + kalshi_fee(price)), 4)
+
+
 def _mult(ask, fee):
     return round(1 / (ask + (fee or 0)), 4) if ask and ask > 0 else None
 
@@ -108,7 +122,7 @@ def quotes(pm, rows):
     hit = match_kalshi(pm, rows) if rows else None
     if hit:
         k, s = hit
-        out.append(dict(venue="kalshi", price=kalshi_price(pm, k), multiplier=None, url=kalshi_url(k["series"])))   # TODO fee, see module doc
+        out.append(dict(venue="kalshi", price=kalshi_price(pm, k), multiplier=kalshi_multiplier(kalshi_price(pm, k)), url=kalshi_url(k["series"])))
     return out, hit
 
 

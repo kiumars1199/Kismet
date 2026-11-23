@@ -38,13 +38,13 @@ def _row(**kw):
     return [f"KXNFLGAME-1", "Colts at Texans", "Texans", "sports.nfl", "KXNFLGAME", 58, 60, None, 100, 1795372009 + 101 * 3600]
 
 
-def test_build_polymarket_us_and_kalshi_in_order_with_null_kalshi_multiplier():
+def test_build_polymarket_us_and_kalshi_in_order_with_kalshi_multiplier():
     pm = _pm(us=dict(ask=0.6, fee=0.01, url="https://polymarket.us/event/x"))
     out = v.build([pm], [_row()])["1"]
     assert [q["venue"] for q in out["venues"]] == ["polymarket", "us", "kalshi"]
     poly, us, k = out["venues"]
     assert poly["multiplier"] == round(1 / 0.63, 4) and us["multiplier"] == round(1 / 0.61, 4)
-    assert k["price"] == 0.6 and k["multiplier"] is None and k["url"] == "https://kalshi.com/markets/kxnflgame"
+    assert k["price"] == 0.6 and k["multiplier"] == round(1 / 0.62, 4) and k["url"] == "https://kalshi.com/markets/kxnflgame"
     assert out["kalshi_ticker"] == "KXNFLGAME-1" and out["kalshi_match_conf"] >= v.MIN_SCORE
 
 
@@ -87,3 +87,28 @@ def test_write_stamps_the_kalshi_crawl_time_and_keeps_two_older_snapshots(tmp_pa
     # the same crawl written twice is one snapshot, not two
     v.write(cfg, log=lambda *_: None)
     assert [p["meta"]["kalshi_fetched_at"] for p in json.load(open(tmp_path / "venues.json"))["prev"]] == [3000, 2000]
+
+
+# Kalshi taker fee for one contract: round_up_to_cent(0.07 * C * P * (1 - P)), C = 1; multiplier = 1 / (P + fee).
+# Hand-computed: P=0.01: 0.07*0.01*0.99 = 0.000693 -> 1c; 1/0.02 = 50. P=0.50: 0.07*0.25 = 0.0175 -> 2c; 1/0.52 = 1.9231.
+# P=0.97: 0.07*0.97*0.03 = 0.002037 -> 1c; 1/0.98 = 1.0204. P=0.69: 0.07*0.69*0.31 = 0.014973 -> 2c.
+def test_kalshi_fee_rounds_up_to_the_next_cent():
+    assert v.kalshi_fee(0.01) == 0.01
+    assert v.kalshi_fee(0.50) == 0.02
+    assert v.kalshi_fee(0.97) == 0.01
+    assert v.kalshi_fee(0.69) == 0.02
+
+
+def test_kalshi_multiplier_is_one_over_price_plus_fee():
+    assert v.kalshi_multiplier(0.01) == 50.0
+    assert v.kalshi_multiplier(0.50) == 1.9231
+    assert v.kalshi_multiplier(0.97) == 1.0204
+
+
+def test_kalshi_multiplier_none_without_a_usable_price():
+    assert v.kalshi_multiplier(None) is None and v.kalshi_multiplier(0) is None
+
+
+def test_kalshi_fee_other_prices():
+    # P=0.20: 0.07*0.2*0.8 = 0.0112 -> 2c; P=0.10: 0.07*0.1*0.9 = 0.0063 -> 1c (integer-cent maths, no float noise).
+    assert v.kalshi_fee(0.20) == 0.02 and v.kalshi_fee(0.10) == 0.01
