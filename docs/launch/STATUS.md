@@ -114,6 +114,7 @@ Problems:
 - #82 merged 18:06 as fbf5407 (PASS 4f8d1fd, CI all green, preview READY).
 - #71 merged 18:09 as efa7343 (PASS r3 dfbede9, CI all green, preview READY).
 - #80 merged 18:12 as eef7345 (PASS with notes d21a714, CI all green, preview READY). Follow-up: footer "source ," gap + LockedBets "chosen at random" copy.
+- #81 5b1ffa2 review FAIL: Pro with extra columns gets page sideways scroll from 1280 (xl:overflow-visible regardless of fit). Data lane fixing (overflow-visible only when the table fits + fade at xl when it does not) plus the /markets group-row "More Markets" suffix.
 - Old: CI timeout #73 (one line, 30 → 45 min), split out of #69 so it lands first; #51 was also cancelled at 30 min (10:05–10:35).
 - CI blockers (10:05): #66 was cancelled by the 30-min job timeout (the run now takes ~30 min); #68 and #67 failed on the F5 pill tap before page load (AppliedPills is a client-only button). Both are being fixed in #69 (trust); after it merges, final gets merged into the waiting PRs.
 - F5 pill-click flake: e2e-paid/launch-f05-topics.spec.ts:59 at 1440 failed on CI after a server ECONNRESET (seen on #67). Part of trust's stabilize PR (D).
