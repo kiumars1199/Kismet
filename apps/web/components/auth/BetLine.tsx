@@ -15,7 +15,7 @@ export function BetLine({ title }: { title: string }) {
     const p = ref.current;
     const node = p?.firstChild;
     if (!p || !node) return;
-    const fits = (t: string) => { node.nodeValue = BET_LEDE + t; return p.scrollHeight <= p.clientHeight + 1; };   // line-clamp-2: clipped text counts in scrollHeight
+    const fits = (t: string) => { node.nodeValue = BET_LEDE + t; return p.scrollHeight <= p.clientHeight + 1 && p.scrollWidth <= p.clientWidth + 1; };   // line-clamp-2: clipped text counts in scrollHeight
     const run = () => {
       const best = fitClamp(title, fits);
       node.nodeValue = BET_LEDE + best;   // the search leaves the DOM on its last probe, which is not always the answer; and when the answer is the

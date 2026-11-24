@@ -18,11 +18,11 @@ describe("fitClamp", () => {
   });
   it("drops filler first and keeps the city, the range and the date", () => {
     const t = "Will the highest temperature in Los Angeles be between 66-67°F on November 18?";
-    const out = fitClamp(t, budget(76));
+    const out = fitClamp(t, budget(92));   // "highest" and "between" are deciding words now, so they stay with the city
     expect(out).toContain("Los Angeles");
     expect(out).toContain("66-67°F");
     expect(out.endsWith("November 18?")).toBe(true);
-    expect((LEDE + out).length).toBeLessThanOrEqual(76);
+    expect((LEDE + out).length).toBeLessThanOrEqual(92);
   });
   it("candidates only ever get shorter, start with the whole title and never run out", () => {
     for (const t of [...FIXTURE.slice(0, 40), "a".repeat(200), "x"]) {
@@ -58,3 +58,70 @@ for (const [name, titles] of [["test fixture", FIXTURE], ["real output/flags.jso
     });
   });
 }
+
+// T-wt1f: the word that says which way a rate moves must survive, or "decrease 25 bps" and "increase 25 bps" read as the same bet.
+const OPPOSITE: Record<string, string> = { increase: "decrease", decrease: "increase", hike: "cut", cut: "hike", raise: "lower", lower: "raise", above: "below", below: "above", yes: "no" };
+const DECREASE = "Will the Bank of Israel decrease the Bank of Israel Interest Rate by 25 bps at the November meeting?";
+const SIBLINGS: [string, string][] = [
+  [DECREASE, DECREASE.replace("decrease", "increase")],
+  ["Will the Federal Reserve hike interest rates by 25 bps at the December meeting?", "Will the Federal Reserve cut interest rates by 25 bps at the December meeting?"],
+  ["Will the Bank of England raise the Bank Rate by 50 bps at the December meeting?", "Will the Bank of England lower the Bank Rate by 50 bps at the December meeting?"],
+  ["Will the Bank of Israel make no change to the Bank of Israel Interest Rate at the November meeting?", "Will the Bank of Israel increase the Bank of Israel Interest Rate at the November meeting?"],
+];
+// T-wt1f (review 2): a threshold said two ways ("29°C or higher" / "29°C"), the other end of a range (highest / lowest) and "fewer than" / "at"
+const RIO = "Will the highest temperature in Rio de Janeiro be 29°C or higher on November 18 according to the official station?";
+SIBLINGS.push(
+  [RIO, RIO.replace(" or higher", "")],
+  [RIO.replace(" or higher", " or below"), RIO.replace(" or higher", "")],
+  [RIO.replace(" or higher", ""), RIO.replace(" or higher", "").replace("highest", "lowest")],
+  [RIO.replace(" or higher", " or higher").replace("highest", "lowest"), RIO.replace(" or higher", "")],
+  ["Will initial jobless claims be fewer than 225,000 for the week ending November 15 according to the Department of Labor?", "Will initial jobless claims be at 225,000 for the week ending November 15 according to the Department of Labor?"],
+  ["Will initial jobless claims be greater than 225,000 for the week ending November 15 according to the Department of Labor?", "Will initial jobless claims be at 225,000 for the week ending November 15 according to the Department of Labor?"],
+  ["Will Bitcoin rise above $70,000 by the end of the week according to the CoinGecko daily price index?", "Will Bitcoin fall above $70,000 by the end of the week according to the CoinGecko daily price index?"],
+  ["Will the Fed exceed 2 rate moves in the 2026 calendar year according to the CME FedWatch tool?", "Will the Fed make exactly 2 rate moves in the 2026 calendar year according to the CME FedWatch tool?"],
+);
+// T-wt1f (review 3, break-it set): more words that decide which bet it is, and "by/in/on" before a date
+const btc = (x: string) => `Will the price of Bitcoin ${x} on Coinbase at 12:00 PM Eastern Time on Friday November 27, 2026?`;
+const rio2 = (x: string) => `Will the highest temperature in Rio de Janeiro on Tuesday November 24 be ${x} according to the official station?`;
+const nfl = (x: string) => `Will Patrick Mahomes throw for ${x} passing yards in the Kansas City Chiefs vs Las Vegas Raiders game on Thanksgiving?`;
+const CHIEFS = (x: string) => `Will the Kansas City Chiefs finish the 2026 NFL regular season in the ${x} 5 of the AFC standings according to NFL.com?`;
+SIBLINGS.push(
+  [CHIEFS("top"), CHIEFS("bottom")],
+  [btc("reach $95,000"), btc("dip to $95,000")],
+  [btc("drop to $95,000"), btc("hit $95,000")],
+  [rio2("between 28°C and 29°C"), rio2("outside 28°C and 29°C")],
+  ["Will the minimum temperature recorded in Rio de Janeiro on Tuesday November 24 be 22°C according to the official station?", "Will the maximum temperature recorded in Rio de Janeiro on Tuesday November 24 be 22°C according to the official station?"],
+  ["Will the min temperature recorded in Rio de Janeiro on Tuesday November 24 be 22°C according to the official station?", "Will the max temperature recorded in Rio de Janeiro on Tuesday November 24 be 22°C according to the official station?"],
+  ["Will the US Bureau of Economic Analysis report positive real GDP growth for the third quarter of 2026 in its advance estimate?", "Will the US Bureau of Economic Analysis report negative real GDP growth for the third quarter of 2026 in its advance estimate?"],
+  [btc("reach $95,000 by November 30"), btc("reach $95,000 on November 30")],
+  ["Will the Federal Reserve announce an emergency cut to the federal funds target range by December 2026 according to the FOMC statement?", "Will the Federal Reserve announce an emergency cut to the federal funds target range in December 2026 according to the FOMC statement?"],
+  [nfl("at least 285"), nfl("285")],
+  [nfl("at least 285"), nfl("at most 285")],
+  ["Which team will allow the fewest points across all games of the 2026 NFL regular season through Week 12 according to ESPN?", "Which team will allow the most points across all games of the 2026 NFL regular season through Week 12 according to ESPN?"],
+  ["Will the highest temperature in Rio de Janeiro during the weekend of November 28-29 be 29°C according to the official station?", "Will the highest temperature in Rio de Janeiro during the weekday of November 28-29 be 29°C according to the official station?"],
+);
+describe("direction words", () => {
+  for (const total of [86, 98, 110]) {
+    it(`siblings never render the same line (budget ${total})`, () => {
+      for (const [a, b] of SIBLINGS) expect(fitClamp(a, budget(total)), `${a} | ${b}`).not.toBe(fitClamp(b, budget(total)));
+    });
+    it(`a repeated phrase goes before a distinct word (budget ${total}): 'Bank of Israel' is not said twice while 'decrease' is lost`, () => {
+      const out = fitClamp(DECREASE, budget(total));
+      expect(out).toContain("decrease");
+      expect(out.match(/Israel/g)?.length ?? 0).toBeLessThanOrEqual(1);
+    });
+    it(`real titles with a direction word never match their opposite (budget ${total})`, () => {
+      let pairs = 0;
+      for (const t of REAL) {
+        const w = t.split(" ").find((x) => OPPOSITE[x.replace(/\W/g, "").toLowerCase()]);
+        if (!w) continue;
+        const key = w.replace(/\W/g, "").toLowerCase();
+        const other = t.replace(w, w.replace(new RegExp(key, "i"), OPPOSITE[key]!));
+        pairs++;
+        expect(fitClamp(t, budget(total)), `${t} | ${other}`).not.toBe(fitClamp(other, budget(total)));
+      }
+      if (REAL.length) expect(pairs).toBeGreaterThan(0);
+    });
+  }
+});
+

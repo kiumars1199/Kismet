@@ -84,7 +84,7 @@ for (const [size, maxClashes] of [[SIZES[0]!, 0], [SIZES[1]!, 0], [SIZES[2]!, 0]
     await page.waitForTimeout(2_000);   // (and its timed re-measures at 0.4 s and 1.5 s)
     await page.evaluate((lede) => {
       const p = document.querySelector('[data-testid="signup-bet"]') as HTMLElement;
-      (window as unknown as { fits: (t: string) => boolean }).fits = (t) => { (p.firstChild as Text).nodeValue = lede + t; return p.scrollHeight <= p.clientHeight + 1; };
+      (window as unknown as { fits: (t: string) => boolean }).fits = (t) => { (p.firstChild as Text).nodeValue = lede + t; return p.scrollHeight <= p.clientHeight + 1 && p.scrollWidth <= p.clientWidth + 1; };   // two lines, and not wider than the box
     }, LEDE);
     const fits = (t: string) => page.evaluate((x) => (window as unknown as { fits: (t: string) => boolean }).fits(x), t);
     const seen = new Map<string, string>(); const clashes: string[] = []; let shortened = 0, overflow = 0;
@@ -102,5 +102,66 @@ for (const [size, maxClashes] of [[SIZES[0]!, 0], [SIZES[1]!, 0], [SIZES[2]!, 0]
     expect(overflow).toBe(0);
     expect(shortened / REAL.length, "a title is shortened only when it has to be").toBeLessThan(0.03);
     expect(clashes.length).toBeLessThanOrEqual(maxClashes);
+  });
+}
+
+// T-wt1f: the word that says which way a rate moves survives the fit, in the real box: siblings never read as the same line.
+const DECREASE = "Will the Bank of Israel decrease the Bank of Israel Interest Rate by 25 bps at the November meeting?";
+const SIBLINGS: [string, string][] = [
+  [DECREASE, DECREASE.replace("decrease", "increase")],
+  ["Will the Federal Reserve hike interest rates by 25 bps at the December meeting?", "Will the Federal Reserve cut interest rates by 25 bps at the December meeting?"],
+  ["Will the Bank of England raise the Bank Rate by 50 bps at the December meeting?", "Will the Bank of England lower the Bank Rate by 50 bps at the December meeting?"],
+];
+const RIO = "Will the highest temperature in Rio de Janeiro be 29°C or higher on November 18 according to the official station?";
+SIBLINGS.push(
+  [RIO, RIO.replace(" or higher", "")],
+  [RIO.replace(" or higher", " or below"), RIO.replace(" or higher", "")],
+  [RIO.replace(" or higher", ""), RIO.replace(" or higher", "").replace("highest", "lowest")],
+  ["Will initial jobless claims be fewer than 225,000 for the week ending November 15 according to the Department of Labor?", "Will initial jobless claims be at 225,000 for the week ending November 15 according to the Department of Labor?"],
+  ["Will initial jobless claims be greater than 225,000 for the week ending November 15 according to the Department of Labor?", "Will initial jobless claims be at 225,000 for the week ending November 15 according to the Department of Labor?"],
+);
+// T-wt1f (review 3, break-it set): more words that decide which bet it is, and "by/in/on" before a date
+const btc = (x: string) => `Will the price of Bitcoin ${x} on Coinbase at 12:00 PM Eastern Time on Friday November 27, 2026?`;
+const rio2 = (x: string) => `Will the highest temperature in Rio de Janeiro on Tuesday November 24 be ${x} according to the official station?`;
+const nfl = (x: string) => `Will Patrick Mahomes throw for ${x} passing yards in the Kansas City Chiefs vs Las Vegas Raiders game on Thanksgiving?`;
+const CHIEFS = (x: string) => `Will the Kansas City Chiefs finish the 2026 NFL regular season in the ${x} 5 of the AFC standings according to NFL.com?`;
+SIBLINGS.push(
+  [CHIEFS("top"), CHIEFS("bottom")],
+  [btc("reach $95,000"), btc("dip to $95,000")],
+  [btc("drop to $95,000"), btc("hit $95,000")],
+  [rio2("between 28°C and 29°C"), rio2("outside 28°C and 29°C")],
+  ["Will the minimum temperature recorded in Rio de Janeiro on Tuesday November 24 be 22°C according to the official station?", "Will the maximum temperature recorded in Rio de Janeiro on Tuesday November 24 be 22°C according to the official station?"],
+  ["Will the min temperature recorded in Rio de Janeiro on Tuesday November 24 be 22°C according to the official station?", "Will the max temperature recorded in Rio de Janeiro on Tuesday November 24 be 22°C according to the official station?"],
+  ["Will the US Bureau of Economic Analysis report positive real GDP growth for the third quarter of 2026 in its advance estimate?", "Will the US Bureau of Economic Analysis report negative real GDP growth for the third quarter of 2026 in its advance estimate?"],
+  [btc("reach $95,000 by November 30"), btc("reach $95,000 on November 30")],
+  ["Will the Federal Reserve announce an emergency cut to the federal funds target range by December 2026 according to the FOMC statement?", "Will the Federal Reserve announce an emergency cut to the federal funds target range in December 2026 according to the FOMC statement?"],
+  [nfl("at least 285"), nfl("285")],
+  [nfl("at least 285"), nfl("at most 285")],
+  ["Which team will allow the fewest points across all games of the 2026 NFL regular season through Week 12 according to ESPN?", "Which team will allow the most points across all games of the 2026 NFL regular season through Week 12 according to ESPN?"],
+  ["Will the highest temperature in Rio de Janeiro during the weekend of November 28-29 be 29°C according to the official station?", "Will the highest temperature in Rio de Janeiro during the weekday of November 28-29 be 29°C according to the official station?"],
+);
+for (const size of SIZES) {
+  test(`${size.width}: direction siblings (increase/decrease, hike/cut, raise/lower) render different lines`, async ({ page }) => {
+    await page.setViewportSize(size);
+    await page.goto(`/signup?next=${encodeURIComponent(`/m/${longest.id}`)}`);
+    await expect(line(page)).toBeVisible({ timeout: 60_000 });
+    await expect.poll(() => line(page).evaluate((e) => e.scrollHeight - e.clientHeight), { timeout: 30_000 }).toBeLessThanOrEqual(1);
+    await page.waitForTimeout(2_000);
+    await page.evaluate((lede) => {
+      const p = document.querySelector('[data-testid="signup-bet"]') as HTMLElement;
+      (window as unknown as { fits: (t: string) => boolean }).fits = (t) => { (p.firstChild as Text).nodeValue = lede + t; return p.scrollHeight <= p.clientHeight + 1 && p.scrollWidth <= p.clientWidth + 1; };   // two lines, and not wider than the box
+    }, LEDE);
+    const fits = (t: string) => page.evaluate((x) => (window as unknown as { fits: (t: string) => boolean }).fits(x), t);
+    const shorten = async (t: string) => {
+      const c = clampCandidates(t);
+      let lo = 0, hi = c.length - 1, best = c[hi]!;
+      while (lo <= hi) { const mid = (lo + hi) >> 1; if (await fits(c[mid]!)) { best = c[mid]!; hi = mid - 1; } else lo = mid + 1; }
+      return best;
+    };
+    for (const [a, b] of SIBLINGS) {
+      const [la, lb] = [await shorten(a), await shorten(b)];
+      console.log(`SIBLINGS ${size.width}: "${la}"  vs  "${lb}"`);
+      expect(la).not.toBe(lb);
+    }
   });
 }
