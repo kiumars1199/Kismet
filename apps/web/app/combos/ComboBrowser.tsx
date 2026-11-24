@@ -1,6 +1,5 @@
 "use client";
 // Payout tabs (?pays=2|3|5|10) and the combos for the chosen one, from /api/combos?pays=.
-import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ComboCard } from "@/components/combo/SuggestedCombos";
 import { fetchCombos } from "@/lib/api";
@@ -10,11 +9,9 @@ import { testedLine } from "@/lib/format";
 import { noLiveRecord } from "@/lib/proof";
 import { softNav } from "@/lib/softNav";
 
-export function ComboBrowser({ lists }: { lists?: Record<ComboPays, CombosResponse> }) {
-  const params = useSearchParams();
-  const pathname = usePathname();
-  const asked = Number(params.get("pays"));
-  const pays: ComboPays = COMBO_PAYS.includes(asked as ComboPays) ? (asked as ComboPays) : 2;
+export function ComboBrowser({ lists, initialPays }: { lists?: Record<ComboPays, CombosResponse>; initialPays: ComboPays }) {
+  // The payout is state, set from the URL the server read; a tap changes it and the address (no navigation, no server round trip).
+  const [pays, setPays] = useState<ComboPays>(initialPays);
   const [res, setRes] = useState<{ pays: ComboPays; data?: CombosResponse; error?: boolean } | null>(null);   // only used when the server did not send the lists
 
   useEffect(() => {
@@ -37,7 +34,7 @@ export function ComboBrowser({ lists }: { lists?: Record<ComboPays, CombosRespon
             key={p}
             type="button"
             aria-pressed={p === pays}
-            onClick={() => softNav(`${pathname}?pays=${p}`, { replace: true })}
+            onClick={() => { setPays(p); softNav(`/combos?pays=${p}`, { replace: true }); }}
             className={`min-h-11 rounded-input border px-4 text-sm font-medium ${p === pays ? "border-accent bg-accent/10 text-text" : "border-border text-muted hover:text-text"}`}
           >
             Pays {p}x+
