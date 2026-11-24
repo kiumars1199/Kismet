@@ -81,6 +81,7 @@ Problems:
 - [nit] 375x667: the same-event alert's "combo checker" link first renders under the fixed bottom tray (y 535 of 667) until scrolled (T-wt3g, after #130)
 
 ## Found in review, outside a lane
+- 19:55 #133 review r2 FAIL at 6adfed6: saver rewrite passes every race/error case, but the new error line changes height (CLS 0.035 at 375, 0.026 at 390 on error+clear) (blocker); full page load right after quick taps loses pending saves (should-fix, keepalive flush on pagehide). Back to T-wt2j.
 - 19:45 #135 T-wt2k merged (4c188e7) after review PASS at a3e24f5 (chip focus fully visible at 390/1100/1280; menu closes on scroll-out and focus-out; 21/21 checkboxes hittable; /markets 6 and 53 topics CLS ≤0.0084, the 0.27 was fixed by #132) and full CI green. One nit (menu stays open while its button is under the sticky top bar at 1100) → T-wt2l.
 - 19:13 #130 T-wt3f merged (feecd6e): final merged in (no conflicts, same changes as reviewed 2313dd2), full CI green. T-wt3g started.
 - 19:10 #133 T-wt2j review PASS at b86060f (race fixed at 390/1440, 0/300 ms, all tiers; cookie, Home, /markets match; CLS ≤0.0006). Held for one should-fix in the error path plus a merge of final (#132 touched FilterBar). Watch: one React #418 on /settings in ~100 loads, not reproduced in 48 retries.
