@@ -10,7 +10,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ n
   const next = safeNext(typeof raw === "string" ? raw : null);
   return (
     <div className="mx-auto flex max-w-xl flex-col gap-4">
-      <StatePicker next={next} />
+      <StatePicker next={next} as="h1" />
       <Link href={next ?? "/"} className="inline-flex min-h-11 items-center text-sm text-muted underline underline-offset-2 hover:text-text">Back</Link>
     </div>
   );
