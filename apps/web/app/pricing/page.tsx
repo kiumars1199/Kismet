@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Faq, Plans } from "@/components/pricing/Plans";
 import { ProofLine } from "@/components/results/ProofLine";
 import { getResults } from "@/lib/data/top";
-import { HIT_RATE_VS_PROFIT, SAME_FOR_EVERYONE, hitRateLive, siteProof, withLiveHitRate } from "@/lib/proof";
+import { HIT_RATE_VS_PROFIT, SAME_FOR_EVERYONE, hitRateLive, proofSummary, siteProof, withLiveHitRate } from "@/lib/proof";
 import { planCtx } from "@/lib/billing/planCtx";
 import { getSettings } from "@/lib/settings";
 import { tradingEnv } from "@/lib/trade/server";
@@ -55,17 +55,22 @@ export default async function Page() {
   const proof = res ? siteProof({ backtest: res.backtest, ledger: res.ledgerSummary, since: res.ledgerSince }) : null;
   const faq = withLiveHitRate(PRICING_FAQ, hitRateLive(res?.ledgerSummary));
   return (
-    <article className="mx-auto flex max-w-6xl flex-col gap-14 pb-8">
+    <article className="mx-auto flex max-w-6xl flex-col gap-8 pb-8 md:gap-14">
       <header className="flex max-w-2xl flex-col gap-3">
         <h1 className="text-[32px] font-bold leading-[1.05] tracking-[-0.02em] md:text-[40px]">Plans</h1>
         <p className="text-[15px] leading-relaxed text-muted">
           Start free. Upgrade when you want live prices, every best bet and alerts. Results are free for everyone, so you can judge
-          the method before you pay. <Link href="/track-record" className="text-accent-hover underline-offset-4 hover:underline">See results</Link>
+          the method before you pay. <Link href="/track-record" className="inline-flex min-h-11 min-w-11 items-center text-accent-hover underline-offset-4 hover:underline max-md:-my-3">See results</Link>
         </p>
-        {/* Rule 3: plain by default. The test-result numbers (and their basis, on hover/tap) are one tap away, not above the plans */}
+        {/* Rule 3: plain by default. One plain proof line stays visible (it is also the Details' summary, with a chevron that says it opens);
+            the full test numbers and their basis are one tap away, not above the plans */}
         {proof?.test ? (
           <details data-testid="proof-details" className="group text-[15px] leading-relaxed text-soft">
-            <summary className="inline-flex min-h-11 cursor-pointer items-center text-accent-hover underline-offset-4 hover:underline">How it did in testing</summary>
+            <summary className="flex min-h-11 cursor-pointer items-center gap-2 py-1 marker:content-none [&::-webkit-details-marker]:hidden">
+              <span data-testid="proof-summary" className="min-w-0 flex-1">{proofSummary({ backtest: res?.backtest, ledger: res?.ledgerSummary }) ?? "How it did in testing"}</span>
+              <svg data-testid="proof-chevron" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="flex-none text-accent-hover transition-transform group-open:rotate-180"><path d="m6 9 6 6 6-6" /></svg>
+              <span className="sr-only">Show the full test numbers</span>
+            </summary>
             <ProofLine p={proof} className="pb-2 text-[15px] leading-relaxed text-soft" />
           </details>
         ) : null}

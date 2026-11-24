@@ -122,8 +122,8 @@ function windowFor(kind: "today" | "week", scannedAt: number | undefined) {
 }
 
 /** AppliedPills leaves out what the filter bar already shows (its three values); anything else keeps its pill. */
-function barPills(s: FilterState, win: Parameters<typeof barValues>[1]) {
-  const v = barValues(s, win);
+function barPills(s: FilterState, win: Parameters<typeof barValues>[1], fallback = false) {
+  const v = fallback ? { ...barValues(s, win), sport: "" } : barValues(s, win);   // the fallback bar shows no topic, so its pill stays
   return (key: string) =>
     (!!v.sport && (key === `topics:${v.sport.slice(2)}` || key === `categories:${v.sport.slice(2)}`)) ||
     (!!v.mult && key === "pays") ||
@@ -149,12 +149,20 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
   // the client's tier: that is "free" until /api/me answers, which painted a paid page as "Free shows 89 …" (T-288).
   const daily = data?.free_daily;
   const sample = daily !== undefined;
+  // T-wt2b: a page that LOADS as Free's empty sample (a plain topic filter with none of today's bets) puts the locked card right under
+  // the heading, so it is in the first view. Reached by changing filters in the page, the card stays pinned at the bottom of the
+  // reserved list as before (moving it up there would shift the whole page: e2e-paid/free-topics-cls). The tap on "Show today's
+  // free bets" takes the top card away at once (the input window); the list's own card then appears at the bottom, a new element.
+  const startedEmpty = useRef(!!initial?.main && initial.main.free_daily !== undefined && initial.main.rows.length === 0 && initial.main.total > 0);
+  const [askedAll, setAskedAll] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState<{ ok: boolean; msg: string } | null>(null);
 
   const rows = data ? [...data.rows, ...view!.more] : [];
   const shortSample = sample && rows.length < (daily ?? 0);   // Free, with fewer than a day's allowance on the page
   const emptySample = sample && rows.length === 0;   // Free, and none of today's bets match (only meaningful once data is in)
+  if (rows.length > 0) startedEmpty.current = false;   // once cards have been shown, an empty sample is a filter change: bottom card
+  const topLocked = emptySample && startedEmpty.current && !askedAll;
   const slots = data ? slotsOf(rows, data.groups ? [...data.groups, ...view!.moreGroups] : undefined) : [];
   // QA-A #70/#71: bets left, in bets (`total` counts bets; a game slot holds `size` of them), never below 0. Live
   // re-pricing can drop rows from a page, so whether a button shows comes from the pages held (sc.hasMore), not this.
@@ -181,7 +189,7 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
     <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-4">
       <section className="flex flex-col gap-2">
         {/* P9: Free sees the day's sample, so the headline says "10 of 34", not a count it can't open */}
-        <BestBetsHeading total={total} shown={rows.length} sample={sample} daily={daily} fallback={data?.free_fallback} onShowAll={() => set({ topics: undefined, categories: undefined, favorites_only: undefined })}>
+        <BestBetsHeading total={total} shown={rows.length} sample={sample} daily={daily} fallback={data?.free_fallback} topicTotal={data?.free_fallback_topic_total} topic={topic} yours={!!state.favorites_only} onShowAll={() => { setAskedAll(true); set({ topics: undefined, categories: undefined, favorites_only: undefined }); }}>
         <p className="max-w-[760px] text-sm leading-normal text-muted">
           Each one has won more often in the past than its price suggests, after the fee.
           {/* P9: when the stale banner shows, it carries the scan age; saying it here too was the third stale notice */}
@@ -189,12 +197,15 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
           <Link href="/track-record" className="inline-flex min-h-11 items-center text-accent-hover underline-offset-4 hover:underline">See how we track results</Link>
         </p>
         </BestBetsHeading>
+        {/* T-wt2b: when none of today's free bets match, the locked card is the first thing under the heading (first view at 390 and
+            1440), not below the filters and an empty list */}
+        {!error && data && topLocked && !busy && <LockedBets total={data.total} shown={0} daily={daily ?? 0} topic={topic} />}
       </section>
 
       <TodayCard />
 
       {/* Mark's filter bar (Nov 20): Sport · Multiplier · Date · Apply, then count and Sort */}
-      <FilterBar state={state} facets={sc.facets} win={win} total={total} shown={sample ? rows.length : undefined} onChange={set} />
+      <FilterBar state={state} facets={sc.facets} win={win} total={total} shown={sample ? rows.length : undefined} fallback={!!data?.free_fallback} onChange={set} />
       <div role="group" aria-label="More filters" className="flex flex-wrap items-center gap-2">
         {usOn && (
           <button type="button" aria-pressed={state.us} data-testid="us-chip" className={chip(state.us)}
@@ -211,7 +222,7 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
       </div>
       <SaveViewDialog open={saving} title="Save this view" name={suggestViewName(state)} error={saved && !saved.ok ? saved.msg : null} onSubmit={save} onClose={() => setSaving(false)} />
       <SearchChips q={state.q} search={data?.search} onChange={set} />
-      <AppliedPills state={state} mode="flags" onChange={set} onReset={reset} omit={barPills(state, win)} />
+      <AppliedPills state={state} mode="flags" onChange={set} onReset={reset} omit={barPills(state, win, !!data?.free_fallback)} />
       <StaleBanner scannedAt={scanned} />
 
       {error && !data ? (
@@ -248,9 +259,10 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
               <Cards slots={slots.slice(TOP)} desktop={desktop} label="more-h" />
             </>
           )}
-          <div className={shortSample ? "mt-auto flex flex-col gap-4" : "contents"}>
+          {/* T-wt2b: with no cards at all the locked card sits right under the heading and filters (first view), not pinned to the bottom of the reserved screenful */}
+          <div className={shortSample && !topLocked ? "mt-auto flex flex-col gap-4" : "contents"}>
             <LogUpsell />
-            {sample && <LockedBets total={data.total} shown={rows.length} daily={daily} />}
+            {sample && !topLocked && <LockedBets total={data.total} shown={rows.length} daily={daily} topic={topic} />}
           </div>
           {!sample && sc.hasMore && (
             <button
