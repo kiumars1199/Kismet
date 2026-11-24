@@ -27,7 +27,7 @@ export default defineConfig({
     reuseExistingServer: false,
     env: {
       DATA_DIR: "test-results/paid-fixtures", HISTORY_LIVE: "off", DATA_SOURCE: "local", DATA_CLOCK: "scan", DEMO_MODE: "false", NEXT_PUBLIC_DEMO_MODE: "false", E2E_MOCK: "1", E2E_PROD_BUILD: "1",
-      UNSUBSCRIBE_SECRET: "e2e-unsubscribe-secret-0123456789abcdef",   // a production build has no dev fallback key: share-link signatures and the lifecycle hook need one (lib/share/sig.ts)
+      UNSUBSCRIBE_SECRET: "e2e-only-".padEnd(40, "0"),   // a production build has no dev fallback key: share-link signatures and the lifecycle hook need one (lib/share/sig.ts)
       NEXT_PUBLIC_SITE_URL: ORIGIN, ADMIN_EMAILS: "admin-e2e@example.com",   // e2e admin (e2e-paid/admin.spec.ts), never the owners
       NEXT_PUBLIC_GOOGLE_AUTH: "1",   // as production: the Google button (and the 18+ box above it) is on, so every auth e2e sees the taller first view
       KALSHI_DATA_PERMISSION: "true",   // as production (owner decision, Nov 21): /kalshi and the Kalshi combo check are on
