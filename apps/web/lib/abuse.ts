@@ -44,6 +44,8 @@ interface Limiter {
   rows(key: string, n: number): Promise<number>;
   /** Adds ids to the set at key (kept ttlMs) unless that would grow it past limit: all or nothing. ok + the set's size. */
   distinct(key: string, ids: string[], limit: number, ttlMs: number): Promise<{ ok: boolean; size: number }>;
+  /** What distinct() would answer for the same arguments, without adding anything (read only). */
+  peekDistinct(key: string, ids: string[], limit: number): Promise<{ ok: boolean; size: number }>;
 }
 
 /** Sliding-window log in memory (tests; one instance only). */
@@ -77,6 +79,12 @@ export function memoryLimiter(now = () => Date.now()): Limiter {
       for (const id of fresh) e.ids.add(id);
       return { ok: true, size: e.ids.size };
     },
+    async peekDistinct(key, ids, limit) {
+      const e = sets.get(key);
+      const held = e && e.exp >= now() ? e.ids : new Set<string>();
+      const fresh = [...new Set(ids)].filter((id) => !held.has(id));
+      return { ok: held.size + fresh.length <= limit, size: held.size };
+    },
   };
 }
 
@@ -88,6 +96,13 @@ if size + #fresh > tonumber(ARGV[1]) then return {0, size} end
 for _, id in ipairs(fresh) do redis.call('SADD', KEYS[1], id) end
 if #fresh > 0 and redis.call('PTTL', KEYS[1]) < 0 then redis.call('PEXPIRE', KEYS[1], ARGV[2]) end
 return {1, size + #fresh}`;
+
+// The same test as DISTINCT_LUA, read only.
+const PEEK_LUA = `local fresh = 0
+for i = 2, #ARGV do if redis.call('SISMEMBER', KEYS[1], ARGV[i]) == 0 then fresh = fresh + 1 end end
+local size = redis.call('SCARD', KEYS[1])
+if size + fresh > tonumber(ARGV[1]) then return {0, size} end
+return {1, size}`;
 
 function upstashLimiter(redis: Redis): Limiter {
   const limiters = Object.fromEntries(Object.entries(RULES).map(([name, r]) => [name, new Ratelimit({
@@ -108,11 +123,15 @@ function upstashLimiter(redis: Redis): Limiter {
       const [ok, size] = (await redis.eval(DISTINCT_LUA, [`me:set:${key}`], [limit, ttlMs, ...new Set(ids)])) as [number, number];
       return { ok: ok === 1, size };
     },
+    async peekDistinct(key, ids, limit) {
+      const [ok, size] = (await redis.eval(PEEK_LUA, [`me:set:${key}`], [limit, ...new Set(ids)])) as [number, number];
+      return { ok: ok === 1, size };
+    },
   };
 }
 
 // Dev / demo: no traffic limits, but distinct() budgets (paywall controls, RT-01/RT-03) always count.
-const noop: Limiter = { limit: async () => ({ ok: true, reset: 0 }), rows: async () => 0, distinct: (...a) => fallback().distinct(...a) };
+const noop: Limiter = { limit: async () => ({ ok: true, reset: 0 }), rows: async () => 0, distinct: (...a) => fallback().distinct(...a), peekDistinct: (...a) => fallback().peekDistinct(...a) };
 
 /** Upstash client when configured (shared with the trading nonce store). */
 export function redis(): Redis | null {
@@ -177,6 +196,15 @@ export async function distinct(key: string, ids: string[], limit: number, ttlMs:
   } catch (e) {
     console.error("[abuse] budget store unavailable, using the per-instance one", e instanceof Error ? e.message : e);
     return fallback().distinct(key, ids, limit, ttlMs);
+  }
+}
+
+/** What distinct() would answer, without consuming anything. null when the store can't say (the caller then assumes nothing). */
+export async function peekDistinct(key: string, ids: string[], limit: number): Promise<{ ok: boolean; size: number } | null> {
+  try {
+    return await limiter().peekDistinct(key, ids, limit);
+  } catch {
+    return null;   // unlike distinct(), no per-instance fallback: another instance's count is not this one's
   }
 }
 

@@ -4,7 +4,7 @@
 // like the Free "3 exact reveals a day" (lib/data/reveals.ts); a different one is the next check.
 import { e2eMockOn } from "@/lib/e2e-mock";
 import { createHash } from "node:crypto";
-import { clientIp, distinct } from "@/lib/abuse";
+import { clientIp, distinct, peekDistinct } from "@/lib/abuse";
 import { quota, type Tier } from "@/lib/entitlements";
 
 /** The device the signed-out counter is keyed on: the platform IP. Under the e2e mock only (e2eMockOn(): E2E_MOCK=1, in a production build only with E2E_PROD_BUILD=1, never on Vercel)
@@ -32,6 +32,15 @@ export async function countCheck(req: Request, tier: Tier, userId: string | null
   if (limit === Infinity) return { ok: true, left: Infinity };
   const r = await distinct(checkKey(userId, deviceOf(req), now), [`${marketId}:${side}`], limit, CHECK_TTL_MS);
   return { ok: r.ok, left: Math.max(0, limit - r.size) };
+}
+
+/** Read only: would this check be refused right now (Free's allowance used by another market/side)? Never counts anything.
+ *  false = it would run; null = the store can't say, so callers assume nothing (the page keeps its reserved height until the API answers). */
+export async function checkWouldLimit(req: Request, tier: Tier, userId: string | null | undefined, marketId: string, side: number, now = Date.now()): Promise<boolean | null> {
+  const limit = quota(tier, "checks_day");
+  if (limit === Infinity) return false;
+  const r = await peekDistinct(checkKey(userId, deviceOf(req), now), [`${marketId}:${side}`], limit);
+  return r ? !r.ok : null;
 }
 
 /** A combo counts once, under this key: the sorted market:side list, so the same set in any order is the same check. */
