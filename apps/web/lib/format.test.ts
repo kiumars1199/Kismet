@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ago, basis, chance, closesIn, countdown, edge, exactCount, expectedProfit, formatCount, money, pays, payoutIfWins, payoutMoney, pct, chancePct, price, realisticReturn, recordLabel, ret, testedLine, usd, utcWhen, winsAbout } from "./format";
+import { ago, basis, chance, closesIn, countdown, edge, exactCount, expectedProfit, formatCount, money, pays, payoutIfWins, payoutMoney, pct, chancePct, pricePct, price, realisticReturn, recordLabel, ret, testedLine, usd, utcWhen, winsAbout } from "./format";
 
 describe("docs/18 numbers", () => {
   it("formatCount rounds down, never up", () => {
@@ -103,5 +103,16 @@ describe("chancePct (T-wt3g): a chance never reads as certain or impossible when
   it("is plain pct everywhere else, including exactly 0 and exactly 1", () => {
     expect([0, 0.005, 0.0149, 0.5, 0.792, 0.9949, 1].map(chancePct)).toEqual(["0%", "1%", "1%", "50%", "79%", "99%", "100%"]);
     expect([null, undefined, NaN].map(chancePct)).toEqual(["—", "—", "—"]);
+  });
+});
+
+describe("T-wt3h: extremes read right", () => {
+  it("ret says 'about −100%' for a loss that is not quite all of it, and plain −100% only when it is", () => {
+    expect([ret(-99.99), ret(-99.6), ret(-99.5)]).toEqual(["about −100%", "about −100%", "about −100%"]);
+    expect([ret(-100), ret(-99.4), ret(-42), ret(33.2), ret(100.4), ret(0)]).toEqual(["−100%", "−99%", "−42%", "+33%", "+100%", "+0%"]);
+  });
+  it("pricePct: a price that would round to 100 or 0 but is not is '>99%' or '<1%'", () => {
+    expect([0.999, 0.996, 0.001, 0.004].map(pricePct)).toEqual([">99%", ">99%", "<1%", "<1%"]);
+    expect([0.5, 0.68, 0.994, 0.005, 1, 0].map(pricePct)).toEqual(["50%", "68%", "99%", "1%", "100%", "0%"]);
   });
 });

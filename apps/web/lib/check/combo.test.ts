@@ -1,7 +1,15 @@
 import { describe, expect, it } from "vitest";
 import { combo } from "@/lib/combos";
-import { addLeg, checkCombo, MAX_COMBO_LEGS, NOT_SCORED_SAME_EVENT, sameEventAdvice, type ComboLeg } from "./combo";
+import { addLeg, checkCombo, legLine, MAX_COMBO_LEGS, NOT_SCORED_SAME_EVENT, sameEventAdvice, type ComboLeg } from "./combo";
 import { score } from "./score";
+
+describe("legLine at the extremes (T-wt3h)", () => {
+  it("a price of 0.999 reads >99%, not 100%, and 0.002 reads <1%", () => {
+    expect(legLine({ outcome: "No", price: 0.999 })).toBe("Bet No at >99%");
+    expect(legLine({ outcome: "Yes", price: 0.002 })).toBe("Bet Yes at <1%");
+    expect(legLine({ outcome: "Yes", price: 0.68 })).toBe("Bet Yes at 68%");
+  });
+});
 
 const leg = (id: string, ask: number, fee: number, q: number | null, o: Partial<ComboLeg> = {}): ComboLeg => ({
   key: `${id}:0`, marketId: id, side: 0, question: `Q${id}`, outcome: "Yes", eventId: `e${id}`, event: `Event ${id}`,

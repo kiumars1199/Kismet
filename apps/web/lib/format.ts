@@ -49,10 +49,13 @@ export function chancePct(p: number | null | undefined): string {
   if (p < 1 && p >= 0.995) return ">99%";
   return pct(p);
 }
+/** A price shown as a percentage (0.999 → ">99%", 0.002 → "<1%"): the same rule as a chance, so it never reads "100%" or "0%" when it is not exactly that. */
+export const pricePct = chancePct;
 /** estimated return from roi_pct: 33.2 → "+33%", 4.6 → "+4.6%", -2 → "−2%" */
 export function ret(roiPct: number | null | undefined): string {
   if (!ok(roiPct)) return DASH;
   const a = Math.abs(roiPct);
+  if (roiPct < 0 && a >= 99.5 && a < 100) return "about −100%";   // a loss of nearly everything, not all of it: "−100%" would say the stake is certainly gone
   const n = a >= 10 ? Math.round(a).toString() : a.toFixed(1).replace(/\.0$/, "");
   return `${roiPct < 0 ? "−" : "+"}${n}%`;
 }

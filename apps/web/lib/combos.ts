@@ -3,7 +3,7 @@
 // sit in two events); same-event legs are correlated and the simple product is wrong. Suggested combos never pair
 // them, the tray refuses them (legProblem), and combo() still reports any that slip in (an old saved tray).
 // One chance everywhere (Marc #15, #74): the return, "wins about" and every leg's chance use the cautious chance.
-import { pct } from "@/lib/format";
+import { chancePct } from "@/lib/format";
 import { betQuote } from "@/lib/betFigures";
 import { feeCents } from "@/lib/trade/intent";
 import type { Side, StoreMarket } from "@/lib/types";
@@ -81,7 +81,7 @@ export function combo(legs: Pick<Leg, "ask" | "fee" | "q" | "q_low" | "event_id"
 export function multiplyLine(legs: Pick<Leg, "q_low">[]): string | null {
   if (legs.length < MIN_LEGS) return null;
   const total = prod(legs.map((l) => l.q_low));
-  return `The combo wins only if every leg wins, so the legs' chances multiply: ${legs.map((l) => pct(l.q_low)).join(" × ")} ≈ ${pct(total)}.`;
+  return `The combo wins only if every leg wins, so the legs' chances multiply: ${legs.map((l) => chancePct(l.q_low)).join(" × ")} ≈ ${chancePct(total)}.`;
 }
 
 /** Kalshi combo (one contract that pays $1 if every leg wins): edge = Q − ask − fee(ask), fee per contract. */

@@ -11,7 +11,7 @@ import { compute, ERROR_TEXT } from "@/lib/check/compute";
 import { parseLink } from "@/lib/check/parse-link";
 import type { CheckResponse } from "@/lib/check/response";
 import { SCORE_FORMULA } from "@/lib/check/score";
-import { payoutMoney, pct, ret } from "@/lib/format";
+import { chancePct, payoutMoney, pricePct, ret } from "@/lib/format";
 import { multX, INTL_ONLY, US_SMALL_PRINT } from "@/lib/card";
 import { gapPts } from "@/lib/betFigures";
 import { LogBetButton } from "@/components/journal/LogBetButton";
@@ -151,7 +151,7 @@ export function CheckClient({ limitedNow = false }: { limitedNow?: boolean } = {
 
           {data.kalshi?.prices[side] != null && (
             <p data-testid="check-kalshi" className="text-[13px] text-soft">
-              Kalshi&apos;s own price for {cur.outcome} is {pct(data.kalshi.prices[side]!)}.{" "}
+              Kalshi&apos;s own price for {cur.outcome} is {pricePct(data.kalshi.prices[side]!)}.{" "}
               <button type="button" className="min-h-11 text-accent-soft underline" onClick={() => setPriceText(String(Math.round(data.kalshi!.prices[side]! * 100)))}>Use it</button>
             </p>
           )}
@@ -161,8 +161,8 @@ export function CheckClient({ limitedNow = false }: { limitedNow?: boolean } = {
             <p data-testid="check-nomodel" className="text-sm text-soft">{ERROR_TEXT.no_model}</p>
           ) : (
             <dl className="grid grid-cols-2 gap-3 md:grid-cols-5">
-              <Stat id="chance" label="Our chance" value={pct(r.chance)} />
-              <Stat id="market" label="Market says" value={r.error ? "—" : pct(r.marketPct)} />
+              <Stat id="chance" label="Our chance" value={chancePct(r.chance)} />
+              <Stat id="market" label="Market says" value={r.error ? "—" : pricePct(r.marketPct)} />
               <Stat id="mult" label="Pays" value={r.multiplier === null ? "—" : multX(r.multiplier)} />
               <Stat id="edge" label="Edge (points)" value={r.gap === null || r.chance === null ? "—" : gapPts({ ask: r.price, win_prob: r.chance, fee: 0, edge: 0 })} />
               <Stat id="return" label="Estimated return" value={r.multiplier === null || r.chance === null || r.error ? "—" : ret((r.chance * r.multiplier - 1) * 100)} />
