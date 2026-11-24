@@ -1,5 +1,6 @@
 // Server-only auth helpers (docs/08, docs/15 § Auth). There is no browser Supabase client: sign-in, the
 // callback and every data read go through the server, so the session cookies can be HttpOnly.
+import { signInMethod, type SignInMethod } from "@/lib/auth/method";
 import "server-only";
 import { createServerClient } from "@supabase/ssr";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
@@ -60,7 +61,7 @@ export function supabaseAdmin(): SupabaseClient {
   return createClient(url, service, { auth: { persistSession: false, autoRefreshToken: false } });
 }
 
-export interface SessionUser { id: string; email: string; verified: boolean }
+export interface SessionUser { id: string; email: string; verified: boolean; method?: SignInMethod | null }
 
 /** The verified user (getUser() checks the JWT with Supabase), or null. `verified` = email confirmed. */
 export async function getUser(): Promise<SessionUser | null> {
@@ -68,8 +69,9 @@ export async function getUser(): Promise<SessionUser | null> {
   try {
     const sb = await supabaseServer();
     const { data } = await sb.auth.getUser();
-    if (!data.user || isAppToken((await sb.auth.getSession()).data.session?.access_token)) return null;   // T-280: app tokens are /api/mcp only
-    return { id: data.user.id, email: data.user.email ?? "", verified: !!data.user.email_confirmed_at };
+    const token = (await sb.auth.getSession()).data.session?.access_token;
+    if (!data.user || isAppToken(token)) return null;   // T-280: app tokens are /api/mcp only
+    return { id: data.user.id, email: data.user.email ?? "", verified: !!data.user.email_confirmed_at, method: signInMethod(token, data.user.app_metadata?.provider) };
   } catch {
     return null;
   }

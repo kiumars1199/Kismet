@@ -157,3 +157,6 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* /account shows the help line in its pause card, so the footer copy hides there (one per page; the footer disclaimer stays). */
+body:has([data-account-page]) footer [data-testid="helpline"] { display: none; }

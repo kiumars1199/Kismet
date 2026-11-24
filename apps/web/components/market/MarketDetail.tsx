@@ -1,6 +1,7 @@
 "use client";
 
 // Market detail (F-04): drawer body and the shareable /m/[id] page. Live price check from /api/book every 5 s.
+import { checkHref } from "@/lib/check/href";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -192,7 +193,7 @@ function Detail({ data, side: sideParam, onClose, reserve }: { data: MarketRespo
               : left !== undefined
                 ? `Exact numbers on this bet. Free has ${left} of ${looks} exact looks left today; Pro shows them on every bet.`
                 : `Free shows exact numbers on ${looks} bets a day. Pro shows them on every bet.`}{" "}
-            <Link href="/pricing" className="font-semibold text-accent-soft underline underline-offset-4 hover:text-accent">See plans</Link>
+            <Link href="/pricing" className="-my-3 inline-flex min-h-11 min-w-11 items-center font-semibold text-accent-soft underline underline-offset-4 hover:text-accent">See plans</Link>
           </p>
         )}
       </section>
@@ -344,7 +345,11 @@ function Actions({ m, s, reserve }: { m: StoreMarket; s: Side; reserve: ActionRe
         <ShareSheet marketId={m.id} className={icon} />   {/* F13: share image + invite */}
       </div>
       {/* T-wt3: the combo checker is open to every plan (Free within its daily check); its own row, so the button row above keeps its shape */}
-      <Link href={`/check/combo?m=${m.id}&side=${s.side_index}`} data-testid="add-combo-checker" className="flex min-h-11 items-center justify-center rounded-input text-[13px] font-medium text-accent-hover underline-offset-4 hover:underline">Add to combo checker</Link>
+      <div className="flex gap-3">
+        {/* single-bet check: the same for every plan (Free's 1 a day is counted on the server) */}
+        <Link href={checkHref(m.id, s.side_index as 0 | 1)} data-testid="check-this-bet" className="flex min-h-11 flex-1 items-center justify-center rounded-input text-[13px] font-medium text-accent-hover underline-offset-4 hover:underline">Check this bet</Link>
+        <Link href={`/check/combo?m=${m.id}&side=${s.side_index}`} data-testid="add-combo-checker" className="flex min-h-11 flex-1 items-center justify-center rounded-input text-[13px] font-medium text-accent-hover underline-offset-4 hover:underline">Add to combo checker</Link>
+      </div>
     </div>
   );
 }
@@ -445,7 +450,7 @@ function TrackRecord({ data, pro }: { data: MarketResponse; pro: boolean }) {
       {b && data.proof ? <ProofLine p={data.proof} liveOnly testId="drawer-live" className="mt-1.5 text-[13px] leading-relaxed text-soft" /> : null}
       {b && <p className="mt-2 text-xs text-muted">
         That is the whole {cat} group, so it differs from this bet&apos;s {RETURN_LABEL_LONG} above.{" "}
-        <Link href={RETURNS_FAQ} className="text-accent-hover underline underline-offset-4">Why two numbers?</Link>
+        <Link href={RETURNS_FAQ} className="-my-3 inline-flex min-h-11 min-w-11 items-center text-accent-hover underline underline-offset-4">Why two numbers?</Link>
       </p>}
       {!m.validated && <p className="mt-2 text-[13px] text-warning">This kind of bet hasn&apos;t made money in testing yet. Treat the numbers as a rough guide.</p>}
     </section>
