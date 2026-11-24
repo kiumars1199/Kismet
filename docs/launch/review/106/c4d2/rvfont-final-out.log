@@ -1,0 +1,64 @@
+final-out 390 / normal load=5365ms preload=2 h1="Which Polymarket bets are worth it today?" h1h=71 h1font=[Space Grotesk Light*:40] pfont=[Inter*:130] loadedFaces=[Inter,Space Grotesk] cls=0 disc=true cents=false shifts=[]
+final-out 390 / font+300ms load=3764ms preload=2 h1="Which Polymarket bets are worth it today?" h1h=71 h1font=[Space Grotesk Light*:40] pfont=[Inter*:130] loadedFaces=[Inter,Space Grotesk] cls=0 disc=true cents=false shifts=[]
+final-out 390 / font+1500ms load=4698ms preload=2 h1="Which Polymarket bets are worth it today?" h1h=71 h1font=[Space Grotesk Light*:40] pfont=[Inter*:130] loadedFaces=[Inter,Space Grotesk] cls=0.0304 disc=true cents=false shifts=["0.0304@1585 fonts=loading DIV\"One of today's betsAny final s\" y470->434 h374->410 | ARTICLE\"Any final score but Lincoln Ci\" y496->460 h348->384 | DIV\"Sign up free10 bets a day, fre\" y330->294 h112->112"]
+final-out 390 / font+1500ms -> client nav /: h1font=[Space Grotesk Light*:40] pfont=[Inter*:130] cls=0.0000
+final-out 390 / font+1500ms -> reload warm: h1font=[Space Grotesk Light*:40] pfont=[Inter*:130] cls=0.0000
+final-out 390 / slow4g load=6105ms preload=2 h1="Which Polymarket bets are worth it today?" h1h=71 h1font=[Space Grotesk Light*:40] pfont=[Inter*:130] loadedFaces=[Inter,Space Grotesk] cls=0 disc=true cents=false shifts=[]
+final-out 390 / slow4g -> client nav /: h1font=[Space Grotesk Light*:40] pfont=[Inter*:130] cls=0.0000
+final-out 390 / slow4g -> reload warm: h1font=[Space Grotesk Light*:40] pfont=[Inter*:130] cls=0.0000
+final-out 390 /pricing normal load=3720ms preload=2 h1="Plans" h1h=34 h1font=[Space Grotesk Light*:5] pfont=[Inter*:146] loadedFaces=[Inter,Space Grotesk] cls=0 disc=true cents=false shifts=[]
+final-out 390 /pricing font+300ms load=3591ms preload=2 h1="Plans" h1h=34 h1font=[Space Grotesk Light*:5] pfont=[Inter*:146] loadedFaces=[Inter,Space Grotesk] cls=0 disc=true cents=false shifts=[]
+final-out 390 /pricing font+1500ms load=4670ms preload=2 h1="Plans" h1h=34 h1font=[Space Grotesk Light*:5] pfont=[Inter*:146] loadedFaces=[Inter,Space Grotesk] cls=0 disc=true cents=false shifts=[]
+final-out 390 /pricing font+1500ms -> client nav /pricing: h1font=[Space Grotesk Light*:5] pfont=[Inter*:146] cls=0.0000
+final-out 390 /pricing font+1500ms -> reload warm: h1font=[Space Grotesk Light*:5] pfont=[Inter*:146] cls=0.0000
+final-out 390 /pricing slow4g load=6027ms preload=2 h1="Plans" h1h=34 h1font=[Space Grotesk Light*:5] pfont=[Inter*:146] loadedFaces=[Inter,Space Grotesk] cls=0 disc=true cents=false shifts=[]
+final-out 390 /pricing slow4g -> client nav /pricing: h1font=[Space Grotesk Light*:5] pfont=[Inter*:146] cls=0.0000
+final-out 390 /pricing slow4g -> reload warm: h1font=[Space Grotesk Light*:5] pfont=[Inter*:146] cls=0.0000
+final-out 390 /m/7080508 normal load=3847ms preload=2 h1="Spread: Louisiana Tech (-24.5)" h1h=30 h1font=[Space Grotesk Light*:30] pfont=[Inter*:6] loadedFaces=[Inter,Space Grotesk] cls=0 disc=true cents=false shifts=[]
+final-out 390 /m/7080508 font+300ms load=3739ms preload=2 h1="Spread: Louisiana Tech (-24.5)" h1h=30 h1font=[Space Grotesk Light*:30] pfont=[Inter*:6] loadedFaces=[Inter,Space Grotesk] cls=0 disc=true cents=false shifts=[]
+final-out 390 /m/7080508 font+1500ms load=4649ms preload=2 h1="Spread: Louisiana Tech (-24.5)" h1h=30 h1font=[Space Grotesk Light*:30] pfont=[Inter*:6] loadedFaces=[Inter,Space Grotesk] cls=0 disc=true cents=false shifts=[]
+final-out 390 /m/7080508 font+1500ms -> client nav /m/7080508: h1font=[Space Grotesk Light*:30] pfont=[Inter*:6] cls=0.0000
+final-out 390 /m/7080508 font+1500ms -> reload warm: h1font=[Space Grotesk Light*:30] pfont=[Inter*:6] cls=0.0000
+final-out 390 /m/7080508 slow4g load=6454ms preload=2 h1="Spread: Louisiana Tech (-24.5)" h1h=30 h1font=[Space Grotesk Light*:30] pfont=[Inter*:6] loadedFaces=[Inter,Space Grotesk] cls=0 disc=true cents=false shifts=[]
+final-out 390 /m/7080508 slow4g -> client nav /m/7080508: h1font=[Space Grotesk Light*:30] pfont=[Inter*:6] cls=0.0000
+final-out 390 /m/7080508 slow4g -> reload warm: h1font=[Space Grotesk Light*:30] pfont=[Inter*:6] cls=0.0000
+final-out 390 /track-record normal load=3969ms preload=2 h1="How best bets have done" h1h=67 h1font=[Space Grotesk Light*:22] pfont=[Inter*:177] loadedFaces=[Inter,Space Grotesk] cls=0 disc=true cents=false shifts=[]
+final-out 390 /track-record font+300ms load=4283ms preload=2 h1="How best bets have done" h1h=67 h1font=[Space Grotesk Light*:22] pfont=[Inter*:177] loadedFaces=[Inter,Space Grotesk] cls=0 disc=true cents=false shifts=[]
+final-out 390 /track-record font+1500ms load=4754ms preload=2 h1="How best bets have done" h1h=67 h1font=[Space Grotesk Light*:22] pfont=[Inter*:177] loadedFaces=[Inter,Space Grotesk] cls=0 disc=true cents=false shifts=[]
+final-out 390 /track-record font+1500ms -> client nav /track-record: h1font=[Space Grotesk Light*:22] pfont=[Inter*:177] cls=0.0000
+final-out 390 /track-record font+1500ms -> reload warm: h1font=[Space Grotesk Light*:22] pfont=[Inter*:177] cls=0.0000
+final-out 390 /track-record slow4g load=6348ms preload=2 h1="How best bets have done" h1h=67 h1font=[Space Grotesk Light*:22] pfont=[Inter*:177] loadedFaces=[Inter,Space Grotesk] cls=0 disc=true cents=false shifts=[]
+final-out 390 /track-record slow4g -> client nav /track-record: h1font=[Space Grotesk Light*:22] pfont=[Inter*:177] cls=0.0000
+final-out 390 /track-record slow4g -> reload warm: h1font=[Space Grotesk Light*:22] pfont=[Inter*:177] cls=0.0000
+final-out 1440 / normal load=3808ms preload=2 h1="Which Polymarket bets are worth it today?" h1h=189 h1font=[Space Grotesk Light*:39] pfont=[Inter*:131] loadedFaces=[Inter,Space Grotesk] cls=0 disc=true cents=false shifts=[]
+final-out 1440 / font+300ms load=3772ms preload=2 h1="Which Polymarket bets are worth it today?" h1h=189 h1font=[Space Grotesk Light*:39] pfont=[Inter*:131] loadedFaces=[Inter,Space Grotesk] cls=0 disc=true cents=false shifts=[]
+final-out 1440 / font+1500ms load=4741ms preload=2 h1="Which Polymarket bets are worth it today?" h1h=189 h1font=[Space Grotesk Light*:39] pfont=[Inter*:131] loadedFaces=[Inter,Space Grotesk] cls=0 disc=true cents=false shifts=[]
+final-out 1440 / font+1500ms -> client nav /about: h1font=[Space Grotesk Light*:27] pfont=[Inter*:168] cls=0.0000
+final-out 1440 / font+1500ms -> reload warm: h1font=[Space Grotesk Light*:39] pfont=[Inter*:131] cls=0.0000
+final-out 1440 / slow4g load=6192ms preload=2 h1="Which Polymarket bets are worth it today?" h1h=189 h1font=[Space Grotesk Light*:39] pfont=[Inter*:131] loadedFaces=[Inter,Space Grotesk] cls=0 disc=true cents=false shifts=[]
+final-out 1440 / slow4g -> client nav /about: h1font=[Space Grotesk Light*:27] pfont=[Inter*:168] cls=0.0000
+final-out 1440 / slow4g -> reload warm: h1font=[Space Grotesk Light*:39] pfont=[Inter*:131] cls=0.0000
+final-out 1440 /pricing normal load=3393ms preload=2 h1="Plans" h1h=42 h1font=[Space Grotesk Light*:5] pfont=[Inter*:148] loadedFaces=[Inter,Space Grotesk] cls=0 disc=true cents=false shifts=[]
+final-out 1440 /pricing font+300ms load=3738ms preload=2 h1="Plans" h1h=42 h1font=[Space Grotesk Light*:5] pfont=[Inter*:148] loadedFaces=[Inter,Space Grotesk] cls=0 disc=true cents=false shifts=[]
+final-out 1440 /pricing font+1500ms load=4629ms preload=2 h1="Plans" h1h=42 h1font=[Space Grotesk Light*:5] pfont=[Inter*:148] loadedFaces=[Inter,Space Grotesk] cls=0 disc=true cents=false shifts=[]
+final-out 1440 /pricing font+1500ms -> client nav /about: h1font=[Space Grotesk Light*:27] pfont=[Inter*:168] cls=0.0000
+final-out 1440 /pricing font+1500ms -> reload warm: h1font=[Space Grotesk Light*:5] pfont=[Inter*:148] cls=0.0000
+final-out 1440 /pricing slow4g load=5942ms preload=2 h1="Plans" h1h=42 h1font=[Space Grotesk Light*:5] pfont=[Inter*:148] loadedFaces=[Inter,Space Grotesk] cls=0 disc=true cents=false shifts=[]
+final-out 1440 /pricing slow4g -> client nav /about: h1font=[Space Grotesk Light*:27] pfont=[Inter*:168] cls=0.0000
+final-out 1440 /pricing slow4g -> reload warm: h1font=[Space Grotesk Light*:5] pfont=[Inter*:148] cls=0.0000
+final-out 1440 /m/7080508 normal load=3646ms preload=2 h1="Spread: Louisiana Tech (-24.5)" h1h=45 h1font=[Space Grotesk Light*:30] pfont=[Inter*:6] loadedFaces=[Inter,Space Grotesk] cls=0 disc=true cents=false shifts=[]
+final-out 1440 /m/7080508 font+300ms load=3456ms preload=2 h1="Spread: Louisiana Tech (-24.5)" h1h=45 h1font=[Space Grotesk Light*:30] pfont=[Inter*:6] loadedFaces=[Inter,Space Grotesk] cls=0 disc=true cents=false shifts=[]
+final-out 1440 /m/7080508 font+1500ms load=4711ms preload=2 h1="Spread: Louisiana Tech (-24.5)" h1h=45 h1font=[Space Grotesk Light*:30] pfont=[Inter*:6] loadedFaces=[Inter,Space Grotesk] cls=0 disc=true cents=false shifts=[]
+final-out 1440 /m/7080508 font+1500ms -> client nav /about: h1font=[Space Grotesk Light*:27] pfont=[Inter*:168] cls=0.0000
+final-out 1440 /m/7080508 font+1500ms -> reload warm: h1font=[Space Grotesk Light*:30] pfont=[Inter*:6] cls=0.0000
+final-out 1440 /m/7080508 slow4g load=6481ms preload=2 h1="Spread: Louisiana Tech (-24.5)" h1h=45 h1font=[Space Grotesk Light*:30] pfont=[Inter*:6] loadedFaces=[Inter,Space Grotesk] cls=0 disc=true cents=false shifts=[]
+final-out 1440 /m/7080508 slow4g -> client nav /about: h1font=[Space Grotesk Light*:27] pfont=[Inter*:168] cls=0.0000
+final-out 1440 /m/7080508 slow4g -> reload warm: h1font=[Space Grotesk Light*:30] pfont=[Inter*:6] cls=0.0000
+final-out 1440 /track-record normal load=3462ms preload=2 h1="How best bets have done" h1h=42 h1font=[Space Grotesk Light*:23] pfont=[Inter*:179] loadedFaces=[Inter,Space Grotesk] cls=0 disc=true cents=false shifts=[]
+final-out 1440 /track-record font+300ms load=3861ms preload=2 h1="How best bets have done" h1h=42 h1font=[Space Grotesk Light*:23] pfont=[Inter*:179] loadedFaces=[Inter,Space Grotesk] cls=0 disc=true cents=false shifts=[]
+final-out 1440 /track-record font+1500ms load=4708ms preload=2 h1="How best bets have done" h1h=42 h1font=[Space Grotesk Light*:23] pfont=[Inter*:179] loadedFaces=[Inter,Space Grotesk] cls=0 disc=true cents=false shifts=[]
+final-out 1440 /track-record font+1500ms -> client nav /about: h1font=[Space Grotesk Light*:27] pfont=[Inter*:168] cls=0.0000
+final-out 1440 /track-record font+1500ms -> reload warm: h1font=[Space Grotesk Light*:23] pfont=[Inter*:179] cls=0.0000
+final-out 1440 /track-record slow4g load=6457ms preload=2 h1="How best bets have done" h1h=42 h1font=[Space Grotesk Light*:23] pfont=[Inter*:179] loadedFaces=[Inter,Space Grotesk] cls=0 disc=true cents=false shifts=[]
+final-out 1440 /track-record slow4g -> client nav /about: h1font=[Space Grotesk Light*:27] pfont=[Inter*:168] cls=0.0000
+final-out 1440 /track-record slow4g -> reload warm: h1font=[Space Grotesk Light*:23] pfont=[Inter*:179] cls=0.0000

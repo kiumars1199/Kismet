@@ -1,0 +1,42 @@
+PR #106 T-wt2d at c4d2e93 (full re-review). Local next dev with E2E mocks + Google on (PR head), next start builds of final 4ae6ca5 and final+c4d2e93 (merge 5bbce17),
+and a variant of the merge with display:"swap" restored (rv106-swap), for the font question. Probes: rv106c.mjs (flows), rvfont.mjs (fonts).
+CI at c4d2e93: all 11 checks success; "/: first-load JS 149.5 kB ... budget 150 kB: OK" (ci-c4d2e93.txt).
+
+(a) earlier blocker + fixes 1-3 (9761f86 review)
+ blocker  picker early tap: tiles + Next + Skip setup disabled before hydration, opacity 0.6, cursor wait (Skip: cursor default). A pre-hydration tap is ignored
+          (tile aria-pressed false, step stays 1) - the "honest not-ready" option. After hydration a tap works (step 2). log-next.txt
+ fix 1    Free locked card at 390: message bottom 323 vs tab bar 787 (was ~894). 1440: 239. log-free*.txt. Filter-change-to-empty CLS still 0.078 / 0.063 (unchanged from a78c26f, < 0.1).
+ fix 2    new Pro/Premium empty landing CLS: worst of 5 = 0.0005 (390) / 0.0006 (1440) (was 0.0925). log-land.txt
+ fix 3    See all best bets, list 900 ms late: CLS 0 at 2 s and 0 at 18 s with backtest +6 s, book +9 s, all 4 combos (was 0.397). log-land.txt
+(b) honest landing: h1 "No best bets in College basketball today" (no "0 bets" heading; the filter bar count says "0 bets"), line "Widen your topics, or see all best bets",
+    See all best bets + Choose more topics (/settings#s-topics). 390: line bottom 292, button bottom 344 (incl. 98 px e2e stale banner); 1440: 186/238. 20/20 landings ok.
+    Tour step 1 "No best bets in your topics today". New Free user, same topic: h1 "No best bets in College basketball today. Here are today's free bets." + 10 cards.
+(c) Next before hydration: disabled, opacity 0.6, cursor wait, both widths.
+(d) Pro/Premium 390/1440: landing <= 0.0006; See all 0; late list (flags +1.5 s) + late backtest (+6 s) + late book (+9 s) on / and /bets: 0 / 0.0006. log-late.txt
+    "See how we track results": 390 display flex on its own line (blurb block 86 px = 42 + 44); 1440 inline-flex. log-paid-*.txt
+(e) display optional (rvfont-*.log, font-*.png). Fonts delayed by route, cache off:
+    optional (PR):  fonts +300 ms, +1500 ms, slow 4G (1.6 Mbps, 150 ms) -> fallback for h1 and body on every page, CLS 0. Fallback stays after client-side nav;
+                    only a reload (warm cache) shows the web fonts. Landing h1 at 390: 71 px (2 lines) -> 107 px (3 lines) in the Arial-metric fallback.
+    swap (final):   web fonts in every case; CLS 0 except signed-out / at 390 with fonts +1500 ms: 0.030-0.032 (hero h1 2->3 lines); slow 4G 0.0002.
+    swap + PR link fix (rv106-swap, dev, Pro): / at 390 and 1440 with fonts +300/+1500/slow 4G: CLS 0-0.0009; web fonts shown.
+    => the link-on-own-line fix removes the paid heading flip by itself; "optional" buys at most ~0.03 on the signed-out landing on a very slow font,
+       and costs the brand fonts for the whole first session of anyone whose fonts miss the ~100 ms window.
+(f) disclaimer present, no cents, no horizontal scroll on every page touched (/, /bets, /markets, /settings, /account, /track-record, /pricing, /m, /onboarding), all plans.
+Pre-existing, not this PR: Pro/Free /bets?fav=0 at 390 a 0.0163 list shift at ~2.8 s (same on the swap variant); the PR branch lacks #117 so Free /bets shows 0.024-0.040 (fixed in final).
+
+=== FINAL ADDENDUM (c4d2e93) ===
+(e) swap + PR link fix (dev, Pro, ARIALFB, Liberation Sans confirmed first via EARLY sample):
+  / 390: CLS 0.0005 ; / 1440: 0.0021 ; /bets: ~0.0001 from fonts.
+  Pre-existing list shifts same in normal mode: 0.0163 @390, 0.0211 @1440 (not font related).
+  optional: fallback font for whole first session (persists across client nav); landing h1 @390
+  71px/2 lines -> 107px/3 lines in fallback, looks cramped. swap (final) worst case 0.030-0.032
+  signed-out / @390 fonts+1500ms; PR's link fix removes the heading flip for paid views.
+  RECOMMENDATION: revert to display:"swap". Should-fix, NOT a merge gate. Re-run
+  launch-wt2d-cls in CI with swap to confirm. Chromium-only evidence; some 1440 Pro runs were
+  truncated by OOM and re-run singly.
+Picker tap timing: post-hydration tap sets aria-pressed after ~420ms (toggle awaits repoReady
+  then profile.patch). 1/3 runs @390 still false at 1.5s; 4 timed reruns true by 400ms. Minor.
+Teaser: single 44px row, Check 96x44, combo 150x44, href /check?m=<id>&side=0, CLS 0 both widths.
+Onboarding steps 1-3: disclaimer present, no cents, no h-scroll.
+Cleanup: dev server 3410 killed, worktree rv106-c4d2 removed.
+VERDICT: #106 c4d2e93 PASS with notes.

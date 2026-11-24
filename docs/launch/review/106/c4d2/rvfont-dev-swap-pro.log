@@ -1,0 +1,36 @@
+dev-swap-pro 390 / normal load=7582ms preload=2 h1="34 bets where the odds lean your way" h1h=62 h1font=[Space Grotesk Light*:35] pfont=[Inter*:78] loadedFaces=[Inter,Space Grotesk] cls=0.0005 disc=true cents=false shifts=[]
+dev-swap-pro 390 / font+300ms load=6570ms preload=2 h1="34 bets where the odds lean your way" h1h=62 h1font=[Space Grotesk Light*:35] pfont=[Inter*:78] loadedFaces=[Inter,Space Grotesk] cls=0 disc=true cents=false shifts=[]
+dev-swap-pro 390 / font+1500ms load=6556ms preload=2 h1="34 bets where the odds lean your way" h1h=62 h1font=[Space Grotesk Light*:35] pfont=[Inter*:78] loadedFaces=[Inter,Space Grotesk] cls=0 disc=true cents=false shifts=[]
+dev-swap-pro 390 / font+1500ms -> client nav /: h1font=[Space Grotesk Light*:35] pfont=[Inter*:78] cls=0.0000
+dev-swap-pro 390 / font+1500ms -> reload warm: h1font=[Space Grotesk Light*:35] pfont=[Inter*:78] cls=0.0000
+dev-swap-pro 390 / slow4g load=32824ms preload=2 h1="34 bets where the odds lean your way" h1h=62 h1font=[Space Grotesk Light*:35] pfont=[Inter*:78] loadedFaces=[Inter,Space Grotesk] cls=0.0005 disc=true cents=false shifts=[]
+dev-swap-pro 390 / slow4g -> client nav /: h1font=[Space Grotesk Light*:35] pfont=[Inter*:78] cls=0.0000
+dev-swap-pro 390 / slow4g -> reload warm: h1font=[Space Grotesk Light*:35] pfont=[Inter*:78] cls=0.0000
+dev-swap-pro 390 /bets?fav=0 normal load=6894ms preload=2 h1="34 bets where the odds lean your way" h1h=62 h1font=[Space Grotesk Light*:35] pfont=[Inter*:78] loadedFaces=[Inter,Space Grotesk] cls=0.0163 disc=true cents=false shifts=["0.0163@2805 fonts=loaded UL\"\" y715->813 h129->31"]
+dev-swap-pro 390 /bets?fav=0 font+300ms load=6416ms preload=2 h1="34 bets where the odds lean your way" h1h=62 h1font=[Space Grotesk Light*:35] pfont=[Inter*:78] loadedFaces=[Inter,Space Grotesk] cls=0.0163 disc=true cents=false shifts=["0.0163@2284 fonts=loaded UL\"\" y715->813 h129->31"]
+dev-swap-pro 390 /bets?fav=0 font+1500ms load=6215ms preload=2 h1="34 bets where the odds lean your way" h1h=62 h1font=[Space Grotesk Light*:35] pfont=[Inter*:78] loadedFaces=[Inter,Space Grotesk] cls=0.0163 disc=true cents=false shifts=["0.0163@2784 fonts=loaded UL\"\" y715->813 h129->31"]
+dev-swap-pro 390 /bets?fav=0 font+1500ms -> client nav /bets: h1font=[Space Grotesk Light*:35] pfont=[Inter*:78] cls=0.0000
+dev-swap-pro 390 /bets?fav=0 font+1500ms -> reload warm: h1font=[Space Grotesk Light*:35] pfont=[Inter*:78] cls=0.0000
+dev-swap-pro 390 /bets?fav=0 slow4g load=30179ms preload=2 h1="34 bets where the odds lean your way" h1h=62 h1font=[Space Grotesk Light*:35] pfont=[Inter*:78] loadedFaces=[Inter,Space Grotesk] cls=0.0163 disc=true cents=false shifts=["0.0163@19187 fonts=loaded UL\"\" y715->813 h129->31"]
+dev-swap-pro 390 /bets?fav=0 slow4g -> client nav /bets: h1font=[Space Grotesk Light*:35] pfont=[Inter*:78] cls=0.0000
+dev-swap-pro 390 /bets?fav=0 slow4g -> reload warm: h1font=[Space Grotesk Light*:32] pfont=[Inter*:78] cls=0.0000
+dev-swap-pro 1440 / normal load=8286ms preload=2 h1="34 bets where the odds lean your way" h1h=37 h1font=[Space Grotesk Light*:36] pfont=[Inter*:80] loadedFaces=[Inter,Space Grotesk] cls=0.0006 disc=true cents=false shifts=[]
+dev-swap-pro 1440 / font+300ms load=9568ms preload=2 h1="34 bets where the odds lean your way" h1h=37 h1font=[Space Grotesk Light*:36] pfont=[Inter*:80] loadedFaces=[Inter,Space Grotesk] cls=0.0006 disc=true cents=false shifts=[]
+dev-swap-pro 1440 / font+1500ms load=7212ms preload=2 h1="34 bets where the odds lean your way" h1h=37 h1font=[Space Grotesk Light*:36] pfont=[Inter*:80] loadedFaces=[Inter,Space Grotesk] cls=0.0009 disc=true cents=false shifts=[]
+dev-swap-pro 1440 / font+1500ms -> client nav /: h1font=[Space Grotesk Light*:36] pfont=[Inter*:80] cls=0.0000
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+page.goto: net::ERR_ABORTED at http://localhost:3415/
+Call log:
+[2m  - navigating to "http://localhost:3415/", waiting until "load"[22m
+
+    at /tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/probe/rvfont.mjs:75:18 {
+  log: [
+    '  - navigating to "http://localhost:3415/", waiting until "load"'
+  ],
+  name: 'Error'
+}
+
+Node.js v22.23.5

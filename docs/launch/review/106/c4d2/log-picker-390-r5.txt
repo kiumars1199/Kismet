@@ -1,0 +1,8 @@
+picker-390 tiles [{"txt":"NFL/40 open","d":"40 open","disabled":false},{"txt":"College football/106 open","d":"106 open","disabled":false},{"txt":"NBA/55 open","d":"55 open","disabled":false},{"txt":"College basketball/none open","d":"none open","disabled":false}]
+picker-390 getByRole name exact NBA 1
+picker-390 getByRole name exact NFL 1
+picker-390 getByRole name exact Soccer 1
+picker-390 NBA describedby _R_p5esndelb_-sports.nba
+picker-390 pre-hydration look {"busy":"true","opacity":"0.6","cursor":"wait","disabled":true,"pressed":"false","skip":true}
+picker-390 early tap {"before":{"dis":true,"pressed":"false","label":"NFL"},"after":{"dis":false,"pressed":"false"},"busyAfter":"false","opacityAfter":"1"}
+picker-390 tap after hydration true seq [[100,"false"],[400,"true"],[1000,"true"],[3000,"true"]] tapAt 5827 mutations [[6239,"true"]] requests ["GET /api/meta","GET /api/state","GET /api/meta","GET /api/trade/config","GET /api/me","GET /api/data","PATCH /api/data/profile"]

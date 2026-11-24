@@ -1,0 +1,7 @@
+tier premium premium
+bb-premium-1440 {"url":"/","cls":0,"shifts":[{"v":0,"t":2240,"src":["KBD.hidden rounded border border-b 23->23"]}],"hscroll":false,"disclaimer":true,"cents":false,"cards":12,"locked":0,"upsell":false,"empty":null,"h1":"34 bets where the odds lean your way","zeroBets":false,"tour":null} trackLink {"x":551,"y":-164,"w":166,"h":44,"display":"inline-flex","pTop":-164,"pH":44} det []
+bb-premium-1440 /bets {"cls":0,"disc":true,"cents":false,"hscroll":false}
+bb-premium-1440 /markets {"cls":0,"disc":true,"cents":false,"hscroll":false}
+bb-premium-1440 /settings {"cls":0,"disc":true,"cents":false,"hscroll":false}
+bb-premium-1440 /account {"cls":0.0005,"disc":true,"cents":false,"hscroll":false}
+bb-premium-1440 /track-record {"cls":0,"disc":true,"cents":false,"hscroll":false}

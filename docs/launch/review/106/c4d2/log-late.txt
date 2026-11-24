@@ -1,0 +1,12 @@
+tier pro pro
+late-pro-390 / late backtest/book, 18s {"cls":0,"cards":12,"h1":"34 bets where the odds lean your way","disc":true,"cents":false,"hscroll":false} det []
+late-pro-390 /bets late backtest/book, 18s {"cls":0,"cards":12,"h1":"34 bets where the odds lean your way","disc":true,"cents":false,"hscroll":false} det []
+tier premium premium
+late-premium-390 / late backtest/book, 18s {"cls":0,"cards":12,"h1":"34 bets where the odds lean your way","disc":true,"cents":false,"hscroll":false} det []
+late-premium-390 /bets late backtest/book, 18s {"cls":0,"cards":12,"h1":"34 bets where the odds lean your way","disc":true,"cents":false,"hscroll":false} det []
+tier pro pro
+late-pro-1440 / late backtest/book, 18s {"cls":0.0006,"cards":12,"h1":"34 bets where the odds lean your way","disc":true,"cents":false,"hscroll":false} det []
+late-pro-1440 /bets late backtest/book, 18s {"cls":0.0006,"cards":12,"h1":"34 bets where the odds lean your way","disc":true,"cents":false,"hscroll":false} det []
+tier premium premium
+late-premium-1440 / late backtest/book, 18s {"cls":0,"cards":12,"h1":"34 bets where the odds lean your way","disc":true,"cents":false,"hscroll":false} det []
+late-premium-1440 /bets late backtest/book, 18s {"cls":0,"cards":12,"h1":"34 bets where the odds lean your way","disc":true,"cents":false,"hscroll":false} det []

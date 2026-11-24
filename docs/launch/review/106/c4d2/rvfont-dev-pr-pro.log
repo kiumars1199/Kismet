@@ -1,0 +1,33 @@
+dev-pr-pro 390 / normal load=8346ms preload=2 h1="34 bets where the odds lean your way" h1h=62 h1font=[Space Grotesk Light*:35] pfont=[Inter*:78] loadedFaces=[Inter,Space Grotesk] cls=0 disc=true cents=false shifts=[]
+dev-pr-pro 390 / font+300ms load=8590ms preload=2 h1="34 bets where the odds lean your way" h1h=62 h1font=[Inter:35] pfont=[Inter:78] loadedFaces=[Inter,Space Grotesk] cls=0 disc=true cents=false shifts=[]
+dev-pr-pro 390 / font+1500ms load=8439ms preload=2 h1="34 bets where the odds lean your way" h1h=62 h1font=[Inter:35] pfont=[Inter:78] loadedFaces=[Inter,Space Grotesk] cls=0 disc=true cents=false shifts=[]
+dev-pr-pro 390 / font+1500ms -> client nav /: h1font=[Inter:35] pfont=[Inter:78] cls=0.0000
+dev-pr-pro 390 / font+1500ms -> reload warm: h1font=[Space Grotesk Light*:35] pfont=[Inter*:78] cls=0.0000
+dev-pr-pro 390 / slow4g load=29138ms preload=2 h1="34 bets where the odds lean your way" h1h=62 h1font=[Inter:35] pfont=[Inter:78] loadedFaces=[Inter,Space Grotesk] cls=0.0005 disc=true cents=false shifts=[]
+dev-pr-pro 390 / slow4g -> client nav /: h1font=[Inter:35] pfont=[Inter:78] cls=0.0000
+dev-pr-pro 390 / slow4g -> reload warm: h1font=[Space Grotesk Light*:35] pfont=[Inter*:78] cls=0.0000
+dev-pr-pro 390 /bets?fav=0 normal load=7109ms preload=2 h1="34 bets where the odds lean your way" h1h=62 h1font=[Space Grotesk Light*:35] pfont=[Inter*:78] loadedFaces=[Inter,Space Grotesk] cls=0.0163 disc=true cents=false shifts=["0.0163@3400 fonts=loaded UL\"\" y715->813 h129->31"]
+dev-pr-pro 390 /bets?fav=0 font+300ms load=6682ms preload=2 h1="34 bets where the odds lean your way" h1h=62 h1font=[Inter:35] pfont=[Inter:78] loadedFaces=[Inter,Space Grotesk] cls=0.0163 disc=true cents=false shifts=["0.0163@2785 fonts=loaded UL\"\" y715->813 h129->31"]
+dev-pr-pro 390 /bets?fav=0 font+1500ms load=6241ms preload=2 h1="34 bets where the odds lean your way" h1h=62 h1font=[Inter:35] pfont=[Inter:78] loadedFaces=[Inter,Space Grotesk] cls=0.0163 disc=true cents=false shifts=["0.0163@2702 fonts=loaded UL\"\" y715->813 h129->31"]
+dev-pr-pro 390 /bets?fav=0 font+1500ms -> client nav /bets: h1font=[Inter:35] pfont=[Inter:78] cls=0.0000
+dev-pr-pro 390 /bets?fav=0 font+1500ms -> reload warm: h1font=[Space Grotesk Light*:35] pfont=[Inter*:78] cls=0.0163
+dev-pr-pro 390 /bets?fav=0 slow4g load=34555ms preload=2 h1="34 bets where the odds lean your way" h1h=62 h1font=[Inter:35] pfont=[Inter:78] loadedFaces=[Inter,Space Grotesk] cls=0.0163 disc=true cents=false shifts=["0.0163@17985 fonts=loaded UL\"\" y715->813 h129->31"]
+dev-pr-pro 390 /bets?fav=0 slow4g -> client nav /bets: h1font=[Inter:35] pfont=[Inter:78] cls=0.0000
+dev-pr-pro 390 /bets?fav=0 slow4g -> reload warm: h1font=[Space Grotesk Light*:32] pfont=[Inter*:78] cls=0.0000
+dev-pr-pro 1440 / normal load=6781ms preload=2 h1="34 bets where the odds lean your way" h1h=37 h1font=[Space Grotesk Light*:36] pfont=[Inter*:80] loadedFaces=[Inter,Space Grotesk] cls=0.0006 disc=true cents=false shifts=[]
+dev-pr-pro 1440 / font+300ms load=7996ms preload=2 h1="34 bets where the odds lean your way" h1h=37 h1font=[Inter:36] pfont=[Inter:80] loadedFaces=[Inter,Space Grotesk] cls=0.0006 disc=true cents=false shifts=[]
+dev-pr-pro 1440 / font+1500ms load=8471ms preload=2 h1="34 bets where the odds lean your way" h1h=37 h1font=[Inter:36] pfont=[Inter:80] loadedFaces=[Inter,Space Grotesk] cls=0.0006 disc=true cents=false shifts=[]
+dev-pr-pro 1440 / font+1500ms -> client nav /track-record: h1font=[Inter:23] pfont=[Inter:179] cls=0.0000
+dev-pr-pro 1440 / font+1500ms -> reload warm: h1font=[Space Grotesk Light*:36] pfont=[Inter*:80] cls=0.0006
+dev-pr-pro 1440 / slow4g load=28930ms preload=2 h1="34 bets where the odds lean your way" h1h=37 h1font=[Inter:36] pfont=[Inter:80] loadedFaces=[Inter,Space Grotesk] cls=0.0006 disc=true cents=false shifts=[]
+dev-pr-pro 1440 / slow4g -> client nav /track-record: h1font=[null] pfont=[null] cls=0.0000
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+page.waitForTimeout: Page crashed
+    at /tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/probe/rvfont.mjs:75:71 {
+  log: []
+}
+
+Node.js v22.23.5

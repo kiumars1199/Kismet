@@ -162,3 +162,9 @@ With blocking metadata, /m's first byte waits for generateMetadata's load(id). O
   - It does not block the merge.
   - A gap that hits a real title today is a blocker.
 - Reason: the break-it search has no natural end. Each round made the product strictly better, with clashes going from 13–14 on final down to 0 on the tested set.
+
+## 2026-11-24 11:18: #106 merges after the reviewer's requested font revert
+- Reviewer 1 passed #106 at c4d2e93 and asked for display:"optional" to go back to "swap".
+- I made only that change, plus a clean merge of final, so CI covers the new production-build e2e.
+- I merge on green CI without another review round, because the delta is exactly the reviewer's request.
+- The 0.030 swap shift on signed-out / at 390 with slow fonts already exists on final. It goes on the follow-up list.
