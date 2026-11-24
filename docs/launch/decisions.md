@@ -184,3 +184,6 @@ Picking "Everything" in the topics menu shows all bets for that view (`?fav=0`) 
 
 ## 16:22 UTC — #130 red on an unrelated flaky /markets test: fix it properly, not with an empty commit
 #130 (combo only) failed e2e-demo on launch-wt2c-targets.spec.ts:74 (column menu bottom 1399.5 > 900 at 1440x900). Cause: the test scrolls before the table loads, so the sticky header sometimes doesn't engage, and the menu opened at the top of /markets really does run off a 900 px screen. The product fix and the test hardening go into T-wt2i (owns MarketTable). #130 gets a real re-run by merging final into fix/wt3f after T-wt2i lands, rather than an empty commit just to kick CI.
+
+## 17:40 UTC — #130 stays unmerged until CI is green, even though the red test is a proven flake
+launch-wt2c-targets.spec.ts:74 fails ~15% of runs on plain final f2ef7a9 (2 of 13 local demo-prod runs; 0 of 15 on #130's head), so #130's two CI reds are not its fault. The rule is still "CI green on the head being merged": #130 waits for #132 (which hardens that test and fixes the menu), then merges final in for a clean run. No admin-merge, no empty commit.
