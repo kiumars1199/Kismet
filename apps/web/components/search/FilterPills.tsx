@@ -133,7 +133,7 @@ function TopicPill({ s, facets, onChange }: { s: FilterState; facets?: Facets; o
 
   const row = (id: string) => (
     <li key={id}>
-      <label className={`flex min-h-11 cursor-pointer items-center gap-2.5 rounded-input px-3 text-sm md:min-h-10 ${on(id) ? "text-accent-soft" : count(id) === 0 ? "text-muted" : "text-soft"} hover:bg-muted-bg hover:text-text`}>
+      <label className={`flex min-h-11 cursor-pointer items-center gap-2.5 rounded-input px-3 text-sm ${on(id) ? "text-accent-soft" : count(id) === 0 ? "text-muted" : "text-soft"} hover:bg-muted-bg hover:text-text`}>
         <input type="checkbox" checked={on(id)} onChange={() => flip(id)} className="size-4 flex-none accent-[var(--accent)]" />
         {TAXONOMY[id]?.label ?? id}
         {count(id) !== undefined && <span className="ml-auto pl-3 text-xs tabular-nums text-muted" title={exactCount(count(id))}>{nf(count(id)!)}</span>}

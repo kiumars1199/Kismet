@@ -108,9 +108,7 @@ export function LoginForm({ next, error: initialError, mode = "login" }: { next:
               It works once and expires in 15 minutes.</>
           ) : (
             <>To finish, confirm your email: open the link we sent to <span className="font-medium text-accent-soft">{email}</span> in
-              this browser and you&apos;re signed in. Already have an account?{" "}
-              {/* P9: was plain text, a dead end for someone who signed up twice */}
-              <Link href={`/login${next && next !== "/" ? `?next=${encodeURIComponent(next)}` : ""}`} className="font-medium text-accent-soft underline underline-offset-4">Log in instead</Link>.</>
+              this browser and you&apos;re signed in.</>
           )}
         </p>
         <button type="button" className="w-fit text-sm text-accent-hover underline-offset-4 hover:underline" onClick={() => setState("idle")}>

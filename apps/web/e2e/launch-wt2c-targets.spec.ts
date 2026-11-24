@@ -43,3 +43,64 @@ test("the top nav links are at least 24 px tall at 1440", async ({ page }) => {
   expect(s.length).toBeGreaterThan(3);
   for (const x of s) expect(x.h, `${x.t} height`).toBeGreaterThanOrEqual(24);
 });
+
+// T-wt2g: the search chips, the header clear-search x, the column chooser and its checkbox rows are 44 px targets
+// (a checkbox's label row is its hit area), without making rows taller or the page shift.
+test("/markets?q=texans at 390: search chips and Clear search are at least 44 px; the header search keeps its width, and its x (44 px) shows once focused", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/markets?q=texans");
+  const chip = page.getByRole("button", { name: /^Remove from search:/ }).first();
+  await expect(chip).toBeVisible({ timeout: 30_000 });
+  if (process.env.WT2G_SHOTS) await page.screenshot({ path: `${process.env.WT2G_SHOTS}/390-markets-q-texans.png` });   // evidence only
+  for (const [name, loc] of [["chip", chip], ["Clear search (row)", page.getByRole("button", { name: "Clear search", exact: true })]] as const) {
+    const r = (await loc.boundingBox())!;
+    expect(r.height, `${name} height`).toBeGreaterThanOrEqual(44);
+    expect(r.width, `${name} width`).toBeGreaterThanOrEqual(44);
+  }
+  // unfocused: the field is not squeezed by the x (it was 49 px wide with the icon crushed to 6 px)
+  const input = page.locator("header input[placeholder^='Search']").first();
+  expect((await input.boundingBox())!.width, "search input width").toBeGreaterThanOrEqual(49);
+  const icon = page.locator("header label:has(input[placeholder^='Search']) svg").first();
+  expect((await icon.boundingBox())!.width, "magnifier width").toBeGreaterThanOrEqual(16);
+  await input.click();
+  const x = page.getByRole("button", { name: "Clear search" }).first();
+  await expect(x).toBeVisible();
+  const r = (await x.boundingBox())!;
+  expect(r.height).toBeGreaterThanOrEqual(44);
+  expect(r.width).toBeGreaterThanOrEqual(44);
+});
+
+for (const { w, h } of [{ w: 1440, h: 900 }, { w: 390, h: 844 }]) {
+  test(`/markets at ${w}x${h}: 'Choose columns' is 44 px, the menu fits the screen and every column checkbox can be clicked`, async ({ page }) => {
+    await page.setViewportSize({ width: w, height: h });
+    await page.goto("/markets");
+    const choose = page.getByTitle("Choose columns");
+    if (w < 768 && !(await choose.isVisible({ timeout: 5_000 }).catch(() => false))) return;   // phones list cards, with no column chooser
+    await expect(choose).toBeVisible({ timeout: 30_000 });
+    const r = (await choose.boundingBox())!;
+    expect(r.height).toBeGreaterThanOrEqual(44);
+    expect(r.width).toBeGreaterThanOrEqual(44);
+    await page.evaluate(() => window.scrollBy(0, 800));   // the table header is sticky (64 px under the top bar): that is where the menu is used from
+    await expect(choose).toBeVisible();
+    await choose.click();
+    const panel = page.locator("details[open] > div");
+    await expect(panel).toBeVisible();
+    const pb = (await panel.boundingBox())!;
+    expect(pb.y + pb.height, "menu bottom is inside the screen").toBeLessThanOrEqual(h);
+    if (process.env.WT2G_SHOTS) await page.screenshot({ path: `${process.env.WT2G_SHOTS}/${w}-markets-columns.png` });   // evidence only
+    const rows = panel.locator("label:has(input[type=checkbox])");
+    const n = await rows.count();
+    expect(n).toBeGreaterThan(8);   // incl. Market type, Retention, Capacity, Price check, Realistic edge
+    for (let i = 0; i < n; i++) {
+      const row = rows.nth(i);
+      expect((await row.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+      await row.scrollIntoViewIfNeeded();
+      const b = (await row.boundingBox())!;
+      expect(b.y >= 0 && b.y + b.height <= h, `row ${i} is inside the screen after scrolling the menu`).toBe(true);
+      const box = row.locator("input");
+      const before = await box.isChecked();
+      await row.click();
+      await expect(box).toBeChecked({ checked: !before });
+    }
+  });
+}

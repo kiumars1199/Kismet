@@ -40,6 +40,15 @@ describe("first-run tour", () => {
     expect(localStorage.getItem(TOUR_KEY)).toBeNull();
   });
 
+  it("step 1 describes what the card shows: the multiplier it pays, not \"$10 wins\"", async () => {
+    addCard();
+    localStorage.setItem(TOUR_KEY, "1");
+    render(<Tour />);
+    const body = (await screen.findByRole("dialog")).textContent ?? "";
+    expect(body).toContain("Pays 1.45x");
+    expect(body).not.toContain("$10");
+  });
+
   it("replays from /?tour=1 and drops the param from the URL; Escape skips", async () => {
     addCard();
     history.replaceState(null, "", "/?tour=1&view=flags");

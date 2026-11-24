@@ -38,7 +38,10 @@ test("#23/#64 Pro: /alerts renders before its scripts load, says where alerts go
   await page.route("**/_next/static/chunks/**", (r) => r.abort());
   await page.goto("/alerts");
   const main = page.locator("main");
-  await expect(main.getByRole("heading", { name: "Alerts" })).toBeVisible();
+  await expect(main.getByRole("heading", { name: "Alerts", exact: true })).toBeVisible();   // exact: the Phone alerts card (T-wt2g) is in the server HTML too
+  // that card shows "Checking this device…" with no button until scripts run: no control that does nothing
+  await expect(main.getByTestId("push-toggle")).toContainText("Checking this device");
+  await expect(main.getByTestId("push-toggle").getByRole("button")).toHaveCount(0);
   await expect(main.getByText(/While Kismet is open in a tab, rules check every 2 minutes/)).toBeVisible();
   await expect(main.getByText("Loading your alerts…")).toBeVisible();   // not "No alert rules yet" before data loads
   await page.unroute("**/_next/static/chunks/**");
