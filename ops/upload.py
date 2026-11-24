@@ -80,7 +80,7 @@ class Storage:
 DELAYED = ("markets.json", "flags.json")
 # T-295: the precomputed files (engine/precompute.py) rotate with them, so Free's top.json is as old as its markets.
 # A bucket from before T-295 has no top.json / counts.json yet: their copies may 404.
-PRECOMPUTED = ("top.json", "counts.json")
+PRECOMPUTED = ("top.json", "counts.json", "teasers.json")
 # At a fast scan cadence (ops/scheduler.py, SCAN_EVERY_SEC=120) two copies taken every scan would be only 2 and 4
 # minutes old, and Free would get nothing. So the scheduler sets ROTATE_MIN_SEC (15 min minus the cadence): the live
 # scan only becomes *-prev.json once it is that much newer than the current *-prev.json, which keeps *-prev2.json at

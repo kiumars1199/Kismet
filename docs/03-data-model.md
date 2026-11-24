@@ -255,6 +255,12 @@ a file is missing, unreadable, or its scan is over an hour old (an older publish
 - `top-<category>.json`: the same rows for one category; written only for categories with rows (not rotated).
 - `counts.json`: counts at scan time. Pages that list bets count from `top.json` rows at the request clock instead
   (`lib/data/counts.ts`), so one page never mixes the two.
+- `teasers.json` (T-hydr3): `{"meta": {"scanned_at"}, "rows": {<market id>: [question, event, category, closes_at, price, price_outcome]}}`,
+  one compact row per market (price = side 0 mid), ~200 KB gzipped. A signed-out `/m/<id>` (and the signup bet line, share
+  card) needs only these fields; reading this instead of the ~35 MB store (and the Free delay's `*-prev` copies) takes the
+  cold first byte from seconds to well under one (`apps/web/lib/data/teasers.ts`). Rotated to `teasers-prev.json` /
+  `teasers-prev2.json` with the scan; the web picks the newest copy at least the Free delay old and falls back to the full
+  store when the file is missing, malformed, over an hour old, or has no row for the id.
 
 ```ts
 export interface TopRow { market: Flag; side: Side }   // side = market.best

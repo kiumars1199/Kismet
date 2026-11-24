@@ -3,6 +3,7 @@
 import "server-only";
 import { cleanEventLine } from "@/lib/format";
 import { getStoreFor } from "@/lib/data/store";
+import { indexedMarketTeaser } from "@/lib/data/teasers";
 import { TAXONOMY } from "@/lib/taxonomy";
 
 export interface Teaser { kind: "market" | "event"; id: string; title: string; event?: string; category: string; closes_at: number | null; markets?: number;
@@ -13,13 +14,19 @@ const label = (c: string) => TAXONOMY[c]?.label ?? (c ? c[0]!.toUpperCase() + c.
 
 export { cleanEventLine } from "@/lib/format";   // client-safe home: lib/format.ts
 
-/** Only these keys ever leave this module. */
+/** Only these keys ever leave this module. The compact teasers.json (lib/data/teasers.ts) answers first: a cold instance then
+ *  reads a few hundred KB instead of parsing the whole store. Anything it can't answer falls through to the store. */
 export async function marketTeaser(id: string): Promise<Teaser | null> {
+  const t = await indexedMarketTeaser(id).catch(() => undefined);
+  if (t) return teaserOf(t.id, t.question, t.event, t.category, t.closes_at, t.price, t.price_outcome);
   const store = await getStoreFor("free");
   const m = store.flagsById.get(id) ?? store.byId.get(id);
   if (!m) return null;
-  return { kind: "market", id: m.id, title: m.question, event: cleanEventLine(m.event) !== m.question ? cleanEventLine(m.event) : undefined, category: label(m.category), closes_at: m.closes_at ?? null,
-    price: typeof m.sides?.[0]?.mid === "number" ? m.sides[0].mid : null, price_outcome: m.sides?.[0]?.outcome };
+  return teaserOf(m.id, m.question, m.event, m.category, m.closes_at ?? null, typeof m.sides?.[0]?.mid === "number" ? m.sides[0].mid : null, m.sides?.[0]?.outcome);
+}
+
+function teaserOf(id: string, question: string, event: string, category: string, closes_at: number | null, price: number | null, price_outcome: string | undefined): Teaser {
+  return { kind: "market", id, title: question, event: cleanEventLine(event) !== question ? cleanEventLine(event) : undefined, category: label(category), closes_at, price, price_outcome };
 }
 
 /** /signup?next=/m/<id>: the bet's title, read from the store by id (never from the URL). null = not a market link or unknown id. */
