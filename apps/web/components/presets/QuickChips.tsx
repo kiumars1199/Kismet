@@ -43,18 +43,25 @@ export function QuickChips({ state, onChange }: { state: FilterState; onChange: 
   const [note, setNote] = useState<string | null>(null);
   // Desktop: the row is one scrolling line; "+ Save this view" and "Saved views" stay pinned at its right end, and a fade says there is more.
   const row = useRef<HTMLDivElement>(null);
+  const pinned = useRef<HTMLDivElement>(null);
   const [more, setMore] = useState(false);
   const nChips = favorite_topics.length;
   useEffect(() => {
     const el = row.current;
     if (!el) return;
-    const measure = () => setMore(el.scrollWidth > el.clientWidth + 1);
+    // more = chips are hidden under the pinned ones: the row is not scrolled to its end. The pinned width is the scroll padding, so Tab
+    // (or any focus) scrolls a chip fully clear of them.
+    const measure = () => {
+      const desktop = window.matchMedia("(min-width: 768px)").matches;
+      el.style.scrollPaddingInlineEnd = desktop && pinned.current ? `${pinned.current.offsetWidth + 12}px` : "";
+      setMore(desktop && el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
+    };
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(el);
-    return () => ro.disconnect();
+    el.addEventListener("scroll", measure, { passive: true });
+    return () => { ro.disconnect(); el.removeEventListener("scroll", measure); };
   }, [nChips]);
-
   const favs = favorite_topics.filter((id) => TAXONOMY[id]).map((id) => topicChip(id));
   const chips = [...favs, ...STANDARD.filter((c) => !favs.some((f) => f.key === c.key))];
 
@@ -86,7 +93,7 @@ export function QuickChips({ state, onChange }: { state: FilterState; onChange: 
           </button>
         );
       })}
-      <div className="flex flex-none items-center gap-2 md:sticky md:right-0 md:bg-background md:pl-1">
+      <div ref={pinned} className="flex flex-none items-center gap-2 md:sticky md:right-0 md:bg-background md:pl-1">
         {more && <span aria-hidden="true" data-testid="chips-fade" className="pointer-events-none absolute inset-y-0 -left-8 hidden w-8 bg-gradient-to-r from-transparent to-background md:block" />}
         <button type="button" onClick={() => setSaving(true)} className={`${chipClass(false)} flex-none`}>+ Save this view</button>
         <SavedViews onApply={onChange} className={`${chipClass(false)} flex-none`} />

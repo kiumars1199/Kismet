@@ -30,6 +30,40 @@ async function signUpWithTopics(page: Page, email: string, topics: RegExp[]) {
 }
 /** The quick-filter chips row (after the filter pills) is one line whatever the saved topics add to it: the server renders it without them. */
 const chipRowHeight = (page: Page) => page.locator('[aria-label="Quick filters"]').nth(1).evaluate((e) => e.getBoundingClientRect().height);
+
+/** Opens the column menu and asserts it fits the screen AND can be used: every checkbox row is what the pointer reaches (not clipped by an
+ *  overflow box), one click toggles, Escape and an outside click close it. */
+async function menuWorks(page: Page, h: number, where: string) {
+  const choose = page.getByTitle("Choose columns");
+  await choose.click();
+  const panel = page.getByTestId("column-menu");
+  await expect(panel).toBeVisible();
+  const b = (await panel.boundingBox())!;
+  console.log(`column menu ${Math.round(b.y)}-${Math.round(b.y + b.height)} of ${h} (${where})`);
+  expect(b.y, `menu top is inside the screen (${where})`).toBeGreaterThanOrEqual(0);
+  expect(b.y + b.height, `menu bottom is inside the screen (${where})`).toBeLessThanOrEqual(h);
+  expect(b.height, "the menu is usable (not squeezed)").toBeGreaterThanOrEqual(176);
+  const rows = panel.locator("label:has(input[type=checkbox])");
+  const n = await rows.count();
+  expect(n).toBeGreaterThan(8);
+  for (let i = 0; i < n; i++) {
+    const row = rows.nth(i);
+    await row.scrollIntoViewIfNeeded();
+    const hit = await row.evaluate((e) => { const r = e.getBoundingClientRect(); return document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2)?.closest("label") === e; });
+    expect(hit, `row ${i} is what the pointer reaches (${where})`).toBe(true);
+  }
+  const first = rows.first().locator("input");
+  const before = await first.isChecked();
+  await rows.first().click();
+  await expect(first).toBeChecked({ checked: !before });
+  await rows.first().click();   // put it back
+  await page.keyboard.press("Escape");
+  await expect(panel).toBeHidden();
+  await choose.click();
+  await expect(panel).toBeVisible();
+  await page.mouse.click(2, Math.floor(h / 2));   // outside click (the page gutter)
+  await expect(panel).toBeHidden();
+}
 const THREE = [/^NFL/, /^Soccer/, /^College basketball/];
 
 const installCls = (page: Page) => page.addInitScript(() => {
@@ -93,22 +127,10 @@ for (const { w, h } of [{ w: 390, h: 844 }, { w: 1440, h: 900 }]) {
       await signUpWithTopics(page, `wt2i-menu-${w}-${Date.now()}@example.com`, []);
       await page.goto("/markets", { waitUntil: "networkidle" });
       await expect(page.locator("tbody tr[data-row]").first()).toBeVisible({ timeout: 30_000 });
-      const choose = page.getByTitle("Choose columns");
-      const fits = async (where: string) => {
-        await choose.click();
-        const panel = page.locator("details[open] > div");
-        await expect(panel).toBeVisible();
-        const b = (await panel.boundingBox())!;
-        console.log(`column menu bottom ${Math.round(b.y + b.height)} of ${h} (${where})`);
-        expect(b.y + b.height, `menu bottom is inside the screen (${where})`).toBeLessThanOrEqual(h);
-        expect(await panel.evaluate((e) => e.scrollHeight > e.clientHeight), "rows scroll inside the menu").toBe(true);
-        await choose.click();
-        await expect(panel).toBeHidden();
-      };
-      await fits("top of the page");
+      await menuWorks(page, h, "top of the page");
       await page.evaluate(() => window.scrollTo(0, 800));
       await expect.poll(() => page.evaluate(() => window.scrollY), { message: "the page scrolled" }).toBeGreaterThan(300);
-      await fits("after scrolling");
+      await menuWorks(page, h, "after scrolling");
     });
 
     test("/check limit page: no screenful of empty space under the limit card, and CLS <= 0.02", async ({ page }) => {
@@ -158,6 +180,16 @@ test("/markets?q=texans at 1100px with 3 saved topics: CLS <= 0.02, chips stay o
     expect(b.x >= 0 && b.x + b.width <= 1100, `${name} is inside the screen`).toBe(true);
   }
   await expect(page.getByTestId("chips-fade")).toBeVisible();
+  // scrolled to the end: nothing is hidden under the pinned chips, so no fade
+  const row = page.locator('[aria-label="Quick filters"]').nth(1);
+  await row.evaluate((e) => { e.scrollLeft = e.scrollWidth; });
+  await expect(page.getByTestId("chips-fade")).toHaveCount(0);
+  // Tab focus scrolls a chip fully clear of the pinned ones
+  await row.evaluate((e) => { e.scrollLeft = 0; });
+  const hide = page.getByRole("button", { name: "Hide sports", exact: true });
+  await hide.focus();
+  const clear = await hide.evaluate((e) => { const r = e.getBoundingClientRect(); const pin = [...document.querySelectorAll("button")].find((x) => x.textContent === "+ Save this view")!.getBoundingClientRect(); return r.right <= pin.left; });
+  expect(clear, "the focused chip is not under the pinned chips").toBe(true);
 });
 
 test("/markets?q=texans at 1280px with 3 saved topics: CLS <= 0.02", async ({ page }) => {
@@ -174,31 +206,20 @@ test("/markets?q=texans at 1280px with 3 saved topics: CLS <= 0.02", async ({ pa
   expect(v).toBeLessThanOrEqual(0.02);
 });
 
-// Short desktop screens: the room under the button is ~64 px at 1280x720, so the menu opens upward there; it always fits.
-for (const { w, h } of [{ w: 1280, h: 720 }, { w: 1100, h: 800 }]) {
+// Short desktop screens: the room under the button is ~64 px at 1280x720, so the menu opens upward there; it always fits, and every row can be used (it sits in <body>, outside the table's overflow box).
+for (const { w, h } of [{ w: 1280, h: 720 }, { w: 1100, h: 800 }, { w: 1440, h: 900 }]) {
   test(`/markets column menu fits at ${w}x${h}: opened at the top of the page and after scrolling`, async ({ page }) => {
     test.setTimeout(240_000);
     await page.setViewportSize({ width: w, height: h });
     await signUpWithTopics(page, `wt2i-menu-${w}-${Date.now()}@example.com`, []);
-    await page.goto("/markets", { waitUntil: "networkidle" });
+    await page.goto("/markets", { waitUntil: "load" });
     await expect(page.locator("tbody tr[data-row]").first()).toBeVisible({ timeout: 30_000 });
-    const choose = page.getByTitle("Choose columns");
-    const fits = async (where: string) => {
-      await choose.click();
-      const panel = page.locator("details[open] > div");
-      await expect(panel).toBeVisible();
-      const b = (await panel.boundingBox())!;
-      console.log(`column menu ${Math.round(b.y)}-${Math.round(b.y + b.height)} of ${h} at ${w} (${where})`);
-      expect(b.y, `menu top is inside the screen (${where})`).toBeGreaterThanOrEqual(0);
-      expect(b.y + b.height, `menu bottom is inside the screen (${where})`).toBeLessThanOrEqual(h);
-      expect(b.height, "the menu is usable (not squeezed)").toBeGreaterThanOrEqual(176);
-      await choose.click();
-      await expect(panel).toBeHidden();
-    };
-    await fits("top of the page");
+    await menuWorks(page, h, "right after load");
+    await page.waitForLoadState("networkidle");
+    await menuWorks(page, h, "top of the page");
     await page.evaluate(() => window.scrollTo(0, 800));
     await expect.poll(() => page.evaluate(() => window.scrollY), { message: "the page scrolled" }).toBeGreaterThan(300);
-    await fits("after scrolling");
+    await menuWorks(page, h, "after scrolling");
   });
 }
 
