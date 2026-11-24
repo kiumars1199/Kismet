@@ -131,8 +131,8 @@ export function LoginForm({ next, error: initialError, mode = "login" }: { next:
     </>
   );
   const terms = (
-    <div className="flex flex-col gap-1.5">
-      <label htmlFor={ids.terms} className="flex cursor-pointer items-start gap-3 rounded-input border border-border bg-surface p-3 text-sm md:p-4 leading-relaxed text-soft has-[:focus-visible]:border-accent-border">
+    <div className="flex flex-col gap-0.5 md:gap-1.5">
+      <label htmlFor={ids.terms} className="flex cursor-pointer items-start gap-3 rounded-input border border-border bg-surface p-2 text-[13px] md:p-4 md:text-sm leading-snug md:leading-relaxed text-soft has-[:focus-visible]:border-accent-border">
         <input
           id={ids.terms} type="checkbox" checked={accept} required aria-invalid={termsError && !accept}
           onChange={(e) => { setAccept(e.target.checked); setTermsError(false); }}
@@ -149,7 +149,7 @@ export function LoginForm({ next, error: initialError, mode = "login" }: { next:
     </div>
   );
   return (
-    <div className="flex flex-col gap-4 md:gap-6">
+    <div className="flex flex-col gap-2.5 md:gap-6">{/* tight on a phone: with Google on, the submit button must clear the tab bar at 375x667 (e2e-paid/launch-wt1c-auth) */}
       {error && <p id={ids.err} role="alert" className="rounded-input border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-text">{error}</p>}
 
       {/* P9: with Google on, the box gates that button too, so it sits above everything; without it, the box sits
@@ -160,7 +160,7 @@ export function LoginForm({ next, error: initialError, mode = "login" }: { next:
       <form method="post" action="/api/auth/google" onSubmit={needTerms}>
         <input type="hidden" name="next" value={next} />
         <input type="hidden" name="accept" value={accept ? "on" : ""} />
-        <button type="submit" className={`${btn} w-full min-h-12 text-[15px]`}>
+        <button type="submit" className={`${btn} w-full min-h-11 text-[15px] md:min-h-12`}>
           <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
             <path fill="#EA4335" d="M12 10.2v3.9h5.5c-.24 1.4-1.7 4.1-5.5 4.1-3.3 0-6-2.7-6-6.1s2.7-6.1 6-6.1c1.9 0 3.1.8 3.8 1.5l2.6-2.5C16.8 3.5 14.6 2.5 12 2.5 6.8 2.5 2.6 6.7 2.6 12s4.2 9.5 9.4 9.5c5.4 0 9-3.8 9-9.2 0-.6-.1-1.1-.2-1.6H12z" />
           </svg>
@@ -168,12 +168,12 @@ export function LoginForm({ next, error: initialError, mode = "login" }: { next:
         </button>
       </form>
 
-      <div className="flex items-center gap-3 text-xs text-muted" aria-hidden="true">
+      <div className="hidden items-center gap-3 text-xs text-muted md:flex" aria-hidden="true">
         <span className="h-px flex-1 bg-border" />or<span className="h-px flex-1 bg-border" />
       </div>
       </>}
 
-      <div className="flex flex-col gap-3 md:gap-4">
+      <div className="flex flex-col gap-2 md:gap-4">
         <div role="tablist" aria-label="Sign-in method" className="flex gap-1 border-b border-border">
           {TABS.map((t) => {
             const on = t.value === tab;
@@ -192,12 +192,12 @@ export function LoginForm({ next, error: initialError, mode = "login" }: { next:
 
         <div id={ids.panel} role="tabpanel" aria-labelledby={ids.tab(tab)}>
           {tab === "password" ? (
-            <form method="post" onSubmit={withPassword} className="flex flex-col gap-2.5 md:gap-3">{/* post: never put credentials in the URL */}
+            <form method="post" onSubmit={withPassword} className="flex flex-col gap-1.5 md:gap-3">{/* post: never put credentials in the URL */}
               {emailField}
-              <label htmlFor={ids.pw} className="text-xs font-medium text-muted">Password</label>
+              <label htmlFor={ids.pw} className="mt-1 text-xs font-medium text-muted md:mt-0">Password</label>
               <div className="relative">
                 <input
-                  id={ids.pw} type={show ? "text" : "password"} placeholder={`At least ${PASSWORD_MIN} characters`} required minLength={PASSWORD_MIN} maxLength={PASSWORD_MAX}
+                  id={ids.pw} type={show ? "text" : "password"} required aria-describedby={mode === "signup" ? ids.hint : undefined} minLength={PASSWORD_MIN} maxLength={PASSWORD_MAX}
                   autoComplete={mode === "signup" ? "new-password" : "current-password"} 
                   value={password} onChange={(e) => setPassword(e.target.value)} className={`${input} w-full pr-20`}
                 />
@@ -208,6 +208,8 @@ export function LoginForm({ next, error: initialError, mode = "login" }: { next:
                   {show ? "Hide" : "Show"}
                 </button>
               </div>
+              {/* the visible hint under the field (it was a placeholder only); signing up is where the rule matters */}
+              {mode === "signup" && <p id={ids.hint} className="-mt-1 text-xs leading-4 text-muted">At least {PASSWORD_MIN} characters</p>}
               {!GOOGLE && terms}
               <button type="submit" className={`${btnPrimary} min-h-12 text-[15px]`} disabled={busy}>
                 {busy ? "One moment…" : mode === "signup" ? "Create account" : "Log in"}
