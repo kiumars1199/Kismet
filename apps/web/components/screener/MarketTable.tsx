@@ -293,7 +293,7 @@ function ColumnChooser({ cols }: { cols: { id: string; label: string; pro: boole
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
         <span className="sr-only">Choose columns</span>
       </summary>
-      <div className="absolute left-0 z-20 mt-1 w-64 rounded-input border border-border bg-raised p-3 text-sm">
+      <div className="absolute left-0 z-20 mt-1 max-h-[calc(100svh-9rem)] w-64 overflow-y-auto overscroll-contain rounded-input border border-border bg-raised p-3 text-sm">
         <fieldset>
           <legend className="mb-1 text-xs text-muted">Main</legend>
           {pick.filter((c) => !c.pro).map((c) => <Check key={c.id} {...c} />)}

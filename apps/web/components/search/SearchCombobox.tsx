@@ -258,7 +258,7 @@ function Combobox() {
     >
       <div className="flex items-center gap-2">
         <label className="flex min-h-11 flex-1 items-center gap-2.5 rounded-input border border-border bg-input px-3.5 text-muted transition-colors duration-150 focus-within:border-accent">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></svg>
+          <svg className="flex-none" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></svg>
           <span className="sr-only">Search markets</span>
           <input
             ref={input}
@@ -292,7 +292,7 @@ function Combobox() {
             className="w-full min-w-0 text-ellipsis bg-transparent text-text placeholder:text-muted focus:outline-none [&::-webkit-search-cancel-button]:hidden"
           />
           {text && (
-            <button type="button" aria-label="Clear search" onClick={() => (setText(""), input.current?.focus())} className="-my-px -mr-3 flex size-11 flex-none items-center justify-center rounded-full text-muted hover:text-text">
+            <button type="button" aria-label="Clear search" onClick={() => (setText(""), input.current?.focus())} className={`-my-px -mr-3 size-11 flex-none items-center justify-center rounded-full text-muted hover:text-text ${open ? "flex" : "hidden md:flex"}`}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
             </button>
           )}

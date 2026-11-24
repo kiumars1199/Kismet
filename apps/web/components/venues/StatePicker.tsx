@@ -24,7 +24,7 @@ export function StatePicker({ next = null, as: Heading = "h2" }: { next?: string
       <label className="flex flex-col gap-1 text-sm">
         <span className="text-muted">State</span>
         <select value={state ?? ""} onChange={(e) => void pick(e.target.value)} data-testid="state-select"
-          className="min-h-11 w-full max-w-xs rounded-input border border-border bg-surface px-3 text-text">
+          className="min-h-11 w-full max-w-xs rounded-input border border-border bg-surface px-3 text-base text-text md:text-sm">
           <option value="">Not set</option>
           {Object.entries(US_STATES).map(([code, name]) => <option key={code} value={code}>{name}</option>)}
         </select>

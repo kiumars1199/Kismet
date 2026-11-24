@@ -35,6 +35,16 @@ const cls = async (page: Page) => { await page.waitForLoadState("load"); await p
 const why = (page: Page) => page.evaluate(() => (window as unknown as { __src: string[] }).__src.join("\n"));
 const skipTour = async (page: Page) => { const b = page.getByRole("button", { name: "Skip tour" }); await b.waitFor({ timeout: 3_000 }).catch(() => {}); if (await b.isVisible()) await b.click(); };
 
+/** A comp through the mock database (service role), as the other paid specs do. */
+async function comp(page: Page, tier: "pro" | "premium") {
+  const me = await (await page.request.get("/api/me")).json();
+  const res = await page.request.patch(`/e2e-mock/supabase/rest/v1/subscriptions?user_id=eq.${me.user.id}`, {
+    headers: { authorization: "Bearer e2e-service", apikey: "e2e-service", "content-type": "application/json" }, data: { comp_tier: tier },
+  });
+  expect(res.status()).toBeLessThan(300);
+  expect((await (await page.request.get("/api/me")).json()).tier).toBe(tier);
+}
+
 for (const { w, h } of [{ w: 390, h: 844 }, { w: 1440, h: 900 }]) {
   test.describe(`Free at ${w}px`, () => {
     test.beforeEach(async ({ page }) => { await page.setViewportSize({ width: w, height: h }); });
@@ -55,6 +65,37 @@ for (const { w, h } of [{ w: 390, h: 844 }, { w: 1440, h: 900 }]) {
         // the empty state really arrived (not a stuck skeleton)
         await expect(page.getByRole("heading", { name: path === "/alerts" ? "No alert rules yet" : "No dashboards yet" })).toBeVisible();
       }
+    });
+
+    for (const tier of ["pro", "premium"] as const) {
+      test(`/alerts as ${tier}: CLS <= 0.02 from first paint (the email sentence and the Phone alerts card are hinted by the plan)`, async ({ page }) => {
+        test.setTimeout(240_000);
+        await signUp(page, `wt2g-${tier}-${w}-${Date.now()}@example.com`);
+        await comp(page, tier);
+        await installCls(page);
+        await page.goto("/alerts");
+        await expect(page.getByRole("heading", { level: 1, name: "Alerts" })).toBeVisible({ timeout: 30_000 });
+        await skipTour(page);
+        await expect(page.getByTestId("push-toggle")).toBeVisible();
+        await expect(page.getByText("our servers also check once a day")).toBeVisible();
+        const v = await cls(page);
+        console.log(`CLS /alerts as ${tier} at ${w}px: ${v.toFixed(4)}`);
+        if (v > 0.02) console.log(await why(page));
+        expect(v).toBeLessThanOrEqual(0.02);
+        if (process.env.WT2G_SHOTS) await page.screenshot({ path: `${process.env.WT2G_SHOTS}/${w}-alerts-${tier}.png` });   // evidence only
+      });
+    }
+
+    test("/settings: the Time zone and State selects use the same text size (14 px on desktop, 16 px on phones)", async ({ page }) => {
+      test.setTimeout(240_000);
+      await signUp(page, `wt2g-set-${w}-${Date.now()}@example.com`);
+      await page.goto("/settings");
+      const tz = page.getByLabel("Time zone");
+      await expect(tz).toBeVisible({ timeout: 30_000 });
+      const size = (l: typeof tz) => l.evaluate((e) => getComputedStyle(e).fontSize);
+      const want = w >= 768 ? "14px" : "16px";
+      expect(await size(tz)).toBe(want);
+      expect(await size(page.getByTestId("state-select"))).toBe(want);
     });
 
     test("/check: the Free limit card is as tall as its content, and appearing shifts nothing", async ({ page }) => {
