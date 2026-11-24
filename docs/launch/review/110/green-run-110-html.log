@@ -1,0 +1,3 @@
+  ✓  1 [chromium] › e2e110/hydration-loop.spec.ts:11:1 › the first HTML for a phone has its metadata in <head> and no pending streamed boundary (179ms)
+
+  1 passed (637ms)

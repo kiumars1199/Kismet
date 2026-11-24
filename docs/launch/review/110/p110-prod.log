@@ -1,0 +1,33 @@
+meta prod /: {"title":"Kismet · Which Polymarket bets are worth it today?","titles":1,"titleInHead":true,"desc":["Placing a bet or two? See which Polymarket bets look like good value today, how often bets like them win, and what $10 pays. 10 bets a day, free. No card."],"ogt":["Kismet · Which Polymarket bets are worth it today?"],"ogd":["Placing a bet or two? See which Polymarket bets lo"],"ogi":["https://kismetodds.com/opengraph-image?2d71081a0dd5dc02"],"tw":["summary_large_image"],"twi":["https://kismetodds.com/twitter-image?55f577542c7381ed"],"canon":[],"metaInBody":0}
+   img /opengraph-image?2d71081a0dd5dc02 -> 200 image/png 57963B
+   img /twitter-image?55f577542c7381ed -> 200 image/png 57963B
+meta prod /state?next=/: {"title":"Your state · Kismet","titles":1,"titleInHead":true,"desc":["Prediction-market analytics: which contracts are priced below how often bets like them have won."],"ogt":["Your state · Kismet"],"ogd":["Prediction-market analytics: which contracts are p"],"ogi":["https://kismetodds.com/opengraph-image?2d71081a0dd5dc02"],"tw":["summary_large_image"],"twi":["https://kismetodds.com/twitter-image?55f577542c7381ed"],"canon":[],"metaInBody":0}
+   img /opengraph-image?2d71081a0dd5dc02 -> 200 image/png 57963B
+   img /twitter-image?55f577542c7381ed -> 200 image/png 57963B
+meta prod /signup: {"title":"Sign up free · Kismet","titles":1,"titleInHead":true,"desc":["Create a free Kismet account with Google or an email and password: 10 best bets a day free, no card."],"ogt":["Sign up free · Kismet"],"ogd":["Create a free Kismet account with Google or an ema"],"ogi":["https://kismetodds.com/opengraph-image?2d71081a0dd5dc02"],"tw":["summary_large_image"],"twi":["https://kismetodds.com/twitter-image?55f577542c7381ed"],"canon":[],"metaInBody":0}
+   img /opengraph-image?2d71081a0dd5dc02 -> 200 image/png 57963B
+   img /twitter-image?55f577542c7381ed -> 200 image/png 57963B
+meta prod /m/6902904: {"title":"Raiders vs. Browns · Kismet","titles":1,"titleInHead":false,"desc":["Kismet has a verdict on this market. Sign up free to see it. Market analytics, not financial advice."],"ogt":["Raiders vs. Browns"],"ogd":["Kismet has a verdict on this market. Sign up free "],"ogi":["https://kismetodds.com/api/og/bet/6902904"],"tw":["summary_large_image"],"twi":["https://kismetodds.com/api/og/bet/6902904"],"canon":[],"metaInBody":8}
+   img /api/og/bet/6902904 -> 200 image/png 36216B
+meta prod /pricing: {"title":"Pricing · Kismet","titles":1,"titleInHead":true,"desc":["Free, Pro and Premium plans for Kismet. Start free; paid plans include a 7-day trial and cancel any time."],"ogt":["Pricing · Kismet"],"ogd":["Free, Pro and Premium plans for Kismet. Start free"],"ogi":["https://kismetodds.com/opengraph-image?2d71081a0dd5dc02"],"tw":["summary_large_image"],"twi":["https://kismetodds.com/twitter-image?55f577542c7381ed"],"canon":["https://kismetodds.com/pricing"],"metaInBody":0}
+   img /opengraph-image?2d71081a0dd5dc02 -> 200 image/png 57963B
+   img /twitter-image?55f577542c7381ed -> 200 image/png 57963B
+meta prod /about: {"title":"How it works · Kismet","titles":1,"titleInHead":true,"desc":["Prediction-market analytics: which contracts are priced below how often bets like them have won."],"ogt":["How it works · Kismet"],"ogd":["Prediction-market analytics: which contracts are p"],"ogi":["https://kismetodds.com/opengraph-image?2d71081a0dd5dc02"],"tw":["summary_large_image"],"twi":["https://kismetodds.com/twitter-image?55f577542c7381ed"],"canon":[],"metaInBody":0}
+   img /opengraph-image?2d71081a0dd5dc02 -> 200 image/png 57963B
+   img /twitter-image?55f577542c7381ed -> 200 image/png 57963B
+meta prod /track-record: {"title":"Results · Kismet","titles":5,"titleInHead":true,"desc":["How Kismet best bets have done: the live record of real bets next to a week-by-week test on past markets."],"ogt":["Results · Kismet"],"ogd":["How Kismet best bets have done: the live record of"],"ogi":["https://kismetodds.com/opengraph-image?2d71081a0dd5dc02"],"tw":["summary_large_image"],"twi":["https://kismetodds.com/twitter-image?55f577542c7381ed"],"canon":["https://kismetodds.com/track-record"],"metaInBody":4}
+   img /opengraph-image?2d71081a0dd5dc02 -> 200 image/png 57963B
+   img /twitter-image?55f577542c7381ed -> 200 image/png 57963B
+meta prod /check: {"title":"Bet checker · Kismet","titles":1,"titleInHead":false,"desc":["Paste a Polymarket or Kalshi link and see whether the price is better than usual."],"ogt":["Bet checker · Kismet"],"ogd":["Paste a Polymarket or Kalshi link and see whether "],"ogi":["https://kismetodds.com/opengraph-image?2d71081a0dd5dc02"],"tw":["summary_large_image"],"twi":["https://kismetodds.com/twitter-image?55f577542c7381ed"],"canon":["https://kismetodds.com/check"],"metaInBody":10}
+   img /opengraph-image?2d71081a0dd5dc02 -> 200 image/png 57963B
+   img /twitter-image?55f577542c7381ed -> 200 image/png 57963B
+cls prod 390 /: [{"cls":0.0028,"disc":true,"side":0},{"cls":0.0028,"disc":true,"side":0},{"cls":0.0028,"disc":true,"side":0}]
+cls prod 390 /state?next=/: [{"cls":0,"disc":true,"side":0},{"cls":0,"disc":true,"side":0},{"cls":0,"disc":true,"side":0}]
+cls prod 390 /signup: [{"cls":0,"disc":true,"side":0},{"cls":0,"disc":true,"side":0},{"cls":0,"disc":true,"side":0}]
+cls prod 390 /m/6902904: [{"cls":0,"disc":true,"side":0},{"cls":0,"disc":true,"side":0},{"cls":0,"disc":true,"side":0}]
+cls prod 390 /pricing: [{"cls":0,"disc":true,"side":0},{"cls":0,"disc":true,"side":0},{"cls":0,"disc":true,"side":0}]
+cls prod 1440 /: [{"cls":0.0138,"disc":true,"side":0},{"cls":0.0138,"disc":true,"side":0},{"cls":0.0138,"disc":true,"side":0}]
+cls prod 1440 /state?next=/: [{"cls":0,"disc":true,"side":0},{"cls":0,"disc":true,"side":0},{"cls":0,"disc":true,"side":0}]
+cls prod 1440 /signup: [{"cls":0,"disc":true,"side":0},{"cls":0,"disc":true,"side":0},{"cls":0,"disc":true,"side":0}]
+cls prod 1440 /m/6902904: [{"cls":0,"disc":true,"side":0},{"cls":0,"disc":true,"side":0},{"cls":0,"disc":true,"side":0}]
+cls prod 1440 /pricing: [{"cls":0,"disc":true,"side":0},{"cls":0,"disc":true,"side":0},{"cls":0,"disc":true,"side":0}]

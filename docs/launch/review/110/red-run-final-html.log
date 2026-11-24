@@ -1,0 +1,25 @@
+  ✘  1 [chromium] › e2e110/hydration-loop.spec.ts:11:1 › the first HTML for a phone has its metadata in <head> and no pending streamed boundary (81ms)
+
+
+  1) [chromium] › e2e110/hydration-loop.spec.ts:11:1 › the first HTML for a phone has its metadata in <head> and no pending streamed boundary 
+
+    Error: /: <title> in head
+
+    expect(received).toContain(expected) // indexOf
+
+    Expected substring: "<title>"
+    Received string:    "<!DOCTYPE html><html lang=\"en\" class=\"__variable_d8ebd1 __variable_c219ed\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/81008471c3e97fd3.css\" nonce=\"NDM4OThhMDQtZGYzNS00NDMwLWJiNmYtOTc3MjRmYTZjZWFi\" data-precedence=\"next\"/><link rel=\"preload\" as=\"script\" fetchPriority=\"low\" nonce=\"NDM4OThhMDQtZGYzNS00NDMwLWJiNmYtOTc3MjRmYTZjZWFi\" href=\"/_next/static/chunks/webpack-3f7cd94ff7064ee8.js\"/><script src=\"/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js\" async=\"\" nonce=\"NDM4OThhMDQtZGYzNS00NDMwLWJiNmYtOTc3MjRmYTZjZWFi\"></script><script src=\"/_next/static/chunks/8701-95c158389b996b37.js\" async=\"\" nonce=\"NDM4OThhMDQtZGYzNS00NDMwLWJiNmYtOTc3MjRmYTZjZWFi\"></script><script src=\"/_next/static/chunks/main-app-c384cdc16b2cb3b6.js\" async=\"\" nonce=\"NDM4OThhMDQtZGYzNS00NDMwLWJiNmYtOTc3MjRmYTZjZWFi\"></script><script src=\"/_next/static/chunks/324-fc115dda60013bc1.js\" async=\"\" nonce=\"NDM4OThhMDQtZGYzNS00NDMwLWJiNmYtOTc3MjRmYTZjZWFi\"></script><script src=\"/_next/static/chunks/app/layout-9db9c57c3eb874bc.js\" async=\"\" nonce=\"NDM4OThhMDQtZGYzNS00NDMwLWJiNmYtOTc3MjRmYTZjZWFi\"></script><script src=\"/_next/static/chunks/app/error-09ea5fcd5ca9d3f8.js\" async=\"\" nonce=\"NDM4OThhMDQtZGYzNS00NDMwLWJiNmYtOTc3MjRmYTZjZWFi\"></script><script src=\"/_next/static/chunks/5071-90f8eb3c25170709.js\" async=\"\" nonce=\"NDM4OThhMDQtZGYzNS00NDMwLWJiNmYtOTc3MjRmYTZjZWFi\"></script><script src=\"/_next/static/chunks/4744-37403b0c20e80c56.js\" async=\"\" nonce=\"NDM4OThhMDQtZGYzNS00NDMwLWJiNmYtOTc3MjRmYTZjZWFi\"></script><script src=\"/_next/static/chunks/4133-e3963a0d8a30449d.js\" async=\"\" nonce=\"NDM4OThhMDQtZGYzNS00NDMwLWJiNmYtOTc3MjRmYTZjZWFi\"></script><script src=\"/_next/static/chunks/7602-a5d3ab2f3ff35068.js\" async=\"\" nonce=\"NDM4OThhMDQtZGYzNS00NDMwLWJiNmYtOTc3MjRmYTZjZWFi\"></script><script src=\"/_next/static/chunks/27-effe48503c48a36f.js\" async=\"\" nonce=\"NDM4OThhMDQtZGYzNS00NDMwLWJiNmYtOTc3MjRmYTZjZWFi\"></script><script src=\"/_next/static/chunks/4775-30ff42050d202f37.js\" async=\"\" nonce=\"NDM4OThhMDQtZGYzNS00NDMwLWJiNmYtOTc3MjRmYTZjZWFi\"></script><script src=\"/_next/static/chunks/app/page-c891bde9794f302d.js\" async=\"\" nonce=\"NDM4OThhMDQtZGYzNS00NDMwLWJiNmYtOTc3MjRmYTZjZWFi\"></script><script src=\"/_next/static/chunks/1358-41dd7daceb42f309.js\" async=\"\" nonce=\"NDM4OThhMDQtZGYzNS00NDMwLWJiNmYtOTc3MjRmYTZjZWFi\"></script><script src=\"/_next/static/chunks/3288-5a35be7b8690ee6e.js\" async=\"\" nonce=\"NDM4OThhMDQtZGYzNS00NDMwLWJiNmYtOTc3MjRmYTZjZWFi\"></script><script src=\"/_next/static/chunks/7154-6f2f5fb617873214.js\" async=\"\" nonce=\"NDM4OThhMDQtZGYzNS00NDMwLWJiNmYtOTc3MjRmYTZjZWFi\"></script><script src=\"/_next/static/chunks/4500-fd0b08bf588410cc.js\" async=\"\" nonce=\"NDM4OThhMDQtZGYzNS00NDMwLWJiNmYtOTc3MjRmYTZjZWFi\"></script><script src=\"/_next/static/chunks/3833-481a23273aa16d1c.js\" async=\"\" nonce=\"NDM4OThhMDQtZGYzNS00NDMwLWJiNmYtOTc3MjRmYTZjZWFi\"></script><script src=\"/_next/static/chunks/app/bets/page-0ab2ce1b7d290541.js\" async=\"\" nonce=\"NDM4OThhMDQtZGYzNS00NDMwLWJiNmYtOTc3MjRmYTZjZWFi\"></script><meta name=\"next-size-adjust\" content=\"\"/><link rel=\"manifest\" href=\"/manifest.webmanifest\"/><meta name=\"theme-color\" content=\"#070a09\"/><script src=\"/_next/static/chunks/polyfills-42372ed130431b0a.js\" noModule=\"\" nonce=\"NDM4OThhMDQtZGYzNS00NDMwLWJiNmYtOTc3MjRmYTZjZWFi\"></script>"
+
+      14 |     const html = await res.text();
+      15 |     const head = html.slice(0, html.indexOf("</head>"));
+    > 16 |     expect(head, `${path}: <title> in head`).toContain("<title>");
+         |                                              ^
+      17 |     expect(html.slice(html.indexOf("</head>")), `${path}: no metadata streamed into the body`).not.toContain("<title>");
+      18 |   }
+      19 | });
+        at /tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/wtfin/apps/web/e2e110/hydration-loop.spec.ts:16:46
+
+    Error Context: test-results/hydration-loop-the-first-H-e0e1f-o-pending-streamed-boundary-chromium/error-context.md
+
+  1 failed
+    [chromium] › e2e110/hydration-loop.spec.ts:11:1 › the first HTML for a phone has its metadata in <head> and no pending streamed boundary 
