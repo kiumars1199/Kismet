@@ -38,11 +38,13 @@ export const SORTS: { key: string; label: string; sort: FilterState["sort"] }[] 
   { key: "closes", label: "Closing soonest", sort: { key: "closes", dir: "asc" } },
 ];
 
+/** Sport value when 2+ topics filter the list (saved "Your topics"): shown as "Your topics (N)", left as they are on Apply. */
+export const MULTI = "multi";
 type Bar = { sport: string; mult: string; date: string; from: string; to: string };
 
 /** The bar's values read from a FilterState ("" = any). date "custom" = the From/To days below. */
 export function barValues(s: FilterState, win: { today: Win; week: Win }): Bar {
-  const sport = s.topics?.length === 1 ? `t:${s.topics[0]}` : s.categories?.length === 1 && !s.topics?.length ? `c:${s.categories[0]}` : "";
+  const sport = s.topics?.length === 1 ? `t:${s.topics[0]}` : (s.topics?.length ?? 0) > 1 ? MULTI : s.categories?.length === 1 && !s.topics?.length ? `c:${s.categories[0]}` : "";
   const mult = MULTIPLIERS.find((m) => m.min === s.pays_min && m.max === s.pays_max)?.key ?? "";
   const near = (w: Win) => s.closes_within_h !== undefined && Math.abs(s.closes_within_h - w.closes_within_h) <= 0.25;
   const custom = s.closes_from !== undefined || s.closes_to !== undefined;
@@ -61,8 +63,10 @@ export function barPatch(v: Bar, win: { today: Win; week: Win }): Partial<Filter
   const custom = v.date === "custom" && !!a;
   return {
     closes_from: custom ? dayStart(a!) : undefined, closes_to: custom ? dayEnd(b!) : undefined,
-    topics: v.sport.startsWith("t:") ? [v.sport.slice(2)] : undefined,
-    categories: v.sport.startsWith("c:") ? [v.sport.slice(2) as never] : undefined,
+    ...(v.sport === MULTI ? {} : {
+      topics: v.sport.startsWith("t:") ? [v.sport.slice(2)] : undefined,
+      categories: v.sport.startsWith("c:") ? [v.sport.slice(2) as never] : undefined,
+    }),
     pays_min: m?.min, pays_max: m?.max,
     closes_after_h: w?.closes_after_h, closes_within_h: w?.closes_within_h,
   };
@@ -114,6 +118,7 @@ export function FilterBar({ state, facets, win, total, shown, fallback = false, 
         onSubmit={(e) => { e.preventDefault(); onChange(barPatch(draft, win)); }}>
         <Field wide label="Sport or topic" icon={ICON.sport} value={draft.sport} testid="bar-sport" onChange={(sport) => setDraft((d) => ({ ...d, sport }))}>
           <option value="">Everything</option>
+          {(draft.sport === MULTI || applied.sport === MULTI) && <option value={MULTI}>Your topics ({state.topics?.length ?? 0})</option>}
           {groups.map((g) => (
             <optgroup key={g.id} label={g.label}>
               <option value={`t:${g.id}`}>All {g.label}{n(facets?.topics[g.id] ?? facets?.categories[g.id])}</option>

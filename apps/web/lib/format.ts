@@ -251,3 +251,6 @@ export const behindWords = (min: number) => (min <= 0 ? "live" : `${delayWords(m
 
 /** Polymarket names a game's second event "<game> - More Markets": drop the suffix wherever the event name is shown. */
 export const cleanEventLine = (e: string): string => e.replace(/\s+-\s+more markets\s*$/i, "").trim() || e;
+
+/** "Today's top 5", but "Today's top bet" when only one shows. */
+export const todayHeading = (n: number) => (n === 1 ? "Today's top bet" : `Today's top ${n}`);

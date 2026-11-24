@@ -90,7 +90,7 @@ test("/bets reads plainly: no banned words, Today's top 5 then More bets", async
   }
   await page.goto("/bets");
   const h2 = page.locator("main h2");
-  await expect(h2.filter({ hasText: /^Today's top \d$/ })).toHaveCount(1);
+  await expect(h2.filter({ hasText: /^Today's top (\d|bet)$/ })).toHaveCount(1);
   await expect(h2.filter({ hasText: /^More bets$/ })).toHaveCount(1);
   await expect(page.getByTestId("big-payouts")).toHaveCount(0);
   await expect(page.getByTestId("more-edge")).toHaveCount(0);

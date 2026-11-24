@@ -35,6 +35,7 @@ import { BestBetsHeading } from "./BestBetsHeading";
 import { EmptyState, ErrorState, StaleBanner } from "./States";
 import { useDesktop } from "./useDesktop";
 import { LockedBets } from "./LockedBets";
+import { todayHeading } from "@/lib/format";
 import { FilterBar, barValues } from "./FilterBar";
 import { queryFor, useMeta, useScreener } from "./useScreener";
 
@@ -258,7 +259,7 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
             the fold both before and after and never jumps across the screen when the answer lands. */}
         <div data-testid="bets-list" aria-busy={busy} inert={busy || undefined} className={`flex flex-col gap-4 transition-opacity duration-200 ease-out ${busy ? "pointer-events-none opacity-40" : ""} ${shortSample ? "min-h-[100svh]" : ""}`}>
           {error && <ErrorState onRetry={sc.retry} what="best bets" error={error} />}
-          {!emptySample && <h2 id="top-h" className="text-xl font-semibold">Today&apos;s top {Math.min(TOP, slots.length)}</h2>}
+          {!emptySample && <h2 id="top-h" className="text-xl font-semibold">{todayHeading(Math.min(TOP, slots.length))}</h2>}
           {!emptySample && <Cards slots={slots.slice(0, TOP)} desktop={desktop} label="top-h" />}
           {slots.length > TOP && (
             <>

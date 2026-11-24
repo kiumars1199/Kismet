@@ -252,3 +252,102 @@ test("the Your topics pill works before hydration, and nothing covers or breaks 
   await expect(link).toHaveCount(0);
   await bare.close();
 });
+
+// T-wt2e: sign out, then sign in again (or a new device: no hint cookie). The first landing is already filtered.
+const WT2E = path.resolve(process.cwd(), "../../docs/launch/review/wt2e");
+const PW = "first password 1";
+async function signUpWithPassword(page: Page, email: string) {
+  await page.goto("/signup");
+  await page.waitForLoadState("networkidle");
+  await page.getByLabel("Email", { exact: true }).fill(email);
+  await page.locator("input").and(page.getByLabel("Password", { exact: true })).fill(PW);
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "Create account" }).click();
+  await expect(page.getByRole("heading", { name: "Check your email" })).toBeVisible({ timeout: 30_000 });
+  const { url } = await (await page.request.get(`/e2e-mock/supabase/_inbox?email=${encodeURIComponent(email)}`)).json();
+  await page.goto(url);
+  await page.waitForURL(/\/onboarding/, { timeout: 60_000 });
+}
+async function signInAgain(page: Page, email: string, method: "link" | "password") {
+  if (method === "password") {
+    await page.goto("/login?next=%2F");
+    await page.waitForLoadState("networkidle");
+    await page.getByLabel("Email", { exact: true }).fill(email);
+    await page.locator("input").and(page.getByLabel("Password", { exact: true })).fill(PW);
+    await page.getByRole("checkbox").check();
+    await resetCls(page);
+    await page.getByRole("button", { name: "Log in", exact: true }).click();
+    return;
+  }
+  await page.goto("/login");
+  await expect(async () => {
+    await page.getByRole("tab", { name: "Email link" }).click();
+    await expect(page.getByRole("button", { name: "Email me a sign-in link" })).toBeVisible({ timeout: 2_000 });
+  }).toPass({ timeout: 60_000 });
+  await page.getByLabel("Email", { exact: true }).fill(email);
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "Email me a sign-in link" }).click();
+  await expect(page.getByRole("heading", { name: "Check your email" })).toBeVisible({ timeout: 30_000 });
+  const { url } = await (await page.request.get(`/e2e-mock/supabase/_inbox?email=${encodeURIComponent(email)}`)).json();
+  await resetCls(page);
+  await page.goto(url);
+}
+
+for (const { w, h } of SIZES) for (const method of ["link", "password"] as const) {
+  test(`saved topics survive sign-out and sign-in by ${method} at ${w}px: first landing filtered; bar and Settings name them`, async ({ page, context }) => {
+    test.setTimeout(300_000);
+    await page.setViewportSize({ width: w, height: h });
+    await observeCls(page);
+    const email = `f05-relogin-${method}-${w}-${Date.now()}@example.com`;
+    if (method === "link") await signUp(page, email); else await signUpWithPassword(page, email);
+    await makePremium(page);
+    for (const re of [/^NFL/, /^Elections/]) {
+      const t = page.getByRole("button", { name: re });
+      await expect(t).toContainText("open", { timeout: 60_000 });
+      await page.waitForTimeout(500);
+      await t.click();
+      await expect(t).toHaveAttribute("aria-pressed", "true", { timeout: 30_000 });
+    }
+    await page.getByRole("button", { name: "Skip setup" }).click();
+    await page.waitForURL(/fav=1/, { timeout: 60_000 });
+    // two topics: the bar says so, never "Everything"
+    await expect(page.getByTestId("bar-sport")).toHaveValue("multi", { timeout: 30_000 });
+    await expect(page.getByTestId("bar-sport").locator("option:checked")).toHaveText("Your topics (2)");
+    await page.waitForLoadState("networkidle");
+    const tour = page.getByRole("button", { name: "Skip tour" });
+    if (await tour.isVisible()) await tour.click();
+    if (method === "link") await page.getByTestId("filter-bar").screenshot({ path: `${WT2E}/${w}-filter-bar-2-topics.png` });
+
+    await page.goto("/settings");
+    await expect(page.getByText(/^Favorites: /)).toContainText("NFL", { timeout: 30_000 });
+    await expect(page.getByText(/^Favorites: /)).not.toContainText("sports.nfl");
+    if (method === "link") { await page.locator("#s-topics").scrollIntoViewIfNeeded(); await page.screenshot({ path: `${WT2E}/${w}-settings-topics.png` }); }
+
+    if (method === "link") {   // one bet shown: the heading reads "Today's top bet"
+      await page.goto("/bets?fav=1&t=sports.nfl");
+      await expect(page.locator("#top-h")).toHaveText("Today's top bet", { timeout: 30_000 });
+      await page.locator("#top-h").scrollIntoViewIfNeeded();
+      await page.screenshot({ path: `${WT2E}/${w}-todays-top-bet.png` });
+    }
+
+    await page.goto("/account");
+    await page.getByRole("button", { name: "Sign out", exact: true }).click();
+    await page.waitForURL((u) => u.pathname === "/", { timeout: 30_000 });
+    await page.waitForLoadState("networkidle");
+    await context.clearCookies();   // a new device: no hint at all
+
+    await signInAgain(page, email, method);
+    await page.waitForURL(/fav=1/, { timeout: 60_000 });   // first signed-in render: filtered, no reload needed
+    await expect(pill(page)).toBeVisible({ timeout: 30_000 });
+    const cls = await readCls(page);
+    console.log(`CLS re-login first landing (${method}) at ${w}px: ${cls.toFixed(4)}`);
+    expect(cls).toBeLessThanOrEqual(0.02);
+    const skip = page.getByRole("button", { name: "Skip tour" });
+    if (await skip.isVisible()) await skip.click();
+    if (method === "link") await page.screenshot({ path: `${WT2E}/${w}-relogin-first-landing.png` });
+    // a tap on Best bets stays filtered too
+    await page.getByRole("link", { name: "Best bets" }).first().click();
+    await expect(page).toHaveURL(/fav=1/, { timeout: 60_000 });
+    await expect(pill(page)).toBeVisible({ timeout: 30_000 });
+  });
+}
