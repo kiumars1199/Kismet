@@ -8,7 +8,7 @@ import type { Side, StoreMarket } from "@/lib/types";
 import { useCombo } from "./useCombo";
 import { BetaBadge } from "@/components/beta/BetaBadge";
 
-/** The link inside it has vertical padding on an inline box: its tap target is 44 px tall and the line does not grow (T-wt3e).
+/** The link inside it is an inline-block with vertical padding: its 44 px tap target is part of the line, so the button below cannot cover its bottom (T-wt3f; it was an inline box in T-wt3e).
  *  The tray refuses a second bet from one event; its message ends with this line, which the button turns into a link with both bets. */
 const CHECKER_LINE = "You can still check them together in the combo checker.";
 
@@ -35,7 +35,7 @@ export function AddToCombo({ m, s, className, reserve = false }: { m: StoreMarke
       >
         {inCombo ? "In combo ✓" : leg ? "Switch combo side" : "Add to combo tray"} <BetaBadge className="ml-1.5" />
       </button>
-      {error && <p role="alert" className="basis-full text-[13px] text-warning">{error.includes(CHECKER_LINE) ? <>{error.replace(CHECKER_LINE, "")}You can still check them together in the <Link href={`/check/combo?legs=${encodeURIComponent([...trayLegs.map((l) => `${l.market_id}:${l.side_index}`), `${m.id}:${s.side_index}`].join(","))}`} className="py-3.5 underline underline-offset-2">combo checker</Link>.</> : error}</p>}
+      {error && <p role="alert" className="basis-full text-[13px] text-warning">{error.includes(CHECKER_LINE) ? <>{error.replace(CHECKER_LINE, "")}You can still check them together in the <Link href={`/check/combo?legs=${encodeURIComponent([...trayLegs.map((l) => `${l.market_id}:${l.side_index}`), `${m.id}:${s.side_index}`].join(","))}`} className="inline-block py-3.5 underline underline-offset-2">combo checker</Link>.</> : error}</p>}
     </>
   );
 }
