@@ -1,0 +1,4 @@
+teasers.json true leftover: 20 sequential -> 2 reads (1 TTL load + 1 re-read expected); 20 concurrent (cold cache) -> 2 reads; then 3 more cache windows x10 requests -> 3 reads; served rows (must be 0): 0
+teasers.json leftover, next counts scan (still leftover): 10 requests -> 2 reads
+teasers.json normal scan, caches out of step: 20 requests -> 1 reads, served 20/20
+top.json true leftover: 20 sequential -> 2 reads; 20 concurrent (cold) -> 2 reads; then 3 cache windows x10 -> 3 reads; stores served (must be 0): 0

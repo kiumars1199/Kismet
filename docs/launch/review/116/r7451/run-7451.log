@@ -1,0 +1,16 @@
+rv2-116d t=0 cold /m: [200 0.883558]  warm: [200 0.017568]
+rv2-116d NO new scan written
+rv2-116d t=35s /m other id: [200 0.042604]  next: [200 0.033352]
+rv2-116d t=65s /m other id: [200 0.073487]  next: [200 0.032740]
+rv2-116d t=0 cold /m: [200 0.849364]  warm: [200 0.026706]
+rv2-116d new scan written
+rv2-116d t=35s /m other id: [200 0.048060]  next: [200 0.018924]
+rv2-116d t=65s /m other id: [200 0.038338]  next: [200 0.014982]
+rv2-116d t=0 cold /m: [200 0.991590]  warm: [200 0.032028]
+rv2-116d new scan written
+rv2-116d t=35s /m other id: [200 0.051570]  next: [200 0.020162]
+rv2-116d t=65s /m other id: [200 0.030409]  next: [200 0.019910]
+rv2-116d t=0 cold /m: 1.177694 warm: 0.027442
+rv2-116d leftover: counts.json only
+rv2-116d t=35s /m x8: 0.995391 0.022366 0.014882 0.015990 0.012691 0.014509 0.021867 0.023437 
+rv2-116d teasers.json opens during 20 /m requests (within one 60 s window): 0

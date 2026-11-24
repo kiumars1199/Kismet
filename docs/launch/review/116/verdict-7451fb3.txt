@@ -1,0 +1,24 @@
+#116 (T-hydr4) re-review at 7451fb3 -- PASS
+Change vs 103b628: teasers.ts / top.ts cache entries record `rechecked` (the counts scanned_at already re-read against), and concurrent
+re-reads share `freshInflight`. That's all in lib, plus one vitest block and docs.
+
+(1) Re-reads are limited: FIXED.
+    Unit probe (scratch vitest on the PR's harness, deleted after the run; probe-reads-7451fb3.txt):
+      teasers.json true leftover: 20 sequential -> 2 reads (1 TTL load + 1 re-read); 20 concurrent from a cold cache -> 2; then 3 more
+        cache windows x 10 requests -> 3 reads (1 normal TTL refresh per window, no extra re-read); leftover rows served: 0.
+      A new counts scan while still a leftover: one more re-read (10 requests -> 2 reads, after resetTop cleared the caches). Expected.
+      top.json true leftover: 20 sequential -> 2; 20 concurrent -> 2; 3 cache windows x 10 -> 3; stores served: 0.
+      Was at 103b628: 21 reads for 20 sequential, 20 for 20 concurrent.
+    Real server (next start, real-size data, strace on next-server, r7451/leftover-strace-rv2-116d.txt): after the first fallback,
+      20 /m requests in the same window -> 0 opens of teasers.json. strace was attached: it recorded 40 other openat calls. The same
+      script at 103b628 counted 20 opens for 10 requests. TTFB 0.013-0.023 s, the same as final (0.015-0.026 s at the previous round).
+(2) Normal-scan skew repro, /m at t=35 s: 0.048 s, 0.052 s (2 runs); control with no scan 0.043 s. t=65 s: 0.030-0.073 s. (r7451/run-7451.log)
+(3) A true leftover is still refused: the first /m after counts-only moves takes 0.995 s (store path), and the probe served no
+    leftover row or top store. The PR's own vitest covers it too.
+(4) Free delay: unchanged and correct. The guard and re-read only decide whether the newest copy is usable; the delay cutoff then
+    picks the newest copy, else the -prev/-prev2 copies at or before the cutoff, exactly as before. Free can never get fresher data.
+CI on 7451fb3: all green (web, checks, e2e-paid 1-4, webkit, demo, python, supply-chain). Vercel status: success ("Deployment has completed").
+Nits (non-blocking, code reading):
+  - If a normal (TTL) load finishes while a fresh re-read is in flight, or the other way round, the completion overwrites the entry and
+    drops the other's inflight handle. That only means a dedup is missed (at most one extra read), not a correctness problem.
+  - UI parity was not re-run this round: the change is cache bookkeeping only. At 103b628, / and /m matched final exactly.

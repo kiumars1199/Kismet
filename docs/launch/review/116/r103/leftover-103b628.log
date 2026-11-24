@@ -1,0 +1,10 @@
+rv2-116c t=0 cold /m: 0.837229 warm: 0.022349
+rv2-116c leftover: counts.json only
+rv2-116c t=35s /m x8: 0.926663 0.051353 0.044271 0.045352 0.045671 0.030439 0.032367 0.028777 
+strace: Invalid process id: '-o'
+rv2-116c teasers.json opens during 5 /m requests: 
+rv2-116f t=0 cold /m: 0.921458 warm: 0.020326
+rv2-116f leftover: counts.json only
+rv2-116f t=35s /m x8: 0.049293 0.022145 0.017837 0.020230 0.019436 0.019361 0.018991 0.014777 
+strace: Invalid process id: '-o'
+rv2-116f teasers.json opens during 5 /m requests: 

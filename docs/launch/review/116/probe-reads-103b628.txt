@@ -1,0 +1,3 @@
+teasers.json, true leftover (counts newer): 20 sequential requests -> 21 reads; 20 concurrent -> 20 reads
+teasers.json, normal scan, cache out of step: 20 requests -> 1 reads, served 20/20
+top.json, true leftover: 20 sequential requests -> 21 reads

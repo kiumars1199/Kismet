@@ -1,0 +1,31 @@
+#116 (T-hydr4) re-review at 103b628 -- FAIL (1 blocker; the earlier blocker and should-fix are fixed)
+PR-only diff vs final 8e37682: lib/data/teasers.ts, lib/data/top.ts, two vitest files, ops/upload.py + ops/tests/test_ops.py, docs.
+Production builds (next start) of 103b628 and final 8e37682 on real-size data (t116/data: 26 MB markets.json, precompute.write output). Evidence in r103/.
+
+(1) Normal scan, cache out of step: FIXED. Same skew2.sh repro as before. At t=35s, /m for another id:
+    103b628: 0.089 s, 0.065 s (2 runs); control with no scan: 0.042 s, 0.046 s; final: 0.044 s, 0.040 s.  (2d4997b was 1.9-2.1 s.)  r103/skew-103b628.log
+    Upload order fixed: counts.json now goes up second to last, before flags.json. The pytest passes and checks teasers, top, top-sports
+    and markets all go before counts. getCounts() now runs in the same Promise.all as top.json. resetTop() clears the teaser cache.
+(2) A true leftover is still refused: OK. With only counts.json moved to a newer scan, the first /m after it takes 0.97 s and goes
+    to the store, so the old teasers row is not served. The new vitest covers it as well.
+(3) BLOCKER: re-reads have no limit. In a true leftover state, EVERY request re-reads teasers.json, bypassing the cache, forever.
+    - Unit probe (scratch vitest on the PR's own harness, deleted after the run; r103 is in probe-reads-103b628.txt):
+        teasers.json leftover: 20 sequential requests -> 21 reads; 20 concurrent -> 20 reads (fresh=true skips the inflight dedup too)
+        top.json leftover: 20 sequential getTopStore -> 21 reads
+        normal scan: 20 requests -> 1 read, served 20/20 (so the normal case is fine)
+    - Real server, strace on next-server: 10 /m requests in the leftover state -> 20 opens of teasers.json; final -> 0 opens
+      (r103/leftover-strace-run.log, leftover-strace-rv2-116c.txt). TTFB 0.04-0.06 s against final's 0.017-0.026 s, which is a
+      1.8 MB read + JSON.parse per request on local disk. In production each one is a bucket GET of teasers.json.
+    - It doesn't stop: teasers.ts checks MAX_AGE_S after the guard, so even a teasers.json more than an hour old is re-read on every
+      request for as long as the leftover lasts (i.e. for as long as that file's precompute keeps failing). top.ts checks stale()
+      first, so top.json stops after an hour but hammers until then.
+    Fix: re-read at most once per (counts.scanned_at, cache window). For example, record on the cache entry the counts.scanned_at it
+    was re-checked against, and skip the fresh read while counts is unchanged and the entry is younger than the TTL. Share the
+    inflight promise for fresh reads too. Add a test: N requests in a leftover state -> 1 read per TTL.
+(4) Free delay: correct. The re-read only replaces `newest`, and the delay selection after it is unchanged (cutoff; newest, else the
+    -prev/-prev2 copies at or before the cutoff). Newest is still compared with newest counts, so Free can only fall back to the store
+    or older data, never get fresher.
+(5) UI parity, signed out, production build at 390 (touch) and 1440: / and two /m ids have identical text and pixel-identical
+    screenshots against final. Disclaimer present, no cents, no sideways scroll, CLS 0, no page errors. Free was not re-run this round:
+    the PR diff is data-layer only and is identical in the normal case (and Free /m matched at 2d4997b).
+CI on 103b628: all green (web, checks, e2e-paid 1-4, webkit, demo, python, supply-chain, Vercel). check:js 149.5 kB of the 150 kB budget.

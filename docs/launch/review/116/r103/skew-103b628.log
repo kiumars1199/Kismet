@@ -1,0 +1,24 @@
+rv2-116c t=0 cold /m: [200 0.776225]  warm: [200 0.019337]
+rv2-116c NO new scan written
+rv2-116c t=35s /m other id: [200 0.041701]  next: [200 0.018809]
+rv2-116c t=65s /m other id: [200 0.054881]  next: [200 0.021583]
+rv2-116c t=0 cold /m: [200 1.154640]  warm: [200 0.044943]
+rv2-116c new scan written
+rv2-116c t=35s /m other id: [200 0.089293]  next: [200 0.069382]
+rv2-116c t=65s /m other id: [200 0.045952]  next: [200 0.031186]
+rv2-116f t=0 cold /m: [200 0.803579]  warm: [200 0.025976]
+rv2-116f new scan written
+rv2-116f t=35s /m other id: [200 0.044341]  next: [200 0.018537]
+rv2-116f t=65s /m other id: [200 0.054324]  next: [200 0.023508]
+rv2-116c t=0 cold /m: [200 0.904800]  warm: [200 0.039222]
+rv2-116c NO new scan written
+rv2-116c t=35s /m other id: [200 0.046040]  next: [200 0.020536]
+rv2-116c t=65s /m other id: [200 0.049822]  next: [200 0.017578]
+rv2-116c t=0 cold /m: [200 0.992238]  warm: [200 0.020931]
+rv2-116c new scan written
+rv2-116c t=35s /m other id: [200 0.064908]  next: [200 0.030212]
+rv2-116c t=65s /m other id: [200 0.032232]  next: [200 0.017401]
+rv2-116f t=0 cold /m: [200 1.016434]  warm: [200 0.020363]
+rv2-116f new scan written
+rv2-116f t=35s /m other id: [200 0.040134]  next: [200 0.020020]
+rv2-116f t=65s /m other id: [200 0.060150]  next: [200 0.025736]

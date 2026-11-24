@@ -1,0 +1,40 @@
+rv2-116c t=0 cold /m: 0.909054 warm: 0.019958
+rv2-116c leftover: counts.json only
+rv2-116c t=35s /m x8: 0.974344 0.043528 0.043262 0.042885 0.042394 0.047779 0.057991 0.051030 
+strace: Process 5281 attached with 15 threads
+strace: Process 5287 detached
+strace: Process 5299 detached
+strace: Process 5302 detached
+strace: Process 5288 detached
+strace: Process 5286 detached
+strace: Process 5284 detached
+strace: Process 5301 detached
+strace: Process 5300 detached
+strace: Process 5294 detached
+strace: Process 5293 detached
+strace: Process 5292 detached
+strace: Process 5291 detached
+strace: Process 5285 detached
+strace: Process 5283 detached
+strace: Process 5281 detached
+rv2-116c teasers.json opens during 10 /m requests: 20
+rv2-116f t=0 cold /m: 0.784570 warm: 0.027430
+rv2-116f leftover: counts.json only
+rv2-116f t=35s /m x8: 0.033553 0.017140 0.017898 0.018515 0.017784 0.021982 0.026100 0.019862 
+strace: Process 5692 attached with 15 threads
+strace: Process 5711 detached
+strace: Process 5709 detached
+strace: Process 5708 detached
+strace: Process 5704 detached
+strace: Process 5703 detached
+strace: Process 5702 detached
+strace: Process 5699 detached
+strace: Process 5698 detached
+strace: Process 5697 detached
+strace: Process 5696 detached
+strace: Process 5695 detached
+strace: Process 5694 detached
+strace: Process 5692 detached
+strace: Process 5705 detached
+strace: Process 5710 detached
+rv2-116f teasers.json opens during 10 /m requests: 0
