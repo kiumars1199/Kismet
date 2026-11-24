@@ -23,7 +23,7 @@ type Scored = { setKey: string; legs: Map<string, { base: ComboLeg["base"]; basi
 const listed = (d: LegLookup): Listed => ({ key: `${d.market.id}:${d.side}`, marketId: d.market.id, side: d.side, question: d.market.question, outcome: d.outcome, eventId: d.market.event_id, event: d.market.event, price: d.price });
 const setKeyOf = (legs: Listed[]) => legs.map((l) => l.key).sort().join("|");
 
-export function ComboClient() {
+export function ComboClient({ reserve = 0 }: { reserve?: number }) {
   const sp = useSearchParams();
   const [legs, setLegs] = useState<Listed[]>([]);
   const [text, setText] = useState("");
@@ -151,17 +151,18 @@ export function ComboClient() {
       <div className="min-h-6 text-[13px] text-muted" role="status" aria-live="polite" data-testid="combo-note">{busy ? "Looking it up…" : scoring ? "Scoring your combo…" : note}</div>
 
 
-      {/* On phones this region always holds the height of two legs and a scored result, so adding legs and scoring grow inside
+      {/* This region always holds the height of the legs and a scored result (the sub-line wraps to 36 px once scored, the result
+          grows to about 533 px on a phone and 360 on a desktop: those final sizes are reserved), so adding legs and scoring grow inside
           it and the page below never moves. The empty result card itself stays small: the room is blank space under it, not a box. */}
-      <div className="flex min-h-[673px] flex-col gap-5 md:min-h-0">
-      <ul data-testid="combo-legs" className={`flex flex-col gap-2 ${legs.length ? "min-h-[168px] sm:min-h-[148px]" : ""}`}>
+      <div className="flex min-h-[760px] flex-col gap-5 md:min-h-[700px]">
+      <ul data-testid="combo-legs" className={`flex flex-col gap-2 ${legs.length || reserve ? "min-h-[176px] sm:min-h-[148px]" : ""}`}>
         {legs.map((l, i) => {
           const b = ready ? scored!.legs.get(l.key)?.base : undefined;
           return (
             <li key={l.key} data-testid="combo-leg" className="flex items-center gap-3 rounded-card border border-border bg-surface p-3">
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold">{l.question}</p>
-                <p className="min-h-8 text-[12px] text-muted sm:min-h-4">Bet {l.outcome} at {pct(l.price)}{b ? ` · ${b.winProb === null ? "No model chance" : `${pct(b.winProb)} chance`} · pays ${multX(1 / (b.ask + b.fee))}` : ""}</p>
+                <p className="min-h-9 text-[12px] text-muted sm:min-h-4">Bet {l.outcome} at {pct(l.price)}{b ? ` · ${b.winProb === null ? "No model chance" : `${pct(b.winProb)} chance`} · pays ${multX(1 / (b.ask + b.fee))}` : ""}</p>
               </div>
               <button type="button" aria-label={`Remove ${l.question}`} onClick={() => setLegs(legs.filter((_, j) => j !== i))} className="min-h-11 min-w-11 rounded-input border border-border text-soft">✕</button>
             </li>
@@ -169,7 +170,7 @@ export function ComboClient() {
         })}
       </ul>
 
-      <section aria-label="Combo result" className={`flex flex-col gap-3 rounded-card border border-border bg-surface p-4 md:p-5 ${legs.length >= MIN_COMBO_LEGS ? "min-h-[485px] md:min-h-[200px]" : ""}`}>
+      <section aria-label="Combo result" className={`flex flex-col gap-3 rounded-card border border-border bg-surface p-4 md:p-5 ${Math.max(legs.length, reserve) >= MIN_COMBO_LEGS ? "min-h-[560px] md:min-h-[380px]" : ""}`}>
         {limit && (
         <div data-testid="check-upgrade" className="flex flex-col items-start gap-3 rounded-input border border-accent-border bg-bg p-4">
           <p className="text-sm text-soft">Free includes 1 bet check a day, and you&apos;ve used it. Pro and Premium check as many bets and combos as you like.</p>
@@ -177,7 +178,7 @@ export function ComboClient() {
         </div>
         )}
         {legs.length < MIN_COMBO_LEGS && <p data-testid="combo-msg" className="text-sm text-soft">{legs.length === 0 ? "Add at least two bets to check a combo." : "Add at least one more leg."}</p>}
-        {legs.length < MIN_COMBO_LEGS && <p data-testid="combo-how" className="text-[13px] leading-relaxed text-muted">How it works: every leg has to win, so the chances multiply and so do the payouts. Add 2 to 10 bets, then check the set.</p>}
+        {legs.length < MIN_COMBO_LEGS && <p data-testid="combo-how" className="text-[13px] leading-relaxed text-muted">How it works: every leg has to win, so the chances multiply and so do the payouts.</p>}
         {legs.length >= MIN_COMBO_LEGS && !ready && !limit && (
           <div className="flex flex-col items-start gap-2">
             <p data-testid="combo-msg" className="text-sm text-soft">{scoring ? "Scoring your combo…" : "Ready when you are."}</p>
