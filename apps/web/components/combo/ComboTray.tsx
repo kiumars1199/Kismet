@@ -9,7 +9,8 @@ import { ExternalLink } from "@/components/kit/icons";
 import { useEffect, useState } from "react";
 import { btn, btnGhost, btnPrimary } from "@/components/kit";
 import { useBacktest } from "@/components/market/TierNote";
-import { combo, kalshiComboEdge, MIN_LEGS, multiplyLine, type Leg } from "@/lib/combos";
+import { combo, droppedNote, kalshiComboEdge, LEG_V, MIN_LEGS, multiplyLine, requoteLeg, type Leg } from "@/lib/combos";
+import type { MarketResponse } from "@/lib/api";
 import { LONG_SHOT_LINE, pays, pct, ret, testedLine, winsAbout } from "@/lib/format";
 import { noLiveRecord } from "@/lib/proof";
 import { openTicket, useTradeConfig } from "@/lib/trade/ext";
@@ -32,12 +33,32 @@ function useKalshiCheck(): boolean {
   return on;
 }
 
+/** Legs saved before the deploy keep the international ask and fee: price them again where their card prices them (betQuote), so the tray
+ *  and the checker agree for them too. A leg that cannot be fetched keeps its saved numbers. */
+async function requoteSaved() {
+  const stale = useCombo.getState().legs.filter((l) => l.v !== LEG_V);
+  await Promise.all(stale.map(async (l) => {
+    try {
+      const r = await fetch(`/api/markets/${encodeURIComponent(l.market_id)}`);
+      if (!r.ok) return;
+      const m = ((await r.json()) as MarketResponse).market;
+      const s = m.sides.find((x) => x.side_index === l.side_index);
+      if (s) useCombo.getState().replaceLeg(requoteLeg(l, m, s));
+    } catch { /* offline: keep what was saved */ }
+  }));
+}
+
 export function ComboTray() {
   const { legs, open, remove, clear, setOpen } = useCombo();
   const allowed = useEntitlements().canBeta("combos");   // Premium (lib/beta.ts): a saved combo stays hidden without it
   const [dropped, setDropped] = useState(0);
   useEffect(() => {
-    void Promise.resolve(useCombo.persist.rehydrate()).then(() => setDropped(useCombo.getState().prune()));
+    // A dev build runs this twice (StrictMode): the second prune finds nothing, so only a real count is kept, never reset to 0.
+    void Promise.resolve(useCombo.persist.rehydrate()).then(async () => {
+      const n = useCombo.getState().prune();
+      if (n > 0) setDropped((d) => d + n);
+      await requoteSaved();
+    });
   }, []);
   useEffect(() => {
     if (!open) return;
@@ -49,7 +70,7 @@ export function ComboTray() {
   if (!legs.length) {
     return dropped ? (
       <p role="status" data-testid="combo-dropped" className="fixed inset-x-3 bottom-[calc(68px+env(safe-area-inset-bottom))] z-30 mx-auto max-w-[760px] rounded-card border border-border bg-surface px-4 py-3 text-[13px] text-soft md:bottom-4">
-        Your saved combo was cleared: its bets have closed. <button type="button" onClick={() => setDropped(0)} className="ml-1 text-accent hover:underline">OK</button>
+        {droppedNote(dropped)} Your saved combo is empty. <button type="button" onClick={() => setDropped(0)} className="ml-1 text-accent hover:underline">OK</button>
       </p>
     ) : null;
   }
@@ -85,7 +106,7 @@ export function ComboTray() {
         </div>
         {dropped > 0 && (
           <p role="status" data-testid="combo-dropped" className="mx-4 mb-3 text-[13px] text-muted">
-            {dropped === 1 ? "One bet" : `${dropped} bets`} left your combo: closed, or its date has passed.
+            {droppedNote(dropped)}
           </p>
         )}
         {c.same_event.length > 0 && (

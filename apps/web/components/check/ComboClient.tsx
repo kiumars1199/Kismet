@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CheckSearchResponse } from "@/app/api/check/search/route";
-import { checkCombo, MAX_COMBO_LEGS, MIN_COMBO_LEGS, sameEventAdvice, type ComboLeg } from "@/lib/check/combo";
+import { checkCombo, legLine, MAX_COMBO_LEGS, MIN_COMBO_LEGS, sameEvents, sameEventAdvice, type ComboLeg } from "@/lib/check/combo";
 import { addStored, comboUrl, parseLegsParam, readStored, writeStored } from "@/lib/check/comboLegs";
 import { COMBO_CHECK_FREE_NOTE, COMBO_LIMIT_USED } from "@/lib/check/copy";
 import { useMe } from "@/lib/me";
@@ -148,6 +148,7 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
   const c = useMemo(() => checkCombo(combos), [combos]);
   const n = ready ? c.numbers : null;
   const dropLeg = c.drop ? legs[c.drop.index] : null;
+  const sameNow = legs.length >= MIN_COMBO_LEGS ? sameEvents(legs) : [];
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -231,7 +232,7 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
             <li key={l.key} data-testid="combo-leg" className="flex items-center gap-3 rounded-card border border-border bg-surface p-3">
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold">{l.question}</p>
-                <p className="min-h-9 text-[12px] text-muted sm:min-h-4">Bet {l.outcome} at {pct(l.price)}{b ? ` · ${b.winProb === null ? "No model chance" : `${pct(b.winProb)} chance`} · pays ${multX(1 / (b.ask + b.fee))}` : ""}</p>
+                <p className="min-h-9 text-[12px] text-muted sm:min-h-4">{legLine(l, b)}</p>
               </div>
               <button type="button" aria-label={`Remove ${l.question}`} onClick={() => setLegs(legs.filter((_, j) => j !== i))} className="min-h-11 min-w-11 rounded-input border border-border text-soft">✕</button>
             </li>
@@ -256,15 +257,16 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
           </div>
         )}
         {ready && c.error === "no_model" && <p data-testid="combo-msg" className="text-sm text-soft">No model chance for &ldquo;{c.noModel}&rdquo;, so this combo can&apos;t be scored. Remove that leg.</p>}
-        {ready && c.sameEvent.length > 0 && (
+        {/* known from the event ids alone, so it shows as soon as two legs share an event: no check is spent for it */}
+        {sameNow.length > 0 && (
           <p data-testid="combo-same-event" className="rounded-input border border-border bg-bg p-3 text-[13px] text-soft">
-            Same event ({c.sameEvent.map(cleanEventLine).join(", ")}): these legs move together, the combined chance is likely off. {sameEventAdvice(legs).join(" ")}
+            Same event ({sameNow.map(cleanEventLine).join(", ")}): these legs move together, the combined chance is likely off. {sameEventAdvice(legs).join(" ")}
           </p>
         )}
         {n && (
           <>
             <dl className="grid grid-cols-2 gap-3 md:grid-cols-4">
-              <Stat id="chance" label="Combined chance" value={pct(n.chance)} />
+              <Stat id="chance" label="Combined chance (cautious)" value={pct(n.chance)} />
               <Stat id="mult" label="Pays" value={multX(n.multiplier)} />
               <Stat id="edge" label="Edge after fee" value={pts(n.edge)} />
               <Stat id="score" label="Score (of 100)" value={n.score === null ? "—" : String(n.score)} />

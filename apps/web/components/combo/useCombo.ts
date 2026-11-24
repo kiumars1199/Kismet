@@ -14,6 +14,8 @@ interface ComboStore {
   /** Drops saved legs that closed or whose date has passed; returns how many went. */
   prune: (now?: number) => number;
   remove: (marketId: string) => void;
+  /** Swaps a saved leg for its re-quoted self (same market and side). */
+  replaceLeg: (leg: Leg) => void;
   clear: () => void;
   setOpen: (open: boolean) => void;
 }
@@ -38,6 +40,7 @@ export const useCombo = create<ComboStore>()(
         return legs.length - keep.length;
       },
       remove: (id) => set((s) => ({ legs: s.legs.filter((l) => l.market_id !== id) })),
+      replaceLeg: (leg) => set((s) => ({ legs: s.legs.map((l) => (l.market_id === leg.market_id && l.side_index === leg.side_index ? leg : l)) })),
       clear: () => set({ legs: [], open: false }),
       setOpen: (open) => set({ open }),
     }),

@@ -259,3 +259,49 @@ test("the link button says 'Share link' on a touch device and 'Copy link' with a
   await expect(tp.getByRole("button", { name: "Copy link" })).toHaveCount(0);
   await touch.close();
 });
+
+// T-wt3e N1: two legs from one event show the same-event note BEFORE any score (it is free: the event ids are known), with no check
+// spent, and loading them shifts nothing. N3: the leg lines and the combined chance say "(cautious)" like the tray.
+test("same-event legs: the note shows before the tap (no check spent), and loading them shifts nothing (5 runs, 390 and 1440)", async ({ browser, page }) => {
+  test.setTimeout(300_000);
+  const all = await rows(page);
+  const byEvent = new Map<string, Row[]>();
+  for (const r of all) byEvent.set(r.market.event_id, [...(byEvent.get(r.market.event_id) ?? []), r]);
+  const pair = [...byEvent.values()].find((l) => new Set(l.map((r) => r.market.id)).size >= 2);
+  test.skip(!pair, "fixture has no event with two markets in the list");
+  const two = [...new Map(pair!.map((r) => [r.market.id, r])).values()].slice(0, 2);
+  const out: string[] = [];
+  for (const [name, size] of SIZES) {
+    let worst = 0;
+    for (let run = 0; run < 5; run++) {
+      const ctx = await browser.newContext({ viewport: size, baseURL: test.info().project.use.baseURL });
+      const p = await ctx.newPage();
+      let posts = 0;
+      p.on("request", (r) => { if (r.method() === "POST" && new URL(r.url()).pathname === "/api/check/combo") posts++; });
+      await p.addInitScript(watchCls);
+      await p.goto(`/check/combo?legs=${legsQuery(two)}`);
+      await expect(p.getByTestId("combo-leg")).toHaveCount(2, { timeout: 30_000 });
+      const note = p.getByTestId("combo-same-event");
+      await expect(note).toBeVisible({ timeout: 15_000 });
+      await expect(note).toContainText("move together");
+      await expect(note).toContainText(/Drop one of the two .+ bets\./);
+      await p.waitForTimeout(700);
+      expect(posts, "no check spent for a free note").toBe(0);
+      worst = Math.max(worst, await cls(p));
+      await ctx.close();
+    }
+    out.push(`${name}px ${worst.toFixed(4)}`);
+    expect(worst, name).toBeLessThan(0.02);
+  }
+  console.log(`T-wt3e same-event note on load, worst of 5: ${out.join(", ")}`);
+});
+
+test("leg lines and the combined chance are labelled '(cautious)' once scored", async ({ page }) => {
+  const [a, b] = distinct(await rows(page), 2);
+  await page.goto(`/check/combo?legs=${legsQuery([a!, b!])}`);
+  await expect(page.getByTestId("combo-leg")).toHaveCount(2, { timeout: 30_000 });
+  await page.getByTestId("combo-check-btn").click();
+  await expect(page.getByTestId("combo-score")).toBeVisible({ timeout: 30_000 });
+  for (const t of await page.getByTestId("combo-leg").locator("p").filter({ hasText: /^Bet / }).allInnerTexts()) expect(t).toMatch(/\d+% chance \(cautious\)/);
+  await expect(page.locator("dt", { hasText: "Combined chance" })).toHaveText("Combined chance (cautious)");
+});
