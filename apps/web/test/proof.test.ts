@@ -101,7 +101,7 @@ describe("proofLine: the test result, then the live record beside it", () => {
     const p = proofLine({ record, backtest: BT, live: stats({ entries: 704 }), since: NOV17, who: "best bets" });
     expect(sinceDay(NOV17)).toBe("Nov 17");
     expect(p.test).toBe(`In testing on ${SPAN}: best bets, ${ret(8.41)} per bet.`);
-    expect(p.live).toBe("Live since Nov 17: 704 logged, none settled yet (needs ~22 settled events to judge).");
+    expect(p.live).toBe("Live since Nov 17: 704 logged, none settled yet (about 22 events needed).");
     expect(p.help).toMatch(/^Testing: 10,027 past best bets in 1,500 events/);
     expect(p.help).toMatch(/1,500 test events × \(2 ÷ t-stat 16\.8\)²/);
     expect(p.enough).toBe(false);
@@ -180,7 +180,7 @@ describe("every surface that shows the test return prints the proof line beside 
   it("the site line uses the chosen result's taker record and the whole ledger", () => {
     const t = chosenResult(store.backtest)!.taker;
     expect(p.test).toContain(`${ret(t.roi_pct)} per bet`);
-    expect(p.live).toBe(`Live since Nov 17: 704 logged, none settled yet (needs ~${eventsNeeded(t)!.toLocaleString("en-US")} settled events to judge).`);
+    expect(p.live).toBe(`Live since Nov 17: 704 logged, none settled yet (about ${eventsNeeded(t)!.toLocaleString("en-US")} events needed).`);
   });
 
   it("/api/backtest carries it", async () => {

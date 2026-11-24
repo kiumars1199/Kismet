@@ -159,7 +159,7 @@ export function proofLine(o: {
   const evs = (n: number, adj = "") => `${exactCount(n)}${adj} event${n === 1 ? "" : "s"}`;
   let live: string;
   if (!l) live = "Live record: starts with the first logged best bet.";
-  else if (!settled) live = `${head}: ${exactCount(l.entries)} logged, none settled yet${needs ? ` (needs ~${formatCount(needs)} settled events to judge)` : ""}.`;
+  else if (!settled) live = `${head}: ${exactCount(l.entries)} logged, none settled yet${needs ? ` (about ${formatCount(needs)} events needed)` : ""}.`;
   else {
     const what = `${head}: ${bets(settled)}, ${ret(roi)}${u ? `; on Polymarket US ${bets(u.graded)} in ${evs(events!)}, ${ret(liveReturn(u))}` : ""}`;
     live = needs === null || events === null ? `${what}.`
