@@ -55,8 +55,16 @@ describe("BestBetsHeading layout", () => {
     const { container } = render(<BestBetsHeading total={7} shown={0} sample daily={10} onShowAll={() => {}}><p>blurb</p></BestBetsHeading>);
     const btn = screen.getByTestId("show-free-sample");
     const blurb = container.querySelector("p")!;
-    expect(btn.parentElement).toBe(blurb.parentElement!.parentElement);   // both children of the one grid
+    // T-wt2d: the button sits in a small column (button + the locked card below it) that shares the grid cell with the hidden blurb,
+    // so the card fills the blurb's reserved height instead of pushing the page down (CLS 0.106 -> 0.06 at 390)
+    const grid = blurb.parentElement!.parentElement!;
+    expect(grid.className).toContain("grid");
+    expect(btn.parentElement!.parentElement).toBe(grid);   // the button's column and the hidden blurb are children of the one grid
+    expect(btn.parentElement!.className).toContain("[grid-area:1/1]");
     expect(blurb.parentElement!.className).toContain("invisible");
+    cleanup();
+    render(<BestBetsHeading total={7} shown={0} sample daily={10} onShowAll={() => {}} belowButton={<section data-testid="below">card</section>}><p>blurb</p></BestBetsHeading>);
+    expect(screen.getByTestId("below").parentElement).toBe(screen.getByTestId("show-free-sample").parentElement);   // the card shares the button's cell
     cleanup();
     render(<BestBetsHeading total={34} shown={10} sample daily={10} onShowAll={() => {}}><p>blurb</p></BestBetsHeading>);
     expect(screen.getByText("blurb").parentElement!.className).not.toContain("invisible");
@@ -96,3 +104,14 @@ describe("BestBetsHeading wording (T-wt2b)", () => {
   });
 });
 
+describe("BestBetsHeading empty landing", () => {
+  it("emptyTitle is the h1 (never '0 bets where the odds lean your way') and the body sits under it, in place of the blurb", () => {
+    render(<BestBetsHeading total={0} shown={0} emptyTitle="No best bets in College basketball today" emptyBody={<section data-testid="body">way out</section>} onShowAll={() => {}}><p>blurb</p></BestBetsHeading>);
+    expect(heading()).toBe("No best bets in College basketball today");
+    expect(screen.getByTestId("body")).toBeTruthy();
+    expect(screen.queryByText("blurb")).toBeNull();
+    cleanup();
+    render(<BestBetsHeading total={0} shown={0} onShowAll={() => {}}><p>blurb</p></BestBetsHeading>);
+    expect(heading()).toContain("0 bets");   // without emptyTitle nothing changes
+  });
+});

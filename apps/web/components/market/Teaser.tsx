@@ -64,7 +64,13 @@ export function TeaserView({ t, path, zone = null }: { t: Teaser; path: string; 
             Log in
           </Link>
         </div>
-        {t.kind === "market" ? <Link href={`/check/combo?m=${encodeURIComponent(t.id)}`} className="inline-flex min-h-11 items-center self-start text-sm text-muted underline underline-offset-4 hover:text-text">Add to combo checker</Link> : null}
+        {/* T-wt2d: "Check this bet" beside "Add to combo checker", one row of two 44 px links under Sign up free (quiet: the sign-up is the main action) */}
+        {t.kind === "market" ? (
+          <div data-testid="teaser-checks" className="flex flex-wrap items-center gap-x-5">
+            <Link href={`/check?m=${encodeURIComponent(t.id)}&side=0`} className="inline-flex min-h-11 items-center text-sm font-medium text-muted underline underline-offset-4 hover:text-text">Check this bet</Link>
+            <Link href={`/check/combo?m=${encodeURIComponent(t.id)}`} className="inline-flex min-h-11 items-center text-sm text-muted underline underline-offset-4 hover:text-text">Add to combo checker</Link>
+          </div>
+        ) : null}
         <p className="text-sm leading-relaxed text-accent-softer">
           We compare the price with how often bets like this one have won, after the fee and the spread. Free accounts get{" "}
           {FREE_BEST_BETS_A_DAY} best bets a day, no card needed.
