@@ -87,10 +87,18 @@ for (const { w, h } of [{ w: 1100, h: 800 }, { w: 1024, h: 600 }]) {
   });
 }
 
-// T-wt2l: below xl the table header is not sticky, so the button scrolls up behind the 64 px top bar. Once its bottom is at or above the bar's
-// bottom it is hidden (an open menu would be left pinned under it): the menu closes. While part of the button is still visible it stays.
-for (const { w, h } of [{ w: 1100, h: 800 }, { w: 1024, h: 600 }]) {
-  test(`column menu at ${w}x${h}: closes when its button is hidden behind the top bar, stays while part of it shows`, async ({ page }) => {
+// T-wt2l: the site header is sticky from 1024 px (64 px, lg:sticky) and scrolls away below it. The table header is not sticky below xl, so the
+// button scrolls up behind the bar at 1024-1279: once its bottom is at or above the bar's bottom it is hidden and the menu closes (it must not be
+// left pinned under the bar); while part of it shows it stays. Below 1024 the bar covers nothing: a button that is fully visible near the top of
+// the screen (top ~10) or partly visible (top ~-10) opens the menu and keeps it open.
+const BAR_CASES = [
+  { w: 1100, h: 800, cases: [[100, true], [40, true], [10, false], [-20, false], [-44, false]] },
+  { w: 1024, h: 600, cases: [[100, true], [40, true], [10, false], [-20, false], [-44, false]] },
+  { w: 1023, h: 768, cases: [[100, true], [10, true], [-10, true]] },
+  { w: 820, h: 1180, cases: [[100, true], [10, true], [-10, true]] },
+] as const;
+for (const { w, h, cases } of BAR_CASES) {
+  test(`column menu at ${w}x${h}: follows what the site header really covers`, async ({ page }) => {
     test.setTimeout(240_000);
     await page.setViewportSize({ width: w, height: h });
     await signUpWithTopics(page, `wt2l-bar-${w}-${Date.now()}@example.com`, []);
@@ -99,7 +107,7 @@ for (const { w, h } of [{ w: 1100, h: 800 }, { w: 1024, h: 600 }]) {
     const choose = page.getByTitle("Choose columns");
     const panel = page.getByTestId("column-menu");
     const topAbs = await choose.evaluate((e) => e.getBoundingClientRect().top + window.scrollY);
-    for (const [btnTop, open] of [[100, true], [40, true], [10, false], [-20, false], [-44, false]] as const) {
+    for (const [btnTop, open] of cases) {
       await page.evaluate(() => window.scrollTo(0, 0));
       await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
       await choose.click();
@@ -107,9 +115,22 @@ for (const { w, h } of [{ w: 1100, h: 800 }, { w: 1024, h: 600 }]) {
       await page.evaluate((y) => window.scrollTo(0, y), topAbs - btnTop);
       await expect.poll(() => choose.evaluate((e) => Math.round(e.getBoundingClientRect().top)), { message: `button top at ${btnTop}` }).toBe(btnTop);
       await page.waitForTimeout(300);   // a frame or two for the measure
-      if (open) await expect(panel, `button top ${btnTop}: part of it shows below the top bar, the menu stays`).toBeVisible();
-      else await expect(panel, `button top ${btnTop}: hidden behind the top bar, the menu closes`).toBeHidden();
+      if (open) {
+        await expect(panel, `button top ${btnTop}: the menu stays open`).toBeVisible();
+        const b = (await panel.boundingBox())!;
+        expect(b.y >= 0 && b.y + b.height <= h, `button top ${btnTop}: the menu is inside the screen`).toBe(true);
+      } else await expect(panel, `button top ${btnTop}: hidden behind the top bar, the menu closes`).toBeHidden();
       await page.keyboard.press("Escape");
+      await expect(panel).toBeHidden();
+    }
+    // and it opens from a button that is fully visible near the top of the screen
+    if (w < 1024) {
+      await page.evaluate((y) => window.scrollTo(0, y), topAbs - 10);
+      await expect.poll(() => choose.evaluate((e) => Math.round(e.getBoundingClientRect().top))).toBe(10);
+      await choose.click();
+      await expect(panel, "opens with the button at the very top").toBeVisible();
+      await page.waitForTimeout(300);
+      await expect(panel).toBeVisible();
     }
   });
 }
