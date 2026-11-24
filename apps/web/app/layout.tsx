@@ -23,8 +23,11 @@ import "./globals.css";
 
 const PauseScreen = dynamic(() => import("@/components/account/PauseScreen").then((m) => m.PauseScreen));   // only while paused
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
-const grotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-space-grotesk", display: "swap" });
+// display "optional", not "swap": a web font that arrives after the ~100 ms block window is NOT swapped in mid-view. A swap reflows every
+// wrapped line (CI, pro 390: the heading block grew one 21 px line and shrank back 13 ms later while document.fonts was still "loading":
+// CLS 0.27). The fonts are preloaded, so they are normally ready for the first paint; next/font's size-adjusted fallback is what shows otherwise.
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "optional" });
+const grotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-space-grotesk", display: "optional" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
