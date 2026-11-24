@@ -70,6 +70,8 @@ Problems:
 - [should-fix] /check/combo Free, same-event combo, slow 429 (1.5 s): upgrade box pushes the same-event note down 182 px, CLS 0.0526 at 390 / 0.0092 at 1440; legs don't move (T-wt3f)
 - [nit] /check/combo at 390: reload of a scored link scrolled to 500–600 px shifts 0.021–0.027 (different-event legs; first measured at 390 in #125 review) (T-wt3f)
 - [nit] Same-event alert "combo checker" link 95x44 has its bottom 4 px under the button below (T-wt3f)
+- [nit] /check/combo: 10 long-shot legs show "Combined chance (cautious) 0%" next to 25277x; should read "<1%" (ComboClient.tsx:274 pct) (T-wt3g, after #130)
+- [nit] 375x667: the same-event alert's "combo checker" link first renders under the fixed bottom tray (y 535 of 667) until scrolled (T-wt3g, after #130)
 
 ## Found in review, outside a lane
 - 15:44 merged #128 T-wt2h (f2ef7a9): bar says "Your topics (N)" only on the saved view; Everything + Apply shows all bets and survives reload/shared link (`?fav=0` no longer re-filters on the server, also fixes the no-JS Clear all); changing topics off the saved set drops the "Your topics" pill. Reviewer FAIL on 79e1b44, PASS on b5c111e; merge of final into 21de45d left app diff identical (lead-checked). Evidence review/128/.
