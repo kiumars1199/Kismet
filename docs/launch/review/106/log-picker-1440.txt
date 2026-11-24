@@ -1,0 +1,6 @@
+picker-1440 tiles [{"txt":"NFL/40 open","d":"40 open","disabled":false},{"txt":"College football/106 open","d":"106 open","disabled":false},{"txt":"NBA/55 open","d":"55 open","disabled":false},{"txt":"College basketball/none open","d":"none open","disabled":false}]
+picker-1440 getByRole name exact NBA 1
+picker-1440 getByRole name exact NFL 1
+picker-1440 getByRole name exact Soccer 1
+picker-1440 NBA describedby _R_p5esndelb_-sports.nba
+picker-1440 early tap {"before":{"dis":true,"pressed":"false","label":"NFL"},"after":{"dis":false,"pressed":"false"}}

@@ -1,0 +1,5 @@
+bb-free-1440 {"url":"/","cls":0.0006,"shifts":[{"v":0.0006,"t":1968,"src":["DIV.h-11 w-full max-w-[340px] roun 10->10"]}],"hscroll":false,"disclaimer":true,"cents":false,"cards":10,"locked":1,"upsell":true,"empty":null,"tour":null} tabbar {"x":150,"y":14,"w":591,"h":36} list children ["H2","UL","H2","UL","DIV(contents)"] locked {"x":32,"y":2427,"w":1376,"h":86}
+tier pro pro
+bb-pro-1440 {"url":"/","cls":0.0006,"shifts":[{"v":0.0006,"t":2097,"src":["DIV.h-11 w-full max-w-[340px] roun 10->10"]}],"hscroll":false,"disclaimer":true,"cents":false,"cards":12,"locked":0,"upsell":false,"empty":null,"tour":null} tabbar {"x":150,"y":14,"w":591,"h":36} list children ["H2","UL","H2","UL","DIV(contents)"] locked null
+tier premium premium
+bb-premium-1440 {"url":"/","cls":0,"shifts":[{"v":0,"t":2147,"src":["KBD.hidden rounded border border-b 23->23"]}],"hscroll":false,"disclaimer":true,"cents":false,"cards":12,"locked":0,"upsell":false,"empty":null,"tour":null} tabbar {"x":150,"y":14,"w":675,"h":36} list children ["H2","UL","H2","UL","DIV(contents)"] locked null

@@ -129,3 +129,9 @@ Lanes share one machine. Broad `pkill -f playwright` / `pkill -f next` from one 
 - 23:00 (lead) Proof line on /pricing (#95 review): a win rate is never shown without the return, and the live record is shown above the plans only once it passes siteProof's own "enough events" rule. Below that, the tested record is shown.
 - Nov 24 · /account sign-in clause: a new password account's first session (opened from the confirmation link) reads "with an email link". Accepted. · It is literally how that session started; after a password login it reads "with your email and password".
 - Nov 24 · Footer help line hidden on /account via CSS :has(). Accepted. · Browsers without :has() show the help line twice, which is harmless and avoids adding JS to every page.
+
+## Nov 24, 2026: early taps on TopicsPicker tiles (T-wt2d, #106 review)
+Before hydration a disabled button drops a real tap; it can't queue it. A capture-and-replay inline script would be fragile and adds bytes to a 150 kB budget that is already full. Decision: the tiles show an honest not-ready state until hydration (the same opacity and wait cursor as "Skip setup", plus aria-busy). The check now reads "an early tap is visibly not accepted, and the first tap after hydration works", not "waits".
+
+## Nov 24, 2026: signed-out "Check this bet" from the locked teaser
+The teaser's own verdict is behind sign-up, but its "Check this bet" link uses the device's one free check on /check (F1). Accepted as intended: the free check is the F1 trial, and it shows one bet per day, not the list.
