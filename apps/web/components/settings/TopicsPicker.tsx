@@ -2,7 +2,7 @@
 // Favorite topics (docs/05 F-08): a grid of taxonomy topics (level 2) with open-market counts. Chosen by the user
 // only, never derived from saves or bets. Writes profile.favorite_topics on every toggle.
 // Used by /onboarding and the /settings page (Lane D2 renders <TopicsPicker />).
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { fetchMeta } from "@/lib/api";
 import { getRepo, isRepoReady, repoReady } from "@/lib/repo";
 import { useProfile } from "@/lib/repo/hooks";
@@ -18,6 +18,11 @@ const GROUPS: { label: string; topics: TaxNode[] }[] = [
 export function TopicsPicker() {
   const { favorite_topics } = useProfile();
   const [counts, setCounts] = useState<Record<string, number> | null>(null);
+  // A tap on the server HTML (before React has attached) does nothing, and the tile would look unchosen. Tiles are disabled until hydration
+  // (like "Skip setup"), so the tap waits for it instead of being lost; after it, the choice saves as before.
+  const [ready, setReady] = useState(false);
+  const uid = useId();
+  useEffect(() => setReady(true), []);
   useEffect(() => {
     const ac = new AbortController();
     fetchMeta({ signal: ac.signal }).then((m) => setCounts(m.facets.topics), () => setCounts({}));
@@ -53,7 +58,7 @@ export function TopicsPicker() {
               const on = favorite_topics.includes(t.id);
               const n = counts?.[t.id];
               return (
-                <button key={t.id} type="button" aria-pressed={on} onClick={() => toggle(t.id)}
+                <button key={t.id} type="button" aria-pressed={on} disabled={!ready} aria-describedby={`${uid}-${t.id}`} onClick={() => toggle(t.id)}
                   className={`flex min-h-12 flex-col items-start justify-center gap-0.5 rounded-input border px-3.5 py-2.5 text-left text-sm ${
                     on ? "border-accent-border bg-accent-bg text-accent-soft" : "border-border bg-input text-soft hover:border-accent-border hover:text-text"
                   }`}>
@@ -63,7 +68,8 @@ export function TopicsPicker() {
                     </span>
                     {t.label}
                   </span>
-                  <span className={`ml-6 block h-4 whitespace-nowrap text-xs leading-4 tabular-nums ${on ? "text-accent-softer" : "text-muted"}`}>
+                  {/* the count is the tile's description, not part of its name: "NBA" stays "NBA" when "none open" arrives */}
+                  <span id={`${uid}-${t.id}`} aria-hidden="true" className={`ml-6 block h-4 whitespace-nowrap text-xs leading-4 tabular-nums ${on ? "text-accent-softer" : "text-muted"}`}>
                     {counts === null ? "" : n ? `${formatCount(n)} open` : "none open"}
                   </span>
                 </button>

@@ -50,11 +50,13 @@ export function ErrorState({ onRetry, what = "markets", error }: { onRetry: () =
 }
 
 /** P7: one empty state everywhere: an icon, what happened in one line, and a way out (reset, or a link elsewhere). */
-export function EmptyState({ title, line, onReset, resetLabel = "Reset filters", link }: {
+export function EmptyState({ title, line, onReset, resetLabel = "Reset filters", link, tourTarget = false }: {
   title: string; line: string; onReset?: () => void; resetLabel?: string; link?: { href: string; label: string };
+  /** The first-run tour points here when the Best bets list is empty (components/onboarding/Tour.tsx). */
+  tourTarget?: boolean;
 }) {
   return (
-    <div className="enter flex flex-col items-start gap-3 rounded-card border border-dashed border-border px-6 py-8">
+    <div data-testid="empty-state" {...(tourTarget ? { "data-tour-empty": "" } : {})} className="enter flex flex-col items-start gap-3 rounded-card border border-dashed border-border px-6 py-8">
       <span aria-hidden="true" className="flex size-10 items-center justify-center rounded-full bg-muted-bg text-muted"><Inbox size={20} /></span>
       <p className="font-semibold">{title}</p>
       <p className="max-w-prose text-sm text-muted">{line}</p>

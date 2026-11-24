@@ -173,6 +173,7 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
   // §G2: the "On Polymarket US" chip exists once the scan carries US quotes (older scans: the filter is a no-op)
   const usOn = meta ? meta.meta.us?.ok === true : rows.some((r) => !!r.market.us);
   const win = useMemo(() => ({ today: windowFor("today", scanned), week: windowFor("week", scanned) }), [scanned]);
+  const yoursOnly = !!state.favorites_only || !!state.topics?.length;   // narrowed to the topics the user chose
   const topic = state.topics?.length === 1 ? TAXONOMY[state.topics[0]!]?.label : state.categories?.length === 1 ? TAXONOMY[state.categories[0]!]?.label : undefined;
 
   const save = async (name: string, emoji: string | null) => {
@@ -235,12 +236,16 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
         </ul>
       ) : data.total === 0 ? (
         <EmptyState
-          title={topic ? `No edge right now in ${topic}` : "No best bets match these filters"}
-          line={`No bet with these filters is good value right now${state.us && usOn ? " on Polymarket US" : ""}. Prices refresh ${REFRESH_WORDS}.`}
+          tourTarget
+          title={topic ? `No best bets in ${topic} today` : yoursOnly ? "No best bets in your topics today" : "No best bets match these filters"}
+          line={`No bet with these filters is good value right now${state.us && usOn ? " on Polymarket US" : ""}. ${topic || yoursOnly ? "Widen your topics, or see all best bets. " : ""}Prices refresh ${REFRESH_WORDS}.`}
           onReset={reset}
-          link={state.us && usOn
-            ? { href: "/" + queryFor({ ...state, us: false, page: 1 }, "flags"), label: "Include international bets" }
-            : { href: "/markets", label: "Look in All markets" }}
+          resetLabel={topic || yoursOnly ? "See all best bets" : "Reset filters"}
+          link={topic || yoursOnly
+            ? { href: "/settings#s-topics", label: "Choose more topics" }
+            : state.us && usOn
+              ? { href: "/" + queryFor({ ...state, us: false, page: 1 }, "flags"), label: "Include international bets" }
+              : { href: "/markets", label: "Look in All markets" }}
         />
       ) : (
         <>
@@ -251,6 +256,9 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
             the fold both before and after and never jumps across the screen when the answer lands. */}
         <div data-testid="bets-list" aria-busy={busy} inert={busy || undefined} className={`flex flex-col gap-4 transition-opacity duration-200 ease-out ${busy ? "pointer-events-none opacity-40" : ""} ${shortSample ? "min-h-[100svh]" : ""}`}>
           {error && <ErrorState onRetry={sc.retry} what="best bets" error={error} />}
+          {/* T-wt2d: a filter change that empties the sample puts the locked card at the TOP of the reserved list (right under the filters,
+              in the first view), where the skeleton cards were: nothing moves. It used to sit at the bottom of the blank screenful. */}
+          {sample && emptySample && !topLocked && <LockedBets total={data.total} shown={0} daily={daily} topic={topic} />}
           {!emptySample && <h2 id="top-h" className="text-xl font-semibold">Today&apos;s top {Math.min(TOP, slots.length)}</h2>}
           {!emptySample && <Cards slots={slots.slice(0, TOP)} desktop={desktop} label="top-h" />}
           {slots.length > TOP && (
@@ -260,9 +268,9 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
             </>
           )}
           {/* T-wt2b: with no cards at all the locked card sits right under the heading and filters (first view), not pinned to the bottom of the reserved screenful */}
-          <div className={shortSample && !topLocked ? "mt-auto flex flex-col gap-4" : "contents"}>
-            <LogUpsell />
-            {sample && !topLocked && <LockedBets total={data.total} shown={rows.length} daily={daily} topic={topic} />}
+          <div className={shortSample && !emptySample ? "mt-auto flex flex-col gap-4" : "contents"}>
+            {!emptySample && <LogUpsell />}   {/* nothing to log from an empty list; a new element mounting in the first view also counts as a big shift */}
+            {sample && !emptySample && <LockedBets total={data.total} shown={rows.length} daily={daily} topic={topic} />}
           </div>
           {!sample && sc.hasMore && (
             <button

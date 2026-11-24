@@ -84,4 +84,20 @@ describe("first-run tour", () => {
     expect(screen.getByText("2 of 5")).toBeTruthy();
     expect(screen.queryByText("1 of 5")).toBeNull();
   });
+
+  it("T-wt2d: with no cards but a Best bets empty state on the page, step 1 points at that empty state (it doesn't wait ten seconds and vanish)", async () => {
+    const el = document.createElement("div");
+    el.setAttribute("data-tour-empty", "");
+    el.getBoundingClientRect = () => ({ x: 20, y: 300, left: 20, top: 300, right: 340, bottom: 460, width: 320, height: 160, toJSON() {} }) as DOMRect;
+    document.body.appendChild(el);
+    localStorage.setItem(TOUR_KEY, "1");
+    try {
+      render(<Tour />);
+      expect(await screen.findByText("1 of 5")).toBeTruthy();
+      expect(screen.getByText(/No best bets/i)).toBeTruthy();   // its own words: not "Each card is a bet"
+      expect(screen.queryByText(/Each card is a bet/)).toBeNull();
+      act(() => { fireEvent.click(screen.getByRole("button", { name: "Next" })); });
+      expect(await screen.findByText("2 of 5")).toBeTruthy();
+    } finally { el.remove(); }
+  });
 });

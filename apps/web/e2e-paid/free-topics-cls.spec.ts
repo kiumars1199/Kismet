@@ -78,6 +78,14 @@ for (const { w, h } of [{ w: 390, h: 844 }, { w: 1440, h: 900 }]) {
       const forward = await readCls(page);
       if (forward >= 0.1) console.log(await sources(page));
       console.log(`CLS full → empty at ${w}px: ${forward.toFixed(3)}`);
+      // T-wt2d: the locked card that says where the bet is sits in the first view, right under the filters where the skeleton cards were (it was ~1.5 screens down)
+      const lockedBox = (await page.getByTestId("locked-bets").boundingBox())!;
+      const h1Box = (await page.locator("h1").first().boundingBox())!;
+      console.log(`locked card at y=${Math.round(lockedBox.y + (await page.evaluate(() => scrollY)))} (h1 bottom ${Math.round(h1Box.y + h1Box.height)}) at ${w}px`);
+      // 1440: in the first view. 390: right below the filters (y ~873 of an 844 screen; it was 1456). Directly under the h1 at 390 measured CLS
+      // 0.14 (the card is ~250 px tall there and everything under it moves), over the 0.1 budget, so it stays where the skeleton cards were.
+      expect(lockedBox.y + (await page.evaluate(() => scrollY))).toBeLessThan(w >= 1000 ? h * 0.9 : h * 1.1);
+      expect(lockedBox.y).toBeGreaterThanOrEqual(h1Box.y + h1Box.height - 1);
       await skipTour(page);
       await page.evaluate(() => window.scrollTo(0, 0));
       await resetCls(page);

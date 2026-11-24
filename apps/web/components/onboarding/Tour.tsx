@@ -10,7 +10,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 export const TOUR_KEY = "me:v1:tour";
 
 const STEPS = [
-  { sel: ['[data-testid="bet-card"]', "article[data-row]"], title: "A best bet",
+  { sel: ['[data-testid="bet-card"]', "article[data-row]", "[data-tour-empty]"], title: "A best bet",
     body: "Each card is a bet that looks like good value today: how often bets like it win, what $10 wins, and when it closes. Tap \"Why this bet?\" for the details. Any single bet can lose." },
   { sel: ['[data-testid="filter-bar"]', '[role="group"][aria-label="Quick filters"]'], title: "Narrow the list",
     body: "Pick a sport, a multiplier and a date, then Apply. Bigger multipliers pay more and win less often." },
@@ -21,6 +21,9 @@ const STEPS = [
   { sel: ['header nav a[href="/track-record"]', 'a[href="/track-record"]'], title: "Check the results",
     body: "Results shows how past flagged bets actually did, wins and losses, so you can judge the numbers yourself." },
 ] as const;
+
+/** Step 1 over a Best bets list that came back empty (a topic with no bets today): the tour points at that empty state, in its own words. */
+const EMPTY_STEP = { title: "No best bets in your topics today", body: "Nothing in your topics looks like good value right now. Widen your topics, or see all best bets, and the cards appear here." };
 
 const visible = (el: Element) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0; };
 const find = (sel: readonly string[]) => {
@@ -49,6 +52,7 @@ export function Tour() {
   const drawerOpen = useDrawerOpen(step !== null);
   const live = step !== null && !drawerOpen;
   const [rect, setRect] = useState<DOMRect | null>(null);
+  const [onEmpty, setOnEmpty] = useState(false);
   const card = useRef<HTMLDivElement>(null);
   const next = useRef<HTMLButtonElement>(null);
   const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
@@ -100,7 +104,7 @@ export function Tour() {
     };
     const look = () => {
       el = find(STEPS[step].sel);
-      if (el) { reveal(el, step); measure(); }
+      if (el) { setOnEmpty(step === 0 && el.hasAttribute("data-tour-empty")); reveal(el, step); measure(); }
       else if (++tries < 40) timer = window.setTimeout(look, 250);   // up to 10 s for the list to load
       else if (step === 0) setStep(1);   // still no card (an empty list): skip "A best bet" instead of pointing at nothing
       else setRect(null);
@@ -153,7 +157,7 @@ export function Tour() {
 
   if (step === null || !live) return null;
   if (step === 0 && !rect) return null;   // "A best bet" opens only over a rendered card
-  const s = STEPS[step];
+  const s = step === 0 && onEmpty ? { ...STEPS[0], ...EMPTY_STEP } : STEPS[step];
   const last = step === STEPS.length - 1;
   const pad = 6;
 
