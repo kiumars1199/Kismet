@@ -210,7 +210,10 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
           Each one has won more often in the past than its price suggests, after the fee.
           {/* P9: when the stale banner shows, it carries the scan age; saying it here too was the third stale notice */}
           {scanned && freshness(scanned) === "fresh" && <span className="whitespace-nowrap"> Updated <Ago at={scanned} />.</span>}{" "}
-          <Link href="/track-record" className="inline-flex min-h-11 items-center text-accent-hover underline-offset-4 hover:underline">See how we track results</Link>
+          {/* On a phone the link is always on its own line. Inline, it sat on the last text line only when it happened to fit, so a font or CSS
+              reload that moved the wrap by a few px added or removed a 21 px line (CI, pro 390: everything under the heading moved 21 px and back,
+              CLS 0.13 per shift). A fixed layout can't flip. */}
+          <Link href="/track-record" className="inline-flex min-h-11 items-center text-accent-hover underline-offset-4 hover:underline max-md:flex max-md:w-fit">See how we track results</Link>
         </p>
         </BestBetsHeading>
       </section>
