@@ -29,10 +29,10 @@ export const _resetTeaserIndex = () => cache.clear();
 const valid = (f: unknown): f is TeaserFile =>
   !!f && typeof f === "object" && typeof (f as TeaserFile).meta?.scanned_at === "number" && !!(f as TeaserFile).rows && typeof (f as TeaserFile).rows === "object";
 
-function load(name: string): Promise<TeaserFile | undefined> {
+function load(name: string, fresh = false): Promise<TeaserFile | undefined> {
   const hit = cache.get(name);
-  if (hit && Date.now() - hit.at < TTL_MS) return Promise.resolve(hit.value);
-  if (hit?.inflight) return hit.inflight;
+  if (!fresh && hit && Date.now() - hit.at < TTL_MS) return Promise.resolve(hit.value);
+  if (!fresh && hit?.inflight) return hit.inflight;
   const inflight = readSource(name, sourceChain(DATA_SOURCE))
     .then((text) => { const f = text === undefined ? undefined : JSON.parse(text); return valid(f) ? f : undefined; })
     .catch((e) => { console.warn(`[teasers] ${name} unreadable: ${(e as Error).message}`); return undefined; })
@@ -44,12 +44,18 @@ function load(name: string): Promise<TeaserFile | undefined> {
 /** The compact row for market `id` from the newest copy Free may see, or undefined (the caller uses the store).
  *  `nowMs`/`liveClock` are for tests: with DATA_CLOCK=scan (fixtures) a file is never "stale". */
 export async function indexedMarketTeaser(id: string, nowMs = Date.now(), liveClock = process.env.DATA_CLOCK !== "scan"): Promise<IndexedTeaser | undefined> {
-  const [newest, counts] = await Promise.all([load("teasers.json"), getCounts(), getSettings()]);   // getSettings: the Free delay
+  const [first, counts] = await Promise.all([load("teasers.json"), getCounts(), getSettings()]);   // getSettings: the Free delay
+  let newest = first;
   if (!newest) return undefined;
   // The publisher never deletes bucket objects: when a scan's precompute failed for this file only, the previous scan's
   // teasers.json stays next to the new counts.json. A copy older than the counts of the same newest scan is that leftover
-  // (its -prev copies are older still): use the store instead. No counts file = nothing to compare with.
-  if (counts && newest.meta.scanned_at < counts.scanned_at) return undefined;
+  // (its -prev copies are older still): use the store instead. But after a NORMAL scan the same is true of a copy cached before
+  // it (counts' cache expires after 30 s, this one after 60 s): read the file once more, bypassing the cache, and only then give
+  // up. No counts file = nothing to compare with.
+  if (counts && newest.meta.scanned_at < counts.scanned_at) {
+    newest = await load("teasers.json", true);
+    if (!newest || newest.meta.scanned_at < counts.scanned_at) return undefined;
+  }
   if (liveClock && nowMs / 1000 - newest.meta.scanned_at > MAX_AGE_S) return undefined;
   const cutoff = nowMs / 1000 - delayMin("free") * 60;
   let file = newest.meta.scanned_at <= cutoff ? newest : undefined;
