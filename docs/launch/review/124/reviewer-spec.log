@@ -1,0 +1,141 @@
+[WebServer]  ⚠ Compiled with warnings in 13.6s
+[WebServer] 
+[WebServer] ./lib/alerts-push.ts
+[WebServer] Attempted import error: 'web-push' does not contain a default export (imported as 'webpush').
+[WebServer] 
+[WebServer] Import trace for requested module:
+[WebServer] ./lib/alerts-push.ts
+[WebServer] ./app/api/push/subscribe/route.ts
+[WebServer] 
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] responseMode: 'json' drops mid-call notifications. subscriptions/listen streams are always served over SSE regardless; other notifications emitted before a result are dropped.
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] [settings] read failed, keeping the last value: TypeError: fetch failed
+
+[WebServer] [settings] read failed, keeping the last value: TypeError: fetch failed
+
+
+Running 8 tests using 1 worker
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] responseMode: 'json' drops mid-call notifications. subscriptions/listen streams are always served over SSE regardless; other notifications emitted before a result are dropped.
+
+[1/8] [chromium] › e2e-paid/zz-rv124.spec.ts:41:24 › re-login free-link-390
+[WebServer] [abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+
+[chromium] › e2e-paid/zz-rv124.spec.ts:41:24 › re-login free-link-390
+RV124 free-link-390: url=http://localhost:3473/bets?fav=1&t=sports.nfl%2Cpolitics.elections label="Everything" pill=true h2="Today's top 5" navs=4 fallbackText="None of today's free bets are in your topics. Here are today's free bets." sw=390
+
+[2/8] [chromium] › e2e-paid/zz-rv124.spec.ts:41:24 › re-login free-password-1440
+[chromium] › e2e-paid/zz-rv124.spec.ts:41:24 › re-login free-password-1440
+RV124 free-password-1440: url=http://localhost:3473/bets?fav=1&t=sports.nfl%2Cpolitics.elections label="Everything" pill=true h2="Today's top 5" navs=4 fallbackText="None of today's free bets are in your topics. Here are today's free bets." sw=1440
+
+RV124 free-password-1440 settings: Favorites: NFL, Elections
+
+[3/8] [chromium] › e2e-paid/zz-rv124.spec.ts:41:24 › re-login pro-password-390
+[chromium] › e2e-paid/zz-rv124.spec.ts:41:24 › re-login pro-password-390
+RV124 pro-password-390: url=http://localhost:3473/bets?fav=1&t=sports.nfl%2Cpolitics.elections label="Your topics (2)" pill=true h2="Today's top bet" navs=4 fallbackText="" sw=390
+
+RV124 pro-password-390 settings: Favorites: NFL, Elections
+
+[4/8] [chromium] › e2e-paid/zz-rv124.spec.ts:41:24 › re-login pro-link-1440
+[chromium] › e2e-paid/zz-rv124.spec.ts:41:24 › re-login pro-link-1440
+RV124 pro-link-1440: url=http://localhost:3473/bets?fav=1&t=sports.nfl%2Cpolitics.elections label="Your topics (2)" pill=true h2="Today's top bet" navs=4 fallbackText="" sw=1440
+
+[5/8] [chromium] › e2e-paid/zz-rv124.spec.ts:70:139 › hand-built 390 t=sports.nfl,politics.elections signed out
+  1) [chromium] › e2e-paid/zz-rv124.spec.ts:70:139 › hand-built 390 t=sports.nfl,politics.elections signed out 
+
+    TimeoutError: locator.innerText: Timeout 20000ms exceeded.
+    Call log:
+      - waiting for getByTestId('bar-sport').locator('option:checked')
+
+
+      73 |   await page.goto(`/bets?${q}`); await page.waitForTimeout(5000);
+      74 |   const bar = page.getByTestId("bar-sport");
+    > 75 |   const label = await bar.locator("option:checked").innerText({ timeout: 20000 });
+         |                                                     ^
+      76 |   const pills = await page.getByRole("link", { name: /^Remove filter/ }).allInnerTexts();
+      77 |   console.log(`RV124 hand ${w} ${q}: label="${label}" pills=${JSON.stringify(pills)} pill-your-topics=${await pill(page).isVisible()}`);
+      78 |   await page.screenshot({ path: `${OUT}/hand-${w}-${q.includes("&") ? "two-params" : "comma"}.png` });
+        at /tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/rv124/apps/web/e2e-paid/zz-rv124.spec.ts:75:53
+
+    Error Context: test-results/zz-rv124-hand-built-390-t--b1928-litics-elections-signed-out-chromium/error-context.md
+
+
+[6/8] [chromium] › e2e-paid/zz-rv124.spec.ts:70:139 › hand-built 390 t=sports.nfl&t=politics.elections signed out
+  2) [chromium] › e2e-paid/zz-rv124.spec.ts:70:139 › hand-built 390 t=sports.nfl&t=politics.elections signed out 
+
+    TimeoutError: locator.innerText: Timeout 20000ms exceeded.
+    Call log:
+      - waiting for getByTestId('bar-sport').locator('option:checked')
+
+
+      73 |   await page.goto(`/bets?${q}`); await page.waitForTimeout(5000);
+      74 |   const bar = page.getByTestId("bar-sport");
+    > 75 |   const label = await bar.locator("option:checked").innerText({ timeout: 20000 });
+         |                                                     ^
+      76 |   const pills = await page.getByRole("link", { name: /^Remove filter/ }).allInnerTexts();
+      77 |   console.log(`RV124 hand ${w} ${q}: label="${label}" pills=${JSON.stringify(pills)} pill-your-topics=${await pill(page).isVisible()}`);
+      78 |   await page.screenshot({ path: `${OUT}/hand-${w}-${q.includes("&") ? "two-params" : "comma"}.png` });
+        at /tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/rv124/apps/web/e2e-paid/zz-rv124.spec.ts:75:53
+
+    Error Context: test-results/zz-rv124-hand-built-390-t--7aea3-litics-elections-signed-out-chromium/error-context.md
+
+
+[7/8] [chromium] › e2e-paid/zz-rv124.spec.ts:70:139 › hand-built 1440 t=sports.nfl,politics.elections signed out
+  3) [chromium] › e2e-paid/zz-rv124.spec.ts:70:139 › hand-built 1440 t=sports.nfl,politics.elections signed out 
+
+    TimeoutError: locator.innerText: Timeout 20000ms exceeded.
+    Call log:
+      - waiting for getByTestId('bar-sport').locator('option:checked')
+
+
+      73 |   await page.goto(`/bets?${q}`); await page.waitForTimeout(5000);
+      74 |   const bar = page.getByTestId("bar-sport");
+    > 75 |   const label = await bar.locator("option:checked").innerText({ timeout: 20000 });
+         |                                                     ^
+      76 |   const pills = await page.getByRole("link", { name: /^Remove filter/ }).allInnerTexts();
+      77 |   console.log(`RV124 hand ${w} ${q}: label="${label}" pills=${JSON.stringify(pills)} pill-your-topics=${await pill(page).isVisible()}`);
+      78 |   await page.screenshot({ path: `${OUT}/hand-${w}-${q.includes("&") ? "two-params" : "comma"}.png` });
+        at /tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/rv124/apps/web/e2e-paid/zz-rv124.spec.ts:75:53
+
+    Error Context: test-results/zz-rv124-hand-built-1440-t-9988f-litics-elections-signed-out-chromium/error-context.md
+
+
+[8/8] [chromium] › e2e-paid/zz-rv124.spec.ts:70:139 › hand-built 1440 t=sports.nfl&t=politics.elections signed out
+  4) [chromium] › e2e-paid/zz-rv124.spec.ts:70:139 › hand-built 1440 t=sports.nfl&t=politics.elections signed out 
+
+    TimeoutError: locator.innerText: Timeout 20000ms exceeded.
+    Call log:
+      - waiting for getByTestId('bar-sport').locator('option:checked')
+
+
+      73 |   await page.goto(`/bets?${q}`); await page.waitForTimeout(5000);
+      74 |   const bar = page.getByTestId("bar-sport");
+    > 75 |   const label = await bar.locator("option:checked").innerText({ timeout: 20000 });
+         |                                                     ^
+      76 |   const pills = await page.getByRole("link", { name: /^Remove filter/ }).allInnerTexts();
+      77 |   console.log(`RV124 hand ${w} ${q}: label="${label}" pills=${JSON.stringify(pills)} pill-your-topics=${await pill(page).isVisible()}`);
+      78 |   await page.screenshot({ path: `${OUT}/hand-${w}-${q.includes("&") ? "two-params" : "comma"}.png` });
+        at /tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/rv124/apps/web/e2e-paid/zz-rv124.spec.ts:75:53
+
+    Error Context: test-results/zz-rv124-hand-built-1440-t-60090-litics-elections-signed-out-chromium/error-context.md
+
+
+  4 failed
+    [chromium] › e2e-paid/zz-rv124.spec.ts:70:139 › hand-built 390 t=sports.nfl,politics.elections signed out 
+    [chromium] › e2e-paid/zz-rv124.spec.ts:70:139 › hand-built 390 t=sports.nfl&t=politics.elections signed out 
+    [chromium] › e2e-paid/zz-rv124.spec.ts:70:139 › hand-built 1440 t=sports.nfl,politics.elections signed out 
+    [chromium] › e2e-paid/zz-rv124.spec.ts:70:139 › hand-built 1440 t=sports.nfl&t=politics.elections signed out 
+  4 passed (3.9m)

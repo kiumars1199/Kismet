@@ -1,0 +1,78 @@
+[WebServer]  ⚠ Compiled with warnings in 30.5s
+[WebServer] 
+
+[WebServer] ./lib/alerts-push.ts
+[WebServer] Attempted import error: 'web-push' does not contain a default export (imported as 'webpush').
+[WebServer] 
+[WebServer] Import trace for requested module:
+[WebServer] ./lib/alerts-push.ts
+[WebServer] ./app/api/push/subscribe/route.ts
+[WebServer] 
+
+[WebServer] <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (114kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+
+[WebServer] <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (268kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] responseMode: 'json' drops mid-call notifications. subscriptions/listen streams are always served over SSE regardless; other notifications emitted before a result are dropped.
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] [settings] read failed, keeping the last value: TypeError: fetch failed
+
+[WebServer] [settings] read failed, keeping the last value: TypeError: fetch failed
+
+
+Running 19 tests using 1 worker
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] responseMode: 'json' drops mid-call notifications. subscriptions/listen streams are always served over SSE regardless; other notifications emitted before a result are dropped.
+
+[1/19] [chromium] › e2e-paid/launch-f05-topics.spec.ts:53:1 › warm-up: first hits compile the routes
+[WebServer] [abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+
+[2/19] [chromium] › e2e-paid/launch-f05-topics.spec.ts:62:3 › picks NFL + Politics at 390px: / and /bets open filtered with a Your topics pill; one tap clears it
+[chromium] › e2e-paid/launch-f05-topics.spec.ts:62:3 › picks NFL + Politics at 390px: / and /bets open filtered with a Your topics pill; one tap clears it
+CLS post-onboarding landing at 390px: 0.0005  (http://localhost:3473/?view=flags&t=sports.nfl%2Cpolitics.elections&fav=1)
+
+CLS /bets with topics saved at 390px: 0.0005
+
+[3/19] [chromium] › e2e-paid/launch-f05-topics.spec.ts:62:3 › picks NFL + Politics at 1440px: / and /bets open filtered with a Your topics pill; one tap clears it
+[chromium] › e2e-paid/launch-f05-topics.spec.ts:62:3 › picks NFL + Politics at 1440px: / and /bets open filtered with a Your topics pill; one tap clears it
+CLS post-onboarding landing at 1440px: 0.0000  (http://localhost:3473/?view=flags&t=sports.nfl%2Cpolitics.elections&fav=1)
+
+CLS /bets with topics saved at 1440px: 0.0000
+
+[4/19] [chromium] › e2e-paid/launch-f05-topics.spec.ts:134:1 › skipping setup keeps / and /bets unfiltered; topics are editable in /settings
+[5/19] [chromium] › e2e-paid/launch-f05-topics.spec.ts:149:1 › topics cleared elsewhere stop filtering here; sign-out drops the hint; another account never reads it
+[6/19] [chromium] › e2e-paid/launch-f05-topics.spec.ts:187:1 › a returning user's first /bets opens filtered (the hint outlives the tab)
+[7/19] [chromium] › e2e-paid/launch-f05-topics.spec.ts:208:1 › the Your topics pill works before hydration, and nothing covers or breaks it at 1440
+[8/19] [chromium] › e2e-paid/launch-f05-topics.spec.ts:297:3 › saved topics survive sign-out and sign-in by link at 390px: first landing filtered; bar and Settings name them
+[chromium] › e2e-paid/launch-f05-topics.spec.ts:297:3 › saved topics survive sign-out and sign-in by link at 390px: first landing filtered; bar and Settings name them
+CLS re-login first landing (link) at 390px: 0.0000
+
+[9/19] [chromium] › e2e-paid/launch-f05-topics.spec.ts:297:3 › saved topics survive sign-out and sign-in by password at 390px: first landing filtered; bar and Settings name them
+[chromium] › e2e-paid/launch-f05-topics.spec.ts:297:3 › saved topics survive sign-out and sign-in by password at 390px: first landing filtered; bar and Settings name them
+CLS re-login first landing (password) at 390px: 0.0000
+
+[10/19] [chromium] › e2e-paid/launch-f05-topics.spec.ts:297:3 › saved topics survive sign-out and sign-in by link at 1440px: first landing filtered; bar and Settings name them
+[chromium] › e2e-paid/launch-f05-topics.spec.ts:297:3 › saved topics survive sign-out and sign-in by link at 1440px: first landing filtered; bar and Settings name them
+CLS re-login first landing (link) at 1440px: 0.0000
+
+[11/19] [chromium] › e2e-paid/launch-f05-topics.spec.ts:297:3 › saved topics survive sign-out and sign-in by password at 1440px: first landing filtered; bar and Settings name them
+[chromium] › e2e-paid/launch-f05-topics.spec.ts:297:3 › saved topics survive sign-out and sign-in by password at 1440px: first landing filtered; bar and Settings name them
+CLS re-login first landing (password) at 1440px: 0.0001
+
+[12/19] [chromium] › e2e-paid/zz-rv124.spec.ts:41:24 › re-login free-link-390
+[chromium] › e2e-paid/zz-rv124.spec.ts:41:24 › re-login free-link-390
+RV124 free-link-390: url=http://localhost:3473/bets?fav=1&t=sports.nfl%2Cpolitics.elections label="Everything" pill=true h2="Today's top 5" navs=4 fallbackText="None of today's free bets are in your topics. Here are today's free bets." sw=390
+
+[13/19] [chromium] › e2e-paid/zz-rv124.spec.ts:41:24 › re-login free-password-1440

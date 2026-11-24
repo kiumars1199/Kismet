@@ -1,0 +1,50 @@
+[WebServer]  ⚠ Compiled with warnings in 12.2s
+[WebServer] 
+[WebServer] ./lib/alerts-push.ts
+[WebServer] Attempted import error: 'web-push' does not contain a default export (imported as 'webpush').
+[WebServer] 
+[WebServer] Import trace for requested module:
+[WebServer] ./lib/alerts-push.ts
+[WebServer] ./app/api/push/subscribe/route.ts
+[WebServer] 
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] responseMode: 'json' drops mid-call notifications. subscriptions/listen streams are always served over SSE regardless; other notifications emitted before a result are dropped.
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] [settings] read failed, keeping the last value: TypeError: fetch failed
+
+[WebServer] [settings] read failed, keeping the last value: TypeError: fetch failed
+
+
+Running 1 test using 1 worker
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] responseMode: 'json' drops mid-call notifications. subscriptions/listen streams are always served over SSE regardless; other notifications emitted before a result are dropped.
+
+[1/1] [chromium] › e2e-paid/zz-rv124.spec.ts:70:1 › hand-built URL signed in (Pro, no saved topics) + Everything on a fav=1 view
+[WebServer] [abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+
+[chromium] › e2e-paid/zz-rv124.spec.ts:70:1 › hand-built URL signed in (Pro, no saved topics) + Everything on a fav=1 view
+RV124 hand 390 t=sports.nfl,politics.elections: url=http://localhost:3473/bets?t=sports.nfl,politics.elections label="Your topics (2)" pills=["NFL","Elections"] yourTopicsPill=false
+
+RV124 hand 390 t=sports.nfl&t=politics.elections: url=http://localhost:3473/bets?t=sports.nfl&t=politics.elections label="NFL (1)" pills=[] yourTopicsPill=false
+
+RV124 hand 1440 t=sports.nfl,politics.elections: url=http://localhost:3473/bets?t=sports.nfl,politics.elections label="Your topics (2)" pills=["NFL","Elections"] yourTopicsPill=false
+
+RV124 hand 1440 t=sports.nfl&t=politics.elections: url=http://localhost:3473/bets?t=sports.nfl&t=politics.elections label="NFL (1)" pills=[] yourTopicsPill=false
+
+RV124 fav before: label="Your topics (2)"
+
+RV124 fav after Everything+Apply: url=http://localhost:3473/bets?fav=1 label="Everything" yourTopicsPill=true
+
+  1 passed (1.7m)

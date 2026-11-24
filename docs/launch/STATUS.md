@@ -51,16 +51,16 @@ Status: re-walk on final 6da7905 (local prod build, mock auth; 13:25 UTC; eviden
 
 Problems:
 - [should-fix] /alerts and /dashboards at 390 shift CLS 0.116 / 0.125 on load (footer jumps while content loads) (T-wt2g)
-- [should-fix] Saved topics lost after sign-out/sign-in or new device: Home/Best bets open unfiltered until a reload (F5) (T-wt2e)
+- ~~[should-fix] Saved topics lost after sign-out/sign-in or new device~~ fixed by #124
 - [should-fix] /check Free limit card is a 1000 px (390) / 700 px (1440) box with ~100 px of content (T-wt2g)
 - [should-fix] Tour step 4 "Save and get alerts" points at a Save button off screen (y≈2117) with cards (T-wt2f)
-- [should-fix] Filter bar says "Everything" while 2+ saved topics filter the list (T-wt2e)
-- [should-fix] Settings → Topics shows raw ids ("sports.nfl, sports.ncaab") (T-wt2e)
+- ~~[should-fix] Filter bar says "Everything" while 2+ saved topics filter the list~~ fixed by #124; label edge cases in T-wt2h
+- ~~[should-fix] Settings → Topics shows raw ids~~ fixed by #124
 - [should-fix] /markets search chips 36 px tall, header clear × 18x32 at 390; "Choose columns" 36x36 and row checkboxes 16x16 at 1440 (T-wt2g)
 - [nit] Tour step 1 "A best bet" card hidden behind the tab bar at 390 when the stale banner shows (T-wt2f)
 - [nit] Tour step 1 copy says cards show "what $10 wins"; cards show "Pays 1.45x" (T-wt2f)
 - [nit] "Already have an account?" twice on the check-your-email screen (T-wt2f)
-- [nit] "Today's top 1" heading with one bet (T-wt2e)
+- ~~[nit] "Today's top 1" heading with one bet~~ fixed by #124
 - [nit] Onboarding step 1 at 390: tiles show through the ~15 px gap between the sticky Next bar and the tab bar (T-wt2f)
 - [nit] Settings at 1440: Time zone select text larger than State select (T-wt2g)
 
@@ -76,6 +76,7 @@ Problems:
 - [nit] Premium tray same-event alert: "combo checker" inline link is 16 px tall (T-wt3e)
 
 ## Found in review, outside a lane
+- 14:38 merged #124 T-wt2e (c16fc61): saved topics survive re-login (link + password, 390/1440, CLS ≤0.0001), filter bar "Your topics (N)", Settings topic names, "Today's top bet". Reviewer PASS (evidence review/124/). Follow-up T-wt2h (same builder): label only when fav=1, "Everything" clears fav.
 - 12:55 merged #121 T-wt1g (73e7d67), reviewer PASS (evidence review/121/). Still open follow-ups: tight-width city dropped before direction words (no real title hits it); nit: "loses to" shortens to "loses …" at 360/390.
 - 12:48 merged #123 T-ci3 (39f410d) and #106 T-wt2d (6da7905, fonts back to swap). Prod final at 6da7905. Next: #121 T-wt1g review; fresh WT1/WT2/WT3 on a local prod build of final.
 - 11:24 #122 T-ci2 merged at 89bc907 (head 3106cff, read-only reviewer PASS: no gate loosened, every new test caught a deliberate regression; CI green). Follow-up T-ci3 (trust): the vercel-env test doesn't really guard E2E_PROD_BUILD; add E2E_PROD_BUILD= to .env.example. Fresh WT1 (reviewer 2) and WT3 (reviewer 1) started on a local prod build of final. WT2 waits for #106 (c3e5b9a CI running). #121 T-wt1g now at 1351e45.
