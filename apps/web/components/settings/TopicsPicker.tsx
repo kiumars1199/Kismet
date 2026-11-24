@@ -2,7 +2,8 @@
 // Favorite topics (docs/05 F-08): a grid of taxonomy topics (level 2) with open-market counts. Chosen by the user
 // only, never derived from saves or bets. Writes profile.favorite_topics on every toggle.
 // Used by /onboarding and the /settings page (Lane D2 renders <TopicsPicker />).
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
+import { createTopicSaver } from "@/lib/topics/saver";
 import { fetchMeta } from "@/lib/api";
 import { getRepo, isRepoReady, repoReady } from "@/lib/repo";
 import { useProfile } from "@/lib/repo/hooks";
@@ -29,20 +30,28 @@ export function TopicsPicker() {
     return () => ac.abort();
   }, []);
 
-  // F5: a tap before AuthBoot has switched to the account store would land in this browser's store and be dropped by
-  // the switch (the tile looked chosen, the account never got it). Wait for the account store, then toggle against
-  // its current topics, so quick taps don't overwrite each other either.
-  const toggle = async (id: string) => {
-    if (!isRepoReady()) await Promise.race([repoReady, new Promise((r) => setTimeout(r, 8_000))]);
-    const cur = getRepo().profileSnapshot();
-    const next = cur.favorite_topics.includes(id) ? cur.favorite_topics.filter((x) => x !== id) : [...cur.favorite_topics, id];
-    getRepo().profile.patch(cur.topics_off ? { favorite_topics: next, topics_off: false } : { favorite_topics: next });   // choosing topics turns "Your topics" back on; topics_off is only written when set, so a save never depends on the migration
-  };
+  // Quick taps (T-wt2j): the picker keeps its own list (`local`) and shows it at once. Saves are queued, one at a time, each
+  // carrying the full current list (lib/topics/saver.ts), so the server ends on exactly what the tiles show however slow the
+  // network is. A failed save drops `local` and the tiles fall back to the confirmed list. F5: a tap before AuthBoot has
+  // switched to the account store would land in this browser's store and be dropped by the switch, so the saver waits for it.
+  const [local, setLocal] = useState<string[] | null>(null);
+  const [failed, setFailed] = useState(false);
+  const saver = useRef<ReturnType<typeof createTopicSaver> | null>(null);
+  saver.current ??= createTopicSaver({
+    isReady: isRepoReady,
+    ready: () => Promise.race([repoReady, new Promise((r) => setTimeout(r, 8_000))]),
+    current: () => getRepo().profileSnapshot().favorite_topics,
+    save: (next) => getRepo().profile.patch(getRepo().profileSnapshot().topics_off ? { favorite_topics: next, topics_off: false } : { favorite_topics: next }),   // choosing topics turns "Your topics" back on; topics_off is only written when set, so a save never depends on the migration
+    onLocal: (v) => { setLocal(v); if (v) setFailed(false); },
+    onError: () => setFailed(true),
+  });
+  const toggle = (id: string) => saver.current!.toggle(id);
+  const chosen = local ?? favorite_topics;
 
   return (
     <div data-testid="topics-picker" aria-busy={!ready} className="flex flex-col gap-6">
       <p className="text-sm text-muted" aria-live="polite">
-        {favorite_topics.length ? `${favorite_topics.length} chosen. They show first in your quick filters.` : "Choose any you follow. You can change them later in Settings."}
+        {failed ? "Couldn't save your topics. Check your connection and try again." : chosen.length ? `${chosen.length} chosen. They show first in your quick filters.` : "Choose any you follow. You can change them later in Settings."}
       </p>
       {GROUPS.map((g) => {
         // Every group and topic from the static taxonomy is on screen from the first paint, and each tile reserves its count
@@ -55,7 +64,7 @@ export function TopicsPicker() {
           <legend className="mb-2.5 font-heading text-sm font-semibold text-soft">{g.label}</legend>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
             {topics.map((t) => {
-              const on = favorite_topics.includes(t.id);
+              const on = chosen.includes(t.id);
               const n = counts?.[t.id];
               return (
                 <button key={t.id} type="button" aria-pressed={on} disabled={!ready} aria-describedby={`${uid}-${t.id}`} onClick={() => toggle(t.id)}
