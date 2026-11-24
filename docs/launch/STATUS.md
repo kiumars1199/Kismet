@@ -74,13 +74,14 @@ Problems:
 - ~~[nit] /check/combo at 768: reload of a scored link while scrolled shifts 0.0236 (pre-existing on 053b671)~~ fixed by #125
 - ~~[nit] Same-event note says "Drop one of the two … bets" without saying which~~ fixed by #125
 - ~~[nit] Premium tray same-event alert: "combo checker" inline link is 16 px tall~~ fixed by #125
-- [should-fix] /check/combo Free, same-event combo, slow 429 (1.5 s): upgrade box pushes the same-event note down 182 px, CLS 0.0526 at 390 / 0.0092 at 1440; legs don't move (T-wt3f)
-- [nit] /check/combo at 390: reload of a scored link scrolled to 500–600 px shifts 0.021–0.027 (different-event legs; first measured at 390 in #125 review) (T-wt3f)
-- [nit] Same-event alert "combo checker" link 95x44 has its bottom 4 px under the button below (T-wt3f)
+- ~~[should-fix] /check/combo Free, same-event combo, slow 429 (1.5 s): upgrade box pushes the same-event note down 182 px, CLS 0.0526 at 390 / 0.0092 at 1440; legs don't move (T-wt3f)~~ fixed by #130
+- ~~[nit] /check/combo at 390: reload of a scored link scrolled to 500–600 px shifts 0.021–0.027 (different-event legs; first measured at 390 in #125 review) (T-wt3f)~~ fixed by #130
+- ~~[nit] Same-event alert "combo checker" link 95x44 has its bottom 4 px under the button below (T-wt3f)~~ fixed by #130
 - [nit] /check/combo: 10 long-shot legs show "Combined chance (cautious) 0%" next to 25277x; should read "<1%" (ComboClient.tsx:274 pct) (T-wt3g, after #130)
 - [nit] 375x667: the same-event alert's "combo checker" link first renders under the fixed bottom tray (y 535 of 667) until scrolled (T-wt3g, after #130)
 
 ## Found in review, outside a lane
+- 19:13 #130 T-wt3f merged (feecd6e): final merged in (no conflicts, same changes as reviewed 2313dd2), full CI green. T-wt3g started.
 - 19:10 #133 T-wt2j review PASS at b86060f (race fixed at 390/1440, 0/300 ms, all tiers; cookie, Home, /markets match; CLS ≤0.0006). Held for one should-fix in the error path plus a merge of final (#132 touched FilterBar). Watch: one React #418 on /settings in ~100 loads, not reproduced in 48 retries.
 - 18:56 #132 T-wt2i merged (9f5c68b) after review r3 PASS at 6acff47 (menu portaled, 21/21 checkboxes hittable at every size; texans CLS 0.0095) and full CI green. Evidence review/132. Three r3 follow-ups → T-wt2k.
 - 17:55 #132 review r2 FAIL at 88ecfd5: column menu clipped by the table's overflow box at 1100x800 (blocker), chip fade stays on at scroll end, Tab focus lands under pinned chips. Sent back to T-wt2i. Topic-picker race split out to T-wt2j.
