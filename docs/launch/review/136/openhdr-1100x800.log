@@ -1,0 +1,5 @@
+ERR locator.getAttribute: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('button[title="Choose columns"]')[22m
+
+    at /tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/review/136/openhdr.js:15:226

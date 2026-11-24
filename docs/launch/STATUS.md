@@ -79,13 +79,17 @@ Problems:
 - ~~[nit] Same-event alert "combo checker" link 95x44 has its bottom 4 px under the button below (T-wt3f)~~ fixed by #130
 - ~~[nit] /check/combo: 10 long-shot legs show "Combined chance (cautious) 0%" next to 25277x; should read "<1%" (ComboClient.tsx:274 pct) (T-wt3g, after #130)~~ fixed by #134
 - ~~[nit] 375x667: the same-event alert's "combo checker" link first renders under the fixed bottom tray (y 535 of 667) until scrolled (T-wt3g, after #130)~~ fixed by #134
-- [should-fix] Combo tray "chances multiply" line shows "≈ 0%" beside "<1%" (lib/combos.ts:84 multiplyLine uses pct) (T-wt3h)
-- [nit] Long-shot combo tray return reads "−100%" when it is −99.99% (T-wt3h)
-- [nit] A 0.999 price reads "Bet No at 100%" (/check/combo?legs=6949344:1,7043355:1) (T-wt3h)
-- [nit] 375x667: the "." after the "combo checker" link wraps onto its own line (T-wt3h)
+- ~~[should-fix] Combo tray "chances multiply" line shows "≈ 0%" beside "<1%" (lib/combos.ts:84 multiplyLine uses pct) (T-wt3h)~~ fixed by #137
+- ~~[nit] Long-shot combo tray return reads "−100%" when it is −99.99% (T-wt3h)~~ fixed by #137
+- ~~[nit] A 0.999 price reads "Bet No at 100%" (/check/combo?legs=6949344:1,7043355:1) (T-wt3h)~~ fixed by #137
+- ~~[nit] 375x667: the "." after the "combo checker" link wraps onto its own line (T-wt3h)~~ fixed by #137
+- [should-fix] /check deep link with price >99.5% opens with "Price must be between 1% and 99%" (Price filled with Math.round(ask*100); also 0.8% scored as 1%) (/check?m=6949344&side=1) (T-wt3i)
+- [nit] Combo leg line says "pays 1.00x" for a 0.999 price; after fees it is under 1x (T-wt3i)
+- [nit] 375/360: larger gap above the "combo checker." line from its tap area (T-wt3i)
 
 
 ## Found in review, outside a lane
+- 20:40 #137 T-wt3h merged (8389704) after review PASS at fa96d3f (+ 09be2c3 confirmed a pure module move to keep landing JS at 149.5 kB) and full CI green. Notes → T-wt3i.
 - 20:00 #134 T-wt3g merged (498eaf1) after review PASS at 6936a20 ("<1%" in checker, legs and suggested combos; 375x667 alert scrolls once, link tappable, CLS 0; #130 fixes hold) and full CI green. Review notes → T-wt3h.
 - 19:55 #133 review r2 FAIL at 6adfed6: saver rewrite passes every race/error case, but the new error line changes height (CLS 0.035 at 375, 0.026 at 390 on error+clear) (blocker); full page load right after quick taps loses pending saves (should-fix, keepalive flush on pagehide). Back to T-wt2j.
 - 19:45 #135 T-wt2k merged (4c188e7) after review PASS at a3e24f5 (chip focus fully visible at 390/1100/1280; menu closes on scroll-out and focus-out; 21/21 checkboxes hittable; /markets 6 and 53 topics CLS ≤0.0084, the 0.27 was fixed by #132) and full CI green. One nit (menu stays open while its button is under the sticky top bar at 1100) → T-wt2l.

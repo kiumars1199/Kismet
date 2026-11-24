@@ -1,0 +1,18 @@
+PR #137 T-wt3h - verdict PASS for fa96d3fc5eadc6937d3567b34a8b160265cdd747; 09be2c320a4bd10a0103d5ef6f2b6589c66dc3c7 confirmed a pure move.
+Own prod build (E2E mock) on :4237, socket owned by my next-server in scratchpad/wt5.
+
+#134 repros on fa96d3f:
+ - Long-shot tray at 390: "5% x 6% x 3% x 3% x 4% ≈ <1%", chance "<1%", central "<1%", return "about −100%". No stray 0%/100%/−100% (chance.log).
+ - /check/combo?legs=6949344:1,7043355:1: legs "Bet No at >99% · 99% chance (cautious)", combined 98%.
+ - Alert at 375x667: "combo checker." moves to its own line as a unit, no lone period; no overflow (span right 115 < alert right 359), docW = vw, link 48 px, all hit points on the link, above the tray (529). Same at 360x800 (span 39-138 in 16-344), 390, 768, 1440. CLS 0 (alert-nowrap.log).
+Single /check (check-single.log): "Our chance" >99% / <1% where appropriate; "Market says" 1% for 0.8% ask (input rounded), no 0%/100%.
+Agreement: 3 suggested cards = tray = checker (78/71/72). 10-leg checker "<1%".
+CLS: Free slow 429 at 390/375/1440, 18 runs: CLS 0, legs fixed. Scored reload worst 0.0006 (390/375/360). Tiers (signed-out/Free/Pro/Premium, 390/1440): disclaimer, no cents, no h-scroll, CLS <= 0.0004, no personalized copy, no errors.
+Unit tests format/check-combo/combos: 51 pass.
+
+Issues:
+ [should-fix, pre-existing, not in this diff] /check deep link for a price above 99.5% prefills the Price field with "100" (Math.round(ask*100), CheckClient.tsx:45 and :134; Kalshi "Use it" :155) and shows "Price must be between 1% and 99%", so Market says/Pays/Edge are "—". Repro: Pro, /check?m=6949344&side=1 (ask 0.999). For 0.8% asks it prefills "1", so the numbers use 1% instead of 0.8%.
+ [nit, pre-existing] checker leg line "pays 1.00x" for a 0.999 ask after fee (really a little under 1x).
+ [nit] at 375 the line before "combo checker." has a larger gap (inline-block py-3.5); looks fine.
+
+fa96d3f..09be2c3: diffed; chancePct/pricePct moved verbatim to lib/chance.ts (own DASH, ok() check inlined with the same typeof/isFinite logic), imports updated in 6 files + test, no other change; no import of them from lib/format remains. Rebuilt 09be2c3: chance + single-check runs identical to fa96d3f (09be2c3/).

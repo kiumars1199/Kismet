@@ -1,0 +1,9 @@
+signed in r137-c1-1795550960181@example.com tier=pro
+/check m=6949344 side=1: {"chk-chance":">99%","chk-market":"—","chk-mult":"—","chk-edge":"—","chk-return":"—"} bad [] ctx [] about−100 0 disc true cents false cls 0.0004
+/check m=6949344 side=0: {"chk-chance":"<1%","chk-market":"1%","chk-mult":"95.2x","chk-edge":"−0.6 pts","chk-return":"−65%"} bad [] ctx [] about−100 0 disc true cents false cls 0.0004
+/check m=7029427 side=0: {"chk-chance":"<1%","chk-market":"1%","chk-mult":"96.4x","chk-edge":"−0.8 pts","chk-return":"−80%"} bad [] ctx [] about−100 0 disc true cents false cls 0.0004
+/check m=7029427 side=1: {"chk-chance":">99%","chk-market":"—","chk-mult":"—","chk-edge":"—","chk-return":"—"} bad [] ctx [] about−100 0 disc true cents false cls 0.0004
+/check m=6364919 side=0: {"chk-chance":"<1%","chk-market":"1%","chk-mult":"95.9x","chk-edge":"−1 pt","chk-return":"−98%"} bad [] ctx [] about−100 0 disc true cents false cls 0.0004
+/check m=6943945 side=1: {"chk-chance":">99%","chk-market":"—","chk-mult":"—","chk-edge":"—","chk-return":"—"} bad [] ctx [] about−100 0 disc true cents false cls 0.0004
+/check m=6674492 side=0: {"chk-chance":"92%","chk-market":"68%","chk-mult":"1.45x","chk-edge":"+24 pts","chk-return":"+33%"} bad [] ctx [] about−100 0 disc true cents false cls 0.0004
+errors []

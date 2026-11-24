@@ -1,0 +1,9 @@
+[820] button top 100: {"btn":[100,144],"topBarBottom":-1,"btnCenterIsBtn":true,"visPx":44,"menu":148} ok
+[820] button top 40: {"btn":[40,84],"topBarBottom":-1,"btnCenterIsBtn":true,"visPx":44,"menu":88} ok
+[820] button top 25: {"btn":[25,69],"topBarBottom":-1,"btnCenterIsBtn":true,"visPx":44,"menu":73} ok
+[820] button top 21: {"btn":[21,65],"topBarBottom":-1,"btnCenterIsBtn":true,"visPx":44,"menu":69} ok
+[820] button top 19: {"btn":[19,63],"topBarBottom":-1,"btnCenterIsBtn":true,"visPx":44,"menu":null} <- closed while 44px of button visible
+[820] button top 10: {"btn":[10,54],"topBarBottom":-1,"btnCenterIsBtn":true,"visPx":44,"menu":null} <- closed while 44px of button visible
+[820] button top -20: {"btn":[-20,24],"topBarBottom":-1,"btnCenterIsBtn":true,"visPx":24,"menu":null} <- closed while 24px of button visible
+[820] button top -40: {"btn":[-31,13],"topBarBottom":-1,"btnCenterIsBtn":true,"visPx":13,"menu":null} <- closed while 13px of button visible
+[820] button top -50: {"btn":[-31,13],"topBarBottom":-1,"btnCenterIsBtn":true,"visPx":13,"menu":null} <- closed while 13px of button visible

@@ -1,0 +1,3 @@
+[820] header {"pos":"static","h":125} button at y 30..74 visible=true: click -> menu open=true expanded=true
+[820] header {"pos":"static","h":125} button at y 10..54 visible=true: click -> menu open=false expanded=false
+[820] header {"pos":"static","h":125} button at y -10..34 visible=true: click -> menu open=false expanded=false
