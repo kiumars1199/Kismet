@@ -88,6 +88,7 @@ Problems:
 - Not walked: signed-in headers at 768–1280, the Premium drawer path to the tray, WebKit, and signed-in steps on a production build. Re-walk after the fixes.
 
 ## Found in review, outside a lane
+- 09:45 #119 4017b04 FAIL (check 2): 'or higher'/exact, highest/lowest, fewer/exact siblings still clash when shortened. Sent back to the tracker lane. #106 578b58b: the pro 390 CLS is fixed (blurb link on its own line on phones; fonts display:optional kept pending review); e2e-paid (1) /m teaser timed out with a dev-server ECONNRESET, so I re-ran it via the empty commit 438eb04. Prod 4ae6ca5 is READY with 0 runtime errors in the last hour (Vercel read-only).
 - 09:25 Prod: curl from the lead container gets 403 x-vercel-mitigated deny (default firewall, no custom rules, no attack); browsers get 200. See decisions 09:25.
 - 09:22 #116 (T-hydr4) merged at 4ae6ca5 after reviewer PASS at 7451fb3: stale teasers/top guard keeps the teaser path after a normal scan (/m 0.05 s at t=35 s), refuses a true leftover, re-reads at most once per cache window (strace: 0 opens for 20 requests), upload.py sends counts.json last. Nit: overlapping normal/forced read can cost one extra read.
 - 09:08 #118 (T-wt1e) merged at bdbd019 after reviewer PASS with notes (2,769 real titles: ~1% shortened, 0 over 2 lines, 0 clashes at 360/390/1440; H1 clear of header; CLS 0). Should-fix -> T-wt1f, tracker lane: keep rate-direction words (increase/decrease siblings could clash).
