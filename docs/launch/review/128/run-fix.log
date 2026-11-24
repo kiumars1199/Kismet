@@ -1,0 +1,170 @@
+[WebServer]  ⚠ Compiled with warnings in 24.4s
+[WebServer] 
+[WebServer] ./lib/alerts-push.ts
+[WebServer] Attempted import error: 'web-push' does not contain a default export (imported as 'webpush').
+[WebServer] 
+[WebServer] Import trace for requested module:
+[WebServer] ./lib/alerts-push.ts
+[WebServer] ./app/api/push/subscribe/route.ts
+
+[WebServer] 
+
+[WebServer] <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (114kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+
+[WebServer] <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (268kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] responseMode: 'json' drops mid-call notifications. subscriptions/listen streams are always served over SSE regardless; other notifications emitted before a result are dropped.
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] [settings] read failed, keeping the last value: TypeError: fetch failed
+
+[WebServer] [settings] read failed, keeping the last value: TypeError: fetch failed
+
+
+Running 9 tests using 1 worker
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] responseMode: 'json' drops mid-call notifications. subscriptions/listen streams are always served over SSE regardless; other notifications emitted before a result are dropped.
+
+[1/9] [chromium] › e2e-paid/launch-f05-topics.spec.ts:53:1 › warm-up: first hits compile the routes
+[WebServer] [abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+
+[2/9] [chromium] › e2e-paid/launch-f05-topics.spec.ts:358:3 › bar label and Everything at 390px (pro): hand-picked topics read "2 topics"; Everything on a saved view shows the full list
+[chromium] › e2e-paid/launch-f05-topics.spec.ts:358:3 › bar label and Everything at 390px (pro): hand-picked topics read "2 topics"; Everything on a saved view shows the full list
+bar count at 390px: saved topics "1 bet" -> Everything "34 bets"
+
+[3/9] [chromium] › e2e-paid/launch-f05-topics.spec.ts:358:3 › bar label and Everything at 390px (free): hand-picked topics read "2 topics"; Everything on a saved view shows the full list
+[chromium] › e2e-paid/launch-f05-topics.spec.ts:358:3 › bar label and Everything at 390px (free): hand-picked topics read "2 topics"; Everything on a saved view shows the full list
+bar count at 390px: saved topics "Showing 10 of 34 bets" -> Everything "Showing 10 of 34 bets"
+
+[4/9] [chromium] › e2e-paid/launch-f05-topics.spec.ts:358:3 › bar label and Everything at 1440px (pro): hand-picked topics read "2 topics"; Everything on a saved view shows the full list
+[chromium] › e2e-paid/launch-f05-topics.spec.ts:358:3 › bar label and Everything at 1440px (pro): hand-picked topics read "2 topics"; Everything on a saved view shows the full list
+bar count at 1440px: saved topics "1 bet" -> Everything "34 bets"
+
+[5/9] [chromium] › e2e-paid/launch-f05-topics.spec.ts:358:3 › bar label and Everything at 1440px (free): hand-picked topics read "2 topics"; Everything on a saved view shows the full list
+[chromium] › e2e-paid/launch-f05-topics.spec.ts:358:3 › bar label and Everything at 1440px (free): hand-picked topics read "2 topics"; Everything on a saved view shows the full list
+bar count at 1440px: saved topics "Showing 10 of 34 bets" -> Everything "Showing 10 of 34 bets"
+
+[6/9] [chromium] › e2e-paid/zz-rv128b.spec.ts:38:24 › paths pro-390
+[chromium] › e2e-paid/zz-rv128b.spec.ts:38:24 › paths pro-390
+RV128 pro-390 1-saved: path=/?view=flags&t=sports.nfl%2Cpolitics.elections&fav=1 label="Your topics (2)" count="1 bet" pills=["Your topics"] h1="1 bet where the odds lean your way" sw=390
+
+RV128 pro-390 2-everything: path=/?fav=0 label="Everything" count="34 bets" pills=[] h1="34 bets where the odds lean your way" sw=390
+
+RV128 pro-390 3-everything-reload: path=/?fav=0 label="Everything" count="34 bets" pills=[] h1="34 bets where the odds lean your way" sw=390
+
+RV128 pro-390 3b-nojs-clear-all-bets-fav0: path=/bets?fav=0 label="Everything" count="34 bets" pills=[] h1="34 bets where the odds lean your way" sw=390
+
+RV128 pro-390 3c-nojs-home-fav0: path=/?fav=0 label="Everything" count="34 bets" pills=[] h1="34 bets where the odds lean your way" sw=390
+
+RV128 pro-390 4-bare-bets-after: path=/bets?fav=1&t=sports.nfl%2Cpolitics.elections label="Your topics (2)" count="1 bet" pills=["Your topics"] h1="1 bet where the odds lean your way" sw=390
+
+RV128 pro-390 5-hand-url: path=/bets?t=sports.nfl,politics.elections label="2 topics" count="1 bet" pills=["NFL","Elections"] h1="1 bet where the odds lean your way" sw=390
+
+RV128 pro-390 6-more-filters-2: path=/bets?t=sports.nfl%2Cpolitics.elections&fav=0 label="2 topics" count="1 bet" pills=["NFL","Elections"] h1="1 bet where the odds lean your way" sw=390
+
+RV128 pro-390 6b-more-filters-2-reload: path=/bets?t=sports.nfl%2Cpolitics.elections&fav=0 label="2 topics" count="1 bet" pills=["NFL","Elections"] h1="1 bet where the odds lean your way" sw=390
+
+RV128 pro-390 7-fav-plus-nba: path=/bets?t=sports.nfl%2Cpolitics.elections%2Csports.nba&fav=0 label="3 topics" count="1 bet" pills=["NFL","Elections","NBA"] h1="1 bet where the odds lean your way" sw=390
+
+RV128 pro-390 8-fav-bar-nfl: path=/bets?t=sports.nfl&fav=0 label="NFL (1)" count="1 bet" pills=[] h1="1 bet where the odds lean your way" sw=390
+
+RV128 pro-390 8b-fav-bar-nfl-reload: path=/bets?t=sports.nfl&fav=0 label="NFL (1)" count="1 bet" pills=[] h1="1 bet where the odds lean your way" sw=390
+
+RV128 pro-390 9-pill-x: path=/bets label="Everything" count="34 bets" pills=[] h1="34 bets where the odds lean your way" sw=390
+
+[7/9] [chromium] › e2e-paid/zz-rv128b.spec.ts:38:24 › paths pro-1440
+[chromium] › e2e-paid/zz-rv128b.spec.ts:38:24 › paths pro-1440
+RV128 pro-1440 1-saved: path=/?view=flags&t=sports.nfl%2Cpolitics.elections&fav=1 label="Your topics (2)" count="1 bet" pills=["Your topics"] h1="1 bet where the odds lean your way" sw=1440
+
+RV128 pro-1440 2-everything: path=/?fav=0 label="Everything" count="34 bets" pills=[] h1="34 bets where the odds lean your way" sw=1440
+
+RV128 pro-1440 3-everything-reload: path=/?fav=0 label="Everything" count="34 bets" pills=[] h1="34 bets where the odds lean your way" sw=1440
+
+RV128 pro-1440 3b-nojs-clear-all-bets-fav0: path=/bets?fav=0 label="Everything" count="34 bets" pills=[] h1="34 bets where the odds lean your way" sw=1440
+
+RV128 pro-1440 3c-nojs-home-fav0: path=/?fav=0 label="Everything" count="34 bets" pills=[] h1="34 bets where the odds lean your way" sw=1440
+
+RV128 pro-1440 4-bare-bets-after: path=/bets?fav=1&t=sports.nfl%2Cpolitics.elections label="Your topics (2)" count="1 bet" pills=["Your topics"] h1="1 bet where the odds lean your way" sw=1440
+
+RV128 pro-1440 5-hand-url: path=/bets?t=sports.nfl,politics.elections label="2 topics" count="1 bet" pills=["NFL","Elections"] h1="1 bet where the odds lean your way" sw=1440
+
+RV128 pro-1440 6-more-filters-2: path=/bets?t=sports.nfl%2Cpolitics.elections&fav=0 label="2 topics" count="1 bet" pills=["NFL","Elections"] h1="1 bet where the odds lean your way" sw=1440
+
+RV128 pro-1440 6b-more-filters-2-reload: path=/bets?t=sports.nfl%2Cpolitics.elections&fav=0 label="2 topics" count="1 bet" pills=["NFL","Elections"] h1="1 bet where the odds lean your way" sw=1440
+
+RV128 pro-1440 7-fav-plus-nba: path=/bets?t=sports.nfl%2Cpolitics.elections%2Csports.nba&fav=0 label="3 topics" count="1 bet" pills=["NFL","Elections","NBA"] h1="1 bet where the odds lean your way" sw=1440
+
+RV128 pro-1440 8-fav-bar-nfl: path=/bets?t=sports.nfl&fav=0 label="NFL (1)" count="1 bet" pills=[] h1="1 bet where the odds lean your way" sw=1440
+
+RV128 pro-1440 8b-fav-bar-nfl-reload: path=/bets?t=sports.nfl&fav=0 label="NFL (1)" count="1 bet" pills=[] h1="1 bet where the odds lean your way" sw=1440
+
+RV128 pro-1440 9-pill-x: path=/bets label="Everything" count="34 bets" pills=[] h1="34 bets where the odds lean your way" sw=1440
+
+[8/9] [chromium] › e2e-paid/zz-rv128b.spec.ts:38:24 › paths free-390
+[chromium] › e2e-paid/zz-rv128b.spec.ts:38:24 › paths free-390
+RV128 free-390 1-saved: path=/?view=flags&t=sports.nfl%2Cpolitics.elections&fav=1 label="Everything" count="Showing 10 of 34 bets" pills=["Your topics"] h1="None of today's free bets are in your topics. Here are today's free bets." sw=390
+
+RV128 free-390 2-everything: path=/?fav=0 label="Everything" count="Showing 10 of 34 bets" pills=[] h1="10 of 34 bets where the odds lean your way" sw=390
+
+RV128 free-390 3-everything-reload: path=/?fav=0 label="Everything" count="Showing 10 of 34 bets" pills=[] h1="10 of 34 bets where the odds lean your way" sw=390
+
+RV128 free-390 3b-nojs-clear-all-bets-fav0: path=/bets?fav=0 label="Everything" count="Showing 10 of 34 bets" pills=[] h1="10 of 34 bets where the odds lean your way" sw=390
+
+RV128 free-390 3c-nojs-home-fav0: path=/?fav=0 label="Everything" count="Showing 10 of 34 bets" pills=[] h1="10 of 34 bets where the odds lean your way" sw=390
+
+RV128 free-390 4-bare-bets-after: path=/bets?fav=1&t=sports.nfl%2Cpolitics.elections label="Everything" count="Showing 10 of 34 bets" pills=["Your topics"] h1="None of today's free bets are in your topics. Here are today's free bets." sw=390
+
+RV128 free-390 5-hand-url: path=/bets?t=sports.nfl,politics.elections label="2 topics" count="Showing 0 of 1 bet" pills=["NFL","Elections"] h1="Today's free bets aren't in this filter" sw=390
+
+RV128 free-390 6-more-filters-2: path=/bets?t=sports.nfl%2Cpolitics.elections&fav=0 label="2 topics" count="Showing 0 of 1 bet" pills=["NFL","Elections"] h1="Today's free bets aren't in this filter" sw=390
+
+RV128 free-390 6b-more-filters-2-reload: path=/bets?t=sports.nfl%2Cpolitics.elections&fav=0 label="2 topics" count="Showing 0 of 1 bet" pills=["NFL","Elections"] h1="Today's free bets aren't in this filter" sw=390
+
+RV128 free-390 7-fav-plus-nba: path=/bets?t=sports.nfl%2Cpolitics.elections%2Csports.nba&fav=0 label="3 topics" count="Showing 0 of 1 bet" pills=["NFL","Elections","NBA"] h1="Today's free bets aren't in this filter" sw=390
+
+RV128 free-390 8-fav-bar-nfl: path=/bets?t=sports.nfl&fav=0 label="NFL (1)" count="Showing 0 of 1 bet" pills=[] h1="Today's free bets aren't in NFL" sw=390
+
+RV128 free-390 8b-fav-bar-nfl-reload: path=/bets?t=sports.nfl&fav=0 label="NFL (1)" count="Showing 0 of 1 bet" pills=[] h1="Today's free bets aren't in NFL" sw=390
+
+RV128 free-390 9-pill-x: path=/bets label="Everything" count="Showing 10 of 34 bets" pills=[] h1="10 of 34 bets where the odds lean your way" sw=390
+
+[9/9] [chromium] › e2e-paid/zz-rv128b.spec.ts:38:24 › paths free-1440
+[chromium] › e2e-paid/zz-rv128b.spec.ts:38:24 › paths free-1440
+RV128 free-1440 1-saved: path=/?view=flags&t=sports.nfl%2Cpolitics.elections&fav=1 label="Everything" count="Showing 10 of 34 bets" pills=["Your topics"] h1="None of today's free bets are in your topics. Here are today's free bets." sw=1440
+
+RV128 free-1440 2-everything: path=/?fav=0 label="Everything" count="Showing 10 of 34 bets" pills=[] h1="10 of 34 bets where the odds lean your way" sw=1440
+
+RV128 free-1440 3-everything-reload: path=/?fav=0 label="Everything" count="Showing 10 of 34 bets" pills=[] h1="10 of 34 bets where the odds lean your way" sw=1440
+
+RV128 free-1440 3b-nojs-clear-all-bets-fav0: path=/bets?fav=0 label="Everything" count="Showing 10 of 34 bets" pills=[] h1="10 of 34 bets where the odds lean your way" sw=1440
+
+RV128 free-1440 3c-nojs-home-fav0: path=/?fav=0 label="Everything" count="Showing 10 of 34 bets" pills=[] h1="10 of 34 bets where the odds lean your way" sw=1440
+
+RV128 free-1440 4-bare-bets-after: path=/bets?fav=1&t=sports.nfl%2Cpolitics.elections label="Everything" count="Showing 10 of 34 bets" pills=["Your topics"] h1="None of today's free bets are in your topics. Here are today's free bets." sw=1440
+
+RV128 free-1440 5-hand-url: path=/bets?t=sports.nfl,politics.elections label="2 topics" count="Showing 0 of 1 bet" pills=["NFL","Elections"] h1="Today's free bets aren't in this filter" sw=1440
+
+RV128 free-1440 6-more-filters-2: path=/bets?t=sports.nfl%2Cpolitics.elections&fav=0 label="2 topics" count="Showing 0 of 1 bet" pills=["NFL","Elections"] h1="Today's free bets aren't in this filter" sw=1440
+
+RV128 free-1440 6b-more-filters-2-reload: path=/bets?t=sports.nfl%2Cpolitics.elections&fav=0 label="2 topics" count="Showing 0 of 1 bet" pills=["NFL","Elections"] h1="Today's free bets aren't in this filter" sw=1440
+
+RV128 free-1440 7-fav-plus-nba: path=/bets?t=sports.nfl%2Cpolitics.elections%2Csports.nba&fav=0 label="3 topics" count="Showing 0 of 1 bet" pills=["NFL","Elections","NBA"] h1="Today's free bets aren't in this filter" sw=1440
+
+RV128 free-1440 8-fav-bar-nfl: path=/bets?t=sports.nfl&fav=0 label="NFL (1)" count="Showing 0 of 1 bet" pills=[] h1="Today's free bets aren't in NFL" sw=1440
+
+RV128 free-1440 8b-fav-bar-nfl-reload: path=/bets?t=sports.nfl&fav=0 label="NFL (1)" count="Showing 0 of 1 bet" pills=[] h1="Today's free bets aren't in NFL" sw=1440
+
+RV128 free-1440 9-pill-x: path=/bets label="Everything" count="Showing 10 of 34 bets" pills=[] h1="10 of 34 bets where the odds lean your way" sw=1440
+
+  9 passed (6.8m)

@@ -1,0 +1,105 @@
+[WebServer]  ⚠ Compiled with warnings in 14.0s
+[WebServer] 
+
+[WebServer] ./lib/alerts-push.ts
+[WebServer] Attempted import error: 'web-push' does not contain a default export (imported as 'webpush').
+[WebServer] 
+[WebServer] Import trace for requested module:
+[WebServer] ./lib/alerts-push.ts
+[WebServer] ./app/api/push/subscribe/route.ts
+[WebServer] 
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] responseMode: 'json' drops mid-call notifications. subscriptions/listen streams are always served over SSE regardless; other notifications emitted before a result are dropped.
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] [settings] read failed, keeping the last value: TypeError: fetch failed
+
+[WebServer] [settings] read failed, keeping the last value: TypeError: fetch failed
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] responseMode: 'json' drops mid-call notifications. subscriptions/listen streams are always served over SSE regardless; other notifications emitted before a result are dropped.
+
+
+Running 3 tests using 1 worker
+
+[1/3] [chromium] › e2e-paid/launch-f05-topics.spec.ts:53:1 › warm-up: first hits compile the routes
+[WebServer] [abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+
+[2/3] [chromium] › e2e-paid/launch-f05-topics.spec.ts:358:3 › bar label and Everything at 390px (pro): hand-picked topics read "2 topics"; Everything on a saved view shows the full list
+[chromium] › e2e-paid/launch-f05-topics.spec.ts:358:3 › bar label and Everything at 390px (pro): hand-picked topics read "2 topics"; Everything on a saved view shows the full list
+bar count at 390px: saved topics "1 bet" -> Everything "34 bets"
+
+  1) [chromium] › e2e-paid/launch-f05-topics.spec.ts:358:3 › bar label and Everything at 390px (pro): hand-picked topics read "2 topics"; Everything on a saved view shows the full list 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByTestId('bar-count')
+    Expected: "34 bets"
+    Received: "1 bet"
+    Timeout:  30000ms
+
+    Call log:
+      - Expect "toHaveText" getByTestId('bar-count') with timeout 30000ms
+      - waiting for getByTestId('bar-count')
+        63 × locator resolved to <p aria-live="polite" data-testid="bar-count" class="text-sm font-medium text-soft">1 bet</p>
+           - unexpected value "1 bet"
+
+
+      398 |     await expect(checked).toHaveText("Everything");
+      399 |     await expect(pill(page)).toHaveCount(0);
+    > 400 |     await expect(page.getByTestId("bar-count")).toHaveText(all, { timeout: 30_000 });
+          |                                                 ^
+      401 |     await expect(page.getByText(/aren't in (this filter|your topics)/)).toHaveCount(0);
+      402 |
+      403 |     // on the saved view, picking another topic in the bar leaves "Your topics": the bar and pill show the real topic
+        at /tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/rv128b/apps/web/e2e-paid/launch-f05-topics.spec.ts:400:49
+
+    Error Context: test-results/launch-f05-topics-bar-labe-c12c2-ed-view-shows-the-full-list-chromium/error-context.md
+
+
+[3/3] [chromium] › e2e-paid/launch-f05-topics.spec.ts:358:3 › bar label and Everything at 390px (free): hand-picked topics read "2 topics"; Everything on a saved view shows the full list
+[chromium] › e2e-paid/launch-f05-topics.spec.ts:358:3 › bar label and Everything at 390px (free): hand-picked topics read "2 topics"; Everything on a saved view shows the full list
+bar count at 390px: saved topics "Showing 1 of 1 bet" -> Everything "Showing 1 of 1 bet"
+
+  2) [chromium] › e2e-paid/launch-f05-topics.spec.ts:358:3 › bar label and Everything at 390px (free): hand-picked topics read "2 topics"; Everything on a saved view shows the full list 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByTestId('bar-count')
+    Expected: "Showing 10 of 34 bets"
+    Received: "Showing 1 of 1 bet"
+    Timeout:  30000ms
+
+    Call log:
+      - Expect "toHaveText" getByTestId('bar-count') with timeout 30000ms
+      - waiting for getByTestId('bar-count')
+        63 × locator resolved to <p aria-live="polite" data-testid="bar-count" class="text-sm font-medium text-soft">Showing 1 of 1 bet</p>
+           - unexpected value "Showing 1 of 1 bet"
+
+
+      398 |     await expect(checked).toHaveText("Everything");
+      399 |     await expect(pill(page)).toHaveCount(0);
+    > 400 |     await expect(page.getByTestId("bar-count")).toHaveText(all, { timeout: 30_000 });
+          |                                                 ^
+      401 |     await expect(page.getByText(/aren't in (this filter|your topics)/)).toHaveCount(0);
+      402 |
+      403 |     // on the saved view, picking another topic in the bar leaves "Your topics": the bar and pill show the real topic
+        at /tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/rv128b/apps/web/e2e-paid/launch-f05-topics.spec.ts:400:49
+
+    Error Context: test-results/launch-f05-topics-bar-labe-9f753-ed-view-shows-the-full-list-chromium/error-context.md
+
+
+  2 failed
+    [chromium] › e2e-paid/launch-f05-topics.spec.ts:358:3 › bar label and Everything at 390px (pro): hand-picked topics read "2 topics"; Everything on a saved view shows the full list 
+    [chromium] › e2e-paid/launch-f05-topics.spec.ts:358:3 › bar label and Everything at 390px (free): hand-picked topics read "2 topics"; Everything on a saved view shows the full list 
+  1 passed (2.5m)
