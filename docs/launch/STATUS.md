@@ -88,9 +88,12 @@ Problems:
 - ~~[nit] Combo leg line says "pays 1.00x" for a 0.999 price; after fees it is under 1x (T-wt3i)~~ fixed by #138
 - ~~[nit] 375/360: larger gap above the "combo checker." line from its tap area (T-wt3i)~~ fixed by #138
 
-- [should-fix] Premium /combos page jumps on load: CLS 0.46 at 390, 0.12 at 1440; the list loads client-side with no reserved height (T-wt3j)
+- ~~[should-fix] Premium /combos page jumps on load: CLS 0.46 at 390, 0.12 at 1440; the list loads client-side with no reserved height (T-wt3j)~~ fixed by #139 (normal loads 0/20 jump; switches instant)
+- [should-fix] Premium /combos still jumps (CLS 0.55 at 390, 0.12 at 1440) when the streamed list chunk arrives after first paint: the list sits in a Suspense boundary streamed after `<footer>` (T-wt3k)
+- [should-fix] Back from /check to /bets at 390 jumps 0.55 in 3 of 4 tries; same late-streamed-boundary signature (T-wt3l)
 
 ## Found in review, outside a lane
+- #139 merged at fb982c1 (Nov 24), r2 PASS at 88d4a45: all four payout lists built on the server for unpaused Premium only (no leaks for signed-out/Free/Pro/paused), switches instant with no fetch, lists match /api/combos. Fallback 60svh jump when the store can't load accepted as a nit. Evidence: review/139/, review/139-r2/.
 - WT2 re-walk on 072e152 (Nov 24): **WT2 list empty.** Signup → onboarding → tour → Home/Markets/Settings/limits → upgrade (Pro, Premium), 390 and 1440; max CLS 0.0095, disclaimer everywhere, no cents, no personalized picks. React #418: 0 in 352 loads at 1–3 parallel sessions; about 3–4% at 8 parallel sessions against one local `next start` (whole-document re-render, /settings and /signup; cause not found; every run ends correct). Logged as known; watch prod runtime errors. Evidence: review/wt2-final/ (h418 HTML captures left in scratch).
 - #133 merged at 072e152 (Nov 24), r4 PASS at b0f76a9 (onboarding 36/36, hidden-tab 14/14, error line 0 overflow and CLS 0). Known: React #418 hydration error seen in 4 of 153 logs (/signup, /settings) only under ~6 parallel sessions against one server; 0 in 120 serial loads; every run ended correct. Not caused by #133. Leaving Settings by link sends one extra identical save (harmless). Evidence: review/133-r4/.
 - #138 merged at 582e4d6 (Nov 24), PASS at 2782071. Known nits, logged not tasked: the field shows 0.8 while the card says 1% (rounding); typed "99.90" gets the range error while "0.80" is accepted; editing a filled 99.9 to 99.8 shows the 1–99% message; the 375 gap above the combo link is still slightly larger. Evidence: review/138/.

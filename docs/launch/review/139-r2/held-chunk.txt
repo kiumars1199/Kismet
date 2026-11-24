@@ -1,0 +1,15 @@
+signed in r139b-held-390-1795559916020@example.com tier=premium
+390 held-400ms /combos #0: CLS 0.5513 cards 9 ["0.5509 FOOTER y379->0 h465->0","0.0004 freshness y68->68 h44->44"]
+390 held-400ms /combos #1: CLS 0.5509 cards 9 ["0.5509 FOOTER y379->0 h465->0"]
+390 held-400ms /combos?pays=5 #0: CLS 0.0004 cards 0 ["0.0004 freshness y68->68 h44->44"]
+390 held-400ms /combos?pays=5 #1: CLS 0.0004 cards 0 ["0.0004 freshness y68->68 h44->44"]
+signed in r139b-held-375-1795559925682@example.com tier=premium
+375 held-400ms /combos #0: CLS 0.5479 cards 9 ["0.5472 FOOTER y302->0 h365->0","0.0006 freshness y68->68 h44->44"]
+375 held-400ms /combos #1: CLS 0.5472 cards 9 ["0.5472 FOOTER y302->0 h365->0"]
+375 held-400ms /combos?pays=5 #0: CLS 0.0006 cards 0 ["0.0006 freshness y68->68 h44->44"]
+375 held-400ms /combos?pays=5 #1: CLS 0.0006 cards 0 ["0.0006 freshness y68->68 h44->44"]
+signed in r139b-held-1440-1795559935264@example.com tier=premium
+1440 held-400ms /combos #0: CLS 0.1189 cards 9 ["0.1189 FOOTER y707->0 h193->0"]
+1440 held-400ms /combos #1: CLS 0.1189 cards 9 ["0.1189 FOOTER y707->0 h193->0","0.0000 KBD y23->23 h18->18"]
+1440 held-400ms /combos?pays=5 #0: CLS 0.0001 cards 0 ["0.0001 freshness y10->10 h44->44"]
+1440 held-400ms /combos?pays=5 #1: CLS 0.0001 cards 0 ["0.0001 freshness y10->10 h44->44"]

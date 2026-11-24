@@ -1,0 +1,8 @@
+run 0: chunks 14 S:0 in chunk #0 31.5ms:36454B 32.4ms:117B 32.4ms:856B 32.4ms:1577B 32.4ms:333B 32.5ms:2500B
+run 1: chunks 14 S:0 in chunk #0 19.7ms:36454B 20.6ms:117B 20.6ms:856B 20.6ms:1577B 20.6ms:333B 20.6ms:2500B
+run 2: chunks 14 S:0 in chunk #0 22.5ms:36454B 23.5ms:117B 23.6ms:856B 23.6ms:1577B 23.6ms:333B 23.6ms:2500B
+run 3: chunks 14 S:0 in chunk #0 18.5ms:36454B 19.5ms:117B 19.5ms:856B 19.6ms:1577B 19.6ms:333B 19.6ms:2500B
+run 4: chunks 14 S:0 in chunk #0 20.9ms:36454B 21.8ms:117B 21.9ms:856B 21.9ms:1577B 21.9ms:333B 21.9ms:2500B
+run 5: chunks 14 S:0 in chunk #0 18.5ms:36454B 19.5ms:117B 19.5ms:856B 19.5ms:1577B 19.5ms:333B 19.5ms:2500B
+run 6: chunks 14 S:0 in chunk #0 20.8ms:36454B 21.8ms:117B 21.8ms:856B 21.8ms:1577B 21.8ms:333B 21.8ms:2500B
+run 7: chunks 14 S:0 in chunk #0 18.0ms:36454B 19.1ms:117B 19.1ms:856B 19.1ms:1577B 19.1ms:333B 19.1ms:2500B

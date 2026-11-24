@@ -1,0 +1,4 @@
+signed in r139b-rep2-false-1795560326384@example.com tier=premium
+390 route=false: loads 20 over-0.02 0 []
+signed in r139b-rep2-true-1795560354554@example.com tier=premium
+390 route=true: loads 20 over-0.02 2 ["10:0.5513","18:0.5513"]

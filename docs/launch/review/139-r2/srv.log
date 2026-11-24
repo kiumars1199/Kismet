@@ -1,0 +1,9 @@
+   ▲ Next.js 15.5.29
+   - Local:        http://localhost:4241
+   - Network:      http://192.0.2.2:4241
+
+ ✓ Starting...
+ ✓ Ready in 421ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+responseMode: 'json' drops mid-call notifications. subscriptions/listen streams are always served over SSE regardless; other notifications emitted before a result are dropped.
+[abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)

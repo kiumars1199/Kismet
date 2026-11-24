@@ -1,0 +1,23 @@
+#139 (T-wt3j) round 2, head 88d4a45c3aaf157b5107c19a66961d3f728848ae (merges final 072e152): PASS with notes
+
+1 Slow switch (/api/combos +1200 ms) at 390/375/1440: instant, 0 API requests, no blank gap, CLS 0, ?pays synced. switch-cls.txt
+2 Load/reload/?pays=5: 0.0001-0.0006 normally. See finding 1 for late-chunk case.
+3 Back/forward: list and ?pays kept, 0 requests.
+4 Leak: signed-out/Free/Pro/paused have 0 list data in HTML, RSC, nav RSC. Paused gets 423. leak.txt
+5 Parity: server lists equal /api/combos for 2/3/5/10. parity.txt
+6 Tray, Build this combo, checker OK. tray-check.txt
+7 Fixture HTML 58 kB raw / 12.6 kB gzip; slow 4G 14.5 kB vs Pro 11.2 kB, first paint 230-430 ms same as Pro. 149 kB not reproducible with fixtures; ~25-30 kB gzip estimate, acceptable.
+8 Disclaimer, no cents, no personalized copy, no page errors.
+
+Findings
+1 [should-fix] Premium /combos load jumps when the list chunk arrives after first paint:
+  CLS 0.55 at 390/375, 0.12 at 1440, footer moves y379->0. Every time with proxy holding S:0 for 400 ms
+  (held-chunk.txt, held-390-before-list.png shows footer right under intro). Natural: 0/20 without route
+  interception, 2/20 with a non-matching p.route (repeat-route.txt). Hypothesis: React outlines the large
+  list into a Suspense boundary (<template id="B:0"> before <footer>, content in S:0 later); pays=3/5 (empty)
+  render inline. Suspense wrapper pre-existing; not a round-2 regression; round 1 did not test late arrival.
+  Larger prod HTML makes it more likely. Accept: first combo card byte offset < "<footer" in raw HTML, and
+  held-proxy run <= 0.02. Possible fix: remove/restructure <Suspense> around ComboBrowser or reserve height.
+2 [should-fix, pre-existing, not this PR] Back from /check to /bets at 390: CLS 0.55 in 3/4 tries, same
+  signature (loading.tsx B:0). bets-back.txt
+3 [nit, known] fallback "Loading combos" 60svh jump (accepted).

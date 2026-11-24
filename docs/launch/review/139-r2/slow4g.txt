@@ -1,0 +1,32 @@
+signed in r139b-4g-premium-390-1795559181916@example.com tier=premium
+premium 390 slow4G /combos #0: docTransfer 14510 B, allTransfer 49886 B, FP 416 FCP 416 LCP 416 load 500 ms, CLS 0 []
+premium 390 slow4G /combos #1: docTransfer 14504 B, allTransfer 40502 B, FP 432 FCP 432 LCP 432 load 461 ms, CLS 0 []
+premium 390 slow4G /combos?pays=5 #2: docTransfer 12593 B, allTransfer 78979 B, FP 228 FCP 228 LCP 228 load 350 ms, CLS 0 []
+premium 390 slow4G /combos #3: docTransfer 14508 B, allTransfer 40506 B, FP 268 FCP 268 LCP 268 load 403 ms, CLS 0 []
+premium 390 slow4G /combos #4: docTransfer 14504 B, allTransfer 40498 B, FP 276 FCP 276 LCP 276 load 439 ms, CLS 0 []
+premium 390 slow4G /combos?pays=5 #5: docTransfer 12603 B, allTransfer 47196 B, FP 260 FCP 260 LCP 260 load 421 ms, CLS 0 []
+premium 390 CLS max 0 over 6
+signed in r139b-4g-premium-375-1795559204801@example.com tier=premium
+premium 375 slow4G /combos #0: docTransfer 14501 B, allTransfer 76566 B, FP 316 FCP 316 LCP 316 load 522 ms, CLS 0 []
+premium 375 slow4G /combos #1: docTransfer 14505 B, allTransfer 40500 B, FP 284 FCP 284 LCP 284 load 456 ms, CLS 0 []
+premium 375 slow4G /combos?pays=5 #2: docTransfer 12613 B, allTransfer 78992 B, FP 268 FCP 268 LCP 268 load 425 ms, CLS 0 []
+premium 375 slow4G /combos #3: docTransfer 14510 B, allTransfer 40502 B, FP 284 FCP 284 LCP 284 load 461 ms, CLS 0 []
+premium 375 slow4G /combos #4: docTransfer 14507 B, allTransfer 49101 B, FP 280 FCP 280 LCP 280 load 448 ms, CLS 0 []
+premium 375 slow4G /combos?pays=5 #5: docTransfer 12595 B, allTransfer 47192 B, FP 236 FCP 236 LCP 236 load 427 ms, CLS 0 []
+premium 375 CLS max 0 over 6
+signed in r139b-4g-pro-390-1795559227789@example.com tier=pro
+pro 390 slow4G /combos #0: docTransfer 11180 B, allTransfer 113618 B, FP 260 FCP 260 LCP 260 load 491 ms, CLS 0 []
+pro 390 slow4G /combos #1: docTransfer 11188 B, allTransfer 45761 B, FP 232 FCP 232 LCP 232 load 429 ms, CLS 0 []
+pro 390 slow4G /combos?pays=5 #2: docTransfer 11202 B, allTransfer 45782 B, FP 256 FCP 256 LCP 256 load 418 ms, CLS 0 []
+pro 390 slow4G /combos #3: docTransfer 11173 B, allTransfer 45754 B, FP 380 FCP 380 LCP 380 load 372 ms, CLS 0 []
+pro 390 slow4G /combos #4: docTransfer 11195 B, allTransfer 45770 B, FP 400 FCP 400 LCP 400 load 397 ms, CLS 0 []
+pro 390 slow4G /combos?pays=5 #5: docTransfer 11192 B, allTransfer 45769 B, FP 288 FCP 288 LCP 288 load 452 ms, CLS 0 []
+pro 390 CLS max 0 over 6
+signed in r139b-4g-pro-375-1795559250568@example.com tier=pro
+pro 375 slow4G /combos #0: docTransfer 11189 B, allTransfer 86471 B, FP 388 FCP 388 LCP 388 load 460 ms, CLS 0 []
+pro 375 slow4G /combos #1: docTransfer 11175 B, allTransfer 45753 B, FP 432 FCP 432 LCP 432 load 416 ms, CLS 0 []
+pro 375 slow4G /combos?pays=5 #2: docTransfer 11207 B, allTransfer 45781 B, FP 420 FCP 420 LCP 420 load 449 ms, CLS 0 []
+pro 375 slow4G /combos #3: docTransfer 11168 B, allTransfer 45740 B, FP 232 FCP 232 LCP 232 load 395 ms, CLS 0 []
+pro 375 slow4G /combos #4: docTransfer 11180 B, allTransfer 45756 B, FP 392 FCP 392 LCP 392 load 391 ms, CLS 0 []
+pro 375 slow4G /combos?pays=5 #5: docTransfer 11211 B, allTransfer 45786 B, FP 232 FCP 232 LCP 232 load 374 ms, CLS 0 []
+pro 375 CLS max 0 over 6

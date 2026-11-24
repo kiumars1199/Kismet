@@ -1,0 +1,5 @@
+signed in r139b-bb-1795559979052@example.com tier=premium
+#0 /bets goto CLS 0.0004 ["0.0004 freshness y68->68 h44->44"] | back to /bets CLS 0 scrollY 751 []
+#1 /bets goto CLS 0.0004 ["0.0004 freshness y68->68 h44->44"] | back to /bets CLS 0.5509 scrollY 751 ["0.5509 FOOTER y379->0 h465->0"]
+#2 /bets goto CLS 0.0004 ["0.0004 freshness y68->68 h44->44"] | back to /bets CLS 0.5509 scrollY 751 ["0.5509 FOOTER y379->0 h465->0"]
+#3 /bets goto CLS 0.0004 ["0.0004 freshness y68->68 h44->44"] | back to /bets CLS 0.5509 scrollY 751 ["0.5509 FOOTER y379->0 h465->0"]

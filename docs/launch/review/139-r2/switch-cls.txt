@@ -1,0 +1,57 @@
+signed in r139b-390-1795558979979@example.com tier=premium
+390 load /combos: cls 0.5509 ["0.5509 FOOTER y379->0 h465->0"] {"url":"/combos","pressed":"Pays 2x+","cards":9,"empty":null,"loading":false,"docH":4374} apiReq 0 disc true cents false hs false
+390 load RELOAD: cls 0.0004 ["0.0004 freshness y68->68 h44->44"] {"url":"/combos","pressed":"Pays 2x+","cards":9,"empty":null,"loading":false,"docH":4374} apiReq 0 disc true cents false hs false
+390 load /combos?pays=5: cls 0 [] {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or mo","loading":false,"docH":938} apiReq 0 disc true cents false hs false
+390 load RELOAD: cls 0.0004 ["0.0004 freshness y68->68 h44->44"] {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or mo","loading":false,"docH":938} apiReq 0 disc true cents false hs false
+390 load /combos?pays=2: cls 0.5513 ["0.5509 FOOTER y379->0 h465->0","0.0004 freshness y68->68 h44->44"] {"url":"/combos?pays=2","pressed":"Pays 2x+","cards":9,"empty":null,"loading":false,"docH":4374} apiReq 0 disc true cents false hs false
+  390 tap 3x+: mid {"url":"/combos?pays=3","pressed":"Pays 3x+","cards":0,"empty":"No combo pays 3x or mo","loading":false,"docH":938} end {"url":"/combos?pays=3","pressed":"Pays 3x+","cards":0,"empty":"No combo pays 3x or mo","loading":false,"docH":938} apiReq 0 nonInputCLS 0 []
+  390 tap 5x+: mid {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or mo","loading":false,"docH":938} end {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or mo","loading":false,"docH":938} apiReq 0 nonInputCLS 0 []
+  390 tap 10x+: mid {"url":"/combos?pays=10","pressed":"Pays 10x+","cards":0,"empty":"No combo pays 10x or m","loading":false,"docH":938} end {"url":"/combos?pays=10","pressed":"Pays 10x+","cards":0,"empty":"No combo pays 10x or m","loading":false,"docH":938} apiReq 0 nonInputCLS 0 []
+  390 tap 2x+: mid {"url":"/combos?pays=2","pressed":"Pays 2x+","cards":9,"empty":null,"loading":false,"docH":4374} end {"url":"/combos?pays=2","pressed":"Pays 2x+","cards":9,"empty":null,"loading":false,"docH":4374} apiReq 0 nonInputCLS 0 []
+  390 tap 5x+: mid {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or mo","loading":false,"docH":938} end {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or mo","loading":false,"docH":938} apiReq 0 nonInputCLS 0 []
+  390 tap 2x+: mid {"url":"/combos?pays=2","pressed":"Pays 2x+","cards":9,"empty":null,"loading":false,"docH":4374} end {"url":"/combos?pays=2","pressed":"Pays 2x+","cards":9,"empty":null,"loading":false,"docH":4374} apiReq 0 nonInputCLS 0 []
+  390 after switches: {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or mo","loading":false,"docH":938} history.length 9
+  390 back: {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or mo","loading":false,"docH":938} cls 0.0004 ["0.0004 freshness y68->68 h44->44"] apiReq 0
+  390 back: {"url":"/bets","cards":0,"empty":null,"loading":false,"docH":7973} cls 0.5509 ["0.5509 FOOTER y379->0 h465->0"] apiReq 0
+  390 forward: {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or mo","loading":false,"docH":938} cls 0.0004 ["0.0004 freshness y68->68 h44->44"] apiReq 0
+  390 forward: {"url":"/check","cards":0,"empty":null,"loading":false,"docH":931} cls 0.0004 ["0.0004 freshness y68->68 h44->44"] apiReq 0
+  390 back: {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or mo","loading":false,"docH":938} cls 0 [] apiReq 0
+  390 errors []
+signed in r139b-375-1795559026197@example.com tier=premium
+375 load /combos: cls 0.0006 ["0.0006 freshness y68->68 h44->44"] {"url":"/combos","pressed":"Pays 2x+","cards":9,"empty":null,"loading":false,"docH":4635} apiReq 0 disc true cents false hs false
+375 load RELOAD: cls 0.0006 ["0.0006 freshness y68->68 h44->44"] {"url":"/combos","pressed":"Pays 2x+","cards":9,"empty":null,"loading":false,"docH":4635} apiReq 0 disc true cents false hs false
+375 load /combos?pays=5: cls 0.0006 ["0.0006 freshness y68->68 h44->44"] {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or mo","loading":false,"docH":943} apiReq 0 disc true cents false hs false
+375 load RELOAD: cls 0.0006 ["0.0006 freshness y68->68 h44->44"] {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or mo","loading":false,"docH":943} apiReq 0 disc true cents false hs false
+375 load /combos?pays=2: cls 0.0006 ["0.0006 freshness y68->68 h44->44"] {"url":"/combos?pays=2","pressed":"Pays 2x+","cards":9,"empty":null,"loading":false,"docH":4635} apiReq 0 disc true cents false hs false
+  375 tap 3x+: mid {"url":"/combos?pays=3","pressed":"Pays 3x+","cards":0,"empty":"No combo pays 3x or mo","loading":false,"docH":943} end {"url":"/combos?pays=3","pressed":"Pays 3x+","cards":0,"empty":"No combo pays 3x or mo","loading":false,"docH":943} apiReq 0 nonInputCLS 0 []
+  375 tap 5x+: mid {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or mo","loading":false,"docH":943} end {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or mo","loading":false,"docH":943} apiReq 0 nonInputCLS 0 []
+  375 tap 10x+: mid {"url":"/combos?pays=10","pressed":"Pays 10x+","cards":0,"empty":"No combo pays 10x or m","loading":false,"docH":943} end {"url":"/combos?pays=10","pressed":"Pays 10x+","cards":0,"empty":"No combo pays 10x or m","loading":false,"docH":943} apiReq 0 nonInputCLS 0 []
+  375 tap 2x+: mid {"url":"/combos?pays=2","pressed":"Pays 2x+","cards":9,"empty":null,"loading":false,"docH":4635} end {"url":"/combos?pays=2","pressed":"Pays 2x+","cards":9,"empty":null,"loading":false,"docH":4635} apiReq 0 nonInputCLS 0 []
+  375 tap 5x+: mid {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or mo","loading":false,"docH":943} end {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or mo","loading":false,"docH":943} apiReq 0 nonInputCLS 0 []
+  375 tap 2x+: mid {"url":"/combos?pays=2","pressed":"Pays 2x+","cards":9,"empty":null,"loading":false,"docH":4635} end {"url":"/combos?pays=2","pressed":"Pays 2x+","cards":9,"empty":null,"loading":false,"docH":4635} apiReq 0 nonInputCLS 0 []
+  375 after switches: {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or mo","loading":false,"docH":943} history.length 9
+  375 back: {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or mo","loading":false,"docH":943} cls 0.0006 ["0.0006 freshness y68->68 h44->44"] apiReq 0
+  375 back: {"url":"/bets","cards":0,"empty":null,"loading":false,"docH":8299} cls 0.6972 ["0.6972 FOOTER y202->0 h465->0"] apiReq 0
+  375 forward: {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or mo","loading":false,"docH":943} cls 0.0006 ["0.0006 freshness y68->68 h44->44"] apiReq 0
+  375 forward: {"url":"/check","cards":0,"empty":null,"loading":false,"docH":915} cls 0.0006 ["0.0006 freshness y68->68 h44->44"] apiReq 0
+  375 back: {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or mo","loading":false,"docH":943} cls 0.0006 ["0.0006 freshness y68->68 h44->44"] apiReq 0
+  375 errors []
+signed in r139b-1440-1795559069576@example.com tier=premium
+1440 load /combos: cls 0.0001 ["0.0001 freshness y10->10 h44->44"] {"url":"/combos","pressed":"Pays 2x+","cards":9,"empty":null,"loading":false,"docH":1698} apiReq 0 disc true cents false hs false
+1440 load RELOAD: cls 0.0001 ["0.0001 freshness y10->10 h44->44"] {"url":"/combos","pressed":"Pays 2x+","cards":9,"empty":null,"loading":false,"docH":1698} apiReq 0 disc true cents false hs false
+1440 load /combos?pays=5: cls 0.0001 ["0.0001 freshness y10->10 h44->44"] {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or mo","loading":false,"docH":900} apiReq 0 disc true cents false hs false
+1440 load RELOAD: cls 0.0001 ["0.0001 freshness y10->10 h44->44"] {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or mo","loading":false,"docH":900} apiReq 0 disc true cents false hs false
+1440 load /combos?pays=2: cls 0.0001 ["0.0001 freshness y10->10 h44->44"] {"url":"/combos?pays=2","pressed":"Pays 2x+","cards":9,"empty":null,"loading":false,"docH":1698} apiReq 0 disc true cents false hs false
+  1440 tap 3x+: mid {"url":"/combos?pays=3","pressed":"Pays 3x+","cards":0,"empty":"No combo pays 3x or mo","loading":false,"docH":900} end {"url":"/combos?pays=3","pressed":"Pays 3x+","cards":0,"empty":"No combo pays 3x or mo","loading":false,"docH":900} apiReq 0 nonInputCLS 0 []
+  1440 tap 5x+: mid {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or mo","loading":false,"docH":900} end {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or mo","loading":false,"docH":900} apiReq 0 nonInputCLS 0 []
+  1440 tap 10x+: mid {"url":"/combos?pays=10","pressed":"Pays 10x+","cards":0,"empty":"No combo pays 10x or m","loading":false,"docH":900} end {"url":"/combos?pays=10","pressed":"Pays 10x+","cards":0,"empty":"No combo pays 10x or m","loading":false,"docH":900} apiReq 0 nonInputCLS 0 []
+  1440 tap 2x+: mid {"url":"/combos?pays=2","pressed":"Pays 2x+","cards":9,"empty":null,"loading":false,"docH":1698} end {"url":"/combos?pays=2","pressed":"Pays 2x+","cards":9,"empty":null,"loading":false,"docH":1698} apiReq 0 nonInputCLS 0 []
+  1440 tap 5x+: mid {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or mo","loading":false,"docH":900} end {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or mo","loading":false,"docH":900} apiReq 0 nonInputCLS 0 []
+  1440 tap 2x+: mid {"url":"/combos?pays=2","pressed":"Pays 2x+","cards":9,"empty":null,"loading":false,"docH":1698} end {"url":"/combos?pays=2","pressed":"Pays 2x+","cards":9,"empty":null,"loading":false,"docH":1698} apiReq 0 nonInputCLS 0 []
+  1440 after switches: {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or mo","loading":false,"docH":900} history.length 9
+  1440 back: {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or mo","loading":false,"docH":900} cls 0.0001 ["0.0001 freshness y10->10 h44->44"] apiReq 0
+  1440 back: {"url":"/bets","cards":0,"empty":null,"loading":false,"docH":3139} cls 0.0256 ["0.0001 freshness y10->10 h44->44","0.0256 FOOTER y877->0 h23->0"] apiReq 0
+  1440 forward: {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or mo","loading":false,"docH":900} cls 0.0001 ["0.0001 freshness y10->10 h44->44"] apiReq 0
+  1440 forward: {"url":"/check","cards":0,"empty":null,"loading":false,"docH":900} cls 0.0001 ["0.0001 freshness y10->10 h44->44"] apiReq 0
+  1440 back: {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or mo","loading":false,"docH":900} cls 0.0001 ["0.0001 freshness y10->10 h44->44"] apiReq 0
+  1440 errors []

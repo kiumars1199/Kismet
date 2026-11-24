@@ -1,0 +1,11 @@
+PR #139 T-wt3j 1561f2edab8e2fa4c6dd92e166eb4a96fa85fa7e : PASS with notes
+Local prod build (E2E mock, port 4240, socket confirmed), stopped and worktree removed. vitest 471/471 (61 files), tsc clean. #133 (final 072e152) touches no combos file.
+cls.txt : Premium /combos load/reload/?pays=3/?pays=2 at 390 0.0004, 375 0.0006, 1440 0.0001; switches 0 with fast API; slow-API (900 ms) switches 0.4396 @390, 0.2834 @375, 0.1189 @1440
+leak.txt : raw HTML + RSC (plain and nav) for signed-out/free/pro/paused: 0 questions, 0 market ids, 0 card markup, no "groups"; premium HTML has 9 cards/7 questions. Paused premium: pause screen, /api/combos 423.
+parity.txt : SSR list == /api/combos for pays 2/3/5/10 (9/0/0/0, identical order and pays)
+tray-check.txt : Build this combo -> tray (2.0x, 8 in 10 / 2.6x, 7–8 in 10) -> /check/combo check: 78% 2.01x / 73% 2.59x, CLS 0 @390/1440
+gap.txt + gap-390-mid-switch.png / gap-390-after-switch.png : blank area while switching with slow API
+Notes:
+1 [should-fix] Payout switch on a slow response: held list is invisible with no loading cue (blank screen under the buttons for the whole fetch), then the collapse/expand lands >500 ms after the tap and counts as CLS (0.12–0.44). Fast local fetch = 0. Expand direction (3x->2x) already shifted before the PR; the collapse direction is new. Suggest building all four payout lists on the server (small) so switches need no fetch, or a visible "Loading combos…" over the held space.
+2 [nit] fallback path (store can't load) still goes 60svh placeholder -> full list (~4,400 px at 390), so it would still shift; rare, not exercised.
+Held list: visibility hidden -> not in aria snapshot, buttons not focusable, taps hit the container (DIV). Disclaimer on every page, no cents, no personalized copy, no page errors.
