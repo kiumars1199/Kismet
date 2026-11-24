@@ -1,0 +1,35 @@
+360x640 as shipped (longest fixture title, 80 ch): {"text":"Sign up to see Kismet's verdict on Will the highest … 56-57°F on November 17?","lines":2,"btnBottom":574,"limit":583,"margin":9,"disc":true,"hscroll":false}
+360x640 WHOLE title, 3-line clamp (80 ch): lines 3, clipped false, Create account bottom 592 vs limit 583 (margin -9)
+360x640 WHOLE title, 3-line clamp (54 ch): lines 2, clipped false, Create account bottom 574 vs limit 583 (margin 9)
+360x640 WHOLE title, 3-line clamp (121 ch): lines 3, clipped true, Create account bottom 592 vs limit 583 (margin -9)
+360x640 WHOLE title, 3-line clamp (125 ch): lines 3, clipped true, Create account bottom 592 vs limit 583 (margin -9)
+375x667 as shipped (longest fixture title, 80 ch): {"text":"Sign up to see Kismet's verdict on Will the highest … 56-57°F on November 17?","lines":2,"btnBottom":574,"limit":610,"margin":36,"disc":true,"hscroll":false}
+375x667 WHOLE title, 3-line clamp (80 ch): lines 3, clipped false, Create account bottom 592 vs limit 610 (margin 18)
+375x667 WHOLE title, 3-line clamp (54 ch): lines 2, clipped false, Create account bottom 574 vs limit 610 (margin 36)
+375x667 WHOLE title, 3-line clamp (121 ch): lines 3, clipped false, Create account bottom 592 vs limit 610 (margin 18)
+375x667 WHOLE title, 3-line clamp (125 ch): lines 3, clipped true, Create account bottom 592 vs limit 610 (margin 18)
+390x844 as shipped (longest fixture title, 80 ch): {"text":"Sign up to see Kismet's verdict on Will the highest … 56-57°F on November 17?","lines":2,"btnBottom":598,"limit":787,"margin":189,"disc":true,"hscroll":false}
+390x844 WHOLE title, 3-line clamp (80 ch): lines 3, clipped false, Create account bottom 616 vs limit 787 (margin 171)
+390x844 WHOLE title, 3-line clamp (54 ch): lines 2, clipped false, Create account bottom 598 vs limit 787 (margin 189)
+390x844 WHOLE title, 3-line clamp (121 ch): lines 3, clipped false, Create account bottom 616 vs limit 787 (margin 171)
+390x844 WHOLE title, 3-line clamp (125 ch): lines 3, clipped true, Create account bottom 616 vs limit 787 (margin 171)
+1440x900 as shipped (longest fixture title, 80 ch): {"text":"Sign up to see Kismet's verdict on Will the highest temperature in New … 56-57°F on November 17?","lines":2,"btnBottom":886,"limit":900,"margin":15,"disc":true,"hscroll":false}
+1440x900 WHOLE title, 3-line clamp (80 ch): lines 3, clipped false, Create account bottom 906 vs limit 900 (margin -6)
+1440x900 WHOLE title, 3-line clamp (54 ch): lines 2, clipped false, Create account bottom 886 vs limit 900 (margin 15)
+1440x900 WHOLE title, 3-line clamp (121 ch): lines 3, clipped false, Create account bottom 906 vs limit 900 (margin -6)
+1440x900 WHOLE title, 3-line clamp (125 ch): lines 3, clipped false, Create account bottom 906 vs limit 900 (margin -6)
+320x568 as shipped (longest fixture title, 80 ch): {"text":"Sign up to see Kismet's verdict on Will the highest … 56-57°F on November 17?","lines":2,"btnBottom":574,"limit":511,"margin":-63,"disc":true,"hscroll":false}
+320x568 WHOLE title, 3-line clamp (80 ch): lines 3, clipped false, Create account bottom 592 vs limit 511 (margin -81)
+320x568 WHOLE title, 3-line clamp (54 ch): lines 3, clipped false, Create account bottom 592 vs limit 511 (margin -81)
+320x568 WHOLE title, 3-line clamp (121 ch): lines 3, clipped true, Create account bottom 592 vs limit 511 (margin -81)
+320x568 WHOLE title, 3-line clamp (125 ch): lines 3, clipped true, Create account bottom 592 vs limit 511 (margin -81)
+real flags title length: p50 34 p90 64 p99 80 max 121; >80 ch: 23/2778
+360x640 lede "Sign up to see Kismet's verdict on": 2536/2778 real flag titles fit WHOLE in 2 lines (91.3%)
+360x640 lede "Kismet's verdict on:": 2738/2778 real flag titles fit WHOLE in 2 lines (98.6%)
+360x640 lede "Sign up to see the verdict on:": 2560/2778 real flag titles fit WHOLE in 2 lines (92.2%)
+375x667 lede "Sign up to see Kismet's verdict on": 2585/2778 real flag titles fit WHOLE in 2 lines (93.1%)
+375x667 lede "Kismet's verdict on:": 2760/2778 real flag titles fit WHOLE in 2 lines (99.4%)
+375x667 lede "Sign up to see the verdict on:": 2653/2778 real flag titles fit WHOLE in 2 lines (95.5%)
+1440x900 lede "Sign up to see Kismet's verdict on": 2661/2778 real flag titles fit WHOLE in 2 lines (95.8%)
+1440x900 lede "Kismet's verdict on:": 2772/2778 real flag titles fit WHOLE in 2 lines (99.8%)
+1440x900 lede "Sign up to see the verdict on:": 2756/2778 real flag titles fit WHOLE in 2 lines (99.2%)

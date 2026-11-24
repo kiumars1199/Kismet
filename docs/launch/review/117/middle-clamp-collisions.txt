@@ -1,0 +1,55 @@
+fixtures/flags.json max 52: 151 titles, 103 shortened, 25 shortened lines shared by >1 different bet (65 bets)
+   "RCD Mallorca vs. FC Barcelona: … 1st Half O/U 0.5" <= "RCD Mallorca vs. FC Barcelona: RCD Mallorca 1st Half O/U 0.5" / "RCD Mallorca vs. FC Barcelona: FC Barcelona 1st Half O/U 0.5"
+   "Will the highest … be 31°C on November 17?" <= "Will the highest temperature in Cape Town be 31°C on November 17?" / "Will the highest temperature in Guangzhou be 31°C on November 17?" / "Will the highest temperature in Singapore be 31°C on November 17?"
+   "Will the highest … be 16°C on November 17?" <= "Will the highest temperature in Chengdu be 16°C on November 17?" / "Will the highest temperature in Chongqing be 16°C on November 17?" / "Will the highest temperature in Paris be 16°C on November 17?"
+   "Will the highest … be 28°C on November 18?" <= "Will the highest temperature in Lucknow be 28°C on November 18?" / "Will the highest temperature in Taipei be 28°C on November 18?" / "Will the highest temperature in Hong Kong be 28°C on November 18?"
+fixtures/flags.json max 64: 151 titles, 48 shortened, 2 shortened lines shared by >1 different bet (4 bets)
+   "Will the highest temperature in … be 25°C on November 18?" <= "Will the highest temperature in Guangzhou be 25°C on November 18?" / "Will the highest temperature in Buenos Aires be 25°C on November 18?"
+   "Will the highest temperature in … be 31°C on November 17?" <= "Will the highest temperature in Guangzhou be 31°C on November 17?" / "Will the highest temperature in Singapore be 31°C on November 17?"
+   longest 80: Will the highest temperature in New York City be between 56-57°F on November 17?
+     52: Will the highest … 56-57°F on November 17?
+     64: Will the highest temperature in New … 56-57°F on November 17?
+   longest 80: Will the highest temperature in New York City be between 64-65°F on November 18?
+     52: Will the highest … 64-65°F on November 18?
+     64: Will the highest temperature in New … 64-65°F on November 18?
+   longest 80: Will the highest temperature in San Francisco be between 60-61°F on November 17?
+     52: Will the highest … 60-61°F on November 17?
+     64: Will the highest temperature in San … 60-61°F on November 17?
+output/flags.json max 52: 2769 titles, 634 shortened, 129 shortened lines shared by >1 different bet (374 bets)
+   "Will the highest … be 6°C on November 18?" <= "Will the highest temperature in Helsinki be 6°C on November 18?" / "Will the highest temperature in Beijing be 6°C on November 18?"
+   "Will the highest … 64-65°F on November 18?" <= "Will the highest temperature in New York City be between 64-65°F on November 18?" / "Will the highest temperature in Atlanta be between 64-65°F on November 18?"
+   "Will the highest … be 19°C on November 18?" <= "Will the highest temperature in Wellington be 19°C on November 18?" / "Will the highest temperature in Tokyo be 19°C on November 18?" / "Will the highest temperature in Madrid be 19°C on November 18?"
+   "Will the highest … be 7°C on November 18?" <= "Will the highest temperature in Beijing be 7°C on November 18?" / "Will the highest temperature in Helsinki be 7°C on November 18?"
+output/flags.json max 64: 2769 titles, 270 shortened, 17 shortened lines shared by >1 different bet (40 bets)
+   "Will the highest temperature in … 72-73°F on November 18?" <= "Will the highest temperature in Austin be between 72-73°F on November 18?" / "Will the highest temperature in Houston be between 72-73°F on November 18?" / "Will the highest temperature in Dallas be between 72-73°F on November 18?"
+   "Will the highest temperature in … be 25°C on November 18?" <= "Will the highest temperature in Guangzhou be 25°C on November 18?" / "Will the highest temperature in Buenos Aires be 25°C on November 18?"
+   "Will the highest temperature in … be 26°C on November 18?" <= "Will the highest temperature in Buenos Aires be 26°C on November 18?" / "Will the highest temperature in Guangzhou be 26°C on November 18?"
+   "Will the highest temperature in … or higher on November 17?" <= "Will the highest temperature in Mexico City be 22°C or higher on November 17?" / "Will the highest temperature in Panama City be 34°C or higher on November 17?"
+   longest 121: Will Jean-Michel Basquiat's “Untitled (Leonardo and His Five Grotesque Heads)” sell for between $40m and $50m at auction?
+     52: Will Jean-Michel Basquiat's … and $50m at auction?
+     64: Will Jean-Michel Basquiat's … $40m and $50m at auction?
+   longest 121: Will Jean-Michel Basquiat's “Untitled (Leonardo and His Five Grotesque Heads)” sell for between $50m and $60m at auction?
+     52: Will Jean-Michel Basquiat's … and $60m at auction?
+     64: Will Jean-Michel Basquiat's … $50m and $60m at auction?
+   longest 101: Will "The Hunger Games: Sunrise on the Reaping" score at least 70 on the Rotten Tomatoes Tomatometer?
+     52: Will "The Hunger Games: … Tomatoes Tomatometer?
+     64: Will "The Hunger Games: Sunrise … Rotten Tomatoes Tomatometer?
+output/markets.json max 52: 13658 titles, 3796 shortened, 465 shortened lines shared by >1 different bet (1920 bets)
+   "Exact Score: Arsenal FC 1 - … Borussia 09 Dortmund?" <= "Exact Score: Arsenal FC 1 - 0 BV Borussia 09 Dortmund?" / "Exact Score: Arsenal FC 1 - 1 BV Borussia 09 Dortmund?"
+   "Exact Score: Arsenal FC 2 - … Borussia 09 Dortmund?" <= "Exact Score: Arsenal FC 2 - 0 BV Borussia 09 Dortmund?" / "Exact Score: Arsenal FC 2 - 1 BV Borussia 09 Dortmund?"
+   "Exact Score: Arsenal FC 3 - … Borussia 09 Dortmund?" <= "Exact Score: Arsenal FC 3 - 0 BV Borussia 09 Dortmund?" / "Exact Score: Arsenal FC 3 - 1 BV Borussia 09 Dortmund?" / "Exact Score: Arsenal FC 3 - 4 BV Borussia 09 Dortmund?"
+   "Exact Score: Hull City AFC 0 - … & Hove Albion FC?" <= "Exact Score: Hull City AFC 0 - 0 Brighton & Hove Albion FC?" / "Exact Score: Hull City AFC 0 - 1 Brighton & Hove Albion FC?" / "Exact Score: Hull City AFC 0 - 2 Brighton & Hove Albion FC?"
+output/markets.json max 64: 13658 titles, 1744 shortened, 107 shortened lines shared by >1 different bet (503 bets)
+   "Exact Score: Borussia … - 1 BV Borussia 09 Dortmund?" <= "Exact Score: Borussia Mönchengladbach 0 - 1 BV Borussia 09 Dortmund?" / "Exact Score: Borussia Mönchengladbach 1 - 1 BV Borussia 09 Dortmund?" / "Exact Score: Borussia Mönchengladbach 2 - 1 BV Borussia 09 Dortmund?"
+   "Exact Score: Borussia … - 2 BV Borussia 09 Dortmund?" <= "Exact Score: Borussia Mönchengladbach 0 - 2 BV Borussia 09 Dortmund?" / "Exact Score: Borussia Mönchengladbach 1 - 2 BV Borussia 09 Dortmund?" / "Exact Score: Borussia Mönchengladbach 2 - 2 BV Borussia 09 Dortmund?"
+   "Exact Score: Borussia … - 3 BV Borussia 09 Dortmund?" <= "Exact Score: Borussia Mönchengladbach 0 - 3 BV Borussia 09 Dortmund?" / "Exact Score: Borussia Mönchengladbach 1 - 3 BV Borussia 09 Dortmund?"
+   "Will George Russell achieve the … F1 Las Vegas Grand Prix?" <= "Will George Russell achieve the fastest lap in Practice 3 at the 2026 F1 Las Vegas Grand Prix?" / "Will George Russell achieve the fastest lap in Practice 2 at the 2026 F1 Las Vegas Grand Prix?" / "Will George Russell achieve the fastest lap in Practice 1 at the 2026 F1 Las Vegas Grand Prix?"
+   longest 125: Will “Horses and Divorces” by Kacey Musgraves featuring Miranda Lambert win Musical Event of the Year at the 2026 CMA Awards?
+     52: Will “Horses and … at the 2026 CMA Awards?
+     64: Will “Horses and Divorces” by … Year at the 2026 CMA Awards?
+   longest 124: Will “If I Don't Leave I'm Gonna Stay” by Carly Pearce and Riley Green win Musical Event of the Year at the 2026 CMA Awards?
+     52: Will “If I Don't Leave … at the 2026 CMA Awards?
+     64: Will “If I Don't Leave I'm Gonna … Year at the 2026 CMA Awards?
+   longest 124: Will "you seem pretty sad for a girl so in love - Olivia Rodrigo" be the Billboard 200 #1 album for the week of November 28?
+     52: Will "you seem pretty sad … week of November 28?
+     64: Will "you seem pretty sad for a … for the week of November 28?

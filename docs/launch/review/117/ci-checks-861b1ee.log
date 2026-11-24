@@ -1,0 +1,1244 @@
+﻿2026-11-24T04:05:33.0379213Z Current runner version: '2.338.2'
+2026-11-24T04:05:33.0399437Z ##[group]Runner Image Provisioner
+2026-11-24T04:05:33.0400015Z Hosted Compute Agent
+2026-11-24T04:05:33.0400445Z Version: 20261111.635
+2026-11-24T04:05:33.0400817Z Commit: b8a594ea514ff44cadb5342986c68b1eac6e22ed
+2026-11-24T04:05:33.0401269Z Build Date: 2026-11-11T01:49:01Z
+2026-11-24T04:05:33.0401703Z Worker ID: {df498e4a-8c40-43d5-ae0f-ab4fe8725371}
+2026-11-24T04:05:33.0402146Z Region: centralus
+2026-11-24T04:05:33.0402511Z Cloud: Azure
+2026-11-24T04:05:33.0402856Z ##[endgroup]
+2026-11-24T04:05:33.0403692Z ##[group]Operating System
+2026-11-24T04:05:33.0404071Z Ubuntu
+2026-11-24T04:05:33.0404410Z 26.04.1
+2026-11-24T04:05:33.0404747Z LTS
+2026-11-24T04:05:33.0405063Z ##[endgroup]
+2026-11-24T04:05:33.0405551Z ##[group]Runner Image
+2026-11-24T04:05:33.0405947Z Image: ubuntu-26.04
+2026-11-24T04:05:33.0406320Z Version: 20261116.202.1
+2026-11-24T04:05:33.0407137Z Included Software: https://github.com/actions/runner-images/blob/ubuntu26/20261116.202/images/ubuntu/Ubuntu2604-Readme.md
+2026-11-24T04:05:33.0407992Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu26%2F20261116.202
+2026-11-24T04:05:33.0408586Z ##[endgroup]
+2026-11-24T04:05:33.0409290Z ##[group]GITHUB_TOKEN Permissions
+2026-11-24T04:05:33.0410584Z Contents: read
+2026-11-24T04:05:33.0410957Z Metadata: read
+2026-11-24T04:05:33.0411337Z ##[endgroup]
+2026-11-24T04:05:33.0412825Z Secret source: Actions
+2026-11-24T04:05:33.0413414Z Cache mode: write
+2026-11-24T04:05:33.0413869Z Prepare workflow directory
+2026-11-24T04:05:33.0692867Z Prepare all required actions
+2026-11-24T04:05:33.0726011Z Getting action download info
+2026-11-24T04:05:33.3023965Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-11-24T04:05:33.4275489Z Complete job name: checks
+2026-11-24T04:05:33.4824193Z ##[group]Run actions/checkout@v4
+2026-11-24T04:05:33.4824625Z with:
+2026-11-24T04:05:33.4824870Z   repository: kiumars1199/Kismet
+2026-11-24T04:05:33.4827083Z   token: ***
+2026-11-24T04:05:33.4827324Z   ssh-strict: true
+2026-11-24T04:05:33.4827567Z   ssh-user: git
+2026-11-24T04:05:33.4827813Z   persist-credentials: true
+2026-11-24T04:05:33.4828080Z   clean: true
+2026-11-24T04:05:33.4828330Z   sparse-checkout-cone-mode: true
+2026-11-24T04:05:33.4828620Z   fetch-depth: 1
+2026-11-24T04:05:33.4828863Z   fetch-tags: false
+2026-11-24T04:05:33.4829117Z   show-progress: true
+2026-11-24T04:05:33.4829369Z   lfs: false
+2026-11-24T04:05:33.4829602Z   submodules: false
+2026-11-24T04:05:33.4829861Z   set-safe-directory: true
+2026-11-24T04:05:33.4830145Z   allow-unsafe-pr-checkout: false
+2026-11-24T04:05:33.4830512Z ##[endgroup]
+2026-11-24T04:05:33.6725690Z Syncing repository: kiumars1199/Kismet
+2026-11-24T04:05:33.6727665Z ##[group]Getting Git version info
+2026-11-24T04:05:33.6728473Z Working directory is '/home/runner/work/Kismet/Kismet'
+2026-11-24T04:05:33.6729541Z [command]/usr/bin/git version
+2026-11-24T04:05:33.6730057Z git version 2.56.1
+2026-11-24T04:05:33.6739274Z ##[endgroup]
+2026-11-24T04:05:33.6758955Z Temporarily overriding HOME='/home/runner/work/_temp/133db56c-cbc2-400f-a7a3-ec6069467ed1' before making global git config changes
+2026-11-24T04:05:33.6760388Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-24T04:05:33.6762382Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Kismet/Kismet
+2026-11-24T04:05:33.6819310Z Deleting the contents of '/home/runner/work/Kismet/Kismet'
+2026-11-24T04:05:33.6822818Z ##[group]Initializing the repository
+2026-11-24T04:05:33.6826785Z [command]/usr/bin/git init /home/runner/work/Kismet/Kismet
+2026-11-24T04:05:33.6904292Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-24T04:05:33.6905468Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-24T04:05:33.6906315Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-24T04:05:33.6906979Z hint: call:
+2026-11-24T04:05:33.6907667Z hint:
+2026-11-24T04:05:33.6908148Z hint: 	git config --global init.defaultBranch <name>
+2026-11-24T04:05:33.6908727Z hint:
+2026-11-24T04:05:33.6909284Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-24T04:05:33.6910210Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-24T04:05:33.6910922Z hint:
+2026-11-24T04:05:33.6911310Z hint: 	git branch -m <name>
+2026-11-24T04:05:33.6911790Z hint:
+2026-11-24T04:05:33.6912420Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-24T04:05:33.6913385Z Initialized empty Git repository in /home/runner/work/Kismet/Kismet/.git/
+2026-11-24T04:05:33.6921582Z [command]/usr/bin/git remote add origin https://github.com/kiumars1199/Kismet
+2026-11-24T04:05:33.6968142Z ##[endgroup]
+2026-11-24T04:05:33.6968874Z ##[group]Disabling automatic garbage collection
+2026-11-24T04:05:33.6970977Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-24T04:05:33.7001676Z ##[endgroup]
+2026-11-24T04:05:33.7002426Z ##[group]Setting up auth
+2026-11-24T04:05:33.7006951Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-24T04:05:33.7039285Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-24T04:05:33.7443192Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-24T04:05:33.7474865Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-24T04:05:33.7707452Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-24T04:05:33.7738223Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-24T04:05:33.7968341Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-24T04:05:33.8003570Z ##[endgroup]
+2026-11-24T04:05:33.8004134Z ##[group]Fetching the repository
+2026-11-24T04:05:33.8010733Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +b956f63fe2ac6d447849c13ecd175b6106a31ee7:refs/remotes/pull/2/merge
+2026-11-24T04:05:40.2317868Z From https://github.com/kiumars1199/Kismet
+2026-11-24T04:05:40.2318423Z  * [new ref]         b956f63fe2ac6d447849c13ecd175b6106a31ee7 -> pull/2/merge
+2026-11-24T04:05:40.2320471Z ##[endgroup]
+2026-11-24T04:05:40.2320776Z ##[group]Determining the checkout info
+2026-11-24T04:05:40.2322528Z ##[endgroup]
+2026-11-24T04:05:40.2327222Z [command]/usr/bin/git sparse-checkout disable
+2026-11-24T04:05:40.2371760Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-24T04:05:40.2405158Z ##[group]Checking out the ref
+2026-11-24T04:05:40.2408307Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/2/merge
+2026-11-24T04:05:41.0735584Z Note: switching to 'refs/remotes/pull/2/merge'.
+2026-11-24T04:05:41.0740763Z 
+2026-11-24T04:05:41.0741017Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-11-24T04:05:41.0741513Z changes and commit them, and you can discard any commits you make in this
+2026-11-24T04:05:41.0741985Z state without impacting any branches by switching back to a branch.
+2026-11-24T04:05:41.0742190Z 
+2026-11-24T04:05:41.0742345Z If you want to create a new branch to retain commits you create, you may
+2026-11-24T04:05:41.0742659Z do so (now or later) by using -c with the switch command. Example:
+2026-11-24T04:05:41.0742821Z 
+2026-11-24T04:05:41.0742907Z   git switch -c <new-branch-name>
+2026-11-24T04:05:41.0743108Z 
+2026-11-24T04:05:41.0743226Z Or undo this operation with:
+2026-11-24T04:05:41.0743333Z 
+2026-11-24T04:05:41.0743407Z   git switch -
+2026-11-24T04:05:41.0743516Z 
+2026-11-24T04:05:41.0744058Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-24T04:05:41.0744240Z 
+2026-11-24T04:05:41.0744469Z HEAD is now at b956f63 Merge 861b1ee0bc513b7a1be53e1e799eb1d5bf1738fa into 6aa242f7e933217fb6f951ba9e392dbedc1d8eb5
+2026-11-24T04:05:41.0793534Z ##[endgroup]
+2026-11-24T04:05:41.0839614Z [command]/usr/bin/git log -1 --format=%H
+2026-11-24T04:05:41.0865096Z b956f63fe2ac6d447849c13ecd175b6106a31ee7
+2026-11-24T04:05:41.1128595Z Prepare all required actions
+2026-11-24T04:05:41.1129052Z Getting action download info
+2026-11-24T04:05:41.2226796Z Download action repository 'pnpm/action-setup@v4' (SHA:b906affcce14559ad1aafd4ab0e942779e9f58b1)
+2026-11-24T04:05:41.6231748Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+2026-11-24T04:05:41.7261676Z Download action repository 'actions/cache@v4' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+2026-11-24T04:05:41.8472887Z ##[group]Run ./.github/actions/web-setup
+2026-11-24T04:05:41.8473114Z with:
+2026-11-24T04:05:41.8473276Z   browsers: false
+2026-11-24T04:05:41.8473417Z   webkit-deps: true
+2026-11-24T04:05:41.8473549Z   extension: false
+2026-11-24T04:05:41.8473686Z ##[endgroup]
+2026-11-24T04:05:41.8517397Z ##[start-action display=Run pnpm/action-setup@v4;id=__self.__pnpm_action-setup]
+2026-11-24T04:05:41.8595702Z ##[group]Run pnpm/action-setup@v4
+2026-11-24T04:05:41.8595914Z with:
+2026-11-24T04:05:41.8596108Z   package_json_file: apps/web/package.json
+2026-11-24T04:05:41.8596310Z   dest: ~/setup-pnpm
+2026-11-24T04:05:41.8596455Z   run_install: null
+2026-11-24T04:05:41.8596589Z   cache: false
+2026-11-24T04:05:41.8596724Z   cache_dependency_path: pnpm-lock.yaml
+2026-11-24T04:05:41.8596906Z   standalone: false
+2026-11-24T04:05:41.8597064Z ##[endgroup]
+2026-11-24T04:05:41.9646417Z ##[group]Running self-installer...
+2026-11-24T04:05:42.2538854Z (node:2220) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-24T04:05:42.2539860Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-24T04:05:42.4126408Z Progress: resolved 1, reused 0, downloaded 0, added 0
+2026-11-24T04:05:42.5758117Z Packages: +3
+2026-11-24T04:05:42.5758438Z +++
+2026-11-24T04:05:43.1876925Z Progress: resolved 16, reused 0, downloaded 3, added 3, done
+2026-11-24T04:05:43.1997284Z .../.pnpm/pnpm@12.21.0/node_modules/pnpm preinstall$ node install.js
+2026-11-24T04:05:43.5989713Z .../.pnpm/pnpm@12.21.0/node_modules/pnpm preinstall: Done
+2026-11-24T04:05:43.5993103Z .../.pnpm/pnpm@12.21.0/node_modules/pnpm postinstall$ node install.js
+2026-11-24T04:05:43.6453959Z .../.pnpm/pnpm@12.21.0/node_modules/pnpm postinstall: Done
+2026-11-24T04:05:47.6993633Z 
+2026-11-24T04:05:47.6994331Z dependencies:
+2026-11-24T04:05:47.6994746Z + pnpm 12.21.0 (12.23.0 is available)
+2026-11-24T04:05:47.6994975Z 
+2026-11-24T04:05:47.7014920Z Done in 5.6s
+2026-11-24T04:05:47.7933660Z ##[endgroup]
+2026-11-24T04:05:47.7933909Z Installation Completed!
+2026-11-24T04:05:47.8030923Z ##[end-action id=__self.__pnpm_action-setup;outcome=success;conclusion=success;duration_ms=5951]
+2026-11-24T04:05:47.8033551Z ##[start-action display=Run actions/setup-node@v4;id=__self.__actions_setup-node]
+2026-11-24T04:05:47.8094275Z ##[group]Run actions/setup-node@v4
+2026-11-24T04:05:47.8094439Z with:
+2026-11-24T04:05:47.8094571Z   node-version: 22
+2026-11-24T04:05:47.8094694Z   cache: pnpm
+2026-11-24T04:05:47.8094840Z   cache-dependency-path: apps/web/pnpm-lock.yaml
+2026-11-24T04:05:47.8095013Z   always-auth: false
+2026-11-24T04:05:47.8095137Z   check-latest: false
+2026-11-24T04:05:47.8096591Z   token: ***
+2026-11-24T04:05:47.8096708Z env:
+2026-11-24T04:05:47.8096896Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+2026-11-24T04:05:47.8097083Z ##[endgroup]
+2026-11-24T04:05:47.9113369Z Found in cache @ /opt/hostedtoolcache/node/22.23.5/x64
+2026-11-24T04:05:47.9121447Z (node:2251) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-24T04:05:47.9122483Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-24T04:05:47.9123068Z ##[group]Environment details
+2026-11-24T04:05:48.1952127Z node: v22.23.5
+2026-11-24T04:05:48.1952455Z npm: 10.9.9
+2026-11-24T04:05:48.1952627Z yarn: 1.22.22
+2026-11-24T04:05:48.1953131Z ##[endgroup]
+2026-11-24T04:05:48.1967060Z [command]/home/runner/setup-pnpm/node_modules/.bin/pnpm store path --silent
+2026-11-24T04:05:48.2147779Z /home/runner/setup-pnpm/node_modules/.bin/store/v11
+2026-11-24T04:05:48.3769295Z Cache hit for: node-cache-Linux-x64-pnpm-c77e8fe9f388c56a3b7e0ad757394a8746b2f23493ae1da9583566833e514faf
+2026-11-24T04:05:48.3836711Z (node:2251) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-24T04:05:49.5808522Z Received 117440512 of 193716250 (60.6%), 112.0 MBs/sec
+2026-11-24T04:05:50.0385693Z Received 193716250 of 193716250 (100.0%), 126.7 MBs/sec
+2026-11-24T04:05:50.0386049Z Cache Size: ~185 MB (193716250 B)
+2026-11-24T04:05:50.0406283Z [command]/usr/bin/tar -xf /home/runner/work/_temp/682f79e8-80cc-4168-9765-daba53e9682d/cache.tzst -P -C /home/runner/work/Kismet/Kismet --use-compress-program unzstd
+2026-11-24T04:05:51.5893888Z Cache restored successfully
+2026-11-24T04:05:51.5978649Z Cache restored from key: node-cache-Linux-x64-pnpm-c77e8fe9f388c56a3b7e0ad757394a8746b2f23493ae1da9583566833e514faf
+2026-11-24T04:05:51.6233922Z ##[end-action id=__self.__actions_setup-node;outcome=success;conclusion=success;duration_ms=3819]
+2026-11-24T04:05:51.6236408Z ##[start-action display=Run pnpm i --frozen-lockfile;id=__self.__run]
+2026-11-24T04:05:51.6267238Z ##[group]Run pnpm i --frozen-lockfile
+2026-11-24T04:05:51.6267474Z [36;1mpnpm i --frozen-lockfile[0m
+2026-11-24T04:05:51.6304259Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-24T04:05:51.6304520Z env:
+2026-11-24T04:05:51.6304697Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+2026-11-24T04:05:51.6304898Z ##[endgroup]
+2026-11-24T04:05:51.6822984Z ? Verifying lockfile against supply-chain policies (685 entries)...
+2026-11-24T04:05:51.7983595Z Packages are hard linked from the content-addressable store to the virtual store.
+2026-11-24T04:05:51.7984185Z   Content-addressable store is at: /home/runner/setup-pnpm/node_modules/.bin/store/v11
+2026-11-24T04:05:51.7984614Z   Virtual store is at:             node_modules/.pnpm
+2026-11-24T04:05:54.1044868Z ✓ Lockfile passes supply-chain policies (685 entries in 2.4s)
+2026-11-24T04:05:54.1045429Z Lockfile is up to date, resolution step is skipped
+2026-11-24T04:05:54.1107685Z Packages: +549
+2026-11-24T04:05:54.1108075Z ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+2026-11-24T04:05:54.1306431Z Progress: resolved 549, reused 548, downloaded 0, added 549, done
+2026-11-24T04:05:54.2164321Z 
+2026-11-24T04:05:54.2164940Z dependencies:
+2026-11-24T04:05:54.2175669Z + @modelcontextprotocol/server 2.4.0
+2026-11-24T04:05:54.2176023Z + @sentry/nextjs 11.9.0
+2026-11-24T04:05:54.2176276Z + @supabase/ssr 0.12.7
+2026-11-24T04:05:54.2176527Z + @supabase/supabase-js 2.118.0
+2026-11-24T04:05:54.2176792Z + @tanstack/react-table 8.21.3
+2026-11-24T04:05:54.2177052Z + @tanstack/react-virtual 3.14.26
+2026-11-24T04:05:54.2177349Z + @upstash/ratelimit 2.2.1
+2026-11-24T04:05:54.2177579Z + @upstash/redis 1.41.0
+2026-11-24T04:05:54.2177775Z + botid 1.5.13
+2026-11-24T04:05:54.2177965Z + minisearch 7.2.0
+2026-11-24T04:05:54.2178159Z + next 15.5.29
+2026-11-24T04:05:54.2178352Z + posthog-js 1.440.0
+2026-11-24T04:05:54.2178545Z + qrcode 1.5.4
+2026-11-24T04:05:54.2178718Z + react 19.3.1
+2026-11-24T04:05:54.2178926Z + react-dom 19.3.1
+2026-11-24T04:05:54.2179119Z + recharts 3.10.1
+2026-11-24T04:05:54.2179312Z + server-only 0.0.1
+2026-11-24T04:05:54.2179517Z + stripe 23.1.0
+2026-11-24T04:05:54.2180133Z + web-push 4.0.0
+2026-11-24T04:05:54.2180324Z + zod 4.6.7
+2026-11-24T04:05:54.2180447Z + zustand 5.1.0
+2026-11-24T04:05:54.2180529Z 
+2026-11-24T04:05:54.2180589Z devDependencies:
+2026-11-24T04:05:54.2180738Z + @axe-core/playwright 4.14.0
+2026-11-24T04:05:54.2181020Z + @electric-sql/pglite 0.5.14
+2026-11-24T04:05:54.2181190Z + @eslint/eslintrc 3.3.7
+2026-11-24T04:05:54.2181362Z + @modelcontextprotocol/client 2.4.0
+2026-11-24T04:05:54.2183127Z + @playwright/test 1.65.1
+2026-11-24T04:05:54.2183439Z + @tailwindcss/postcss 4.3.5
+2026-11-24T04:05:54.2183672Z + @testing-library/react 16.3.3
+2026-11-24T04:05:54.2183871Z + @types/node 26.6.6
+2026-11-24T04:05:54.2206101Z + @types/qrcode 1.5.5
+2026-11-24T04:05:54.2216798Z + @types/react 19.3.0
+2026-11-24T04:05:54.2217310Z + @types/react-dom 19.3.0
+2026-11-24T04:05:54.2217738Z + @types/web-push 3.6.4
+2026-11-24T04:05:54.2218105Z + eslint 9.39.5
+2026-11-24T04:05:54.2218409Z + eslint-config-next 15.5.29
+2026-11-24T04:05:54.2218774Z + fast-check 4.10.2
+2026-11-24T04:05:54.2219116Z + jsdom 31.0.1
+2026-11-24T04:05:54.2219380Z + tailwindcss 4.3.5
+2026-11-24T04:05:54.2219637Z + typescript 5.9.3
+2026-11-24T04:05:54.2219885Z + vitest 5.1.0
+2026-11-24T04:05:54.2220017Z 
+2026-11-24T04:05:54.2220355Z Done in 2.6s using pnpm v12.21.0
+2026-11-24T04:05:54.2330867Z ##[end-action id=__self.__run;outcome=success;conclusion=success;duration_ms=2609]
+2026-11-24T04:05:54.2333035Z ##[start-action display=Run pnpm i --frozen-lockfile;id=__self.__run_2]
+2026-11-24T04:05:54.2358824Z ##[end-action id=__self.__run_2;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-24T04:05:54.2360745Z ##[start-action display=Run echo "version=$(pnpm exec playwright --version | awk '{print $NF}')" >> "$GITHUB_OUTPUT";id=__self.pw]
+2026-11-24T04:05:54.2366496Z ##[end-action id=__self.pw;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-24T04:05:54.2367810Z ##[start-action display=Run actions/cache@v4;id=__self.pwcache]
+2026-11-24T04:05:54.2370081Z ##[end-action id=__self.pwcache;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-24T04:05:54.2389175Z ##[start-action display=Run libs="chromium"%3B if [ "true" = "true" %5D%3B then libs="chromium webkit"%3B fi;id=__self.__run_3]
+2026-11-24T04:05:54.2391635Z ##[end-action id=__self.__run_3;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-24T04:05:54.2392805Z ##[start-action display=Run pnpm exec playwright install chromium webkit;id=__self.__run_4]
+2026-11-24T04:05:54.2396485Z ##[end-action id=__self.__run_4;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-24T04:05:54.2450766Z ##[group]Run pnpm lint
+2026-11-24T04:05:54.2450995Z [36;1mpnpm lint[0m
+2026-11-24T04:05:54.2480611Z shell: /usr/bin/bash -e {0}
+2026-11-24T04:05:54.2480756Z env:
+2026-11-24T04:05:54.2480902Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+2026-11-24T04:05:54.2481084Z ##[endgroup]
+2026-11-24T04:05:54.3065211Z $ eslint . --max-warnings 0
+2026-11-24T04:06:03.3855821Z ##[group]Run pnpm typecheck
+2026-11-24T04:06:03.3856143Z [36;1mpnpm typecheck[0m
+2026-11-24T04:06:03.3892044Z shell: /usr/bin/bash -e {0}
+2026-11-24T04:06:03.3892289Z env:
+2026-11-24T04:06:03.3892528Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+2026-11-24T04:06:03.3892824Z ##[endgroup]
+2026-11-24T04:06:03.4360068Z $ tsc --noEmit
+2026-11-24T04:06:15.3761996Z ##[group]Run pnpm test
+2026-11-24T04:06:15.3762169Z [36;1mpnpm test[0m
+2026-11-24T04:06:15.3789297Z shell: /usr/bin/bash -e {0}
+2026-11-24T04:06:15.3789450Z env:
+2026-11-24T04:06:15.3789607Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+2026-11-24T04:06:15.3789791Z ##[endgroup]
+2026-11-24T04:06:15.4108603Z $ vitest run && pnpm test:ops
+2026-11-24T04:06:15.6197014Z 
+2026-11-24T04:06:15.6199105Z [1m[30m[46m RUN [49m[39m[22m [36mv5.1.0 [39m[90m/home/runner/work/Kismet/Kismet/apps/web[39m
+2026-11-24T04:06:15.6199542Z 
+2026-11-24T04:06:16.7233657Z  [32m✓[39m lib/email/lifecycle.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 57[2mms[22m[39m
+2026-11-24T04:06:17.0806910Z [90mstderr[2m | test/mcp.test.ts
+2026-11-24T04:06:17.0927721Z [22m[39mresponseMode: 'json' drops mid-call notifications. subscriptions/listen streams are always served over SSE regardless; other notifications emitted before a result are dropped.
+2026-11-24T04:06:17.0945769Z 
+2026-11-24T04:06:17.8948155Z [90mstderr[2m | test/mcp.test.ts[2m > [22m[2mplan gates[2m > [22m[2ma plan lookup failure is refused, never treated as a paid plan
+2026-11-24T04:06:17.8949549Z [22m[39m[mcp] plan lookup failed db down
+2026-11-24T04:06:17.8953836Z 
+2026-11-24T04:06:17.8957435Z [90mstderr[2m | test/mcp.test.ts[2m > [22m[2maudit run 3 (MCP-a, MCP-b)[2m > [22m[2m403 for a browser Origin that isn't Kismet's, even with a valid token; own origin and no Origin pass
+2026-11-24T04:06:17.8958523Z [22m[39m[mcp] refused Origin http://evil.example
+2026-11-24T04:06:17.8958886Z 
+2026-11-24T04:06:17.9616306Z  [32m✓[39m test/mcp.test.ts [2m([22m[2m28 tests[22m[2m)[22m[33m 853[2mms[22m[39m
+2026-11-24T04:06:18.2537813Z  [32m✓[39m test/proof.test.ts [2m([22m[2m42 tests[22m[2m)[22m[33m 825[2mms[22m[39m
+2026-11-24T04:06:18.2556903Z    [32m✓[39m every surface that shows the test return prints the proof line beside it [2m(5)[22m
+2026-11-24T04:06:18.2566740Z      [33m[2m✓[22m[39m the drawer's category record has the category's live record beside it[33m 473[2mms[22m[39m
+2026-11-24T04:06:18.4287673Z  [32m✓[39m test/rls.test.ts [2m([22m[2m21 tests[22m[2m)[22m[33m 2544[2mms[22m[39m
+2026-11-24T04:06:18.8121066Z [90mstderr[2m | lib/email/digest.test.ts[2m > [22m[2mrunDigest[2m > [22m[2msends a user at most once a day, and retries after a failed send
+2026-11-24T04:06:18.8142676Z [22m[39m[digest] send failed: boom
+2026-11-24T04:06:18.8199640Z 
+2026-11-24T04:06:18.8213598Z [90mstderr[2m | lib/email/digest.test.ts[2m > [22m[2mrunDigest[2m > [22m[2msends a user at most once a day, and retries after a failed send
+2026-11-24T04:06:18.8227861Z [22m[39m[digest] send failed: boom
+2026-11-24T04:06:18.8228343Z 
+2026-11-24T04:06:18.8229264Z [90mstderr[2m | lib/email/digest.test.ts[2m > [22m[2mrunDigest[2m > [22m[2msends a user at most once a day, and retries after a failed send
+2026-11-24T04:06:18.8230069Z [22m[39m[digest] send failed: boom
+2026-11-24T04:06:18.8230382Z 
+2026-11-24T04:06:18.9087464Z  [32m✓[39m test/alerts-bigtrade.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 216[2mms[22m[39m
+2026-11-24T04:06:19.0091680Z  [32m✓[39m lib/email/digest.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 206[2mms[22m[39m
+2026-11-24T04:06:19.2187420Z  [32m✓[39m test/alerts-cron.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 68[2mms[22m[39m
+2026-11-24T04:06:19.5308126Z [90mstderr[2m | test/paywall.test.ts[2m > [22m[2manon[2m > [22m[2mevery data route: bands only, verdict-only price check, no internals, ≤ 10 rows
+2026-11-24T04:06:19.5317112Z [22m[39m[abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+2026-11-24T04:06:19.5317786Z 
+2026-11-24T04:06:19.6161484Z  [32m✓[39m test/teaser.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 289[2mms[22m[39m
+2026-11-24T04:06:19.6528184Z [90mstderr[2m | lib/billing/stripe.test.ts[2m > [22m[2mstripe webhook[2m > [22m[2masks Stripe to retry when the customer isn't linked yet (and doesn't mark it seen)
+2026-11-24T04:06:19.6529392Z [22m[39m[stripe] webhook failed customer.subscription.created evt_early no user for customer cus_1
+2026-11-24T04:06:19.6529872Z 
+2026-11-24T04:06:19.6642301Z  [32m✓[39m lib/billing/stripe.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 31[2mms[22m[39m
+2026-11-24T04:06:20.0214151Z  [32m✓[39m test/paywall.test.ts [2m([22m[2m17 tests[22m[2m)[22m[33m 549[2mms[22m[39m
+2026-11-24T04:06:20.3010579Z [90mstderr[2m | test/counts.test.ts[2m > [22m[2mone Best bets count (T-288)[2m > [22m[2mFree: /status, Best bets (first paint and /api/flags) and 'N more on Pro' report the same number
+2026-11-24T04:06:20.3036755Z [22m[39m[abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+2026-11-24T04:06:20.3065674Z 
+2026-11-24T04:06:20.4617280Z [90mstderr[2m | test/security.test.ts[2m > [22m[2mOrigin checks[2m > [22m[2m/api/settle refuses other sites and unknown keys
+2026-11-24T04:06:20.4618552Z [22m[39m[abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+2026-11-24T04:06:20.4638054Z 
+2026-11-24T04:06:20.5354334Z  [32m✓[39m test/counts.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 387[2mms[22m[39m
+2026-11-24T04:06:20.5689317Z  [32m✓[39m test/card.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 91[2mms[22m[39m
+2026-11-24T04:06:20.6412810Z  [32m✓[39m test/security.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 801[2mms[22m[39m
+2026-11-24T04:06:20.9961571Z [90mstderr[2m | lib/funnel.test.ts[2m > [22m[2mPOST /api/funnel[2m > [22m[2manswers 200 { counted: false } when the funnel isn't set up (no Supabase), so pages never log an error
+2026-11-24T04:06:21.0027542Z [22m[39m[abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+2026-11-24T04:06:21.0062057Z 
+2026-11-24T04:06:21.0090420Z [90mstderr[2m | lib/funnel.test.ts[2m > [22m[2mlifecycle hooks → funnel[2m > [22m[2mtrial_start from a trialing subscription; paid from the first invoice with money, once
+2026-11-24T04:06:21.0116563Z  [32m✓[39m lib/funnel.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 112[2mms[22m[39m
+2026-11-24T04:06:21.0142529Z [22m[39m[lifecycle] owner alert failed: Cannot read properties of undefined (reading 'toUpperCase')
+2026-11-24T04:06:21.0165833Z 
+2026-11-24T04:06:21.0196168Z [90mstderr[2m | lib/funnel.test.ts[2m > [22m[2mlifecycle hooks → funnel[2m > [22m[2mtrial_start from a trialing subscription; paid from the first invoice with money, once
+2026-11-24T04:06:21.0238037Z [22m[39m[lifecycle] owner alert failed: Cannot read properties of undefined (reading 'toUpperCase')
+2026-11-24T04:06:21.0239096Z 
+2026-11-24T04:06:21.0257876Z [90mstderr[2m | lib/funnel.test.ts[2m > [22m[2mlifecycle hooks → funnel[2m > [22m[2mtrial_start from a trialing subscription; paid from the first invoice with money, once
+2026-11-24T04:06:21.0297225Z [22m[39m[lifecycle] owner alert failed: Cannot read properties of undefined (reading 'toUpperCase')
+2026-11-24T04:06:21.0300336Z 
+2026-11-24T04:06:21.2205897Z [90mstderr[2m | test/account-wall.test.ts[2m > [22m[2m/api/events/by-slug: open CORS for the extension, but needs a session or an extension token[2m > [22m[2ma valid extension token, or a session, gets through (404 for an unknown slug)
+2026-11-24T04:06:21.2210837Z [22m[39m[abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+2026-11-24T04:06:21.2211521Z 
+2026-11-24T04:06:21.3297180Z  [32m✓[39m test/account-wall.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 522[2mms[22m[39m
+2026-11-24T04:06:21.4583523Z [90mstderr[2m | test/password-auth.test.ts[2m > [22m[2mrate limits[2m > [22m[2msign-up and reset emails share the per-address email budget (auth_email)
+2026-11-24T04:06:21.4627203Z [22m[39m[auth/reset] [33m404[39m User not found
+2026-11-24T04:06:21.4628117Z 
+2026-11-24T04:06:21.4635741Z [90mstderr[2m | test/password-auth.test.ts[2m > [22m[2mrate limits[2m > [22m[2msign-up and reset emails share the per-address email budget (auth_email)
+2026-11-24T04:06:21.4636898Z [22m[39m[auth/reset] [33m404[39m User not found
+2026-11-24T04:06:21.4637289Z 
+2026-11-24T04:06:21.4638237Z [90mstderr[2m | test/password-auth.test.ts[2m > [22m[2mno account enumeration[2m > [22m[2mreset: the same answer for a known and an unknown address
+2026-11-24T04:06:21.4639151Z [22m[39m[auth/reset] [33m404[39m User not found
+2026-11-24T04:06:21.4639498Z 
+2026-11-24T04:06:21.4680311Z [90mstderr[2m | test/password-auth.test.ts[2m > [22m[2msign-up needs Supabase 'Confirm email'[2m > [22m[2ma sign-up that comes back with a session is undone: user deleted, 503
+2026-11-24T04:06:21.4706674Z [22m[39m[auth/password] sign-up returned a session: turn on Confirm email in Supabase Auth
+2026-11-24T04:06:21.4707994Z 
+2026-11-24T04:06:21.4786348Z  [32m✓[39m test/password-auth.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 55[2mms[22m[39m
+2026-11-24T04:06:21.7024582Z  [32m✓[39m components/results/summary.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 33[2mms[22m[39m
+2026-11-24T04:06:22.7897804Z [90mstderr[2m | test/delay.test.ts[2m > [22m[2mFree delay on a cold instance[2m > [22m[2mserves the published previous scan, not the live one
+2026-11-24T04:06:22.7927293Z [22m[39m[abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+2026-11-24T04:06:22.7955916Z 
+2026-11-24T04:06:22.9077157Z  [32m✓[39m test/bet-figures.test.tsx [2m([22m[2m34 tests[22m[2m)[22m[32m 272[2mms[22m[39m
+2026-11-24T04:06:23.0264176Z [90mstderr[2m | test/delay.test.ts[2m > [22m[2mFree delay on a cold instance[2m > [22m[2m/api/meta: Free with no delayed copy gets 503 pending, not the live scan's time
+2026-11-24T04:06:23.0292293Z [22m[39m[store] no scan at least 15 min old yet: Free tier can't be served
+2026-11-24T04:06:23.0292891Z 
+2026-11-24T04:06:23.0757585Z [90mstderr[2m | test/delay.test.ts[2m > [22m[2mFree delay on a cold instance[2m > [22m[2mfails closed (503) when there is no previous scan, instead of serving live data
+2026-11-24T04:06:23.0816998Z [22m[39m[store] no scan at least 15 min old yet: Free tier can't be served
+2026-11-24T04:06:23.0861385Z 
+2026-11-24T04:06:23.3147505Z [90mstderr[2m | test/delay.test.ts[2m > [22m[2mFree delay with no delayed copy yet[2m > [22m[2mAPI: 503 with the code, the honest line and Retry-After
+2026-11-24T04:06:23.3148431Z [22m[39m[store] no scan at least 15 min old yet: Free tier can't be served
+2026-11-24T04:06:23.3148723Z 
+2026-11-24T04:06:23.4799489Z [90mstderr[2m | test/delay.test.ts[2m > [22m[2mRT3-03: the Free copy is at least the delay old[2m > [22m[2ma prev copy younger than the delay is not served: pending, never the young copy
+2026-11-24T04:06:23.4801939Z [22m[39m[store] no scan at least 15 min old yet: Free tier can't be served
+2026-11-24T04:06:23.4802828Z 
+2026-11-24T04:06:23.5852848Z [90mstderr[2m | test/admin-grants.test.ts[2m > [22m[2madmin: grant plan by email[2m > [22m[2ma failed audit write grants nothing (500)
+2026-11-24T04:06:23.5867300Z [22m[39m[admin] grant audit log write failed: down
+2026-11-24T04:06:23.5868059Z 
+2026-11-24T04:06:23.6149517Z  [32m✓[39m test/admin-grants.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 2936[2mms[22m[39m
+2026-11-24T04:06:23.9364870Z  [32m✓[39m test/delay.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 1292[2mms[22m[39m
+2026-11-24T04:06:24.2205055Z  [32m✓[39m lib/search/parse.test.ts [2m([22m[2m28 tests[22m[2m)[22m[32m 51[2mms[22m[39m
+2026-11-24T04:06:24.3767257Z  [32m✓[39m test/filters.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 269[2mms[22m[39m
+2026-11-24T04:06:24.8323134Z  [32m✓[39m test/reprice.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 262[2mms[22m[39m
+2026-11-24T04:06:24.9968264Z [90mstderr[2m | test/history-live.test.ts[2m > [22m[2m/api/markets/[id]/history with a live fallback[2m > [22m[2ma market with no engine series is fetched live from the CLOB, cut at the scan, downsampled, labelled live
+2026-11-24T04:06:25.0042879Z [22m[39m[abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+2026-11-24T04:06:25.0043693Z 
+2026-11-24T04:06:25.2425853Z [90mstderr[2m | test/tiers.test.ts[2m > [22m[2mFree tier[2m > [22m[2m/api/markets: top 10 rows, page 1 only, ranges instead of exact numbers
+2026-11-24T04:06:25.2467250Z [22m[39m[abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+2026-11-24T04:06:25.2468023Z 
+2026-11-24T04:06:25.3785949Z  [32m✓[39m test/history-live.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 879[2mms[22m[39m
+2026-11-24T04:06:25.3927142Z    [32m✓[39m /api/markets/[id]/history with a live fallback [2m(6)[22m
+2026-11-24T04:06:25.3957224Z      [33m[2m✓[22m[39m a market with no engine series is fetched live from the CLOB, cut at the scan, downsampled, labelled live[33m 576[2mms[22m[39m
+2026-11-24T04:06:25.5353109Z  [32m✓[39m test/tiers.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 292[2mms[22m[39m
+2026-11-24T04:06:25.7657457Z  [32m✓[39m lib/combos.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+2026-11-24T04:06:25.7762662Z  [32m✓[39m test/invites-sql.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 2714[2mms[22m[39m
+2026-11-24T04:06:25.8048145Z [90mstderr[2m | test/polymarket-index.test.ts[2m > [22m[2m/api/markets and /api/meta with the Polymarket index (fixture)[2m > [22m[2ma word only in an unpriced market is found, labelled Not priced yet via `unpriced`, never in rows
+2026-11-24T04:06:25.8087716Z [22m[39m[abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+2026-11-24T04:06:25.8145728Z 
+2026-11-24T04:06:26.0917686Z  [32m✓[39m test/polymarket-index.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 540[2mms[22m[39m
+2026-11-24T04:06:26.0941418Z    [32m✓[39m /api/markets and /api/meta with the Polymarket index (fixture) [2m(4)[22m
+2026-11-24T04:06:26.0957522Z      [33m[2m✓[22m[39m a word only in an unpriced market is found, labelled Not priced yet via `unpriced`, never in rows[33m 369[2mms[22m[39m
+2026-11-24T04:06:26.5427337Z [90mstderr[2m | test/search.test.ts[2m > [22m[2m/api/suggest[2m > [22m[2m'bar' → FC Barcelona among teams; ≤ 9 server rows; interpretation line
+2026-11-24T04:06:26.5456707Z [22m[39m[abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+2026-11-24T04:06:26.5485919Z 
+2026-11-24T04:06:26.5744017Z  [32m✓[39m test/search.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 258[2mms[22m[39m
+2026-11-24T04:06:26.8696528Z  [32m✓[39m test/redteam-paywall.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 274[2mms[22m[39m
+2026-11-24T04:06:27.7487069Z  [32m✓[39m test/top.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 749[2mms[22m[39m
+2026-11-24T04:06:28.2157175Z  [32m✓[39m test/admin.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 69[2mms[22m[39m
+2026-11-24T04:06:28.2397696Z  [32m✓[39m test/venues-store.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 947[2mms[22m[39m
+2026-11-24T04:06:28.2398693Z    [32m✓[39m venues in the store [2m(8)[22m
+2026-11-24T04:06:28.2422592Z      [33m[2m✓[22m[39m kalshi_unavailable: set when Kalshi's snapshot was filtered by delay or age, not when Kalshi never listed it[33m 365[2mms[22m[39m
+2026-11-24T04:06:28.7097780Z  [32m✓[39m test/static-routes.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 325[2mms[22m[39m
+2026-11-24T04:06:28.7268001Z  [32m✓[39m test/admin-metrics-sql.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 2780[2mms[22m[39m
+2026-11-24T04:06:28.8340057Z  [32m✓[39m test/redteam.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 474[2mms[22m[39m
+2026-11-24T04:06:28.8341330Z    [32m✓[39m RT-14 health and extension ID give nothing away [2m(2)[22m
+2026-11-24T04:06:28.8342259Z      [33m[2m✓[22m[39m public /api/health: ok + status only; details only with the cron secret[33m 320[2mms[22m[39m
+2026-11-24T04:06:29.2057803Z [90mstderr[2m | test/api.test.ts[2m > [22m[2mAPI contract (fixture store)[2m > [22m[2m/api/markets filters, groups and caps the page at 200
+2026-11-24T04:06:29.2106920Z [22m[39m[abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+2026-11-24T04:06:29.2155764Z 
+2026-11-24T04:06:29.4337132Z  [32m✓[39m test/email.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 137[2mms[22m[39m
+2026-11-24T04:06:29.5847124Z  [32m✓[39m lib/journal-f11.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+2026-11-24T04:06:29.6907271Z  [32m✓[39m test/multipliers.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 571[2mms[22m[39m
+2026-11-24T04:06:30.0479295Z [90mstderr[2m | test/kalshi-search.test.ts[2m > [22m[2m/api/markets and /api/meta with Kalshi (fixture)[2m > [22m[2mvenue=kalshi&topic=sports.nfl returns only Kalshi NFL rows
+2026-11-24T04:06:30.0506636Z [22m[39m[abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+2026-11-24T04:06:30.0569694Z 
+2026-11-24T04:06:30.3336511Z  [32m✓[39m test/kalshi-search.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 498[2mms[22m[39m
+2026-11-24T04:06:30.3341209Z    [32m✓[39m /api/markets and /api/meta with Kalshi (fixture) [2m(6)[22m
+2026-11-24T04:06:30.3342116Z      [33m[2m✓[22m[39m venue=kalshi&topic=sports.nfl returns only Kalshi NFL rows[33m 340[2mms[22m[39m
+2026-11-24T04:06:30.6298160Z [90mstderr[2m | test/reprice-routes.test.ts[2m > [22m[2mlive re-pricing routes[2m > [22m[2mFree gets the same Best bets, All markets and drawer bodies with re-pricing on (15 min behind, no CLOB call)
+2026-11-24T04:06:30.6301997Z [22m[39m[abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+2026-11-24T04:06:30.6302364Z 
+2026-11-24T04:06:30.8707235Z  [32m✓[39m test/reprice-routes.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 240[2mms[22m[39m
+2026-11-24T04:06:30.9242414Z  [32m✓[39m test/one-return.test.tsx [2m([22m[2m304 tests[22m[2m)[22m[33m 840[2mms[22m[39m
+2026-11-24T04:06:31.0112348Z  [32m✓[39m lib/format.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+2026-11-24T04:06:31.2571469Z [90mstderr[2m | test/alerts-email.test.ts[2m > [22m[2mPro email alerts through Resend (#23/#64)[2m > [22m[2mno UNSUBSCRIBE_SECRET: no email without an unsubscribe link; counted as an error, the event stays
+2026-11-24T04:06:31.2572957Z [22m[39m[alerts/run] delivery failed: UNSUBSCRIBE_SECRET is not set
+2026-11-24T04:06:31.2573413Z 
+2026-11-24T04:06:31.2584603Z [90mstderr[2m | test/alerts-email.test.ts[2m > [22m[2mPro email alerts through Resend (#23/#64)[2m > [22m[2mResend refuses (HTTP 422): counted as an error, never claimed as sent
+2026-11-24T04:06:31.2586701Z [22m[39m[alerts/run] delivery failed: Resend HTTP 422
+2026-11-24T04:06:31.2587173Z 
+2026-11-24T04:06:31.2627109Z  [32m✓[39m test/alerts-email.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+2026-11-24T04:06:31.2747083Z  [32m✓[39m test/push-subscribe.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 35[2mms[22m[39m
+2026-11-24T04:06:31.3067406Z [90mstdout[2m | test/api.test.ts[2m > [22m[2mapply() timing[2m > [22m[2mp95 < 150 ms over 15k rows
+2026-11-24T04:06:31.3125956Z [22m[39mapply() over 15k rows: cpu p50 33.7 ms, p95 49.5 ms (wall p50 36.6, p95 49.1)
+2026-11-24T04:06:31.3153294Z 
+2026-11-24T04:06:31.3176615Z  [32m✓[39m test/api.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 2237[2mms[22m[39m
+2026-11-24T04:06:31.3203516Z    [32m✓[39m apply() timing [2m(1)[22m
+2026-11-24T04:06:31.3236450Z      [33m[2m✓[22m[39m p95 < 150 ms over 15k rows[33m 1999[2mms[22m[39m
+2026-11-24T04:06:31.4757304Z  [32m✓[39m lib/invites/server.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+2026-11-24T04:06:31.7987424Z  [32m✓[39m test/check-api.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+2026-11-24T04:06:31.8384938Z  [32m✓[39m lib/venues/guides.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 98[2mms[22m[39m
+2026-11-24T04:06:32.0461727Z  [32m✓[39m lib/check/combo.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+2026-11-24T04:06:32.2086707Z  [32m✓[39m lib/repo/supabase.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 31[2mms[22m[39m
+2026-11-24T04:06:32.2321180Z  [32m✓[39m components/pricing/Plans.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[32m 114[2mms[22m[39m
+2026-11-24T04:06:32.5112022Z  [32m✓[39m lib/trade/trade.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+2026-11-24T04:06:32.8167799Z  [32m✓[39m components/screener/BestBetsHeading.test.tsx [2m([22m[2m10 tests[22m[2m)[22m[32m 176[2mms[22m[39m
+2026-11-24T04:06:32.8337330Z  [32m✓[39m test/free-fallback.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 164[2mms[22m[39m
+2026-11-24T04:06:32.9911971Z [90mstderr[2m | test/teaser-index.test.ts[2m > [22m[2mmarketTeaser reads teasers.json first[2m > [22m[2mfalls back (undefined) for a missing file, a malformed one, an id the scan does not have, and a file a publisher stopped writing
+2026-11-24T04:06:32.9913740Z [22m[39m[teasers] teasers.json unreadable: Expected property name or '}' in JSON at position 1 (line 1 column 2)
+2026-11-24T04:06:32.9914301Z 
+2026-11-24T04:06:32.9926186Z  [32m✓[39m test/teaser-index.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 114[2mms[22m[39m
+2026-11-24T04:06:33.4447067Z  [32m✓[39m test/us-filter.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 101[2mms[22m[39m
+2026-11-24T04:06:33.5976075Z  [32m✓[39m lib/invites/core.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+2026-11-24T04:06:33.6247420Z  [32m✓[39m test/ext-pause.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 484[2mms[22m[39m
+2026-11-24T04:06:33.6260405Z    [32m✓[39m extension routes while paused [2m(6)[22m
+2026-11-24T04:06:33.6266350Z      [33m[2m✓[22m[39m POST /api/ext/token: 423 paused, 200 otherwise[32m 300[2mms[22m[39m
+2026-11-24T04:06:33.9740127Z  [32m✓[39m test/ratelimit.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 780[2mms[22m[39m
+2026-11-24T04:06:33.9740815Z    [32m✓[39m rate limits [2m(8)[22m
+2026-11-24T04:06:33.9746742Z      [33m[2m✓[22m[39m markets/flags: 60 a minute per user, 429 with Retry-After[33m 409[2mms[22m[39m
+2026-11-24T04:06:34.1597566Z  [32m✓[39m test/admin-404.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 426[2mms[22m[39m
+2026-11-24T04:06:34.1642328Z    [32m✓[39m admin route handlers [2m(2)[22m
+2026-11-24T04:06:34.1656889Z      [33m[2m✓[22m[39m every method is exported, and runs requireAdmin first: anon and free get 404[33m 337[2mms[22m[39m
+2026-11-24T04:06:34.1686443Z  [32m✓[39m test/source-chain.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 202[2mms[22m[39m
+2026-11-24T04:06:34.4717659Z  [32m✓[39m test/kalshi.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 350[2mms[22m[39m
+2026-11-24T04:06:34.4961393Z  [32m✓[39m lib/beta.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 148[2mms[22m[39m
+2026-11-24T04:06:35.5677758Z [90mstderr[2m | components/clock.test.tsx[2m > [22m[2mClockProvider hydration (T-288)[2m > [22m[2mserver zone America/New_York, browser Asia/Tokyo, hydrating 7 min later: no hydration error
+2026-11-24T04:06:35.5679272Z [22m[39mThe current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.5706407Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.5736638Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.5759061Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.5765994Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.5796383Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.5814595Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.5847082Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.5856115Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.5886660Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.5916254Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.5917227Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.5946339Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.5976169Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.5995972Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.6005982Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.6036284Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.6056244Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.6076092Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.6096089Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.6126079Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.6135566Z 
+2026-11-24T04:06:35.6157007Z [90mstderr[2m | components/clock.test.tsx[2m > [22m[2mClockProvider hydration (T-288)[2m > [22m[2mserver zone Asia/Tokyo, browser Asia/Tokyo, hydrating 7 min later: no hydration error
+2026-11-24T04:06:35.6186139Z [22m[39mThe current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.6216049Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.6245929Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.6246667Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.6276104Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.6310789Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.6326076Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.6346143Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.6366166Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.6396147Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.6405916Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.6436028Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.6456007Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.6465911Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.6495989Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.6516278Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.6546170Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.6555856Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.6585974Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.6606092Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.6616007Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.6645575Z 
+2026-11-24T04:06:35.6667187Z [90mstderr[2m | components/clock.test.tsx[2m > [22m[2mClockProvider hydration (T-288)[2m > [22m[2mserver zone America/New_York, browser America/New_York, hydrating 7 min later: no hydration error
+2026-11-24T04:06:35.6696383Z [22m[39mThe current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.6706505Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.6735927Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.6755998Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.6785923Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.6795787Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.6826077Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.6846047Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.6855961Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.6886054Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.6906237Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.6936140Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7037138Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7098733Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7099376Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7099875Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7100362Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7100862Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7101350Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7101858Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7102390Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7102640Z 
+2026-11-24T04:06:35.7103668Z [90mstderr[2m | components/clock.test.tsx[2m > [22m[2mClockProvider hydration (T-288)[2m > [22m[2mserver zone unknown, browser Asia/Tokyo, hydrating 7 min later: no hydration error
+2026-11-24T04:06:35.7104557Z [22m[39mThe current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7105080Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7105669Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7106131Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7106609Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7107094Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7107611Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7108109Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7108573Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7109074Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7109599Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7110135Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7110623Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7111125Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7111653Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7112158Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7112676Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7113183Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7113688Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7114696Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7115259Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7145818Z 
+2026-11-24T04:06:35.7207263Z [90mstderr[2m | components/clock.test.tsx[2m > [22m[2mClockProvider hydration (T-288)[2m > [22m[2mserver and hydration agree on 'closes in' even across a minute boundary
+2026-11-24T04:06:35.7208438Z [22m[39mThe current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7236379Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7266219Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7266817Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7267912Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7296251Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7326087Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7326640Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7327149Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7327660Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7328166Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7328669Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7329171Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7329675Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7330194Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7330697Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7331209Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7331707Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7332206Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7332720Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7333225Z The current testing environment is not configured to support act(...)
+2026-11-24T04:06:35.7333495Z 
+2026-11-24T04:06:35.7386794Z  [32m✓[39m components/clock.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 331[2mms[22m[39m
+2026-11-24T04:06:36.1825470Z  [32m✓[39m lib/share/sig.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 91[2mms[22m[39m
+2026-11-24T04:06:36.2717163Z  [32m✓[39m test/funnel-db.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 1949[2mms[22m[39m
+2026-11-24T04:06:36.3617662Z [90mstderr[2m | lib/kalshiCombo.test.ts[2m > [22m[2mKalshi combo check[2m > [22m[2mrefuses same-event legs and reports a missing collection or network failure
+2026-11-24T04:06:36.3618775Z [22m[39m[kalshi combo] offline
+2026-11-24T04:06:36.3619250Z 
+2026-11-24T04:06:36.4035837Z  [32m✓[39m lib/journal.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+2026-11-24T04:06:36.4757670Z [90mstderr[2m | lib/kalshiCombo.test.ts[2m > [22m[2mKalshi combo check[2m > [22m[2mroute: Premium (Combos) with KALSHI_DATA_PERMISSION=true only; origin-checked and validated
+2026-11-24T04:06:36.4776835Z [22m[39m[abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+2026-11-24T04:06:36.4780711Z 
+2026-11-24T04:06:36.4788061Z  [32m✓[39m lib/kalshiCombo.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 138[2mms[22m[39m
+2026-11-24T04:06:36.5222631Z  [32m✓[39m components/onboarding/Tour.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 1204[2mms[22m[39m
+2026-11-24T04:06:36.5254758Z    [32m✓[39m first-run tour [2m(6)[22m
+2026-11-24T04:06:36.5278360Z      [33m[2m✓[22m[39m step 1 waits for a card: nothing shows over an empty list, and it opens once a card renders[33m 762[2mms[22m[39m
+2026-11-24T04:06:36.5279739Z  [32m✓[39m lib/check/parse-link.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+2026-11-24T04:06:36.6494799Z  [32m✓[39m lib/check/comboLegs.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+2026-11-24T04:06:36.9335686Z  [32m✓[39m lib/billing/mode.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 69[2mms[22m[39m
+2026-11-24T04:06:37.0737553Z [90mstderr[2m | test/closed.test.ts[2m > [22m[2mclosed markets (request-time filter)[2m > [22m[2m/api/flags and /api/markets never return a closed market
+2026-11-24T04:06:37.0744824Z [22m[39m[abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+2026-11-24T04:06:37.0746102Z 
+2026-11-24T04:06:37.0918350Z  [32m✓[39m test/store-gzip.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 276[2mms[22m[39m
+2026-11-24T04:06:37.1137352Z  [32m✓[39m test/closed.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 49[2mms[22m[39m
+2026-11-24T04:06:37.1966452Z  [32m✓[39m test/seo.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 111[2mms[22m[39m
+2026-11-24T04:06:37.4477239Z  [32m✓[39m test/app-token.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 212[2mms[22m[39m
+2026-11-24T04:06:37.6657447Z  [32m✓[39m lib/alerts.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+2026-11-24T04:06:38.0307461Z  [32m✓[39m test/page-limits.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 223[2mms[22m[39m
+2026-11-24T04:06:38.0485775Z  [32m✓[39m components/screener/useScreener.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 33[2mms[22m[39m
+2026-11-24T04:06:38.2653911Z  [32m✓[39m lib/venues/availability.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+2026-11-24T04:06:38.6287403Z  [32m✓[39m components/results/ProofLine.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[32m 70[2mms[22m[39m
+2026-11-24T04:06:38.6847741Z  [32m✓[39m test/redteam-ext-token.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 270[2mms[22m[39m
+2026-11-24T04:06:38.7788834Z [90mstderr[2m | test/store-stale.test.ts[2m > [22m[2mloadRaw torn upload[2m > [22m[2mrefuses markets and flags from different scans
+2026-11-24T04:06:38.7812843Z [22m[39m[store] local load failed: torn load: markets.json scan 1794873437 vs flags.json scan 1794874337
+2026-11-24T04:06:38.7817550Z  [32m✓[39m test/store-stale.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 375[2mms[22m[39m
+2026-11-24T04:06:38.8586122Z 
+2026-11-24T04:06:38.8587337Z  [32m✓[39m test/admin-metrics.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+2026-11-24T04:06:39.0899271Z  [32m✓[39m test/wording.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 176[2mms[22m[39m
+2026-11-24T04:06:39.2327319Z  [32m✓[39m test/telemetry.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+2026-11-24T04:06:39.3598033Z  [32m✓[39m test/health.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 382[2mms[22m[39m
+2026-11-24T04:06:39.3598631Z    [32m✓[39m /api/health [2m(6)[22m
+2026-11-24T04:06:39.3599286Z      [33m[2m✓[22m[39m 200 in local dev with no DB or Stripe configured; flags the old fixture scan as stale[33m 339[2mms[22m[39m
+2026-11-24T04:06:39.5310412Z  [32m✓[39m lib/repo/local.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+2026-11-24T04:06:39.6328122Z [90mstderr[2m | test/admin-audit-first.test.ts[2m > [22m[2madmin: audit first[2m > [22m[2mcomp: a failed audit write applies nothing and answers 500
+2026-11-24T04:06:39.6330580Z [22m[39m[admin] comp audit log write failed: down
+2026-11-24T04:06:39.6331026Z 
+2026-11-24T04:06:39.6537959Z [90mstderr[2m | test/admin-audit-first.test.ts[2m > [22m[2madmin: audit first[2m > [22m[2mrevoke_sessions: a failed audit write applies nothing and answers 500
+2026-11-24T04:06:39.6566864Z [22m[39m[admin] revoke_sessions audit log write failed: down
+2026-11-24T04:06:39.6577051Z 
+2026-11-24T04:06:39.6639284Z [90mstderr[2m | test/admin-audit-first.test.ts[2m > [22m[2madmin: audit first[2m > [22m[2msettings: a failed audit write applies nothing and answers 500
+2026-11-24T04:06:39.6640484Z [22m[39m[admin] settings audit log write failed: down
+2026-11-24T04:06:39.6641075Z 
+2026-11-24T04:06:39.6835602Z  [32m✓[39m test/admin-audit-first.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 321[2mms[22m[39m
+2026-11-24T04:06:39.7049130Z  [32m✓[39m lib/venues/rows.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+2026-11-24T04:06:39.8647773Z  [32m✓[39m test/combo-agree.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 165[2mms[22m[39m
+2026-11-24T04:06:40.2103935Z  [32m✓[39m test/cron.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+2026-11-24T04:06:40.2269200Z [90mstderr[2m | test/history-route.test.ts[2m > [22m[2m/api/markets/[id]/history[2m > [22m[2ma market with a series: points as { t, p } (0..1), the side, the interval and the venue
+2026-11-24T04:06:40.2336925Z [22m[39m[abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+2026-11-24T04:06:40.2365154Z 
+2026-11-24T04:06:40.4477263Z  [32m✓[39m test/history-route.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 296[2mms[22m[39m
+2026-11-24T04:06:40.6151203Z  [32m✓[39m lib/trackRecord.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 33[2mms[22m[39m
+2026-11-24T04:06:40.7056882Z Not implemented: navigation to another Document
+2026-11-24T04:06:40.7057983Z  [32m✓[39m components/screener/LockedBets.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[32m 118[2mms[22m[39m
+2026-11-24T04:06:40.9102521Z  [32m✓[39m test/filter-bar.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+2026-11-24T04:06:41.0356656Z  [32m✓[39m test/market-table-cols.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+2026-11-24T04:06:41.1618527Z  [32m✓[39m test/perf-budget.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+2026-11-24T04:06:41.2583942Z  [32m✓[39m lib/filters/default-topics.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+2026-11-24T04:06:41.3550096Z  [32m✓[39m test/card-render.test.tsx [2m([22m[2m303 tests[22m[2m)[22m[33m 657[2mms[22m[39m
+2026-11-24T04:06:41.4107186Z  [32m✓[39m test/sw.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+2026-11-24T04:06:41.6361569Z  [32m✓[39m components/watch/WatchStar.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 106[2mms[22m[39m
+2026-11-24T04:06:41.8069229Z  [32m✓[39m test/store.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+2026-11-24T04:06:41.9612315Z [90mstderr[2m | lib/billing/ledger.test.ts[2m > [22m[2mrevenue ledger[2m > [22m[2minvoice.paid records the amount paid in cents and the customer
+2026-11-24T04:06:41.9614614Z [22m[39m[lifecycle] owner alert failed: Cannot read properties of undefined (reading 'toUpperCase')
+2026-11-24T04:06:41.9615534Z 
+2026-11-24T04:06:41.9667270Z [90mstderr[2m | lib/billing/ledger.test.ts[2m > [22m[2mrevenue ledger[2m > [22m[2ma malformed amount is stored as null, never NaN
+2026-11-24T04:06:41.9726884Z [22m[39m[lifecycle] owner alert failed: Cannot read properties of undefined (reading 'toUpperCase')
+2026-11-24T04:06:41.9746420Z  [32m✓[39m lib/billing/ledger.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+2026-11-24T04:06:41.9755877Z 
+2026-11-24T04:06:42.1817875Z  [32m✓[39m test/combo-copy.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+2026-11-24T04:06:42.3377246Z  [32m✓[39m lib/trade/no-auto-trade.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+2026-11-24T04:06:42.3801519Z  [32m✓[39m lib/me.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 141[2mms[22m[39m
+2026-11-24T04:06:42.4949189Z [90mstderr[2m | test/event-name-clean.test.ts[2m > [22m[2msigned-in /event hides ' - More Markets'[2m > [22m[2m<title> has no suffix
+2026-11-24T04:06:42.4967705Z [22m[39m[abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+2026-11-24T04:06:42.4976381Z 
+2026-11-24T04:06:42.5587512Z  [32m✓[39m test/event-name-clean.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 65[2mms[22m[39m
+2026-11-24T04:06:42.5647804Z  [32m✓[39m test/pays-read.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+2026-11-24T04:06:42.6647214Z  [32m✓[39m test/connector-plan.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 44[2mms[22m[39m
+2026-11-24T04:06:42.7237388Z  [32m✓[39m test/even-weeks.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+2026-11-24T04:06:42.8299927Z  [32m✓[39m test/check-combo-api.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+2026-11-24T04:06:43.0738462Z  [32m✓[39m test/admin-mfa.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 287[2mms[22m[39m
+2026-11-24T04:06:43.1017040Z  [32m✓[39m test/pwa.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+2026-11-24T04:06:43.2381827Z  [32m✓[39m test/landing-js.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+2026-11-24T04:06:43.5337243Z  [32m✓[39m lib/csv.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 158[2mms[22m[39m
+2026-11-24T04:06:43.6577379Z [90mstderr[2m | lib/billing/invoice-events.test.ts[2m > [22m[2minvoice events[2m > [22m[2minvoice.paid for a linked customer is accepted
+2026-11-24T04:06:43.6629222Z [22m[39m[lifecycle] owner alert failed: Cannot read properties of undefined (reading 'toUpperCase')
+2026-11-24T04:06:43.6636480Z  [32m✓[39m lib/billing/invoice-events.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+2026-11-24T04:06:43.6637207Z 
+2026-11-24T04:06:43.6667570Z [90mstderr[2m | lib/billing/invoice-events.test.ts[2m > [22m[2minvoice events[2m > [22m[2minvoice.paid with money taken but no linked user asks Stripe to retry
+2026-11-24T04:06:43.6696897Z [22m[39m[stripe] webhook failed invoice.paid evt_invoice.paid no user for customer cus_1
+2026-11-24T04:06:43.6706765Z 
+2026-11-24T04:06:43.8287528Z  [32m✓[39m components/kalshi/KalshiBoard.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 248[2mms[22m[39m
+2026-11-24T04:06:44.0548131Z [90mstderr[2m | app/api/book/route.test.ts[2m > [22m[2mchecks the live book, adds custom stake and warning, caches 5 s
+2026-11-24T04:06:44.0576848Z [22m[39m[abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+2026-11-24T04:06:44.0591913Z 
+2026-11-24T04:06:44.0717217Z  [32m✓[39m app/api/book/route.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+2026-11-24T04:06:44.2348996Z [90mstdout[2m | lib/execution.test.ts[2m > [22m[2mexecution check matches engine/execution.py[2m > [22m[2mreproduces book_expected.json
+2026-11-24T04:06:44.2374020Z [22m[39mfixture: 8 cases, 296 fields matched
+2026-11-24T04:06:44.2374415Z 
+2026-11-24T04:06:44.2389558Z  [32m✓[39m lib/execution.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+2026-11-24T04:06:44.7040686Z  [32m✓[39m test/top-bets.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+2026-11-24T04:06:44.8411290Z  [32m✓[39m lib/freshness.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+2026-11-24T04:06:44.9652083Z  [32m✓[39m lib/auth/method.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+2026-11-24T04:06:45.2127731Z  [32m✓[39m test/og-bet.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 946[2mms[22m[39m
+2026-11-24T04:06:45.2156487Z    [32m✓[39m /api/og/bet/<id> [2m(4)[22m
+2026-11-24T04:06:45.2186921Z      [33m[2m✓[22m[39m serves a 1200x630 PNG[33m 443[2mms[22m[39m
+2026-11-24T04:06:45.2188046Z      [33m[2m✓[22m[39m a signed link renders the numbers; unsigned and tampered requests render the same teaser card, which differs[33m 333[2mms[22m[39m
+2026-11-24T04:06:45.3408746Z [90mstderr[2m | test/beta-routes.test.ts[2m > [22m[2mcombos are live for Premium[2m > [22m[2ma Premium customer gets them from the row and the browse page, with exact numbers, and no Beta banner
+2026-11-24T04:06:45.3416493Z [22m[39m[abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+2026-11-24T04:06:45.3417061Z 
+2026-11-24T04:06:45.3633085Z  [32m✓[39m test/gametime-tz.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+2026-11-24T04:06:45.5717803Z  [32m✓[39m test/beta-routes.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 236[2mms[22m[39m
+2026-11-24T04:06:45.5980019Z  [32m✓[39m test/action-reserve.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 97[2mms[22m[39m
+2026-11-24T04:06:45.7009180Z  [32m✓[39m lib/trade/fills.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+2026-11-24T04:06:45.7318197Z  [32m✓[39m test/chart-leak.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 1762[2mms[22m[39m
+2026-11-24T04:06:45.7346658Z    [32m✓[39m RT3-01 accepted risk: chart leak on live flagged rows [2m(1)[22m
+2026-11-24T04:06:45.7380566Z      [33m[2m✓[22m[39m the attack's mean error stays at or above 1.05 pp[33m 1760[2mms[22m[39m
+2026-11-24T04:06:45.8606481Z  [32m✓[39m lib/check/kalshi-price.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+2026-11-24T04:06:45.9247316Z  [32m✓[39m test/e2e-mock.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+2026-11-24T04:06:46.1548771Z  [32m✓[39m test/presets-name.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+2026-11-24T04:06:46.2538874Z  [32m✓[39m test/us-gate.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+2026-11-24T04:06:46.3287057Z  [32m✓[39m test/picomatch-redos.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+2026-11-24T04:06:46.4297248Z  [32m✓[39m components/journal/LogBetButton.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 34[2mms[22m[39m
+2026-11-24T04:06:46.4555538Z  [32m✓[39m test/delay-setting.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+2026-11-24T04:06:46.4831584Z  [32m✓[39m test/settle-cron.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 5[2mms[22m[39m
+2026-11-24T04:06:46.5759541Z  [32m✓[39m lib/calc.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+2026-11-24T04:06:46.8268673Z  [32m✓[39m lib/share/bet-facts.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 117[2mms[22m[39m
+2026-11-24T04:06:47.4683419Z  [32m✓[39m components/UpgradeGate.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+2026-11-24T04:06:47.5477137Z  [32m✓[39m lib/presets.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 109[2mms[22m[39m
+2026-11-24T04:06:47.7180727Z  [32m✓[39m lib/settle-one.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+2026-11-24T04:06:47.8808206Z [90mstderr[2m | test/topic-filter-same-for-all.test.ts[2m > [22m[2mtopic filters are the same for every user[2m > [22m[2m/api/markets?topics=… returns identical rows for two callers
+2026-11-24T04:06:47.8818085Z [22m[39m[abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+2026-11-24T04:06:47.8818556Z 
+2026-11-24T04:06:47.9905118Z  [32m✓[39m test/topic-filter-same-for-all.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 113[2mms[22m[39m
+2026-11-24T04:06:48.1534916Z  [32m✓[39m lib/account/pause.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+2026-11-24T04:06:48.1635411Z  [32m✓[39m test/tz-route.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 47[2mms[22m[39m
+2026-11-24T04:06:48.3456123Z  [32m✓[39m test/auth-email-templates.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+2026-11-24T04:06:48.4417242Z  [32m✓[39m test/trade-config-paused.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 139[2mms[22m[39m
+2026-11-24T04:06:49.1347490Z  [32m✓[39m test/zod-jitless.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 44[2mms[22m[39m
+2026-11-24T04:06:49.2737214Z  [32m✓[39m lib/kelly.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+2026-11-24T04:06:49.3121181Z  [32m✓[39m components/onboarding/Onboarding.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 81[2mms[22m[39m
+2026-11-24T04:06:49.4007345Z  [32m✓[39m lib/banned.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+2026-11-24T04:06:49.4311169Z  [32m✓[39m lib/venues/next-path.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+2026-11-24T04:06:49.6261247Z  [32m✓[39m test/breadcrumbs.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+2026-11-24T04:06:49.6575028Z  [32m✓[39m lib/auth/server.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+2026-11-24T04:06:49.7622136Z  [32m✓[39m lib/odds.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+2026-11-24T04:06:49.8947668Z  [32m✓[39m lib/check/score.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+2026-11-24T04:06:50.0211551Z  [32m✓[39m lib/history/points.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+2026-11-24T04:06:50.2318658Z  [32m✓[39m lib/filters/user.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+2026-11-24T04:06:50.4848670Z  [32m✓[39m components/shell/HelpLine.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 85[2mms[22m[39m
+2026-11-24T04:06:50.6126276Z [90mstderr[2m | test/store-fallback.test.ts[2m > [22m[2mloadRaw fallback age[2m > [22m[2mfallback with a recent scan is used
+2026-11-24T04:06:50.6156868Z [22m[39m[store] supabase load failed: NEXT_PUBLIC_SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY not set
+2026-11-24T04:06:50.6185812Z 
+2026-11-24T04:06:50.6213414Z [90mstderr[2m | components/journal/JournalView.test.tsx[2m > [22m[2mJournalView counts[2m > [22m[2mformats the bet and open counts with formatCount
+2026-11-24T04:06:50.6256640Z [22m[39mThe width(0) and height(0) of chart should be greater than 0,
+2026-11-24T04:06:50.6257669Z        please check the style of container, or the props width(100%) and height(100%),
+2026-11-24T04:06:50.6258276Z        or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+2026-11-24T04:06:50.6258687Z        height and width.
+2026-11-24T04:06:50.6259037Z The width(0) and height(0) of chart should be greater than 0,
+2026-11-24T04:06:50.6259569Z        please check the style of container, or the props width(100%) and height(100%),
+2026-11-24T04:06:50.6260081Z        or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+2026-11-24T04:06:50.6260543Z        height and width.
+2026-11-24T04:06:50.6260701Z 
+2026-11-24T04:06:50.6261474Z [90mstderr[2m | test/store-fallback.test.ts[2m > [22m[2mloadRaw fallback age[2m > [22m[2mfallback older than the limit is refused
+2026-11-24T04:06:50.6286315Z [22m[39m[store] supabase load failed: NEXT_PUBLIC_SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY not set
+2026-11-24T04:06:50.6312503Z 
+2026-11-24T04:06:50.6366450Z  [32m✓[39m components/journal/JournalView.test.tsx [2m([22m[2m1 test[22m[2m)[22m[33m 2683[2mms[22m[39m
+2026-11-24T04:06:50.6369182Z    [32m✓[39m JournalView counts [2m(1)[22m
+2026-11-24T04:06:50.6370680Z      [33m[2m✓[22m[39m formats the bet and open counts with formatCount[33m 2681[2mms[22m[39m
+2026-11-24T04:06:50.6426434Z [90mstderr[2m | test/store-fallback.test.ts[2m > [22m[2mloadRaw fallback age[2m > [22m[2mfallback older than the limit is refused
+2026-11-24T04:06:50.6436001Z [22m[39m[store] local load failed: fallback scan is 2 h old, not used
+2026-11-24T04:06:50.6456449Z  [32m✓[39m test/store-fallback.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 56[2mms[22m[39m
+2026-11-24T04:06:50.6459463Z 
+2026-11-24T04:06:50.7070762Z  [32m✓[39m test/trade-config-off.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 81[2mms[22m[39m
+2026-11-24T04:06:50.8484890Z  [32m✓[39m lib/state-next.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+2026-11-24T04:06:50.9937636Z  [32m✓[39m lib/taxonomy-labels.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+2026-11-24T04:06:51.0125887Z  [32m✓[39m components/watch/MyList.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+2026-11-24T04:06:51.0368819Z  [32m✓[39m test/state-route.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+2026-11-24T04:06:51.1323890Z  [32m✓[39m test/card-return.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+2026-11-24T04:06:51.1738609Z  [32m✓[39m components/market/card/Why.copy.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+2026-11-24T04:06:51.1806329Z  [32m✓[39m test/proof-calibration.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+2026-11-24T04:06:51.2847175Z  [32m✓[39m lib/helpline.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+2026-11-24T04:06:51.3029448Z  [32m✓[39m test/taxonomy-ids.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+2026-11-24T04:06:51.4967226Z  [32m✓[39m test/paused-until-for-user.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 115[2mms[22m[39m
+2026-11-24T04:06:51.8092075Z  [32m✓[39m lib/repo/hooks.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 16[2mms[22m[39m
+2026-11-24T04:06:51.8150259Z 
+2026-11-24T04:06:51.8176985Z [2m Test Files [22m [1m[32m174 passed[39m[22m[90m (174)[39m
+2026-11-24T04:06:51.8177557Z [2m      Tests [22m [1m[32m1930 passed[39m[22m[90m (1930)[39m
+2026-11-24T04:06:51.8177932Z [2m   Start at [22m 04:06:15
+2026-11-24T04:06:51.8178459Z [2m   Duration [22m 36.18s[2m (tests 54%, import 28%, environment 11%, transform 7%, worker 1%)[22m
+2026-11-24T04:06:51.8201917Z 
+2026-11-24T04:06:51.8207161Z [2m     Import [22m [33m495 modules were evaluated 1157 times[39m[2m · 24.42s total, 28% of tracked time[22m
+2026-11-24T04:06:51.8208537Z [2m            [22m [2m~2.81s faster with [22m[33misolate: false[39m[2m — shared modules are evaluated once per worker instead of once per file[22m
+2026-11-24T04:06:51.8209598Z [2m            [22m [2mlearn more: https://vitest.dev/guide/improving-performance#test-isolation[22m
+2026-11-24T04:06:51.8210026Z 
+2026-11-24T04:06:51.8689185Z $ node --test "../../ops/tests/*.test.mjs"
+2026-11-24T04:06:51.9066986Z TAP version 13
+2026-11-24T04:06:51.9774946Z # Subtest: a complete production env has no problems
+2026-11-24T04:06:51.9776141Z ok 1 - a complete production env has no problems
+2026-11-24T04:06:51.9776767Z   ---
+2026-11-24T04:06:51.9777116Z   duration_ms: 2.570649
+2026-11-24T04:06:51.9777431Z   type: 'test'
+2026-11-24T04:06:51.9777615Z   ...
+2026-11-24T04:06:51.9777918Z # Subtest: dangerous production combinations are blockers
+2026-11-24T04:06:51.9778316Z ok 2 - dangerous production combinations are blockers
+2026-11-24T04:06:51.9778599Z   ---
+2026-11-24T04:06:51.9778789Z   duration_ms: 1.188183
+2026-11-24T04:06:51.9778992Z   type: 'test'
+2026-11-24T04:06:51.9779219Z   ...
+2026-11-24T04:06:51.9779433Z # Subtest: formats are checked
+2026-11-24T04:06:51.9779683Z ok 3 - formats are checked
+2026-11-24T04:06:51.9779987Z   ---
+2026-11-24T04:06:51.9780188Z   duration_ms: 1.125995
+2026-11-24T04:06:51.9780392Z   type: 'test'
+2026-11-24T04:06:51.9780586Z   ...
+2026-11-24T04:06:51.9780847Z # Subtest: missing required values block; missing optional ones warn
+2026-11-24T04:06:51.9781374Z ok 4 - missing required values block; missing optional ones warn
+2026-11-24T04:06:51.9781654Z   ---
+2026-11-24T04:06:51.9781833Z   duration_ms: 0.184238
+2026-11-24T04:06:51.9782033Z   type: 'test'
+2026-11-24T04:06:51.9782215Z   ...
+2026-11-24T04:06:51.9782440Z # Subtest: Payment Links mode needs the 4 links instead of price ids
+2026-11-24T04:06:51.9782744Z ok 5 - Payment Links mode needs the 4 links instead of price ids
+2026-11-24T04:06:51.9782970Z   ---
+2026-11-24T04:06:51.9783145Z   duration_ms: 0.228234
+2026-11-24T04:06:51.9783360Z   type: 'test'
+2026-11-24T04:06:51.9783542Z   ...
+2026-11-24T04:06:51.9794308Z # Subtest: site.json: the repo's own copy has its legal fields flagged, never invented
+2026-11-24T04:06:51.9796190Z ok 6 - site.json: the repo's own copy has its legal fields flagged, never invented
+2026-11-24T04:06:51.9796741Z   ---
+2026-11-24T04:06:51.9797532Z   duration_ms: 0.214834
+2026-11-24T04:06:51.9797916Z   type: 'test'
+2026-11-24T04:06:51.9798564Z   ...
+2026-11-24T04:06:51.9798891Z # Subtest: SECRET_ENV covers every secret the bundle check guards
+2026-11-24T04:06:51.9799327Z ok 7 - SECRET_ENV covers every secret the bundle check guards
+2026-11-24T04:06:51.9799617Z   ---
+2026-11-24T04:06:51.9799797Z   duration_ms: 0.27171
+2026-11-24T04:06:51.9800005Z   type: 'test'
+2026-11-24T04:06:51.9800181Z   ...
+2026-11-24T04:06:51.9800535Z # Subtest: setIfEmpty fills empty lines, appends missing keys, never overwrites
+2026-11-24T04:06:51.9801054Z ok 8 - setIfEmpty fills empty lines, appends missing keys, never overwrites
+2026-11-24T04:06:51.9801302Z   ---
+2026-11-24T04:06:51.9801413Z   duration_ms: 0.237769
+2026-11-24T04:06:51.9801737Z   type: 'test'
+2026-11-24T04:06:51.9801851Z   ...
+2026-11-24T04:06:51.9802041Z # Subtest: CLI: exit 1 with blockers, 0 when clean, grouped output
+2026-11-24T04:06:51.9802316Z ok 9 - CLI: exit 1 with blockers, 0 when clean, grouped output
+2026-11-24T04:06:51.9802501Z   ---
+2026-11-24T04:06:51.9802618Z   duration_ms: 32.063605
+2026-11-24T04:06:51.9802751Z   type: 'test'
+2026-11-24T04:06:51.9802870Z   ...
+2026-11-24T04:06:52.1532132Z # Subtest: plan: new file from the example, production defaults, all secrets 32+ chars
+2026-11-24T04:06:52.1532878Z ok 10 - plan: new file from the example, production defaults, all secrets 32+ chars
+2026-11-24T04:06:52.1533381Z   ---
+2026-11-24T04:06:52.1534128Z   duration_ms: 1.061291
+2026-11-24T04:06:52.1534658Z   type: 'test'
+2026-11-24T04:06:52.1535023Z   ...
+2026-11-24T04:06:52.1535622Z # Subtest: plan: never overwrites, second run is a no-op
+2026-11-24T04:06:52.1536203Z ok 11 - plan: never overwrites, second run is a no-op
+2026-11-24T04:06:52.1536693Z   ---
+2026-11-24T04:06:52.1537038Z   duration_ms: 0.42375
+2026-11-24T04:06:52.1537404Z   type: 'test'
+2026-11-24T04:06:52.1537761Z   ...
+2026-11-24T04:06:52.1538332Z # Subtest: CLI: dry run writes nothing; --yes writes mode 600; refuses tracked paths
+2026-11-24T04:06:52.1539099Z ok 12 - CLI: dry run writes nothing; --yes writes mode 600; refuses tracked paths
+2026-11-24T04:06:52.1539631Z   ---
+2026-11-24T04:06:52.1539982Z   duration_ms: 214.185992
+2026-11-24T04:06:52.1540352Z   type: 'test'
+2026-11-24T04:06:52.1540701Z   ...
+2026-11-24T04:06:52.2024656Z # Subtest: apply: sets known leaves, stamps last_updated, rejects unknown keys and wrong types
+2026-11-24T04:06:52.2039818Z ok 13 - apply: sets known leaves, stamps last_updated, rejects unknown keys and wrong types
+2026-11-24T04:06:52.2040419Z   ---
+2026-11-24T04:06:52.2040810Z   duration_ms: 15.196159
+2026-11-24T04:06:52.2041227Z   type: 'test'
+2026-11-24T04:06:52.2041586Z   ...
+2026-11-24T04:06:52.2042181Z # Subtest: CLI: dry run by default, --yes writes, invalid values refused, second run is a no-op
+2026-11-24T04:06:52.2042992Z ok 14 - CLI: dry run by default, --yes writes, invalid values refused, second run is a no-op
+2026-11-24T04:06:52.2043526Z   ---
+2026-11-24T04:06:52.2043877Z   duration_ms: 244.231812
+2026-11-24T04:06:52.2044265Z   type: 'test'
+2026-11-24T04:06:52.2044588Z   ...
+2026-11-24T04:06:52.5444639Z # Subtest: healthy site: every check passes, health details checked with CRON_SECRET
+2026-11-24T04:06:52.5454598Z ok 15 - healthy site: every check passes, health details checked with CRON_SECRET
+2026-11-24T04:06:52.5466422Z   ---
+2026-11-24T04:06:52.5466858Z   duration_ms: 499.414943
+2026-11-24T04:06:52.5467293Z   type: 'test'
+2026-11-24T04:06:52.5467604Z   ...
+2026-11-24T04:06:52.9679141Z # Subtest: a missing control fails the run
+2026-11-24T04:06:52.9680137Z ok 16 - a missing control fails the run
+2026-11-24T04:06:52.9680793Z   ---
+2026-11-24T04:06:52.9681137Z   duration_ms: 426.557566
+2026-11-24T04:06:52.9681508Z   type: 'test'
+2026-11-24T04:06:52.9681875Z   ...
+2026-11-24T04:06:52.9806826Z # Subtest: a stale timestamp across several consecutive runs sends exactly one alert, recovery exactly one all-clear
+2026-11-24T04:06:52.9817564Z ok 17 - a stale timestamp across several consecutive runs sends exactly one alert, recovery exactly one all-clear
+2026-11-24T04:06:52.9832212Z   ---
+2026-11-24T04:06:52.9832659Z   duration_ms: 28.686729
+2026-11-24T04:06:52.9833057Z   type: 'test'
+2026-11-24T04:06:52.9833414Z   ...
+2026-11-24T04:06:52.9833833Z # Subtest: 45 min exactly is fine; 46 is stale
+2026-11-24T04:06:52.9834329Z ok 18 - 45 min exactly is fine; 46 is stale
+2026-11-24T04:06:52.9834742Z   ---
+2026-11-24T04:06:52.9835094Z   duration_ms: 0.740317
+2026-11-24T04:06:52.9836535Z   type: 'test'
+2026-11-24T04:06:52.9836959Z   ...
+2026-11-24T04:06:52.9837635Z # Subtest: site error path: HTTP 500 / network failure over consecutive runs is one alert, recovery one all-clear
+2026-11-24T04:06:52.9838563Z ok 19 - site error path: HTTP 500 / network failure over consecutive runs is one alert, recovery one all-clear
+2026-11-24T04:06:52.9839507Z   ---
+2026-11-24T04:06:52.9839849Z   duration_ms: 2.035347
+2026-11-24T04:06:52.9840204Z   type: 'test'
+2026-11-24T04:06:52.9840523Z   ...
+2026-11-24T04:06:52.9841370Z # Subtest: stale → site down → stale is still one incident (one alert, one all-clear)
+2026-11-24T04:06:52.9842383Z ok 20 - stale → site down → stale is still one incident (one alert, one all-clear)
+2026-11-24T04:06:52.9842915Z   ---
+2026-11-24T04:06:52.9843255Z   duration_ms: 2.414633
+2026-11-24T04:06:52.9843620Z   type: 'test'
+2026-11-24T04:06:52.9843965Z   ...
+2026-11-24T04:06:52.9844637Z # Subtest: errors are retried within a run before they count: a cold start that answers on the 2nd try is not an incident
+2026-11-24T04:06:52.9845751Z ok 21 - errors are retried within a run before they count: a cold start that answers on the 2nd try is not an incident
+2026-11-24T04:06:52.9846383Z   ---
+2026-11-24T04:06:52.9846718Z   duration_ms: 0.999398
+2026-11-24T04:06:52.9847102Z   type: 'test'
+2026-11-24T04:06:52.9847445Z   ...
+2026-11-24T04:06:52.9847920Z # Subtest: missing, NaN or future scanned_at is an error, never healthy
+2026-11-24T04:06:52.9848551Z ok 22 - missing, NaN or future scanned_at is an error, never healthy
+2026-11-24T04:06:52.9849053Z   ---
+2026-11-24T04:06:52.9849392Z   duration_ms: 4.495573
+2026-11-24T04:06:52.9849749Z   type: 'test'
+2026-11-24T04:06:52.9850076Z   ...
+2026-11-24T04:06:52.9850660Z # Subtest: Resend failing: state is not advanced, the run fails, and the next run delivers the one alert
+2026-11-24T04:06:52.9851491Z ok 23 - Resend failing: state is not advanced, the run fails, and the next run delivers the one alert
+2026-11-24T04:06:52.9852053Z   ---
+2026-11-24T04:06:52.9852379Z   duration_ms: 1.081762
+2026-11-24T04:06:52.9852723Z   type: 'test'
+2026-11-24T04:06:52.9853053Z   ...
+2026-11-24T04:06:52.9853655Z # Subtest: no Resend key: an incident fails the run loudly and keeps state; a healthy site needs no key
+2026-11-24T04:06:52.9854486Z ok 24 - no Resend key: an incident fails the run loudly and keeps state; a healthy site needs no key
+2026-11-24T04:06:52.9855040Z   ---
+2026-11-24T04:06:52.9855524Z   duration_ms: 0.740487
+2026-11-24T04:06:52.9855898Z   type: 'test'
+2026-11-24T04:06:52.9856231Z   ...
+2026-11-24T04:06:52.9856630Z # Subtest: decide() is a pure state machine
+2026-11-24T04:06:52.9857117Z ok 25 - decide() is a pure state machine
+2026-11-24T04:06:52.9857510Z   ---
+2026-11-24T04:06:52.9857836Z   duration_ms: 0.313353
+2026-11-24T04:06:52.9858193Z   type: 'test'
+2026-11-24T04:06:52.9858603Z   ...
+2026-11-24T04:06:53.0577441Z # Subtest: events come from the webhook handler
+2026-11-24T04:06:53.0578286Z ok 26 - events come from the webhook handler
+2026-11-24T04:06:53.0578726Z   ---
+2026-11-24T04:06:53.0579102Z   duration_ms: 4.81838
+2026-11-24T04:06:53.0579464Z   type: 'test'
+2026-11-24T04:06:53.0580006Z   ...
+2026-11-24T04:06:53.0580585Z # Subtest: dry run reads only; --yes creates everything once; a second --yes changes nothing
+2026-11-24T04:06:53.0581557Z ok 27 - dry run reads only; --yes creates everything once; a second --yes changes nothing
+2026-11-24T04:06:53.0581986Z   ---
+2026-11-24T04:06:53.0582224Z   duration_ms: 435.843101
+2026-11-24T04:06:53.0582460Z   type: 'test'
+2026-11-24T04:06:53.0582987Z   ...
+2026-11-24T04:06:53.0583237Z # Subtest: a live key needs --live
+2026-11-24T04:06:53.0583553Z ok 28 - a live key needs --live
+2026-11-24T04:06:53.0583795Z   ---
+2026-11-24T04:06:53.0583980Z   duration_ms: 88.495234
+2026-11-24T04:06:53.0584193Z   type: 'test'
+2026-11-24T04:06:53.0584375Z   ...
+2026-11-24T04:06:53.0584721Z # Subtest: the webhook secret is never printed; the env file ends up 0600
+2026-11-24T04:06:53.0585251Z ok 29 - the webhook secret is never printed; the env file ends up 0600
+2026-11-24T04:06:53.0585734Z   ---
+2026-11-24T04:06:53.0585926Z   duration_ms: 204.052511
+2026-11-24T04:06:53.0586149Z   type: 'test'
+2026-11-24T04:06:53.0586359Z   ...
+2026-11-24T04:06:53.0661273Z # NEXT_PUBLIC_SUPABASE_URL (https://abcdefghijklmnopqrst.supabase.co) is not project zzzzzzzzzzzzzzzzzzzz.
+2026-11-24T04:06:53.0662398Z # Subtest: dry run prints the plan and the dashboard checklist, runs nothing
+2026-11-24T04:06:53.0662965Z ok 30 - dry run prints the plan and the dashboard checklist, runs nothing
+2026-11-24T04:06:53.0663390Z   ---
+2026-11-24T04:06:53.0663617Z   duration_ms: 48.341311
+2026-11-24T04:06:53.0663850Z   type: 'test'
+2026-11-24T04:06:53.0664075Z   ...
+2026-11-24T04:06:53.0664610Z # Subtest: --yes: link, push, test, bucket create + private check; re-run treats an existing bucket as fine
+2026-11-24T04:06:53.0666866Z ok 31 - --yes: link, push, test, bucket create + private check; re-run treats an existing bucket as fine
+2026-11-24T04:06:53.0667346Z   ---
+2026-11-24T04:06:53.0667536Z   duration_ms: 224.169382
+2026-11-24T04:06:53.0667773Z   type: 'test'
+2026-11-24T04:06:53.0667985Z   ...
+2026-11-24T04:06:53.0668198Z # Subtest: rejects a bad ref and a URL for another project
+2026-11-24T04:06:53.0668497Z ok 32 - rejects a bad ref and a URL for another project
+2026-11-24T04:06:53.0668680Z   ---
+2026-11-24T04:06:53.0668822Z   duration_ms: 100.958459
+2026-11-24T04:06:53.0668959Z   type: 'test'
+2026-11-24T04:06:53.0669093Z   ...
+2026-11-24T04:06:53.0703738Z # Refusing to push while preflight has blockers.
+2026-11-24T04:06:53.0704308Z # Subtest: commands: production + preview, secrets sensitive, test-only vars skipped
+2026-11-24T04:06:53.0705128Z ok 33 - commands: production + preview, secrets sensitive, test-only vars skipped
+2026-11-24T04:06:53.0705598Z   ---
+2026-11-24T04:06:53.0705805Z   duration_ms: 1.411841
+2026-11-24T04:06:53.0706017Z   type: 'test'
+2026-11-24T04:06:53.0706191Z   ...
+2026-11-24T04:06:53.0712440Z # Subtest: CLI --yes: refuses with preflight blockers, else feeds values on stdin
+2026-11-24T04:06:53.0712816Z ok 34 - CLI --yes: refuses with preflight blockers, else feeds values on stdin
+2026-11-24T04:06:53.0713038Z   ---
+2026-11-24T04:06:53.0713166Z   duration_ms: 302.669343
+2026-11-24T04:06:53.0713317Z   type: 'test'
+2026-11-24T04:06:53.0713448Z   ...
+2026-11-24T04:06:53.0713643Z # Subtest: commands: only keys listed in apps/web/.env.example
+2026-11-24T04:06:53.0713916Z ok 35 - commands: only keys listed in apps/web/.env.example
+2026-11-24T04:06:53.0714095Z   ---
+2026-11-24T04:06:53.0714218Z   duration_ms: 0.23194
+2026-11-24T04:06:53.0714351Z   type: 'test'
+2026-11-24T04:06:53.0714469Z   ...
+2026-11-24T04:06:53.0714719Z # Subtest: CLI: refuses (exit 2) with no env file instead of reading the shell environment
+2026-11-24T04:06:53.0715068Z ok 36 - CLI: refuses (exit 2) with no env file instead of reading the shell environment
+2026-11-24T04:06:53.0715656Z   ---
+2026-11-24T04:06:53.0715838Z   duration_ms: 31.259096
+2026-11-24T04:06:53.0716040Z   type: 'test'
+2026-11-24T04:06:53.0716234Z   ...
+2026-11-24T04:06:53.0716343Z 1..36
+2026-11-24T04:06:53.0716496Z # tests 36
+2026-11-24T04:06:53.0716760Z # suites 0
+2026-11-24T04:06:53.0716874Z # pass 36
+2026-11-24T04:06:53.0716993Z # fail 0
+2026-11-24T04:06:53.0717107Z # cancelled 0
+2026-11-24T04:06:53.0717234Z # skipped 0
+2026-11-24T04:06:53.0717353Z # todo 0
+2026-11-24T04:06:53.0717481Z # duration_ms 1178.414495
+2026-11-24T04:06:53.0834095Z ##[group]Run pnpm build && pnpm check:bundle && pnpm check:js
+2026-11-24T04:06:53.0834372Z [36;1mpnpm build && pnpm check:bundle && pnpm check:js[0m
+2026-11-24T04:06:53.0862469Z shell: /usr/bin/bash -e {0}
+2026-11-24T04:06:53.0862620Z env:
+2026-11-24T04:06:53.0862774Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+2026-11-24T04:06:53.0862967Z ##[endgroup]
+2026-11-24T04:06:53.1146907Z $ next build
+2026-11-24T04:06:53.5966428Z ⚠ No build cache found. Please configure build caching for faster rebuilds. Read more: https://nextjs.org/docs/messages/no-cache
+2026-11-24T04:06:53.6058649Z Attention: Next.js now collects completely anonymous telemetry regarding usage.
+2026-11-24T04:06:53.6059283Z This information is used to shape Next.js' roadmap and prioritize features.
+2026-11-24T04:06:53.6060044Z You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+2026-11-24T04:06:53.6060984Z https://nextjs.org/telemetry
+2026-11-24T04:06:53.6061139Z 
+2026-11-24T04:06:53.6712857Z    ▲ Next.js 15.5.29
+2026-11-24T04:06:53.6713097Z 
+2026-11-24T04:06:53.7219970Z    Creating an optimized production build ...
+2026-11-24T04:07:09.2918056Z  ⚠ Compiled with warnings in 15.0s
+2026-11-24T04:07:09.2918340Z 
+2026-11-24T04:07:09.2918584Z ./lib/alerts-push.ts
+2026-11-24T04:07:09.2919169Z Attempted import error: 'web-push' does not contain a default export (imported as 'webpush').
+2026-11-24T04:07:09.2919582Z 
+2026-11-24T04:07:09.2919915Z Import trace for requested module:
+2026-11-24T04:07:09.2920205Z ./lib/alerts-push.ts
+2026-11-24T04:07:09.2920463Z ./app/api/push/subscribe/route.ts
+2026-11-24T04:07:09.2920633Z 
+2026-11-24T04:07:12.8127260Z <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (114kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+2026-11-24T04:07:12.8224443Z <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (268kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+2026-11-24T04:07:21.0804349Z  ✓ Compiled successfully in 25.3s
+2026-11-24T04:07:21.0835257Z    Linting and checking validity of types ...
+2026-11-24T04:07:35.3551113Z    Collecting page data ...
+2026-11-24T04:07:35.9871959Z responseMode: 'json' drops mid-call notifications. subscriptions/listen streams are always served over SSE regardless; other notifications emitted before a result are dropped.
+2026-11-24T04:07:39.5011888Z    Generating static pages (0/33) ...
+2026-11-24T04:07:40.1409772Z    Generating static pages (8/33) 
+2026-11-24T04:07:40.5750480Z    Generating static pages (16/33) 
+2026-11-24T04:07:41.6208077Z    Generating static pages (24/33) 
+2026-11-24T04:07:41.6208708Z  ✓ Generating static pages (33/33)
+2026-11-24T04:07:42.1972096Z    Finalizing page optimization ...
+2026-11-24T04:07:42.2006300Z    Collecting build traces ...
+2026-11-24T04:07:46.5422914Z 
+2026-11-24T04:07:46.5618516Z Route (app)                                           Size  First Load JS  Revalidate  Expire
+2026-11-24T04:07:46.5619394Z ┌ ○ /                                              1.44 kB         142 kB          5m      1y
+2026-11-24T04:07:46.5619916Z ├ ƒ /_not-found                                      189 B         109 kB
+2026-11-24T04:07:46.5620429Z ├ ƒ /.well-known/oauth-protected-resource            748 B         109 kB
+2026-11-24T04:07:46.5620977Z ├ ƒ /.well-known/oauth-protected-resource/api/mcp    748 B         109 kB
+2026-11-24T04:07:46.5621486Z ├ ƒ /[...missing]                                    189 B         109 kB
+2026-11-24T04:07:46.5622012Z ├ ○ /about                                           661 B         144 kB          5m      1y
+2026-11-24T04:07:46.5622510Z ├ ƒ /account                                       7.32 kB         119 kB
+2026-11-24T04:07:46.5622976Z ├ ƒ /admin                                           174 B         118 kB
+2026-11-24T04:07:46.5623471Z ├ ƒ /admin/audit                                   4.58 kB         113 kB
+2026-11-24T04:07:46.5624353Z ├ ƒ /admin/funnel                                    748 B         109 kB
+2026-11-24T04:07:46.5624823Z ├ ƒ /admin/grants                                    174 B         118 kB
+2026-11-24T04:07:46.5625561Z ├ ƒ /admin/health                                  4.57 kB         113 kB
+2026-11-24T04:07:46.5626202Z ├ ƒ /admin/settings                                  174 B         118 kB
+2026-11-24T04:07:46.5626857Z ├ ƒ /admin/users                                   4.58 kB         113 kB
+2026-11-24T04:07:46.5627531Z ├ ƒ /admin/users/[id]                                185 B         118 kB
+2026-11-24T04:07:46.5627817Z ├ ƒ /alerts                                          17 kB         156 kB
+2026-11-24T04:07:46.5628116Z ├ ƒ /api/account                                   2.23 kB         111 kB
+2026-11-24T04:07:46.5628406Z ├ ƒ /api/account/export                              748 B         109 kB
+2026-11-24T04:07:46.5628870Z ├ ƒ /api/account/pause                               748 B         109 kB
+2026-11-24T04:07:46.5629180Z ├ ƒ /api/admin                                     2.23 kB         111 kB
+2026-11-24T04:07:46.5629477Z ├ ƒ /api/admin/export                                748 B         109 kB
+2026-11-24T04:07:46.5629780Z ├ ƒ /api/alerts/run                                2.23 kB         111 kB
+2026-11-24T04:07:46.5630083Z ├ ƒ /api/auth/google                                 748 B         109 kB
+2026-11-24T04:07:46.5630378Z ├ ƒ /api/auth/magic-link                             748 B         109 kB
+2026-11-24T04:07:46.5630694Z ├ ƒ /api/auth/password                             2.23 kB         111 kB
+2026-11-24T04:07:46.5631000Z ├ ƒ /api/auth/password/update                        748 B         109 kB
+2026-11-24T04:07:46.5631311Z ├ ƒ /api/auth/reset                                  748 B         109 kB
+2026-11-24T04:07:46.5631622Z ├ ƒ /api/auth/signout                                748 B         109 kB
+2026-11-24T04:07:46.5632019Z ├ ƒ /api/backtest                                    748 B         109 kB
+2026-11-24T04:07:46.5632436Z ├ ƒ /api/book                                        748 B         109 kB
+2026-11-24T04:07:46.5632767Z ├ ƒ /api/check                                       748 B         109 kB
+2026-11-24T04:07:46.5633266Z ├ ƒ /api/check/combo                                 748 B         109 kB
+2026-11-24T04:07:46.5633755Z ├ ƒ /api/check/leg                                   748 B         109 kB
+2026-11-24T04:07:46.5634267Z ├ ƒ /api/check/search                                748 B         109 kB
+2026-11-24T04:07:46.5634819Z ├ ƒ /api/combos                                      748 B         109 kB
+2026-11-24T04:07:46.5635454Z ├ ƒ /api/combos/kalshi                               748 B         109 kB
+2026-11-24T04:07:46.5635955Z ├ ƒ /api/data                                        748 B         109 kB
+2026-11-24T04:07:46.5636408Z ├ ƒ /api/data/[collection]                           748 B         109 kB
+2026-11-24T04:07:46.5636925Z ├ ƒ /api/data/[collection]/[id]                      748 B         109 kB
+2026-11-24T04:07:46.5637404Z ├ ƒ /api/digest/optin                                748 B         109 kB
+2026-11-24T04:07:46.5637860Z ├ ƒ /api/digest/run                                2.23 kB         111 kB
+2026-11-24T04:07:46.5638307Z ├ ƒ /api/events/[id]                                 748 B         109 kB
+2026-11-24T04:07:46.5638769Z ├ ƒ /api/events/by-slug/[slug]                       748 B         109 kB
+2026-11-24T04:07:46.5639246Z ├ ƒ /api/ext/telemetry                               189 B         109 kB
+2026-11-24T04:07:46.5639706Z ├ ƒ /api/ext/token                                   748 B         109 kB
+2026-11-24T04:07:46.5640182Z ├ ƒ /api/ext/token/refresh                           748 B         109 kB
+2026-11-24T04:07:46.5640641Z ├ ƒ /api/flags                                       748 B         109 kB
+2026-11-24T04:07:46.5641081Z ├ ƒ /api/funnel                                      748 B         109 kB
+2026-11-24T04:07:46.5641711Z ├ ƒ /api/health                                      748 B         109 kB
+2026-11-24T04:07:46.5642158Z ├ ƒ /api/invite                                      748 B         109 kB
+2026-11-24T04:07:46.5642607Z ├ ƒ /api/invite/ref                                  748 B         109 kB
+2026-11-24T04:07:46.5643076Z ├ ƒ /api/kalshi                                      748 B         109 kB
+2026-11-24T04:07:46.5643604Z ├ ƒ /api/lifecycle/run                             2.23 kB         111 kB
+2026-11-24T04:07:46.5644077Z ├ ƒ /api/markets                                     748 B         109 kB
+2026-11-24T04:07:46.5644542Z ├ ƒ /api/markets/[id]                                748 B         109 kB
+2026-11-24T04:07:46.5645014Z ├ ƒ /api/markets/[id]/history                        748 B         109 kB
+2026-11-24T04:07:46.5645579Z ├ ƒ /api/mcp                                         604 B         109 kB
+2026-11-24T04:07:46.5646006Z ├ ƒ /api/me                                        2.23 kB         111 kB
+2026-11-24T04:07:46.5646571Z ├ ƒ /api/meta                                        748 B         109 kB
+2026-11-24T04:07:46.5647016Z ├ ƒ /api/model/curve                                 748 B         109 kB
+2026-11-24T04:07:46.5647498Z ├ ƒ /api/oauth/decision                              748 B         109 kB
+2026-11-24T04:07:46.5647956Z ├ ƒ /api/og/bet/[id]                                 604 B         109 kB
+2026-11-24T04:07:46.5648414Z ├ ƒ /api/push/subscribe                              748 B         109 kB
+2026-11-24T04:07:46.5648877Z ├ ƒ /api/revalidate                                  748 B         109 kB
+2026-11-24T04:07:46.5649417Z ├ ƒ /api/settle                                      748 B         109 kB
+2026-11-24T04:07:46.5649962Z ├ ƒ /api/settle/run                                  748 B         109 kB
+2026-11-24T04:07:46.5650427Z ├ ƒ /api/share/link                                  748 B         109 kB
+2026-11-24T04:07:46.5650791Z ├ ƒ /api/state                                       748 B         109 kB
+2026-11-24T04:07:46.5651095Z ├ ƒ /api/stripe/checkout                           2.23 kB         111 kB
+2026-11-24T04:07:46.5651401Z ├ ƒ /api/stripe/portal                             2.23 kB         111 kB
+2026-11-24T04:07:46.5651697Z ├ ƒ /api/stripe/webhook                            2.23 kB         111 kB
+2026-11-24T04:07:46.5651985Z ├ ƒ /api/suggest                                     748 B         109 kB
+2026-11-24T04:07:46.5652279Z ├ ƒ /api/trade/config                                748 B         109 kB
+2026-11-24T04:07:46.5652571Z ├ ƒ /api/trade/nonce                                 748 B         109 kB
+2026-11-24T04:07:46.5652863Z ├ ƒ /api/trade/nonce/verify                          748 B         109 kB
+2026-11-24T04:07:46.5653145Z ├ ƒ /api/tz                                          748 B         109 kB
+2026-11-24T04:07:46.5653427Z ├ ƒ /api/unsubscribe                               1.89 kB         110 kB
+2026-11-24T04:07:46.5653720Z ├ ○ /apple-icon.png                                    0 B            0 B
+2026-11-24T04:07:46.5654021Z ├ ƒ /auth/callback                                 2.23 kB         111 kB
+2026-11-24T04:07:46.5654301Z ├ ƒ /bets                                          10.6 kB         197 kB
+2026-11-24T04:07:46.5654566Z ├ ƒ /check                                         5.46 kB         128 kB
+2026-11-24T04:07:46.5654840Z ├ ƒ /check/combo                                    8.4 kB         155 kB
+2026-11-24T04:07:46.5655121Z ├ ƒ /combos                                        7.22 kB         151 kB
+2026-11-24T04:07:46.5655888Z ├ ○ /contact                                         176 B         109 kB          5m      1y
+2026-11-24T04:07:46.5656340Z ├ ƒ /dashboards                                      185 B         276 kB
+2026-11-24T04:07:46.5656783Z ├ ƒ /dashboards/[id]                                 183 B         276 kB
+2026-11-24T04:07:46.5657273Z ├ ○ /disclaimer                                      176 B         109 kB          5m      1y
+2026-11-24T04:07:46.5657748Z ├ ƒ /e2e-mock/[...path]                              189 B         109 kB
+2026-11-24T04:07:46.5658345Z ├ ƒ /event/[id]                                    5.14 kB         316 kB
+2026-11-24T04:07:46.5658784Z ├ ƒ /ext/connect                                   6.03 kB         114 kB
+2026-11-24T04:07:46.5659217Z ├ ○ /icon.svg                                          0 B            0 B
+2026-11-24T04:07:46.5659662Z ├ ƒ /invite/[code]                                   748 B         109 kB
+2026-11-24T04:07:46.5660096Z ├ ƒ /journal                                       12.6 kB         253 kB
+2026-11-24T04:07:46.5660524Z ├ ƒ /kalshi                                         3.5 kB         112 kB
+2026-11-24T04:07:46.5660956Z ├ ƒ /llms.txt                                        604 B         109 kB
+2026-11-24T04:07:46.5661378Z ├ ƒ /login                                           122 B         116 kB
+2026-11-24T04:07:46.5661793Z ├ ƒ /m/[id]                                        17.9 kB         182 kB
+2026-11-24T04:07:46.5662343Z ├ ƒ /maintenance                                     189 B         109 kB
+2026-11-24T04:07:46.5662810Z ├ ○ /manifest.webmanifest                            189 B         109 kB
+2026-11-24T04:07:46.5663261Z ├ ƒ /markets                                       11.9 kB         217 kB
+2026-11-24T04:07:46.5663710Z ├ ƒ /oauth/consent                                 4.57 kB         113 kB
+2026-11-24T04:07:46.5664156Z ├ ƒ /onboarding                                    8.29 kB         150 kB
+2026-11-24T04:07:46.5664609Z ├ ○ /opengraph-image                                 189 B         109 kB
+2026-11-24T04:07:46.5665119Z ├ ○ /pricing                                         128 B         118 kB          5m      1y
+2026-11-24T04:07:46.5665769Z ├ ○ /privacy                                         176 B         109 kB          5m      1y
+2026-11-24T04:07:46.5666265Z ├ ○ /refunds                                         176 B         109 kB          5m      1y
+2026-11-24T04:07:46.5666742Z ├ ƒ /reset-password                                5.31 kB         114 kB
+2026-11-24T04:07:46.5667204Z ├ ○ /robots.txt                                      189 B         109 kB
+2026-11-24T04:07:46.5667635Z ├ ƒ /settings                                      3.71 kB         123 kB
+2026-11-24T04:07:46.5668083Z ├ ƒ /signed-in/about                                 661 B         144 kB
+2026-11-24T04:07:46.5668546Z ├ ƒ /signed-in/pricing                               128 B         118 kB
+2026-11-24T04:07:46.5669022Z ├ ƒ /signed-in/track-record                        2.65 kB         115 kB
+2026-11-24T04:07:46.5669478Z ├ ƒ /signup                                          120 B         116 kB
+2026-11-24T04:07:46.5669913Z ├ ○ /sitemap.xml                                     189 B         109 kB
+2026-11-24T04:07:46.5670341Z ├ ƒ /state                                         2.41 kB         115 kB
+2026-11-24T04:07:46.5670776Z ├ ƒ /status                                         4.7 kB         116 kB
+2026-11-24T04:07:46.5671259Z ├ ○ /terms                                           176 B         109 kB          5m      1y
+2026-11-24T04:07:46.5671717Z ├ ƒ /tools                                          9.6 kB         118 kB
+2026-11-24T04:07:46.5672213Z ├ ○ /track-record                                  2.65 kB         115 kB          5m      1y
+2026-11-24T04:07:46.5672690Z ├ ○ /twitter-image                                   189 B         109 kB
+2026-11-24T04:07:46.5673134Z └ ƒ /watchlist                                       11 kB         125 kB
+2026-11-24T04:07:46.5673525Z + First Load JS shared by all                       108 kB
+2026-11-24T04:07:46.5673927Z   ├ chunks/8701-95c158389b996b37.js                48.9 kB
+2026-11-24T04:07:46.5674317Z   ├ chunks/a9b5e390-e79471b6b30cbf24.js            54.2 kB
+2026-11-24T04:07:46.5674704Z   └ other shared chunks (total)                    5.17 kB
+2026-11-24T04:07:46.5674895Z 
+2026-11-24T04:07:46.5674901Z 
+2026-11-24T04:07:46.5675116Z ƒ Middleware                                        279 kB
+2026-11-24T04:07:46.5675415Z 
+2026-11-24T04:07:46.5675612Z ○  (Static)   prerendered as static content
+2026-11-24T04:07:46.5676066Z ƒ  (Dynamic)  server-rendered on demand
+2026-11-24T04:07:46.5676233Z 
+2026-11-24T04:07:46.6642629Z $ node scripts/check-bundle.mjs
+2026-11-24T04:07:46.7155133Z check-bundle: 205 files in .next/static, no secrets
+2026-11-24T04:07:46.7482797Z $ node scripts/perf/landing-js.mjs --route / --budget-kb 150
+2026-11-24T04:07:46.7834978Z    54.2 kB  static/chunks/a9b5e390-e79471b6b30cbf24.js
+2026-11-24T04:07:46.7835698Z    48.9 kB  static/chunks/8701-95c158389b996b37.js
+2026-11-24T04:07:46.7836073Z     7.1 kB  static/chunks/4133-568a5ee4e4f42869.js
+2026-11-24T04:07:46.7836410Z     6.6 kB  static/chunks/app/layout-9af3187f6e2ae846.js
+2026-11-24T04:07:46.7836651Z     5.8 kB  static/chunks/5071-90f8eb3c25170709.js
+2026-11-24T04:07:46.7836868Z     5.6 kB  static/chunks/4775-30ff42050d202f37.js
+2026-11-24T04:07:46.7837084Z     4.9 kB  static/chunks/7602-a5d3ab2f3ff35068.js
+2026-11-24T04:07:46.7837747Z     4.0 kB  static/chunks/27-effe48503c48a36f.js
+2026-11-24T04:07:46.7837992Z     3.6 kB  static/chunks/324-fc115dda60013bc1.js
+2026-11-24T04:07:46.7838226Z     2.6 kB  static/chunks/main-app-6f94200baf8f39ca.js
+2026-11-24T04:07:46.7838457Z     2.6 kB  static/chunks/webpack-c25935815d33041e.js
+2026-11-24T04:07:46.7838691Z     1.4 kB  static/chunks/app/page-e1474fad442c2abf.js
+2026-11-24T04:07:46.7838921Z     1.0 kB  static/chunks/app/error-efa45f1888bac952.js
+2026-11-24T04:07:46.7839143Z     0.9 kB  static/chunks/4744-37403b0c20e80c56.js
+2026-11-24T04:07:46.7839420Z /: first-load JS 149.5 kB gzipped (475 kB raw, 14 files); budget 150 kB: OK
+2026-11-24T04:07:46.7979573Z Post job cleanup.
+2026-11-24T04:07:46.7982336Z ##[start-action display=Run actions/setup-node@v4;id=__b9cab6e2-93b6-446f-8fcb-7e61bf793a4c.__actions_setup-node]
+2026-11-24T04:07:46.8007577Z Post job cleanup.
+2026-11-24T04:07:46.8800421Z (node:5125) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-24T04:07:46.8801979Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-24T04:07:46.8802686Z Cache hit occurred on the primary key node-cache-Linux-x64-pnpm-c77e8fe9f388c56a3b7e0ad757394a8746b2f23493ae1da9583566833e514faf, not saving cache.
+2026-11-24T04:07:46.8864139Z ##[end-action id=__b9cab6e2-93b6-446f-8fcb-7e61bf793a4c.__actions_setup-node;outcome=success;conclusion=success;duration_ms=88]
+2026-11-24T04:07:46.8866400Z ##[start-action display=Run pnpm/action-setup@v4;id=__b9cab6e2-93b6-446f-8fcb-7e61bf793a4c.__pnpm_action-setup]
+2026-11-24T04:07:46.8890192Z Post job cleanup.
+2026-11-24T04:07:46.9769665Z Pruning is unnecessary.
+2026-11-24T04:07:46.9872731Z ##[end-action id=__b9cab6e2-93b6-446f-8fcb-7e61bf793a4c.__pnpm_action-setup;outcome=success;conclusion=success;duration_ms=100]
+2026-11-24T04:07:46.9927224Z Post job cleanup.
+2026-11-24T04:07:47.0518744Z [command]/usr/bin/git version
+2026-11-24T04:07:47.0554957Z git version 2.56.1
+2026-11-24T04:07:47.0583066Z Temporarily overriding HOME='/home/runner/work/_temp/4c0d45c5-566b-4662-860f-33a4fdddbb18' before making global git config changes
+2026-11-24T04:07:47.0583842Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-24T04:07:47.0587107Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Kismet/Kismet
+2026-11-24T04:07:47.0623976Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-24T04:07:47.0663119Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-24T04:07:47.0917853Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-24T04:07:47.0950901Z http.https://github.com/.extraheader
+2026-11-24T04:07:47.0961777Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-24T04:07:47.1014215Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-24T04:07:47.1250414Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-24T04:07:47.1279080Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-24T04:07:47.1628408Z Cleaning up orphan processes
+2026-11-24T04:07:47.1875569Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4, pnpm/action-setup@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

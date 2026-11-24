@@ -88,6 +88,7 @@ Problems:
 - Not walked: signed-in headers at 768–1280, the Premium drawer path to the tray, WebKit, and signed-in steps on a production build. Re-walk after the fixes.
 
 ## Found in review, outside a lane
+- 04:34 #117 (T-wt1d) merged at 0e09e11 after reviewer PASS with notes and green CI. Follow-up T-wt1e to the tracker lane: fit-based 2-line title instead of the 52/64 middle clamp (129 shared clipped titles), and the 360x640 H1 overlap.
 - 04:34 #115 fix pushed by the data lane at 8b27731: Polymarket US sibling links add (red then green at 390/1440), and the refused room is released on focus/pointerdown (paste without a keypress: 0.026 -> 0). Queued for reviewer 1 after #117.
 - 04:26 Merged #112 (T-wt3e: combo notes; #107 N1/N2/N4 and #108 N1 fixed) at 76a36ad -> a1e5a2b; reviewer 2 PASS at c7ef710 (later commits: an empty rerun and a one-line test text update), CI web green, preview success. #117 CI green, in review with reviewer 1.
 - 04:21 #106 at 35c5eb6 (onboarding lane): the honest empty landing (the h1 is the message; at 390 its bottom is 194, was about 873) and Next disabled before hydration are done, each red then green. The 14.7 s Pro 390 card shift (+32/-32 px, about 30 ms apart; one line above the cards) is not reproduced locally and not fixed. The CLS spec now logs a SNAP line naming what moved; waiting on CI. Premium CLS and wt2b were not rerun locally after the last change.

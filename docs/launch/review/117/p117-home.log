@@ -1,0 +1,48 @@
+out 390 run1: {"tier":"free","url":"/","cls":0,"shifts":[],"early":506,"late":506,"earlySlots":4,"slotsVisible":0,"placed":0,"cards":4,"cents":false,"disc":true}
+out /pricing: body data-tier=free placed=0 disc=true
+out /about: body data-tier=free placed=0 disc=true
+out /terms: body data-tier=free placed=0 disc=true
+out /m/6674176: body data-tier=free placed=0 disc=true
+out 390 run2: {"tier":"free","url":"/","cls":0,"shifts":[],"early":506,"late":506,"earlySlots":4,"slotsVisible":0,"placed":0,"cards":4,"cents":false,"disc":true}
+out 390 run3: {"tier":"free","url":"/","cls":0,"shifts":[],"early":506,"late":506,"earlySlots":4,"slotsVisible":0,"placed":0,"cards":4,"cents":false,"disc":true}
+== out 390: worst CLS 0 (runs 0, 0, 0)
+out 1440 run1: {"tier":"free","url":"/","cls":0,"shifts":[],"early":463,"late":463,"earlySlots":4,"slotsVisible":0,"placed":0,"cards":4,"cents":false,"disc":true}
+out 1440 run2: {"tier":"free","url":"/","cls":0,"shifts":[],"early":463,"late":463,"earlySlots":4,"slotsVisible":0,"placed":0,"cards":4,"cents":false,"disc":true}
+out 1440 run3: {"tier":"free","url":"/","cls":0,"shifts":[],"early":463,"late":463,"earlySlots":4,"slotsVisible":0,"placed":0,"cards":4,"cents":false,"disc":true}
+== out 1440: worst CLS 0 (runs 0, 0, 0)
+free 390 run1: {"tier":"free","url":"/","cls":0,"shifts":[],"early":506,"late":506,"earlySlots":10,"slotsVisible":0,"placed":0,"cards":10,"cents":false,"disc":true}
+free /pricing: body data-tier=free placed=0 disc=true
+free /about: body data-tier=free placed=0 disc=true
+free /terms: body data-tier=free placed=0 disc=true
+free /m/6674176: body data-tier=free placed=0 disc=true
+free 390 run2: {"tier":"free","url":"/","cls":0.0005,"shifts":["0.0005@2269 freshness h44->44 y68->68"],"early":506,"late":506,"earlySlots":10,"slotsVisible":0,"placed":0,"cards":10,"cents":false,"disc":true}
+free 390 run3: {"tier":"free","url":"/","cls":0,"shifts":[],"early":0,"late":506,"earlySlots":10,"slotsVisible":0,"placed":0,"cards":10,"cents":false,"disc":true}
+== free 390: worst CLS 0.0005 (runs 0, 0.0005, 0)
+free 1440 run1: {"tier":"free","url":"/","cls":0.0006,"shifts":["0.0006@2215 DIV h44->44 y10->10"],"early":0,"late":502,"earlySlots":10,"slotsVisible":0,"placed":0,"cards":10,"cents":false,"disc":true}
+free 1440 run2: {"tier":"free","url":"/","cls":0.0006,"shifts":["0.0006@2698 DIV h44->44 y10->10"],"early":502,"late":502,"earlySlots":10,"slotsVisible":0,"placed":0,"cards":10,"cents":false,"disc":true}
+free 1440 run3: {"tier":"free","url":"/","cls":0.0006,"shifts":["0.0006@2119 DIV h44->44 y10->10"],"early":0,"late":502,"earlySlots":10,"slotsVisible":0,"placed":0,"cards":10,"cents":false,"disc":true}
+== free 1440: worst CLS 0.0006 (runs 0.0006, 0.0006, 0.0006)
+pro 390 run1: {"tier":"pro","url":"/","cls":0,"shifts":[],"early":0,"late":519,"earlySlots":12,"slotsVisible":0,"placed":12,"cards":12,"cents":false,"disc":true}
+pro /pricing: body data-tier=pro placed=0 disc=true
+pro /about: body data-tier=pro placed=3 disc=true
+pro /terms: body data-tier=free placed=0 disc=true
+pro /m/7077574: body data-tier=pro placed=0 disc=true
+pro 390 run2: {"tier":"pro","url":"/","cls":0,"shifts":[],"early":0,"late":519,"earlySlots":12,"slotsVisible":0,"placed":12,"cards":12,"cents":false,"disc":true}
+pro 390 run3: {"tier":"pro","url":"/","cls":0,"shifts":[],"early":0,"late":519,"earlySlots":12,"slotsVisible":0,"placed":12,"cards":12,"cents":false,"disc":true}
+== pro 390: worst CLS 0 (runs 0, 0, 0)
+pro 1440 run1: {"tier":"pro","url":"/","cls":0.0006,"shifts":["0.0006@2421 DIV h44->44 y10->10"],"early":0,"late":554,"earlySlots":12,"slotsVisible":0,"placed":12,"cards":12,"cents":false,"disc":true}
+pro 1440 run2: {"tier":"pro","url":"/","cls":0.0006,"shifts":["0.0006@4007 DIV h44->44 y10->10"],"early":0,"late":554,"earlySlots":12,"slotsVisible":0,"placed":12,"cards":12,"cents":false,"disc":true}
+pro 1440 run3: {"tier":"pro","url":"/","cls":0.0006,"shifts":["0.0006@1945 DIV h44->44 y10->10"],"early":0,"late":554,"earlySlots":12,"slotsVisible":0,"placed":12,"cards":12,"cents":false,"disc":true}
+== pro 1440: worst CLS 0.0006 (runs 0.0006, 0.0006, 0.0006)
+premium 390 run1: {"tier":"premium","url":"/","cls":0,"shifts":[],"early":0,"late":519,"earlySlots":12,"slotsVisible":0,"placed":12,"cards":12,"cents":false,"disc":true}
+premium /pricing: body data-tier=premium placed=0 disc=true
+premium /about: body data-tier=premium placed=3 disc=true
+premium /terms: body data-tier=free placed=0 disc=true
+premium /m/7077574: body data-tier=premium placed=0 disc=true
+premium 390 run2: {"tier":"premium","url":"/","cls":0,"shifts":[],"early":0,"late":519,"earlySlots":12,"slotsVisible":0,"placed":12,"cards":12,"cents":false,"disc":true}
+premium 390 run3: {"tier":"premium","url":"/","cls":0,"shifts":[],"early":0,"late":519,"earlySlots":12,"slotsVisible":0,"placed":12,"cards":12,"cents":false,"disc":true}
+== premium 390: worst CLS 0 (runs 0, 0, 0)
+premium 1440 run1: {"tier":"premium","url":"/","cls":0,"shifts":["0.0000@1835 KBD h18->18 y23->23"],"early":0,"late":554,"earlySlots":12,"slotsVisible":0,"placed":12,"cards":12,"cents":false,"disc":true}
+premium 1440 run2: {"tier":"premium","url":"/","cls":0,"shifts":[],"early":0,"late":554,"earlySlots":12,"slotsVisible":0,"placed":12,"cards":12,"cents":false,"disc":true}
+premium 1440 run3: {"tier":"premium","url":"/","cls":0,"shifts":[],"early":0,"late":554,"earlySlots":12,"slotsVisible":0,"placed":12,"cards":12,"cents":false,"disc":true}
+== premium 1440: worst CLS 0 (runs 0, 0, 0)
