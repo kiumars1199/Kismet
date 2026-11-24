@@ -6,7 +6,9 @@ const keyWord = (w: string) => hasDigit(w) || /^\W*[A-Z]/.test(w) || KEEP.has(w.
 /** Lowercase words that decide WHICH bet it is (win vs finish on the podium, above vs less than, second vs third). */
 const KEEP = new Set(["win", "wins", "lose", "finish", "podium", "above", "below", "less", "more", "over", "under", "before", "after", "first", "second", "third", "fourth", "fifth", "top", "least", "most", "beat",
   // which way a rate or a number moves: "decrease 25 bps" and "increase 25 bps" must never read alike
-  "increase", "decrease", "hike", "cut", "raise", "lower", "no", "not", "change", "yes"]);
+  "increase", "decrease", "hike", "cut", "raise", "lower", "no", "not", "change", "yes",
+  // thresholds and ends of a range: "29°C or higher" vs "29°C", highest vs lowest, "fewer than 225,000" vs "at 225,000"
+  "higher", "highest", "lowest", "fewer", "greater", "up", "down", "rise", "fall", "exceed", "exactly", "gain"]);
 
 /** `words` with the dropped ones shown as one "…" per run. */
 function render(words: string[], keep: boolean[]): string {
@@ -30,19 +32,23 @@ export function clampCandidates(title: string): string[] {
   const words = title.split(" ");
   const out = [title];
   const keep = words.map(() => true);
-  const isKeep = (w: string) => KEEP.has(w.toLowerCase().replace(/[^a-z]/g, ""));
+  const norm = (w: string) => w.toLowerCase().replace(/[^a-z]/g, "");
+  // "or" just before a deciding word stays with it: "29°C or higher", "or below"
+  const orKeep = words.map((w, i) => norm(w) === "or" && i + 1 < words.length && KEEP.has(norm(words[i + 1]!)));
+  const isKeep = (i: number) => KEEP.has(norm(words[i]!)) || orKeep[i]!;
+  const key = (i: number) => keyWord(words[i]!) || orKeep[i]!;
   const middleOut = (idx: number[]) => idx.sort((a, b) => Math.abs(a - words.length / 2) - Math.abs(b - words.length / 2));
-  const drop = (pick: (w: string, i: number) => boolean) => {
-    for (const i of middleOut(words.map((_, i) => i).filter((i) => keep[i] && i > 0 && pick(words[i]!, i)))) { keep[i] = false; out.push(render(words, keep)); }
+  const drop = (pick: (i: number) => boolean) => {
+    for (const i of middleOut(words.map((_, i) => i).filter((i) => keep[i] && i > 0 && pick(i)))) { keep[i] = false; out.push(render(words, keep)); }
   };
   // 0. a word that already appeared earlier in the title (the second "Bank of Israel"), before any distinct word is touched
   const seen = new Set<string>();
   const repeated = new Set<number>();
-  words.forEach((w, i) => { const k = w.toLowerCase().replace(/[^a-z]/g, ""); if (k.length >= 2 && !hasDigit(w) && !isKeep(w)) { if (seen.has(k)) repeated.add(i); seen.add(k); } });
-  drop((_, i) => repeated.has(i) && i < words.length - 1);
-  drop((w) => !keyWord(w));                                                  // 1. filler
-  drop((w, i) => i < words.length - 1 && !hasDigit(w) && !isKeep(w));       // 2. names (never the last word)
-  drop((w) => isKeep(w) && !hasDigit(w));                                    // 3. the words that decide which bet ("win", "above", "second")
+  words.forEach((w, i) => { const k = norm(w); if (k.length >= 2 && !hasDigit(w) && !isKeep(i)) { if (seen.has(k)) repeated.add(i); seen.add(k); } });
+  drop((i) => repeated.has(i) && i < words.length - 1);
+  drop((i) => !key(i));                                                          // 1. filler
+  drop((i) => i < words.length - 1 && !hasDigit(words[i]!) && !isKeep(i));      // 2. names (never the last word)
+  drop((i) => isKeep(i) && !hasDigit(words[i]!));                                // 3. the words that decide which bet ("win", "above", "or higher")
   for (let l = Math.min(title.length, out[out.length - 1]!.length) - 1; l >= 8; l--) out.push(middleClamp(title, l));   // 4. cut the text
   return out;
 }

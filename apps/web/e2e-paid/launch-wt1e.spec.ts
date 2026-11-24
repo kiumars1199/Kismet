@@ -84,7 +84,7 @@ for (const [size, maxClashes] of [[SIZES[0]!, 0], [SIZES[1]!, 0], [SIZES[2]!, 0]
     await page.waitForTimeout(2_000);   // (and its timed re-measures at 0.4 s and 1.5 s)
     await page.evaluate((lede) => {
       const p = document.querySelector('[data-testid="signup-bet"]') as HTMLElement;
-      (window as unknown as { fits: (t: string) => boolean }).fits = (t) => { (p.firstChild as Text).nodeValue = lede + t; return p.scrollHeight <= p.clientHeight + 1; };
+      (window as unknown as { fits: (t: string) => boolean }).fits = (t) => { (p.firstChild as Text).nodeValue = lede + t; return p.scrollHeight <= p.clientHeight + 1 && p.scrollWidth <= p.clientWidth + 1; };   // two lines, and not wider than the box
     }, LEDE);
     const fits = (t: string) => page.evaluate((x) => (window as unknown as { fits: (t: string) => boolean }).fits(x), t);
     const seen = new Map<string, string>(); const clashes: string[] = []; let shortened = 0, overflow = 0;
@@ -112,6 +112,14 @@ const SIBLINGS: [string, string][] = [
   ["Will the Federal Reserve hike interest rates by 25 bps at the December meeting?", "Will the Federal Reserve cut interest rates by 25 bps at the December meeting?"],
   ["Will the Bank of England raise the Bank Rate by 50 bps at the December meeting?", "Will the Bank of England lower the Bank Rate by 50 bps at the December meeting?"],
 ];
+const RIO = "Will the highest temperature in Rio de Janeiro be 29°C or higher on November 18 according to the official station?";
+SIBLINGS.push(
+  [RIO, RIO.replace(" or higher", "")],
+  [RIO.replace(" or higher", " or below"), RIO.replace(" or higher", "")],
+  [RIO.replace(" or higher", ""), RIO.replace(" or higher", "").replace("highest", "lowest")],
+  ["Will initial jobless claims be fewer than 225,000 for the week ending November 15 according to the Department of Labor?", "Will initial jobless claims be at 225,000 for the week ending November 15 according to the Department of Labor?"],
+  ["Will initial jobless claims be greater than 225,000 for the week ending November 15 according to the Department of Labor?", "Will initial jobless claims be at 225,000 for the week ending November 15 according to the Department of Labor?"],
+);
 for (const size of SIZES) {
   test(`${size.width}: direction siblings (increase/decrease, hike/cut, raise/lower) render different lines`, async ({ page }) => {
     await page.setViewportSize(size);
@@ -121,7 +129,7 @@ for (const size of SIZES) {
     await page.waitForTimeout(2_000);
     await page.evaluate((lede) => {
       const p = document.querySelector('[data-testid="signup-bet"]') as HTMLElement;
-      (window as unknown as { fits: (t: string) => boolean }).fits = (t) => { (p.firstChild as Text).nodeValue = lede + t; return p.scrollHeight <= p.clientHeight + 1; };
+      (window as unknown as { fits: (t: string) => boolean }).fits = (t) => { (p.firstChild as Text).nodeValue = lede + t; return p.scrollHeight <= p.clientHeight + 1 && p.scrollWidth <= p.clientWidth + 1; };   // two lines, and not wider than the box
     }, LEDE);
     const fits = (t: string) => page.evaluate((x) => (window as unknown as { fits: (t: string) => boolean }).fits(x), t);
     const shorten = async (t: string) => {

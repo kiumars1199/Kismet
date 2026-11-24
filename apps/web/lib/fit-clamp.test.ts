@@ -18,11 +18,11 @@ describe("fitClamp", () => {
   });
   it("drops filler first and keeps the city, the range and the date", () => {
     const t = "Will the highest temperature in Los Angeles be between 66-67°F on November 18?";
-    const out = fitClamp(t, budget(76));
+    const out = fitClamp(t, budget(84));   // "highest" (vs "lowest") is a deciding word now, so it stays with the city
     expect(out).toContain("Los Angeles");
     expect(out).toContain("66-67°F");
     expect(out.endsWith("November 18?")).toBe(true);
-    expect((LEDE + out).length).toBeLessThanOrEqual(76);
+    expect((LEDE + out).length).toBeLessThanOrEqual(84);
   });
   it("candidates only ever get shorter, start with the whole title and never run out", () => {
     for (const t of [...FIXTURE.slice(0, 40), "a".repeat(200), "x"]) {
@@ -68,6 +68,18 @@ const SIBLINGS: [string, string][] = [
   ["Will the Bank of England raise the Bank Rate by 50 bps at the December meeting?", "Will the Bank of England lower the Bank Rate by 50 bps at the December meeting?"],
   ["Will the Bank of Israel make no change to the Bank of Israel Interest Rate at the November meeting?", "Will the Bank of Israel increase the Bank of Israel Interest Rate at the November meeting?"],
 ];
+// T-wt1f (review 2): a threshold said two ways ("29°C or higher" / "29°C"), the other end of a range (highest / lowest) and "fewer than" / "at"
+const RIO = "Will the highest temperature in Rio de Janeiro be 29°C or higher on November 18 according to the official station?";
+SIBLINGS.push(
+  [RIO, RIO.replace(" or higher", "")],
+  [RIO.replace(" or higher", " or below"), RIO.replace(" or higher", "")],
+  [RIO.replace(" or higher", ""), RIO.replace(" or higher", "").replace("highest", "lowest")],
+  [RIO.replace(" or higher", " or higher").replace("highest", "lowest"), RIO.replace(" or higher", "")],
+  ["Will initial jobless claims be fewer than 225,000 for the week ending November 15 according to the Department of Labor?", "Will initial jobless claims be at 225,000 for the week ending November 15 according to the Department of Labor?"],
+  ["Will initial jobless claims be greater than 225,000 for the week ending November 15 according to the Department of Labor?", "Will initial jobless claims be at 225,000 for the week ending November 15 according to the Department of Labor?"],
+  ["Will Bitcoin rise above $70,000 by the end of the week according to the CoinGecko daily price index?", "Will Bitcoin fall above $70,000 by the end of the week according to the CoinGecko daily price index?"],
+  ["Will the Fed exceed 2 rate moves in the 2026 calendar year according to the CME FedWatch tool?", "Will the Fed make exactly 2 rate moves in the 2026 calendar year according to the CME FedWatch tool?"],
+);
 describe("direction words", () => {
   for (const total of [86, 98, 110]) {
     it(`siblings never render the same line (budget ${total})`, () => {
