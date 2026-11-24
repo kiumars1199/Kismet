@@ -16,6 +16,6 @@ for (let i = 0; i < ROUNDS; i++) for (const u of [`/m/${MID}?ref=abcd1234`, `/si
   rows.push({ u, hit: !!err, ...info });
   if (err) { hits++; byUrl[u] = (byUrl[u] ?? 0) + 1; console.log("HIT", loads, u, err); }
 }
-import("node:fs").then((fs) => fs.writeFileSync(process.env.ROWS ?? "/tmp/claude-0/rows.json", JSON.stringify(rows)));
+import("node:fs").then((fs) => fs.writeFileSync(process.env.ROWS ?? "rows.json", JSON.stringify(rows)));
 console.log("loads", loads, "hits", hits, JSON.stringify(byUrl));
 await b.close();

@@ -1,3 +1,4 @@
+// env: PW_CHROMIUM_PATH (Chromium binary), PATCHED_CHUNK (output of patch-react-dom.py), ROWS (per-load rows json), GET_ONLY=1, TZ_COOKIE=<zone>
 import { chromium } from "@playwright/test";
 const BASE = process.argv[2], MID = process.argv[3], ROUNDS = +process.argv[4] || 6;
 const UA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1';
@@ -7,7 +8,7 @@ await c.route("**/api/funnel", (r) => r.abort());
 if (process.env.GET_ONLY) await c.route("**/*", (r) => (r.request().method() === "GET" ? r.continue() : r.abort()));
 if (process.env.TZ_COOKIE) await c.addCookies([{ name: "tz", value: process.env.TZ_COOKIE, url: BASE }]);
 import { readFileSync } from "node:fs";
-const patched = readFileSync("/tmp/claude-0/chunks/a9b5e390.patched.js", "utf8");
+const patched = readFileSync(process.env.PATCHED_CHUNK || "a9b5e390.patched.js", "utf8");
 await c.route(/\/_next\/static\/chunks\/a9b5e390-.*\.js/, (r) => r.fulfill({ status: 200, contentType: "application/javascript", body: patched }));
 const detail = [];
 const rows = []; const p = await c.newPage(); let err = null, loads = 0, hits = 0; const byUrl = {};
@@ -19,7 +20,7 @@ for (let i = 0; i < ROUNDS; i++) for (const u of [`/m/${MID}?ref=abcd1234`, `/si
   rows.push({ u, hit: !!err, ...info });
   if (err) { hits++; byUrl[u] = (byUrl[u] ?? 0) + 1; console.log("HIT", loads, u, err); }
 }
-import("node:fs").then((fs) => fs.writeFileSync(process.env.ROWS ?? "/tmp/claude-0/rows.json", JSON.stringify(rows)));
+import("node:fs").then((fs) => fs.writeFileSync(process.env.ROWS ?? "rows.json", JSON.stringify(rows)));
 console.log(detail.join("\n"));
 console.log("loads", loads, "hits", hits, JSON.stringify(byUrl));
 await b.close();

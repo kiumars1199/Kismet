@@ -1,12 +1,15 @@
 # T-hydr: intermittent React #418 at 390 (evidence)
 
-Walk-through 1 (`docs/launch/review/walkthrough-1/findings.md`, `prod-hydration.log`; harness `hyd.js`) saw `Minified React error #418 (HTML)` on prod 137ad1f at 390 with touch on `/m/<id>`, `/signup?next=`,
-`/state?next=` (4 in ~42 loads, then 1 in 24; 0 in 18 at 1440). Outcome of this investigation: **reproduced (prod and a
+Walk-through 1 (on branch `claude/brave-turing-j05kro`: `docs/launch/review/walkthrough-1/findings.md`, `prod-hydration.log`,
+`prod-probe3.log`, `prod-walk*.log`; harness `hyd.js`) saw `Minified React error #418 (HTML)` on prod 137ad1f at 390 with touch on
+`/m/<id>`, `/signup?next=`, `/state?next=`. What those logs show: 1 hit in 24 loads (`prod-hydration.log`: "loads 24 hits 1"), 0 in 18 at 1440
+(`prod-probe3.log`), and exactly one #418 each in `prod-walk.log`, `prod-walk-console.log` and `prod-walk.json`. The "4 in about 42 loads" figure
+from the task brief is not in any committed log, so it is not relied on here. Outcome of this investigation: **reproduced (prod and a
 local production build), narrowed to React's hydration cursor at the `<main>` host fiber; blocking metadata
 (`htmlLimitedBots`) took the local rate from 4/600 to 0/600 (see the A/B below, shipped in T-hydr2).**
 
 ## Reproduction (rates)
-Set `PW_CHROMIUM_PATH` to a Chromium binary if Playwright's own is not installed. `probe/patch-react-dom.py` builds the logging react-dom chunk used by `hyd3.mjs`; `prod-hit-rows.json` holds per-load timings of the prod run with its one hit (hit: TTFB 25 ms, body 99 ms).
+Set `PW_CHROMIUM_PATH` to a Chromium binary if Playwright's own is not installed. `probe/patch-react-dom.py` builds the logging react-dom chunk used by `hyd3.mjs`; `prod-hit-rows.json` holds per-load timings of the prod run with its one hit.
 Harness shape (`probe/hyd2.mjs`, `probe/hyd5.mjs`): one Playwright context at 390x844, `isMobile`, `hasTouch`, iPhone UA,
 `timezoneId America/New_York`, 4 pages round-robin (`/m/<id>`, `/signup`, `/state`, `/login`), `waitUntil: networkidle` + 1.2 s.
 Prod runs are read-only: every non-GET request aborted, tz cookie set client side. "log" = committed file in this folder.
@@ -14,7 +17,7 @@ Prod runs are read-only: every non-GET request aborted, tz cookie set client sid
 | Target | Loads | Hits | Log |
 |---|---|---|---|
 | prod, harness shape (tz cookie) | 48 | 1 (`/signup`) | none (console output only) |
-| prod, harness shape | 120 | 1 (`/login`) | none |
+| prod, harness shape | 120 | 1 (`/login`) | `prod-hit-rows.json` |
 | prod, fresh context per load, no tz cookie | 150 | 0 | none |
 | prod, react-dom chunk patched to log | 240 | 0 | none (hyd3_run2, not kept) |
 | local signed-out production build | 240 | 1 (`/state`) | `hyd2_local_base.log` |
@@ -28,7 +31,7 @@ Prod runs are read-only: every non-GET request aborted, tz cookie set client sid
 
 Correction: an earlier draft said patching react-dom hides the error. It does not: the patched local runs hit at 0.8-1.0%,
 the same rate as unpatched (about 0.4-0.7%). The patched prod run found none in 240, which at that rate is within chance.
-Hit loads were not slow (prod hit: TTFB 25 ms, body 99 ms, both median). Caution: my first "signed-out" local runs hit a
+Hit loads were not slow: in the prod run with a hit (`prod-hit-rows.json`) the hit load had TTFB 25 ms and body 99 ms, at or below that run's medians (26 ms and 104.5 ms). Caution: my first "signed-out" local runs hit a
 stale demo server on the same port; those numbers were discarded and rerun.
 
 ### Instrumented throws vs counted hits
