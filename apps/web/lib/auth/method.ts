@@ -11,7 +11,9 @@ export function signInMethod(accessToken: string | null | undefined, provider: s
   const first = amr[0];
   if (first === "password") return "password";
   if (first === "otp" || first === "magiclink" || first === "email/signup") return "email_link";
-  if (first === "oauth" || provider === "google") return "google";
+  // The account's provider is only a fallback when the token has no amr at all: a recovery, invite or other session on a
+  // Google account must not read "with Google" (review of #99).
+  if (first === "oauth" || (amr.length === 0 && provider === "google")) return "google";
   return null;
 }
 

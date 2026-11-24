@@ -18,6 +18,11 @@ describe("signInMethod", () => {
   it("a password account that opens an email link is an email link (amr wins over the provider)", () => {
     expect(signInMethod(jwt({ amr: [{ method: "otp" }] }), "email")).toBe("email_link");
   });
+  it("a Google account in a recovery, invite, SSO, MFA or refreshed session does not read as Google", () => {
+    for (const amr of [["recovery"], ["invite"], ["email_change"], ["sso/saml"], ["totp", "password"], ["token_refresh"]]) {
+      expect(signInMethod(jwt({ amr: amr.map((method) => ({ method })) }), "google"), amr.join(",")).toBeNull();
+    }
+  });
   it("no claim, a broken token or no token: null", () => {
     expect(signInMethod(jwt({}), "email")).toBeNull();
     expect(signInMethod("garbage", "email")).toBeNull();
