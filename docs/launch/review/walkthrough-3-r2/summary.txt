@@ -1,0 +1,21 @@
+Walk-through 3 re-walk (r2) on final 6da7905: local `next build && next start`, E2E_MOCK=1 E2E_PROD_BUILD=1, paid fixtures shifted to open (shift.mjs). Chromium headless.
+Port 3741. Sign-in via the e2e mock inbox; tier set via the mock subscriptions table. 053b671-partial/ = first pass on 053b671 (superseded).
+
+STATUS "Walk-through 3" problems:
+- tray vs checker same legs: FIXED. Tray 62% / 2.7x / +67%; checker 62% / 2.72x (premium-tray.log) at 390 and 1440.
+- restore CLS fresh mount 390: FIXED. 0-0.0004 (URL, tab storage, shared check=1) for 2/3/4 legs; 1440 <=0.007 (cls-pro.log).
+- Check this combo 390, 3-4 legs, result >500ms: FIXED for different-event legs (0.0102). STILL 0.0425 with a same-event pair in 4 legs
+  (combo-same-event note moves y456->324 when the result lands, the ready/button block y776 h68 collapses). 1440: 0.0062.
+- shareable combo URL: FIXED. Copy link -> /check/combo?legs=..&check=1; Pro new tab auto-scores 2.13x/70%; signed out sees legs + button.
+- ?m= cleared after add: FIXED. URL becomes ?legs=; reload keeps legs and the result; removed leg stays removed after reload.
+- drop suggestion with same-event pair: FIXED as text: the same-event note says "Drop one of the two Denmark vs. Norway bets." (score "—", no Drop-that-leg card).
+- Free pre-check note vs limit box: FIXED ("Free includes 1 check a day (a bet or a combo); this combo counts as one." / "..., and you've used it.").
+  After a 429 scored legs keep chance and payout (free-429.log). After a reload they show price only (nothing scored in that document).
+- tray same-event points to checker: FIXED. Alert links "combo checker" -> /check/combo?legs=<tray legs + new leg>; the checker shows the same-event note.
+- Check this combo under Premium tray at 390: FIXED. Button topmost at every rest scroll position except a 50-150 px band while it passes behind the tray (premium-390-check-btn.log).
+New / site-wide:
+- Per-step CLS <=0.02 at 390/1440 on the walk path (pro-390/1440.log). Exceptions: the same-event slow check above; reload of a scrolled scored URL at 768: 0.0236 (2 shifts, DIV h18->74 then 104 px move); 1440 0.0075, 1280 0.0098, 390 0.
+- Disclaimer on every page visited, no cents, no horizontal scroll, all plans and widths. No personalized picks (same Best bets for all; the drop hint is about the user's own combo legs, computed from the model only).
+- Tap targets: all >=44 at 390. Desktop header nav 36 px tall, footer links 24 px (pointer widths, unchanged). Inline: "source" 39x15, tray alert "combo checker" 16 px tall.
+- Premium drawer path: /bets -> drawer "Add to combo tray" 46 px -> "In combo ✓", tray summary updates, CLS 0.
+- Signed-in headers: 768 two rows (125 px), no "Check a bet" in the header (from 1440 by decision); 1280 one row 64 px. No overlap.

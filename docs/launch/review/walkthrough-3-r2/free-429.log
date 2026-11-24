@@ -1,0 +1,14 @@
+signed in wt3r2-f429-1795525911732@example.com tier=free
+    < 200 /api/check/combo
+@390 scored: ["Colts vs. Texans Bet Texans at 85% · 95% chance (cautious) · pays 1.16x","Denmark vs. Norway: O/U 2.5 Bet Over at 67% · 82% chance (cautious) · pays 1.45x"]
+  added 3rd: ["Colts vs. Texans Bet Texans at 85% · 95% chance (cautious) · pays 1.16x","Denmark vs. Norway: O/U 2.5 Bet Over at 67% · 82% chance (cautious) · pays 1.45x","Will the highest temperature in Miami be between 76-77°F on November 18? Bet No at 75%"] free-note "Free includes 1 check a day (a bet or a combo); this combo counts as one."
+    < 429 /api/check/combo
+  after 429: ["Colts vs. Texans Bet Texans at 85% · 95% chance (cautious) · pays 1.16x","Denmark vs. Norway: O/U 2.5 Bet Over at 67% · 82% chance (cautious) · pays 1.45x","Will the highest temperature in Miami be between 76-77°F on November 18? Bet No at 75%"] box "Free includes 1 check a day (a bet or a combo), and you've used it. Pro and Premium check as many bets and combos as you like.\n\nSee plans"
+  after reload: ["Colts vs. Texans Bet Texans at 85%","Denmark vs. Norway: O/U 2.5 Bet Over at 67%","Will the highest temperature in Miami be between 76-77°F on November 18? Bet No at 75%"]
+signed in wt3r2-f429-1795525928953@example.com tier=free
+    < 200 /api/check/combo
+@1440 scored: ["Colts vs. Texans Bet Texans at 85% · 95% chance (cautious) · pays 1.16x","Denmark vs. Norway: O/U 2.5 Bet Over at 67% · 82% chance (cautious) · pays 1.45x"]
+  added 3rd: ["Colts vs. Texans Bet Texans at 85% · 95% chance (cautious) · pays 1.16x","Denmark vs. Norway: O/U 2.5 Bet Over at 67% · 82% chance (cautious) · pays 1.45x","Will the highest temperature in Miami be between 76-77°F on November 18? Bet No at 75%"] free-note "Free includes 1 check a day (a bet or a combo); this combo counts as one."
+    < 429 /api/check/combo
+  after 429: ["Colts vs. Texans Bet Texans at 85% · 95% chance (cautious) · pays 1.16x","Denmark vs. Norway: O/U 2.5 Bet Over at 67% · 82% chance (cautious) · pays 1.45x","Will the highest temperature in Miami be between 76-77°F on November 18? Bet No at 75%"] box "Free includes 1 check a day (a bet or a combo), and you've used it. Pro and Premium check as many bets and combos as you like.\n\nSee plans"
+  after reload: ["Colts vs. Texans Bet Texans at 85%","Denmark vs. Norway: O/U 2.5 Bet Over at 67%","Will the highest temperature in Miami be between 76-77°F on November 18? Bet No at 75%"]

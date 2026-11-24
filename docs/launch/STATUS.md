@@ -64,20 +64,13 @@ Problems:
 - Accepted, not a problem: the console logs 429 on the 2nd Free check (decisions.md).
 
 ## Walk-through 3: Pro user building a combo
-Status: official walk on 137ad1f (23:35; evidence review/walkthrough-3/): FAIL. Signed-in steps ran on a local build of 137ad1f with the E2E mock, and signed-out steps on prod (decisions.md). The Premium tray was confirmed on time-shifted open fixtures. Fixes assigned: T-wt3b and T-wt3c (data). Dry-run items fixed: Pro entry to /check/combo, /combos and /pricing copy, same-event "Score 100", " - More Markets", Free copy for Pro, engine wording. The search-hit shift was partly fixed; the first-leg part is in #96 (T-89c).
+Status: re-walk on final 6da7905 (local prod build; 13:10 UTC; evidence review/walkthrough-3-r2/): FAIL on one should-fix. Every item from the earlier walk is fixed (tray/checker agree, restore CLS ≤0.0004 at 390, shareable link, ?m= → ?legs=, Free note wording, tray same-event pointer, button clear of Premium tray). Fixes assigned: T-wt3e (builder lane, 13:12).
 
 Problems:
-- [should-fix] The tray and the checker disagree on the same legs: 2.6x / 55% vs 2.50x / 65% (different fee venue and chance rule). This breaks F2's "Done when". (data, T-wt3c)
-- [should-fix] Restoring legs on a fresh mount of /check/combo at 390: CLS 0.10–0.115 (re-measure after #96). (data, T-wt3b)
-- [should-fix] "Check this combo" at 390 with 3–4 legs and a result arriving after more than 500 ms: CLS 0.39–0.41. (data, T-wt3b)
-- [should-fix] No way to share a combo result; the URL holds only the last leg. (data, T-wt3b)
-- [should-fix] `?m=` stays in the URL after an add: reload says "already in your combo" and drops the result; a removed leg comes back. (data, T-wt3b)
-- [nit] With a same-event pair the drop suggestion is hidden. (data, T-wt3b)
-- [nit] The Free pre-check note and the limit box say it differently; after a 429 the legs lose chance and payout. (data, T-wt3b)
-- [nit] The tray refuses same-event legs and the checker accepts them, without pointing the user to the checker. (data, T-wt3c)
-- [nit] At 390 with the Premium tray, "Check this combo" sits under the tray. (data, T-wt3c)
-- [nit] "2 to 10" is said 3 times (fixed in #96, merged). Desktop footer links are 20 px (fixed by #95, merged).
-- Not walked: signed-in headers at 768–1280, the Premium drawer path to the tray, WebKit, and signed-in steps on a production build. Re-walk after the fixes.
+- [should-fix] /check/combo at 390: "Check this combo" shifts CLS 0.0425 (budget 0.02) when legs include a same-event pair and the result is slow; the button block collapses and the same-event note jumps 132 px (T-wt3e)
+- [nit] /check/combo at 768: reload of a scored link while scrolled shifts 0.0236 (pre-existing on 053b671) (T-wt3e)
+- [nit] Same-event note says "Drop one of the two … bets" without saying which (T-wt3e)
+- [nit] Premium tray same-event alert: "combo checker" inline link is 16 px tall (T-wt3e)
 
 ## Found in review, outside a lane
 - 12:55 merged #121 T-wt1g (73e7d67), reviewer PASS (evidence review/121/). Still open follow-ups: tight-width city dropped before direction words (no real title hits it); nit: "loses to" shortens to "loses …" at 360/390.

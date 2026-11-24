@@ -1,0 +1,21 @@
+signed in wt3r2-free-1795525771418@example.com tier=free
+
+== free @390: pre-check note "Free includes 1 check a day (a bet or a combo); this combo counts as one."; legs ["Colts vs. Texans Bet Texans at 85%","Denmark vs. Norway: O/U 2.5 Bet Over at 67%"]
+    < 200 /api/check/combo
+  1st check: legs ["Colts vs. Texans Bet Texans at 85% · 95% chance (cautious) · pays 1.16x","Denmark vs. Norway: O/U 2.5 Bet Over at 67% · 82% chance (cautious) · pays 1.45x"] mult 1.68x
+    < 200 /api/check/combo
+  same set again: mult 1.68x upgrade null
+  set B pre-check note "Free includes 1 check a day (a bet or a combo); this combo counts as one."; legs ["Singapore vs. Brazil: O/U 4.5 Bet Over at 65%","Miami (OH) vs. Kent State: 1Q Moneyline Bet Miami (OH) at 69%"]
+    < 429 /api/check/combo
+  set B after 429: CLS tap 0.0000; legs ["Singapore vs. Brazil: O/U 4.5 Bet Over at 65%","Miami (OH) vs. Kent State: 1Q Moneyline Bet Miami (OH) at 69%"]; limit box "Free includes 1 check a day (a bet or a combo), and you've used it. Pro and Premium check as many bets and combos as you like.\n\nSee plans"
+  facts {"url":"/check/combo?legs=6654461%3A0%2C7077574%3A0","cls":0.0004,"shifts":["0.0004 freshness y68->68 h44->44"],"disc":true,"cents":false,"hs":false} small ["inline a:\"source\" 39x15"]
+
+== free @1440: pre-check note "Free includes 1 check a day (a bet or a combo); this combo counts as one."; legs ["Colts vs. Texans Bet Texans at 85%","Singapore vs. Brazil: O/U 4.5 Bet Over at 65%"]
+    < 429 /api/check/combo
+  1st check: legs ["Colts vs. Texans Bet Texans at 85%","Singapore vs. Brazil: O/U 4.5 Bet Over at 65%"] mult null
+    < 429 /api/check/combo
+  same set again: mult null upgrade "Free includes 1 check a day (a bet or a combo), and you've used it. Pro and Premium check as many bets and combos as you like.\n\nSee plans"
+  set B pre-check note "Free includes 1 check a day (a bet or a combo); this combo counts as one."; legs ["Ball State vs. Ohio: 1Q Moneyline Bet Ohio at 73%","Miami (OH) vs. Kent State: 1Q Moneyline Bet Miami (OH) at 69%"]
+    < 429 /api/check/combo
+  set B after 429: CLS tap 0.0000; legs ["Ball State vs. Ohio: 1Q Moneyline Bet Ohio at 73%","Miami (OH) vs. Kent State: 1Q Moneyline Bet Miami (OH) at 69%"]; limit box "Free includes 1 check a day (a bet or a combo), and you've used it. Pro and Premium check as many bets and combos as you like.\n\nSee plans"
+  facts {"url":"/check/combo?legs=7078474%3A1%2C7077574%3A0","cls":0.002,"shifts":["0.0004 DIV y10->10 h44->44","0.0016 DIV y785->729 h18->74"],"disc":true,"cents":false,"hs":false} small ["a:\"Best bets\" 86x36","a:\"All markets\" 97x36","a:\"My list\" 67x36","a:\"My bets\" 77x36","a:\"Results\" 72x36","a:\"Check a bet\" 103x36","a:\"Kalshi\" 64x36","inline a:\"source\" 39x15","a:\"How it works\" 82x24","a:\"Pricing\" 47x24","a:\"Check a bet\" 76x24","a:\"Check a combo\" 97x24","a:\"Terms\" 43x24","a:\"Privacy\" 50x24","a:\"Refunds\" 55x24","a:\"Disclaimer\" 67x24","a:\"Contact\" 53x24","a:\"Status\" 44x24","a:\"Kalshi markets\" 91x24"]
