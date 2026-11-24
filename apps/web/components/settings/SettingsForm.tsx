@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { NumberInput, Segmented, Switch, btn, btnDanger, card, input } from "@/components/kit";
 import { TopicsPicker } from "@/components/settings/TopicsPicker";
+import { TAXONOMY } from "@/lib/taxonomy";
 import { money } from "@/lib/format";
 import { askPermission, browserAlertsOn, notifyState, setBrowserAlerts, type NotifyState } from "@/lib/notify";
 import { ODDS_CHOICES, ODDS_LABEL, formatOdds } from "@/lib/odds";
@@ -96,7 +97,7 @@ export function SettingsForm() {
       <Section id="s-topics" title="Topics" sub="Favorite topics pin chips on the screener. Chosen by you, never from your bets.">
         <div className="pt-0"><TopicsPicker /></div>
         {profile.favorite_topics.length > 0 && (
-          <p className="pt-3 text-sm text-muted">Favorites: {profile.favorite_topics.join(", ")}</p>
+          <p className="pt-3 text-sm text-muted">Favorites: {profile.favorite_topics.map((id) => TAXONOMY[id]?.label ?? id).join(", ")}</p>
         )}
       </Section>
 

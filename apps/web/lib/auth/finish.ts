@@ -7,6 +7,7 @@ import { adminEnabled, supabaseAdmin } from "@/lib/auth/server";
 import { recordInviteFromCookie, settleInvitesOnSignIn } from "@/lib/invites/signin";
 import { onFirstSignIn } from "@/lib/email/lifecycle";
 import { DEMO_MODE } from "@/lib/config";
+import { syncTopicsCookie } from "@/lib/repo/server";
 import { getSettings } from "@/lib/settings";
 
 export async function finishSignIn(supabase: SupabaseClient, user: User, next: string, termsAt: () => Promise<string | null>): Promise<string> {
@@ -35,5 +36,14 @@ export async function finishSignIn(supabase: SupabaseClient, user: User, next: s
     await onFirstSignIn(user);   // T-299/T-300: funnel "signup_done" (+ welcome email); awaited, never throws
   }
   await settleInvitesOnSignIn(user);   // F13: a pending invite whose email is now confirmed counts; a deferred reward is asked for again
+  // F5: a new device or a fresh sign-in has no topics hint yet: write it from the profile now, so the redirect to
+  // Home / Best bets already opens filtered (the first signed-in render), not only after /api/me.
+  if (adminEnabled()) {
+    try {
+      const full = await supabaseAdmin().from("profiles").select("favorite_topics, topics_off").eq("user_id", user.id).maybeSingle();
+      const row = full.error ? (await supabaseAdmin().from("profiles").select("favorite_topics").eq("user_id", user.id).maybeSingle()).data : full.data;
+      await syncTopicsCookie(user.id, row);
+    } catch { /* best effort: /api/me writes it later */ }
+  }
   return profile?.onboarded_at ? next : `/onboarding?next=${encodeURIComponent(next)}`;
 }
