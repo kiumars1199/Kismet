@@ -1,0 +1,12 @@
+ids ["6674492","7077573","7078474","7077574","6654466"]
+free-1440-nav-bets /bets {"cls":0.0006,"hscroll":false,"disclaimer":true,"cents":false,"helplines":["footer"]}
+free-1440 /bets header links [{"t":"Kismet","w":94,"h":44},{"t":"Best bets","w":87,"h":36},{"t":"All markets","w":97,"h":36},{"t":"My list","w":67,"h":36},{"t":"My bets","w":77,"h":36},{"t":"Results","w":72,"h":36},{"t":"Check a bet","w":103,"h":36},{"t":"Kalshi","w":64,"h":36},{"t":"Updated 7 days ago ·","w":146,"h":44},{"t":"","w":44,"h":44},{"t":"Account","w":79,"h":44}]
+free-1440 /bets footer links <24 [{"t":"source","w":39,"h":15}]
+free-1440-nav-markets /markets {"cls":0.0006,"hscroll":false,"disclaimer":true,"cents":false,"helplines":["footer"]}
+free-1440 /markets header links [{"t":"Kismet","w":94,"h":44},{"t":"Best bets","w":86,"h":36},{"t":"All markets","w":99,"h":36},{"t":"My list","w":67,"h":36},{"t":"My bets","w":77,"h":36},{"t":"Results","w":72,"h":36},{"t":"Check a bet","w":103,"h":36},{"t":"Kalshi","w":64,"h":36},{"t":"Updated 7 days ago ·","w":146,"h":44},{"t":"","w":44,"h":44},{"t":"Account","w":79,"h":44}]
+free-1440 /markets footer links <24 [{"t":"source","w":39,"h":15}]
+free-1440-nav-account /account {"cls":0.0011,"hscroll":false,"disclaimer":true,"cents":false,"helplines":["pause-card"]}
+free-1440 /account header links [{"t":"Kismet","w":94,"h":44},{"t":"Best bets","w":86,"h":36},{"t":"All markets","w":97,"h":36},{"t":"My list","w":67,"h":36},{"t":"My bets","w":77,"h":36},{"t":"Results","w":72,"h":36},{"t":"Check a bet","w":103,"h":36},{"t":"Kalshi","w":64,"h":36},{"t":"Updated 7 days ago ·","w":146,"h":44},{"t":"","w":44,"h":44},{"t":"Account","w":79,"h":44}]
+free-1440 /account footer links <24 []
+free-390-markets-rows /markets {"cls":0,"hscroll":false,"disclaimer":true,"cents":false,"helplines":["footer"]}
+free-390 /markets row links 20 ["44x139","44x53","62x139","44x53","44x139","44x53","44x139","44x53","44x139","44x53","44x139","44x53"]

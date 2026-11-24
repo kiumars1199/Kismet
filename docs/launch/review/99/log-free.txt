@@ -1,0 +1,19 @@
+ids ["6674492","7077573","7078474","7077574","6654466"]
+free-390 onboarding Back {"w":65,"h":44,"x":16,"y":720} {"w":72,"h":44,"x":302,"y":720}
+free-390-account /account {"cls":0,"hscroll":false,"disclaimer":true,"cents":false,"helplines":["pause-card"]}
+free-390 acct line: Signed in as <email>, with an email link.
+free-390 pause confirm {"w":161,"h":44,"x":37,"y":460} cancel {"w":70,"h":44,"x":210,"y":460} gap 12 cancel text Cancel
+free-390 after Cancel: confirm gone true paused_until null account still usable true
+free-1440-account /account {"cls":0.0011,"hscroll":false,"disclaimer":true,"cents":false,"helplines":["pause-card"]}
+free-1440 acct line: Signed in as <email>, with an email link.
+free-1440 pause confirm {"w":161,"h":44,"x":361,"y":528} cancel {"w":70,"h":44,"x":534,"y":528} gap 12 cancel text Cancel
+free-1440 after Cancel: confirm gone true paused_until null account still usable true
+free-390-bets /bets {"cls":0,"hscroll":false,"disclaimer":true,"cents":false,"helplines":["footer"]}
+free-390 log-bet-upgrade absent on /bets
+free-390-markets /markets {"cls":0,"hscroll":false,"disclaimer":true,"cents":false,"helplines":["footer"]}
+free-390 markets links <44 []
+free-390 drawer {"href":"/check?m=6674492&side=0","check":{"w":169,"h":44,"x":21,"y":355},"combo":{"w":169,"h":44,"x":202,"y":355},"See plans":{"w":61,"h":44,"x":40,"y":701},"Why two numbers?":{"w":109,"h":44,"x":38,"y":400},"Settings":{"w":54,"h":44,"x":169,"y":400}} {"cls":0,"hscroll":false,"disclaimer":true,"cents":false,"helplines":["footer"]}
+free-390 check #1 /check?m=6674492&side=0 {"cls":0,"hscroll":false,"disclaimer":true,"cents":false,"helplines":["footer"]} Bet checker | Paste a market link or search by words. Change the side, price or stake and every number updates. | Check a combo | Market link or words | Check | Denmark vs. Norway: Both Teams to Score | Denmark vs. Norway | Yes | No | Price (%) | Stake ($) | Our chance | 92% | Market says | 68% | Pays | 1.45x | Edge (points) | +24 pts | Estimated return | +33% | 100 | out of 100 | After the fee: +23 points of win chance over the price. | Score = 50 + 250 × (our chance − price after fee) × √(past bets behind it ÷ 400, at most 1), kept be
+free-390 check #2 /check?m=7077573&side=0 {"cls":0,"hscroll":false,"disclaimer":true,"cents":false,"helplines":["footer"]} Bet checker | Paste a market link or search by words. Change the side, price or stake and every number updates. | Check a combo | Market link or words | Check | Free includes 1 bet check a day, and you've used it. Pro and Premium check as many bets as you like. | See plans
+free api /api/check 3rd [200,"{\"market\":{\"id\":\"7078474\",\"question\":\"Ball State vs. Ohio: 1Q Moneyline\",\"event\":\"Ball State vs. Ohio\",\"event_id\":\"1335827\",\"url\":\"https://polymarket.com/event/cfb-ballst-ohio-2026-11-17\",\"closes_at\":"]
+free-390-pricing /pricing {"cls":0,"hscroll":false,"disclaimer":true,"cents":false,"helplines":["footer"]}

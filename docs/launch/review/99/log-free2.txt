@@ -1,0 +1,33 @@
+ids ["6674492","7077573","7078474","7077574","6654466"]
+free2 acct line: Signed in as <email>, with an email link.
+free2 POST /api/check ["6674492",200,"{\"market\":{\"id\":\"6674492\",\"question\":\"Denmark vs. Norway: Both Teams to Score\",\"event\":\"De"]
+free2 POST /api/check ["7077573",429,"{\"error\":\"Free includes 1 check a day. Upgrade for unlimited checks.\",\"code\":\"check_limit\""]
+free2 POST /api/check ["7078474",429,"{\"error\":\"Free includes 1 check a day. Upgrade for unlimited checks.\",\"code\":\"check_limit\""]
+free2 POST /api/check ["7077574",429,"{\"error\":\"Free includes 1 check a day. Upgrade for unlimited checks.\",\"code\":\"check_limit\""]
+free2 POST /api/check ["6674492",200,"{\"market\":{\"id\":\"6674492\",\"question\":\"Denmark vs. Norway: Both Teams to Score\",\"event\":\"De"]
+free-390 Track your bets with Pro {"w":161,"h":44,"x":115,"y":410} para {"w":358,"h":64,"x":16,"y":390}
+free2 bets facts {"cls":0,"hscroll":false,"disclaimer":true,"cents":false,"helplines":["footer"]}
+free-1440 drawer {"href":"/check?m=6674492&side=0","check":{"w":198,"h":44,"x":1007,"y":361},"combo":{"w":198,"h":44,"x":1217,"y":361},"See plans":{"w":61,"h":44,"x":1254,"y":651},"Why two numbers?":{"w":109,"h":44,"x":1253,"y":428},"Settings":{"w":54,"h":44,"x":1155,"y":428}} {"cls":0.0006,"hscroll":false,"disclaimer":true,"cents":false,"helplines":["footer"]}
+free-1440-account2 /account {"cls":0.0011,"hscroll":false,"disclaimer":true,"cents":false,"helplines":["pause-card"]}
+setTier pro 204 pro
+pro-390-account /account {"cls":0,"hscroll":false,"disclaimer":true,"cents":false,"helplines":["pause-card"]}
+pro-390 acct line: Signed in as <email>, with an email link.
+pro-390 drawer {"href":"/check?m=6674492&side=0","check":{"w":169,"h":44,"x":21,"y":355},"combo":{"w":169,"h":44,"x":202,"y":355},"See plans":"absent","Why two numbers?":{"w":109,"h":44,"x":38,"y":400},"Settings":{"w":54,"h":44,"x":169,"y":400}} {"cls":0,"hscroll":false,"disclaimer":true,"cents":false,"helplines":["footer"]}
+pro-1440-account /account {"cls":0.0009,"hscroll":false,"disclaimer":true,"cents":false,"helplines":["pause-card"]}
+pro-1440 acct line: Signed in as <email>, with an email link.
+pro-1440 drawer {"href":"/check?m=6674492&side=0","check":{"w":198,"h":44,"x":1007,"y":361},"combo":{"w":198,"h":44,"x":1217,"y":361},"See plans":"absent","Why two numbers?":{"w":109,"h":44,"x":1253,"y":428},"Settings":{"w":54,"h":44,"x":1155,"y":428}} {"cls":0.0006,"hscroll":false,"disclaimer":true,"cents":false,"helplines":["footer"]}
+pro-390-bets /bets {"cls":0.0005,"hscroll":false,"disclaimer":true,"cents":false,"helplines":["footer"]}
+pro upsell count 0
+pro POST /api/check ["7077573",200,"{\"market\":{\"id\":\"7077573\",\"question\":\"Miami (OH) vs. Kent State: 1H Moneyline\",\"event\":\"Mi"]
+pro POST /api/check ["7078474",200,"{\"market\":{\"id\":\"7078474\",\"question\":\"Ball State vs. Ohio: 1Q Moneyline\",\"event\":\"Ball Sta"]
+setTier premium 204 premium
+premium-390-account /account {"cls":0,"hscroll":false,"disclaimer":true,"cents":false,"helplines":["pause-card"]}
+premium-390 acct line: Signed in as <email>, with an email link.
+premium-390 drawer {"href":"/check?m=6674492&side=0","check":{"w":169,"h":44,"x":21,"y":405},"combo":{"w":169,"h":44,"x":202,"y":405},"See plans":"absent","Why two numbers?":{"w":109,"h":44,"x":38,"y":400},"Settings":{"w":54,"h":44,"x":169,"y":400}} {"cls":0,"hscroll":false,"disclaimer":true,"cents":false,"helplines":["footer"]}
+premium-1440-account /account {"cls":0.0005,"hscroll":false,"disclaimer":true,"cents":false,"helplines":["pause-card"]}
+premium-1440 acct line: Signed in as <email>, with an email link.
+premium-1440 drawer {"href":"/check?m=6674492&side=0","check":{"w":198,"h":44,"x":1007,"y":361},"combo":{"w":198,"h":44,"x":1217,"y":361},"See plans":"absent","Why two numbers?":{"w":109,"h":44,"x":1253,"y":428},"Settings":{"w":54,"h":44,"x":1155,"y":428}} {"cls":0,"hscroll":false,"disclaimer":true,"cents":false,"helplines":["footer"]}
+premium-390-bets /bets {"cls":0,"hscroll":false,"disclaimer":true,"cents":false,"helplines":["footer"]}
+premium upsell count 0
+premium POST /api/check ["7077573",200,"{\"market\":{\"id\":\"7077573\",\"question\":\"Miami (OH) vs. Kent State: 1H Moneyline\",\"event\":\"Mi"]
+premium POST /api/check ["7078474",200,"{\"market\":{\"id\":\"7078474\",\"question\":\"Ball State vs. Ohio: 1Q Moneyline\",\"event\":\"Ball Sta"]

@@ -1,0 +1,20 @@
+PR #99 T-wt2c, reviewed at b35d449 (UI) + 5b7275d (test-only delta: e2e-paid/launch-helpline-targets.spec.ts)
+Local: next dev on :3755 with the e2e-paid env (E2E mock Supabase/Stripe), DATA_DIR=test/fixtures. Pro/Premium via mock comp_tier.
+Raw logs: log-out.txt, log-free.txt (first run, cut by container restart), log-free2.txt, log-pw.txt
+
+1 Pause Cancel: 390 -> Cancel 70x44, 12 px right of "Pause for 24 hours" (161x44); 1440 same. Tap/click Cancel: confirm gone,
+  /api/me paused_until null, reload still shows /account (not the pause screen).
+2 Tap targets @390: onboarding Back 65x44; "Track your bets with Pro" 161x44; /markets row links: 0 under 44;
+  drawer: Check this bet 169x44, Add to combo 169x44, See plans 61x44 (Free only), Why two numbers? 109x44, Settings 54x44.
+  @1440: header links 36-44 tall; footer links 24 tall (the "source" link 39x15 is the accepted exception).
+3 Sign-in method: email link -> ", with an email link." (Free/Pro/Premium); password signup -> email link (confirmation link
+  started the session) -> sign out -> password login -> ", with your email and password." (persists after reload).
+4 Help line: /account visible helplines = [pause-card] only, at 390 and 1440, all plans; every other page = [footer]; disclaimer present.
+5 Drawer "Check this bet" -> /check?m=6674492&side=0 for Free, Pro, Premium at 390 and 1440. Free: POST /api/check A 200, B/C/D 429, A again 200.
+  Pro/Premium: 200. Signed-out: /check?m=..&side=0 renders the check; signed-out /m/<id> teaser has no "Check this bet" (has "Add to combo checker").
+CLS max 0.0011 (/account 1440); no sideways scroll anywhere; disclaimer on every page; no cents text.
+CI: checks job at 5b7275d success, "/: first-load JS 149.8 kB gzipped; budget 150 kB: OK". b35d449: web failure (e2e-paid (2), the helpline spec fixed in 5b7275d).
+Signed-in 1440 header links 36-44; footer links 24 (source link excepted); /markets 390: 20 row links, all >=44 tall (log-nav.txt).
+amr-probe.txt: provider "google" with amr recovery/invite/email_change/sso/[totp,password] -> "google" (wrong method).
+CI 5b7275d: web success, all jobs green.
+Note: log-free.txt shows one 200 for a 3rd Free check in the run cut by the container restart; not reproduced in log-free2.txt (A 200, B/C/D 429).

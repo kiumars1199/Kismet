@@ -1,0 +1,22 @@
+ids ["6674492","7077573","7078474","7077574","6654466"]
+out-390-home / {"cls":0,"hscroll":false,"disclaimer":true,"cents":false,"helplines":["footer"]}
+out-390 footer links [{"t":"Call or text 1-800-MY-RESET","w":200,"h":44},{"t":"Chat online","w":99,"h":44},{"t":"source","w":39,"h":15},{"t":"How it works","w":90,"h":44},{"t":"Pricing","w":55,"h":44},{"t":"Check a bet","w":84,"h":44},{"t":"Check a combo","w":105,"h":44},{"t":"Terms","w":51,"h":44},{"t":"Privacy","w":58,"h":44},{"t":"Refunds","w":63,"h":44},{"t":"Disclaimer","w":75,"h":44},{"t":"Contact","w":61,"h":44},{"t":"Status","w":52,"h":44},{"t":"Kalshi markets","w":99,"h":44}]
+out-390-m-page /m/6674492 {"cls":0,"hscroll":false,"disclaimer":true,"cents":false,"helplines":["footer"]}
+out-390 /m page check-this-bet count 0 null null
+out-390 /m See plans absent
+out-390 /m Why two numbers? absent
+out-390 /m Settings absent
+out-390-check-direct /check?m=6674492&side=0 {"cls":0,"hscroll":false,"disclaimer":true,"cents":false,"helplines":["footer"]}
+out-390 check direct text Bet checker | Paste a market link or search by words. Change the side, price or stake and every number updates. | Check a combo | Market link or words | Check | Denmark vs. Norway: Both Teams to Score | Denmark vs. Norway | Yes | No | Price (%) | Stake ($) | Our chance | 92% | Market says | 68% | Pays | 1.45x | Edge (points) | +24 pts | Estimated return | +33% | 100 | out of 100 | After the fee: +23 points of win chance over the price. | 
+out-390-pricing /pricing {"cls":0,"hscroll":false,"disclaimer":true,"cents":false,"helplines":["footer"]}
+out-1440-home / {"cls":0,"hscroll":false,"disclaimer":true,"cents":false,"helplines":["footer"]}
+out-1440 header links <24 [{"t":"Kismet","h":44},{"t":"How it works","h":36},{"t":"Results","h":36},{"t":"Pricing","h":36},{"t":"Check a bet","h":36},{"t":"Updated 7 days ago · dat","h":44},{"t":"Log in","h":44},{"t":"Sign up","h":44}]
+out-1440 footer links [{"t":"Call or text 1-800-MY-RESET","w":200,"h":44},{"t":"Chat online","w":99,"h":44},{"t":"source","w":39,"h":15},{"t":"How it works","w":82,"h":24},{"t":"Pricing","w":47,"h":24},{"t":"Check a bet","w":76,"h":24},{"t":"Check a combo","w":97,"h":24},{"t":"Terms","w":43,"h":24},{"t":"Privacy","w":50,"h":24},{"t":"Refunds","w":55,"h":24},{"t":"Disclaimer","w":67,"h":24},{"t":"Contact","w":53,"h":24},{"t":"Status","w":44,"h":24},{"t":"Kalshi markets","w":91,"h":24}]
+out-1440-m-page /m/6674492 {"cls":0,"hscroll":false,"disclaimer":true,"cents":false,"helplines":["footer"]}
+out-1440 /m page check-this-bet count 0 null null
+out-1440 /m See plans absent
+out-1440 /m Why two numbers? absent
+out-1440 /m Settings absent
+out-1440-check-direct /check?m=6674492&side=0 {"cls":0,"hscroll":false,"disclaimer":true,"cents":false,"helplines":["footer"]}
+out-1440 check direct text Bet checker | Paste a market link or search by words. Change the side, price or stake and every number updates. | Check a combo | Market link or words | Check | Denmark vs. Norway: Both Teams to Score | Denmark vs. Norway | Yes | No | Price (%) | Stake ($) | Our chance | 92% | Market says | 68% | Pays | 1.45x | Edge (points) | +24 pts | Estimated return | +33% | 100 | out of 100 | After the fee: +23 points of win chance over the price. | 
+out-1440-pricing /pricing {"cls":0,"hscroll":false,"disclaimer":true,"cents":false,"helplines":["footer"]}

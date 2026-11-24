@@ -1,0 +1,4 @@
+390 {"cls":0,"hscroll":false,"disclaimer":true,"cents":false,"summary":"Tested on 9,666 past best bets: 86% won, and overall they made 9.5% on what was staked.","summaryBox":{"y":252,"h":49},"freeHeading":432,"freeCardTop":432,"vh":844}
+390 with prod-data note injected {"injectedSummaryH":98,"freeHeading":481,"hscroll":false}
+1440 {"cls":0,"hscroll":false,"disclaimer":true,"cents":false,"summary":"Tested on 9,666 past best bets: 86% won, and overall they made 9.5% on what was staked.","summaryBox":{"y":226,"h":49},"freeHeading":434,"freeCardTop":434,"vh":900}
+1440 with prod-data note injected {"injectedSummaryH":49,"freeHeading":434,"hscroll":false}

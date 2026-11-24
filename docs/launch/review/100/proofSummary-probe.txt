@@ -1,0 +1,46 @@
+[no ledger] needs=49 enough=false
+   -> "Tested on 1,234 past best bets: 74% won, and overall they made 9.5% on what was staked."
+[ledger nothing settled] needs=49 enough=false
+   -> "Tested on 1,234 past best bets: 74% won, and overall they made 9.5% on what was staked."
+[small: 1 settled, 1 US event] needs=49 enough=false
+   -> "Tested on 1,234 past best bets: 74% won, and overall they made 9.5% on what was staked. Live record: 1 settled so far, too few to judge yet."
+[small: 7 settled, 3 US events] needs=49 enough=false
+   -> "Tested on 1,234 past best bets: 74% won, and overall they made 9.5% on what was staked. Live record: 7 settled so far, too few to judge yet."
+[at threshold-1: 47 events] needs=49 enough=false
+   -> "Tested on 1,234 past best bets: 74% won, and overall they made 9.5% on what was staked. Live record: 300 settled so far, too few to judge yet."
+[at threshold: 48 events] needs=49 enough=false
+   -> "Tested on 1,234 past best bets: 74% won, and overall they made 9.5% on what was staked. Live record: 300 settled so far, too few to judge yet."
+[large: 1155 settled, 40 US events] needs=49 enough=false
+   -> "Tested on 1,234 past best bets: 74% won, and overall they made 9.5% on what was staked. Live record: 1,155 settled so far, too few to judge yet."
+[large: 1155 settled, 60 US events, neg live] needs=49 enough=true
+   -> "Live so far: 78% of 1,155 settled best bets won, but overall they lost 1.7% of what was staked."
+[large, first() dedup 800] needs=49 enough=false
+   -> "Tested on 1,234 past best bets: 74% won, and overall they made 9.5% on what was staked. Live record: 800 settled so far, too few to judge yet."
+[no US events key, 1155 settled] needs=49 enough=false
+   -> "Tested on 1,234 past best bets: 74% won, and overall they made 9.5% on what was staked."
+[US graded 0 events 0] needs=49 enough=false
+   -> "Tested on 1,234 past best bets: 74% won, and overall they made 9.5% on what was staked."
+[neg test ROI, small live] needs=null enough=false
+   -> "Tested on 1,234 past best bets: 81% won, but overall they lost 4.2% of what was staked."
+[zero test ROI] needs=null enough=false
+   -> "Tested on 1,234 past best bets: 60% won, and overall they about broke even."
+[tiny test ROI 0.04] needs=49 enough=false
+   -> "Tested on 1,234 past best bets: 60% won, and overall they about broke even. Live record: 5 settled so far, too few to judge yet."
+[test ROI 0.05] needs=49 enough=false
+   -> "Tested on 1,234 past best bets: 60% won, and overall they made 0.1% on what was staked."
+[test ROI 12.0] needs=49 enough=false
+   -> "Tested on 1,234 past best bets: 70% won, and overall they made 12% on what was staked."
+[test ROI 99.96] needs=49 enough=false
+   -> "Tested on 1,234 past best bets: 90% won, and overall they made 100% on what was staked."
+[test ROI -0.06] needs=null enough=false
+   -> "Tested on 1,234 past best bets: 50% won, but overall they lost 0.1% of what was staked."
+[test t-stat 0 (needs null)] needs=null enough=false
+   -> "Tested on 1,234 past best bets: 74% won, and overall they made 9.5% on what was staked."
+[test few events (<30, needs null)] needs=null enough=false
+   -> "Tested on 40 past best bets: 74% won, and overall they made 9.5% on what was staked."
+[live roi null (cost<=0), enough] needs=49 enough=true
+   -> "Tested on 1,234 past best bets: 74% won, and overall they made 9.5% on what was staked."
+[win rate 0.995] needs=49 enough=false
+   -> "Tested on 1,234 past best bets: 100% won, and overall they made 9.5% on what was staked."
+[live enough exact pct ROI 10.0] needs=49 enough=true
+   -> "Live so far: 80% of 100 settled best bets won, and overall they made 10% on what was staked."

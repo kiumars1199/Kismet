@@ -1,0 +1,6 @@
+PR #100 T-95b at 08b2191. proofSummary-probe.txt = scratch vitest output (file deleted after).
+/pricing local fixtures (no settled live record): 390 Free card top 432/844, 1440 434/900; CLS 0; no sideways scroll; disclaimer ok; no cents.
+With today's prod string injected ("... Live record: 3,411 settled so far, too few to judge yet."): 390 summary 98 px tall, Free top 481/844 (pricing-390-with-note-injected.png).
+Prod today (GET kismetodds.com/pricing, /results): live 3,411 settled, -2.8%; Polymarket US 30 events, needs ~149 -> #100 would print
+  "Tested on 440 past best bets: 87% won, and overall they made 6.1% on what was staked. Live record: 3,411 settled so far, too few to judge yet."
+CI 08b2191: web success; check:js "/: first-load JS 149.8 kB gzipped; budget 150 kB: OK".
