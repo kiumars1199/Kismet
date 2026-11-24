@@ -77,9 +77,10 @@ for (const { w, h } of SIZES) {
     const tour = page.getByRole("dialog", { name: "A best bet" });
     await expect(tour).toBeVisible({ timeout: 30_000 });
     await page.waitForTimeout(800);
-    const box = (await h1.boundingBox())!;
-    expect(box.y, "the h1 is not scrolled off the top").toBeGreaterThanOrEqual(0);
-    expect(box.y + box.height, "the h1 is on screen").toBeLessThanOrEqual(h);
+    // T-wt2f: the tour scrolls to the card, so the spotlight (the card) is on screen above the tab bar; the h1 may scroll away
+    const spot = (await page.getByTestId("tour-spot").boundingBox())!;
+    expect(spot.y + 6, "the spotlit card's top is on screen").toBeGreaterThanOrEqual(0);
+    expect(spot.y + 6, "and starts above the bottom of the viewport").toBeLessThan(h - 100);
     const cls = await page.evaluate(() => (window as unknown as { __cls: number }).__cls);
     console.log(`first screen at ${w}px: CLS ${cls.toFixed(4)}`);
     expect(cls).toBeLessThan(0.1);
