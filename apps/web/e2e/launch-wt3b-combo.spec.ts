@@ -187,3 +187,18 @@ test("adding the first leg by hand after a slow lookup does not shift the page (
     await ctx.close();
   }
 });
+
+// Old shared links (?m=<id>&side=<n>, or just ?m=<id>) still work: the leg is added, then the URL turns into ?legs=.
+test("an old ?m= link still loads its leg (with a side, and without one), and the URL becomes ?legs=", async ({ page }) => {
+  test.setTimeout(120_000);
+  const [a, b] = distinct(await rows(page), 2);
+  await page.goto(`/check/combo?m=${a!.market.id}&side=${a!.side.side_index}`);
+  await expect(page.getByTestId("combo-leg")).toHaveCount(1, { timeout: 30_000 });
+  await expect.poll(() => new URL(page.url()).searchParams.get("legs")).toBe(`${a!.market.id}:${a!.side.side_index}`);
+  const fresh = await page.context().newPage();   // another tab: nothing stored, an old link with no side
+  await fresh.goto(`/check/combo?m=${b!.market.id}`);
+  await expect(fresh.getByTestId("combo-leg")).toHaveCount(1, { timeout: 30_000 });
+  await expect.poll(() => new URL(fresh.url()).searchParams.get("legs")).toBe(`${b!.market.id}:0`);
+  expect(new URL(fresh.url()).searchParams.get("m")).toBeNull();
+  await fresh.close();
+});

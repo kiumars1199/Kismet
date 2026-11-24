@@ -45,7 +45,7 @@ async function fromDrawer(page: Page) {
   // next dev can still be hydrating when the first tap lands: tap again until the page has moved
   await expect(async () => {
     if (!/\/check\/combo/.test(page.url())) await link.click({ timeout: 3_000 });
-    await expect(page).toHaveURL(/\/check\/combo\?m=/, { timeout: 8_000 });
+    await expect(page).toHaveURL(/\/check\/combo\?(m|legs)=/, { timeout: 8_000 });   // the page turns ?m= into ?legs= once the leg is in
   }).toPass({ timeout: 60_000 });
   await expect(page.getByTestId("combo-leg"), `note: ${await page.getByTestId("combo-note").innerText().catch(() => "?")}`).toHaveCount(1, { timeout: 30_000 });
 }
@@ -65,7 +65,7 @@ test("signed out: /check and a bet's page lead to the combo checker at 390 and 1
     await expect(link).toBeVisible();
     await expect(async () => {
       if (!/\/check\/combo/.test(page.url())) await link.click({ timeout: 3_000 });
-      await expect(page).toHaveURL(/\/check\/combo\?m=6674492/, { timeout: 8_000 });
+      await expect(page).toHaveURL(/\/check\/combo\?(m=|legs=)6674492/, { timeout: 8_000 });
     }).toPass({ timeout: 60_000 });
     await expect(page.getByTestId("combo-leg")).toHaveCount(1, { timeout: 30_000 });
     await page.evaluate(() => sessionStorage.clear());

@@ -37,9 +37,13 @@ const handle = async (req: Request, { params }: Ctx) => {
 export { handle as GET, handle as HEAD, handle as POST, handle as PUT, handle as PATCH, handle as DELETE };
 
 // ------------------------------------------------------------------ Supabase
-function session(user: User) {
+/** How each user last signed in (the real GoTrue puts it in the access token's amr claim and keeps it across refreshes). */
+const lastMethod = new Map<string, string>();
+function session(user: User, method?: "password" | "otp") {
+  if (method) lastMethod.set(user.id, method);
+  const amr = [{ method: lastMethod.get(user.id) ?? "otp", timestamp: Math.floor(Date.now() / 1000) }];
   const exp = Math.floor(Date.now() / 1000) + 3600;
-  const access_token = `${b64u({ alg: "none", typ: "JWT" })}.${b64u({ sub: user.id, email: user.email, role: "authenticated", aud: "authenticated", exp })}.mock`;
+  const access_token = `${b64u({ alg: "none", typ: "JWT" })}.${b64u({ sub: user.id, email: user.email, role: "authenticated", aud: "authenticated", exp, amr })}.mock`;
   const refresh_token = randomUUID();
   db().refresh.set(refresh_token, user.id);
   return { access_token, refresh_token, token_type: "bearer", expires_in: 3600, expires_at: exp, user: gotrueUser(user) };
@@ -118,13 +122,13 @@ async function gotrue(req: Request, url: URL, p: string[]) {
       db().codes.delete(body.auth_code);
       const u = signUp(c.email);
       u.confirmed = true;   // opening a sign-up (or any) email link confirms the address
-      return json(session(u));
+      return json(session(u, "otp"));
     }
     if (grant === "password") {
       const u = byEmail(String(body.email ?? "").toLowerCase());
       if (!u || !u.password || u.password !== body.password) return json({ code: 400, error_code: "invalid_credentials", msg: "Invalid login credentials" }, 400);
       if (!u.confirmed) return json({ code: 400, error_code: "email_not_confirmed", msg: "Email not confirmed" }, 400);
-      return json(session(u));
+      return json(session(u, "password"));
     }
     if (grant === "refresh_token") {
       const uid = db().refresh.get(body.refresh_token);
@@ -154,7 +158,7 @@ async function gotrue(req: Request, url: URL, p: string[]) {
     db().codes.delete(`hash:${body.token_hash}`);
     const u = signUp(c.email);
     u.confirmed = true;
-    return json(session(u));
+    return json(session(u, "otp"));
   }
   if (p[0] === "admin" && p[1] === "users" && p[2]) {
     if (caller(req) !== "admin") return json({ msg: "forbidden" }, 403);
