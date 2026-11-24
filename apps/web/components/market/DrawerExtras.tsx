@@ -85,7 +85,7 @@ function Sizing({ market, side }: { market: Market; side: 0 | 1 }) {
           options={[{ value: "low", label: `Cautious ${pct(s.win_prob_low)}` }, { value: "est", label: `Estimate ${pct(s.win_prob)}` }]} />
       </div>
       {!bankroll ? (
-        <p className="text-sm text-soft">Set your bankroll in <Link href="/settings#s-sizing" className="text-accent-hover underline-offset-2 hover:underline">Settings</Link> to see a Kelly stake for this bet.</p>
+        <p className="text-sm text-soft">Set your bankroll in <Link href="/settings#s-sizing" className="-my-3 inline-flex min-h-11 min-w-11 items-center text-accent-hover underline-offset-2 hover:underline">Settings</Link> to see a Kelly stake for this bet.</p>
       ) : base === "loading" ? (
         <p className="text-sm text-muted" aria-live="polite">Checking the order book…</p>
       ) : !k ? (

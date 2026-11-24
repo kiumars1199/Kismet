@@ -157,3 +157,11 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* /check/combo: until the tab's own legs are in (ComboClient sets data-combo-pending on its region), the footer is hidden, not moved, so
+   restoring legs that make the page taller shifts nothing visible. Without JS it comes back after 1.5 s. */
+body:has([data-combo-pending]) footer { visibility: hidden; animation: combo-footer 0s 1.5s forwards; }
+@keyframes combo-footer { to { visibility: visible; } }
+
+/* /account shows the help line in its pause card, so the footer copy hides there (one per page; the footer disclaimer stays). */
+body:has([data-account-page]) footer [data-testid="helpline"] { display: none; }

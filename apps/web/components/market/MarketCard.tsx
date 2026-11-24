@@ -37,7 +37,7 @@ export function MarketCard({ r, pro = false, notes = true }: { r: ApiRow; pro?: 
             e.preventDefault();
             open(m.id, s.side_index);
           }}
-          className="mt-0.5 block text-[15px] font-semibold leading-snug after:absolute after:inset-0 after:rounded-inner focus-visible:outline-none focus-visible:after:outline focus-visible:after:outline-2 focus-visible:after:outline-accent focus-visible:after:outline-offset-2"
+          className="mt-0.5 block min-h-11 text-[15px] font-semibold leading-snug after:absolute after:inset-0 after:rounded-inner focus-visible:outline-none focus-visible:after:outline focus-visible:after:outline-2 focus-visible:after:outline-accent focus-visible:after:outline-offset-2"
         >
           {m.question}
         </a>

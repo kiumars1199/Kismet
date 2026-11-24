@@ -1,6 +1,6 @@
 // T-wt3: the plan copy for the combo checker, and the leg basis in the drawer's own words.
 import { describe, expect, it } from "vitest";
-import { COMBOS_PAGE_FREE_PRO, COMBO_CHECK_FREE_NOTE, FREE_CHECK_LIMIT_LINE, PRO_CHECKER_POINT } from "@/lib/check/copy";
+import { COMBOS_PAGE_FREE_PRO, COMBO_CHECK_FREE_NOTE, COMBO_LIMIT_USED, FREE_CHECK_LIMIT_LINE, PRO_CHECKER_POINT } from "@/lib/check/copy";
 import { similarBasis } from "@/components/market/labels";
 import { quota } from "@/lib/entitlements";
 import { PLANS } from "@/components/pricing/Plans";
@@ -12,7 +12,10 @@ describe("combo checker copy", () => {
   });
   it("Free's note names the real limit and only Free sees it", () => {
     expect(quota("free", "checks_day")).toBe(1);
-    expect(COMBO_CHECK_FREE_NOTE).toBe("Free includes 1 check a day; this combo counts as one.");
+    expect(COMBO_CHECK_FREE_NOTE).toBe("Free includes 1 check a day (a bet or a combo); this combo counts as one.");
+    expect(COMBO_LIMIT_USED).toBe("Free includes 1 check a day (a bet or a combo), and you've used it. Pro and Premium check as many bets and combos as you like.");
+    // the two lines open the same way, so the note before the check and the box after it say one thing
+    expect(COMBO_LIMIT_USED.split(";")[0]!.split(",")[0]).toBe(COMBO_CHECK_FREE_NOTE.split(";")[0]);
     expect(FREE_CHECK_LIMIT_LINE).toContain(`${quota("free", "checks_day")} bet or combo check a day`);
   });
   it("/pricing: Pro lists the checker as unlimited, Free lists its real limit, Premium does not repeat Pro's line", () => {

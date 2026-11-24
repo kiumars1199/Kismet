@@ -35,7 +35,7 @@ for (const [name, size] of SIZES) {
     expect(href).toMatch(/^\/check\/combo\?m=[^&]+&side=[01]$/);
     const id = new URL(href, "http://x").searchParams.get("m")!;
     await link.click();
-    await expect(page).toHaveURL(/\/check\/combo\?m=/);
+    await expect(page).toHaveURL(/\/check\/combo\?(m|legs)=/);
     await expect(page.getByTestId("combo-leg")).toHaveCount(1, { timeout: 20_000 });
     await page.goto(`/m/${id}`);
     await expect(page.getByRole("link", { name: "Add to combo checker" })).toHaveAttribute("href", href);
