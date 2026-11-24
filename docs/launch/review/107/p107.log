@@ -1,0 +1,90 @@
+  add 7077574 us=true: 
+  add 6674492 us=false: 
+  add 7078474 us=true: 
+  add 7077574 us=true: true
+  add 6674492 us=false: true
+  add 7078474 us=true: true
+  add 7077574 us=true: true
+  add 6674492 us=false: true
+  add 7078474 us=true: true
+  tray text: "Your combo · 3 legs\nPays 2.7x · wins about 6–7 in 10\nEstimated return\n+80%" buttons ["Your combo · 3 legs\nPays 2.7x · wins about 6–7 in 10",""]
+  add 7077574 us=true: true
+  add 6674492 us=false: true
+  add 7078474 us=true: true
+  tray text: "Your combo · 3 legs\nPays 2.7x · wins about 6–7 in 10\nEstimated return\n+80%" buttons ["Your combo · 3 legs\nPays 2.7x · wins about 6–7 in 10",""]
+  add 7077574 us=true: true
+  add 6674492 us=false: true
+  add 7078474 us=true: true
+  expanded=false
+  click err locator.click: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for getByTest
+  expanded=false
+  click err locator.click: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for getByTest
+  expanded=false
+  click err locator.click: Target page, context or browser has been closed
+Browser logs:
+
+<l
+=== run2 02:11:23
+  add 7077574 us=true: true
+  add 6674492 us=false: true
+  add 7078474 us=true: true
+  expand try 0: body=1
+agree premium 1440: tray chance "66% (about 6–7 in 10)" pays "2.7x" return "+80%" | checker chance "66%" pays "2.72x" | legs ["Miami (OH) vs. Kent State: 1Q Moneyline /  / Bet Miami (OH) at 69% · 84% chance · pays 1.41x /  / ✕","Denmark vs. Norway: Both Teams to Score /  / Bet Yes at 68% · 88% chance · pays 1.45x /  / ✕","Ball State vs. Ohio: 1Q Moneyline /  / Bet Ohio at 73% · 89% chance · pays 1.34x /  / ✕"]
+  load {"disc":true,"cents":false,"side":0,"cls":0.0016,"s":"0.0000 KBD y23->23 h18->18 ; 0.0016 DIV y863->807 h18->74"} after-score {"disc":true,"cents":false,"side":0,"cls":0.0016,"s":"0.0000 KBD y23->23 h18->18 ; 0.0016 DIV y863->807 h18->74"}
+  bottom-scrolled geometry 1440: {"btn":null,"result":[53,433],"tray":[814,884],"tabbar":null,"pad":"96px","vh":900}
+  add 7077574 us=true: true
+  add 6674492 us=false: true
+  add 7078474 us=true: true
+  expand try 0: body=1
+agree premium 390: tray chance "66% (about 6–7 in 10)" pays "2.7x" return "+80%" | checker chance "66%" pays "2.72x" | legs ["Miami (OH) vs. Kent State: 1Q Moneyline /  / Bet Miami (OH) at 69% · 84% chance · pays 1.41x /  / ✕","Denmark vs. Norway: Both Teams to Score /  / Bet Yes at 68% · 88% chance · pays 1.45x /  / ✕","Ball State vs. Ohio: 1Q Moneyline /  / Bet Ohio at 73% · 89% chance · pays 1.34x /  / ✕"]
+  load {"disc":true,"cents":false,"side":0,"cls":0,"s":""} after-score {"disc":true,"cents":false,"side":0,"cls":0,"s":""}
+  bottom-scrolled geometry 390: {"btn":null,"result":[-445,115],"tray":[706,776],"tabbar":null,"pad":"144px","vh":844}
+=== run3 02:13:50
+  add other true; add A true
+event 390: alert "Your combo already has a bet from this event. Results in one event move together, so pick a different event. You can still check them together in the combo checker." href /check/combo?legs=7077574%3A0%2C6674492%3A0%2C6674485%3A0 (tray had other=7077574, A=6674492; B=6674485)
+  followed: /check/combo?legs=7077574%3A0%2C6674492%3A0%2C6674485%3A0 legs 3; same-event flagged false; note ""
+  add other true; add A true
+event 1440: alert "Your combo already has a bet from this event. Results in one event move together, so pick a different event. You can still check them together in the combo checker." href /check/combo?legs=7077574%3A0%2C6674492%3A0%2C6674485%3A0 (tray had other=7077574, A=6674492; B=6674485)
+  followed: /check/combo?legs=7077574%3A0%2C6674492%3A0%2C6674485%3A0 legs 3; same-event flagged false; note ""
+closed: real clock, scan was 7.1 days ago; add -> "This market has closed, so it can't go in a combo."
+  add 6654466 closes +10.0h: true
+  add 6635049 closes +12.0h: true
+  tray before: "Your combo · 2 legs\nPays 1.8x · wins about 8 in 10\nEstimated return\n+45%"
+  tray after leg 1 closed: "Your combo · 1 leg\nAdd one more bet to see the combo"
+nav out 768: {"items":["How it works","Results","Pricing"],"clipped":[],"overflow":0,"navLR":[142,366],"hdrH":69}
+nav out 1024: {"items":["How it works","Results","Pricing"],"clipped":[],"overflow":0,"navLR":[142,366],"hdrH":64}
+nav out 1100: {"items":["How it works","Results","Pricing"],"clipped":[],"overflow":0,"navLR":[142,366],"hdrH":64}
+nav out 1280: {"items":["How it works","Results","Pricing"],"clipped":[],"overflow":0,"navLR":[150,410],"hdrH":64}
+nav out 1440: {"items":["How it works","Results","Pricing","Check a bet"],"clipped":[],"overflow":0,"navLR":[150,518],"hdrH":64}
+nav free 768: {"items":["Best bets","All markets","My list","My bets","Results","Kalshi"],"clipped":[],"overflow":0,"navLR":[142,554],"hdrH":125}
+nav free 1024: {"items":["Best bets","All markets","My list","My bets","Results","Kalshi"],"clipped":[],"overflow":0,"navLR":[142,554],"hdrH":64}
+nav free 1100: {"items":["Best bets","All markets","My list","My bets","Results","Kalshi"],"clipped":[],"overflow":0,"navLR":[142,554],"hdrH":64}
+nav free 1280: {"items":["Best bets","All markets","My list","My bets","Results","Kalshi"],"clipped":[],"overflow":0,"navLR":[150,634],"hdrH":64}
+nav free 1440: {"items":["Best bets","All markets","My list","My bets","Results","Check a bet","Kalshi"],"clipped":[],"overflow":0,"navLR":[150,742],"hdrH":64}
+nav pro 768: {"items":["Best bets","All markets","My list","My bets","Results","Kalshi"],"clipped":[],"overflow":0,"navLR":[142,554],"hdrH":125}
+nav pro 1024: {"items":["Best bets","All markets","My list","My bets","Results","Kalshi"],"clipped":[],"overflow":0,"navLR":[142,554],"hdrH":64}
+nav pro 1100: {"items":["Best bets","All markets","My list","My bets","Results","Kalshi"],"clipped":[],"overflow":0,"navLR":[142,554],"hdrH":64}
+nav pro 1280: {"items":["Best bets","All markets","My list","My bets","Results","Kalshi"],"clipped":[],"overflow":0,"navLR":[150,634],"hdrH":64}
+nav pro 1440: {"items":["Best bets","All markets","My list","My bets","Results","Check a bet","Kalshi"],"clipped":[],"overflow":0,"navLR":[150,742],"hdrH":64}
+nav premium 768: {"items":["Best bets","All markets","My list","My bets","Results","Combos","Kalshi"],"clipped":[],"overflow":0,"navLR":[142,625],"hdrH":125}
+nav premium 1024: {"items":["Best bets","All markets","My list","My bets","Results","Combos","Kalshi"],"clipped":[],"overflow":0,"navLR":[142,625],"hdrH":64}
+nav premium 1100: {"items":["Best bets","All markets","My list","My bets","Results","Combos","Kalshi"],"clipped":[],"overflow":0,"navLR":[142,625],"hdrH":64}
+nav premium 1280: {"items":["Best bets","All markets","My list","My bets","Results","Combos","Kalshi"],"clipped":[],"overflow":0,"navLR":[150,717],"hdrH":64}
+nav premium 1440: {"items":["Best bets","All markets","My list","My bets","Results","Check a bet","Combos","Kalshi"],"clipped":[],"overflow":0,"navLR":[150,825],"hdrH":64}
+plan out 390 /check/combo: tray 0 pad 0px {"disc":true,"cents":false,"side":0,"cls":0,"s":""}
+plan out 390 /check: {"disc":true,"cents":false,"side":0,"cls":0,"s":""}
+plan out 1440 /check/combo: tray 0 pad 0px {"disc":true,"cents":false,"side":0,"cls":0.0016,"s":"0.0016 DIV y785->729 h18->74"}
+plan out 1440 /check: {"disc":true,"cents":false,"side":0,"cls":0,"s":""}
+plan free 390 /check/combo: tray 0 pad 0px {"disc":true,"cents":false,"side":0,"cls":0,"s":""}
+plan free 390 /check: {"disc":true,"cents":false,"side":0,"cls":0,"s":""}
+plan free 1440 /check/combo: tray 0 pad 0px {"disc":true,"cents":false,"side":0,"cls":0.0022,"s":"0.0006 DIV y10->10 h44->44 ; 0.0016 DIV y785->729 h18->74"}
+plan pro 390 /check/combo: tray 0 pad 0px {"disc":true,"cents":false,"side":0,"cls":0,"s":""}
+plan pro 390 /check: {"disc":true,"cents":false,"side":0,"cls":0,"s":""}
+plan pro 1440 /check/combo: tray 0 pad 0px {"disc":true,"cents":false,"side":0,"cls":0.0022,"s":"0.0006 DIV y10->10 h44->44 ; 0.0016 DIV y785->729 h18->74"}
+plan pro 1440 /check: {"disc":true,"cents":false,"side":0,"cls":0.0006,"s":"0.0006 DIV y10->10 h44->44"}
+evscore: after tap "none" notScored=false
+evscore: after tap "Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off. Drop one of the two Denmark vs. Norway bets." notScored=true

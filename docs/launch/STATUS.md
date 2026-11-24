@@ -88,6 +88,7 @@ Problems:
 - Not walked: signed-in headers at 768–1280, the Premium drawer path to the tray, WebKit, and signed-in steps on a production build. Re-walk after the fixes.
 
 ## Found in review, outside a lane
+- 02:22 Merged #107 (T-wt3c: tray and checker agree, Premium nav at 1024) at aed9b7a -> 7878313; reviewer PASS with notes (N1 same-event hint before scoring, N2 re-quote old saved tray legs, N3 checker leg chance vs card headline, N4 closed-leg note) -> T-wt3e, data lane. Evidence in review/107/.
 - 01:58 #106 (T-wt2d) review FAIL at 9761f86: an early TopicsPicker tap is still lost, and the tiles look tappable while disabled. Should-fix: the Free locked card at 390 barely shows above the tab bar; Pro/Premium empty-topic landing CLS 0.093 at 390; "See all best bets" from the empty state CLS 0.397 at 390. Back to onboarding lane (decision: honest not-ready state). Evidence in review/106/.
 - 01:47 Merged #101 (T-wt3b: combo share, reload, restore CLS) at c4c541b -> 714b5cf; reviewer PASS with 2 should-fix (shared &check=1 link auto-scores and burns the Free daily check; 3rd/4th leg shifts result card, CLS 0.028) + nit ("Share link" label on touch) -> T-wt3d, data lane. Evidence in review/101/.
 - 01:43 Merged #105 (T-95c) at 59fafed -> de95d56; reviewer PASS with notes (follow-up T-95d queued with trust lane). Evidence in review/105/.
