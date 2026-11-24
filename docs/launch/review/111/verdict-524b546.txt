@@ -1,0 +1,24 @@
+#111 (T-95e) re-review at 524b546 -- PASS
+Worktree: scratchpad/rv2-111b; paid-mode dev server :3755, DATA_DIR=scratchpad/data109 (fixtures + scratch ledger: 772 settled, US 30 bets / 10 events).
+Probe: scratchpad/probe/rv111b.mjs; logs r524/log-{free,pro,out}-{390,1440}.txt (+ *-rerun.txt for free-1440 and pro-390,
+whose first runs lost the drawer cell to a slow dialog / dropped mock session); screenshots r524/*-open.png.
+
+(1) Drawer Escape, Free + Pro, 390 (hasTouch) + 1440: FIXED.
+    Enter opens help -> Escape #1: help hidden, dialog count 1 -> Escape #2: dialog count 0. Same in all 4 cells.
+    New e2e (e2e/proof.spec.ts "drawer at {390,1440}px: Enter opens ... Escape closes only the help") fails on 708d1df
+    (proofline-red-708d1df.log: drawer not visible at line 75) and passes on the fix (proofline-green.log, 9/9).
+(2) Help always in DOM: FIXED. Before any tap, every proof-live's aria-controls resolves (resolves=true, hidden=true);
+    after close the help is still in the DOM (count 1) and not visible. Button keeps aria-expanded true/false.
+(3) Not-yet-settled wording: FIXED, number consistent. The drawer and /m line now read
+    "Live since Nov 17: 0 logged, none settled yet (about 4 events needed)." and the help says "About 4 events needed"
+    for the same market, in every cell. Both come from the same `needs = eventsNeeded(r)` (lib/proof.ts:150, used by the
+    line at :162 and the help at :174) -- the same function that gave #109's 17 on /pricing, /about, /track-record.
+    Note: "22" is only the unit-test fixture (ProofLine.test.tsx needs:22; test/proof.test.ts 1,500 ev @ t16.77). On the
+    app fixture the drawer's sports category record (84 ev, t 10.1) gives 4, site-wide (1,394 ev, t 18.51) gives 17.
+(4) No regressions vs the 708d1df PASS list: tap/click opens and second tap closes on pricing, about, track-record, drawer,
+    /m at 390 and 1440 for Free, Pro, signed out (signed-out drawer and /m redirect to /signup, same as before); Enter/Space
+    toggle, Space does not scroll (0 px); screen readers get a button with aria-expanded; CLS <= 0.0047 on open; no sideways
+    scroll; footer disclaimer present; no cents; no page errors.
+CI on 524b546: all green (web, checks, e2e-paid 1-4, e2e-paid-webkit, e2e-demo, python, supply-chain, Vercel).
+check:js: 149.5 kB / 150 kB budget (OK; 0.5 kB headroom -- unchanged from 708d1df, worth watching).
+Blockers: none. Should-fix: none new. Nits: none new.
