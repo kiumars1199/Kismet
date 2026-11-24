@@ -1,6 +1,7 @@
 // Bot and abuse controls for the expensive and paywalled routes (docs/15 § Bots and abuse):
 // Vercel BotID, Upstash sliding-window rate limits keyed by user id (else IP + JA4), and an anomaly log for
 // accounts pulling more than 5,000 rows an hour. Server only.
+import { e2eMockOn } from "@/lib/e2e-mock";
 import "server-only";
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
@@ -127,7 +128,7 @@ function limiter(): Limiter {
   const r = redis();
   if (r) return (g.__meLimiter = upstashLimiter(r));
   // Demo mode is exempt like /api/health: no accounts, and e2e runs a production build of it on one IP.
-  if (process.env.NODE_ENV === "production" && !DEMO_MODE) {
+  if (process.env.NODE_ENV === "production" && !DEMO_MODE && !e2eMockOn()) {   // an e2e production build behaves as dev did: no limiter
     console.warn("[abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are per instance (in memory). Set them in production.");
     return (g.__meLimiter = fallback());
   }
