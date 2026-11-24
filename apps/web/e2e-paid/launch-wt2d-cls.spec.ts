@@ -4,14 +4,44 @@
 import { expect, test, type Page } from "./fixtures";
 import { expectPlanActive } from "./checkout";
 
+/** Names the mover. Every layout shift over 0.005 is logged with each source node (tag, id, class, text, previous and current rect), the
+ *  elements above the list with their heights, and the DOM elements added or removed in the 400 ms around it (a ring kept the whole time). */
 const observe = (page: Page) => page.addInitScript(() => {
-  const w = window as unknown as { __cls: number; __src: string[] };
+  const w = window as unknown as { __cls: number; __src: string[]; __ring: { t: number; d: string }[] };
   w.__cls = 0;
   w.__src = [];
+  w.__ring = [];
+  const desc = (n: Node | null) => {
+    const el = n as HTMLElement | null;
+    if (!el || !el.nodeName) return "null";
+    if (el.nodeType !== 1) return `#${el.nodeName}:${JSON.stringify((el.textContent ?? "").slice(0, 40))}`;
+    return `${el.tagName.toLowerCase()}${el.id ? "#" + el.id : ""}${el.getAttribute("data-testid") ? `[${el.getAttribute("data-testid")}]` : ""}.${String(el.className ?? "").slice(0, 60)}|${JSON.stringify((el.textContent ?? "").slice(0, 40))}`;
+  };
+  const rect = (r: DOMRect) => `${Math.round(r.x)},${Math.round(r.y)} ${Math.round(r.width)}x${Math.round(r.height)}`;
+  new MutationObserver((ms) => {
+    const t = performance.now();
+    for (const m of ms) {
+      if (m.type === "childList") {
+        for (const n of m.addedNodes) if (n.nodeType === 1) w.__ring.push({ t, d: `ADD ${desc(n)} into ${desc(m.target)}`.slice(0, 260) });
+        for (const n of m.removedNodes) if (n.nodeType === 1) w.__ring.push({ t, d: `DEL ${desc(n)} from ${desc(m.target)}`.slice(0, 260) });
+      } else if (m.type === "attributes" && (m.attributeName === "class" || m.attributeName === "style" || m.attributeName === "hidden" || m.attributeName === "open")) {
+        w.__ring.push({ t, d: `ATTR ${m.attributeName} on ${desc(m.target)}`.slice(0, 200) });
+      }
+    }
+    if (w.__ring.length > 600) w.__ring.splice(0, w.__ring.length - 600);
+  }).observe(document, { childList: true, subtree: true, attributes: true });
   new PerformanceObserver((l) => { for (const e of l.getEntries() as unknown as { value: number; hadRecentInput: boolean; startTime: number; sources: { node: Element | null; previousRect: DOMRect; currentRect: DOMRect }[] }[]) if (!e.hadRecentInput) {
     w.__cls += e.value;
-    if (e.value > 0.01) w.__src.push(`SNAP @${Math.round(e.startTime)}ms fonts=${document.fonts.status} h1=${JSON.stringify(document.querySelector("h1")?.textContent)} h1h=${Math.round(document.querySelector("h1")?.getBoundingClientRect().height ?? 0)} tour=${!!document.querySelector('[data-testid="tour"]')} cards=${document.querySelectorAll("article[data-row]").length} scrollY=${Math.round(scrollY)} sections=${[...document.querySelectorAll("main > div > *, main > *")].slice(0, 12).map((c) => c.tagName + ":" + Math.round(c.getBoundingClientRect().height)).join(",")}`);
-    for (const x of e.sources.slice(0, 4)) w.__src.push(`${e.value.toFixed(4)} @${Math.round(e.startTime)}ms ${x.node?.nodeName}.${String((x.node as HTMLElement | null)?.className ?? "").slice(0, 40)} y ${Math.round(x.previousRect.y)}->${Math.round(x.currentRect.y)} h ${Math.round(x.previousRect.height)}->${Math.round(x.currentRect.height)}`);
+    if (e.value <= 0.005) continue;
+    const t0 = Math.round(e.startTime);
+    w.__src.push(`SHIFT ${e.value.toFixed(4)} @${t0}ms (seen at ${Math.round(performance.now())}ms) fonts=${document.fonts.status} h1=${JSON.stringify(document.querySelector("h1")?.textContent)} h1h=${Math.round(document.querySelector("h1")?.getBoundingClientRect().height ?? 0)} tour=${!!document.querySelector('[data-testid="tour"]')} cards=${document.querySelectorAll("article[data-row]").length} scrollY=${Math.round(scrollY)}`);
+    for (const x of e.sources) w.__src.push(`  source ${desc(x.node)}  prev ${rect(x.previousRect)}  cur ${rect(x.currentRect)}`);
+    const main = document.querySelector("main");
+    const above = [...(main?.querySelectorAll(":scope > *, :scope > * > *") ?? [])].filter((c) => !c.querySelector("article[data-row]") || c.matches("article[data-row]")).slice(0, 5);
+    w.__src.push(`  above-list: ${above.map((c) => `${desc(c).slice(0, 70)} h=${Math.round(c.getBoundingClientRect().height)}`).join(" ;; ")}`);
+    const near = w.__ring.filter((r) => r.t >= t0 - 400 && r.t <= t0 + 150);
+    w.__src.push(`  dom changes within 400 ms before / 150 ms after (${near.length}):`);
+    for (const r of near.slice(-14)) w.__src.push(`    @${Math.round(r.t)}ms ${r.d}`);
   } }).observe({ type: "layout-shift", buffered: true });
 });
 const sources = (page: Page) => page.evaluate(() => (window as unknown as { __src: string[] }).__src.splice(0).join("\n"));
