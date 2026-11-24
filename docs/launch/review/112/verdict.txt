@@ -1,0 +1,11 @@
+#112 T-wt3e @ c7ef710 — PASS with should-fix
+Cells run: checker out 390/1440, free 390/1440, pro 390, premium 1440; tray premium 390/1440. Not run (memory/time): pro 1440, premium 390 checker.
+N1 same-event note before scoring: visible on load, 0 POST /api/check/combo, CLS 0 (390) / 0.0016 (1440).
+N2 requote: v-less legs with ask .9/fee .05 -> stored [0.68,0.0109,2],[0.69,0.0203,2]; tray 2.0x vs checker 2.04x.
+N4 prune note: "One bet left your combo because it closed." visible after 3 s (390 y744 above tab 787; 1440 inside tray); all closed: "2 bets left ... Your saved combo is empty. OK".
+#108 N1 refusals (900 ms route): 404 / network / duplicate dCLS 0 everywhere; duplicate from search hit: 0 lookups.
+#108 N3 labels: leg lines "NN% chance (cautious)", "Combined chance (cautious)" = win_prob_low; drawer keeps "won 92%; a cautious estimate is 88%"; card "Wins about 9 in 10".
+Should-fix: refused add leaves an empty ~78-92 px slot under the legs (held room never released until next add/remove): after-404.png.
+Should-fix: "(cautious)" not explained anywhere in the checker (no line in combo-why).
+Note: pasting an event URL of an existing leg adds another market of that event (not a duplicate) - pre-existing.
+CI: checks/python/webkit/supply-chain green, e2e-paid 1-4 + demo running at check time; check:js 149.5 kB.

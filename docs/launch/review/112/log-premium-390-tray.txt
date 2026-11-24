@@ -1,0 +1,5 @@
+premium 390 tray tier premium
+premium 390 tray one-closed {"note":"One bet left your combo because it closed.","visibleAfter3s":true,"noteBox":{"y":744,"h":20},"trayBox":{"y":675,"h":102},"tabTop":787,"legsLeft":2} {"cls":0,"src":[],"hscroll":false,"disc":true,"cents":false}
+premium 390 tray all-closed {"note":"2 bets left your combo because they closed. Your saved combo is empty. OK","visibleAfter3s":true,"noteBox":{"y":711,"h":65},"trayBox":null,"tabTop":787,"legsLeft":0} {"cls":0,"src":[],"hscroll":false,"disc":true,"cents":false}
+premium 390 tray requote {"note":null,"visibleAfter3s":false,"noteBox":null,"trayBox":{"y":706,"h":70},"tabTop":787,"legsLeft":2} {"cls":0,"src":[],"hscroll":false,"disc":true,"cents":false}
+premium 390 tray requote {"checker":"2.04x","tray":"2.0x","stored":[[0.68,0.0109,2],[0.69,0.0203,2]],"trayChance":"74% (about 7–8 in 10)","legLines":["Bet Yes · Pays 1.4x after fee · 88% chance to win (cautious)","Bet Miami (OH) · Pays 1.4x after fee · 84% chance to win (cautious)"]} {"cls":0.0001,"src":[[0.0001,"#text:736->736"]],"hscroll":false,"disc":true,"cents":false}
