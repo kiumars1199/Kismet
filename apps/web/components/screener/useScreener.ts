@@ -13,6 +13,7 @@ import { useCollection, useProfile } from "@/lib/repo/hooks";
 export type Mode = "markets" | "flags";
 
 import { BEST_BETS_VERDICTS } from "@/lib/filters/state";
+import { leaveSavedTopics } from "@/lib/filters/default-topics";
 export { BEST_BETS_VERDICTS };
 
 function stateFrom(params: URLSearchParams, mode: Mode): FilterState {
@@ -102,10 +103,10 @@ export function useScreener(mode: Mode, initial?: MarketsResponse) {
 
   const set = useCallback(
     (patch: Partial<FilterState>, opts?: { replace?: boolean }) => {
-      const href = pathname + queryFor({ ...state, page: 1, ...patch }, mode);
+      const href = pathname + queryFor({ ...state, page: 1, ...leaveSavedTopics(state, patch, profile.favorite_topics) }, mode);
       softNav(href, { replace: opts?.replace, scroll: !!patch.page });
     },
-    [state, pathname, mode],
+    [state, pathname, mode, profile.favorite_topics],
   );
   const reset = useCallback(() => softNav(pathname), [pathname]);
 

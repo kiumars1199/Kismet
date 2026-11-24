@@ -20,13 +20,13 @@ async function signUp(page: Page, email: string) {
 
 /** Free's Best bets are a random daily sample, so a topic filter can leave it empty. These tests are about the filter and
  *  the layout, so the new account gets a Premium comp through the mock database (service role): every matching bet lists. */
-async function makePremium(page: Page) {
+async function makePremium(page: Page, tier: "pro" | "premium" = "premium") {
   const me = await (await page.request.get("/api/me")).json();
   const res = await page.request.patch(`/e2e-mock/supabase/rest/v1/subscriptions?user_id=eq.${me.user.id}`, {
-    headers: { authorization: "Bearer e2e-service", apikey: "e2e-service", "content-type": "application/json" }, data: { comp_tier: "premium" },
+    headers: { authorization: "Bearer e2e-service", apikey: "e2e-service", "content-type": "application/json" }, data: { comp_tier: tier },
   });
   expect(res.status()).toBeLessThan(300);
-  expect((await (await page.request.get("/api/me")).json()).tier).toBe("premium");
+  expect((await (await page.request.get("/api/me")).json()).tier).toBe(tier);
 }
 
 /** The pill is a <button> in the server HTML: a tap before React attaches its handler does nothing (CI run 45147818583).
@@ -354,12 +354,12 @@ for (const { w, h } of SIZES) for (const method of ["link", "password"] as const
 
 // T-wt2h: the bar says "Your topics (N)" only for the saved set; "Everything" + Apply clears the saved-topics filter.
 const WT2H = path.resolve(process.cwd(), "../../docs/launch/review/wt2h");
-for (const { w, h } of SIZES) {
-  test(`bar label and Everything at ${w}px: hand-picked topics read "2 topics"; Everything on a saved view shows the full list`, async ({ page }) => {
+for (const { w, h } of SIZES) for (const tier of ["pro", "free"] as const) {
+  test(`bar label and Everything at ${w}px (${tier}): hand-picked topics read "2 topics"; Everything on a saved view shows the full list`, async ({ page }) => {
     test.setTimeout(300_000);
     await page.setViewportSize({ width: w, height: h });
-    await signUp(page, `f05-every-${w}-${Date.now()}@example.com`);
-    await makePremium(page);
+    await signUp(page, `f05-every-${tier}-${w}-${Date.now()}@example.com`);
+    if (tier === "pro") await makePremium(page, "pro");
     for (const re of [/^NFL/, /^Elections/]) {
       const t = page.getByRole("button", { name: re });
       await expect(t).toContainText("open", { timeout: 60_000 });
@@ -371,11 +371,11 @@ for (const { w, h } of SIZES) {
     await page.waitForURL(/fav=1/, { timeout: 60_000 });
     const bar = page.getByTestId("bar-sport");
     const checked = bar.locator("option:checked");
-    await expect(checked).toHaveText("Your topics (2)", { timeout: 30_000 });
+    await expect(checked).toHaveText(tier === "free" ? /^(Everything|Your topics \(2\))$/ : "Your topics (2)", { timeout: 30_000 });
     const filtered = await page.getByTestId("bar-count").innerText();
     await page.getByRole("button", { name: "Skip tour" }).click({ timeout: 30_000 });   // the first-run tour covers the page
     await page.waitForLoadState("networkidle");
-    await page.screenshot({ path: `${WT2H}/${w}-saved-topics-label.png` });
+    await page.screenshot({ path: `${WT2H}/${w}-${tier}-saved-topics-label.png` });
 
     // Everything + Apply on the saved view: the full list, no pill, no fav=1
     await hydrated(page.getByTestId("bar-apply"));
@@ -385,16 +385,36 @@ for (const { w, h } of SIZES) {
     await expect(pill(page)).toHaveCount(0, { timeout: 30_000 });
     await expect(bar).toHaveValue("");
     await expect(checked).toHaveText("Everything");
-    await expect(page.getByTestId("bar-count")).not.toHaveText(filtered, { timeout: 30_000 });
+    if (tier === "pro") await expect(page.getByTestId("bar-count")).not.toHaveText(filtered, { timeout: 30_000 });
     console.log(`bar count at ${w}px: saved topics "${filtered}" -> Everything "${await page.getByTestId("bar-count").innerText()}"`);
     await page.waitForLoadState("networkidle");
-    await page.screenshot({ path: `${WT2H}/${w}-everything-applied.png` });
+    await page.screenshot({ path: `${WT2H}/${w}-${tier}-everything-applied.png` });
+
+    // a reload of the Everything view (fav=0) stays the full list: no pill, the bar says Everything, same count
+    const all = await page.getByTestId("bar-count").innerText();
+    expect(page.url()).toMatch(/fav=0/);
+    await page.reload();
+    await expect(bar).toHaveValue("", { timeout: 30_000 });
+    await expect(checked).toHaveText("Everything");
+    await expect(pill(page)).toHaveCount(0);
+    await expect(page.getByTestId("bar-count")).toHaveText(all, { timeout: 30_000 });
+    await expect(page.getByText(/aren't in (this filter|your topics)/)).toHaveCount(0);
+
+    // on the saved view, picking another topic in the bar leaves "Your topics": the bar and pill show the real topic
+    await page.goto("/bets?fav=1&t=sports.nfl%2Cpolitics.elections");
+    await expect(checked).toHaveText(tier === "free" ? /^(Everything|Your topics \(2\))$/ : "Your topics (2)", { timeout: 30_000 });
+    await hydrated(page.getByTestId("bar-apply"));
+    await bar.selectOption("t:sports.soccer");
+    await page.getByTestId("bar-apply").click();
+    await expect(page).not.toHaveURL(/fav=1/, { timeout: 30_000 });
+    await expect(pill(page)).toHaveCount(0);
+    await expect(checked).toContainText("Soccer");
 
     // a hand-built list of topics (not the saved set) is "2 topics", not "Your topics"
     await page.goto("/bets?t=sports.nfl%2Cpolitics.elections");
     await expect(bar).toHaveValue("multi", { timeout: 30_000 });
     await expect(checked).toHaveText("2 topics");
     await expect(pill(page)).toHaveCount(0);
-    await page.screenshot({ path: `${WT2H}/${w}-hand-built-2-topics.png` });
+    await page.screenshot({ path: `${WT2H}/${w}-${tier}-hand-built-2-topics.png` });
   });
 }
