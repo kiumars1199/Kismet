@@ -27,7 +27,8 @@ for (const size of SIZES) {
     await page.goto(`/signup?next=${encodeURIComponent(`/m/${longest.id}`)}`);
     await expect(line(page)).toBeVisible({ timeout: 60_000 });
     await expect(line(page)).toHaveText(new RegExp(`^${LEDE.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`));
-    await page.waitForTimeout(500);   // the measure runs once after hydration
+    // the fit runs once the page has hydrated (seconds on a cold CI server): wait for the line to reach two lines, nothing clipped
+    await expect.poll(() => line(page).evaluate((e) => e.scrollHeight - e.clientHeight), { timeout: 30_000 }).toBeLessThanOrEqual(1);
     const shown = (await line(page).evaluate((e) => (e as HTMLElement).innerText)).trim();
     const whole = LEDE + longest.question;
     console.log(`${size.width}x${size.height}: ${shown === whole ? "whole" : `shortened: "${shown}"`}`);
@@ -39,6 +40,18 @@ for (const size of SIZES) {
     expect(b.y + b.height).toBeLessThanOrEqual(limit - 8);
   });
 }
+
+test("a web-font swap after the first measure re-fits the line (wider letters: still 2 lines, the end kept)", async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 640 });
+  await page.goto(`/signup?next=${encodeURIComponent(`/m/${longest.id}`)}`);
+  await expect(line(page)).toBeVisible({ timeout: 60_000 });
+  await expect.poll(() => line(page).evaluate((e) => e.scrollHeight - e.clientHeight), { timeout: 30_000 }).toBeLessThanOrEqual(1);   // hydrated and fitted
+  await page.evaluate(() => { document.body.style.letterSpacing = "0.6px"; document.fonts.dispatchEvent(new Event("loadingdone")); });   // the font "arrives" wider
+  await expect.poll(async () => line(page).evaluate((e) => e.scrollHeight - e.clientHeight), { timeout: 5_000 }).toBeLessThanOrEqual(1);
+  const shown = (await line(page).evaluate((e) => (e as HTMLElement).innerText)).trim();
+  console.log(`wider letters at 360: "${shown}"`);
+  expect(shown.endsWith(longest.question.slice(-12))).toBe(true);
+});
 
 for (const size of [{ width: 360, height: 640 }, { width: 375, height: 667 }]) {
   test(`${size.width}x${size.height}: the H1 sits below the site header (no overlap)`, async ({ page }) => {
@@ -60,7 +73,8 @@ for (const [size, maxClashes] of [[SIZES[0]!, 0], [SIZES[1]!, 0], [SIZES[2]!, 0]
     await page.setViewportSize(size);
     await page.goto(`/signup?next=${encodeURIComponent(`/m/${longest.id}`)}`);
     await expect(line(page)).toBeVisible({ timeout: 60_000 });
-    await page.waitForTimeout(500);
+    await expect.poll(() => line(page).evaluate((e) => e.scrollHeight - e.clientHeight), { timeout: 30_000 }).toBeLessThanOrEqual(1);   // hydrated and fitted: then the page's own effects are done
+    await page.waitForTimeout(2_000);   // (and its timed re-measures at 0.4 s and 1.5 s)
     await page.evaluate((lede) => {
       const p = document.querySelector('[data-testid="signup-bet"]') as HTMLElement;
       (window as unknown as { fits: (t: string) => boolean }).fits = (t) => { (p.firstChild as Text).nodeValue = lede + t; return p.scrollHeight <= p.clientHeight + 1; };

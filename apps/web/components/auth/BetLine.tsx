@@ -18,10 +18,15 @@ export function BetLine({ title }: { title: string }) {
     const fits = (t: string) => { node.nodeValue = BET_LEDE + t; return p.scrollHeight <= p.clientHeight + 1; };   // line-clamp-2: clipped text counts in scrollHeight
     const run = () => setText(fitClamp(title, fits));
     run();
+    // The words reflow when the web font swaps in (a clamped box keeps its height, so the ResizeObserver doesn't see it): measure again when fonts finish
+    // loading, when the page has loaded, and shortly after, as well as when the box changes size.
     const ro = new ResizeObserver(run);
     ro.observe(p);
     void document.fonts?.ready.then(run);
-    return () => ro.disconnect();
+    document.fonts?.addEventListener?.("loadingdone", run);
+    window.addEventListener("load", run);
+    const timers = [400, 1500].map((ms) => window.setTimeout(run, ms));
+    return () => { ro.disconnect(); document.fonts?.removeEventListener?.("loadingdone", run); window.removeEventListener("load", run); timers.forEach(clearTimeout); };
   }, [title]);
   return (
     <p ref={ref} data-testid="signup-bet" title={title} className="line-clamp-2 text-[13px] [@media(max-height:700px)]:text-[12px] font-medium leading-snug text-accent-soft md:text-[15px]">{BET_LEDE + text}</p>
