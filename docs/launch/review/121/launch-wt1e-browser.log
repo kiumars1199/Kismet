@@ -1,0 +1,320 @@
+
+Running 12 tests using 1 worker
+
+[1/12] [chromium] › e2e-paid/launch-wt1e.spec.ts:20:3 › 360x640: a title that fits is shown whole; the longest is shortened, keeps its end and the button holds the fold
+[WebServer] <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (114kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+
+[WebServer] <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (268kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] [abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[chromium] › e2e-paid/launch-wt1e.spec.ts:20:3 › 360x640: a title that fits is shown whole; the longest is shortened, keeps its end and the button holds the fold
+360x640: whole
+
+360x640: Create account bottom 573, limit 583
+
+[2/12] [chromium] › e2e-paid/launch-wt1e.spec.ts:20:3 › 390x844: a title that fits is shown whole; the longest is shortened, keeps its end and the button holds the fold
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[chromium] › e2e-paid/launch-wt1e.spec.ts:20:3 › 390x844: a title that fits is shown whole; the longest is shortened, keeps its end and the button holds the fold
+390x844: whole
+
+390x844: Create account bottom 598, limit 787
+
+[3/12] [chromium] › e2e-paid/launch-wt1e.spec.ts:20:3 › 1440x900: a title that fits is shown whole; the longest is shortened, keeps its end and the button holds the fold
+[WebServer] [Error: aborted] { code: 'ECONNRESET' }
+
+[WebServer]  ⨯ uncaughtException: [Error: aborted] { code: 'ECONNRESET' }
+[WebServer]  ⨯ uncaughtException:  [Error: aborted] { code: 'ECONNRESET' }
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[chromium] › e2e-paid/launch-wt1e.spec.ts:20:3 › 1440x900: a title that fits is shown whole; the longest is shortened, keeps its end and the button holds the fold
+1440x900: whole
+
+1440x900: Create account bottom 886, limit 900
+
+[4/12] [chromium] › e2e-paid/launch-wt1e.spec.ts:44:1 › a web-font swap after the first measure re-fits the line (wider letters: still 2 lines, the end kept)
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[chromium] › e2e-paid/launch-wt1e.spec.ts:44:1 › a web-font swap after the first measure re-fits the line (wider letters: still 2 lines, the end kept)
+wider letters at 360: "Sign up for the verdict on: Will the highest … New York City … between 56-57°F on November 17?"
+
+[5/12] [chromium] › e2e-paid/launch-wt1e.spec.ts:64:3 › 360x640: the H1 sits below the site header (no overlap)
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[chromium] › e2e-paid/launch-wt1e.spec.ts:64:3 › 360x640: the H1 sits below the site header (no overlap)
+360x640: header bottom 69, H1 top 79
+
+[6/12] [chromium] › e2e-paid/launch-wt1e.spec.ts:64:3 › 375x667: the H1 sits below the site header (no overlap)
+[WebServer]  ⨯ [Error: aborted]
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[chromium] › e2e-paid/launch-wt1e.spec.ts:64:3 › 375x667: the H1 sits below the site header (no overlap)
+375x667: header bottom 69, H1 top 79
+
+[7/12] [chromium] › e2e-paid/launch-wt1e.spec.ts:78:3 › 360: 2769 real titles: all fit 2 lines, at most 3% are shortened, and 0 read as another bet's line
+[WebServer]  ⨯ [Error: aborted]
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[chromium] › e2e-paid/launch-wt1e.spec.ts:78:3 › 360: 2769 real titles: all fit 2 lines, at most 3% are shortened, and 0 read as another bet's line
+REAL 360: 2769 titles, 23 shortened (0.8%), 0 over 2 lines, 0 clashes
+
+
+[8/12] [chromium] › e2e-paid/launch-wt1e.spec.ts:78:3 › 390: 2769 real titles: all fit 2 lines, at most 3% are shortened, and 0 read as another bet's line
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[chromium] › e2e-paid/launch-wt1e.spec.ts:78:3 › 390: 2769 real titles: all fit 2 lines, at most 3% are shortened, and 0 read as another bet's line
+REAL 390: 2769 titles, 22 shortened (0.8%), 0 over 2 lines, 0 clashes
+
+
+[9/12] [chromium] › e2e-paid/launch-wt1e.spec.ts:78:3 › 1440: 2769 real titles: all fit 2 lines, at most 3% are shortened, and 0 read as another bet's line
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[chromium] › e2e-paid/launch-wt1e.spec.ts:78:3 › 1440: 2769 real titles: all fit 2 lines, at most 3% are shortened, and 0 read as another bet's line
+REAL 1440: 2769 titles, 20 shortened (0.7%), 0 over 2 lines, 0 clashes
+
+
+[10/12] [chromium] › e2e-paid/launch-wt1e.spec.ts:163:3 › 360: direction siblings (increase/decrease, hike/cut, raise/lower) render different lines
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[chromium] › e2e-paid/launch-wt1e.spec.ts:163:3 › 360: direction siblings (increase/decrease, hike/cut, raise/lower) render different lines
+SIBLINGS 360: "Will the Bank of Israel decrease … Interest Rate … 25 … November meeting?"  vs  "Will the Bank of Israel increase the … Interest Rate by 25 bps at the November meeting?"
+
+SIBLINGS 360: "Will the Federal Reserve hike interest rates by 25 bps at the December meeting?"  vs  "Will the Federal Reserve cut interest rates by 25 bps at the December meeting?"
+
+SIBLINGS 360: "Will the Bank of England raise the Bank Rate by 50 bps at the December meeting?"  vs  "Will the Bank of England lower the Bank Rate by 50 bps at the December meeting?"
+
+SIBLINGS 360: "Will the highest … Rio … Janeiro … 29°C or higher on November 18 … station?"  vs  "Will the highest temperature … Rio … Janeiro … 29°C on November 18 … official station?"
+
+SIBLINGS 360: "Will the highest … Rio … Janeiro … 29°C or below on November 18 … station?"  vs  "Will the highest temperature … Rio … Janeiro … 29°C on November 18 … official station?"
+
+SIBLINGS 360: "Will the highest temperature … Rio … Janeiro … 29°C on November 18 … official station?"  vs  "Will the lowest temperature … Rio … Janeiro … 29°C on November 18 … official station?"
+
+SIBLINGS 360: "Will initial jobless … fewer … 225,000 … November 15 … Department of Labor?"  vs  "Will initial jobless claims be at 225,000 … November 15 … to … Department of Labor?"
+
+SIBLINGS 360: "Will initial jobless … greater … 225,000 … November 15 … Department of Labor?"  vs  "Will initial jobless claims be at 225,000 … November 15 … to … Department of Labor?"
+
+SIBLINGS 360: "Will the Kansas City Chiefs finish … 2026 NFL … top 5 … AFC … to NFL.com?"  vs  "Will the Kansas City Chiefs finish … 2026 NFL … bottom 5 … AFC … to NFL.com?"
+
+SIBLINGS 360: "Will … Bitcoin reach $95,000 … 12:00 PM Eastern Time on Friday November 27, 2026?"  vs  "Will … Bitcoin dip … $95,000 … 12:00 PM Eastern Time on Friday November 27, 2026?"
+
+SIBLINGS 360: "Will … Bitcoin drop … $95,000 … 12:00 PM Eastern Time on Friday November 27, 2026?"  vs  "Will … Bitcoin hit $95,000 … 12:00 PM Eastern Time on Friday November 27, 2026?"
+
+SIBLINGS 360: "Will … highest … Rio … Janeiro on Tuesday November 24 … between 28°C … 29°C …"  vs  "Will … highest … Rio … Janeiro on Tuesday November 24 … outside 28°C … 29°C …"
+
+SIBLINGS 360: "Will the minimum … Rio … Janeiro on Tuesday November 24 … 22°C … station?"  vs  "Will the maximum … Rio … Janeiro on Tuesday November 24 … 22°C … station?"
+
+SIBLINGS 360: "Will the min … Rio … Janeiro on Tuesday November 24 … 22°C … official station?"  vs  "Will the max … Rio … Janeiro on Tuesday November 24 … 22°C … official station?"
+
+SIBLINGS 360: "Will … US Bureau … Economic Analysis … positive … GDP … third … 2026 … estimate?"  vs  "Will … US Bureau … Economic Analysis … negative … GDP … third … 2026 … estimate?"
+
+SIBLINGS 360: "Will … Bitcoin reach $95,000 by … 30 … 12:00 PM Eastern Time on Friday … 27, 2026?"  vs  "Will … Bitcoin reach $95,000 on … 30 … 12:00 PM Eastern Time on Friday … 27, 2026?"
+
+SIBLINGS 360: "Will the Federal Reserve … cut … by December 2026 … FOMC statement?"  vs  "Will the Federal Reserve … cut … in December 2026 … FOMC statement?"
+
+SIBLINGS 360: "Will Patrick Mahomes … at least 285 … Las Vegas Raiders … Thanksgiving?"  vs  "Will Patrick Mahomes … 285 … City Chiefs … Las Vegas Raiders … Thanksgiving?"
+
+SIBLINGS 360: "Will Patrick Mahomes … at least 285 … Las Vegas Raiders … Thanksgiving?"  vs  "Will Patrick Mahomes … at most 285 … Las Vegas Raiders … Thanksgiving?"
+
+SIBLINGS 360: "Which team will allow the fewest … 2026 NFL … Week 12 according to ESPN?"  vs  "Which team will allow the most … 2026 NFL … Week 12 according to ESPN?"
+
+SIBLINGS 360: "Will … highest … Rio … Janeiro … weekend … November 28-29 … 29°C … station?"  vs  "Will … highest … Rio … Janeiro … weekday … November 28-29 … 29°C … station?"
+
+SIBLINGS 360: "Will Novak Djokovic beat Carlos Alcaraz … 2026 … Turin, Italy on Sunday?"  vs  "Will Novak Djokovic lose … Carlos Alcaraz … 2026 … Turin, Italy on Sunday?"
+
+SIBLINGS 360: "Novak Djokovic beats Carlos Alcaraz … 2026 Nitto … Finals … Turin, Italy on Sunday?"  vs  "Novak Djokovic loses … Carlos Alcaraz … 2026 … Turin, Italy on Sunday?"
+
+SIBLINGS 360: "Novak Djokovic wins … Carlos Alcaraz … 2026 Nitto … Finals … Turin, Italy on Sunday?"  vs  "Novak Djokovic loses … Carlos Alcaraz … 2026 … Turin, Italy on Sunday?"
+
+SIBLINGS 360: "Novak Djokovic won … Carlos Alcaraz … 2026 Nitto … Finals … Turin, Italy on Sunday?"  vs  "Novak Djokovic lost … Carlos Alcaraz … 2026 Nitto … Finals … Turin, Italy on Sunday?"
+
+SIBLINGS 360: "Will … Kansas City Chiefs lead … Las Vegas … Day … Arrowhead Stadium … City?"  vs  "Will … Kansas City Chiefs trail … Las Vegas … Day … Arrowhead Stadium … City?"
+
+SIBLINGS 360: "Will Max Verstappen finish first … 2026 Abu Dhabi … Yas Marina Circuit … FIA …"  vs  "Will Max Verstappen finish last … 2026 Abu Dhabi Grand … Yas Marina Circuit … FIA …"
+
+SIBLINGS 360: "Will Max Verstappen finish 1st … 2026 Abu Dhabi Grand … Yas Marina Circuit … FIA …"  vs  "Will Max Verstappen finish last … 2026 Abu Dhabi Grand … Yas Marina Circuit … FIA …"
+
+SIBLINGS 360: "Will Max Verstappen finish first … 2026 Abu Dhabi … Yas Marina Circuit … FIA …"  vs  "Will Max Verstappen finish second … 2026 Abu Dhabi … Yas Marina Circuit … FIA …"
+
+SIBLINGS 360: "Will Max Verstappen finish second … 2026 Abu Dhabi … Yas Marina Circuit … FIA …"  vs  "Will Max Verstappen finish third … 2026 Abu Dhabi … Yas Marina Circuit … FIA …"
+
+SIBLINGS 360: "Will the earliest US … 1 … or more … Atlanta, Georgia … 2026-27 … in December?"  vs  "Will the latest US … 1 … or more … Atlanta, Georgia … 2026-27 … in December?"
+
+SIBLINGS 360: "Will Patrick Mahomes … up to 285 … City Chiefs … Las Vegas Raiders … Thanksgiving?"  vs  "Will Patrick Mahomes … at least 285 … Las Vegas Raiders … Thanksgiving?"
+
+SIBLINGS 360: "Will Patrick Mahomes … up to 285 … City Chiefs … Las Vegas Raiders … Thanksgiving?"  vs  "Will Patrick Mahomes … 285 … City Chiefs … Las Vegas Raiders … Thanksgiving?"
+
+[11/12] [chromium] › e2e-paid/launch-wt1e.spec.ts:163:3 › 390: direction siblings (increase/decrease, hike/cut, raise/lower) render different lines
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[chromium] › e2e-paid/launch-wt1e.spec.ts:163:3 › 390: direction siblings (increase/decrease, hike/cut, raise/lower) render different lines
+SIBLINGS 390: "Will the Bank of Israel decrease … Interest Rate … 25 … November meeting?"  vs  "Will the Bank of Israel increase the … Interest Rate by 25 bps at the November meeting?"
+
+SIBLINGS 390: "Will the Federal Reserve hike interest rates by 25 bps at the December meeting?"  vs  "Will the Federal Reserve cut interest rates by 25 bps at the December meeting?"
+
+SIBLINGS 390: "Will the Bank of England raise the Bank Rate by 50 bps at the December meeting?"  vs  "Will the Bank of England lower the Bank Rate by 50 bps at the December meeting?"
+
+SIBLINGS 390: "Will the highest … Rio … Janeiro … 29°C or higher on November 18 … station?"  vs  "Will the highest temperature … Rio … Janeiro … 29°C on November 18 … official station?"
+
+SIBLINGS 390: "Will the highest … Rio … Janeiro … 29°C or below on November 18 … station?"  vs  "Will the highest temperature … Rio … Janeiro … 29°C on November 18 … official station?"
+
+SIBLINGS 390: "Will the highest temperature … Rio … Janeiro … 29°C on November 18 … official station?"  vs  "Will the lowest temperature … Rio … Janeiro … 29°C on November 18 … official station?"
+
+SIBLINGS 390: "Will initial jobless … fewer … 225,000 … November 15 … Department of Labor?"  vs  "Will initial jobless claims be at 225,000 … November 15 … to … Department of Labor?"
+
+SIBLINGS 390: "Will initial jobless … greater … 225,000 … November 15 … Department of Labor?"  vs  "Will initial jobless claims be at 225,000 … November 15 … to … Department of Labor?"
+
+SIBLINGS 390: "Will the Kansas City Chiefs finish … 2026 NFL … top 5 … AFC … to NFL.com?"  vs  "Will the Kansas City Chiefs finish … 2026 NFL … bottom 5 … AFC … to NFL.com?"
+
+SIBLINGS 390: "Will … Bitcoin reach $95,000 … 12:00 PM Eastern Time on Friday November 27, 2026?"  vs  "Will … Bitcoin dip … $95,000 … 12:00 PM Eastern Time on Friday November 27, 2026?"
+
+SIBLINGS 390: "Will … Bitcoin drop … $95,000 … 12:00 PM Eastern Time on Friday November 27, 2026?"  vs  "Will … Bitcoin hit $95,000 … 12:00 PM Eastern Time on Friday November 27, 2026?"
+
+SIBLINGS 390: "Will … highest … Rio … Janeiro on Tuesday November 24 … between 28°C … 29°C …"  vs  "Will … highest … Rio … Janeiro on Tuesday November 24 … outside 28°C … 29°C …"
+
+SIBLINGS 390: "Will the minimum … Rio … Janeiro on Tuesday November 24 … 22°C … station?"  vs  "Will the maximum … Rio … Janeiro on Tuesday November 24 … 22°C … station?"
+
+SIBLINGS 390: "Will the min … Rio … Janeiro on Tuesday November 24 … 22°C … official station?"  vs  "Will the max … Rio … Janeiro on Tuesday November 24 … 22°C … official station?"
+
+SIBLINGS 390: "Will … US Bureau … Economic Analysis … positive … GDP … third … 2026 … estimate?"  vs  "Will … US Bureau … Economic Analysis … negative … GDP … third … 2026 … estimate?"
+
+SIBLINGS 390: "Will … Bitcoin reach $95,000 by … 30 … 12:00 PM Eastern Time on Friday … 27, 2026?"  vs  "Will … Bitcoin reach $95,000 on … 30 … 12:00 PM Eastern Time on Friday … 27, 2026?"
+
+SIBLINGS 390: "Will the Federal Reserve … cut … by December 2026 … FOMC statement?"  vs  "Will the Federal Reserve … cut … in December 2026 … FOMC statement?"
+
+SIBLINGS 390: "Will Patrick Mahomes … at least 285 … Chiefs … Las Vegas Raiders … Thanksgiving?"  vs  "Will Patrick Mahomes … 285 … City Chiefs … Las Vegas Raiders … Thanksgiving?"
+
+SIBLINGS 390: "Will Patrick Mahomes … at least 285 … Chiefs … Las Vegas Raiders … Thanksgiving?"  vs  "Will Patrick Mahomes … at most 285 … Las Vegas Raiders … Thanksgiving?"
+
+SIBLINGS 390: "Which team will allow the fewest … 2026 NFL … Week 12 according to ESPN?"  vs  "Which team will allow the most … 2026 NFL … through Week 12 according to ESPN?"
+
+SIBLINGS 390: "Will … highest … Rio … Janeiro … weekend … November 28-29 … 29°C … station?"  vs  "Will … highest … Rio … Janeiro … weekday … November 28-29 … 29°C … station?"
+
+SIBLINGS 390: "Will Novak Djokovic beat Carlos Alcaraz … 2026 … Finals … Turin, Italy on Sunday?"  vs  "Will Novak Djokovic lose … Carlos Alcaraz … 2026 … Finals … Turin, Italy on Sunday?"
+
+SIBLINGS 390: "Novak Djokovic beats Carlos Alcaraz … 2026 Nitto … Finals … Turin, Italy on Sunday?"  vs  "Novak Djokovic loses … Carlos Alcaraz … 2026 Nitto … Finals … Turin, Italy on Sunday?"
+
+SIBLINGS 390: "Novak Djokovic wins … Carlos Alcaraz … 2026 Nitto … Finals … Turin, Italy on Sunday?"  vs  "Novak Djokovic loses … Carlos Alcaraz … 2026 Nitto … Finals … Turin, Italy on Sunday?"
+
+SIBLINGS 390: "Novak Djokovic won … Carlos Alcaraz … 2026 Nitto … Finals … Turin, Italy on Sunday?"  vs  "Novak Djokovic lost … Carlos Alcaraz … 2026 Nitto … Finals … Turin, Italy on Sunday?"
+
+SIBLINGS 390: "Will … Kansas City Chiefs lead … Las Vegas … Day … Arrowhead Stadium … City?"  vs  "Will … Kansas City Chiefs trail … Las Vegas … Day … Arrowhead Stadium … City?"
+
+SIBLINGS 390: "Will Max Verstappen finish first … 2026 Abu Dhabi Grand … Yas Marina Circuit … FIA …"  vs  "Will Max Verstappen finish last … 2026 Abu Dhabi Grand … Yas Marina Circuit … FIA …"
+
+SIBLINGS 390: "Will Max Verstappen finish 1st … 2026 Abu Dhabi Grand … Yas Marina Circuit … FIA …"  vs  "Will Max Verstappen finish last … 2026 Abu Dhabi Grand … Yas Marina Circuit … FIA …"
+
+SIBLINGS 390: "Will Max Verstappen finish first … 2026 Abu Dhabi Grand … Yas Marina Circuit … FIA …"  vs  "Will Max Verstappen finish second … 2026 Abu Dhabi … Yas Marina Circuit … FIA …"
+
+SIBLINGS 390: "Will Max Verstappen finish second … 2026 Abu Dhabi … Yas Marina Circuit … FIA …"  vs  "Will Max Verstappen finish third … 2026 Abu Dhabi … Yas Marina Circuit … FIA …"
+
+SIBLINGS 390: "Will the earliest US … 1 … or more … Atlanta, Georgia … 2026-27 … in December?"  vs  "Will the latest US … 1 … or more … Atlanta, Georgia … 2026-27 … in December?"
+
+SIBLINGS 390: "Will Patrick Mahomes … up to 285 … City Chiefs … Las Vegas Raiders … Thanksgiving?"  vs  "Will Patrick Mahomes … at least 285 … Chiefs … Las Vegas Raiders … Thanksgiving?"
+
+SIBLINGS 390: "Will Patrick Mahomes … up to 285 … City Chiefs … Las Vegas Raiders … Thanksgiving?"  vs  "Will Patrick Mahomes … 285 … City Chiefs … Las Vegas Raiders … Thanksgiving?"
+
+[12/12] [chromium] › e2e-paid/launch-wt1e.spec.ts:163:3 › 1440: direction siblings (increase/decrease, hike/cut, raise/lower) render different lines
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+[chromium] › e2e-paid/launch-wt1e.spec.ts:163:3 › 1440: direction siblings (increase/decrease, hike/cut, raise/lower) render different lines
+SIBLINGS 1440: "Will the Bank of Israel decrease the … Interest Rate by 25 bps at the November meeting?"  vs  "Will the Bank of Israel increase the … Interest Rate by 25 bps at the November meeting?"
+
+SIBLINGS 1440: "Will the Federal Reserve hike interest rates by 25 bps at the December meeting?"  vs  "Will the Federal Reserve cut interest rates by 25 bps at the December meeting?"
+
+SIBLINGS 1440: "Will the Bank of England raise the Bank Rate by 50 bps at the December meeting?"  vs  "Will the Bank of England lower the Bank Rate by 50 bps at the December meeting?"
+
+SIBLINGS 1440: "Will the highest … Rio … Janeiro … 29°C or higher on November 18 … official station?"  vs  "Will the highest temperature … Rio … Janeiro … 29°C on November 18 … official station?"
+
+SIBLINGS 1440: "Will the highest … Rio … Janeiro … 29°C or below on November 18 … official station?"  vs  "Will the highest temperature … Rio … Janeiro … 29°C on November 18 … official station?"
+
+SIBLINGS 1440: "Will the highest temperature … Rio … Janeiro … 29°C on November 18 … official station?"  vs  "Will the lowest temperature … Rio … Janeiro … 29°C on November 18 … official station?"
+
+SIBLINGS 1440: "Will initial jobless claims be fewer … 225,000 … November 15 … Department of Labor?"  vs  "Will initial jobless claims be at 225,000 … November 15 … to … Department of Labor?"
+
+SIBLINGS 1440: "Will initial jobless … greater … 225,000 … November 15 … Department of Labor?"  vs  "Will initial jobless claims be at 225,000 … November 15 … to … Department of Labor?"
+
+SIBLINGS 1440: "Will the Kansas City Chiefs finish … 2026 NFL … top 5 … AFC … to NFL.com?"  vs  "Will the Kansas City Chiefs finish … 2026 NFL … bottom 5 … AFC … to NFL.com?"
+
+SIBLINGS 1440: "Will … Bitcoin reach $95,000 … 12:00 PM Eastern Time on Friday November 27, 2026?"  vs  "Will … Bitcoin dip … $95,000 … 12:00 PM Eastern Time on Friday November 27, 2026?"
+
+SIBLINGS 1440: "Will … Bitcoin drop … $95,000 … 12:00 PM Eastern Time on Friday November 27, 2026?"  vs  "Will … Bitcoin hit $95,000 … 12:00 PM Eastern Time on Friday November 27, 2026?"
+
+SIBLINGS 1440: "Will … highest … Rio … Janeiro on Tuesday November 24 … between 28°C … 29°C …"  vs  "Will … highest … Rio … Janeiro on Tuesday November 24 … outside 28°C … 29°C …"
+
+SIBLINGS 1440: "Will the minimum … Rio … Janeiro on Tuesday November 24 … 22°C … station?"  vs  "Will the maximum … Rio … Janeiro on Tuesday November 24 … 22°C … station?"
+
+SIBLINGS 1440: "Will the min … Rio … Janeiro on Tuesday November 24 … 22°C … official station?"  vs  "Will the max … Rio … Janeiro on Tuesday November 24 … 22°C … official station?"
+
+SIBLINGS 1440: "Will the US Bureau … Economic Analysis … positive … GDP … third … 2026 … estimate?"  vs  "Will the US Bureau … Economic Analysis … negative … GDP … third … 2026 … estimate?"
+
+SIBLINGS 1440: "Will … Bitcoin reach $95,000 by … 30 … 12:00 PM Eastern Time on Friday … 27, 2026?"  vs  "Will … Bitcoin reach $95,000 on … 30 … 12:00 PM Eastern Time on Friday … 27, 2026?"
+
+SIBLINGS 1440: "Will the Federal Reserve … cut … by December 2026 … FOMC statement?"  vs  "Will the Federal Reserve announce … cut … in December 2026 … FOMC statement?"
+
+SIBLINGS 1440: "Will Patrick Mahomes … at least 285 … City Chiefs … Las Vegas Raiders … Thanksgiving?"  vs  "Will Patrick Mahomes … 285 … Kansas City Chiefs … Las Vegas Raiders … Thanksgiving?"
+
+SIBLINGS 1440: "Will Patrick Mahomes … at least 285 … City Chiefs … Las Vegas Raiders … Thanksgiving?"  vs  "Will Patrick Mahomes … at most 285 … City Chiefs … Las Vegas Raiders … Thanksgiving?"
+
+SIBLINGS 1440: "Which team will allow the fewest … 2026 NFL … Week 12 according to ESPN?"  vs  "Which team will allow the most … 2026 NFL … through Week 12 according to ESPN?"
+
+SIBLINGS 1440: "Will the highest … Rio … Janeiro … weekend … November 28-29 … 29°C … official station?"  vs  "Will the highest … Rio … Janeiro … weekday … November 28-29 … 29°C … official station?"
+
+SIBLINGS 1440: "Will Novak Djokovic beat Carlos Alcaraz … 2026 Nitto ATP Finals … Turin, Italy on Sunday?"  vs  "Will Novak Djokovic lose … Carlos Alcaraz … 2026 … Finals … Turin, Italy on Sunday?"
+
+SIBLINGS 1440: "Novak Djokovic beats Carlos Alcaraz … 2026 Nitto ATP Finals … Turin, Italy on Sunday?"  vs  "Novak Djokovic loses to Carlos Alcaraz … 2026 Nitto ATP Finals … Turin, Italy on Sunday?"
+
+SIBLINGS 1440: "Novak Djokovic wins … Carlos Alcaraz … 2026 Nitto ATP Finals … Turin, Italy on Sunday?"  vs  "Novak Djokovic loses … Carlos Alcaraz … 2026 Nitto ATP Finals … Turin, Italy on Sunday?"
+
+SIBLINGS 1440: "Novak Djokovic won … Carlos Alcaraz … 2026 Nitto ATP Finals … Turin, Italy on Sunday?"  vs  "Novak Djokovic lost … Carlos Alcaraz … 2026 Nitto ATP Finals … Turin, Italy on Sunday?"
+
+SIBLINGS 1440: "Will … Kansas City Chiefs lead … Las Vegas … Day … Arrowhead Stadium … City?"  vs  "Will … Kansas City Chiefs trail … Las Vegas … Day … Arrowhead Stadium … City?"
+
+SIBLINGS 1440: "Will Max Verstappen finish first … 2026 Abu Dhabi Grand … Yas Marina Circuit … FIA …"  vs  "Will Max Verstappen finish last … 2026 Abu Dhabi Grand … Yas Marina Circuit … FIA …"
+
+SIBLINGS 1440: "Will Max Verstappen finish 1st … 2026 Abu Dhabi Grand … Yas Marina Circuit … FIA …"  vs  "Will Max Verstappen finish last … 2026 Abu Dhabi Grand … Yas Marina Circuit … FIA …"
+
+SIBLINGS 1440: "Will Max Verstappen finish first … 2026 Abu Dhabi Grand … Yas Marina Circuit … FIA …"  vs  "Will Max Verstappen finish second … 2026 Abu Dhabi … Yas Marina Circuit … FIA …"
+
+SIBLINGS 1440: "Will Max Verstappen finish second … 2026 Abu Dhabi … Yas Marina Circuit … FIA …"  vs  "Will Max Verstappen finish third … 2026 Abu Dhabi Grand … Yas Marina Circuit … FIA …"
+
+SIBLINGS 1440: "Will the earliest US … 1 … or more … Atlanta, Georgia … 2026-27 … in December?"  vs  "Will the latest US … 1 … or more … Atlanta, Georgia … 2026-27 … happen in December?"
+
+SIBLINGS 1440: "Will Patrick Mahomes … up to 285 … City Chiefs … Las Vegas Raiders … Thanksgiving?"  vs  "Will Patrick Mahomes … at least 285 … City Chiefs … Las Vegas Raiders … Thanksgiving?"
+
+SIBLINGS 1440: "Will Patrick Mahomes … up to 285 … City Chiefs … Las Vegas Raiders … Thanksgiving?"  vs  "Will Patrick Mahomes … 285 … Kansas City Chiefs … Las Vegas Raiders … Thanksgiving?"
+
+  12 passed (3.3m)
