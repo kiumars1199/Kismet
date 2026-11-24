@@ -14,3 +14,7 @@ Files: `apps/web/lib/fit-clamp.ts` (+test), `components/auth/BetLine.tsx`, `comp
 
 Evidence in this folder: `red-clamp.txt` (old clamp), `red-h1-overlap.log`, `green-measure.log` (Chromium, real output/flags.json: 2,769 distinct titles).
 Real titles through the real box: 360: 23 shortened (0.8%), 0 over 2 lines, 0 clashes; 390: 22, 0, 0; 1440: 20, 0, 0.
+
+CI note: the first CI run of this branch failed at 360x640 (a clipped third line). Cause: the search for the longest fitting text leaves the DOM on its LAST probe, and a
+re-measure that finds the same answer (font load, `load`, the 0.4 s and 1.5 s re-checks) doesn't re-render, so the line stayed on a non-fitting probe. Fix: `BetLine` writes the
+answer to the DOM itself; `components/auth/BetLine.test.tsx` (red before, 2 of 5 failing) holds it. The e2e specs also wait for the fit (hydration) before they look.

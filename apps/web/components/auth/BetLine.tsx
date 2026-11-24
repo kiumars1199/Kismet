@@ -16,7 +16,11 @@ export function BetLine({ title }: { title: string }) {
     const node = p?.firstChild;
     if (!p || !node) return;
     const fits = (t: string) => { node.nodeValue = BET_LEDE + t; return p.scrollHeight <= p.clientHeight + 1; };   // line-clamp-2: clipped text counts in scrollHeight
-    const run = () => setText(fitClamp(title, fits));
+    const run = () => {
+      const best = fitClamp(title, fits);
+      node.nodeValue = BET_LEDE + best;   // the search leaves the DOM on its last probe, which is not always the answer; and when the answer is the
+      setText(best);                      // state React already holds there is no re-render to put it right
+    };
     run();
     // The words reflow when the web font swaps in (a clamped box keeps its height, so the ResizeObserver doesn't see it): measure again when fonts finish
     // loading, when the page has loaded, and shortly after, as well as when the box changes size.

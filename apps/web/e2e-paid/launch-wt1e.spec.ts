@@ -50,6 +50,13 @@ test("a web-font swap after the first measure re-fits the line (wider letters: s
   await expect.poll(async () => line(page).evaluate((e) => e.scrollHeight - e.clientHeight), { timeout: 5_000 }).toBeLessThanOrEqual(1);
   const shown = (await line(page).evaluate((e) => (e as HTMLElement).innerText)).trim();
   console.log(`wider letters at 360: "${shown}"`);
+  // a re-measure that finds the same answer must leave the line as it was: the search's last probe is not the answer (this left a clipped third line on CI)
+  for (let i = 0; i < 3; i++) {
+    await page.evaluate(() => document.fonts.dispatchEvent(new Event("loadingdone")));
+    await page.waitForTimeout(150);
+    expect(await line(page).evaluate((e) => e.scrollHeight - e.clientHeight), `after ${i + 1} idle re-measures`).toBeLessThanOrEqual(1);
+    expect((await line(page).evaluate((e) => (e as HTMLElement).innerText)).trim()).toBe(shown);
+  }
   expect(shown.endsWith(longest.question.slice(-12))).toBe(true);
 });
 
