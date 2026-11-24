@@ -1,11 +1,12 @@
 # T-hydr: intermittent React #418 at 390 (evidence)
 
-Walk-through 1 saw `Minified React error #418 (HTML)` on prod 137ad1f at 390 with touch on `/m/<id>`, `/signup?next=`,
+Walk-through 1 (`docs/launch/review/walkthrough-1/findings.md`, `prod-hydration.log`; harness `hyd.js`) saw `Minified React error #418 (HTML)` on prod 137ad1f at 390 with touch on `/m/<id>`, `/signup?next=`,
 `/state?next=` (4 in ~42 loads, then 1 in 24; 0 in 18 at 1440). Outcome of this investigation: **reproduced (prod and a
 local production build), narrowed to React's hydration cursor at the `<main>` host fiber; blocking metadata
 (`htmlLimitedBots`) took the local rate from 4/600 to 0/600 (see the A/B below, shipped in T-hydr2).**
 
 ## Reproduction (rates)
+Set `PW_CHROMIUM_PATH` to a Chromium binary if Playwright's own is not installed. `probe/patch-react-dom.py` builds the logging react-dom chunk used by `hyd3.mjs`; `prod-hit-rows.json` holds per-load timings of the prod run with its one hit (hit: TTFB 25 ms, body 99 ms).
 Harness shape (`probe/hyd2.mjs`, `probe/hyd5.mjs`): one Playwright context at 390x844, `isMobile`, `hasTouch`, iPhone UA,
 `timezoneId America/New_York`, 4 pages round-robin (`/m/<id>`, `/signup`, `/state`, `/login`), `waitUntil: networkidle` + 1.2 s.
 Prod runs are read-only: every non-GET request aborted, tz cookie set client side. "log" = committed file in this folder.
@@ -40,12 +41,29 @@ verified per case, the run then crashed).
 ### htmlLimitedBots A/B (local signed-out production builds, same harness, run concurrently)
 - A (final): 4 hits in 600 loads (0.67%). B (`htmlLimitedBots: /.*/`): 0 in 600. If B had A's rate, 0 in 600 would
   happen about 2% of the time.
-- HTML check, iPhone UA, `/state?next=...`: A has the metadata in a hidden `<div>` inside `<body>` behind two pending
-  `<!--$?-->` boundaries (B:0, B:1) revealed by `$RC/$RV`, and no `<title>` in `<head>`; in 60 of 60 fetches. B has
-  `<title>`/`<meta>` in `<head>` and no pending boundary (0 of 60).
-- TTFB, local (not Vercel), 40 fetches each, iPhone UA: `/m/<id>` A 13 ms median (p90 33) vs B 8 ms (p90 12); `/signup`
-  A 8 ms vs B 6 ms. No measurable cost locally; on Vercel metadata blocks the first flush for the time of
-  `generateMetadata` (static `metadata` constants on the hit pages, so ~0; `/m/[id]` reads the market, already loaded).
+- HTML check (`probe/html-check.mjs`, exact iPhone Safari UA, `Accept-Encoding: identity`, 60 fetches per page after a cold first
+  fetch; logs `html-check-A.txt`, `html-check-B.txt`, per-fetch rows `html-arm-*.json`, sample HTML `html-arm-*-state-{warm,cold}.html`):
+
+  | | `/state?next=` | `/m/<id>` | `/signup` |
+  |---|---|---|---|
+  | A warm: `<title>` in head / pending `<!--$?-->` / `$RC` reveal script | 0 / 59 / 59 | 0 / 60 / 60 | 0 / 60 / 60 |
+  | B warm: `<title>` in head / pending / reveal script | 59 / 0 / 0 | 60 / 0 / 0 | 60 / 0 / 0 |
+
+  In A the metadata sits in a hidden `<div>` inside `<body>` behind 2 pending boundaries (B:0, B:1) revealed by `$RC/$RV`.
+  In B `<title>`/`<meta>` are in `<head>` and nothing is pending.
+- Why an earlier copy of the A HTML (`arm-A-state.html`, removed) showed the opposite (title in head, no pending boundary, an
+  already-resolved `<div hidden><!--$--><!--/$--></div>`): it was the **first fetch after server start**. A cold server renders
+  that request slowly (TTFB 7.3 s here), the metadata resolves before the first flush, and Next emits it inline. That cold
+  case is `html-arm-A-final-state-cold.html` and is the same in B (B cold: title in head, no pending). Every later fetch is the
+  streamed form in A. In prod this means the pending boundaries appear whenever the server is warm and the metadata is
+  not ready at the first flush, which is why the hit SSR from the walk-through had `<!--$?-->` B:0/B:1.
+- Both arms' HTML contain 7 `<!--$!-->` client-render bailout boundaries (the dynamic `ssr:false` hosts in `LazyHosts`);
+  those are expected and identical in A and B.
+- TTFB, local (not Vercel), 59-60 warm fetches per page, iPhone UA (`html-check-*.txt`): median A 8 / 10 / 9 ms
+  (`/state`, `/m/<id>`, `/signup`), B 13 / 12 / 12 ms, so blocking metadata costs a few ms locally. An earlier ad-hoc curl run
+  (not retained) had B faster (`/m/<id>` A 13, p90 33 vs B 8, p90 12; `/signup` 8 vs 6); the sign flipped, so treat both as
+  noise around a few ms. The hit pages use static `metadata` constants, and `/m/[id]` reads the already-loaded market. Not
+  measured on Vercel: watch TTFB after deploy.
 
 ## What the hit looks like
 Patched react-dom (`a9b5e390-*.js`, `rD` = `throwOnHydrationMismatch`) to log at the throw

@@ -2,7 +2,7 @@ import { chromium } from "@playwright/test";
 import { appendFileSync } from "node:fs";
 const BASE = process.argv[2], MID = process.argv[3], ROUNDS = +process.argv[4], LOG = process.argv[5];
 const UA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1';
-const b = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium-1243/chrome-linux64/chrome" });
+const b = await chromium.launch({ executablePath: process.env.PW_CHROMIUM_PATH || undefined });
 const c = await b.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, userAgent: UA, timezoneId: "America/New_York" });
 await c.route("**/api/funnel", (r) => r.abort());
 let p = await c.newPage(), err = null, hits = 0, loads = 0, crashes = 0; const byUrl = {};

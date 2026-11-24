@@ -1,7 +1,7 @@
 import { chromium } from "@playwright/test";
 const BASE = process.argv[2], MID = process.argv[3], ROUNDS = +process.argv[4] || 6;
 const UA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1';
-const b = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium-1243/chrome-linux64/chrome" });
+const b = await chromium.launch({ executablePath: process.env.PW_CHROMIUM_PATH || undefined });
 const c = await b.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, userAgent: UA, timezoneId: process.env.TZ_ID || "America/New_York" });
 await c.route("**/api/funnel", (r) => r.abort());
 if (process.env.GET_ONLY) await c.route("**/*", (r) => (r.request().method() === "GET" ? r.continue() : r.abort()));
