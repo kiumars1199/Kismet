@@ -80,7 +80,7 @@ class Storage:
 DELAYED = ("markets.json", "flags.json")
 # T-295: the precomputed files (engine/precompute.py) rotate with them, so Free's top.json is as old as its markets.
 # A bucket from before T-295 has no top.json / counts.json yet: their copies may 404.
-PRECOMPUTED = ("top.json", "counts.json")
+PRECOMPUTED = ("top.json", "counts.json", "teasers.json")
 # At a fast scan cadence (ops/scheduler.py, SCAN_EVERY_SEC=120) two copies taken every scan would be only 2 and 4
 # minutes old, and Free would get nothing. So the scheduler sets ROTATE_MIN_SEC (15 min minus the cadence): the live
 # scan only becomes *-prev.json once it is that much newer than the current *-prev.json, which keeps *-prev2.json at
@@ -135,8 +135,10 @@ def publish(out_dir, storage, log=print, rotate_min_sec=None):
     # Nov 21: kalshi.json goes up only through --only, after the Kalshi crawl. Taken here, it was the PREVIOUS
     # crawl's copy (the crawl runs after this upload), uploaded again over the fresh one's slot.
     files = [p for p in files if os.path.basename(p) not in SIDE_FILES]
-    # flags.json last: it carries the scanned_at that the next run compares against.
-    files.sort(key=lambda p: os.path.basename(p) == "flags.json")
+    # flags.json last: it carries the scanned_at that the next run compares against. counts.json just before it: the web compares
+    # counts.json with teasers.json and top.json (an older copy is a leftover from a failed precompute), so those must be up
+    # before it; in name order counts.json went up before markets.json (26 MB) and the others, ahead of them for the whole upload.
+    files.sort(key=lambda p: {"flags.json": 2, "counts.json": 1}.get(os.path.basename(p), 0))
     for p in files:
         with open(p, "rb") as f:
             storage.put(os.path.basename(p), f.read())

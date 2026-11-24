@@ -69,7 +69,7 @@ export default async function Page() {
             Kismet finds those, after the fee and the price you&apos;d really pay.
           </p>
           <div className="flex flex-wrap items-center gap-3">
-            <Link href="/markets" className="flex min-h-12 items-center rounded-input bg-accent px-6 font-semibold text-on-accent hover:bg-accent-hover">Open screener</Link>
+            <Link href="/markets" prefetch={false} className="flex min-h-12 items-center rounded-input bg-accent px-6 font-semibold text-on-accent hover:bg-accent-hover">Open screener</Link>
             <Link href="/" className="flex min-h-12 items-center rounded-input border border-border bg-muted-bg px-5 font-medium hover:border-accent-border">See best bets</Link>
           </div>
         </div>

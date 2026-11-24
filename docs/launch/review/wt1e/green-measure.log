@@ -1,0 +1,16 @@
+REAL 360: 2769 titles, 23 shortened (0.8%), 0 over 2 lines, 0 clashes
+REAL 390: 2769 titles, 22 shortened (0.8%), 0 over 2 lines, 0 clashes
+REAL 1440: 2769 titles, 20 shortened (0.7%), 0 over 2 lines, 0 clashes
+360x640: whole
+360x640: Create account bottom 573, limit 583
+  ✓  1 [chromium] › e2e-paid/launch-wt1e.spec.ts:20:3 › 360x640: a title that fits is shown whole; the longest is shortened, keeps its end and the button holds the fold (23.8s)
+390x844: whole
+390x844: Create account bottom 598, limit 787
+  ✓  2 [chromium] › e2e-paid/launch-wt1e.spec.ts:20:3 › 390x844: a title that fits is shown whole; the longest is shortened, keeps its end and the button holds the fold (3.9s)
+1440x900: whole
+1440x900: Create account bottom 886, limit 900
+  ✓  3 [chromium] › e2e-paid/launch-wt1e.spec.ts:20:3 › 1440x900: a title that fits is shown whole; the longest is shortened, keeps its end and the button holds the fold (2.3s)
+360x640: header bottom 69, H1 top 79
+  ✓  4 [chromium] › e2e-paid/launch-wt1e.spec.ts:44:3 › 360x640: the H1 sits below the site header (no overlap) (1.3s)
+375x667: header bottom 69, H1 top 79
+  ✓  5 [chromium] › e2e-paid/launch-wt1e.spec.ts:44:3 › 375x667: the H1 sits below the site header (no overlap) (1.1s)

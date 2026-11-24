@@ -57,3 +57,24 @@ test("group records with no live counterpart say so: lower-confidence band and c
   await page.goto("/combos");
   await expect(page.getByText("No live record for combos yet: the live record tracks single best bets only.").first()).toBeVisible();
 });
+
+// T-95e review: Escape on the proof help closes the help, not the drawer behind it.
+for (const { w, h } of [{ w: 390, h: 844 }, { w: 1440, h: 900 }]) {
+  test(`drawer at ${w}px: Enter opens the track-record help, Escape closes only the help`, async ({ page }) => {
+    await page.setViewportSize({ width: w, height: h });
+    await page.goto("/");
+    await page.locator("[data-row] h3 a").first().click();
+    const drawer = page.getByRole("dialog", { name: "Market details" });
+    const live = drawer.getByTestId("proof-live");
+    await expect(live).toBeVisible();
+    await live.focus();
+    await page.keyboard.press("Enter");
+    await expect(drawer.getByTestId("proof-help")).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(drawer.getByTestId("proof-help")).toBeHidden();
+    await expect(drawer).toBeVisible();   // the drawer stays open
+    await expect(live).toBeFocused();
+    await page.keyboard.press("Escape");   // with the help closed, Escape closes the drawer as before
+    await expect(drawer).toHaveCount(0);
+  });
+}

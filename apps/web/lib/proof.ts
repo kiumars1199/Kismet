@@ -156,22 +156,22 @@ export function proofLine(o: {
   const enough = needs !== null && events !== null && events >= needs;
   const head = o.since ? `Live since ${sinceDay(o.since)}` : "Live so far";
   const bets = (n: number) => `${exactCount(n)} settled bet${n === 1 ? "" : "s"}`;
-  const evs = (n: number) => `${exactCount(n)} event${n === 1 ? "" : "s"}`;
+  const evs = (n: number, adj = "") => `${exactCount(n)}${adj} event${n === 1 ? "" : "s"}`;
   let live: string;
   if (!l) live = "Live record: starts with the first logged best bet.";
-  else if (!settled) live = `${head}: ${exactCount(l.entries)} logged, none settled yet${needs ? ` (needs ~${formatCount(needs)} settled events to judge)` : ""}.`;
+  else if (!settled) live = `${head}: ${exactCount(l.entries)} logged, none settled yet${needs ? ` (about ${formatCount(needs)} events needed)` : ""}.`;
   else {
     const what = `${head}: ${bets(settled)}, ${ret(roi)}${u ? `; on Polymarket US ${bets(u.graded)} in ${evs(events!)}, ${ret(liveReturn(u))}` : ""}`;
     live = needs === null || events === null ? `${what}.`
       : enough ? `${what}, enough to compare with testing.`
-        : `${what}, still too few to judge (${exactCount(events)} of about ${formatCount(needs)} settled events needed so far).`;
+        : `${what}, still too few to judge (${evs(events!, " settled")} so far; about ${formatCount(needs)} needed).`;
     live += calibration(l) ?? "";
   }
 
   const help = [
     r && r.flags ? `Testing: ${exactCount(r.flags)} past best bets${ok(r.events) ? ` in ${exactCount(r.events)} events` : ""}, each judged by a model fitted only on what came before; return = total profit ÷ total staked, after the fee.` : null,
     "Live: every best bet is logged when it is shown and graded when its market settles; return = total profit ÷ total staked, one $1 share per bet at the asking price plus the fee, each bet counted once.",
-    needs !== null && r ? `"Needs ~${formatCount(needs)} events": settled games or weather days it takes for a return the size of the test's to stand out from zero (t ≈ ${JUDGE_T}): ${exactCount(r.events as number)} test events × (${JUDGE_T} ÷ t-stat ${(r.t_stat as number).toFixed(1)})². Events are counted on the Polymarket US record, the only one that records them.` : null,
+    needs !== null && r ? `"About ${formatCount(needs)} events needed": settled games or weather days it takes for a return the size of the test's to stand out from zero (t ≈ ${JUDGE_T}): ${exactCount(r.events as number)} test events × (${JUDGE_T} ÷ t-stat ${(r.t_stat as number).toFixed(1)})². Events are counted on the Polymarket US record, the only one that records them.` : null,
     l && o.updatedAt ? `Updated ${sinceDay(o.updatedAt)}.` : null,
   ].filter(Boolean).join(" ");
   return { test, live, line: [test, live].filter(Boolean).join(" "), help, needs, settled, liveRoi: roi, enough };
@@ -226,7 +226,7 @@ export function proofSummary(o: { backtest: BacktestFile | null | undefined; led
   const us = o.ledger?.us;
   const events = us?.graded && ok(us.events) ? us.events : null;
   const tooFew = b && b.graded && proof.needs !== null && events !== null && events < proof.needs;
-  return `Tested on ${exactCount(t.flags)} past best bets: ${staked(`${pct(t.win_rate)} won`, t.roi_pct)}.${tooFew ? ` Live record: ${exactCount(b.graded)} settled so far, too few to judge yet.` : ""}`;
+  return `Tested on ${exactCount(t.flags)} past best bets: ${staked(`${pct(t.win_rate)} won`, t.roi_pct)}.${tooFew ? ` Live record: ${exactCount(events)} settled event${events === 1 ? "" : "s"} so far; about ${formatCount(proof.needs!)} needed to judge.` : ""}`;
 }
 
 /** FAQ items with the live facts appended to the hit-rate answer, so "most win" and "lost money" sit in one answer. */

@@ -1,6 +1,7 @@
 // e2e only (S7, account delete): in-memory stand-ins for Supabase (GoTrue + the PostgREST calls this app makes)
 // and Stripe (checkout, portal, subscriptions), so the paid flows run without keys. 404 unless E2E_MOCK=1 and
 // NODE_ENV isn't production. Stripe's SDK reaches /v1/* here through the next.config rewrite.
+import { e2eMockOn } from "@/lib/e2e-mock";
 import { randomUUID } from "node:crypto";
 import Stripe from "stripe";
 
@@ -22,7 +23,7 @@ const fresh = () => ({
 const db = () => (g.__e2eMock ??= fresh());
 const table = (t: string) => db().tables.get(t) ?? (db().tables.set(t, []), db().tables.get(t)!);
 
-const enabled = () => process.env.E2E_MOCK === "1" && process.env.NODE_ENV !== "production";
+const enabled = () => e2eMockOn();
 const json = (body: unknown, status = 200) => Response.json(body, { status });
 const b64u = (o: object) => Buffer.from(JSON.stringify(o)).toString("base64url");
 

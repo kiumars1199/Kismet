@@ -2,6 +2,7 @@
 // Counted with lib/abuse.ts distinct(): Upstash in production (shared across instances); without Upstash it is
 // per instance (memory), which is for dev / demo only. Re-opening the same market + side the same day is free,
 // like the Free "3 exact reveals a day" (lib/data/reveals.ts); a different one is the next check.
+import { e2eMockOn } from "@/lib/e2e-mock";
 import { createHash } from "node:crypto";
 import { clientIp, distinct } from "@/lib/abuse";
 import { quota, type Tier } from "@/lib/entitlements";
@@ -9,7 +10,7 @@ import { quota, type Tier } from "@/lib/entitlements";
 /** The device the signed-out counter is keyed on: the platform IP. Under the e2e mock only (E2E_MOCK=1, never in production)
  *  a test may name its own device with `x-e2e-device`, so one test's check doesn't use up the next test's. */
 export function deviceOf(req: Request): string {
-  if (process.env.E2E_MOCK === "1" && process.env.NODE_ENV !== "production") {
+  if (e2eMockOn()) {
     const d = req.headers.get("x-e2e-device");
     if (d) return `e2e:${d.slice(0, 64)}`;
   }

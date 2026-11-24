@@ -1,0 +1,8 @@
+360x640: header bottom 69, H1 top 71
+375x667: header bottom 69, H1 top 71
+    Expected: >= 77
+    Received:    71
+      50 |     console.log(`${size.width}x${size.height}: header bottom ${Math.round(header.y + header.height)}, H1 top ${Math.round(h1.y)}`);
+    Expected: >= 77
+    Received:    71
+      50 |     console.log(`${size.width}x${size.height}: header bottom ${Math.round(header.y + header.height)}, H1 top ${Math.round(h1.y)}`);

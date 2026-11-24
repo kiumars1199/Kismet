@@ -1,6 +1,7 @@
 // Session refresh (docs/08, docs/15 § Auth) and the account wall (T-276): signed out, only lib/auth/public-paths.ts
 // is reachable; other pages redirect to /signup?next=<page>, other API routes answer 401.
 // Refuses AI crawlers always (docs/15); the session part does nothing in demo mode or before Supabase is configured.
+import { e2eMockOn } from "@/lib/e2e-mock";
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { isAdminEmail, mfaRequired } from "@/lib/admin/core";
@@ -157,7 +158,7 @@ export function accountWall(req: NextRequest): NextResponse | null {
   const path = req.nextUrl.pathname;
   if (req.method === "OPTIONS") return null;   // CORS preflights carry no cookies
   // The e2e Stripe mock (next.config rewrite /v1/* → /e2e-mock/stripe, dev + E2E_MOCK only): server-to-server, no cookies.
-  if (process.env.E2E_MOCK === "1" && process.env.NODE_ENV !== "production" && path.startsWith("/v1/")) return null;
+  if (e2eMockOn() && path.startsWith("/v1/")) return null;
   const access = signedOutAccess(path, req.nextUrl.searchParams);
   if (access === "public") return null;
   if (access === "api401") {

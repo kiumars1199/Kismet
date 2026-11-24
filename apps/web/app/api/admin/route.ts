@@ -1,6 +1,8 @@
 // POST /api/admin — every admin mutation (T-141). Order: requireAdmin (404 for anyone else, so the route's
 // existence isn't revealed) → same-origin (CSRF) → rate limit → strict zod → write the audit row → act with the service role → a ".done" row. The audit row comes first (RT3-05): if it can't be
 // written the action doesn't run (500); a change can never exist without its record. Destructive actions need the target's email typed back; never on your own account.
+import { revalidatePath } from "next/cache";
+import { STATIC_PAGES } from "@/lib/static-routes";
 import { z } from "zod";
 import { rateLimit } from "@/lib/abuse";
 import { adminOnly405, audit, requireAdmin, type AdminCtx } from "@/lib/admin/server";
@@ -82,6 +84,9 @@ async function act(ctx: AdminCtx, b: Body): Promise<Response> {
     );
     if (error) throw new Error(error.message);
     bustSettings();
+    // The banner, maintenance mode and the Free limits also live in the prerendered pages (ISR, 300 s): regenerate them now,
+    // or "/" keeps the old banner for up to five minutes while every dynamic page already shows the new one.
+    for (const p of STATIC_PAGES) revalidatePath(p);
     await done(ctx, "settings.update", keys.join(","), b.patch);
     return Response.json({ ok: true, settings: await getSettings() });
   }

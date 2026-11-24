@@ -124,7 +124,10 @@ def test_upload_keeps_previous_scan_for_the_free_delay(tmp_path):
                       {"bucketId": "scan", "sourceKey": "top-prev.json", "destinationKey": "top-prev2.json"},
                       {"bucketId": "scan", "sourceKey": "top.json", "destinationKey": "top-prev.json"},
                       {"bucketId": "scan", "sourceKey": "counts-prev.json", "destinationKey": "counts-prev2.json"},
-                      {"bucketId": "scan", "sourceKey": "counts.json", "destinationKey": "counts-prev.json"}]
+                      {"bucketId": "scan", "sourceKey": "counts.json", "destinationKey": "counts-prev.json"},
+                      # the compact teaser rows behind /m/<id> rotate with them (Free's delayed price)
+                      {"bucketId": "scan", "sourceKey": "teasers-prev.json", "destinationKey": "teasers-prev2.json"},
+                      {"bucketId": "scan", "sourceKey": "teasers.json", "destinationKey": "teasers-prev.json"}]
     first_put = next(i for i, c in enumerate(http.calls) if c[0] == "POST" and "/object/scan/" in c[1])
     last_copy = max(i for i, c in enumerate(http.calls) if c[1].endswith("/copy"))
     assert last_copy < first_put  # the old scan is kept before the new one overwrites it
@@ -239,7 +242,7 @@ def test_upload_rotates_prev_only_when_far_enough_apart(tmp_path):
     assert _copies(near) == []
     far = GapHttp(live_at="2026-11-19T10:13:00Z", prev_at="2026-11-19T10:00:00Z")    # 780 s apart
     assert upload.publish(out, upload.Storage("https://x.supabase.co", "svc", far), log=lambda *_: None, rotate_min_sec=780)
-    assert len(_copies(far)) == 8
+    assert len(_copies(far)) == 10
 
 
 def test_scheduler_state_survives_restart(monkeypatch, tmp_path):
@@ -433,3 +436,18 @@ def test_scheduler_uploads_the_index_meta_after_the_index():
     steps = [" ".join(a) for a in scheduler.CMDS["scan"]]
     assert steps.index("ops/upload.py --only output/polymarket_index.json") < steps.index("ops/upload.py --only output/polymarket_index_meta.json")
     assert "polymarket_index_meta.json" in upload.SIDE_FILES
+
+
+def test_upload_counts_json_goes_after_teasers_and_top_and_before_flags(tmp_path):
+    """T-hydr4: the web compares counts.json with teasers.json and top.json (a leftover is older than the counts of its scan). Uploaded
+    alphabetically, counts.json went up before markets.json (26 MB) and teasers/top after it, so for the length of every upload the
+    newest counts was ahead of them. counts.json is now sent after every other precomputed file, just before flags.json."""
+    out = write(tmp_path, *good())
+    for name in ("teasers.json", "top.json", "top-sports.json", "counts.json", "ledger_summary.json"):
+        (tmp_path / name).write_text("{}")
+    http = FakeHttp(prev=None)
+    assert upload.publish(out, upload.Storage("https://x.supabase.co/", "svc", http), log=lambda *_: None)
+    names = [c[1].rsplit("/", 1)[1] for c in http.calls if c[0] == "POST"]
+    assert names[-1] == "flags.json" and names[-2] == "counts.json"
+    for later in ("teasers.json", "top.json", "top-sports.json", "markets.json"):
+        assert names.index(later) < names.index("counts.json"), (later, names)

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { accountsOffNote, authEnabled, getUser, safeNext } from "@/lib/auth/server";
+import { BetLine } from "@/components/auth/BetLine";
 import { signupBetTitle } from "@/lib/teaser";
 import { FREE_BEST_BETS_A_DAY } from "@/lib/entitlements";
 
@@ -41,12 +42,14 @@ export async function AuthPage({ mode, searchParams }: {
   const other = next === "/" ? c.other.href : `${c.other.href}?next=${encodeURIComponent(next)}`;
 
   return (
-    <section className="mx-auto flex w-full max-w-[420px] flex-col gap-3 py-2 md:gap-7 md:py-14">
-      <header className="flex flex-col gap-1.5 md:gap-2.5">
-        <h1 className="text-balance text-[26px] font-bold leading-[1.05] tracking-[-0.02em] md:text-[40px]">{c.title}</h1>
-        {betTitle ? <p data-testid="signup-bet" className="text-[13px] font-medium leading-snug text-accent-soft md:text-[15px]">Sign up to see Kismet&apos;s verdict on {betTitle}{/[?!.]$/.test(betTitle) ? "" : "."}</p> : null}
-        <p className={`text-[15px] leading-relaxed text-muted ${betTitle ? "hidden md:block" : ""}`}>{c.lede}</p>
+    <section className="mx-auto flex w-full max-w-[420px] flex-col gap-2 py-0.5 md:gap-4 md:py-6">
+      <header className="flex flex-col gap-1 md:gap-2.5">
+        <h1 className="text-balance text-[24px] [@media(max-height:700px)]:text-[22px] font-bold leading-[1.05] tracking-[-0.02em] md:text-[40px]">{c.title}</h1>
+        {betTitle ? <BetLine title={betTitle} /> : null}
       </header>
+      {/* One element: under the heading on a desktop, last on a phone (above the form it pushed the submit button behind the tab bar).
+          Not shown at all on a phone when the page names a bet (that line is the lede). */}
+      <p className={`order-last text-[15px] leading-relaxed text-muted md:order-none md:-mt-2 ${betTitle ? "hidden md:block" : ""}`}>{c.lede}</p>
       {authEnabled() ? (
         <>
           <LoginForm mode={mode} next={next} error={sp.error ? ERRORS[sp.error] ?? ERRORS.unavailable : undefined} />

@@ -38,7 +38,9 @@ async function post(db: object, body: object) {
     method: "POST", headers: { "content-type": "application/json", origin: "https://me.test", host: "me.test" }, body: JSON.stringify(body),
   }));
 }
-afterEach(() => { vi.resetModules(); vi.doUnmock("@/lib/admin/server"); vi.doUnmock("@/lib/settings"); vi.doUnmock("@/lib/abuse"); });
+const revalidated: string[] = [];
+vi.mock("next/cache", () => ({ revalidatePath: (p: string) => void revalidated.push(p) }));
+afterEach(() => { revalidated.length = 0; vi.resetModules(); vi.doUnmock("@/lib/admin/server"); vi.doUnmock("@/lib/settings"); vi.doUnmock("@/lib/abuse"); });
 
 describe("admin: audit first", () => {
   for (const body of [
@@ -61,5 +63,18 @@ describe("admin: audit first", () => {
     expect(ops[0]![0]).toBe("admin_audit_log");
     expect((ops[0]![2] as { before: unknown }).before).toEqual({ free_rows: 40 });
     expect(ops.some(([t, o]) => t === "app_settings" && o === "upsert")).toBe(true);
+  });
+
+  it("settings: the prerendered pages are regenerated at once, so the banner and maintenance mode show on / without waiting for the 5-minute window", async () => {
+    const { STATIC_PAGES } = await import("@/lib/static-routes");
+    const { db } = fakeDb({ settings: [{ key: "banner_on", value: false }] });
+    expect((await post(db, { action: "settings", patch: { banner_on: true } })).status).toBe(200);
+    expect(revalidated.sort()).toEqual([...STATIC_PAGES].sort());
+  });
+
+  it("settings: a failed audit write regenerates nothing", async () => {
+    const { db } = fakeDb({ auditFails: true });
+    expect((await post(db, { action: "settings", patch: { banner_on: true } })).status).toBe(500);
+    expect(revalidated).toEqual([]);   // nothing changed, nothing regenerated
   });
 });

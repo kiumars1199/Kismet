@@ -56,7 +56,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           This copy in <head> is the one Chrome reads, and the only one: the manifest is a plain route
           (app/manifest.webmanifest/route.ts), not a metadata file, so Next adds none (e2e/manifest-link.spec.ts). */}
       <head><link rel="manifest" href="/manifest.webmanifest" /></head>
-      <body className="flex min-h-dvh flex-col bg-background text-text">
+      {/* data-tier: the plan the server already knows (signed out = free), so CSS can size things for it from the first paint: Free's cards
+            don't reserve the "I placed this" slot and then drop it once /api/me answers (CLS). Unknown (a failed read): no attribute. */}
+      <body data-tier={signedOut ? "free" : hint?.tier} className="flex min-h-dvh flex-col bg-background text-text">
         <ClockProvider zone={clock.zone} saved={clock.saved} now={now}>
         <AvailabilityProvider value={avail}>
         <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:rounded-input focus:bg-accent focus:px-3 focus:py-2 focus:text-on-accent">
@@ -75,7 +77,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         ) : (
           <>
             <Header signedOutHint={signedOut} hint={hint} />
-            <main id="main" className="flex-1 px-4 py-6 md:px-8">
+            <main id="main" className="flex-1 px-4 py-6 [@media(max-height:700px)]:pt-2 md:px-8">   {/* a short phone screen (360x640): the first view needs the room */}
               {children}
             </main>
             <Footer />
@@ -96,7 +98,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 async function headerHint(): Promise<HeaderHint | null> {
   try {
     const me = await getMe();
-    return { signedIn: DEMO_MODE || !!me.user, admin: isAdminEmail(me.user, process.env.ADMIN_EMAILS, DEMO_MODE), nav: navFeatures(me) };
+    return { signedIn: DEMO_MODE || !!me.user, admin: isAdminEmail(me.user, process.env.ADMIN_EMAILS, DEMO_MODE), nav: navFeatures(me), tier: me.tier };
   } catch (e) {
     unstable_rethrow(e);
     return null;

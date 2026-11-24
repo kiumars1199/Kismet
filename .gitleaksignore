@@ -29,3 +29,6 @@ aaf1c720647144ac4e82c04912ee09fb48353f91:ops/tests/preflight.test.mjs:jwt:15
 3c709f96ee994e0b9a7f435abb2b753f44333d9f:apps/web/lib/billing/mode.test.ts:stripe-access-token:22
 3c709f96ee994e0b9a7f435abb2b753f44333d9f:apps/web/lib/billing/mode.test.ts:stripe-access-token:24
 3c709f96ee994e0b9a7f435abb2b753f44333d9f:apps/web/lib/billing/mode.test.ts:stripe-access-token:35
+
+# T-ci1: the e2e-only test secret in the first revision of playwright.paid.config.ts (replaced by a low-entropy value in the next commit)
+ce766f846ac0b4a4f9a91b291ab984f6e0307bb2:apps/web/playwright.paid.config.ts:generic-api-key:30

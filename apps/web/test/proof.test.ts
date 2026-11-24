@@ -101,7 +101,7 @@ describe("proofLine: the test result, then the live record beside it", () => {
     const p = proofLine({ record, backtest: BT, live: stats({ entries: 704 }), since: NOV17, who: "best bets" });
     expect(sinceDay(NOV17)).toBe("Nov 17");
     expect(p.test).toBe(`In testing on ${SPAN}: best bets, ${ret(8.41)} per bet.`);
-    expect(p.live).toBe("Live since Nov 17: 704 logged, none settled yet (needs ~22 settled events to judge).");
+    expect(p.live).toBe("Live since Nov 17: 704 logged, none settled yet (about 22 events needed).");
     expect(p.help).toMatch(/^Testing: 10,027 past best bets in 1,500 events/);
     expect(p.help).toMatch(/1,500 test events × \(2 ÷ t-stat 16\.8\)²/);
     expect(p.enough).toBe(false);
@@ -116,7 +116,7 @@ describe("proofLine: the test result, then the live record beside it", () => {
     const l = stats({ entries: 80, graded: 60, wins: 50, losses: 10, avg_pnl: -0.013 });
     const u = us({ entries: 40, graded: 35, wins: 27, losses: 8, avg_pnl: 0.01, events: 9 });
     const p = proofLine({ record, backtest: BT, live: l, us: u, since: NOV17 });
-    expect(p.live).toBe(`Live since Nov 17: 60 settled bets, ${ret(liveReturn(l))}; on Polymarket US 35 settled bets in 9 events, ${ret(liveReturn(u))}, still too few to judge (9 of about 22 settled events needed so far).`);
+    expect(p.live).toBe(`Live since Nov 17: 60 settled bets, ${ret(liveReturn(l))}; on Polymarket US 35 settled bets in 9 events, ${ret(liveReturn(u))}, still too few to judge (9 settled events so far; about 22 needed).`);
     expect(p.liveRoi).toBeCloseTo(liveReturn(l)!, 9);
   });
   it("US record with enough events to compare", () => {
@@ -180,7 +180,7 @@ describe("every surface that shows the test return prints the proof line beside 
   it("the site line uses the chosen result's taker record and the whole ledger", () => {
     const t = chosenResult(store.backtest)!.taker;
     expect(p.test).toContain(`${ret(t.roi_pct)} per bet`);
-    expect(p.live).toBe(`Live since Nov 17: 704 logged, none settled yet (needs ~${eventsNeeded(t)!.toLocaleString("en-US")} settled events to judge).`);
+    expect(p.live).toBe(`Live since Nov 17: 704 logged, none settled yet (about ${eventsNeeded(t)!.toLocaleString("en-US")} events needed).`);
   });
 
   it("/api/backtest carries it", async () => {
@@ -241,7 +241,7 @@ describe("proofSummary: the one plain line above the plans", () => {
 
   it.each([1, 2, 5, 20])("%i settled bets is below the threshold: the testing line (with its return) and a true note, never an all-won live line", (n) => {
     const out = proofSummary({ backtest: bt(9.5), ledger: live(n, n, 0.4, n) })!;   // every one won: the trap
-    expect(out).toBe(`Tested on 1,234 past best bets: 74% won, and overall they made 9.5% on what was staked. Live record: ${n} settled so far, too few to judge yet.`);
+    expect(out).toBe(`Tested on 1,234 past best bets: 74% won, and overall they made 9.5% on what was staked. Live record: ${n} settled event${n === 1 ? "" : "s"} so far; about 48 needed to judge.`);
     expect(out).not.toMatch(/Live so far|100%|just started/);
   });
   it("the note is only said while it is true: 2,000 settled bets with a test ROI <= 0 (nothing to compare with) carry no 'too few' note", () => {
@@ -293,5 +293,21 @@ describe("eventsNeeded rounds on the exact value, not on float noise", () => {
   it("still rounds a real fraction up", () => {
     expect(eventsNeeded(r(76, 2.5))).toBe(49);   // 48.64
     expect(eventsNeeded(r(1394, 18.5))).toBe(17);
+  });
+});
+
+describe("/pricing: the visible summary and the details count the same unit (US events)", () => {
+  const bt = { results: { None: { taker: { flags: 1234, events: 300, t_stat: 5, win_rate: 0.74, roi_pct: 9.5 } } }, chosen_half_life_days: null } as never;
+  const ledger = { entries: 772, graded: 772, wins: 600, losses: 172, avg_pnl: 0.01, avg_clv: null, by_category: {}, updated_at: 1794877967,
+    us: { entries: 30, graded: 30, wins: 25, losses: 5, avg_pnl: 0.02, avg_clv: null, events: 10 } } as never;
+  it("772 settled bets and 10 US events: the summary says 10 events, never 772", () => {
+    const s = proofSummary({ backtest: bt, ledger })!;
+    expect(s).toContain("Live record: 10 settled events so far; about 48 needed to judge.");
+    expect(s).not.toMatch(/772/);
+  });
+  it("the help text defines the number the line shows", () => {
+    const p = siteProof({ backtest: { results: { None: { taker: { flags: 1234, events: 300, t_stat: 5, win_rate: 0.74, roi_pct: 9.5 } } }, chosen_half_life_days: null } as never, ledger, since: null });
+    expect(p.help).toContain('"About 48 events needed"');
+    expect(p.help).not.toContain("Needs ~");
   });
 });
