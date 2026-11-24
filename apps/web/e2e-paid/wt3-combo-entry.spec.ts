@@ -203,3 +203,46 @@ test("header: 'Check a bet' from 1440 only, and the header never gets taller, cl
     }
   }
 });
+
+// Review of #92 (T-89c): the same steps as the demo spec, for a signed-in Free account (its /api/me answer adds the check note and
+// once read 0.1008 on the 2nd leg): first leg, 2nd leg and scoring each < 0.02 at 390 and 1440, five runs each.
+test("Free: first leg, 2nd leg and scoring each shift the page < 0.02 at 390 and 1440 (5 runs each)", async ({ page }) => {
+  test.setTimeout(480_000);
+  await signIn(page, `wt3-cls-${Date.now()}@example.com`);
+  const rows = ((await (await page.request.get("/api/markets?limit=20")).json()).rows as { market: { id: string; event_id: string }; side: { side_index: number } }[]);
+  const [a, b] = rows.filter((r, i) => rows.findIndex((x) => x.market.event_id === r.market.event_id) === i);
+  await page.addInitScript(() => {
+    const w = window as unknown as { __cls: number };
+    w.__cls = 0;
+    new PerformanceObserver((l) => { for (const e of l.getEntries() as unknown as { value: number; hadRecentInput: boolean }[]) if (!e.hadRecentInput) w.__cls += e.value; }).observe({ type: "layout-shift", buffered: true });
+  });
+  // next dev can abort a load that lands while it compiles: load again (the retry is a fresh load, so its CLS is its own)
+  const go = async (url: string) => { try { await page.goto(url); } catch { await page.goto(url); } };
+  const cls = () => page.evaluate(() => (window as unknown as { __cls: number }).__cls);
+  for (const size of SIZES) {
+    await page.setViewportSize(size);
+    const worst = { first: 0, second: 0, scoring: 0 };
+    for (let run = 0; run < 5; run++) {
+      await go("/check");
+      await page.evaluate(() => sessionStorage.clear());
+      await go(`/check/combo?m=${a!.market.id}&side=${a!.side.side_index}`);
+      await expect(page.getByTestId("combo-leg")).toHaveCount(1, { timeout: 30_000 });
+      await page.waitForTimeout(800);
+      worst.first = Math.max(worst.first, await cls());
+      await go(`/check/combo?m=${b!.market.id}&side=${b!.side.side_index}`);
+      await expect(page.getByTestId("combo-leg")).toHaveCount(2, { timeout: 30_000 });
+      await expect(page.getByTestId("combo-free-note")).toHaveText(/Free includes 1 check a day/, { timeout: 30_000 });
+      await page.waitForTimeout(800);
+      const second = await cls();
+      worst.second = Math.max(worst.second, second);
+      await page.getByTestId("combo-check-btn").click();
+      await expect(page.getByTestId("combo-score")).toBeVisible({ timeout: 30_000 });
+      await page.waitForTimeout(800);
+      worst.scoring = Math.max(worst.scoring, (await cls()) - second);
+    }
+    console.log(`T-89c Free CLS at ${size.width}px, worst of 5: first ${worst.first.toFixed(4)}, 2nd ${worst.second.toFixed(4)}, scoring ${worst.scoring.toFixed(4)}`);
+    expect(worst.first).toBeLessThan(0.02);
+    expect(worst.second).toBeLessThan(0.02);
+    expect(worst.scoring).toBeLessThan(0.02);
+  }
+});

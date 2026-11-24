@@ -219,9 +219,11 @@ function freeFlagsPage(store: Store, f: FilterState, key: string, fallback = fal
   const rows = page.rows.filter((r) => keep.has(r.market.id));
   // First screen after onboarding (fav=1, "Your topics"): when none of the day's sample is in the chosen topics, answer with
   // that user's own unfiltered sample instead (same freeSample, nothing from positions or history), marked so the page says so.
-  if (!rows.length && page.total > 0 && fallback) {
+  // T-wt2b: also when the topics have no best bets at all today (page.total 0): the first screen is never empty. The answer says
+  // how many the topics have (free_fallback_topic_total), so the page can tell "none today" from "none in your sample".
+  if (!rows.length && fallback) {
     const all = freeFlagsPage(store, { ...f, topics: undefined }, key);
-    if (all.rows.length) return { ...all, free_fallback: true };
+    if (all.rows.length) return { ...all, free_fallback: true, free_fallback_topic_total: page.total };
   }
   return { ...page, page_size: f.page_size, total_groups: undefined, groups: undefined, rows, free_daily: FREE_BEST_BETS_A_DAY };
 }

@@ -35,9 +35,9 @@ export function PauseCard() {
         ))}
       </div>
       {pick && (
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">   {/* 12 px apart: a missed tap on Cancel must not start a pause that can't be ended early */}
           <button type="button" className={btn} disabled={busy} data-testid="pause-confirm" onClick={confirm}>{busy ? "Pausing…" : `Pause for ${label}`}</button>
-          <button type="button" className="text-sm text-muted hover:text-text" onClick={() => setPick(null)}>Cancel</button>
+          <button type="button" data-testid="pause-cancel" className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-input px-3 text-sm text-muted hover:text-text" onClick={() => setPick(null)}>Cancel</button>
         </div>
       )}
       {error && <p role="alert" className="text-sm text-warning">{error}</p>}

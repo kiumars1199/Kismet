@@ -1,4 +1,5 @@
 // Account (docs/14 §1, T-47): email, plan, billing portal, JSON export, sign out (everywhere), delete.
+import { signInClause } from "@/lib/auth/method";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AccountActions, CheckoutStatus, DeleteAccount } from "@/components/auth/AccountActions";
@@ -38,7 +39,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ c
   const billing = billingMode() !== null;
 
   return (
-    <div className="mx-auto flex max-w-3xl flex-col gap-8">
+    <div data-account-page className="mx-auto flex max-w-3xl flex-col gap-8">   {/* the footer help line hides while this is on the page (globals.css): the pause card shows it */}
       <PageTitle title="Account">
         {/* #21: settings (display, sizing, topics, notifications, your data) one tap from the account page */}
         <Link href="/settings" data-testid="account-settings" className="inline-flex min-h-11 items-center rounded-input border border-border bg-muted-bg px-4 text-sm font-medium hover:border-accent-border">Settings</Link>
@@ -67,7 +68,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ c
 
       <section aria-labelledby="acct-h" className={`${card} flex flex-col gap-4 p-5 md:p-6`}>
         <h2 id="acct-h" className="text-lg font-semibold">Sign-in</h2>
-        <p className="text-sm text-soft">Signed in as <span className="font-medium text-text">{me.user.email}</span>, with Google or an email link.</p>
+        <p className="text-sm text-soft">Signed in as <span className="font-medium text-text">{me.user.email}</span>{signInClause(me.user.method)}.</p>
         <p className="text-sm text-muted">An account can be signed in on up to 3 devices. Signing in on a 4th signs out the oldest.</p>
         <AccountActions kind="signout" tier={me.tier} billing={billing} hasCustomer={!!me.status} />
       </section>

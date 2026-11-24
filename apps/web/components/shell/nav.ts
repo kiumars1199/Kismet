@@ -36,5 +36,6 @@ export const BETA_LINKS = [
   { href: "/kalshi", label: "Kalshi", feature: "kalshi" },
 ] as const;
 
+/** The current page's item: an exact match, or a sub-page of it. /check is exact only: /check/combo has its own item ("Check a combo"). */
 export const isActive = (pathname: string, href: string) =>
-  pathname === href || pathname.startsWith(href + "/") || (href === "/bets" && pathname === "/");
+  pathname === href || (href !== "/check" && pathname.startsWith(href + "/")) || (href === "/bets" && pathname === "/");

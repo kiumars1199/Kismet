@@ -23,7 +23,7 @@ interface Props { market?: Market; side?: Side | 0 | 1; target?: LogTarget; pric
 export function LogUpsell() {
   const { can, known } = useEntitlements();
   if (!known || can("journal")) return null;
-  return <p data-testid="log-bet-upgrade" className="text-center text-sm text-muted">Want to track the bets you place? <Link href="/pricing" className="text-accent-hover hover:underline">Track your bets with Pro</Link></p>;
+  return <p data-testid="log-bet-upgrade" className="text-center text-sm text-muted">Want to track the bets you place? <Link href="/pricing" className="inline-flex min-h-11 min-w-11 items-center text-accent-hover hover:underline">Track your bets with Pro</Link></p>;
 }
 
 export function LogBetButton({ market, side = 0, target, price, stakeUsd, className = "" }: Props) {

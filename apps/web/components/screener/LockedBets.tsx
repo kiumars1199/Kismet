@@ -10,7 +10,7 @@ import { track } from "@/lib/telemetry";
 
 /** `total`: every Best bet matching the filters (the real N, lib/data/counts.ts); `shown`: how many of the day's
  *  sample match them and are on the page; `daily`: the Free allowance the server sampled (FREE_BEST_BETS_A_DAY). */
-export function LockedBets({ total, shown, daily }: { total: number; shown: number; daily: number; desktop?: boolean }) {
+export function LockedBets({ total, shown, daily, topic }: { total: number; shown: number; daily: number; topic?: string; desktop?: boolean }) {
   const locked = total - shown;
   if (locked <= 0) return null;
   const none = shown === 0;   // none of today's free bets match: nothing to "unlock more" of, so offer the whole list
@@ -25,7 +25,9 @@ export function LockedBets({ total, shown, daily }: { total: number; shown: numb
       </span>
       <p className="flex-1 text-[13px] leading-relaxed text-muted">
         {none
-          ? `None of today's ${daily} free bets match these filters. Pro shows all ${total.toLocaleString("en-US")}, live.`
+          ? topic
+            ? `None of today's ${daily} free bets are in ${topic}. Pro shows the ${plural(total, "bet")} in ${topic}, live.`
+            : `None of today's ${daily} free bets match these filters. Pro shows the ${plural(total, "bet")} that ${total === 1 ? "matches" : "match"}, live.`
           : `Free shows ${FREE_BEST_BETS_A_DAY} of today's best bets, picked at random each day, with delayed prices. Pro shows every one, live.`}
       </p>
       <Link href="/pricing" onClick={() => track("upgrade_clicked", { source: "locked_bets" })} data-testid="unlock-all"

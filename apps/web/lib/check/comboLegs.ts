@@ -37,5 +37,12 @@ export function addStored(legs: StoredLeg[], leg: StoredLeg): { legs: StoredLeg[
   return { legs: [...legs, leg], refused: null };
 }
 
+/** Legs to reserve room for on first paint: one when the URL carries a ?m= leg (the server knows it from searchParams), else none.
+ *  Legs kept in this tab's sessionStorage are invisible to the server, and nothing is shared across tabs to guess them: a reload with
+ *  stored legs measured the same CLS without a reserve (0.0019 at 390), so there is none. */
+export function reservedLegs(m: string | undefined): number {
+  return m ? 1 : 0;
+}
+
 export const readStored = (): StoredLeg[] => { try { return parseStored(sessionStorage.getItem(STORE_KEY)); } catch { return []; } };
 export const writeStored = (legs: StoredLeg[]) => { try { sessionStorage.setItem(STORE_KEY, JSON.stringify(legs)); } catch {} };
