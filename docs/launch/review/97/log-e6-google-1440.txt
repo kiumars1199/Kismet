@@ -1,0 +1,18 @@
+e6G 1440x900 /m first 6674492 {"verdict":{"y":387,"b":433,"h":46,"w":670},"signup":{"y":449,"b":497,"h":48,"w":141},"login":{"y":451,"b":495,"h":44,"w":65},"combo":{"y":513,"b":557,"h":44,"w":150},"tabTop":14,"gap":-483,"price":"Market price: Yes 68%","h1":"Denmark vs. Norway: Both Teams to Score","next":"Closed · Nov 17, 2026, 2:45 PM EST","h1h":45} {"cls":0,"hscroll":false,"disc":true,"cents":false}
+e6G 1440x900 /m long 7062032 {"verdict":{"y":432,"b":478,"h":46,"w":670},"signup":{"y":494,"b":542,"h":48,"w":141},"login":{"y":496,"b":540,"h":44,"w":65},"combo":{"y":558,"b":602,"h":44,"w":150},"tabTop":14,"gap":-528,"price":"Market price: Yes 30%","h1":"Will the highest temperature in New York City be between 56-57°F on November 17?","next":"Closed · Nov 17, 2026, 12:00 PM UTC","h1h":90} {"cls":0,"hscroll":false,"disc":true,"cents":false}
+e6G 1440x900 /m event 6673454 {"verdict":{"y":419,"b":465,"h":46,"w":670},"signup":{"y":481,"b":529,"h":48,"w":141},"login":{"y":483,"b":527,"h":44,"w":65},"combo":{"y":545,"b":589,"h":44,"w":150},"tabTop":14,"gap":-515,"price":"Market price: Yes 70%","h1":"Will FC Barcelona win on 2026-11-17?","next":"RCD Mallorca vs. FC Barcelona","h1h":45} {"cls":0,"hscroll":false,"disc":true,"cents":false}
+e6G 1440x900 /signup?next=%2Fm%2F7062032 {"submit":{"y":880,"b":928,"h":48,"w":420},"checkbox":{"y":406,"b":426,"h":20,"w":20},"tabTop":14,"gap":-914,"betLine":"Sign up to see Kismet's verdict on Will the highest temperature in New York City be between 56-57°F on November 17?","tabCurrent":null,"google":1,"pw":{"placeholder":"At least 8 characters","describedby":null,"minLength":8},"links":{"Terms":{"y":472,"b":516,"h":44,"w":44},"Privacy Policy":{"y":472,"b":516,"h":44,"w":93},"Log in":{"y":1012,"b":1056,"h":44,"w":44}}} {"cls":0,"hscroll":false,"disc":true,"cents":false}
+e6G 1440x900 /signup {"submit":{"y":808,"b":856,"h":48,"w":420},"checkbox":{"y":334,"b":354,"h":20,"w":20},"tabTop":14,"gap":-842,"betLine":null,"tabCurrent":null,"google":1,"pw":{"placeholder":"At least 8 characters","describedby":null,"minLength":8},"links":{"Terms":{"y":400,"b":444,"h":44,"w":44},"Privacy Policy":{"y":400,"b":444,"h":44,"w":93},"Log in":{"y":940,"b":984,"h":44,"w":44}}} {"cls":0,"hscroll":false,"disc":true,"cents":false}
+e6G 1440x900 /login {"submit":{"y":766,"b":814,"h":48,"w":420},"checkbox":{"y":292,"b":312,"h":20,"w":20},"tabTop":14,"gap":-800,"betLine":null,"tabCurrent":null,"google":1,"pw":{"placeholder":"At least 8 characters","describedby":null,"minLength":8},"links":{"Terms":{"y":358,"b":402,"h":44,"w":44},"Privacy Policy":{"y":358,"b":402,"h":44,"w":93},"Create a free account":{"y":898,"b":942,"h":44,"w":145}}} {"cls":0,"hscroll":false,"disc":true,"cents":false}
+e6G 1440x900 /state {"h1":["Your state"]} {"cls":0,"hscroll":false,"disc":true,"cents":false}
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+locator.count: Target crashed 
+    at /tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/probe/rv97.mjs:79:178 {
+  log: [],
+  name: 'Error'
+}
+
+Node.js v22.23.5

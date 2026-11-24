@@ -1,0 +1,17 @@
+e6G 390x844 /m first 6674492 {"verdict":{"y":387,"b":433,"h":46,"w":324},"signup":{"y":445,"b":493,"h":48,"w":141},"login":{"y":447,"b":491,"h":44,"w":65},"combo":{"y":505,"b":549,"h":44,"w":150},"tabTop":787,"gap":294,"price":"Market price: Yes 68%","h1":"Denmark vs. Norway: Both Teams to Score","next":"Closed · Nov 17, 2026, 2:45 PM EST","h1h":61} {"cls":0,"hscroll":false,"disc":true,"cents":false}
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+page.goto: Page crashed
+Call log:
+[2m  - navigating to "http://localhost:3755/m/7062032", waiting until "load"[22m
+
+    at go (/tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/probe/rv97.mjs:23:44)
+    at /tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/probe/rv97.mjs:27:11 {
+  log: [
+    '  - navigating to "http://localhost:3755/m/7062032", waiting until "load"'
+  ]
+}
+
+Node.js v22.23.5

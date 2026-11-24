@@ -88,6 +88,7 @@ Problems:
 - Not walked: signed-in headers at 768–1280, the Premium drawer path to the tray, WebKit, and signed-in steps on a production build. Re-walk after the fixes.
 
 ## Found in review, outside a lane
+- 02:44 Merged #97 (T-wt1b) at e6e282d -> 7b6eb38; reviewer PASS with 2 should-fix (at 375x667 with Google on, the submit button is behind the tab bar on /signup and /login; the password hint is placeholder-only and lost its aria-describedby) -> T-wt1c, tracker lane. #106 must merge final (Teaser.tsx overlap). Evidence in review/97/.
 - 02:41 Merged #108 (T-wt3d: shared link no longer spends the Free check, add-leg CLS 0, Share link label) at 036b187 -> 09cda44; reviewer PASS with notes. N1 (a refused add shifts 0.035 at 390) and N3 (stray comment) go to T-wt3e, data lane. Evidence in review/108/.
 - 02:33 #103 (T-hydr docs) re-review FAIL at c30db3b: the A/B counts trace (A 4/600, B 0/600), but the HTML mechanism claim (metadata in a body div behind pending boundaries on final) has no log, and the committed arm-A-state.html contradicts it (title in head, no `<!--$?-->`). TTFB and prod-hit numbers have no log. Back to trust lane. #110 (T-hydr2, htmlLimitedBots) opened; its reviewer must confirm the mechanism with a red run on final. #109 (T-95d) opened.
 - 02:22 Merged #107 (T-wt3c: tray and checker agree, Premium nav at 1024) at aed9b7a -> 7878313; reviewer PASS with notes (N1 same-event hint before scoring, N2 re-quote old saved tray legs, N3 checker leg chance vs card headline, N4 closed-leg note) -> T-wt3e, data lane. Evidence in review/107/.

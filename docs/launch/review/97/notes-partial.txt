@@ -1,0 +1,8 @@
+PR #97 at 613b4dd (paused by coordinator mid-review). Local next dev, e2e-paid env, NEXT_PUBLIC_GOOGLE_AUTH=1 (prod has "Continue with Google" on /signup).
+KEY: with Google on (as prod), /signup and /login at 375x667: "Create account"/"Log in" bottom 697 vs tab bar top 610 -> 83-87 px BEHIND the tab bar.
+  The lane's "15 px clear" was measured without Google (e2e env has no NEXT_PUBLIC_GOOGLE_AUTH). At 390x844 with Google: 90-94 px clear.
+/m teaser 375x667: Sign up free clears the tab bar by 87-117 px (matches lane); 390x844 by 264-294.
+Password hint: placeholder only, aria-describedby removed; native validation on submit says "Please lengthen this text to 8 characters or more".
+/state h1 "Your state"; Sign up tab aria-current=page on /signup; Terms/Privacy/Log in links 44 px. CLS 0, no hscroll, disclaimer, no cents.
+CI 613b4dd: checks success, check:js 149.8 kB; e2e-paid (1),(4) were still running when paused. Desktop base-vs-head comparison NOT done.
+Evidence: log-head-google.txt, headG-*.png

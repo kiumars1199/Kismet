@@ -1,0 +1,7 @@
+#97 T-wt1b @ e6e282d (base 0ae5d4e) — PASS with should-fix
+Teaser /m: Sign up free 1440 y449 (base 571); 390 gap to tab bar 264-294 (base 67/-35/35); 375x667 87-117.
+/signup,/login submit vs tab bar (Google on): 390x844 +90..+94 (base -3/-87/+30); 375x667 -83..-87 first view, clears on scroll.
+Password hint: placeholder only, aria-describedby removed.
+Free 390/375: CLS<=0.027, no hscroll, disclaimer, no cents. CI green, check:js 149.8 kB.
+Not captured: head 1440 /login and /state (Chromium crashes under memory pressure); /signup and /m at 1440 viewed OK.
+Overlap: Teaser.tsx also edited by #106.
