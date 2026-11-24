@@ -1,3 +1,6 @@
+// The HTML assertion below is the real guard: it fails deterministically if metadata goes back to streaming into the body
+// (the cause of the #418). The 20-load loops are a smoke test: the mismatch was ~0.7% per load, so they would catch a
+// regression only by luck.
 // T-hydr2: no hydration mismatch (React #418) at 390 with touch, on a production build. The mismatch was intermittent
 // (~0.7% of loads), so each key page loads 20 times; it fails on any console "#418"/hydration message. The HTML check
 // is the deterministic half: metadata is in <head> and no pending streamed boundary is left for a phone user agent.
@@ -8,7 +11,7 @@ test.use({ ...PHONE, viewport: { width: 390, height: 844 }, hasTouch: true, isMo
 
 const PAGES = ["/", "/pricing", "/about", "/state?next=%2Fabout", "/track-record"];
 
-test("the first HTML for a phone has its metadata in <head> and no pending streamed boundary", async ({ request }) => {
+test("the first HTML for a phone has <title> in <head> and none in <body>", async ({ request }) => {
   for (const path of PAGES) {
     const res = await request.get(path, { headers: { "user-agent": PHONE.userAgent } });
     const html = await res.text();
