@@ -1,0 +1,5 @@
+     × teasers.json: 20 sequential and 20 concurrent requests add no reads after the first; then one read per TTL 7ms
+     × teasers.json, cold: 20 concurrent first requests share the load and the one re-read 42ms
+     × top.json: the same 48ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  3 failed | 12 passed (15)

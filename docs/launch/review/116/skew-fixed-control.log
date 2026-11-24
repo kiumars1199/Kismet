@@ -1,0 +1,4 @@
+wt-116 t=0 cold /m: [200 0.883905]  warm: [200 0.023417]
+wt-116 NO new scan written
+wt-116 t=35s /m other id: [200 0.041846]  next: [200 0.017505]
+wt-116 t=65s /m other id: [200 0.167757]  next: [200 0.017224]
