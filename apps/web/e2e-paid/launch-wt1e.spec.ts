@@ -140,6 +140,25 @@ SIBLINGS.push(
   ["Which team will allow the fewest points across all games of the 2026 NFL regular season through Week 12 according to ESPN?", "Which team will allow the most points across all games of the 2026 NFL regular season through Week 12 according to ESPN?"],
   ["Will the highest temperature in Rio de Janeiro during the weekend of November 28-29 be 29°C according to the official station?", "Will the highest temperature in Rio de Janeiro during the weekday of November 28-29 be 29°C according to the official station?"],
 );
+// T-wt1g (review 3 follow-ups): inflected direction words, first vs last, "up to"
+const ten = (x: string) => `Will Novak Djokovic ${x} Carlos Alcaraz in the 2026 Nitto ATP Finals round-robin stage match in Turin, Italy on Sunday?`;
+const ten3 = (x: string) => `Novak Djokovic ${x} Carlos Alcaraz in the 2026 Nitto ATP Finals round-robin stage match in Turin, Italy on Sunday?`;
+const f1 = (x: string) => `Will Max Verstappen finish ${x} in the 2026 Abu Dhabi Grand Prix at the Yas Marina Circuit according to official FIA results?`;
+const chiefs2 = (x: string) => `Will the Kansas City Chiefs ${x} the Las Vegas Raiders at halftime of the Thanksgiving Day game at Arrowhead Stadium in Kansas City?`;
+SIBLINGS.push(
+  [ten("beat"), ten("lose to")],
+  [ten3("beats"), ten3("loses to")],
+  [ten3("wins against"), ten3("loses against")],
+  [ten3("won against"), ten3("lost against")],
+  [chiefs2("lead"), chiefs2("trail")],
+  [f1("first"), f1("last")],
+  [f1("1st"), f1("last")],
+  [f1("first"), f1("second")],
+  [f1("second"), f1("third")],
+  ["Will the earliest US snowfall of 1 inch or more in Atlanta, Georgia during the 2026-27 winter season happen in December?", "Will the latest US snowfall of 1 inch or more in Atlanta, Georgia during the 2026-27 winter season happen in December?"],
+  [nfl("up to 285"), nfl("at least 285")],
+  [nfl("up to 285"), nfl("285")],
+);
 for (const size of SIZES) {
   test(`${size.width}: direction siblings (increase/decrease, hike/cut, raise/lower) render different lines`, async ({ page }) => {
     await page.setViewportSize(size);
