@@ -20,7 +20,7 @@ export interface MeResponse {
 
 /** #17/#73: what the root layout already knows about a signed-in visitor, so the header renders signed in from the
  *  first HTML on every page instead of filling in when /api/me answers. */
-export interface HeaderHint { signedIn: boolean; admin: boolean; nav: Gated[] }
+export interface HeaderHint { signedIn: boolean; admin: boolean; nav: Gated[]; tier?: Tier }
 
 /** The header's view: /api/me once it answers, else the layout's hint (null: unknown yet). */
 export const headerView = (me: MeResponse | null, hint: HeaderHint | null | undefined): HeaderHint | null =>
