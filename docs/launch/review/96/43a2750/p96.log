@@ -1,0 +1,29 @@
+stale 390: new-tab empty state {"ulH":0,"legs":0,"cardH":138} vs clean empty {"ulH":0,"cardH":138}; tab1 reload after new tab: CLS 0.0019 [0.0019 P y654->699 h18->18]
+stale 1440: new-tab empty state {"ulH":0,"legs":0,"cardH":125} vs clean empty {"ulH":0,"cardH":125}; tab1 reload after new tab: CLS 0.0006 [0.0006 P y530->577 h18->18]
+legs 6654452 0 6635049 1
+out 390: worst first 0 second 0.0019 scoring 0.0063 newtab-stale 0
+   run0 first 0 [] second 0.0019 [0.0019 P y654->699 h18->18] scoring 0.0063 stale-tab 0 [] cookie-after undefined
+   run1 first 0 [] second 0.0019 [0.0019 P y654->699 h18->18] scoring 0.0000 stale-tab 0 [] cookie-after undefined
+   run2 first 0 [] second 0.0019 [0.0019 P y654->699 h18->18] scoring 0.0000 stale-tab 0 [] cookie-after undefined
+   run3 first 0 [] second 0.0019 [0.0019 P y654->699 h18->18] scoring 0.0000 stale-tab 0 [] cookie-after undefined
+   run4 first 0 [] second 0.0019 [0.0019 P y654->699 h18->18] scoring 0.0000 stale-tab 0 [] cookie-after undefined
+out 1440: worst first 0 second 0.0006 scoring 0.0000 newtab-stale 0
+   run0 first 0 [] second 0.0006 [0.0006 P y530->577 h18->18] scoring 0.0000 stale-tab 0 [] cookie-after undefined
+   run1 first 0 [] second 0.0006 [0.0006 P y530->577 h18->18] scoring 0.0000 stale-tab 0 [] cookie-after undefined
+   run2 first 0 [] second 0.0006 [0.0006 P y530->577 h18->18] scoring 0.0000 stale-tab 0 [] cookie-after undefined
+   run3 first 0 [] second 0.0006 [0.0006 P y530->577 h18->18] scoring 0.0000 stale-tab 0 [] cookie-after undefined
+   run4 first 0 [] second 0.0006 [0.0006 P y530->577 h18->18] scoring 0.0000 stale-tab 0 [] cookie-after undefined
+free 390: worst first 0 second 0.0019 scoring 0.0000 newtab-stale 0
+   run0 first 0 [] second 0.0019 [0.0019 P y710->755 h18->18] scoring 0.0000 stale-tab 0 [] cookie-after undefined
+   run1 first 0 [] second 0.0019 [0.0019 P y710->755 h18->18] scoring 0.0000 stale-tab 0 [] cookie-after undefined
+   run2 first 0 [] second 0.0019 [0.0019 P y710->755 h18->18] scoring 0.0000 stale-tab 0 [] cookie-after undefined
+   run3 first 0 [] second 0.0019 [0.0019 P y710->755 h18->18] scoring 0.0000 stale-tab 0 [] cookie-after undefined
+   run4 first 0 [] second 0.0019 [0.0019 P y710->755 h18->18] scoring 0.0000 stale-tab 0 [] cookie-after undefined
+free 1440: worst first 0.0006 second 0.0013 scoring 0.0000 newtab-stale 0.0006
+   run0 first 0.0006 [0.0006 DIV y10->10 h44->44] second 0.0013 [0.0006 DIV y10->10 h44->44 ; 0.0006 P y530->577 h18->18] scoring 0.0000 stale-tab 0.0006 [0.0006 DIV y10->10 h44->44] cookie-after undefined
+   run1 first 0.0006 [0.0006 DIV y10->10 h44->44] second 0.0013 [0.0006 DIV y10->10 h44->44 ; 0.0006 P y530->577 h18->18] scoring 0.0000 stale-tab 0.0006 [0.0006 DIV y10->10 h44->44] cookie-after undefined
+   run2 first 0.0006 [0.0006 DIV y10->10 h44->44] second 0.0013 [0.0006 DIV y10->10 h44->44 ; 0.0006 P y530->577 h18->18] scoring 0.0000 stale-tab 0.0006 [0.0006 DIV y10->10 h44->44] cookie-after undefined
+   run3 first 0.0006 [0.0006 DIV y10->10 h44->44] second 0.0013 [0.0006 DIV y10->10 h44->44 ; 0.0006 P y530->577 h18->18] scoring 0.0000 stale-tab 0.0006 [0.0006 DIV y10->10 h44->44] cookie-after undefined
+   run4 first 0.0006 [0.0006 DIV y10->10 h44->44] second 0.0013 [0.0006 DIV y10->10 h44->44 ; 0.0006 P y530->577 h18->18] scoring 0.0000 stale-tab 0.0006 [0.0006 DIV y10->10 h44->44] cookie-after undefined
+copy 390: "2 to 10" in main 1, body 1; aria-current [] more []; disclaimer true; cents false; sideways 0; empty CLS 0
+copy 1440: "2 to 10" in main 1, body 1; aria-current [] more []; disclaimer true; cents false; sideways 0; empty CLS 0
