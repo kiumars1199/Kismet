@@ -88,6 +88,7 @@ Problems:
 - Not walked: signed-in headers at 768–1280, the Premium drawer path to the tray, WebKit, and signed-in steps on a production build. Re-walk after the fixes.
 
 ## Found in review, outside a lane
+- 03:10 #110 (T-hydr2) reviewer PASS with notes at f7a85cb (the mechanism holds: warm final streams the metadata, #110 puts it in the head; the red run fails on final). Merging when CI web is green. NEW: production /m cold first byte is 10.05 s (then 0.36 s and 0.28 s warm), which hurts TikTok landings -> T-hydr3, trust lane (target under 1.5 s cold), plus the hydration test rename. #113 (T-wt1c) opened, with reviewer 1. #112 (T-wt3e) opened, queued for reviewer 2 after #111.
 - 03:01 Merged #103 (T-hydr: #418 investigation docs and probes, docs-only) at 07114fc -> 5c27037; reviewer PASS on the 4th review (every number traces to a committed log). The fix itself is #110 (htmlLimitedBots), under review.
 - 02:52 #103 at 6ba5218, third review FAIL: every in-PR number traces, but the walk-through citation doesn't name the docs branch and its "4 in ~42" doesn't trace (the logs show one #418). Small doc fix, trust lane; then T-95e.
 - 02:47 Merged #109 (T-95d: /pricing summary and details count settled events, one 'needed' number) at 9874784 -> 97ae087; reviewer PASS. Pre-existing should-fix: ProofLine help is title=-only, so it can't be reached by touch (rule 3) -> T-95e, trust lane (queued; agent cap). Evidence in review/109/.
