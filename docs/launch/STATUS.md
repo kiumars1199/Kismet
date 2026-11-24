@@ -88,6 +88,7 @@ Problems:
 - Not walked: signed-in headers at 768–1280, the Premium drawer path to the tray, WebKit, and signed-in steps on a production build. Re-walk after the fixes.
 
 ## Found in review, outside a lane
+- 02:52 #103 at 6ba5218, third review FAIL: every in-PR number traces, but the walk-through citation doesn't name the docs branch and its "4 in ~42" doesn't trace (the logs show one #418). Small doc fix, trust lane; then T-95e.
 - 02:47 Merged #109 (T-95d: /pricing summary and details count settled events, one 'needed' number) at 9874784 -> 97ae087; reviewer PASS. Pre-existing should-fix: ProofLine help is title=-only, so it can't be reached by touch (rule 3) -> T-95e, trust lane (queued; agent cap). Evidence in review/109/.
 - 02:44 Merged #97 (T-wt1b) at e6e282d -> 7b6eb38; reviewer PASS with 2 should-fix (at 375x667 with Google on, the submit button is behind the tab bar on /signup and /login; the password hint is placeholder-only and lost its aria-describedby) -> T-wt1c, tracker lane. #106 must merge final (Teaser.tsx overlap). Evidence in review/97/.
 - 02:41 Merged #108 (T-wt3d: shared link no longer spends the Free check, add-leg CLS 0, Share link label) at 036b187 -> 09cda44; reviewer PASS with notes. N1 (a refused add shifts 0.035 at 390) and N3 (stray comment) go to T-wt3e, data lane. Evidence in review/108/.

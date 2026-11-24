@@ -1,0 +1,10 @@
+#103 T-hydr docs @ 6ba5218 — FAIL (doc fixes only)
+Traced OK: arm-A 600/4 (3 /state,1 /signup); arm-B 600/0; 0-in-600 at A rate = 1.8%; hyd3 480/4 with 8 HYDR418 lines; call-stack 5 HIT / 7 S / 7 C, last HIT at load 494 then crash;
+hyd2_local_base 240/1 /state; jit 240/0; cpu6 160/0; html-check A/B txt == recomputed from html-arm-*.json (59/60/60, upper-median & floor(n*.9) p90);
+cold TTFB 7309/7086; sample HTML: A warm 2 pending + $RC, A/B cold & B warm title in head, 0 pending; 7 <!--$!--> in all 4.
+prod-hit-rows.json: 120 rows, 30 per page, 1 hit /login TTFB 25 body 99 (run median 26 / 104.5).
+Blocker: walk-through citation (docs/launch/review/walkthrough-1/...) not on final or PR; README does not name branch claude/brave-turing-j05kro.
+  On that branch, "4 in ~42 loads" does not trace: prod-walk*.log hold one #418; prod-hydration.log "loads 24 hits 1" (traces); prod-probe3.log "D 1440 loads 18 errors []" (traces); findings.md never mentions #418.
+Should-fix: table row "prod, harness shape | 120 | 1 (/login) | none" — prod-hit-rows.json is that run's log; mark it.
+Nit: "both median" -> hit 25/99 vs run medians 26/104.5. hyd3.mjs hardcodes /tmp/claude-0/chunks/a9b5e390.patched.js and ROWS default /tmp/claude-0/rows.json.
+CI at time of check: web check not yet reported; e2e-paid 1,2,4 + e2e-demo in progress; rest green.
