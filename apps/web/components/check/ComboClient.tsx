@@ -231,9 +231,9 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
 
 
       {/* Once there is a leg, a link with legs, or the person has started adding, this region holds the height of the legs and a scored result (the sub-line wraps to 36 px once scored, the result
-          grows to about 533 px on a phone and 360 on a desktop: those final sizes are reserved), so adding legs and scoring grow inside
+          grows to about 690 px on a phone and 486 on a desktop, with the weakest-leg box: those final sizes are reserved), so adding legs and scoring grow inside
           it and the page below never moves. The empty result card itself stays small: the room is blank space under it, not a box. */}
-      <div data-combo-pending={loaded ? undefined : ""} className={`flex flex-col gap-5 ${legs.length || reserve || engaged ? "min-h-[760px] md:min-h-[700px]" : ""} ${loaded || reserve ? "" : "invisible"}`}>
+      <div data-combo-pending={loaded ? undefined : ""} className={`flex flex-col gap-5 ${legs.length || reserve || engaged ? "min-h-[890px] md:min-h-[700px]" : ""} ${loaded || reserve ? "" : "invisible"}`}>
       <ul data-testid="combo-legs" style={{ "--n": Math.min(MAX_COMBO_LEGS, Math.max(legs.length + (incoming && legs.length > 0 ? 1 : 0), reserve, 2)) } as React.CSSProperties}
         className={`flex flex-col gap-2 ${legs.length || reserve ? "min-h-[calc(var(--n)*84px+(var(--n)-1)*8px)] sm:min-h-[calc(var(--n)*70px+(var(--n)-1)*8px)]" : ""}`}>
         {legs.map((l, i) => {
@@ -250,17 +250,17 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
         })}
       </ul>
 
-      <section aria-label="Combo result" className={`flex flex-col gap-3 rounded-card border border-border bg-surface p-4 md:p-5 ${Math.max(legs.length, reserve) >= MIN_COMBO_LEGS ? "min-h-[560px] md:min-h-[380px]" : ""}`}>
-        {limit && (
-        <div data-testid="check-upgrade" className="flex flex-col items-start gap-3 rounded-input border border-accent-border bg-bg p-4">
-          <p className="text-sm text-soft">{COMBO_LIMIT_USED}</p>
-          <Link href="/pricing" className="inline-flex min-h-11 items-center rounded-input bg-accent px-4 text-sm font-semibold text-on-accent hover:bg-accent-hover">See plans</Link>
-        </div>
-        )}
+      <section aria-label="Combo result" className={`flex flex-col gap-3 rounded-card border border-border bg-surface p-4 md:p-5 ${Math.max(legs.length, reserve) >= MIN_COMBO_LEGS ? "min-h-[690px] md:min-h-[486px]" : ""}`}>
         {legs.length < MIN_COMBO_LEGS && <p data-testid="combo-msg" className="text-sm text-soft">{legs.length === 0 ? "Add at least two bets to check a combo." : "Add at least one more leg."}</p>}
         {legs.length < MIN_COMBO_LEGS && <p data-testid="combo-how" className="text-[13px] leading-relaxed text-muted">How it works: every leg has to win, so the chances multiply and so do the payouts.</p>}
-        {/* one height for the button block and the numbers that replace it (181 px on a phone, 100 from 768): with a same-event note below, it cannot move (T-wt3e) */}
+        {/* one height for the button block, the numbers that replace it and the "daily check used" box that takes its place on a 429 (181 px on a phone, 100 from 768): with a same-event note below, it cannot move (T-wt3e) */}
         <div data-testid="combo-slot" className={`flex flex-col gap-3 ${sameNow.length > 0 ? "min-h-[182px] md:min-h-[100px]" : ""}`}>
+        {limit && (
+          <div data-testid="check-upgrade" className="flex flex-col items-start gap-3 rounded-input border border-accent-border bg-bg p-4 md:flex-row md:items-center md:justify-between">
+            <p className="text-sm text-soft">{COMBO_LIMIT_USED}</p>
+            <Link href="/pricing" className="inline-flex min-h-11 flex-none items-center rounded-input bg-accent px-4 text-sm font-semibold text-on-accent hover:bg-accent-hover">See plans</Link>
+          </div>
+        )}
         {legs.length >= MIN_COMBO_LEGS && !ready && !limit && (
           <div className="flex flex-col items-start gap-2">
             <p data-testid="combo-msg" className="text-sm text-soft">{scoring ? "Scoring your combo…" : "Ready when you are."}</p>
@@ -310,9 +310,9 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
         )}
         {/* pinned to the bottom of the (reserved) result box, so the answer growing above them moves nothing */}
         <div className="mt-auto flex flex-col gap-3">
-          {legs.length >= MIN_COMBO_LEGS && (
-            <div className="flex items-center gap-3">
-              <button type="button" onClick={() => void copyLink()} className="min-h-11 rounded-input border border-border px-4 text-sm font-medium text-text hover:border-accent-border">{touch ? "Share link" : "Copy link"}</button>
+          {Math.max(legs.length, reserve) >= MIN_COMBO_LEGS && (
+            <div className="flex min-h-11 items-center gap-3">
+              {legs.length >= MIN_COMBO_LEGS && <button type="button" onClick={() => void copyLink()} className="min-h-11 rounded-input border border-border px-4 text-sm font-medium text-text hover:border-accent-border">{touch ? "Share link" : "Copy link"}</button>}
               <span role="status" data-testid="combo-copied" className="text-[13px] text-accent-softer empty:hidden">{copied}</span>
             </div>
           )}
