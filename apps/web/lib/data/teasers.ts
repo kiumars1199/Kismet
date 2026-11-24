@@ -21,7 +21,8 @@ export interface TeaserFile { meta: { scanned_at: number }; rows: Record<string,
 /** The parts of a Teaser this file can fill (lib/teaser.ts adds the label and event cleanup, shared with the store path). */
 export interface IndexedTeaser { id: string; question: string; event: string; category: string; closes_at: number | null; price: number | null; price_outcome: string | undefined }
 
-type Entry = { at: number; value: TeaserFile | undefined; inflight?: Promise<TeaserFile | undefined> };
+/** `rechecked`: the counts.json scanned_at this file was already re-read against (the stale-guard's one re-read per scan; kept across TTL refreshes). */
+type Entry = { at: number; value: TeaserFile | undefined; inflight?: Promise<TeaserFile | undefined>; freshInflight?: Promise<TeaserFile | undefined>; rechecked?: number };
 const g = globalThis as unknown as { __meTeasers?: Map<string, Entry> };
 const cache = (g.__meTeasers ??= new Map());
 export const _resetTeaserIndex = () => cache.clear();
@@ -29,15 +30,16 @@ export const _resetTeaserIndex = () => cache.clear();
 const valid = (f: unknown): f is TeaserFile =>
   !!f && typeof f === "object" && typeof (f as TeaserFile).meta?.scanned_at === "number" && !!(f as TeaserFile).rows && typeof (f as TeaserFile).rows === "object";
 
-function load(name: string, fresh = false): Promise<TeaserFile | undefined> {
+function load(name: string, fresh = false, forScan?: number): Promise<TeaserFile | undefined> {
   const hit = cache.get(name);
   if (!fresh && hit && Date.now() - hit.at < TTL_MS) return Promise.resolve(hit.value);
   if (!fresh && hit?.inflight) return hit.inflight;
+  if (fresh && hit?.freshInflight) return hit.freshInflight;   // concurrent re-reads share one read
   const inflight = readSource(name, sourceChain(DATA_SOURCE))
     .then((text) => { const f = text === undefined ? undefined : JSON.parse(text); return valid(f) ? f : undefined; })
     .catch((e) => { console.warn(`[teasers] ${name} unreadable: ${(e as Error).message}`); return undefined; })
-    .then((value) => { cache.set(name, { at: Date.now(), value }); return value; });
-  cache.set(name, { at: hit?.at ?? 0, value: hit?.value, inflight });
+    .then((value) => { cache.set(name, { at: Date.now(), value, rechecked: fresh ? forScan : cache.get(name)?.rechecked }); return value; });
+  cache.set(name, { at: hit?.at ?? 0, value: hit?.value, rechecked: hit?.rechecked, ...(fresh ? { inflight: hit?.inflight, freshInflight: inflight } : { inflight, freshInflight: hit?.freshInflight }) });
   return inflight;
 }
 
@@ -52,8 +54,10 @@ export async function indexedMarketTeaser(id: string, nowMs = Date.now(), liveCl
   // (its -prev copies are older still): use the store instead. But after a NORMAL scan the same is true of a copy cached before
   // it (counts' cache expires after 30 s, this one after 60 s): read the file once more, bypassing the cache, and only then give
   // up. No counts file = nothing to compare with.
+  // The re-read happens at most once per counts scan (entry.rechecked): a real leftover must not turn every request into a bucket read.
   if (counts && newest.meta.scanned_at < counts.scanned_at) {
-    newest = await load("teasers.json", true);
+    if (cache.get("teasers.json")?.rechecked === counts.scanned_at) return undefined;
+    newest = await load("teasers.json", true, counts.scanned_at);
     if (!newest || newest.meta.scanned_at < counts.scanned_at) return undefined;
   }
   if (liveClock && nowMs / 1000 - newest.meta.scanned_at > MAX_AGE_S) return undefined;

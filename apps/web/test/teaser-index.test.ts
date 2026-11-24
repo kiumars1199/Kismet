@@ -193,3 +193,58 @@ describe("the stale-guard with caches out of step (a normal scan)", () => {
     expect(h.log.indexOf("start counts.json"), `reads: ${h.log.join(", ")}`).toBeLessThan(h.log.indexOf("end top.json"));
   });
 });
+
+// T-hydr4 review 2: a REAL leftover (counts newer than a teasers.json / top.json that never gets rewritten) must not turn every request
+// into a bucket read. The re-read happens at most once per counts scan, and concurrent callers share it.
+describe("a real leftover costs one re-read, not one per request", () => {
+  const readsOf = (name: string) => h.reads.filter((r) => r === name).length;
+
+  it("teasers.json: 20 sequential and 20 concurrent requests add no reads after the first; then one read per TTL", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    const start = Date.now();
+    const store = await getStoreFor("free");
+    const m = store.markets[0]!;
+    h.files.set("teasers.json", file(NOW - 1800, [m]));
+    h.files.set("counts.json", countsFile(NOW - 900));   // newer: the new scan's teasers upload never happened
+    expect(await indexedMarketTeaser(m.id, NOW * 1000)).toBeUndefined();
+    const afterFirst = readsOf("teasers.json");
+    expect(afterFirst, "the first request: the load and one re-read").toBeLessThanOrEqual(2);
+    for (let i = 0; i < 20; i++) expect(await indexedMarketTeaser(m.id, NOW * 1000)).toBeUndefined();
+    await Promise.all(Array.from({ length: 20 }, () => indexedMarketTeaser(m.id, NOW * 1000)));
+    expect(readsOf("teasers.json"), "40 more requests inside the TTL: no reads").toBe(afterFirst);
+    vi.setSystemTime(start + 61_000);                    // the 60 s TTL has passed (counts' 30 s one too)
+    h.reads.length = 0;
+    for (let i = 0; i < 20; i++) expect(await indexedMarketTeaser(m.id, NOW * 1000)).toBeUndefined();
+    await Promise.all(Array.from({ length: 20 }, () => indexedMarketTeaser(m.id, NOW * 1000)));
+    expect(readsOf("teasers.json"), "one read for the new TTL window, not one per request, and no extra re-read").toBe(1);
+  });
+
+  it("teasers.json, cold: 20 concurrent first requests share the load and the one re-read", async () => {
+    const store = await getStoreFor("free");
+    const m = store.markets[0]!;
+    h.files.set("teasers.json", file(NOW - 1800, [m]));
+    h.files.set("counts.json", countsFile(NOW - 900));
+    h.delayMs = 20;
+    await Promise.all(Array.from({ length: 20 }, () => indexedMarketTeaser(m.id, NOW * 1000)));
+    expect(readsOf("teasers.json")).toBeLessThanOrEqual(2);
+  });
+
+  it("top.json: the same", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    const start = Date.now();
+    const top = JSON.parse(readFileSync("test/fixtures/top.json", "utf8")) as { meta: { scanned_at: number } };
+    const at = top.meta.scanned_at;
+    h.files.set("top.json", JSON.stringify(top));
+    h.files.set("counts.json", countsFile(at + 120));    // newer than top.json, which never gets rewritten
+    expect(await getTopStore("pro")).toBeUndefined();
+    const afterFirst = readsOf("top.json");
+    expect(afterFirst).toBeLessThanOrEqual(2);
+    for (let i = 0; i < 20; i++) expect(await getTopStore("pro")).toBeUndefined();
+    await Promise.all(Array.from({ length: 20 }, () => getTopStore("pro")));
+    expect(readsOf("top.json")).toBe(afterFirst);
+    vi.setSystemTime(start + 31_000);
+    h.reads.length = 0;
+    for (let i = 0; i < 20; i++) expect(await getTopStore("pro")).toBeUndefined();
+    expect(readsOf("top.json"), "one read per window").toBe(1);
+  });
+});
