@@ -1,0 +1,16 @@
+[1440-premium-empty] CHECK-EMAIL: "Already have an account?" x1; login links ["Log in->/login"]
+[1440-premium-empty] tier premium
+[1440-premium-empty] ONB-BAR top: {"next":[840,884],"sticky":[823,900],"tabTop":0,"tabH":0,"probeY":442,"probeHit":"MAIN.flex-1 px-4 py-6 [@media(max-height:700px)]:pt-2 m","lastTile":[1780,1840]}
+[1440-premium-empty] ONB-BAR scrolled to end: {"next":[591,635],"sticky":[574,651],"tabTop":0,"tabH":0,"probeY":318,"probeHit":"MAIN.flex-1 px-4 py-6 [@media(max-height:700px)]:pt-2 m","lastTile":[384,444]}
+[1440-premium-empty] ONB2 bar: {"next":[609,653],"sticky":[592,669],"tabTop":0,"tabH":0,"probeY":327,"probeHit":"MAIN.flex-1 px-4 py-6 [@media(max-height:700px)]:pt-2 m"}
+[1440-premium-empty] ONB3 bar: {"next":[705,749],"sticky":[688,765],"tabTop":0,"tabH":0,"probeY":375,"probeHit":"MAIN.flex-1 px-4 py-6 [@media(max-height:700px)]:pt-2 m"}
+[1440-premium-empty] FIRST url /?view=flags&t=sports.ncaab&fav=1 startY=0 landing CLS 0.0001
+[1440-premium-empty] STEP 1 "No best bets in your topics today" spot=[127,257,26,1414] dlg=[263,488,540,900] tabTop=900 head=64 scrollY=0 | spotTopInBand=true spotFully=true overlapPx=0 dlgClearOfTabBar=true h1Visible=true painted="DIV.enter flex flex-col items" | CLS(step)=0.0001 [{"v":0.0001,"src":["A.flex min-h-11 flex-none items- y10->10"]}] | transition spot=0.3s dlg=0.3s scroll-behavior=auto
+[1440-premium-empty]    body: Nothing in your topics looks like good value right now. Widen your topics, or see all best bets, and the cards appear here.
+[1440-premium-empty] STEP 2 "Narrow the list" spot=[261,355,26,1414] dlg=[361,563,540,900] tabTop=900 head=64 scrollY=0 | spotTopInBand=true spotFully=true overlapPx=0 dlgClearOfTabBar=true h1Visible=true painted="SELECT.min-h-11 w-full cursor-po" | CLS(step)=0 | transition spot=0.3s dlg=0.3s scroll-behavior=auto
+[1440-premium-empty] STEP 3 "Search any market" spot=[14,50,880,1075] dlg=[56,257,797,1157] tabTop=900 head=64 scrollY=0 | spotTopInBand=false spotFully=false overlapPx=0 dlgClearOfTabBar=true h1Visible=true painted="INPUT.w-full min-w-0 text-ellip" | CLS(step)=0 | transition spot=0.3s dlg=0.3s scroll-behavior=auto
+[1440-premium-empty] STEP 4 "Save and get alerts" spot=[8,56,336,415] dlg=[62,263,196,556] tabTop=900 head=64 scrollY=0 | spotTopInBand=false spotFully=false overlapPx=0 dlgClearOfTabBar=true h1Visible=true painted="My list" | CLS(step)=0 | transition spot=0.3s dlg=0.3s scroll-behavior=auto
+[1440-premium-empty]    SAVE PROBE: "none"
+[1440-premium-empty] STEP 5 "Check the results" spot=[8,56,488,572] dlg=[62,286,350,710] tabTop=900 head=64 scrollY=0 | spotTopInBand=false spotFully=false overlapPx=0 dlgClearOfTabBar=true h1Visible=true painted="Results" | CLS(step)=0 | transition spot=0.3s dlg=0.3s scroll-behavior=auto
+[1440-premium-empty] after Done CLS 0.0000 scrollY=0 (tour started at 0)
+[1440-premium-empty] --- LOG (none)

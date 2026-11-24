@@ -1,0 +1,7 @@
+t+0 {"pill":[-194,-150],"scrollY":909,"top":"null(off-screen)","tour":true}
+t+500 {"pill":[-194,-150],"scrollY":909,"top":"null(off-screen)","tour":true}
+t+1500 {"pill":[-194,-150],"scrollY":909,"top":"null(off-screen)","tour":true}
+t+3000 {"pill":[-194,-150],"scrollY":909,"top":"null(off-screen)","tour":true}
+after Skip tour {"pill":[715,759],"scrollY":0,"top":"Remove filter: Your topics","tour":false}
+after pill click url /bets pill count 0
+

@@ -1,0 +1,16 @@
+[390-premium-empty] CHECK-EMAIL: "Already have an account?" x1; login links ["Log in->/login"]
+[390-premium-empty] tier premium
+[390-premium-empty] ONB-BAR top: {"next":[727,771],"sticky":[710,844],"tabTop":787,"tabH":57,"probeY":779,"probeHit":"DIV.sticky bottom-0 z-10 -mx-4 flex items-center justi","lastTile":[2721,2781]}
+[390-premium-empty] ONB-BAR scrolled to end: {"next":[222,266],"sticky":[205,339],"tabTop":787,"tabH":57,"probeY":527,"probeHit":"SPAN.flex min-h-11 min-w-11 flex-1 items-center justify","lastTile":[-5,55]}
+[390-premium-empty] ONB2 bar: {"next":[727,771],"sticky":[710,844],"tabTop":787,"tabH":57,"probeY":779,"probeHit":"DIV.sticky bottom-0 z-10 -mx-4 flex items-center justi"}
+[390-premium-empty] ONB3 bar: {"next":[727,771],"sticky":[710,844],"tabTop":787,"tabH":57,"probeY":779,"probeHit":"DIV.sticky bottom-0 z-10 -mx-4 flex items-center justi"}
+[390-premium-empty] FIRST url /?view=flags&t=sports.ncaab&fav=1 startY=0 landing CLS 0.0000
+[390-premium-empty] STEP 1 "No best bets in your topics today" spot=[213,363,10,380] dlg=[369,585,16,374] tabTop=787 head=0 scrollY=0 | spotTopInBand=true spotFully=true overlapPx=0 dlgClearOfTabBar=true h1Visible=true painted="P.max-w-prose text-sm text-" | CLS(step)=0 | transition spot=0.3s dlg=0.3s scroll-behavior=auto
+[390-premium-empty]    body: Nothing in your topics looks like good value right now. Widen your topics, or see all best bets, and the cards appear here.
+[390-premium-empty] STEP 2 "Narrow the list" spot=[367,589,10,380] dlg=[167,360,16,374] tabTop=787 head=0 scrollY=0 | spotTopInBand=true spotFully=true overlapPx=0 dlgClearOfTabBar=true h1Visible=true painted="FORM.grid grid-cols-2 gap-2 ro" | CLS(step)=0 | transition spot=0.3s dlg=0.3s scroll-behavior=auto
+[390-premium-empty] STEP 3 "Search any market" spot=[72,108,47,126] dlg=[114,308,16,374] tabTop=787 head=0 scrollY=0 | spotTopInBand=true spotFully=true overlapPx=0 dlgClearOfTabBar=true h1Visible=true painted="INPUT.w-full min-w-0 text-ellip" | CLS(step)=0 | transition spot=0.3s dlg=0.3s scroll-behavior=auto
+[390-premium-empty] STEP 4 "Save and get alerts" spot=[786,842,189,299] dlg=[577,771,16,374] tabTop=787 head=0 scrollY=0 | spotTopInBand=false spotFully=false overlapPx=0 dlgClearOfTabBar=true h1Visible=true painted="My list" | CLS(step)=0 | transition spot=0.3s dlg=0.3s scroll-behavior=auto
+[390-premium-empty]    SAVE PROBE: "none"
+[390-premium-empty] STEP 5 "Check the results" spot=null dlg=[286,502,16,374] tabTop=787 head=0 scrollY=0 | spotTopInBand=null spotFully=null overlapPx=0 dlgClearOfTabBar=true h1Visible=true painted="null" | CLS(step)=0 | transition spot=null dlg=0.3s scroll-behavior=auto
+[390-premium-empty] after Done CLS 0.0000 scrollY=0 (tour started at 0)
+[390-premium-empty] --- LOG (none)

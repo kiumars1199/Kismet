@@ -1,0 +1,7 @@
+t+0 {"pill":[186,230],"scrollY":221,"top":"P.mt-1.5 text-sm leading-relaxed text-soft","tour":true}
+t+500 {"pill":[186,230],"scrollY":221,"top":"P.mt-1.5 text-sm leading-relaxed text-soft","tour":true}
+t+1500 {"pill":[186,230],"scrollY":221,"top":"P.mt-1.5 text-sm leading-relaxed text-soft","tour":true}
+t+3000 {"pill":[186,230],"scrollY":221,"top":"P.mt-1.5 text-sm leading-relaxed text-soft","tour":true}
+after Skip tour {"pill":[407,451],"scrollY":0,"top":"Remove filter: Your topics","tour":false}
+after pill click url /bets pill count 0
+
