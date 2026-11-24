@@ -1,0 +1,9 @@
+
+ RUN  v5.1.0 /home/user/MarketEdge/.claude/worktrees/wt1g/apps/web
+
+
+ Test Files  1 passed (1)
+      Tests  22 passed (22)
+   Start at  11:01:20
+   Duration  417ms (tests 67%, import 29%, transform 3%, worker 1%)
+

@@ -10,7 +10,9 @@ const KEEP = new Set(["win", "wins", "lose", "finish", "podium", "above", "below
   // thresholds and ends of a range: "29°C or higher" vs "29°C", highest vs lowest, "fewer than 225,000" vs "at 225,000"
   "higher", "highest", "lowest", "fewer", "greater", "up", "down", "rise", "fall", "exceed", "exactly", "gain",
   // which end or which kind: reach vs "dip to", "drop to" vs hit, top vs bottom, most vs fewest, between vs outside, minimum vs maximum, positive vs negative, weekend vs weekday
-  "reach", "dip", "drop", "hit", "bottom", "fewest", "outside", "between", "minimum", "maximum", "min", "max", "positive", "negative", "weekend", "weekday"]);
+  "reach", "dip", "drop", "hit", "bottom", "fewest", "outside", "between", "minimum", "maximum", "min", "max", "positive", "negative", "weekend", "weekday",
+  // inflected forms and the far end: beats vs "loses to", wins/won vs loses/lost, lead vs trail, first vs last, earliest vs latest
+  "beats", "loses", "lost", "won", "leads", "lead", "trails", "trail", "last", "latest", "earliest"]);
 const DATE_WORD = new Set(["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]);
 /** A small word that changes the meaning of the word after it: "or higher", "at least", "by November 30" vs "on November 30" vs "in December". */
 const joins = (w: string, next: string | undefined) => !!next && (
@@ -40,7 +42,7 @@ export function clampCandidates(title: string): string[] {
   const keep = words.map(() => true);
   const norm = (w: string) => w.toLowerCase().replace(/[^a-z]/g, "");
   // "or" just before a deciding word stays with it ("29°C or higher"), so do "at least" and "by/in/on" before a date
-  const orKeep = words.map((w, i) => joins(norm(w), i + 1 < words.length ? norm(words[i + 1]!) : undefined));
+  const orKeep = words.map((w, i) => joins(norm(w), i + 1 < words.length ? norm(words[i + 1]!) : undefined) || (norm(w) === "to" && i > 0 && norm(words[i - 1]!) === "up"));   // ("up to" keeps its "to")
   const isKeep = (i: number) => KEEP.has(norm(words[i]!)) || orKeep[i]!;
   const key = (i: number) => keyWord(words[i]!) || orKeep[i]!;
   const middleOut = (idx: number[]) => idx.sort((a, b) => Math.abs(a - words.length / 2) - Math.abs(b - words.length / 2));
