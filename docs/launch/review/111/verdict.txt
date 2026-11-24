@@ -1,0 +1,8 @@
+#111 T-95e @ 708d1df — FAIL (one-line fix)
+Blocker: Escape on an open ProofLive inside the drawer closes the help AND the whole drawer. ProofLive onKey doesn't preventDefault on Escape;
+DrawerHost.tsx:66 closes on window keydown Escape unless e.defaultPrevented. Repro: Pro, /markets?m=6674492&side=0, focus proof-live in drawer-live, Enter, Escape -> dialog gone.
+Seen: pro 390, pro 1440, free 1440 (dialogAfterEsc 0). Fix: e.preventDefault() on Escape when open (+ test in drawer).
+Passed: pricing/about/track-record/drawer//m at 390 tap + 1440 click, out/free/pro: aria button + [expanded], aria-controls resolves when open,
+second tap closes, Enter/Space toggle (no scroll), Escape closes on pages, CLS unchanged (0 / 0.0006 / 0.0047 baseline), no hscroll, disclaimer, no cents.
+Nits: aria-controls points at a missing id while closed; drawer "none settled" branch still says "(needs ~4 settled events to judge)" vs help "About 4 events needed".
+Not captured: free 390 drawer (session redirected to /signup in that run). CI: all green except e2e-demo running, no "web" check yet; check:js 149.5 kB.
