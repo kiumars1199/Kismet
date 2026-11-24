@@ -1,0 +1,261 @@
+// T-wt2j: the topic picker keeps every quick tap. The browser's profile save (PATCH /api/data/profile) is held back 300 ms, as a
+// real Supabase round trip would be. Three taps back to back must show chosen at once, and once the saves settle the server's
+// profile (the mock database, read with the service role) and the me_topics cookie hold exactly the tapped set.
+// Onboarding: NFL, College football, NBA. Settings: starting from [NBA], add College basketball, Soccer, NFL.
+import path from "node:path";
+import { expect, test, type Page } from "./fixtures";
+
+const SHOTS = path.resolve(process.cwd(), "../../docs/launch/review/wt2j");   // repo-relative: <repo>/docs/launch/review/wt2j
+const SIZES = [{ w: 390, h: 844 }, { w: 1440, h: 900 }];
+const SERVICE = { authorization: "Bearer e2e-service", apikey: "e2e-service", "content-type": "application/json" };
+
+async function signUp(page: Page, email: string) {
+  await page.goto("/login");
+  await expect(async () => {
+    await page.getByRole("tab", { name: "Email link" }).click();
+    await expect(page.getByRole("button", { name: "Email me a sign-in link" })).toBeVisible({ timeout: 2_000 });
+  }).toPass({ timeout: 60_000 });
+  await page.getByLabel("Email", { exact: true }).fill(email);
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "Email me a sign-in link" }).click();
+  await expect(page.getByRole("heading", { name: "Check your email" })).toBeVisible({ timeout: 30_000 });
+  const { url } = await (await page.request.get(`/e2e-mock/supabase/_inbox?email=${encodeURIComponent(email)}`)).json();
+  await page.goto(url);
+  await page.waitForURL(/\/onboarding/, { timeout: 60_000 });
+}
+
+const userId = async (page: Page) => (await (await page.request.get("/api/me")).json()).user.id as string;
+const serverTopics = async (page: Page, id: string) => {
+  const rows = await (await page.request.get(`/e2e-mock/supabase/rest/v1/profiles?user_id=eq.${id}&select=favorite_topics`, { headers: SERVICE })).json();
+  return ((rows[0]?.favorite_topics ?? []) as string[]).slice().sort();
+};
+const cookieTopics = async (page: Page) => {
+  const v = (await page.context().cookies()).find((c) => c.name === "me_topics")?.value ?? "";
+  return decodeURIComponent(v).split(":")[1]?.split(",").filter(Boolean).sort() ?? [];
+};
+
+/** Hold every browser profile save for 300 ms; count them. */
+async function slowSaves(page: Page) {
+  const seen: string[][] = [];
+  await page.route("**/api/data/profile", async (route) => {
+    if (route.request().method() === "PATCH") {
+      seen.push((route.request().postDataJSON() as { favorite_topics?: string[] }).favorite_topics ?? []);
+      await new Promise((r) => setTimeout(r, 300));
+    }
+    await route.continue();
+  });
+  return seen;
+}
+
+/** Tap the tiles back to back in one task (no gap between taps), then read each tile before any save could have answered. */
+async function tapQuickly(page: Page, names: string[]) {
+  return page.evaluate(async (ns) => {
+    const tiles = ns.map((n) => [...document.querySelectorAll<HTMLButtonElement>('[data-testid="topics-picker"] button')].find((b) => b.textContent?.startsWith(n))!);
+    for (const t of tiles) t.click();
+    await new Promise((r) => requestAnimationFrame(() => r(null)));
+    return tiles.map((t) => t.getAttribute("aria-pressed"));
+  }, names);
+}
+
+async function settle(page: Page, expected: string[]) {
+  await expect(async () => {
+    const id = await userId(page);
+    expect(await serverTopics(page, id)).toEqual(expected);
+  }).toPass({ timeout: 20_000 });
+}
+
+for (const { w, h } of SIZES) {
+  test(`onboarding at ${w}px: NFL, College football, NBA tapped back to back all save`, async ({ page }) => {
+    test.setTimeout(300_000);
+    await page.setViewportSize({ width: w, height: h });
+    const saves = await slowSaves(page);
+    await signUp(page, `wt2j-onb-${w}-${Date.now()}@example.com`);
+    await expect(page.getByRole("button", { name: "NFL", exact: true })).toContainText("open", { timeout: 60_000 });
+    await expect(page.getByTestId("topics-picker")).toHaveAttribute("aria-busy", "false");
+    await page.waitForTimeout(500);   // once the page has settled, as the reviewer's repro did
+    expect(await tapQuickly(page, ["NFL", "College football", "NBA"])).toEqual(["true", "true", "true"]);   // shown chosen before the first save answers
+    await page.screenshot({ path: `${SHOTS}/${w}-onboarding-tapped.png` });
+    await settle(page, ["sports.cfb", "sports.nba", "sports.nfl"]);
+    await expect.poll(() => cookieTopics(page), { timeout: 10_000 }).toEqual(["sports.cfb", "sports.nba", "sports.nfl"]);   // the cookie rides the last save's answer
+    for (const n of ["NFL", "College football", "NBA"]) await expect(page.getByRole("button", { name: n, exact: true })).toHaveAttribute("aria-pressed", "true");
+    expect(saves.at(-1)!.slice().sort()).toEqual(["sports.cfb", "sports.nba", "sports.nfl"]);   // the last write carried the whole set
+    await page.screenshot({ path: `${SHOTS}/${w}-onboarding-settled.png` });
+  });
+
+  test(`settings at ${w}px: from NBA, College basketball + Soccer + NFL tapped back to back all save`, async ({ page }) => {
+    test.setTimeout(300_000);
+    await page.setViewportSize({ width: w, height: h });
+    await signUp(page, `wt2j-set-${w}-${Date.now()}@example.com`);
+    const id = await userId(page);
+    await page.request.patch(`/e2e-mock/supabase/rest/v1/profiles?user_id=eq.${id}`, { headers: SERVICE, data: { favorite_topics: ["sports.nba"] } });
+    await page.goto("/settings");
+    const nba = page.getByRole("button", { name: "NBA", exact: true });
+    await expect(nba).toHaveAttribute("aria-pressed", "true", { timeout: 60_000 });
+    await expect(page.getByTestId("topics-picker")).toHaveAttribute("aria-busy", "false");
+    await page.getByRole("button", { name: "NFL", exact: true }).scrollIntoViewIfNeeded();
+    await page.waitForTimeout(500);
+    const saves = await slowSaves(page);
+    expect(await tapQuickly(page, ["College basketball", "Soccer", "NFL"])).toEqual(["true", "true", "true"]);
+    await expect(nba).toHaveAttribute("aria-pressed", "true");
+    await page.screenshot({ path: `${SHOTS}/${w}-settings-tapped.png` });
+    const want = ["sports.nba", "sports.ncaab", "sports.nfl", "sports.soccer"];
+    await settle(page, want);
+    await expect.poll(() => cookieTopics(page), { timeout: 10_000 }).toEqual(want);   // the cookie rides the last save's answer
+    expect(saves.at(-1)!.slice().sort()).toEqual(want);
+    await page.reload();
+    for (const n of ["NBA", "College basketball", "Soccer", "NFL"]) await expect(page.getByRole("button", { name: n, exact: true })).toHaveAttribute("aria-pressed", "true", { timeout: 30_000 });
+    await page.screenshot({ path: `${SHOTS}/${w}-settings-settled.png` });
+  });
+
+  test(`settings at ${w}px: taps made while a failing save is in flight are still sent; the error line names the dropped topic without shifting the page`, async ({ page }) => {
+    test.setTimeout(300_000);
+    await page.setViewportSize({ width: w, height: h });
+    await page.addInitScript(() => {
+      (window as unknown as { __cls: number }).__cls = 0;
+      new PerformanceObserver((l) => { for (const e of l.getEntries() as unknown as { value: number; hadRecentInput: boolean }[]) if (!e.hadRecentInput) (window as unknown as { __cls: number }).__cls += e.value; })
+        .observe({ type: "layout-shift", buffered: true });
+    });
+    await signUp(page, `wt2j-err-${w}-${Date.now()}@example.com`);
+    const id = await userId(page);
+    await page.request.patch(`/e2e-mock/supabase/rest/v1/profiles?user_id=eq.${id}`, { headers: SERVICE, data: { favorite_topics: ["sports.nfl"] } });
+    await page.goto("/settings");
+    await expect(page.getByRole("button", { name: "NFL", exact: true })).toHaveAttribute("aria-pressed", "true", { timeout: 60_000 });
+    await expect(page.getByTestId("topics-picker")).toHaveAttribute("aria-busy", "false");
+    await page.getByRole("button", { name: "Tennis", exact: true }).scrollIntoViewIfNeeded();
+    await page.waitForTimeout(1_500);
+    const sent: string[][] = [];
+    let failed = false;
+    await page.route("**/api/data/profile", async (route) => {
+      if (route.request().method() !== "PATCH") return route.continue();
+      sent.push((route.request().postDataJSON() as { favorite_topics: string[] }).favorite_topics);
+      await new Promise((r) => setTimeout(r, 300));
+      if (!failed) { failed = true; return route.fulfill({ status: 500, contentType: "application/json", body: JSON.stringify({ error: "Couldn't save" }) }); }
+      return route.continue();
+    });
+    await page.evaluate(() => { (window as unknown as { __cls: number }).__cls = 0; });
+    expect(await tapQuickly(page, ["Tennis"])).toEqual(["true"]);   // its save is now in flight (500 after 300 ms)
+    await page.waitForTimeout(80);
+    expect(await tapQuickly(page, ["Esports"])).toEqual(["true"]);   // a tap made while the failing save is in flight
+    const line = page.getByTestId("topics-picker").locator("p").first().locator("span").last();
+    await expect(line).toHaveText("Couldn't save Tennis. Tap it to try again.", { timeout: 10_000 });
+    await expect(page.getByRole("button", { name: "Tennis", exact: true })).toHaveAttribute("aria-pressed", "false");
+    await expect(page.getByRole("button", { name: "Esports", exact: true })).toHaveAttribute("aria-pressed", "true");
+    await page.screenshot({ path: `${SHOTS}/${w}-settings-save-error.png` });
+    await settle(page, ["sports.esports", "sports.nfl"]);   // Esports was rebased on the confirmed list and sent
+    expect(sent[0].slice().sort()).toEqual(["sports.nfl", "sports.tennis"].sort());
+    await expect(line).toHaveText("Couldn't save Tennis. Tap it to try again.");   // still there after the later save succeeded
+    await page.getByRole("button", { name: "Tennis", exact: true }).click();   // tapping the dropped topic again clears it
+    await expect(line).not.toContainText("Couldn't save");
+    await settle(page, ["sports.esports", "sports.nfl", "sports.tennis"]);
+    expect(await page.evaluate(() => (window as unknown as { __cls: number }).__cls)).toBeLessThanOrEqual(0.02);
+  });
+}
+
+// The status line above the tiles must not move them when it swaps between "N chosen..." and the save-error line (phones wrap the
+// two differently), nor when the error clears 5 s later: CLS ~0 through the whole revert, at 360 to 1440.
+const CLS_SIZES = [{ w: 360, h: 780 }, { w: 375, h: 812 }, { w: 390, h: 844 }, { w: 1440, h: 900 }];
+for (const { w, h } of CLS_SIZES) {
+  for (const label of ["Tennis", "College basketball"]) {
+    test(`settings at ${w}px: a failed save of ${label} (error line shows, then clears after 5 s) shifts nothing: CLS <= 0.02`, async ({ page }) => {
+      test.setTimeout(300_000);
+      await page.setViewportSize({ width: w, height: h });
+      await page.addInitScript(() => {
+        (window as unknown as { __cls: number }).__cls = 0;
+        new PerformanceObserver((l) => { for (const e of l.getEntries() as unknown as { value: number; hadRecentInput: boolean }[]) if (!e.hadRecentInput) (window as unknown as { __cls: number }).__cls += e.value; })
+          .observe({ type: "layout-shift", buffered: true });
+      });
+      await signUp(page, `wt2j-cls-${w}-${label.length}-${Date.now()}@example.com`);
+      const id = await userId(page);
+      await page.request.patch(`/e2e-mock/supabase/rest/v1/profiles?user_id=eq.${id}`, { headers: SERVICE, data: { favorite_topics: ["sports.nfl"] } });
+      await page.goto("/settings");
+      await expect(page.getByRole("button", { name: "NFL", exact: true })).toHaveAttribute("aria-pressed", "true", { timeout: 60_000 });
+      await expect(page.getByTestId("topics-picker")).toHaveAttribute("aria-busy", "false");
+      await page.getByRole("button", { name: label, exact: true }).scrollIntoViewIfNeeded();
+      await page.waitForTimeout(1_500);
+      await page.route("**/api/data/profile", async (route) => {
+        if (route.request().method() !== "PATCH") return route.continue();
+        await new Promise((r) => setTimeout(r, 800));
+        return route.fulfill({ status: 500, contentType: "application/json", body: JSON.stringify({ error: "Couldn't save" }) });
+      });
+      await page.evaluate(() => { (window as unknown as { __cls: number }).__cls = 0; });
+      const tile = page.getByRole("button", { name: label, exact: true });
+      const tileTop = async () => (await tile.boundingBox())!.y + (await page.evaluate(() => window.scrollY));
+      const before = await tileTop();
+      await tile.click();
+      const line = page.getByTestId("topics-picker").locator("p").first().locator("span").last();
+      await expect(line).toContainText(`Couldn't save ${label}`, { timeout: 10_000 });
+      expect(Math.abs((await tileTop()) - before), "tiles stay put when the error line shows").toBeLessThanOrEqual(0.5);
+      await expect(line).not.toContainText("Couldn't save", { timeout: 10_000 });   // clears after about 5 s
+      expect(Math.abs((await tileTop()) - before), "tiles stay put when the error line clears").toBeLessThanOrEqual(0.5);
+      await page.waitForTimeout(500);
+      const cls = await page.evaluate(() => (window as unknown as { __cls: number }).__cls);
+      console.log(`CLS save-error ${label} at ${w}px: ${cls.toFixed(4)}`);
+      expect(cls).toBeLessThanOrEqual(0.02);
+      if (label === "Tennis") { await tile.click(); await page.screenshot({ path: `${SHOTS}/${w}-status-line-stable.png` }); }
+    });
+  }
+}
+
+// Leaving the page right after quick taps must not lose the saves still in the queue: on pagehide the full current list goes out once
+// with keepalive, so the server (and the me_topics cookie, rewritten from the profile on the next load) ends on exactly the tapped set.
+for (const delay of [80, 300]) {
+  test(`settings: tap 3 topics, go to /markets at once (saves take ${delay} ms): the server keeps all three`, async ({ page }) => {
+    test.setTimeout(300_000);
+    await page.setViewportSize({ width: 390, height: 844 });
+    await signUp(page, `wt2j-nav-${delay}-${Date.now()}@example.com`);
+    await page.goto("/settings");
+    await expect(page.getByTestId("topics-picker")).toHaveAttribute("aria-busy", "false", { timeout: 60_000 });
+    await expect(page.getByRole("button", { name: "NFL", exact: true })).toContainText("open", { timeout: 60_000 });
+    await page.waitForTimeout(1_000);
+    await page.route("**/api/data/profile", async (route) => {
+      if (route.request().method() === "PATCH") await new Promise((r) => setTimeout(r, delay));
+      await route.continue().catch(() => {});
+    });
+    expect(await tapQuickly(page, ["NFL"])).toEqual(["true"]);
+    await page.waitForTimeout(20);
+    expect(await tapQuickly(page, ["NBA"])).toEqual(["true"]);
+    await page.waitForTimeout(20);
+    expect(await tapQuickly(page, ["Soccer"])).toEqual(["true"]);
+    await page.goto("/markets");
+    const want = ["sports.nba", "sports.nfl", "sports.soccer"];
+    await settle(page, want);
+    await page.waitForLoadState("networkidle");
+    await userId(page);   // /api/me rewrites the hint cookie from the profile
+    await expect.poll(() => cookieTopics(page), { timeout: 10_000 }).toEqual(want);
+    await page.goto("/settings");
+    for (const n of ["NFL", "NBA", "Soccer"]) await expect(page.getByRole("button", { name: n, exact: true })).toHaveAttribute("aria-pressed", "true", { timeout: 30_000 });
+  });
+}
+
+// Finishing onboarding right after quick taps: the first screen must be filtered to the topics on the tiles, not to what the
+// server had answered so far (it used to land on t=sports.nfl only), and the server must end holding all three.
+for (const delay of [80, 300]) {
+  for (const how of ["skip", "next-next-show"] as const) {
+    test(`onboarding at 390px: 3 quick taps then ${how} at once (saves take ${delay} ms): lands on all three topics`, async ({ page }) => {
+      test.setTimeout(300_000);
+      await page.setViewportSize({ width: 390, height: 844 });
+      await signUp(page, `wt2j-fin-${how}-${delay}-${Date.now()}@example.com`);
+      const id = await userId(page);
+      await expect(page.getByRole("button", { name: "NFL", exact: true })).toContainText("open", { timeout: 60_000 });
+      await expect(page.getByTestId("topics-picker")).toHaveAttribute("aria-busy", "false");
+      await page.waitForTimeout(500);
+      await page.route("**/api/data/profile", async (route) => {
+        if (route.request().method() === "PATCH") await new Promise((r) => setTimeout(r, delay));
+        await route.continue().catch(() => {});
+      });
+      for (const n of ["NFL", "NBA", "Soccer"]) { expect(await tapQuickly(page, [n])).toEqual(["true"]); await page.waitForTimeout(20); }   // the first save is in flight before the last tap
+      if (how === "skip") await page.getByRole("button", { name: "Skip setup" }).click();
+      else await page.evaluate(async () => {
+        const click = (re: RegExp) => [...document.querySelectorAll<HTMLButtonElement>("button")].find((b) => re.test(b.textContent ?? ""))!.click();
+        const frame = () => new Promise((r) => requestAnimationFrame(() => r(null)));
+        click(/^Next$/); await frame(); click(/^Next$/); await frame(); click(/^Show my best bets$/);
+      });
+      await page.waitForURL(/fav=1/, { timeout: 60_000 });
+      const want = ["sports.nba", "sports.nfl", "sports.soccer"];
+      expect((new URL(page.url()).searchParams.get("t") ?? "").split(",").filter(Boolean).sort(), "the first screen is filtered to all three").toEqual(want);
+      await settle(page, want);
+      await expect.poll(() => cookieTopics(page), { timeout: 10_000 }).toEqual(want);
+      expect(id).toBeTruthy();
+    });
+  }
+}
