@@ -47,24 +47,17 @@ Problems:
 Notes, not problems (decisions.md 13:05): /pricing inline "account page" link is 91x17, allowed by WCAG 2.5.8 inline exception. Watch on prod: one #418 seen once on 6da7905 on a first cold walk, never reproduced in 200+ later loads. Signed-out combo from /m is BotID-blocked for headless on prod (real-phone check is on Q's list).
 
 ## Walk-through 2: new Free user
-Status: re-walk on final 6da7905 (local prod build, mock auth; 13:25 UTC; evidence review/walkthrough-2-r2/): FAIL. Every item from the 22:50 walk is fixed (topic with no bets, locked card after filter, TopicsPicker before hydration, Pause Cancel, sign-in clause, help line once, drawer "Check this bet", password signup, leaving onboarding mid-way). New and newly found items assigned to T-wt2e (topics), T-wt2f (tour + auth copy), T-wt2g (layout + tap targets), 13:30.
+Status: re-walk r3 on final f2ef7a9 (local prod build, mock auth; 15:55 UTC; evidence review/walkthrough-2-r3/): FAIL on one should-fix. All 13 items from r2 are fixed (#124, #126, #127, #128); Everything + reload stays on fav=0. New items assigned to T-wt2i (16:00).
 
 Problems:
-- ~~[should-fix] /alerts and /dashboards at 390 shift CLS 0.116 / 0.125 on load (footer jumps while content loads)~~ fixed by #127
-- ~~[should-fix] Saved topics lost after sign-out/sign-in or new device~~ fixed by #124
-- ~~[should-fix] /check Free limit card is a 1000 px (390) / 700 px (1440) box with ~100 px of content~~ fixed by #127
-- ~~[should-fix] Tour step 4 "Save and get alerts" points at a Save button off screen (y≈2117) with cards~~ fixed by #126
-- ~~[should-fix] Filter bar says "Everything" while 2+ saved topics filter the list~~ fixed by #124; label edge cases in T-wt2h
-- ~~[should-fix] Settings → Topics shows raw ids~~ fixed by #124
-- ~~[should-fix] /markets search chips 36 px tall, header clear × 18x32 at 390; "Choose columns" 36x36 and row checkboxes 16x16 at 1440~~ fixed by #127
-- ~~[nit] Tour step 1 "A best bet" card hidden behind the tab bar at 390 when the stale banner shows~~ fixed by #126
-- ~~[nit] Tour step 1 copy says cards show "what $10 wins"; cards show "Pays 1.45x"~~ fixed by #126
-- ~~[nit] "Already have an account?" twice on the check-your-email screen~~ fixed by #126
-- ~~[nit] "Today's top 1" heading with one bet~~ fixed by #124
-- ~~[nit] Onboarding step 1 at 390: tiles show through the ~15 px gap between the sticky Next bar and the tab bar~~ fixed by #126
-- ~~[nit] Settings at 1440: Time zone select text larger than State select~~ fixed by #127
+- [should-fix] /markets?q=texans at 1440, Free with 3 saved topics: CLS 0.193 (6 of 6 runs); ~450 ms after load the search chips and table card drop 8 px. 1-topic account 0.0098, 390 0.0005. Likely the 36→44 px tap-target change in SearchChips/FilterPills/MarketTable with something late-rendering above (T-wt2i)
+- [nit] /check limit page at 390 keeps ~550 px of empty space under the 158 px limit card (main stays 1045 px) (T-wt2i)
+- [nit] `/?view=flags&fav=1` with no t= shows the pill and 28 filtered bets but the bar says "Everything"; 1440 load CLS 0.024 from "Today's top 5" collapsing 42 px (T-wt2i)
+- [nit] Settings Time zone select shows "Africa/Abidjan" when the saved zone is UTC (UTC not in Intl.supportedValuesOf) (T-wt2i)
+- [nit] "Use a different email" on the check-your-email step is 136x20 (T-wt2i)
+- [nit] /markets table sort headers 32 px tall at 1440 (T-wt2i)
 
-Notes, not problems: Free "tour over an empty list" is only reachable via ?tour=1 on a manual filter. Supabase amr order: code reads amr[0]; multi-entry case leaves the clause blank (unit-tested), not checkable without live Supabase.
+Notes, not problems: 8-day-old fixture scan drives the stale banner and "Closed" labels; second Free /check returns the expected 429. Free "tour over an empty list" only via ?tour=1 on a manual filter. Supabase amr order: code reads amr[0]; multi-entry case leaves the clause blank (unit-tested).
 
 ## Walk-through 3: Pro user building a combo
 Status: re-walk on final 6da7905 (local prod build; 13:10 UTC; evidence review/walkthrough-3-r2/): FAIL on one should-fix. Every item from the earlier walk is fixed (tray/checker agree, restore CLS ≤0.0004 at 390, shareable link, ?m= → ?legs=, Free note wording, tray same-event pointer, button clear of Premium tray). Fixes assigned: T-wt3e (builder lane, 13:12).
