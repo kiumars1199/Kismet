@@ -87,6 +87,54 @@ for (const { w, h } of [{ w: 1100, h: 800 }, { w: 1024, h: 600 }]) {
   });
 }
 
+// T-wt2l: the site header is sticky from 1024 px (64 px, lg:sticky) and scrolls away below it. The table header is not sticky below xl, so the
+// button scrolls up behind the bar at 1024-1279: once its bottom is at or above the bar's bottom it is hidden and the menu closes (it must not be
+// left pinned under the bar); while part of it shows it stays. Below 1024 the bar covers nothing: a button that is fully visible near the top of
+// the screen (top ~10) or partly visible (top ~-10) opens the menu and keeps it open.
+const BAR_CASES = [
+  { w: 1100, h: 800, cases: [[100, true], [40, true], [10, false], [-20, false], [-44, false]] },
+  { w: 1024, h: 600, cases: [[100, true], [40, true], [10, false], [-20, false], [-44, false]] },
+  { w: 1023, h: 768, cases: [[100, true], [10, true], [-10, true]] },
+  { w: 820, h: 1180, cases: [[100, true], [10, true], [-10, true]] },
+] as const;
+for (const { w, h, cases } of BAR_CASES) {
+  test(`column menu at ${w}x${h}: follows what the site header really covers`, async ({ page }) => {
+    test.setTimeout(240_000);
+    await page.setViewportSize({ width: w, height: h });
+    await signUpWithTopics(page, `wt2l-bar-${w}-${Date.now()}@example.com`, []);
+    await page.goto("/markets", { waitUntil: "networkidle" });
+    await expect(page.locator("tbody tr[data-row]").first()).toBeVisible({ timeout: 30_000 });
+    const choose = page.getByTitle("Choose columns");
+    const panel = page.getByTestId("column-menu");
+    const topAbs = await choose.evaluate((e) => e.getBoundingClientRect().top + window.scrollY);
+    for (const [btnTop, open] of cases) {
+      await page.evaluate(() => window.scrollTo(0, 0));
+      await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+      await choose.click();
+      await expect(panel).toBeVisible();
+      await page.evaluate((y) => window.scrollTo(0, y), topAbs - btnTop);
+      await expect.poll(() => choose.evaluate((e) => Math.round(e.getBoundingClientRect().top)), { message: `button top at ${btnTop}` }).toBe(btnTop);
+      await page.waitForTimeout(300);   // a frame or two for the measure
+      if (open) {
+        await expect(panel, `button top ${btnTop}: the menu stays open`).toBeVisible();
+        const b = (await panel.boundingBox())!;
+        expect(b.y >= 0 && b.y + b.height <= h, `button top ${btnTop}: the menu is inside the screen`).toBe(true);
+      } else await expect(panel, `button top ${btnTop}: hidden behind the top bar, the menu closes`).toBeHidden();
+      await page.keyboard.press("Escape");
+      await expect(panel).toBeHidden();
+    }
+    // and it opens from a button that is fully visible near the top of the screen
+    if (w < 1024) {
+      await page.evaluate((y) => window.scrollTo(0, y), topAbs - 10);
+      await expect.poll(() => choose.evaluate((e) => Math.round(e.getBoundingClientRect().top))).toBe(10);
+      await choose.click();
+      await expect(panel, "opens with the button at the very top").toBeVisible();
+      await page.waitForTimeout(300);
+      await expect(panel).toBeVisible();
+    }
+  });
+}
+
 test("column menu: Tab past the last checkbox, or Shift+Tab from the first, closes it and returns focus to its button", async ({ page }) => {
   test.setTimeout(240_000);
   await page.setViewportSize({ width: 1440, height: 900 });
@@ -156,17 +204,17 @@ async function signUpWithN(page: Page, email: string, n: number | "all") {
   return want;
 }
 for (const w of [390, 1100, 1440]) {
-  for (const n of [1, 3, 6, "all"] as const) {
-    test(`/markets at ${w}px with ${n} saved topic${n === 1 ? "" : "s"}: CLS <= 0.02`, async ({ page }) => {
+  for (const [n, url] of ([1, 3, 6, "all"] as const).flatMap((n) => ["/markets?q=texans", "/markets"].map((u) => [n, u] as const))) {
+    test(`${url} at ${w}px with ${n} saved topic${n === 1 ? "" : "s"}: CLS <= 0.02`, async ({ page }) => {
       test.setTimeout(300_000);
       await page.setViewportSize({ width: w, height: 800 });
-      const saved = await signUpWithN(page, `wt2k-cls-${w}-${n}-${Date.now()}@example.com`, n);
+      const saved = await signUpWithN(page, `wt2k-cls-${w}-${n}-${url.length}-${Date.now()}@example.com`, n);
       await installCls(page);
-      await page.goto("/markets?q=texans", { waitUntil: "networkidle" });
+      await page.goto(url, { waitUntil: "networkidle" });
       await expect(page.getByRole("heading", { level: 1, name: "All markets" })).toBeVisible();
       await page.waitForTimeout(2_500);
       const v = await page.evaluate(() => (window as unknown as { __cls: number }).__cls);
-      console.log(`CLS /markets at ${w}px with ${saved} saved topics: ${v.toFixed(4)}`);
+      console.log(`CLS ${url} at ${w}px with ${saved} saved topics: ${v.toFixed(4)}`);
       if (v > 0.02) console.log(await page.evaluate(() => (window as unknown as { __src: string[] }).__src.join("\n")));
       expect(v).toBeLessThanOrEqual(0.02);
     });

@@ -46,6 +46,7 @@ export function pct(p: number | null | undefined): string {
 export function ret(roiPct: number | null | undefined): string {
   if (!ok(roiPct)) return DASH;
   const a = Math.abs(roiPct);
+  if (roiPct < 0 && a >= 99.5 && a < 100) return "about −100%";   // a loss of nearly everything, not all of it: "−100%" would say the stake is certainly gone
   const n = a >= 10 ? Math.round(a).toString() : a.toFixed(1).replace(/\.0$/, "");
   return `${roiPct < 0 ? "−" : "+"}${n}%`;
 }

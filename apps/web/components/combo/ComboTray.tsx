@@ -11,7 +11,8 @@ import { btn, btnGhost, btnPrimary } from "@/components/kit";
 import { useBacktest } from "@/components/market/TierNote";
 import { combo, droppedNote, kalshiComboEdge, LEG_V, MIN_LEGS, multiplyLine, requoteLeg, type Leg } from "@/lib/combos";
 import type { MarketResponse } from "@/lib/api";
-import { LONG_SHOT_LINE, pays, pct, ret, testedLine, winsAbout } from "@/lib/format";
+import { LONG_SHOT_LINE, pays, ret, testedLine, winsAbout } from "@/lib/format";
+import { chancePct } from "@/lib/chance";
 import { noLiveRecord } from "@/lib/proof";
 import { openTicket, useTradeConfig } from "@/lib/trade/ext";
 import { useCombo } from "./useCombo";
@@ -170,7 +171,7 @@ function Body({ id, legs, onRemove, onClear }: { id: string; legs: Leg[]; onRemo
             <span className="flex size-6 flex-none items-center justify-center rounded-full bg-muted-bg text-xs tabular-nums text-muted">{i + 1}</span>
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium">{l.question}</p>
-              <p className="text-xs text-muted">Bet {l.outcome} · Pays {pays(l.ask + l.fee)} after fee · {pct(l.q_low)} chance to win (cautious)</p>
+              <p className="text-xs text-muted">Bet {l.outcome} · Pays {pays(l.ask + l.fee)} after fee · {chancePct(l.q_low)} chance to win (cautious)</p>
             </div>
             <a href={l.url} target="_blank" rel="noopener noreferrer" className="flex min-h-11 flex-none items-center px-2 text-[13px] text-accent-hover hover:text-accent-soft">
               Open<span className="sr-only"> {l.question} on Polymarket</span> <ExternalLink size={13} className="inline-block align-[-2px]" />
@@ -185,16 +186,16 @@ function Body({ id, legs, onRemove, onClear }: { id: string; legs: Leg[]; onRemo
       {ready && (
         <>
           <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm sm:grid-cols-4">
-            <div><dt className="text-xs text-muted">Chance to win</dt><dd data-testid="combo-chance" className="font-semibold">{pct(c.q_low)} <span className="font-normal text-muted">(about {winsAbout(c.q_low)})</span></dd></div>
+            <div><dt className="text-xs text-muted">Chance to win</dt><dd data-testid="combo-chance" className="font-semibold">{chancePct(c.q_low)} <span className="font-normal text-muted">(about {winsAbout(c.q_low)})</span></dd></div>
             <div><dt className="text-xs text-muted">Pays</dt><dd data-testid="combo-pays" className="font-semibold">{paysX(c.pays)}</dd></div>
-            <div><dt className="text-xs text-muted">Estimated return at {pct(c.q_low)}</dt><dd data-testid="combo-return" className={`font-semibold ${c.ret >= 0 ? "text-accent" : "text-negative"}`}>{ret(c.ret * 100)}</dd></div>
+            <div><dt className="text-xs text-muted">Estimated return at {chancePct(c.q_low)}</dt><dd data-testid="combo-return" className={`font-semibold ${c.ret >= 0 ? "text-accent" : "text-negative"}`}>{ret(c.ret * 100)}</dd></div>
             <div title="The chance to win, against the combo's price after fees. The combo only counts as a better price than usual if the chance still beats the price.">
               <dt className="text-xs text-muted">Against the price</dt>
               <dd className={`font-semibold ${c.has_edge ? "text-accent-softer" : "text-warning"}`}>{c.has_edge ? "Beats it" : "Doesn't beat it"}</dd>
             </div>
           </dl>
           <p className="text-xs leading-relaxed text-muted">
-            {multiplyLine(legs)} Chances are our cautious ones (our central estimate is {pct(c.q)}). Payouts include each
+            {multiplyLine(legs)} Chances are our cautious ones (our central estimate is {chancePct(c.q)}). Payouts include each
             leg&apos;s fee: every leg bought and the winnings rolled into the next. Prices are from when you added each leg.
             {c.q_low < 0.25 && <> {LONG_SHOT_LINE}</>} Small errors in each leg multiply in a combo.
             {tested && <> <span className={(record?.roi_pct ?? 0) < 0 ? "text-warning" : "text-soft"}>{tested}.</span> {noLiveRecord("combos")}</>}

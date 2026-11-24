@@ -299,8 +299,14 @@ function ColumnChooser({ cols }: { cols: { id: string; label: string; pro: boole
   const measure = () => {
     const r = btn.current?.getBoundingClientRect();
     if (!r) return;
-    if (r.bottom <= 0 || r.top >= window.innerHeight) return setOpen(false);   // the button scrolled away (below xl the header is not sticky): the menu must not stay behind at the top of the screen
-    const vh = window.innerHeight, minTop = 68;
+    // What the site header really covers: its bottom edge where it is sticky or fixed (lg and up: 64 px), nothing where it scrolls away with the
+    // page (below lg, phones and tablets), so the menu opens and stays open for a button that is fully visible near the top of the screen.
+    const hdr = document.querySelector("header");
+    const hp = hdr ? getComputedStyle(hdr).position : "";
+    const bar = hdr && (hp === "sticky" || hp === "fixed") ? Math.max(0, Math.round(hdr.getBoundingClientRect().bottom)) : 0;
+    const minTop = bar + 4;
+    if (r.bottom <= bar || r.top >= window.innerHeight) return setOpen(false);   // the button scrolled away, or is hidden behind the header: the menu must not stay behind
+    const vh = window.innerHeight;
     const below = vh - Math.max(r.bottom, minTop) - 16, above = Math.max(r.top, minTop) - minTop - 4;
     const up = below < 260 && above > below;
     const left = Math.min(Math.max(8, r.left), Math.max(8, window.innerWidth - 256 - 8));
