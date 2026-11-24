@@ -29,7 +29,18 @@ async function linkSignIn(page: Page, email: string, skipOnboarding = true) {
   }).toPass({ timeout: 90_000 });
 }
 
-const box = async (page: Page, sel: string) => (await page.locator(sel).first().boundingBox())!;
+/** The element's box once the layout has stopped moving (two reads 150 ms apart agree). A production build answers so quickly
+ *  that the first read can land mid-reflow after a viewport change (Cancel measured left of the button it sits beside). */
+const box = async (page: Page, sel: string) => {
+  let prev = await page.locator(sel).first().boundingBox();
+  for (let i = 0; i < 40; i++) {
+    await page.waitForTimeout(150);
+    const now = await page.locator(sel).first().boundingBox();
+    if (prev && now && prev.x === now.x && prev.y === now.y && prev.width === now.width && prev.height === now.height) return now;
+    prev = now;
+  }
+  return prev!;
+};
 
 test("Free, signed in by email link: /account names the method, one help line, pause Cancel is a safe target, small links are 44 px", async ({ page }) => {
   test.setTimeout(400_000);
