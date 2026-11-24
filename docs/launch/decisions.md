@@ -144,3 +144,13 @@ With blocking metadata, /m's first byte waits for generateMetadata's load(id). O
 - 2026-11-24 03:58 · T-hydr4 scope: guard in the web only (teasers/top older than counts.json fall back to the store). If the whole precompute fails, the one-hour age cap still bounds staleness. A bucket delete in ops/upload.py changes live storage behaviour, so it is left for Q to decide after launch.
 
 - 09:25 Production health checks from the lead's container now get 403 `x-vercel-mitigated: deny` from Vercel's default firewall (no custom rules, no active attack). Plain curl from this container is denied; a browser user agent gets 200, so visitors are unaffected. Most likely IP-reputation mitigation of this shared egress after a day of probing. Decision: no UA spoofing (that would be a bot-protection bypass); prod checks from here go through a real browser (Playwright) or Vercel deployment status. Q to watch: the next refresh.yml and stale-alarm runs, which curl/fetch the site from GitHub runners; if they start failing with 403, allow them in the firewall.
+
+## 2026-11-24 09:58: e2e-paid flakes come from `next dev`
+- e2e-paid runs on `next dev`, which compiles pages on first request. On CI runners it drops connections ("Error: aborted" / ECONNRESET).
+- That fails random tests:
+  - #106: the /m teaser timeout and the /auth/callback connection reset.
+  - final 4ae6ca5: e2e-paid (4) failed.
+- Decision:
+  - Re-run flaky heads with empty commits, so batch-1 merges keep moving.
+  - In parallel, the trust lane moves e2e-paid to `next build && next start` (T-ci1). No test is loosened.
+  - The dev overlay's injected fonts also go away with this. They caused fake layout-shift readings at pro 1440.
