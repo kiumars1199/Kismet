@@ -1,0 +1,73 @@
+#120 (T-ci1, fix/ci1) security review at be352f4bf4611c31626592acf1a53e0cfa2974f9 -- VERDICT: PASS (2 should-fix, 3 nits)
+
+(1) Can the mocks or STRIPE_API_BASE turn on in a real Vercel production or preview deploy? No.
+- Gate: lib/e2e-mock.ts e2eMockOn() returns false whenever VERCEL or VERCEL_ENV is set.
+  Otherwise it needs E2E_MOCK=1, and in production it also needs E2E_PROD_BUILD=1.
+- Vercel docs (vercel.com/docs/environment-variables/system-environment-variables) say VERCEL=1 and VERCEL_ENV are
+  "Available at both build and runtime". So both the build-time gate and the runtime gates are closed on Vercel.
+- Build time: I built with E2E_MOCK=1, E2E_PROD_BUILD=1 and VERCEL=1.
+  - routes-manifest.json has no /v1 -> /e2e-mock rewrite; the only rewrites are BotID's (routes-vercel-flags.txt).
+  - next.config decides the rewrite once at build, so a Vercel build never ships it.
+- Runtime, on that build (runtime-gates.log):
+  - flags + VERCEL=1 + VERCEL_ENV: /e2e-mock 404, /v1 404
+  - no flags: 404 / 404
+  - E2E_MOCK=1 only: 404 / 404
+  - both flags, off Vercel: /e2e-mock 200 (intended for the e2e run); /v1 still 404 because the rewrite was not built in
+- Edge middleware: the compiled .next/server/middleware.js keeps `function(a=process.env){return"1"===a.E2E_MOCK&&!a.VERCEL&&!a.VERCEL_ENV&&(...)}`.
+  - Reading the whole object means nothing is inlined at build. The value is read from the edge runtime's process.env.
+  - If the edge env lacked a variable, the gate would fail closed (E2E_MOCK would not be "1").
+  - Its only effect is to let /v1/* past the account wall, and on Vercel that path has no rewrite, so it 404s.
+- NEXT_PUBLIC_: e2eMockOn reads no NEXT_PUBLIC_ variable and is imported only by server code (route, middleware, next.config,
+  abuse, stripe, check/limit). The e2e NEXT_PUBLIC_SUPABASE_URL=localhost exists only in the CI build; Vercel builds with its own env.
+- Hosting: the web app deploys only to Vercel. railway.json and fly.toml run the Python engine (engine/Dockerfile, ops/scheduler.py).
+- STRIPE_API_BASE (lib/billing/stripe.ts): honoured only when NODE_ENV != production or e2eMockOn(). Vercel prod and preview are
+  production builds with VERCEL set, so it is ignored there. The gate test asserts api.stripe.com with VERCEL=1.
+
+(2) The rate limiter is still on in production.
+- With Upstash configured it returns before the new check.
+- Without Upstash, the in-memory fallback is skipped only when e2eMockOn() is true.
+- e2e-mock-gate.test.ts proves the truth table. I mutated the gate 5 ways and every mutant was caught (mutation-gate.log):
+  - drop the VERCEL check: 4 tests fail
+  - drop VERCEL_ENV: 2 fail
+  - drop E2E_PROD_BUILD: 5 fail
+  - drop E2E_MOCK: 1 fails
+  - always on: 7 fail
+- The limiter test covers real production, E2E_MOCK only, both flags with VERCEL, both flags with VERCEL_ENV, and the e2e build.
+- vitest: e2e-mock-gate, e2e-mock, admin-audit-first, check-api and security pass 56/56 (vitest-gates.log).
+
+(3) .gitleaksignore: one exact fingerprint, ce766f8:apps/web/playwright.paid.config.ts:generic-api-key:30. It is not a pattern.
+- The literal is an e2e-only UNSUBSCRIBE_SECRET value. The next commit replaced it with "e2e-only-" padded with 0s.
+- The ops scripts never push it to Vercel. CI supply-chain is green.
+
+(4) POST /api/admin: requireAdmin, same-origin, rate limit, zod and audit-first are unchanged.
+- revalidatePath runs for the 9 STATIC_PAGES, only on the settings action, and only after the audit row and the upsert succeed.
+  The new test shows nothing is revalidated when the audit write fails.
+- It can only be triggered by an admin who is under the rate limit, and the list is fixed, so no input chooses a path. No abuse vector.
+- prefetch={false} is on the footer /kalshi link and on /about "Open screener" (/markets); both pages are behind the account wall. Fine.
+
+(5) No assertion was loosened: no expect, toBe, toPass or timeout line changed in e2e-paid (assert-diff.txt is empty).
+- box() only re-reads boundingBox until two reads 150 ms apart agree (at most 40 tries), then returns the last box.
+  It never throws and never changes what is asserted, so it is measurement only.
+- playwright.paid.config webServer timeout 600 s: the build is now part of server start. That is not a test assertion.
+
+(6) Disclaimer: signed-out production build, server-rendered HTML.
+- /, /about, /pricing and /terms each contain "Market analytics, not financial advice. Based on past results. 18+." once, with no cents.
+- The Footer diff only touches the link prefetch prop.
+
+CI: all 11 check runs succeeded and the combined status is success. check:js is 149.5 kB, under the 150 kB limit (ci.txt).
+
+SHOULD-FIX
+- S1: add E2E_PROD_BUILD to MUST_BE_EMPTY in ops/lib.mjs, so preflight and vercel-env refuse it like E2E_MOCK. This is defence in depth:
+  today it takes E2E_MOCK, which is already refused, plus a non-Vercel host.
+- S2: the middleware /v1 passthrough and the next.config rewrite gate have no unit test.
+  I checked them only by build (routes-manifest) and by reading the compiled code.
+  Add a test of accountWall with the flags and VERCEL, plus a next.config rewrites() check.
+NITS
+- Stale comments still say "never in production" or "NODE_ENV isn't production":
+  - app/e2e-mock/[...path]/route.ts header
+  - lib/check/limit.ts doc comment
+  - the middleware comment "dev + E2E_MOCK only"
+  - the test/security.test.ts description
+  - playwright.paid.config.ts line 4
+- revalidatePath runs before done(). If the ".done" row fails, the pages are already regenerated. This is harmless: the settings did change.
+- The /e2e-mock/stripe/v1/customers GET was 404 even with both flags; it is POST-only. This is just a note for anyone re-running my checks.

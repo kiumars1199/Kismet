@@ -1,0 +1,26 @@
+== runtime: vercel-runtime (E2E_MOCK=1 E2E_PROD_BUILD=1 VERCEL=1 VERCEL_ENV=production)
+/e2e-mock/supabase/_inbox?email=a@b.c -> 404 
+/v1/customers -> 404 
+/e2e-mock/stripe/v1/customers -> 404 
+/ disclaimer=1 cents=0
+/about disclaimer=1 cents=0
+/pricing disclaimer=1 cents=0
+/terms disclaimer=1 cents=0
+== runtime: no-flags (X=1)
+/e2e-mock/supabase/_inbox?email=a@b.c -> 404
+/v1/customers -> 404
+/e2e-mock/stripe/v1/customers -> 404
+/ disclaimer=1
+/about disclaimer=1
+== runtime: e2e-offvercel (E2E_MOCK=1 E2E_PROD_BUILD=1)
+/e2e-mock/supabase/_inbox?email=a@b.c -> 200
+/v1/customers -> 404
+/e2e-mock/stripe/v1/customers -> 404
+/ disclaimer=1
+/about disclaimer=1
+== runtime: e2e-mock-only (E2E_MOCK=1)
+/e2e-mock/supabase/_inbox?email=a@b.c -> 404
+/v1/customers -> 404
+/e2e-mock/stripe/v1/customers -> 404
+/ disclaimer=1
+/about disclaimer=1
