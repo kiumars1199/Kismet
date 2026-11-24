@@ -20,7 +20,7 @@ import time
 MAX_POINTS = 200
 MAX_DAYS = 90
 BASE_S = 3600          # fidelity 60 min
-BATCH = 50
+BATCH = 20            # markets per request: the CLOB maximum (pipeline.fetch_prices.CLOB_BATCH_MAX = 20); a larger batch is a 400
 TAIL_MAX_DAYS = 13     # the CLOB rejects start/end windows over 14 days
 BUDGET_S = 240
 
