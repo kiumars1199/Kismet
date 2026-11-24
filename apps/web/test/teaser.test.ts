@@ -70,6 +70,16 @@ describe("signed-out market and event pages are teasers", async () => {
     }
   });
 
+  it("eventDuplicatesTitle (token overlap): the real truncated pair is hidden; real different lines still show", async () => {
+    const { eventDuplicatesTitle } = await import("@/components/market/Teaser");
+    // walk-through 1, /m/6596313: the event line is the title cut short and without "Donald"
+    expect(eventDuplicatesTitle("Will Donald Trump publicly insult someone on November 26, 2026?", "Will Trump publicly insult someone on...?")).toBe(true);
+    // real fixture pairs where the event says something the title does not
+    expect(eventDuplicatesTitle("Will Manchester City FC win on 2026-11-21?", "Manchester City FC vs. Fulham FC")).toBe(false);
+    expect(eventDuplicatesTitle("Will Sweden win on 2026-11-17?", "Poland vs. Sweden")).toBe(false);
+    expect(eventDuplicatesTitle("Exact Score: CE Sabadell FC 1 - 1 Granada CF?", "CE Sabadell FC vs. Granada CF - Exact Score")).toBe(false);
+  });
+
   it("eventDuplicatesTitle: a truncated or near-equal subtitle is hidden, a different one stays", async () => {
     const { eventDuplicatesTitle } = await import("@/components/market/Teaser");
     expect(eventDuplicatesTitle("Will Trump publicly insult someone on Truth Social this week?", "Will Trump publicly insult someone on...?")).toBe(true);
