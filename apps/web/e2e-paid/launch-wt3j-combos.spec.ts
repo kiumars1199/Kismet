@@ -55,6 +55,9 @@ for (const { w, h } of [{ w: 390, h: 844 }, { w: 1440, h: 900 }]) {
     await page.addInitScript(watchCls);
     const html = await (await page.request.get("/combos")).text();
     expect(html, "the first list arrives in the HTML").toMatch(/data-testid="combos-range"/);
+    console.log(`T-wt3j /combos HTML for Premium: ${(html.length / 1000).toFixed(0)} kB raw`);
+    await page.goto("/combos?pays=5");   // a link to a payout opens on it, from the first HTML
+    await expect(page.getByRole("button", { name: "Pays 5x+" })).toHaveAttribute("aria-pressed", "true");
     await page.goto("/combos");
     await expect(page.getByTestId("combos-range")).toBeVisible({ timeout: 30_000 });
     await page.waitForTimeout(2_000);
@@ -64,14 +67,18 @@ for (const { w, h } of [{ w: 390, h: 844 }, { w: 1440, h: 900 }]) {
     expect(load).toBeLessThan(0.02);
     await expect(page.getByText("Loading combos…")).toHaveCount(0);
 
-    // switching the payout: the list stays until the new one lands, and the page does not jump
+    // switching the payout is instant: all four lists came with the page, so no request is made, and a slow API (1.5 s) cannot move anything
+    const asked: string[] = [];
+    await page.route("**/api/combos**", async (r) => { asked.push(r.request().url()); await new Promise((ok) => setTimeout(ok, 1_500)); await r.continue(); });
     const before = await cls(page);
     for (const p of [3, 5, 10, 2]) {
       await page.getByRole("button", { name: `Pays ${p}x+` }).click();
       await expect(page.getByRole("button", { name: `Pays ${p}x+` })).toHaveAttribute("aria-pressed", "true");
-      await page.waitForTimeout(1_200);
+      await page.waitForTimeout(700);
     }
     const switched = (await cls(page)) - before;
+    expect(asked, "no /api/combos request for a payout switch").toEqual([]);
+    await expect(page).toHaveURL(/pays=2$/);
     console.log(`T-wt3j payout switches CLS at ${w}: ${switched.toFixed(4)} ${JSON.stringify((await shifts(page)).slice(-3))}`);
     expect(switched).toBeLessThan(0.02);
   });

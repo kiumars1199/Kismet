@@ -14,24 +14,24 @@ import { ComboBrowser } from "./ComboBrowser";
 export const metadata = { title: "Combos", description: "Two- and three-leg combos from Best bets on different events, by payout.", alternates: { canonical: "/combos" } };
 export const dynamic = "force-dynamic";
 
-/** The list for the chosen payout, built here so it is in the first HTML (T-wt3j: fetched in the browser it arrived after the footer had been painted, and the footer jumped by
- *  the list's whole height). Only for a Premium viewer the same way /api/combos is (canBeta + the tier's own gating); anything else, or a store that cannot load, returns
- *  undefined and the browser asks the API as before. */
-async function firstList(me: Awaited<ReturnType<typeof getMe>>, pays: ComboPays): Promise<CombosResponse | undefined> {
+/** All four payout lists (2x+, 3x+, 5x+, 10x+), built here so they are in the first HTML (T-wt3j): fetched in the browser they arrived after the footer had been painted, and the
+ *  footer jumped by the list's whole height; and a payout tap that waited for the API moved the page on a slow connection. With all four in hand, a tap is instant (no request).
+ *  Only for a Premium viewer the same way /api/combos is (canBeta + the tier's own gating); anything else, or a store that cannot load, returns undefined and the browser asks the API
+ *  as before (with the room held). */
+async function firstLists(me: Awaited<ReturnType<typeof getMe>>): Promise<Record<ComboPays, CombosResponse> | undefined> {
   try {
     if (!canBeta(me, "combos") || pausedResponse(me)) return undefined;
-    return gateCombos(browseCombos(await getStoreFor(me.tier), pays), me.tier);
+    const store = await getStoreFor(me.tier);
+    return Object.fromEntries(COMBO_PAYS.map((p) => [p, gateCombos(browseCombos(store, p), me.tier)])) as Record<ComboPays, CombosResponse>;
   } catch {
     return undefined;
   }
 }
 
-export default async function Page({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+export default async function Page() {
   const me = await getMe();
   const allowed = canBeta(me, "combos");
-  const asked = Number((await searchParams).pays);
-  const pays: ComboPays = COMBO_PAYS.includes(asked as ComboPays) ? (asked as ComboPays) : 2;
-  const data = allowed ? await firstList(me, pays) : undefined;
+  const lists = allowed ? await firstLists(me) : undefined;
   return (
     <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-5">
       <div>
@@ -44,7 +44,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Rec
       </div>
       {allowed ? (
         <Suspense>
-          <ComboBrowser initial={data ? { pays, data } : undefined} />
+          <ComboBrowser lists={lists} />
         </Suspense>
       ) : (
         <div data-testid="combos-upgrade" className="flex flex-col items-start gap-3 rounded-card border border-border bg-surface p-5">
