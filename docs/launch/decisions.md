@@ -181,3 +181,6 @@ The WT1 re-walk on 73e7d67 found two nits: an inline /pricing link of 91x17 (WCA
 
 ## 14:58 UTC — "Everything" + Apply is a one-time view
 Picking "Everything" in the topics menu shows all bets for that view (`?fav=0`) but does not switch saved topics off. A bare /bets opens on saved topics again. Only the "Your topics" pill's × sets `topics_off`. Reason: the pill × is the explicit "stop using my topics" control; the menu is a quick look. (#128 review finding 2.)
+
+## 16:22 UTC — #130 red on an unrelated flaky /markets test: fix it properly, not with an empty commit
+#130 (combo only) failed e2e-demo on launch-wt2c-targets.spec.ts:74 (column menu bottom 1399.5 > 900 at 1440x900). Cause: the test scrolls before the table loads, so the sticky header sometimes doesn't engage, and the menu opened at the top of /markets really does run off a 900 px screen. The product fix and the test hardening go into T-wt2i (owns MarketTable). #130 gets a real re-run by merging final into fix/wt3f after T-wt2i lands, rather than an empty commit just to kick CI.
