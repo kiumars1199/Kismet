@@ -259,13 +259,8 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
         )}
         {legs.length < MIN_COMBO_LEGS && <p data-testid="combo-msg" className="text-sm text-soft">{legs.length === 0 ? "Add at least two bets to check a combo." : "Add at least one more leg."}</p>}
         {legs.length < MIN_COMBO_LEGS && <p data-testid="combo-how" className="text-[13px] leading-relaxed text-muted">How it works: every leg has to win, so the chances multiply and so do the payouts.</p>}
-        {/* known from the event ids alone, so it shows as soon as two legs share an event: no check is spent for it. It sits ABOVE the "Check this combo" block, which collapses when the
-            result lands, so the note keeps its place (T-wt3e); once scored it also names the weaker of the pair */}
-        {sameNow.length > 0 && (
-          <p data-testid="combo-same-event" className="rounded-input border border-border bg-bg p-3 text-[13px] text-soft">
-            Same event ({sameNow.map(cleanEventLine).join(", ")}): these legs move together, the combined chance is likely off. {sameEventAdvice(ready ? combos : legs).join(" ")}
-          </p>
-        )}
+        {/* one height for the button block and the numbers that replace it (181 px on a phone, 100 from 768): with a same-event note below, it cannot move (T-wt3e) */}
+        <div data-testid="combo-slot" className={`flex flex-col gap-3 ${sameNow.length > 0 ? "min-h-[182px] md:min-h-[100px]" : ""}`}>
         {legs.length >= MIN_COMBO_LEGS && !ready && !limit && (
           <div className="flex flex-col items-start gap-2">
             <p data-testid="combo-msg" className="text-sm text-soft">{scoring ? "Scoring your combo…" : "Ready when you are."}</p>
@@ -275,13 +270,23 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
         )}
         {ready && c.error === "no_model" && <p data-testid="combo-msg" className="text-sm text-soft">No model chance for &ldquo;{c.noModel}&rdquo;, so this combo can&apos;t be scored. Remove that leg.</p>}
         {n && (
-          <>
             <dl className="grid grid-cols-2 gap-3 md:grid-cols-4">
               <Stat id="chance" label="Combined chance (cautious)" value={pct(n.chance)} />
               <Stat id="mult" label="Pays" value={multX(n.multiplier)} />
               <Stat id="edge" label="Edge after fee" value={pts(n.edge)} />
               <Stat id="score" label="Score (of 100)" value={n.score === null ? "—" : String(n.score)} />
             </dl>
+        )}
+        </div>
+        {/* known from the event ids alone, so it shows as soon as two legs share an event: no check is spent for it. Once scored it also names the weaker of the pair. It follows the "Check this combo" / numbers slot below, which holds one height
+            (T-wt3e), so the note stays put when the result lands */}
+        {sameNow.length > 0 && (
+          <p data-testid="combo-same-event" className="rounded-input border border-border bg-bg p-3 text-[13px] text-soft">
+            Same event ({sameNow.map(cleanEventLine).join(", ")}): these legs move together, the combined chance is likely off. {sameEventAdvice(ready ? combos : legs).join(" ")}
+          </p>
+        )}
+        {n && (
+          <>
             <p data-testid="combo-formula" className="text-[13px] leading-relaxed text-muted">{c.scoreNote ? `${c.scoreNote}. ` : ""}{SCORE_FORMULA} For a combo, the chance is each leg&apos;s chance multiplied together and the sample is the smallest leg&apos;s. That assumes the legs are independent; legs from the same event aren&apos;t.</p>
             {c.drop && dropLeg && c.drop.numbers.score !== null && n.score !== null && c.drop.numbers.score > n.score && (
               <div data-testid="combo-drop" className="flex flex-col gap-2 rounded-input border border-accent-border bg-bg p-3">
