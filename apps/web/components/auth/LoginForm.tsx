@@ -194,10 +194,10 @@ export function LoginForm({ next, error: initialError, mode = "login" }: { next:
           {tab === "password" ? (
             <form method="post" onSubmit={withPassword} className="flex flex-col gap-2.5 md:gap-3">{/* post: never put credentials in the URL */}
               {emailField}
-              <label htmlFor={ids.pw} className="text-xs font-medium text-muted">Password <span className="font-normal">(at least {PASSWORD_MIN} characters)</span></label>
+              <label htmlFor={ids.pw} className="text-xs font-medium text-muted">Password</label>
               <div className="relative">
                 <input
-                  id={ids.pw} type={show ? "text" : "password"} required minLength={PASSWORD_MIN} maxLength={PASSWORD_MAX}
+                  id={ids.pw} type={show ? "text" : "password"} placeholder={`At least ${PASSWORD_MIN} characters`} required minLength={PASSWORD_MIN} maxLength={PASSWORD_MAX}
                   autoComplete={mode === "signup" ? "new-password" : "current-password"} 
                   value={password} onChange={(e) => setPassword(e.target.value)} className={`${input} w-full pr-20`}
                 />
