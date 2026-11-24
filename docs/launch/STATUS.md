@@ -58,6 +58,8 @@ Problems:
 - [nit] /markets table sort headers 32 px tall at 1440 (T-wt2i)
 
 Notes, not problems: 8-day-old fixture scan drives the stale banner and "Closed" labels; second Free /check returns the expected 429. Free "tour over an empty list" only via ?tour=1 on a manual filter. Supabase amr order: code reads amr[0]; multi-entry case leaves the clause blank (unit-tested).
+- [should-fix] Topic picker loses or flips topics on quick taps (TopicsPicker.toggle reads a stale snapshot; SupabaseRepo.profile.patch updates only after the reply). Tiles show nothing selected until the server answers. (T-wt2j)
+
 
 ## Walk-through 3: Pro user building a combo
 Status: re-walk on final 6da7905 (local prod build; 13:10 UTC; evidence review/walkthrough-3-r2/): FAIL on one should-fix. Every item from the earlier walk is fixed (tray/checker agree, restore CLS ≤0.0004 at 390, shareable link, ?m= → ?legs=, Free note wording, tray same-event pointer, button clear of Premium tray). Fixes assigned: T-wt3e (builder lane, 13:12).
@@ -74,6 +76,7 @@ Problems:
 - [nit] 375x667: the same-event alert's "combo checker" link first renders under the fixed bottom tray (y 535 of 667) until scrolled (T-wt3g, after #130)
 
 ## Found in review, outside a lane
+- 17:55 #132 review r2 FAIL at 88ecfd5: column menu clipped by the table's overflow box at 1100x800 (blocker), chip fade stays on at scroll end, Tab focus lands under pinned chips. Sent back to T-wt2i. Topic-picker race split out to T-wt2j.
 - 17:20 #132 T-wt2i review FAIL at aa29356/4ccd245 (evidence scratchpad/review/132): /markets?q=texans CLS now 0.013–0.017 (was 0.193); fav=1 label + Top 5 refetch fixed; tz/tap targets fixed. Back to builder: /check limit hint cookie regresses CLS to 0.24 without a valid cookie and can flash the limit card to a user with a check left (decision: drop the cookie, server peeks the real counter); column menu still overflows at 1280x720 / 1100x800 when opened at the top; desktop chips need a scroll cue.
 - 15:44 merged #128 T-wt2h (f2ef7a9): bar says "Your topics (N)" only on the saved view; Everything + Apply shows all bets and survives reload/shared link (`?fav=0` no longer re-filters on the server, also fixes the no-JS Clear all); changing topics off the saved set drops the "Your topics" pill. Reviewer FAIL on 79e1b44, PASS on b5c111e; merge of final into 21de45d left app diff identical (lead-checked). Evidence review/128/.
 - 15:31 merged #125 T-wt3e (e2bdf27): 390 same-event slow check CLS 0.0108 (was 0.0425), 768 scrolled reload 0.016, drop hint names the weaker leg, tray link 44 px. Reviewer PASS on 877c3fc (evidence review/125/). New review items added to WT3 as T-wt3f.
