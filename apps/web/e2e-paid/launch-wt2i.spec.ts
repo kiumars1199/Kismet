@@ -106,7 +106,8 @@ for (const { w, h } of [{ w: 390, h: 844 }, { w: 1440, h: 900 }]) {
         await expect(panel).toBeHidden();
       };
       await fits("top of the page");
-      await page.evaluate(() => window.scrollBy(0, 800));
+      await page.evaluate(() => window.scrollTo(0, 800));
+      await expect.poll(() => page.evaluate(() => window.scrollY), { message: "the page scrolled" }).toBeGreaterThan(300);
       await fits("after scrolling");
     });
 
@@ -195,7 +196,8 @@ for (const { w, h } of [{ w: 1280, h: 720 }, { w: 1100, h: 800 }]) {
       await expect(panel).toBeHidden();
     };
     await fits("top of the page");
-    await page.evaluate(() => window.scrollBy(0, 800));
+    await page.evaluate(() => window.scrollTo(0, 800));
+    await expect.poll(() => page.evaluate(() => window.scrollY), { message: "the page scrolled" }).toBeGreaterThan(300);
     await fits("after scrolling");
   });
 }
