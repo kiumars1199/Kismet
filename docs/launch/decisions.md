@@ -168,3 +168,10 @@ With blocking metadata, /m's first byte waits for generateMetadata's load(id). O
 - I made only that change, plus a clean merge of final, so CI covers the new production-build e2e.
 - I merge on green CI without another review round, because the delta is exactly the reviewer's request.
 - The 0.030 swap shift on signed-out / at 390 with slow fonts already exists on final. It goes on the follow-up list.
+
+## 2026-11-24 11:20: Fresh walk-throughs run on a local production build of final
+- The auto-mode classifier denies browser and curl checks against kismetodds.com from this container. Vercel's default firewall also returns 403 to curl from here.
+- So the fresh re-walks (WT1 signed out, WT2 Free, WT3 Pro/Premium) run on `next build && next start` of final with the e2e production-build mock (#120).
+- Prod health comes from Vercel's read-only deployment status and runtime errors.
+- Q should do one real-phone pass on kismetodds.com: the signed-out TikTok path and a Pro combo (listed in What Q must do).
+- WT1 and WT3 start now. WT2 starts after #106 (T-wt2d) merges, since its open problems are fixed there.
