@@ -40,7 +40,8 @@ export function LogBetButton({ market, side = 0, target, price, stakeUsd, classN
   const base = `relative z-10 inline-flex min-h-11 items-center justify-center rounded-xl border border-border px-3 text-sm font-medium text-soft hover:bg-raised hover:text-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${className}`;
 
   // Reserve the button's height until the plan is known, so it mounting late moves nothing (CLS)
-  if (!known) return <div aria-hidden="true" data-testid="log-bet-slot" className={`min-h-11 ${className}`} />;
+  // Free (the server knows: <body data-tier>) never gets the button, so it reserves nothing: no 52 px that drops once the plan is known
+  if (!known) return <div aria-hidden="true" data-testid="log-bet-slot" className={`min-h-11 [[data-tier=free]_&]:hidden ${className}`} />;
   if (!can("journal") || !t) return null;
   if (saved) {
     return (

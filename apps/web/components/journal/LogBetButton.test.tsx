@@ -24,6 +24,11 @@ describe("LogBetButton", () => {
     expect(screen.getByTestId("log-bet-slot").className).toContain("min-h-11");
     expect(screen.queryByTestId("log-bet-upgrade")).toBeNull();
   });
+  it("the unknown-plan slot is hidden by CSS when the server says the plan is Free (<body data-tier=free>), so a Free card never reserves it", () => {
+    ent = { known: false, can: () => false };
+    render(<LogBetButton target={target} price={0.6} />);
+    expect(screen.getByTestId("log-bet-slot").className).toContain("[[data-tier=free]_&]:hidden");
+  });
   it("Pro: the button, from a checker target (no Market needed)", () => {
     ent = { known: true, can: () => true };
     render(<><LogBetButton target={target} price={0.6} stakeUsd={50} /><LogUpsell /></>);
