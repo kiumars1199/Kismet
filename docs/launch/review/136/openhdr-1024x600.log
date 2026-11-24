@@ -1,0 +1,3 @@
+[1024] header {"pos":"sticky","h":64} button at y 30..74 visible=false: skip click (covered by header)
+[1024] header {"pos":"sticky","h":64} button at y 10..54 visible=false: skip click (covered by header)
+[1024] header {"pos":"sticky","h":64} button at y -10..34 visible=false: skip click (covered by header)

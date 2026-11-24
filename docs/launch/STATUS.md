@@ -89,6 +89,7 @@ Problems:
 
 
 ## Found in review, outside a lane
+- 20:55 #136 T-wt2l merged (4b44880) after review r2 PASS at f0af1b9 (menu uses the header's real covered area: opens/stays open below 1024, closes under the sticky bar at 1024+, 21/21 checkboxes, Tab/Escape intact) and full CI green. Kept as a known nit, not a walk-through item: measure() finds the site header with querySelector("header"), which relies on it being the first <header> in the DOM (true today on every page checked).
 - 20:40 #137 T-wt3h merged (8389704) after review PASS at fa96d3f (+ 09be2c3 confirmed a pure module move to keep landing JS at 149.5 kB) and full CI green. Notes → T-wt3i.
 - 20:00 #134 T-wt3g merged (498eaf1) after review PASS at 6936a20 ("<1%" in checker, legs and suggested combos; 375x667 alert scrolls once, link tappable, CLS 0; #130 fixes hold) and full CI green. Review notes → T-wt3h.
 - 19:55 #133 review r2 FAIL at 6adfed6: saver rewrite passes every race/error case, but the new error line changes height (CLS 0.035 at 375, 0.026 at 390 on error+clear) (blocker); full page load right after quick taps loses pending saves (should-fix, keepalive flush on pagehide). Back to T-wt2j.

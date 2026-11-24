@@ -1,0 +1,12 @@
+[820 pro -> tier=pro] page: {"n":2,"firstIsSite":true,"list":["SITE","All markets  477 markets match"],"pos":"static","bar":0}
+   drawer open: {"n":2,"firstIsSite":true,"list":["SITE","All markets  477 markets match"],"pos":"static","bar":0}
+   drawer open+scroll: {"n":2,"firstIsSite":true,"list":["SITE","All markets  477 markets match"],"pos":"static","bar":0}
+   after close: {"n":2,"firstIsSite":true,"list":["SITE","All markets  477 markets match"],"pos":"static","bar":0} menu=open top=781 btnBottom=777
+[1100 pro -> tier=pro] page: {"n":2,"firstIsSite":true,"list":["SITE","All markets  477 markets match"],"pos":"sticky","bar":64}
+   drawer open: {"n":2,"firstIsSite":true,"list":["SITE","All markets  477 markets match"],"pos":"sticky","bar":64}
+   drawer open+scroll: {"n":2,"firstIsSite":true,"list":["SITE","All markets  477 markets match"],"pos":"sticky","bar":64}
+   after close: {"n":2,"firstIsSite":true,"list":["SITE","All markets  477 markets match"],"pos":"sticky","bar":64} menu=open top=68 btnBottom=644
+[1280 pro -> tier=pro] page: {"n":2,"firstIsSite":true,"list":["SITE","All markets  477 markets match"],"pos":"sticky","bar":64}
+   drawer open: {"n":2,"firstIsSite":true,"list":["SITE","All markets  477 markets match"],"pos":"sticky","bar":64}
+   drawer open+scroll: {"n":2,"firstIsSite":true,"list":["SITE","All markets  477 markets match"],"pos":"sticky","bar":64}
+   after close: {"n":2,"firstIsSite":true,"list":["SITE","All markets  477 markets match"],"pos":"sticky","bar":64} menu=open top=68 btnBottom=644

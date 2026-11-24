@@ -1,0 +1,3 @@
+[1280] header {"pos":"sticky","h":64} button at y 70..114 visible=true: click -> menu open=true expanded=true
+[1280] header {"pos":"sticky","h":64} button at y 70..114 visible=true: click -> menu open=true expanded=true
+[1280] header {"pos":"sticky","h":64} button at y 70..114 visible=true: click -> menu open=true expanded=true

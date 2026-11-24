@@ -1,0 +1,9 @@
+[1023] button top 100: {"btn":[100,144],"topBarBottom":-1,"btnCenterIsBtn":true,"visPx":44,"menu":148} ok
+[1023] button top 40: {"btn":[40,84],"topBarBottom":-1,"btnCenterIsBtn":true,"visPx":44,"menu":88} ok
+[1023] button top 25: {"btn":[25,69],"topBarBottom":-1,"btnCenterIsBtn":true,"visPx":44,"menu":73} ok
+[1023] button top 21: {"btn":[21,65],"topBarBottom":-1,"btnCenterIsBtn":true,"visPx":44,"menu":69} ok
+[1023] button top 19: {"btn":[19,63],"topBarBottom":-1,"btnCenterIsBtn":true,"visPx":44,"menu":67} ok
+[1023] button top 10: {"btn":[10,54],"topBarBottom":-1,"btnCenterIsBtn":true,"visPx":44,"menu":58} ok
+[1023] button top -20: {"btn":[-20,24],"topBarBottom":-1,"btnCenterIsBtn":true,"visPx":24,"menu":28} ok
+[1023] button top -40: {"btn":[-40,4],"topBarBottom":-1,"btnCenterIsBtn":true,"visPx":4,"menu":8} ok
+[1023] button top -50: {"btn":[-50,-6],"topBarBottom":-1,"btnCenterIsBtn":false,"visPx":0,"menu":null} ok
