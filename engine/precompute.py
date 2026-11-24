@@ -8,6 +8,10 @@
                        (apps/web lib/data/top.ts), so this list only has to be a superset of what any Best bets view
                        built from it shows. A few KB per row; a few hundred rows instead of ~35 MB of markets + flags.
   top-<category>.json  the same rows, one file per category (sports, crypto, ...), only categories with rows.
+  teasers.json         one compact row per market (title, event, category, close, price, side name) for what a signed-out
+                       visitor may see of a market (apps/web lib/teaser.ts): {"meta": {"scanned_at"}, "rows": {id: [question,
+                       event, category, closes_at, price, price_outcome]}}. A few hundred KB gzipped, so /m/<id> on a cold
+                       instance reads this instead of parsing ~35 MB of markets + flags (apps/web lib/data/teasers.ts).
   counts.json          the scan's meta (flags.json meta: rule, instance, ...) and every count the site shows, at scan
                        time: markets scanned, flags by tier and price check, Best
                        bets total, by price check and by category. The web re-counts rows at the request clock (a
@@ -23,7 +27,7 @@ import os
 BEST_BETS_VERDICTS = ("worth it", "thin")
 WIN_PROB_FLOOR = 0.4
 CATEGORIES = ("sports", "crypto", "politics", "finance", "culture", "weather", "tech", "geopolitics", "other")
-FILES = ("top.json", "counts.json")  # rotated to *-prev.json / *-prev2.json like markets.json and flags.json
+FILES = ("top.json", "counts.json", "teasers.json")  # rotated to *-prev.json / *-prev2.json like markets.json and flags.json
 
 
 def _num(x):
@@ -102,11 +106,38 @@ def counts(flags_file, rows, markets_meta=None):
             "best_bets": {"total": len(rows), "sections": sections, "by_category": by_cat}}
 
 
+def teasers_file(markets_file):
+    """The compact per-market rows behind /m/<id> for a signed-out visitor: question, event line, category, close time,
+    side-0 price and its side name. Nothing from the model (apps/web lib/teaser.ts marketTeaser reads the same fields)."""
+    meta = markets_file.get("meta") or {}
+    rows = {}
+    for m in markets_file.get("markets") or []:
+        side = (m.get("sides") or [{}])[0] or {}
+        mid = side.get("mid")
+        rows[str(m.get("id"))] = [m.get("question"), m.get("event"), m.get("category"), m.get("closes_at"),
+                                  mid if _num(mid) else None, side.get("outcome")]
+    return {"meta": {"scanned_at": meta.get("scanned_at")}, "rows": rows}
+
+
 def _dump(path, obj):
     tmp = path + ".tmp"
     with open(tmp, "w") as f:
         json.dump(obj, f, separators=(",", ":"))
     os.replace(tmp, path)  # readers never see a half-written file
+
+
+def _write_teasers(out, log):
+    """teasers.json from markets.json. Its own guard: a failure removes only this file (the web then reads the full store)."""
+    path = os.path.join(out, "teasers.json")
+    try:
+        with open(os.path.join(out, "markets.json")) as f:
+            t = teasers_file(json.load(f))
+        _dump(path, t)
+        log(f"precomputed: teasers.json {len(t['rows'])} markets")
+    except Exception as e:
+        if os.path.exists(path):
+            os.remove(path)
+        log(f"teasers.json removed (web falls back to the full store): {type(e).__name__}: {e}")
 
 
 def write(out, log=print):
@@ -127,6 +158,7 @@ def write(out, log=print):
                 os.remove(p)
         _dump(os.path.join(out, "counts.json"), counts(flags_file, rows))
         log(f"precomputed: top.json {len(rows)} best bets, counts.json")
+        _write_teasers(out, log)
         return True
     except Exception as e:  # additive files: a failure here must never fail the scan
         for p in paths:
