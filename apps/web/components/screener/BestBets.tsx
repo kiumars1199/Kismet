@@ -172,6 +172,25 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
   const yoursOnly = !!state.favorites_only || !!state.topics?.length;   // narrowed to the topics the user chose
   const topic = state.topics?.length === 1 ? TAXONOMY[state.topics[0]!]?.label : state.categories?.length === 1 ? TAXONOMY[state.categories[0]!]?.label : undefined;
 
+  // T-wt2d: nothing matches at all: the h1 says so ("No best bets in College basketball today"), and the way out (See all best bets,
+  // Choose more topics) sits right under it, in the first view at 390 (it was a 300 px card below the filters, off screen).
+  const zeroNow = !!data && !error && data.total === 0 && !busy;
+  const emptyTitle = topic ? `No best bets in ${topic} today` : yoursOnly ? "No best bets in your topics today" : "No best bets match these filters";
+  const emptyNode = zeroNow ? (
+    <EmptyState
+      tourTarget compact
+      title={emptyTitle}
+      line={`No bet with these filters is good value right now. ${topic || yoursOnly ? "Widen your topics, or see all best bets. " : ""}Prices refresh ${REFRESH_WORDS}.`}
+      onReset={reset}
+      resetLabel={topic || yoursOnly ? "See all best bets" : "Reset filters"}
+      link={topic || yoursOnly
+        ? { href: "/settings#s-topics", label: "Choose more topics" }
+        : state.us && usOn
+          ? { href: "/" + queryFor({ ...state, us: false, page: 1 }, "flags"), label: "Include international bets" }
+          : { href: "/markets", label: "Look in All markets" }}
+    />
+  ) : undefined;
+
   const save = async (name: string, emoji: string | null) => {
     try {
       await savePresetFromState(state, name, emoji);
@@ -186,7 +205,7 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
     <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-4">
       <section className="flex flex-col gap-2">
         {/* P9: Free sees the day's sample, so the headline says "10 of 34", not a count it can't open */}
-        <BestBetsHeading total={total} shown={rows.length} sample={sample} daily={daily} fallback={data?.free_fallback} topicTotal={data?.free_fallback_topic_total} topic={topic} yours={!!state.favorites_only} belowButton={!error && data && emptySample && !busy ? <LockedBets total={data.total} shown={0} daily={daily ?? 0} topic={topic} /> : undefined} onShowAll={() => { set({ topics: undefined, categories: undefined, favorites_only: undefined }); }}>
+        <BestBetsHeading total={busy && data?.total === 0 ? undefined : total} shown={rows.length} sample={sample} daily={daily} fallback={data?.free_fallback} topicTotal={data?.free_fallback_topic_total} topic={topic} yours={!!state.favorites_only} emptyTitle={zeroNow ? emptyTitle : undefined} emptyBody={emptyNode} belowButton={!error && data && emptySample && !busy ? <LockedBets total={data.total} shown={0} daily={daily ?? 0} topic={topic} /> : undefined} onShowAll={() => { set({ topics: undefined, categories: undefined, favorites_only: undefined }); }}>
         <p className="max-w-[760px] text-sm leading-normal text-muted">
           Each one has won more often in the past than its price suggests, after the fee.
           {/* P9: when the stale banner shows, it carries the scan age; saying it here too was the third stale notice */}
@@ -227,20 +246,7 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
         <ul className={LIST(desktop)} aria-busy="true" aria-label="Loading best bets">
           {Array.from({ length: desktop ? 8 : 4 }, (_, i) => <li key={i} className="flex"><CardSkeleton /></li>)}
         </ul>
-      ) : data.total === 0 ? (
-        <EmptyState
-          tourTarget
-          title={topic ? `No best bets in ${topic} today` : yoursOnly ? "No best bets in your topics today" : "No best bets match these filters"}
-          line={`No bet with these filters is good value right now. ${topic || yoursOnly ? "Widen your topics, or see all best bets. " : ""}Prices refresh ${REFRESH_WORDS}.`}
-          onReset={reset}
-          resetLabel={topic || yoursOnly ? "See all best bets" : "Reset filters"}
-          link={topic || yoursOnly
-            ? { href: "/settings#s-topics", label: "Choose more topics" }
-            : state.us && usOn
-              ? { href: "/" + queryFor({ ...state, us: false, page: 1 }, "flags"), label: "Include international bets" }
-              : { href: "/markets", label: "Look in All markets" }}
-        />
-      ) : (
+      ) : data.total === 0 ? null /* the empty state sits right under the h1 (BestBetsHeading emptyBody), in the first view */ : (
         <>
         {/* #45: the old list stays only as a dim backdrop that can't be used; a visible label says it is being replaced */}
         {busy && <p role="status" data-testid="bets-updating" className="sticky top-16 z-20 mx-auto -mb-2 rounded-full border border-border bg-surface px-4 py-1.5 text-sm font-medium text-text shadow">Updating bets…</p>}

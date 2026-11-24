@@ -162,8 +162,9 @@ export function Onboarding({ next }: { next?: string }) {
         {step > 0
           ? <button type="button" onClick={() => setStep(step - 1)} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-input px-4 text-sm text-muted hover:text-text">Back</button>
           : <span />}
-        <button type="button" onClick={() => (step < 2 ? setStep(step + 1) : finish())}
-          className="rounded-input bg-accent px-5 py-3 text-sm font-semibold text-on-accent hover:bg-accent-hover">
+        {/* not ready until hydration, like the topic tiles and "Skip setup" (a tap on the server HTML is dropped): dimmed and cursor-wait */}
+        <button type="button" onClick={() => (step < 2 ? setStep(step + 1) : finish())} disabled={!ready || busy}
+          className="rounded-input bg-accent px-5 py-3 text-sm font-semibold text-on-accent enabled:hover:bg-accent-hover disabled:cursor-wait disabled:opacity-60">
           {step < 2 ? "Next" : "Show my best bets"}
         </button>
       </div>

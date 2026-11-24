@@ -7,12 +7,15 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Count } from "@/components/kit";
 
 /** `daily`: the Free allowance (free_daily), which decides "pick" or "bets": a topic with one match still leaves Free ten a day. */
-export function BestBetsHeading({ total, shown, sample = false, daily, fallback = false, topicTotal, topic, yours = false, onShowAll, belowButton, children }: { total?: number; shown: number; sample?: boolean; daily?: number; fallback?: boolean; topicTotal?: number; topic?: string; yours?: boolean; onShowAll: () => void; belowButton?: ReactNode; children?: ReactNode }) {
+export function BestBetsHeading({ total, shown, sample = false, daily, fallback = false, topicTotal, topic, yours = false, onShowAll, belowButton, emptyTitle, emptyBody, children }: { total?: number; shown: number; sample?: boolean; daily?: number; fallback?: boolean; topicTotal?: number; topic?: string; yours?: boolean; onShowAll: () => void; belowButton?: ReactNode; emptyTitle?: string; emptyBody?: ReactNode; children?: ReactNode }) {
   // The tap switches the line at once, so the row loses the button's height inside the 500 ms input window instead of
   // when the (slower) answer lands, where it would count as layout shift.
   const [asked, setAsked] = useState(false);
   useEffect(() => { if (shown > 0) setAsked(false); }, [shown]);
   const cls = "text-[28px] font-bold leading-[1.1] tracking-[-0.02em] md:text-[34px]";
+  // T-wt2d: nothing matches at all (a returning user whose only topic has no bets, a filter with no bets): the h1 is the message, and the
+  // way out sits right under it, in the first view; "0 bets where the odds lean your way" over a blurb about wins was neither honest nor visible.
+  if (emptyTitle) return <><h1 className={cls}>{emptyTitle}</h1>{emptyBody}</>;
   if (total !== undefined && sample && shown === 0 && total > 0 && !asked) {
     const what = daily === 1 ? "pick" : "bets";
     return (

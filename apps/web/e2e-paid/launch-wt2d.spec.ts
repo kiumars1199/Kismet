@@ -49,6 +49,13 @@ for (const [w, h] of [[390, 844], [1440, 900]] as const) {
     console.log(`early tile at ${w}: opacity ${look.opacity}, cursor ${look.cursor}`);
     expect(Number(look.opacity), "dimmed like Skip setup").toBeLessThan(1);
     expect(look.cursor).toBe("wait");
+    // the Next button is just as not ready: it was bright and enabled while the tiles beside it were dimmed
+    const next = page.getByRole("button", { name: "Next", exact: true });
+    await expect(next).toBeDisabled();
+    const nextLook = await next.evaluate((el) => { const c = getComputedStyle(el); return { opacity: c.opacity, cursor: c.cursor }; });
+    console.log(`early Next at ${w}: opacity ${nextLook.opacity}, cursor ${nextLook.cursor}`);
+    expect(Number(nextLook.opacity), "Next is dimmed like the tiles and Skip setup").toBeLessThan(1);
+    expect(nextLook.cursor).toBe("wait");
     // a REAL tap on the not-ready tile (coordinates, not locator.click): the browser drops it
     const b = (await nfl.boundingBox())!;
     if (w < 800) await page.touchscreen.tap(b.x + b.width / 2, b.y + b.height / 2);
@@ -56,6 +63,7 @@ for (const [w, h] of [[390, 844], [1440, 900]] as const) {
     release();
     await expect(picker).toHaveAttribute("aria-busy", "false", { timeout: 60_000 });   // hydrated
     await expect(nfl).toBeEnabled();
+    await expect(next, "Next is ready with the tiles").toBeEnabled();
     await expect(nfl, "the early tap did nothing, and the tile never claimed otherwise").toHaveAttribute("aria-pressed", "false");
     // after hydration a tap works
     await nfl.click();

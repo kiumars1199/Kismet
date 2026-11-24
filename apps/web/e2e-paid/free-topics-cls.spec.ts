@@ -78,14 +78,14 @@ for (const { w, h } of [{ w: 390, h: 844 }, { w: 1440, h: 900 }]) {
       const forward = await readCls(page);
       if (forward >= 0.1) console.log(await sources(page));
       console.log(`CLS full → empty at ${w}px: ${forward.toFixed(3)}`);
-      // T-wt2d: the locked card that says where the bet is sits in the first view, right under the filters where the skeleton cards were (it was ~1.5 screens down)
+      // T-wt2d: the locked card that says where the bet is sits in the first view, right under the h1 in the cell that reserved the blurb's height (it was ~1.5 screens down)
       const lockedBox = (await page.getByTestId("locked-bets").boundingBox())!;
       const h1Box = (await page.locator("h1").first().boundingBox())!;
       console.log(`locked card at y=${Math.round(lockedBox.y + (await page.evaluate(() => scrollY)))} (h1 bottom ${Math.round(h1Box.y + h1Box.height)}) at ${w}px`);
-      // The card starts inside the first screen (390x844 and 1440x900): right under the filters, where the skeleton cards were (it was
+      // The card starts inside the first screen (390x844 and 1440x900): right under "Show today's free bets", filling the hidden blurb's cell (it was
       // ~1.5 screens down). The e2e data is a week old, so a stale-scan banner (about 80 px) sits above it here; production's fresh scan
       // doesn't have it, so it is not counted. Directly under the h1 at 390 measured CLS 0.14 (the card is ~250 px tall there and
-      // everything under it moves), over the 0.1 budget, so it stays where the skeleton cards were.
+      // everything under it moves), over the 0.1 budget; a compact card in the blurb's reserved cell measured 0.06 to 0.08 at 390.
       const stale = page.getByRole("status").filter({ hasText: "last price scan" });
       const banner = (await stale.count()) ? (await stale.first().boundingBox())!.height + 16 : 0;
       const top = lockedBox.y + (await page.evaluate(() => scrollY)) - banner;
