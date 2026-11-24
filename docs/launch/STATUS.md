@@ -88,6 +88,7 @@ Problems:
 - Not walked: signed-in headers at 768–1280, the Premium drawer path to the tray, WebKit, and signed-in steps on a production build. Re-walk after the fixes.
 
 ## Found in review, outside a lane
+- 04:09 #117 (T-wt1d) opened by the tracker lane at 0c3908c: the long bet title is middle-clamped and keeps its date; the button clears the fold at 360/375/390/1440; <body data-tier> drops the Free 52 px slot (Free CLS at 390 from 0.0225 to 0.0005). Queued for reviewer 1 after #115.
 - 04:06 Merged #114 (T-hydr3: /m reads the compact teasers.json instead of the full store) at d2c02a8 -> 861b1ee; reviewer 1 PASS with notes, CI web green on the rerun, preview success. The production cold-/m check waits for the engine's first teasers.json publish. #116 (T-hydr4) retargeted to final; reviewer 2 reviewing.
 - 04:04 #112 CI red at 635fb16 (e2e-demo, which was cancelled at c7ef710 so never ran): e2e/multipliers.spec.ts:103 still expects the old prune-note text 'its bets have closed'. Real, not a flake -> data lane, then merge into #115. Reviewer 2 has finished all its queued reviews.
 - 04:01 Merged #111 (T-95e: proof-line help reachable by tap and keyboard; Escape in the drawer closes only the help) at 524b546 -> 526c1df; reviewer 2 re-review PASS, CI web green, preview success. The 'about N events needed' number matches the help (same eventsNeeded).
