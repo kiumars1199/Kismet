@@ -98,7 +98,7 @@ test("Free, then Pro: both reach the combo checker from /check and the drawer; /
       await expect(page.getByTestId("combo-leg")).toHaveCount(i + 1, { timeout: 30_000 });
     }
     await expect(page.getByTestId("combo-check-btn")).toBeVisible();
-    if (plan === "free") await expect(page.getByTestId("combo-free-note")).toHaveText("Free includes 1 check a day; this combo counts as one.");
+    if (plan === "free") await expect(page.getByTestId("combo-free-note")).toHaveText("Free includes 1 check a day (a bet or a combo); this combo counts as one.");
     else await expect(page.getByTestId("combo-free-note")).toHaveText("");
     await page.evaluate(() => sessionStorage.clear());
     if (plan === "free") {
@@ -245,4 +245,29 @@ test("Free: first leg, 2nd leg and scoring each shift the page < 0.02 at 390 and
     expect(worst.second).toBeLessThan(0.02);
     expect(worst.scoring).toBeLessThan(0.02);
   }
+});
+
+// T-wt3b: Free's note before the check and the box after the limit open with the same sentence, and after the 429 the legs keep the
+// chance and payout they were scored with.
+test("Free: note and limit box say one thing; after the limit the legs keep their chance and payout", async ({ page }) => {
+  test.setTimeout(240_000);
+  await signIn(page, `wt3b-free-${Date.now()}@example.com`);
+  const all = ((await (await page.request.get("/api/markets?limit=20")).json()).rows as { market: { id: string; event_id: string }; side: { side_index: number } }[]);
+  const [a, b, c] = all.filter((r, i) => all.findIndex((x) => x.market.event_id === r.market.event_id) === i);
+  const q = (rs: typeof all) => rs.map((r) => `${r.market.id}:${r.side.side_index}`).join(",");
+  await page.goto(`/check/combo?legs=${q([a!, b!])}`);
+  await expect(page.getByTestId("combo-leg")).toHaveCount(2, { timeout: 30_000 });
+  await expect(page.getByTestId("combo-free-note")).toHaveText("Free includes 1 check a day (a bet or a combo); this combo counts as one.", { timeout: 30_000 });
+  await page.getByTestId("combo-check-btn").click();
+  await expect(page.getByTestId("combo-score")).toBeVisible({ timeout: 30_000 });   // the day's check, used
+  // add a third bet in the same page (no reload): a different set, so the limit answers 429
+  await page.evaluate(([m, side]) => window.history.pushState(null, "", `/check/combo?m=${m}&side=${side}`), [c!.market.id, String(c!.side.side_index)]);
+  await expect(page.getByTestId("combo-leg")).toHaveCount(3, { timeout: 30_000 });
+  await page.getByTestId("combo-check-btn").click();
+  const box = page.getByTestId("check-upgrade");
+  await expect(box).toBeVisible({ timeout: 30_000 });
+  await expect(box).toContainText("Free includes 1 check a day (a bet or a combo), and you've used it.");
+  expect(await box.innerText()).toContain("Pro and Premium check as many bets and combos as you like.");
+  const subs = await page.getByTestId("combo-leg").locator("p").filter({ hasText: /^Bet / }).allInnerTexts();
+  expect(subs.slice(0, 2).every((t) => /% chance/.test(t) && /pays /.test(t)), `the first two legs keep their numbers: ${subs.join(" | ")}`).toBe(true);
 });
