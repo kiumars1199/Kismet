@@ -1,0 +1,5 @@
+[1440 retap] after Tennis fails: UI=["NFL"] status="Couldn't save Tennis. Tap it to try again." statusH=20(was 20) cls=0.0000 server=["sports.nfl"] cookie=on:sports.nfl
+[1440 retap] re-tap Tennis: status right after="2 chosen. They show first in your quick filters."
+[1440 retap] after re-tap saves: UI=["NFL","Tennis"] status="2 chosen. They show first in your quick filters." statusH=20(was 20) cls=0.0000 server=["sports.nfl","sports.tennis"] cookie=on:sports.nfl,sports.tennis
+[1440 retap] 4602ms PATCH#1 ->500 after 300ms ["sports.nfl","sports.tennis"] | 5627ms PATCH#2 ->ok after 300ms ["sports.nfl","sports.tennis"]
+[pageerror] http://localhost:4071/signup :: Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.

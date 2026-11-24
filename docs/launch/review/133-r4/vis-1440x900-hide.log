@@ -1,0 +1,9 @@
+[1440 hide] real tab switch -> page visibilityState=visible (synthetic visibility used below)
+[1440 hide] tapped NBA, Soccer, Hockey
+[1440 hide] hidden
+[1440 hide] while hidden: UI=["Hockey","NBA","NFL","Soccer"] status="4 chosen. They show first in your quick filters." server=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] cookie=["sports.nba","sports.nfl","sports.nhl","sports.soccer"]
+[1440 hide] visible
+[1440 hide] after visible: UI=["Hockey","NBA","NFL","Soccer"] status="4 chosen. They show first in your quick filters." server=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] cookie=["sports.nba","sports.nfl","sports.nhl","sports.soccer"]
+[1440 hide] PATCH log: 3473ms #1 200 d300 ["sports.nfl","sports.nba"] | 3565ms #2 200 d300 ["sports.nfl","sports.nba","sports.soccer","sports.nhl"] | 3774ms #1 released | 3793ms #3 200 d300 ["sports.nfl","sports.nba","sports.soccer","sports.nhl"] | 3866ms #2 released | 4094ms #3 released | 5587ms #4 200 d300 ["sports.nfl","sports.nba","sports.soccer","sports.nhl"] | 5888ms #4 released
+[1440 hide] UI timeline: 3338: NFL | 1 chosen. They show first in your quick  ; 3493: NFL,NBA,Soccer | 3 chosen. They show first in your quick  ; 3538: NFL,NBA,Soccer,Hockey | 4 chosen. They show first in your quick 
+

@@ -1,0 +1,5 @@
+[390 retap] after Tennis fails: UI=["NFL"] status="Couldn't save Tennis. Tap it to try again." statusH=60(was 60) cls=0.0000 server=["sports.nfl"] cookie=on:sports.nfl
+[390 retap] re-tap Tennis: status right after="2 chosen. They show first in your quick filters."
+[390 retap] after re-tap saves: UI=["NFL","Tennis"] status="2 chosen. They show first in your quick filters." statusH=60(was 60) cls=0.0000 server=["sports.nfl","sports.tennis"] cookie=on:sports.nfl,sports.tennis
+[390 retap] 5949ms PATCH#1 ->500 after 300ms ["sports.nfl","sports.tennis"] | 6954ms PATCH#2 ->ok after 300ms ["sports.nfl","sports.tennis"]
+

@@ -1,0 +1,3 @@
+[390 premium link] UI at leave=["NFL","NBA","Soccer","Hockey"] -> /markets chips=["NFL","NBA","Soccer","Hockey"] server=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] cookie=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] ALL4=true PATCHes=[2,4,4]
+[390 premium link] Home -> /bets t=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] matchesServer=true
+

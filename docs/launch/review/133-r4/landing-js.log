@@ -1,0 +1,12 @@
+   48.9 kB  static/chunks/8701-95c158389b996b37.js
+    7.9 kB  static/chunks/1263-ccfb6d56baf41b0a.js
+    6.6 kB  static/chunks/app/layout-cd60aa25082d3327.js
+    4.0 kB  static/chunks/8406-d5c7160421e79880.js
+    3.8 kB  static/chunks/app/settings/page-e94317498d96aba7.js
+    3.6 kB  static/chunks/324-225bbcdd8f096e1b.js
+    2.6 kB  static/chunks/main-app-07b975575b92eafc.js
+    2.6 kB  static/chunks/webpack-de7f42487bd1ba1c.js
+/settings: first-load JS 134.3 kB gzipped (437 kB raw, 9 files); budget 200 kB: OK
+$ node scripts/check-bundle.mjs
+check-bundle: 206 files in .next/static, no secrets
+bundle exit=0

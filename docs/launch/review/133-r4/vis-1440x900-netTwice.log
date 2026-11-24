@@ -1,0 +1,7 @@
+[1440 netTwice] real tab switch -> page visibilityState=visible (synthetic visibility used below)
+[1440 netTwice] tap Tennis, Esports; #1 and #2 network-fail: UI=["NFL"] status="Couldn't save Tennis and Esports. Tap them to try again." server=["sports.nfl"] cookie=["sports.nfl"]
+[1440 netTwice] +5.5 s: UI=["NFL"] status="1 chosen. They show first in your quick filters." server=["sports.nfl"] cookie=["sports.nfl"]
+[1440 netTwice] PATCH log: 3098ms #1 abort d100 ["sports.nfl","sports.tennis"] | 3198ms #1 released | 3458ms #2 abort d100 ["sports.nfl","sports.tennis","sports.esports"] | 3558ms #2 released
+[1440 netTwice] UI timeline: 2955: NFL | 1 chosen. They show first in your quick  ; 3104: NFL,Tennis | 2 chosen. They show first in your quick  ; 3304: NFL,Tennis,Esports | 3 chosen. They show first in your quick  ; 3559: NFL | Couldn't save Tennis and Esports. Tap th ; 8604: NFL | 1 chosen. They show first in your quick 
+[console.error] http://localhost:4071/settings :: Failed to load resource: net::ERR_FAILED
+[console.error] http://localhost:4071/settings :: Failed to load resource: net::ERR_FAILED

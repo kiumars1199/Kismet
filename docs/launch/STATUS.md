@@ -58,14 +58,14 @@ Problems:
 - ~~[nit] /markets table sort headers 32 px tall at 1440 (T-wt2i)~~ fixed by #132
 
 Notes, not problems: 8-day-old fixture scan drives the stale banner and "Closed" labels; second Free /check returns the expected 429. Free "tour over an empty list" only via ?tour=1 on a manual filter. Supabase amr order: code reads amr[0]; multi-entry case leaves the clause blank (unit-tested).
-- [should-fix] Topic picker loses or flips topics on quick taps (TopicsPicker.toggle reads a stale snapshot; SupabaseRepo.profile.patch updates only after the reply). Tiles show nothing selected until the server answers. (T-wt2j)
+- ~~[should-fix] Topic picker loses or flips topics on quick taps (TopicsPicker.toggle reads a stale snapshot; SupabaseRepo.profile.patch updates only after the reply). Tiles show nothing selected until the server answers. (T-wt2j)~~ fixed by #133
 - ~~[should-fix] /markets chip row: keyboard focus (Tab/Shift+Tab) lands on chips mostly off-screen (1100: College basketball 0/161 px; 390: Crypto 2/72 px) (T-wt2k)~~ fixed by #132/#135
 - ~~[should-fix] Below 1280 the open Choose-columns menu stays pinned at top after its button scrolls away (1100x800, 1024x600) (T-wt2k)~~ fixed by #132/#135
 - ~~[nit] Tab past the last checkbox in the open column menu jumps to Skip to content; menu stays open (T-wt2k)~~ fixed by #132/#135
 - ~~[should-fix] /markets at 1440, Free with 6 favorite topics: CLS 0.27 (favorite chips row wraps to 2 lines after load, table drops 52 px); pre-existing on f2ef7a9 (T-wt2k)~~ fixed by #132/#135
-- [should-fix] Topic picker: taps made while a failing save is in flight are dropped (saver.ts catch clears queue) (T-wt2j, #133)
+- ~~[should-fix] Topic picker: taps made while a failing save is in flight are dropped (saver.ts catch clears queue) (T-wt2j, #133)~~ fixed by #133
 
-- [blocker] Skip setup right after quick topic taps lands on a first screen filtered by only the first tap (T-wt2j, #133)
+- ~~[blocker] Skip setup right after quick topic taps lands on a first screen filtered by only the first tap (T-wt2j, #133)~~ fixed by #133
 
 ## Walk-through 3: Pro user building a combo
 Status: re-walk on final 6da7905 (local prod build; 13:10 UTC; evidence review/walkthrough-3-r2/): FAIL on one should-fix. Every item from the earlier walk is fixed (tray/checker agree, restore CLS ≤0.0004 at 390, shareable link, ?m= → ?legs=, Free note wording, tray same-event pointer, button clear of Premium tray). Fixes assigned: T-wt3e (builder lane, 13:12).
@@ -91,6 +91,7 @@ Problems:
 - [should-fix] Premium /combos page jumps on load: CLS 0.46 at 390, 0.12 at 1440; the list loads client-side with no reserved height (T-wt3j)
 
 ## Found in review, outside a lane
+- #133 merged at 072e152 (Nov 24), r4 PASS at b0f76a9 (onboarding 36/36, hidden-tab 14/14, error line 0 overflow and CLS 0). Known: React #418 hydration error seen in 4 of 153 logs (/signup, /settings) only under ~6 parallel sessions against one server; 0 in 120 serial loads; every run ended correct. Not caused by #133. Leaving Settings by link sends one extra identical save (harmless). Evidence: review/133-r4/.
 - #138 merged at 582e4d6 (Nov 24), PASS at 2782071. Known nits, logged not tasked: the field shows 0.8 while the card says 1% (rounding); typed "99.90" gets the range error while "0.80" is accepted; editing a filled 99.9 to 99.8 shows the 1–99% message; the 375 gap above the combo link is still slightly larger. Evidence: review/138/.
 - #133 r3 FAIL at 77153c7 (Nov 24): settings fixes pass. Onboarding: Skip setup right after quick taps lands filtered by the first tap only (finish() builds t= from a patch queued behind the first save). Also fast Next/Show loses taps, and a stale older save can win while the tab is hidden. Sent back to the builder. Evidence: review/133-r3/.
 - 20:55 #136 T-wt2l merged (4b44880) after review r2 PASS at f0af1b9 (menu uses the header's real covered area: opens/stays open below 1024, closes under the sticky bar at 1024+, 21/21 checkboxes, Tab/Escape intact) and full CI green. Kept as a known nit, not a walk-through item: measure() finds the site header with querySelector("header"), which relies on it being the first <header> in the DOM (true today on every page checked).

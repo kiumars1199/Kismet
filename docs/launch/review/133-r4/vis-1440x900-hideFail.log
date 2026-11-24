@@ -1,0 +1,10 @@
+[1440 hideFail] real tab switch -> page visibilityState=visible (synthetic visibility used below)
+[1440 hideFail] tapped NBA, Soccer, Hockey
+[1440 hideFail] hidden
+[1440 hideFail] while hidden: UI=["Hockey","NBA","NFL","Soccer"] status="4 chosen. They show first in your quick filters." server=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] cookie=["sports.nba","sports.nfl","sports.nhl","sports.soccer"]
+[1440 hideFail] visible
+[1440 hideFail] after visible: UI=["Hockey","NBA","NFL","Soccer"] status="4 chosen. They show first in your quick filters." server=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] cookie=["sports.nba","sports.nfl","sports.nhl","sports.soccer"]
+[1440 hideFail] PATCH log: 3091ms #1 500 d600 ["sports.nfl","sports.nba"] | 3284ms #2 200 d300 ["sports.nfl","sports.nba","sports.soccer","sports.nhl"] | 3585ms #2 released | 3691ms #1 released | 3699ms #3 200 d300 ["sports.nfl","sports.nba","sports.soccer","sports.nhl"] | 3999ms #3 released | 5305ms #4 200 d300 ["sports.nfl","sports.nba","sports.soccer","sports.nhl"] | 5605ms #4 released
+[1440 hideFail] UI timeline: 2939: NFL | 1 chosen. They show first in your quick  ; 3089: NFL,NBA | 2 chosen. They show first in your quick  ; 3139: NFL,NBA,Soccer,Hockey | 4 chosen. They show first in your quick 
+[http 500] PATCH http://localhost:4071/api/data/profile
+[console.error] http://localhost:4071/settings :: Failed to load resource: the server responded with a status of 500 (Internal Server Error)

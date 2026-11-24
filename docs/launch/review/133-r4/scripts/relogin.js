@@ -1,0 +1,34 @@
+// New device (fresh context): password login, where does the first Best bets land, and the next one?
+const { chromium } = require("playwright");
+const fs = require("fs");
+(async () => {
+  const [w, h] = process.argv[2].split("x").map(Number);
+  const email = fs.readFileSync(process.argv[3], "utf8");
+  const b = await chromium.launch();
+  const ctx = await b.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 1, hasTouch: w < 800, baseURL: "http://localhost:3893", extraHTTPHeaders: { "x-e2e-device": "wt2r2-relogin-" + Date.now() } });
+  const page = await ctx.newPage();
+  await page.goto("/login", { waitUntil: "networkidle" });
+  await page.getByLabel("Email", { exact: true }).fill(email);
+  await page.locator("input").and(page.getByLabel("Password", { exact: true })).fill("walk password 2");
+  if (await page.getByRole("checkbox").count()) await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "Log in", exact: true }).click();
+  await page.waitForURL((u) => !u.pathname.startsWith("/login"), { timeout: 30000 });
+  await page.waitForLoadState("networkidle");
+  await page.waitForTimeout(1000);
+  const h1 = async () => (await page.locator("h1").first().innerText()).replace(/\n/g, " ");
+  const pill = async () => await page.getByRole("link", { name: "Remove filter: Your topics" }).count();
+  console.log("1st landing:", page.url(), "|", await h1(), "| pill", await pill());
+  await page.screenshot({ path: `${process.env.OUT}/${w}-relogin-01-first-landing.png` });
+  await page.getByRole("link", { name: "Best bets", exact: true }).first().click();
+  await page.waitForLoadState("networkidle"); await page.waitForTimeout(1000);
+  console.log("tap Best bets:", page.url(), "|", await h1(), "| pill", await pill());
+  await page.screenshot({ path: `${process.env.OUT}/${w}-relogin-02-tap-best-bets.png` });
+  console.log("cookie me_topics:", (await ctx.cookies()).filter(c => c.name === "me_topics").map(c => decodeURIComponent(c.value)));
+  await page.goto("/bets", { waitUntil: "networkidle" }); await page.waitForTimeout(1000);
+  console.log("reload /bets:", page.url(), "|", await h1(), "| pill", await pill());
+  const me = await (await page.request.get("/api/me")).json(); console.log("api/me profile topics:", JSON.stringify(me).slice(0, 400));
+  console.log("cookie after /api/me:", (await ctx.cookies()).filter(c => c.name === "me_topics").map(c => decodeURIComponent(c.value)));
+  await page.goto("/", { waitUntil: "networkidle" }); await page.waitForTimeout(1000);
+  console.log("goto / after api/me:", page.url(), "|", await h1(), "| pill", await pill());
+  await b.close();
+})();

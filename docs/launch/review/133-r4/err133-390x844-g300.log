@@ -1,0 +1,6 @@
+[390 d300 gap300] tapped Tennis, Esports (first PATCH fails). UI at once ["NFL","Esports"]
+   after: UI ["NFL","Esports"] status="Couldn't save Tennis. Tap it to try again." clsDuringRevert=0.0000 shifts=[]
+   +5500ms: UI ["NFL","Esports"] status="2 chosen. They show first in your quick filters." clsTotal=0.0000
+   3332ms PATCH ->500 ["sports.nfl","sports.tennis"]
+   3649ms PATCH ->ok ["sports.nfl","sports.esports"]
+   server ["sports.nfl","sports.esports"] cookie 002d90ff-675a-43da-b11a-af7caf9914a5|on:sports.nfl,sports.esports

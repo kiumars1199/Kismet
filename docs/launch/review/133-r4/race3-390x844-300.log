@@ -1,0 +1,2 @@
+[390 gap=300ms] onboarding settled, clicked NFL, College football, NBA -> server ["sports.nfl","sports.cfb","sports.nba"]
+[390 gap=300ms] settings before=["sports.nfl","sports.cfb","sports.nba"], clicked +College basketball +Soccer -NFL -> server ["sports.cfb","sports.nba","sports.ncaab","sports.soccer"]

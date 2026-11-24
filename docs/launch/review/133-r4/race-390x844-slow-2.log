@@ -1,0 +1,7 @@
+[390 slow] onboarding clicked 4: UI right after=["NFL","NBA","College basketball","Soccer"] UI +3s=["NFL","NBA","College basketball","Soccer"] server=[{"user_id":"49181f46-f1ce-4468-8fe6-36ad1ddcd23d","accepted_terms_at":"2026-11-24T21:39:13.203Z","onboarded_at":null,"first_bets_at":null,"created_at":"2026-11-24T21:39:13.189Z","favorite_topics":["sports.nfl","sports.soccer","sports.ncaab","sports.nba"]}]
+[390 slow] onboarding after reload: ["NFL","NBA","College basketball","Soccer"]
+[390 slow] settings before=["NFL","NBA","College basketball","Soccer"] clicked +MLB +NHL -NFL: UI=["NBA","College basketball","Soccer","Hockey","Baseball"] server=[{"user_id":"49181f46-f1ce-4468-8fe6-36ad1ddcd23d","accepted_terms_at":"2026-11-24T21:39:13.203Z","onboarded_at":"2026-11-24T21:39:22.846Z","first_bets_at":"2026-11-24T21:39:22.966Z","created_at":"2026-11-24T21:39:13.189Z","favorite_topics":["sports.soccer","sports.ncaab","sports.nba","sports.mlb","sports.nhl"]}]
+[390 slow] settings after reload: ["NBA","College basketball","Soccer","Hockey","Baseball"]
+[390 slow] settings right-after-hydration -Soccer -College basketball, after reload: ["NBA","Hockey","Baseball"] server=[{"user_id":"49181f46-f1ce-4468-8fe6-36ad1ddcd23d","accepted_terms_at":"2026-11-24T21:39:13.203Z","onboarded_at":"2026-11-24T21:39:22.846Z","first_bets_at":"2026-11-24T21:39:22.966Z","created_at":"2026-11-24T21:39:13.189Z","favorite_topics":["sports.nba","sports.mlb","sports.nhl"]}]
+--- LOG
+

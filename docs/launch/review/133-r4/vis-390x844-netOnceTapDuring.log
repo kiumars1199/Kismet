@@ -1,0 +1,5 @@
+[390 netOnceTapDuring] real tab switch -> page visibilityState=visible (synthetic visibility used below)
+[390 netOnceTapDuring] tap Tennis; #1 network-fails; tap Esports, UFC during retry wait: UI=["Esports","NFL","Tennis","UFC"] status="4 chosen. They show first in your quick filters." server=["sports.esports","sports.nfl","sports.tennis","sports.ufc"] cookie=["sports.esports","sports.nfl","sports.tennis","sports.ufc"]
+[390 netOnceTapDuring] PATCH log: 2494ms #1 abort d100 ["sports.nfl","sports.tennis"] | 2594ms #1 released | 2853ms #2 200 d300 ["sports.nfl","sports.tennis","sports.esports","sports.ufc"] | 3154ms #2 released
+[390 netOnceTapDuring] UI timeline: 2345: NFL | 1 chosen. They show first in your quick  ; 2495: NFL,Tennis | 2 chosen. They show first in your quick  ; 2695: NFL,Tennis,Esports | 3 chosen. They show first in your quick  ; 2795: NFL,Tennis,Esports,UFC | 4 chosen. They show first in your quick 
+[console.error] http://localhost:4071/settings :: Failed to load resource: net::ERR_FAILED

@@ -1,0 +1,5 @@
+[360 two] tapped Tennis, Esports, UFC at once; UI=["NFL","Tennis","Esports","UFC"]
+[360 two] after both fail: UI=["NFL"] status="Couldn't save Tennis, Esports and UFC. Tap them to try again." statusH=60(was 60) cls=0.0000 server=["sports.nfl"] cookie=on:sports.nfl
+[360 two] then tap Hockey: UI=["NFL","Hockey"] status="Couldn't save Tennis, Esports and UFC. Tap them to try again." statusH=60(was 60) cls=0.0000 server=["sports.nfl","sports.nhl"] cookie=on:sports.nfl,sports.nhl
+[360 two] 3233ms PATCH#1 ->500 after 300ms ["sports.nfl","sports.tennis"] | 3542ms PATCH#2 ->500 after 300ms ["sports.nfl","sports.esports","sports.ufc"] | 4986ms PATCH#3 ->ok after 300ms ["sports.nfl","sports.nhl"]
+

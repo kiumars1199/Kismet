@@ -1,0 +1,9 @@
+[1440 hangfail] tapped Tennis, Esports; #1 fails, #2 hangs 20 s
+[1440 hangfail] during hang (t~1.5s): UI=["NFL","Esports"] status="Couldn't save Tennis. Tap it to try again." statusH=20(was 20) cls=0.0000 server=["sports.nfl"] cookie=on:sports.nfl
+[1440 hangfail] tap UFC during hang: UI=["NFL","Esports","UFC"] status="Couldn't save Tennis. Tap it to try again." statusH=20(was 20) cls=0.0000 server=["sports.nfl"] cookie=on:sports.nfl
+[1440 hangfail] during hang (t~8s): UI=["NFL","Esports","UFC"] status="3 chosen. They show first in your quick filters." statusH=20(was 20) cls=0.0000 server=["sports.nfl"] cookie=on:sports.nfl
+[1440 hangfail] after hang resolves (+2s): UI=["NFL","UFC"] status="Couldn't save Esports. Tap it to try again." statusH=20(was 20) cls=0.0000 server=["sports.nfl","sports.ufc"] cookie=on:sports.nfl,sports.ufc
+[1440 hangfail] +6s later: UI=["NFL","UFC"] status="2 chosen. They show first in your quick filters." statusH=20(was 20) cls=0.0000 server=["sports.nfl","sports.ufc"] cookie=on:sports.nfl,sports.ufc
+[1440 hangfail] then tap Soccer: UI=["NFL","Soccer","UFC"] status="3 chosen. They show first in your quick filters." statusH=20(was 20) cls=0.0000 server=["sports.nfl","sports.ufc","sports.soccer"] cookie=on:sports.nfl,sports.ufc,sports.soccer
+[1440 hangfail] 4567ms PATCH#1 ->500 after 300ms ["sports.nfl","sports.tennis"] | 4877ms PATCH#2 ->500 after 20000ms ["sports.nfl","sports.esports"] | 24894ms PATCH#3 ->ok after 300ms ["sports.nfl","sports.ufc"] | 34727ms PATCH#4 ->ok after 300ms ["sports.nfl","sports.ufc","sports.soccer"]
+

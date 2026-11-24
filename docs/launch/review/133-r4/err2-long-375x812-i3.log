@@ -1,0 +1,4 @@
+[375 long] after College basketball fails: UI=["NFL"] status="Couldn't save College basketball. Tap it to try again." statusH=60(was 60) cls=0.0000 server=["sports.nfl"] cookie=on:sports.nfl
+[375 long] +5s: UI=["NFL"] status="1 chosen. They show first in your quick filters." statusH=60(was 60) cls=0.0000 server=["sports.nfl"] cookie=on:sports.nfl
+[375 long] 3247ms PATCH#1 ->500 after 800ms ["sports.nfl","sports.ncaab"]
+

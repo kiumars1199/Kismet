@@ -1,0 +1,4 @@
+[1440 long] after Tennis fails: UI=["NFL"] status="Couldn't save Tennis. Tap it to try again." statusH=20(was 20) cls=0.0000 server=["sports.nfl"] cookie=on:sports.nfl
+[1440 long] +5s: UI=["NFL"] status="1 chosen. They show first in your quick filters." statusH=20(was 20) cls=0.0000 server=["sports.nfl"] cookie=on:sports.nfl
+[1440 long] 3123ms PATCH#1 ->500 after 800ms ["sports.nfl","sports.tennis"]
+

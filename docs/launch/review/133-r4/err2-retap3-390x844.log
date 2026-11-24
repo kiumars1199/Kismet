@@ -1,0 +1,5 @@
+[390 retap3] after three fail: UI=["NFL"] status="Couldn't save Tennis, Esports and UFC. Tap them to try again." statusH=60(was 60) cls=0.0000 server=["sports.nfl"] cookie=on:sports.nfl
+[390 retap3] re-tap Esports (+150ms): UI=["NFL","Esports"] status="Couldn't save Tennis and UFC. Tap them to try again." statusH=60(was 60) cls=0.0000 server=["sports.nfl"] cookie=on:sports.nfl
+[390 retap3] after re-tap Esports saves: UI=["NFL","Esports"] status="Couldn't save Tennis and UFC. Tap them to try again." statusH=60(was 60) cls=0.0000 server=["sports.nfl","sports.esports"] cookie=on:sports.nfl,sports.esports
+[390 retap3] 2852ms PATCH#1 ->500 after 300ms ["sports.nfl","sports.tennis"] | 3165ms PATCH#2 ->500 after 300ms ["sports.nfl","sports.esports","sports.ufc"] | 4595ms PATCH#3 ->ok after 300ms ["sports.nfl","sports.esports"]
+

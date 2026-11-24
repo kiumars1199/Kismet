@@ -1,0 +1,4 @@
+[375 long] after Tennis fails: UI=["NFL"] status="Couldn't save Tennis. Tap it to try again." statusH=60(was 60) cls=0.0000 server=["sports.nfl"] cookie=on:sports.nfl
+[375 long] +5s: UI=["NFL"] status="1 chosen. They show first in your quick filters." statusH=60(was 60) cls=0.0000 server=["sports.nfl"] cookie=on:sports.nfl
+[375 long] 3175ms PATCH#1 ->500 after 800ms ["sports.nfl","sports.tennis"]
+[pageerror] http://localhost:4071/signup :: Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.

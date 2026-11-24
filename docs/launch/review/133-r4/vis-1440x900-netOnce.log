@@ -1,0 +1,5 @@
+[1440 netOnce] real tab switch -> page visibilityState=visible (synthetic visibility used below)
+[1440 netOnce] tap Tennis, first PATCH network-fails: UI=["NFL","Tennis"] status="2 chosen. They show first in your quick filters." server=["sports.nfl","sports.tennis"] cookie=["sports.nfl","sports.tennis"]
+[1440 netOnce] PATCH log: 3655ms #1 abort d100 ["sports.nfl","sports.tennis"] | 3756ms #1 released | 4024ms #2 200 d300 ["sports.nfl","sports.tennis"] | 4325ms #2 released
+[1440 netOnce] UI timeline: 3465: NFL | 1 chosen. They show first in your quick  ; 3612: NFL,Tennis | 2 chosen. They show first in your quick 
+[console.error] http://localhost:4071/settings :: Failed to load resource: net::ERR_FAILED
