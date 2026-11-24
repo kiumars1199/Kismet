@@ -18,7 +18,8 @@ const TTL_MS = 30_000;
 /** A top.json this much older than now is from a publisher that stopped writing it: ignore it (DATA_CLOCK=scan: never). */
 export const TOP_MAX_AGE_S = 3600;
 
-type Entry<T> = { at: number; value: T | undefined; inflight?: Promise<T | undefined> };
+/** `rechecked`: the counts.json scanned_at this file was already re-read against (the stale-guard's one re-read per scan; kept across TTL refreshes). */
+type Entry<T> = { at: number; value: T | undefined; inflight?: Promise<T | undefined>; freshInflight?: Promise<T | undefined>; rechecked?: number };
 const g = globalThis as unknown as { __meTop?: Map<string, Entry<unknown>>; __meTopStores?: Map<string, Store> };
 const files = (g.__meTop ??= new Map());
 const stores = (g.__meTopStores ??= new Map());
@@ -27,18 +28,22 @@ const stores = (g.__meTopStores ??= new Map());
 export function resetTop() {
   files.clear();
   stores.clear();
+  // the teaser index (lib/data/teasers.ts) is checked against counts.json too: out of step, it would trip the stale-guard
+  (globalThis as unknown as { __meTeasers?: Map<string, unknown> }).__meTeasers?.clear();
 }
 
 /** A JSON file from the configured source chain; undefined when missing or unreadable (logged). Cached TTL_MS. */
-function cachedJson<T>(file: string): Promise<T | undefined> {
+function cachedJson<T>(file: string, fresh = false, forScan?: number): Promise<T | undefined> {
   const hit = files.get(file) as Entry<T> | undefined;
-  if (hit && Date.now() - hit.at < TTL_MS) return Promise.resolve(hit.value);
-  if (hit?.inflight) return hit.inflight;
+  // fresh: read it again whatever the cache holds (the stale-guard's one re-read when counts.json is ahead of this copy)
+  if (!fresh && hit && Date.now() - hit.at < TTL_MS) return Promise.resolve(hit.value);
+  if (!fresh && hit?.inflight) return hit.inflight;
+  if (fresh && hit?.freshInflight) return hit.freshInflight;   // concurrent re-reads share one read
   const inflight = readSource(file, sourceChain(DATA_SOURCE))
     .then((text) => (text === undefined ? undefined : (JSON.parse(text) as T)))
     .catch((e) => { console.warn(`[top] ${file} unreadable: ${(e as Error).message}`); return undefined; })
-    .then((value) => { files.set(file, { at: Date.now(), value }); return value; });
-  files.set(file, { at: hit?.at ?? 0, value: hit?.value, inflight });
+    .then((value) => { files.set(file, { at: Date.now(), value, rechecked: fresh ? forScan : (files.get(file) as Entry<T> | undefined)?.rechecked }); return value; });
+  files.set(file, { at: hit?.at ?? 0, value: hit?.value, rechecked: hit?.rechecked, ...(fresh ? { inflight: hit?.inflight, freshInflight: inflight } : { inflight, freshInflight: hit?.freshInflight }) });
   return inflight;
 }
 
@@ -86,8 +91,20 @@ const stale = (f: TopFile, now = Date.now() / 1000) => process.env.DATA_CLOCK !=
 /** The Best bets rows `tier` may see, as a Store (markets = flags = those rows), or undefined (caller falls back).
  *  `category`: live tiers only, the top-<category>.json subset of the same scan. */
 export async function getTopStore(tier: Tier, category?: string): Promise<Store | undefined> {
-  const [newest] = await Promise.all([cachedJson<TopFile>("top.json"), getSettings()]);   // getSettings: the Free delay
+  // top.json and counts.json together (one round trip on a cold instance); getSettings: the Free delay
+  const [first, counts] = await Promise.all([cachedJson<TopFile>("top.json"), getCounts(), getSettings()]);
+  let newest = first;
   if (!isTop(newest) || stale(newest)) return undefined;
+  // A top.json older than the newest counts.json is either a leftover from a scan whose precompute failed (the publisher never
+  // deletes bucket objects; T-295 left this gap) or just a cached copy from before this scan (the caches expire on their own
+  // clocks, and a normal upload puts counts.json up first): read it once more, bypassing the cache. Still older = a leftover:
+  // serve from the full store instead. No counts file = nothing to compare.
+  // At most once per counts scan (entry.rechecked): a real leftover must not turn every request into a bucket read.
+  if (counts && newest.meta.scanned_at < counts.scanned_at) {
+    if ((files.get("top.json") as Entry<TopFile> | undefined)?.rechecked === counts.scanned_at) return undefined;
+    newest = await cachedJson<TopFile>("top.json", true, counts.scanned_at);
+    if (!isTop(newest) || stale(newest) || newest.meta.scanned_at < counts.scanned_at) return undefined;
+  }
   const delay = delayMin(tier);
   if (delay > 0) {
     const cutoff = Date.now() / 1000 - delay * 60;

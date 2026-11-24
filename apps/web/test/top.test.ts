@@ -128,6 +128,23 @@ describe("fallbacks", () => {
     expect(await getTopStore("pro")).toBeDefined();
   });
 
+  it("a top.json older than its counts.json is a failed precompute left behind in the bucket: ignored; a matching pair is used", async () => {
+    vi.stubEnv("DATA_CLOCK", "");
+    const now = Math.floor(Date.now() / 1000);
+    const d = dir();
+    withFiles(d);
+    const counts = (at: number) => writeFileSync(path.join(d, "counts.json"), JSON.stringify({ ...fixture<CountsFile>("counts.json"), scanned_at: at }));
+    write(d, "top.json", now - 1800);             // 30 min old, written by a scan whose precompute later failed
+    counts(now - 300);                             // counts.json is from the newer scan
+    expect(await getTopStore("pro")).toBeUndefined();
+    resetTop();
+    counts(now - 1800);                            // the pair from the same scan
+    expect((await getTopStore("pro"))!.meta.scanned_at).toBe(now - 1800);
+    resetTop();
+    counts(now - 3600);                            // counts older than top: top is the newer, fine
+    expect(await getTopStore("pro")).toBeDefined();
+  });
+
   it("Free never gets a scan younger than its delay: the newest old-enough copy, else undefined", async () => {
     vi.stubEnv("DATA_CLOCK", "");
     const now = Math.floor(Date.now() / 1000);

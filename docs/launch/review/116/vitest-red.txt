@@ -1,0 +1,10 @@
+     × counts new, teasers cached old: the teasers file is re-read once and the teaser path is kept (the store is never loaded) 5ms
+     × resetTop() (the revalidate route) also clears the teaser cache 2ms
+     × top.json: counts new, top cached old: re-read once, the top store is served (not undefined) 15ms
+     × top.ts reads top.json and counts.json together (one round trip on a cold instance) 178ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  test/teaser-index.test.ts > the stale-guard with caches out of step (a normal scan) > counts new, teasers cached old: the teasers file is re-read once and the teaser path is kept (the store is never loaded)
+ FAIL  test/teaser-index.test.ts > the stale-guard with caches out of step (a normal scan) > resetTop() (the revalidate route) also clears the teaser cache
+ FAIL  test/teaser-index.test.ts > the stale-guard with caches out of step (a normal scan) > top.json: counts new, top cached old: re-read once, the top store is served (not undefined)
+ FAIL  test/teaser-index.test.ts > the stale-guard with caches out of step (a normal scan) > top.ts reads top.json and counts.json together (one round trip on a cold instance)
+      Tests  4 failed | 8 passed (12)
