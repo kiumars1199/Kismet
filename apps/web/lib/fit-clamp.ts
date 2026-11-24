@@ -4,7 +4,9 @@ const hasDigit = (w: string) => /\d/.test(w);
 /** A word that tells bets apart: a number, or a Capitalised name (a city, a team, a month). Filler is the lowercase rest ("the", "highest", "be"). */
 const keyWord = (w: string) => hasDigit(w) || /^\W*[A-Z]/.test(w) || KEEP.has(w.toLowerCase().replace(/[^a-z]/g, ""));
 /** Lowercase words that decide WHICH bet it is (win vs finish on the podium, above vs less than, second vs third). */
-const KEEP = new Set(["win", "wins", "lose", "finish", "podium", "above", "below", "less", "more", "over", "under", "before", "after", "first", "second", "third", "fourth", "fifth", "top", "least", "most", "beat"]);
+const KEEP = new Set(["win", "wins", "lose", "finish", "podium", "above", "below", "less", "more", "over", "under", "before", "after", "first", "second", "third", "fourth", "fifth", "top", "least", "most", "beat",
+  // which way a rate or a number moves: "decrease 25 bps" and "increase 25 bps" must never read alike
+  "increase", "decrease", "hike", "cut", "raise", "lower", "no", "not", "change", "yes"]);
 
 /** `words` with the dropped ones shown as one "…" per run. */
 function render(words: string[], keep: boolean[]): string {
@@ -18,6 +20,7 @@ function render(words: string[], keep: boolean[]): string {
 }
 
 /** Every shortening of `title`, from the whole title down to a few characters, each no longer than the one before:
+ *  0. repeated words (the second "Bank of Israel" in "the Bank of Israel Interest Rate")
  *  1. filler words (lowercase, no digit, not a deciding word; never the first word) dropped from the middle outward: "Will the highest … Los Angeles … 66-67°F on November 18?"
  *  2. then names and other words without a digit, from the middle outward (first and last words stay)
  *  3. then the deciding words ("win", "above", "second") and
@@ -32,6 +35,11 @@ export function clampCandidates(title: string): string[] {
   const drop = (pick: (w: string, i: number) => boolean) => {
     for (const i of middleOut(words.map((_, i) => i).filter((i) => keep[i] && i > 0 && pick(words[i]!, i)))) { keep[i] = false; out.push(render(words, keep)); }
   };
+  // 0. a word that already appeared earlier in the title (the second "Bank of Israel"), before any distinct word is touched
+  const seen = new Set<string>();
+  const repeated = new Set<number>();
+  words.forEach((w, i) => { const k = w.toLowerCase().replace(/[^a-z]/g, ""); if (k.length >= 2 && !hasDigit(w) && !isKeep(w)) { if (seen.has(k)) repeated.add(i); seen.add(k); } });
+  drop((_, i) => repeated.has(i) && i < words.length - 1);
   drop((w) => !keyWord(w));                                                  // 1. filler
   drop((w, i) => i < words.length - 1 && !hasDigit(w) && !isKeep(w));       // 2. names (never the last word)
   drop((w) => isKeep(w) && !hasDigit(w));                                    // 3. the words that decide which bet ("win", "above", "second")

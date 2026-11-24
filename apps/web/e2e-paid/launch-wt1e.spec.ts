@@ -104,3 +104,36 @@ for (const [size, maxClashes] of [[SIZES[0]!, 0], [SIZES[1]!, 0], [SIZES[2]!, 0]
     expect(clashes.length).toBeLessThanOrEqual(maxClashes);
   });
 }
+
+// T-wt1f: the word that says which way a rate moves survives the fit, in the real box: siblings never read as the same line.
+const DECREASE = "Will the Bank of Israel decrease the Bank of Israel Interest Rate by 25 bps at the November meeting?";
+const SIBLINGS: [string, string][] = [
+  [DECREASE, DECREASE.replace("decrease", "increase")],
+  ["Will the Federal Reserve hike interest rates by 25 bps at the December meeting?", "Will the Federal Reserve cut interest rates by 25 bps at the December meeting?"],
+  ["Will the Bank of England raise the Bank Rate by 50 bps at the December meeting?", "Will the Bank of England lower the Bank Rate by 50 bps at the December meeting?"],
+];
+for (const size of SIZES) {
+  test(`${size.width}: direction siblings (increase/decrease, hike/cut, raise/lower) render different lines`, async ({ page }) => {
+    await page.setViewportSize(size);
+    await page.goto(`/signup?next=${encodeURIComponent(`/m/${longest.id}`)}`);
+    await expect(line(page)).toBeVisible({ timeout: 60_000 });
+    await expect.poll(() => line(page).evaluate((e) => e.scrollHeight - e.clientHeight), { timeout: 30_000 }).toBeLessThanOrEqual(1);
+    await page.waitForTimeout(2_000);
+    await page.evaluate((lede) => {
+      const p = document.querySelector('[data-testid="signup-bet"]') as HTMLElement;
+      (window as unknown as { fits: (t: string) => boolean }).fits = (t) => { (p.firstChild as Text).nodeValue = lede + t; return p.scrollHeight <= p.clientHeight + 1; };
+    }, LEDE);
+    const fits = (t: string) => page.evaluate((x) => (window as unknown as { fits: (t: string) => boolean }).fits(x), t);
+    const shorten = async (t: string) => {
+      const c = clampCandidates(t);
+      let lo = 0, hi = c.length - 1, best = c[hi]!;
+      while (lo <= hi) { const mid = (lo + hi) >> 1; if (await fits(c[mid]!)) { best = c[mid]!; hi = mid - 1; } else lo = mid + 1; }
+      return best;
+    };
+    for (const [a, b] of SIBLINGS) {
+      const [la, lb] = [await shorten(a), await shorten(b)];
+      console.log(`SIBLINGS ${size.width}: "${la}"  vs  "${lb}"`);
+      expect(la).not.toBe(lb);
+    }
+  });
+}

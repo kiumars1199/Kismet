@@ -1,0 +1,12 @@
+REAL 360: 2769 titles, 23 shortened (0.8%), 0 over 2 lines, 0 clashes
+REAL 390: 2769 titles, 22 shortened (0.8%), 0 over 2 lines, 0 clashes
+REAL 1440: 2769 titles, 20 shortened (0.7%), 0 over 2 lines, 0 clashes
+SIBLINGS 360: "Will the Bank of Israel decrease … Interest Rate … 25 … November meeting?"  vs  "Will the Bank of Israel increase the … Interest Rate by 25 bps at the November meeting?"
+SIBLINGS 360: "Will the Federal Reserve hike interest rates by 25 bps at the December meeting?"  vs  "Will the Federal Reserve cut interest rates by 25 bps at the December meeting?"
+SIBLINGS 360: "Will the Bank of England raise the Bank Rate by 50 bps at the December meeting?"  vs  "Will the Bank of England lower the Bank Rate by 50 bps at the December meeting?"
+SIBLINGS 390: "Will the Bank of Israel decrease … Interest Rate … 25 … November meeting?"  vs  "Will the Bank of Israel increase the … Interest Rate by 25 bps at the November meeting?"
+SIBLINGS 390: "Will the Federal Reserve hike interest rates by 25 bps at the December meeting?"  vs  "Will the Federal Reserve cut interest rates by 25 bps at the December meeting?"
+SIBLINGS 390: "Will the Bank of England raise the Bank Rate by 50 bps at the December meeting?"  vs  "Will the Bank of England lower the Bank Rate by 50 bps at the December meeting?"
+SIBLINGS 1440: "Will the Bank of Israel decrease the … Interest Rate by 25 bps at the November meeting?"  vs  "Will the Bank of Israel increase the … Interest Rate by 25 bps at the November meeting?"
+SIBLINGS 1440: "Will the Federal Reserve hike interest rates by 25 bps at the December meeting?"  vs  "Will the Federal Reserve cut interest rates by 25 bps at the December meeting?"
+SIBLINGS 1440: "Will the Bank of England raise the Bank Rate by 50 bps at the December meeting?"  vs  "Will the Bank of England lower the Bank Rate by 50 bps at the December meeting?"

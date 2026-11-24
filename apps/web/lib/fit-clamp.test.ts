@@ -58,3 +58,38 @@ for (const [name, titles] of [["test fixture", FIXTURE], ["real output/flags.jso
     });
   });
 }
+
+// T-wt1f: the word that says which way a rate moves must survive, or "decrease 25 bps" and "increase 25 bps" read as the same bet.
+const OPPOSITE: Record<string, string> = { increase: "decrease", decrease: "increase", hike: "cut", cut: "hike", raise: "lower", lower: "raise", above: "below", below: "above", yes: "no" };
+const DECREASE = "Will the Bank of Israel decrease the Bank of Israel Interest Rate by 25 bps at the November meeting?";
+const SIBLINGS: [string, string][] = [
+  [DECREASE, DECREASE.replace("decrease", "increase")],
+  ["Will the Federal Reserve hike interest rates by 25 bps at the December meeting?", "Will the Federal Reserve cut interest rates by 25 bps at the December meeting?"],
+  ["Will the Bank of England raise the Bank Rate by 50 bps at the December meeting?", "Will the Bank of England lower the Bank Rate by 50 bps at the December meeting?"],
+  ["Will the Bank of Israel make no change to the Bank of Israel Interest Rate at the November meeting?", "Will the Bank of Israel increase the Bank of Israel Interest Rate at the November meeting?"],
+];
+describe("direction words", () => {
+  for (const total of [86, 98, 110]) {
+    it(`siblings never render the same line (budget ${total})`, () => {
+      for (const [a, b] of SIBLINGS) expect(fitClamp(a, budget(total)), `${a} | ${b}`).not.toBe(fitClamp(b, budget(total)));
+    });
+    it(`a repeated phrase goes before a distinct word (budget ${total}): 'Bank of Israel' is not said twice while 'decrease' is lost`, () => {
+      const out = fitClamp(DECREASE, budget(total));
+      expect(out).toContain("decrease");
+      expect(out.match(/Israel/g)?.length ?? 0).toBeLessThanOrEqual(1);
+    });
+    it(`real titles with a direction word never match their opposite (budget ${total})`, () => {
+      let pairs = 0;
+      for (const t of REAL) {
+        const w = t.split(" ").find((x) => OPPOSITE[x.replace(/\W/g, "").toLowerCase()]);
+        if (!w) continue;
+        const key = w.replace(/\W/g, "").toLowerCase();
+        const other = t.replace(w, w.replace(new RegExp(key, "i"), OPPOSITE[key]!));
+        pairs++;
+        expect(fitClamp(t, budget(total)), `${t} | ${other}`).not.toBe(fitClamp(other, budget(total)));
+      }
+      if (REAL.length) expect(pairs).toBeGreaterThan(0);
+    });
+  }
+});
+
