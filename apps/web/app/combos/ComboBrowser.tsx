@@ -11,6 +11,7 @@ import { noLiveRecord } from "@/lib/proof";
 import { softNav } from "@/lib/softNav";
 
 export function ComboBrowser({ lists }: { lists?: Record<ComboPays, CombosResponse> }) {
+  // The payout is the URL's (?pays=, the first value if repeated), so Back and Forward, which restore this page from the router cache, show the payout the address says. A tap changes the address only (softNav).
   const params = useSearchParams();
   const pathname = usePathname();
   const asked = Number(params.get("pays"));
