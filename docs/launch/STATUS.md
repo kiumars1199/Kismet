@@ -88,6 +88,8 @@ Problems:
 - Not walked: signed-in headers at 768–1280, the Premium drawer path to the tray, WebKit, and signed-in steps on a production build. Re-walk after the fixes.
 
 ## Found in review, outside a lane
+- 09:08 #118 (T-wt1e) merged at bdbd019 after reviewer PASS with notes (2,769 real titles: ~1% shortened, 0 over 2 lines, 0 clashes at 360/390/1440; H1 clear of header; CLS 0). Should-fix -> T-wt1f, tracker lane: keep rate-direction words (increase/decrease siblings could clash).
+- 09:05 #116 (T-hydr4) 103b628 FAIL: normal-scan skew fixed (0.07 s at t=35 s), but the cache-bypass re-read is unbounded for a true leftover. Data lane bounding it (7451fb3).
 - 08:20 #115 (T-wt3f) merged at 8e37682 after reviewer PASS at 8b27731 (Polymarket US siblings add; refusal room released on tap/focus) and green CI. Note: after Enter-submit a no-input paste counts 0.033, under budget.
 - 07:58 #116 (T-hydr4) 2d4997b FAIL: guard drops the /m teaser path after every normal scan (30 s counts vs 60 s teasers cache skew; upload.py puts counts.json before teasers/top). Back to the data lane: bypass-cache re-read, upload order, skew test.
 - 07:50 #106 still red: pro 390 CLS 0.2689 on CI only, not reproduced locally (slow font, late backtest, late book all 0). Lane adding layout-shift source logging.
