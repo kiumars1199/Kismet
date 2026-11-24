@@ -1,0 +1,4 @@
+trust-hydr/docs/launch/review/hydr/html-arm-A-final /state: 59 warm fetches | titleInHead 0 | pendingBoundaries>0 59 | revealScript 59 | ttfb median 8 ms, p90 12 ms
+trust-hydr/docs/launch/review/hydr/html-arm-A-final /m/<id>: 60 warm fetches | titleInHead 0 | pendingBoundaries>0 60 | revealScript 60 | ttfb median 10 ms, p90 14 ms
+trust-hydr/docs/launch/review/hydr/html-arm-A-final /signup: 60 warm fetches | titleInHead 0 | pendingBoundaries>0 60 | revealScript 60 | ttfb median 9 ms, p90 14 ms
+trust-hydr/docs/launch/review/hydr/html-arm-A-final cold first fetch (/state): titleInHead true, pendingBoundaries 0, revealScript false, ttfb 7309 ms

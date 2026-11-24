@@ -132,23 +132,24 @@ export function LoginForm({ next, error: initialError, mode = "login" }: { next:
   );
   const terms = (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={ids.terms} className="flex cursor-pointer items-start gap-3 rounded-input border border-border bg-surface p-4 text-sm leading-relaxed text-soft has-[:focus-visible]:border-accent-border">
+      <label htmlFor={ids.terms} className="flex cursor-pointer items-start gap-3 rounded-input border border-border bg-surface p-3 text-sm md:p-4 leading-relaxed text-soft has-[:focus-visible]:border-accent-border">
         <input
           id={ids.terms} type="checkbox" checked={accept} required aria-invalid={termsError && !accept}
           onChange={(e) => { setAccept(e.target.checked); setTermsError(false); }}
           className="mt-0.5 size-5 flex-none accent-[var(--accent)]"
         />
-        <span>
-          I&apos;m 18 or older and agree to the{" "}
-          <Link href="/terms" className="text-accent-hover underline underline-offset-4" target="_blank">Terms</Link> and{" "}
-          <Link href="/privacy" className="text-accent-hover underline underline-offset-4" target="_blank">Privacy Policy</Link>.
-        </span>
+        <span>I&apos;m 18 or older and agree to the Terms and Privacy Policy.</span>
       </label>
+      {/* outside the label: their own 44 px targets that never share the checkbox's hit area */}
+      <p className="flex flex-wrap gap-x-5 text-sm">
+        <Link href="/terms" className="inline-flex min-h-11 min-w-11 items-center text-accent-hover underline underline-offset-4" target="_blank">Terms</Link>
+        <Link href="/privacy" className="inline-flex min-h-11 min-w-11 items-center text-accent-hover underline underline-offset-4" target="_blank">Privacy Policy</Link>
+      </p>
       {termsError && !accept && <p className="text-xs text-warning">Tick this box to continue.</p>}
     </div>
   );
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4 md:gap-6">
       {error && <p id={ids.err} role="alert" className="rounded-input border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-text">{error}</p>}
 
       {/* P9: with Google on, the box gates that button too, so it sits above everything; without it, the box sits
@@ -172,7 +173,7 @@ export function LoginForm({ next, error: initialError, mode = "login" }: { next:
       </div>
       </>}
 
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-3 md:gap-4">
         <div role="tablist" aria-label="Sign-in method" className="flex gap-1 border-b border-border">
           {TABS.map((t) => {
             const on = t.value === tab;
@@ -191,13 +192,13 @@ export function LoginForm({ next, error: initialError, mode = "login" }: { next:
 
         <div id={ids.panel} role="tabpanel" aria-labelledby={ids.tab(tab)}>
           {tab === "password" ? (
-            <form method="post" onSubmit={withPassword} className="flex flex-col gap-3">{/* post: never put credentials in the URL */}
+            <form method="post" onSubmit={withPassword} className="flex flex-col gap-2.5 md:gap-3">{/* post: never put credentials in the URL */}
               {emailField}
               <label htmlFor={ids.pw} className="text-xs font-medium text-muted">Password</label>
               <div className="relative">
                 <input
-                  id={ids.pw} type={show ? "text" : "password"} required minLength={PASSWORD_MIN} maxLength={PASSWORD_MAX}
-                  autoComplete={mode === "signup" ? "new-password" : "current-password"} aria-describedby={ids.hint}
+                  id={ids.pw} type={show ? "text" : "password"} placeholder={`At least ${PASSWORD_MIN} characters`} required minLength={PASSWORD_MIN} maxLength={PASSWORD_MAX}
+                  autoComplete={mode === "signup" ? "new-password" : "current-password"} 
                   value={password} onChange={(e) => setPassword(e.target.value)} className={`${input} w-full pr-20`}
                 />
                 <button
@@ -207,7 +208,6 @@ export function LoginForm({ next, error: initialError, mode = "login" }: { next:
                   {show ? "Hide" : "Show"}
                 </button>
               </div>
-              <p id={ids.hint} className="text-xs text-muted">At least {PASSWORD_MIN} characters.</p>
               {!GOOGLE && terms}
               <button type="submit" className={`${btnPrimary} min-h-12 text-[15px]`} disabled={busy}>
                 {busy ? "One moment…" : mode === "signup" ? "Create account" : "Log in"}
