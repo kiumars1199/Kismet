@@ -108,6 +108,6 @@ test("combo #42: a saved leg that has closed leaves the tray, with a note", asyn
     url: "https://polymarket.com/event/x", ask: 0.5, fee: 0.01, q: 0.6, q_low: 0.55, closes_at: closed,
   }] }, version: 0 })), SCAN_S - 3600);
   await page.goto("/");
-  await expect(page.getByTestId("combo-dropped")).toContainText("its bets have closed");
+  await expect(page.getByTestId("combo-dropped")).toContainText("One bet left your combo because it closed.");   // T-wt3e: the note says how many and why; the tray is empty
   await expect(page.getByTestId("combo-tray")).toHaveCount(0);
 });
