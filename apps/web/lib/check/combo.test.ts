@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { combo } from "@/lib/combos";
-import { addLeg, checkCombo, MAX_COMBO_LEGS, NOT_SCORED_SAME_EVENT, type ComboLeg } from "./combo";
+import { addLeg, checkCombo, MAX_COMBO_LEGS, NOT_SCORED_SAME_EVENT, sameEventAdvice, type ComboLeg } from "./combo";
 import { score } from "./score";
 
 const leg = (id: string, ask: number, fee: number, q: number | null, o: Partial<ComboLeg> = {}): ComboLeg => ({
@@ -90,3 +90,14 @@ describe("addLeg", () => {
     expect(addLeg(legs, leg("x", 0.5, 0, 0.6))).toEqual({ legs, refused: "full" });
   });
 });
+
+describe("sameEventAdvice (no score, so say which leg to drop)", () => {
+  const e = (id: string, ev: string, evId: string) => leg(id, 0.5, 0, 0.6, { eventId: evId, event: ev });
+  it("two legs: 'Drop one of the two <event> bets.'; more: keep one; clean event name", () => {
+    expect(sameEventAdvice([e("1", "Denmark vs. Norway - More Markets", "x"), e("2", "Denmark vs. Norway - More Markets", "x"), e("3", "Other", "y")])).toEqual(["Drop one of the two Denmark vs. Norway bets."]);
+    expect(sameEventAdvice([e("1", "Game", "x"), e("2", "Game", "x"), e("3", "Game", "x")])).toEqual(["Keep one of the 3 Game bets and drop the rest."]);
+    expect(sameEventAdvice([e("1", "A", "x"), e("2", "A", "x"), e("3", "B", "y"), e("4", "B", "y")])).toEqual(["Drop one of the two A bets.", "Drop one of the two B bets."]);
+    expect(sameEventAdvice([e("1", "A", "x"), e("2", "B", "y")])).toEqual([]);
+  });
+});
+
