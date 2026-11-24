@@ -1,0 +1,2 @@
+90c01fa checks job 138197986352: first-load JS 149.5 kB gzipped (475 kB raw, 14 files); budget 150 kB: OK
+c7ef710 checks job 138185568248: first-load JS 149.5 kB gzipped (475 kB raw, 14 files); budget 150 kB: OK
