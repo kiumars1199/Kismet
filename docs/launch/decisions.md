@@ -175,3 +175,6 @@ With blocking metadata, /m's first byte waits for generateMetadata's load(id). O
 - Prod health comes from Vercel's read-only deployment status and runtime errors.
 - Q should do one real-phone pass on kismetodds.com: the signed-out TikTok path and a Pro combo (listed in What Q must do).
 - WT1 and WT3 start now. WT2 starts after #106 (T-wt2d) merges, since its open problems are fixed there.
+
+## 13:05 UTC — Walk-through 1 re-walk nits are notes, not problems
+The WT1 re-walk on 73e7d67 found two nits: an inline /pricing link of 91x17 (WCAG 2.5.8 exempts inline links in a sentence) and one #418 seen once and never reproduced in 200+ loads. Neither is a problem a user hits, so the Problems list is empty and both go under "Notes, not problems"; the #418 stays a prod watch item on Q's real-phone pass.

@@ -1,0 +1,10 @@
+import { createRequire } from "module";
+const require = createRequire(process.env.WT + "/apps/web/package.json");
+const { chromium, devices } = require("@playwright/test");
+const b = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium" });
+const o = { ...devices["iPhone 13"], viewport: { width: 360, height: 640 } }; delete o.defaultBrowserType;
+const ctx = await b.newContext(o); const p = await ctx.newPage(); const errs = [];
+p.on("pageerror", (e) => errs.push("pageerror " + e.message.slice(0, 90))); p.on("console", (m) => { if (m.type() === "error") errs.push("console " + m.text().slice(0, 90)); });
+await p.route("**/api/funnel", (r) => r.fulfill({ status: 204 }));
+await p.goto("http://localhost:3755" + process.env.P, { waitUntil: "load", referer: "https://www.tiktok.com/" }); await p.waitForLoadState("networkidle").catch(() => {}); await p.waitForTimeout(800);
+console.log(process.env.P, JSON.stringify(errs)); await b.close();

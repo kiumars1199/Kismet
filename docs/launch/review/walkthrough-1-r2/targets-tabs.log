@@ -1,0 +1,30 @@
+pricing small link: [
+  {
+    html: '<a class="text-accent-hover underline-offset-4 hover:underline" href="/account">account page</a>',
+    r: '{"x":138.078125,"y":3540.21875,"width":90.640625,"height":17,"top":3540.21875,"right":228.71875,"bottom":3557.21875,"left":138.078125}',
+    parent: ''
+  }
+]
+checkbox label: {
+  label: "I'm 18 or older and agree to the Terms and Privacy Policy.",
+  w: 358,
+  h: 54
+}
+bottom nav: [
+  [
+    'How it works|cur=null||44',
+    'Results|cur=null||44',
+    'Pricing|cur=null||44',
+    'Sign up|cur=page|accent|44'
+  ]
+]
+header CTA: [ 'Kismet|cur=null|h44', 'Log in|cur=null|h44' ]
+1440 header: [
+  'Kismet|cur=null|h44',
+  'How it works|cur=null|h36',
+  'Results|cur=null|h36',
+  'Pricing|cur=null|h36',
+  'Check a bet|cur=null|h36',
+  'Updated\n7 days ago\n· data may be stale|cur=null|h44',
+  'Log in|cur=null|h44'
+]

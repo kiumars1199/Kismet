@@ -1,0 +1,76 @@
+route=false
+  nav /m/6596313
+  nav /m/6596313
+  FAIL GET /login?_rsc=GMn70okn3Pi1Imz5 net::ERR_ABORTED
+  FAIL GET /signup?_rsc=GMn70okn3Pi1Imz5 net::ERR_ABORTED
+  FAIL GET /check/combo?m=6596313&_rsc=GMn70okn3Pi1Imz5 net::ERR_ABORTED
+  FAIL GET /check?_rsc=GMn70okn3Pi1Imz5 net::ERR_ABORTED
+  FAIL GET /status?_rsc=GMn70okn3Pi1Imz5 net::ERR_ABORTED
+  nav /state?next=%2Fm%2F6596313
+  nav /state?next=%2Fm%2F6596313
+  FAIL GET /login?_rsc=YyR5Ks_9DquMS6IU net::ERR_ABORTED
+  FAIL GET /signup?_rsc=YyR5Ks_9DquMS6IU net::ERR_ABORTED
+  FAIL GET /m/6596313?_rsc=YyR5Ks_9DquMS6IU net::ERR_ABORTED
+  FAIL GET /check?_rsc=YyR5Ks_9DquMS6IU net::ERR_ABORTED
+  FAIL GET /check/combo?_rsc=YyR5Ks_9DquMS6IU net::ERR_ABORTED
+  FAIL GET /status?_rsc=YyR5Ks_9DquMS6IU net::ERR_ABORTED
+  nav /pricing
+  nav /pricing
+  FAIL GET /login?_rsc=yrzGVZEURCHTUGxG net::ERR_ABORTED
+  FAIL GET /signup?_rsc=yrzGVZEURCHTUGxG net::ERR_ABORTED
+  nav /state?next=%2Fm%2F6596313
+  nav /state?next=%2Fm%2F6596313
+  FAIL GET /login?_rsc=YyR5Ks_9DquMS6IU net::ERR_ABORTED
+  FAIL GET /signup?_rsc=YyR5Ks_9DquMS6IU net::ERR_ABORTED
+  FAIL GET /check?_rsc=YyR5Ks_9DquMS6IU net::ERR_ABORTED
+  FAIL GET /check/combo?_rsc=YyR5Ks_9DquMS6IU net::ERR_ABORTED
+  FAIL GET /status?_rsc=YyR5Ks_9DquMS6IU net::ERR_ABORTED
+  final /state?next=%2Fm%2F6596313 title=Your state · Kismet h1=Your state
+  FAIL GET /?_rsc=YyR5Ks_9DquMS6IU net::ERR_ABORTED
+  FAIL GET /about?_rsc=YyR5Ks_9DquMS6IU net::ERR_ABORTED
+  FAIL GET /pricing?_rsc=YyR5Ks_9DquMS6IU net::ERR_ABORTED
+  FAIL GET /terms?_rsc=YyR5Ks_9DquMS6IU net::ERR_ABORTED
+  FAIL GET /privacy?_rsc=YyR5Ks_9DquMS6IU net::ERR_ABORTED
+  FAIL GET /refunds?_rsc=YyR5Ks_9DquMS6IU net::ERR_ABORTED
+  FAIL GET /disclaimer?_rsc=YyR5Ks_9DquMS6IU net::ERR_ABORTED
+  FAIL GET /contact?_rsc=YyR5Ks_9DquMS6IU net::ERR_ABORTED
+  FAIL GET /track-record?_rsc=YyR5Ks_9DquMS6IU net::ERR_ABORTED
+  nav /m/6596313
+  nav /m/6596313
+  FAIL GET /login?_rsc=GMn70okn3Pi1Imz5 net::ERR_ABORTED
+  FAIL GET /signup?_rsc=GMn70okn3Pi1Imz5 net::ERR_ABORTED
+  FAIL GET /check?_rsc=GMn70okn3Pi1Imz5 net::ERR_ABORTED
+  FAIL GET /check/combo?m=6596313&_rsc=GMn70okn3Pi1Imz5 net::ERR_ABORTED
+  FAIL GET /status?_rsc=GMn70okn3Pi1Imz5 net::ERR_ABORTED
+  final2 /m/6596313 h1=Will Donald Trump publicly insult someone on November 26, 2026?
+route=true
+  nav /m/6596313
+  nav /m/6596313
+  FAIL GET /login?_rsc=GMn70okn3Pi1Imz5 net::ERR_ABORTED
+  FAIL GET /signup?_rsc=GMn70okn3Pi1Imz5 net::ERR_ABORTED
+  FAIL GET /check/combo?m=6596313&_rsc=GMn70okn3Pi1Imz5 net::ERR_ABORTED
+  FAIL GET /check?_rsc=GMn70okn3Pi1Imz5 net::ERR_ABORTED
+  FAIL GET /status?_rsc=GMn70okn3Pi1Imz5 net::ERR_ABORTED
+  nav /state?next=%2Fm%2F6596313
+  nav /state?next=%2Fm%2F6596313
+  FAIL GET /check?_rsc=YyR5Ks_9DquMS6IU net::ERR_ABORTED
+  FAIL GET /check/combo?_rsc=YyR5Ks_9DquMS6IU net::ERR_ABORTED
+  FAIL GET /status?_rsc=YyR5Ks_9DquMS6IU net::ERR_ABORTED
+  nav /pricing
+  nav /pricing
+  FAIL GET /login?_rsc=yrzGVZEURCHTUGxG net::ERR_ABORTED
+  nav /state?next=%2Fm%2F6596313
+  nav /state?next=%2Fm%2F6596313
+  FAIL GET /login?_rsc=YyR5Ks_9DquMS6IU net::ERR_ABORTED
+  FAIL GET /signup?_rsc=YyR5Ks_9DquMS6IU net::ERR_ABORTED
+  FAIL GET /m/6596313?_rsc=YyR5Ks_9DquMS6IU net::ERR_ABORTED
+  FAIL GET /check?_rsc=YyR5Ks_9DquMS6IU net::ERR_ABORTED
+  FAIL GET /check/combo?_rsc=YyR5Ks_9DquMS6IU net::ERR_ABORTED
+  FAIL GET /status?_rsc=YyR5Ks_9DquMS6IU net::ERR_ABORTED
+  final /state?next=%2Fm%2F6596313 title=Your state · Kismet h1=Your state
+  nav /m/6596313
+  nav /m/6596313
+  FAIL GET /check/combo?m=6596313&_rsc=GMn70okn3Pi1Imz5 net::ERR_ABORTED
+  FAIL GET /check?_rsc=GMn70okn3Pi1Imz5 net::ERR_ABORTED
+  FAIL GET /status?_rsc=GMn70okn3Pi1Imz5 net::ERR_ABORTED
+  final2 /m/6596313 h1=Will Donald Trump publicly insult someone on November 26, 2026?

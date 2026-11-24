@@ -39,20 +39,12 @@ Merge order: F3, F1, F2, F5, F7, F8, F9, then F4, F6, F10–F16.
 Batch 1 MERGED (08:20–08:50 UTC: #43, #45, #64, #60, #61, #62; then #47, #54, #55; #46 merged 2a987ba at 09:31). Was: Batch 1 (decisions.md, Vercel cap): F1 #43 064f521, F2 #45 ef73b2f, f01b kiumars1199/Kismet#64 ae4e3eb, #60 df67be8, F6 #46 57ed4de, #61 0107058, #62 70d8f6b. Integ tree integ-b1 v1 (c5abb7f, first five) green: tsc, lint, vitest 1594 + timing test passes alone, pytest 164, build, check:js 146.8 kB, e2e 129. f01b delta PASS; v2 (b99788b, +#61 +#62, tree 61da2d4) green: tsc, lint, vitest, pytest 164, build, check:js 146.8 kB, e2e 139; pushed as launch/integ-batch1; one preview when a slot frees (~08:40 UTC), then merges and one prod build.
 
 ## Walk-through 1: first-time visitor from a TikTok link
-Status: official walk on prod 137ad1f (22:15; evidence review/walkthrough-1/): FAIL. Fixes assigned: T-wt1b (onboarding), T-wt1c (tracker), T-hydr (trust). Dry-run items 1, 3, 4, 5, 6, 8 and 9 are fixed; item 7 is fixed except "source", which is an accepted inline exception (decisions.md).
+Status: re-walk on final 73e7d67 (local `next build && next start`, real output/ data; 13:05 UTC; evidence review/walkthrough-1-r2/): PASS. Walked /m → teaser → Sign up free → /signup → /state → /pricing → back at 360, 375, 390, 1440. Every item from the 22:15 walk is fixed (T-wt1b, T-wt1c, T-hydr, #121). 180 warm loads + 9 cold first loads: 0 console errors, 0 #418. CLS 0.000, disclaimer on every page, no cents, all controls ≥44 px.
 
 Problems:
-- [should-fix] /m subtitle still repeats a truncated title ("Will Trump publicly insult someone on...?"); the dedupe only matches prefixes (onboarding, T-wt1b)
-- [should-fix] /m "Sign up free" sits flush against the phone tab bar at 390 (y=787); move it above "Add to combo checker" (onboarding, T-wt1b)
-- [should-fix] Intermittent React hydration error #418 on prod at 390 (/m, /signup, /state; about 1 in 10 loads) (trust, T-hydr)
-- [nit] /signup "…2026?." double punctuation (onboarding, T-wt1b)
-- [nit] /signup "Create account" is behind the tab bar at 390 (onboarding, T-wt1b)
-- [nit] Teaser copy "Yes: 69% priced by the market" → "Market price: Yes 69%" (onboarding, T-wt1b)
-- [nit] /state has no h1 (onboarding, T-wt1b)
-- [nit] The bottom-bar "Sign up" tab has no active state on /signup (onboarding, T-wt1b)
-- [nit] Tap targets under 44 px at 390: Terms/Privacy in the 18+ label, the auth switch links, /m "Log in" 41 px wide (onboarding, T-wt1b); ~~/pricing "See results", footer links on desktop~~ fixed by #95
-- ~~[nit] /pricing at 390 hides all proof behind a bare "How it did in testing" line, with 110 px of dead space~~ fixed by #95 (merged 2fcbe82)
-- Gap (not a problem): the signed-out combo from /m is BotID-blocked for headless on prod; passes on the local build (decisions.md)
+(none)
+
+Notes, not problems (decisions.md 13:05): /pricing inline "account page" link is 91x17, allowed by WCAG 2.5.8 inline exception. Watch on prod: one #418 seen once on 6da7905 on a first cold walk, never reproduced in 200+ later loads. Signed-out combo from /m is BotID-blocked for headless on prod (real-phone check is on Q's list).
 
 ## Walk-through 2: new Free user
 Status: official walk on 137ad1f (22:50; evidence review/walkthrough-2/): FAIL. Signed-in steps were walked on a local build of 137ad1f with the E2E mock, and signed-out steps on prod (decisions.md). Fixes assigned: T-wt2b (data), T-wt2c (tracker). Dry-run items fixed: onboarding CLS (now 0.0006), "over over", locked-card copy, "- More Markets" (#81). The empty first screen is fixed only when the topic has bets that aren't in the sample.
