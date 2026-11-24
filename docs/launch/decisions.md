@@ -178,3 +178,6 @@ With blocking metadata, /m's first byte waits for generateMetadata's load(id). O
 
 ## 13:05 UTC — Walk-through 1 re-walk nits are notes, not problems
 The WT1 re-walk on 73e7d67 found two nits: an inline /pricing link of 91x17 (WCAG 2.5.8 exempts inline links in a sentence) and one #418 seen once and never reproduced in 200+ loads. Neither is a problem a user hits, so the Problems list is empty and both go under "Notes, not problems"; the #418 stays a prod watch item on Q's real-phone pass.
+
+## 14:58 UTC — "Everything" + Apply is a one-time view
+Picking "Everything" in the topics menu shows all bets for that view (`?fav=0`) but does not switch saved topics off. A bare /bets opens on saved topics again. Only the "Your topics" pill's × sets `topics_off`. Reason: the pill × is the explicit "stop using my topics" control; the menu is a quick look. (#128 review finding 2.)
