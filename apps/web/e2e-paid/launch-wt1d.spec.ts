@@ -20,6 +20,7 @@ test.describe("the longest bet title on /signup?next=", () => {
       const tail = longest.question.slice(-15);   // "... on November 17?"
       console.log(`${size.width}x${size.height}: "${shown}"`);
       expect(shown, "the end of the title (the date) is in the line").toContain(tail);
+      expect(shown, "the line still says to sign up").toMatch(/^Sign up for the verdict on: /);
       // innerText still holds text a line clamp hides: nothing may be hidden (the date is the end of the line, so it shows)
       expect(await line.evaluate((e) => e.scrollHeight - e.clientHeight), "no line of the bet title is clipped").toBeLessThanOrEqual(1);
       const submit = page.getByRole("tabpanel").getByRole("button", { name: "Create account", exact: true });
