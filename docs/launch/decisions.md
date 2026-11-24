@@ -187,3 +187,6 @@ Picking "Everything" in the topics menu shows all bets for that view (`?fav=0`) 
 
 ## 17:40 UTC — #130 stays unmerged until CI is green, even though the red test is a proven flake
 launch-wt2c-targets.spec.ts:74 fails ~15% of runs on plain final f2ef7a9 (2 of 13 local demo-prod runs; 0 of 15 on #130's head), so #130's two CI reds are not its fault. The rule is still "CI green on the head being merged": #130 waits for #132 (which hardens that test and fixes the menu), then merges final in for a clean run. No admin-merge, no empty commit.
+
+## Nov 24: /bets keeps its loading skeleton (T-wt3l, #141)
+Back from /check to /bets jumped (CLS 0.55) because `app/bets/loading.tsx` streams the list after the footer and the restored scroll was clamped by a short skeleton. Options: delete `loading.tsx` (list in the shell, but tab taps lose the instant skeleton OVERHAUL §C asks for) or keep it and make the skeleton tall (`min-h-[12000px]`) so the footer stays below the fold until the list lands. Chose keep + tall reserve: it keeps §C, the fix is one file, and CLS only counts visible shifts. The reviewer checks short lists (Free, zero results) and a held first-load chunk so the reserve can't cause its own jump.
