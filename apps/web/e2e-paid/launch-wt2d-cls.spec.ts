@@ -36,9 +36,11 @@ const observe = (page: Page) => page.addInitScript(() => {
     const t0 = Math.round(e.startTime);
     w.__src.push(`SHIFT ${e.value.toFixed(4)} @${t0}ms (seen at ${Math.round(performance.now())}ms) fonts=${document.fonts.status} h1=${JSON.stringify(document.querySelector("h1")?.textContent)} h1h=${Math.round(document.querySelector("h1")?.getBoundingClientRect().height ?? 0)} tour=${!!document.querySelector('[data-testid="tour"]')} cards=${document.querySelectorAll("article[data-row]").length} scrollY=${Math.round(scrollY)}`);
     for (const x of e.sources) w.__src.push(`  source ${desc(x.node)}  prev ${rect(x.previousRect)}  cur ${rect(x.currentRect)}`);
-    const main = document.querySelector("main");
-    const above = [...(main?.querySelectorAll(":scope > *, :scope > * > *") ?? [])].filter((c) => !c.querySelector("article[data-row]") || c.matches("article[data-row]")).slice(0, 5);
-    w.__src.push(`  above-list: ${above.map((c) => `${desc(c).slice(0, 70)} h=${Math.round(c.getBoundingClientRect().height)}`).join(" ;; ")}`);
+    // the heading block: every sibling of the h1 (the blurb, "Updated … ago", the link), with its height and text
+    const kids = [...(document.querySelector("h1")?.parentElement?.children ?? [])];
+    w.__src.push(`  heading-block: ${kids.map((c) => `${c.tagName.toLowerCase()}${c.getAttribute("data-testid") ? `[${c.getAttribute("data-testid")}]` : ""} h=${Math.round(c.getBoundingClientRect().height)} ${JSON.stringify((c.textContent ?? "").slice(0, 110))}`).join(" ;; ")}`);
+    const ago = document.querySelector("[data-ago]");
+    w.__src.push(`  ago: ${ago ? JSON.stringify(ago.textContent) + " parent-h=" + Math.round(ago.parentElement?.getBoundingClientRect().height ?? 0) : "none"}`);
     const near = w.__ring.filter((r) => r.t >= t0 - 400 && r.t <= t0 + 150);
     w.__src.push(`  dom changes within 400 ms before / 150 ms after (${near.length}):`);
     for (const r of near.slice(-14)) w.__src.push(`    @${Math.round(r.t)}ms ${r.d}`);
