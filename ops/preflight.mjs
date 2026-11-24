@@ -89,7 +89,7 @@ export function check(env, site, { live = false } = {}) {
   for (const k of MUST_BE_EMPTY) {
     if (!val(k)) continue;
     const why = { KALSHI_TRADING_ENV: "turns on paper trading in production (LAUNCH_TODO.md, real-money section)",
-      E2E_MOCK: "test mock switch", STRIPE_API_BASE: "points Stripe at a test mock" }[k];
+      E2E_MOCK: "test mock switch", E2E_PROD_BUILD: "lets the test mock run in a production build", STRIPE_API_BASE: "points Stripe at a test mock" }[k];
     add("danger", k, why ? "block" : "warn", `is set: ${why ?? "test-only, leave empty"}`);
   }
   if (val("KALSHI_DATA_PERMISSION") === "true") add("danger", "KALSHI_DATA_PERMISSION", "warn", "is true: only with Kalshi's written data permission");

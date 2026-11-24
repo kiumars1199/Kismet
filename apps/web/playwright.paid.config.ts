@@ -1,7 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
 // Paid-mode flows (S7 upgrade, account delete): DEMO_MODE=false, with Supabase and Stripe served by the in-app
-// mock (app/e2e-mock, on only with E2E_MOCK=1 outside production). Same port as the demo run; they run one after the other.
+// mock (app/e2e-mock, on only where e2eMockOn() is true: E2E_MOCK=1 plus E2E_PROD_BUILD=1 for this production build, never on Vercel). Same port as the demo run; they run one after the other.
 const PORT = Number(process.env.PW_PORT ?? 3100);
 const ORIGIN = `http://localhost:${PORT}`;
 export default defineConfig({

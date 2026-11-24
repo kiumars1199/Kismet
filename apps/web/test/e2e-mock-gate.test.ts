@@ -81,3 +81,49 @@ describe("every mock gate follows it", () => {
     expect(deviceOf(req)).toBe("e2e:t1");
   });
 });
+
+describe("the middleware /v1 passthrough and the next.config /v1 rewrite follow it", () => {
+  // The wall treats an unknown path like /v1/* as public today (#33), which would hide the gate: make every path "needs an
+  // account" so only the e2e passthrough can let /v1/* through.
+  const stripeCall = async () => {
+    vi.doMock("@/lib/auth/public-paths", async (orig) => ({ ...(await orig<typeof import("@/lib/auth/public-paths")>()), signedOutAccess: () => "signup" }));
+    const { NextRequest } = await import("next/server");
+    const { accountWall } = await import("@/middleware");
+    return accountWall(new NextRequest("http://localhost:3100/v1/payment_intents", { method: "POST" }));
+  };
+  const rewriteSources = async () => {
+    vi.resetModules();
+    const cfg = (await import("@/next.config")).default as { rewrites?: () => Promise<unknown> };
+    const r = cfg.rewrites ? await cfg.rewrites() : [];
+    const list = Array.isArray(r) ? r : [...((r as { beforeFiles?: unknown[] }).beforeFiles ?? []), ...((r as { afterFiles?: unknown[] }).afterFiles ?? []), ...((r as { fallback?: unknown[] }).fallback ?? [])];
+    return (list as { source: string }[]).map((x) => x.source);
+  };
+  afterEach(() => vi.doUnmock("@/lib/auth/public-paths"));
+  const setEnv = (o: Record<string, string>) => { vi.resetModules(); vi.unstubAllEnvs(); for (const [k, v] of Object.entries({ NODE_ENV: "production", ...o })) vi.stubEnv(k, v); };
+
+  it("middleware: /v1/* skips the account wall only when the gate is on; otherwise the signed-out wall answers", async () => {
+    setEnv({});                                                       // production, no flags
+    expect(await stripeCall()).not.toBeNull();
+    setEnv({ E2E_MOCK: "1" });                                        // one flag
+    expect(await stripeCall()).not.toBeNull();
+    setEnv({ E2E_MOCK: "1", E2E_PROD_BUILD: "1", VERCEL: "1" });      // both flags on Vercel
+    expect(await stripeCall()).not.toBeNull();
+    setEnv({ E2E_MOCK: "1", E2E_PROD_BUILD: "1", VERCEL_ENV: "production" });
+    expect(await stripeCall()).not.toBeNull();
+    setEnv({ E2E_MOCK: "1", E2E_PROD_BUILD: "1" });                   // the e2e production build
+    expect(await stripeCall()).toBeNull();
+    setEnv({ NODE_ENV: "development", E2E_MOCK: "1" });               // dev, as before
+    expect(await stripeCall()).toBeNull();
+  });
+
+  it("next.config: the /v1 → /e2e-mock/stripe rewrite exists only when the gate is on", async () => {
+    const has = async (o: Record<string, string>) => { setEnv(o); return (await rewriteSources()).includes("/v1/:path*"); };
+    expect(await has({})).toBe(false);
+    expect(await has({ E2E_MOCK: "1" })).toBe(false);
+    expect(await has({ E2E_PROD_BUILD: "1" })).toBe(false);
+    expect(await has({ E2E_MOCK: "1", E2E_PROD_BUILD: "1", VERCEL: "1" })).toBe(false);
+    expect(await has({ E2E_MOCK: "1", E2E_PROD_BUILD: "1", VERCEL_ENV: "production" })).toBe(false);
+    expect(await has({ E2E_MOCK: "1", E2E_PROD_BUILD: "1" })).toBe(true);
+    expect(await has({ NODE_ENV: "development", E2E_MOCK: "1" })).toBe(true);
+  });
+});

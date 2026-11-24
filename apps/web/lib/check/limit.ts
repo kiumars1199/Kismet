@@ -7,7 +7,7 @@ import { createHash } from "node:crypto";
 import { clientIp, distinct } from "@/lib/abuse";
 import { quota, type Tier } from "@/lib/entitlements";
 
-/** The device the signed-out counter is keyed on: the platform IP. Under the e2e mock only (E2E_MOCK=1, never in production)
+/** The device the signed-out counter is keyed on: the platform IP. Under the e2e mock only (e2eMockOn(): E2E_MOCK=1, in a production build only with E2E_PROD_BUILD=1, never on Vercel)
  *  a test may name its own device with `x-e2e-device`, so one test's check doesn't use up the next test's. */
 export function deviceOf(req: Request): string {
   if (e2eMockOn()) {

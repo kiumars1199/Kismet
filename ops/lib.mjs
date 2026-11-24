@@ -17,7 +17,7 @@ export const SECRET_ENV = ["SUPABASE_SERVICE_ROLE_KEY", "STRIPE_SECRET_KEY", "ST
   "RESEND_API_KEY", "CRON_SECRET", "UPSTASH_REDIS_REST_TOKEN", "UNSUBSCRIBE_SECRET", "GITHUB_DATA_TOKEN"];
 
 /** Test-only or not-yet-allowed variables: never set in production, never pushed to Vercel. */
-export const MUST_BE_EMPTY = ["E2E_MOCK", "STRIPE_API_BASE", "KALSHI_TRADING_ENV", "DATA_DIR",
+export const MUST_BE_EMPTY = ["E2E_MOCK", "E2E_PROD_BUILD", "STRIPE_API_BASE", "KALSHI_TRADING_ENV", "DATA_DIR",
   "KALSHI_DEMO_KEY_ID", "KALSHI_DEMO_PRIVATE_KEY_PATH", "KALSHI_DEMO_TICKER"];
 
 export const rel = (p) => relative(process.cwd(), p) || ".";

@@ -157,7 +157,7 @@ export async function middleware(req: NextRequest) {
 export function accountWall(req: NextRequest): NextResponse | null {
   const path = req.nextUrl.pathname;
   if (req.method === "OPTIONS") return null;   // CORS preflights carry no cookies
-  // The e2e Stripe mock (next.config rewrite /v1/* → /e2e-mock/stripe, dev + E2E_MOCK only): server-to-server, no cookies.
+  // The e2e Stripe mock (next.config rewrite /v1/* → /e2e-mock/stripe, only where e2eMockOn() is true: lib/e2e-mock.ts): server-to-server, no cookies.
   if (e2eMockOn() && path.startsWith("/v1/")) return null;
   const access = signedOutAccess(path, req.nextUrl.searchParams);
   if (access === "public") return null;

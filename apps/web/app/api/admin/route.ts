@@ -84,10 +84,10 @@ async function act(ctx: AdminCtx, b: Body): Promise<Response> {
     );
     if (error) throw new Error(error.message);
     bustSettings();
-    // The banner, maintenance mode and the Free limits also live in the prerendered pages (ISR, 300 s): regenerate them now,
-    // or "/" keeps the old banner for up to five minutes while every dynamic page already shows the new one.
-    for (const p of STATIC_PAGES) revalidatePath(p);
     await done(ctx, "settings.update", keys.join(","), b.patch);
+    // The banner, maintenance mode and the Free limits also live in the prerendered pages (ISR, 300 s): regenerate them now
+    // (after the audit's .done row), or "/" keeps the old banner for up to five minutes while every dynamic page shows the new one.
+    for (const p of STATIC_PAGES) revalidatePath(p);
     return Response.json({ ok: true, settings: await getSettings() });
   }
 

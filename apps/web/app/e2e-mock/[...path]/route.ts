@@ -1,6 +1,6 @@
 // e2e only (S7, account delete): in-memory stand-ins for Supabase (GoTrue + the PostgREST calls this app makes)
-// and Stripe (checkout, portal, subscriptions), so the paid flows run without keys. 404 unless E2E_MOCK=1 and
-// NODE_ENV isn't production. Stripe's SDK reaches /v1/* here through the next.config rewrite.
+// and Stripe (checkout, portal, subscriptions), so the paid flows run without keys. 404 unless e2eMockOn() (lib/e2e-mock.ts): E2E_MOCK=1 in
+// dev/test, or in a production build only with E2E_PROD_BUILD=1 too, and never on Vercel. Stripe's SDK reaches /v1/* here through the next.config rewrite.
 import { e2eMockOn } from "@/lib/e2e-mock";
 import { randomUUID } from "node:crypto";
 import Stripe from "stripe";
