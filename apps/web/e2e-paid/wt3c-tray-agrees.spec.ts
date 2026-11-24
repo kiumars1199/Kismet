@@ -102,6 +102,7 @@ test("the tray refuses a second bet from the same event and names the combo chec
   await expect(async () => { if (!(await alert.isVisible())) await second.click({ timeout: 3_000 }); await expect(alert).toBeVisible({ timeout: 5_000 }); }).toPass({ timeout: 60_000 });
   await expect(alert).toContainText("You can still check them together in the combo checker.");
   const link = alert.getByRole("link", { name: "combo checker" });
+  expect((await link.boundingBox())!.height, "T-wt3e: the link is a 44 px tap target").toBeGreaterThanOrEqual(44);
   const href = (await link.getAttribute("href"))!;
   expect(new URL(href, "http://x").searchParams.get("legs")).toBe(`${a!.market.id}:${a!.side.side_index},${b!.market.id}:${b!.side.side_index}`);
 });

@@ -259,6 +259,13 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
         )}
         {legs.length < MIN_COMBO_LEGS && <p data-testid="combo-msg" className="text-sm text-soft">{legs.length === 0 ? "Add at least two bets to check a combo." : "Add at least one more leg."}</p>}
         {legs.length < MIN_COMBO_LEGS && <p data-testid="combo-how" className="text-[13px] leading-relaxed text-muted">How it works: every leg has to win, so the chances multiply and so do the payouts.</p>}
+        {/* known from the event ids alone, so it shows as soon as two legs share an event: no check is spent for it. It sits ABOVE the "Check this combo" block, which collapses when the
+            result lands, so the note keeps its place (T-wt3e); once scored it also names the weaker of the pair */}
+        {sameNow.length > 0 && (
+          <p data-testid="combo-same-event" className="rounded-input border border-border bg-bg p-3 text-[13px] text-soft">
+            Same event ({sameNow.map(cleanEventLine).join(", ")}): these legs move together, the combined chance is likely off. {sameEventAdvice(ready ? combos : legs).join(" ")}
+          </p>
+        )}
         {legs.length >= MIN_COMBO_LEGS && !ready && !limit && (
           <div className="flex flex-col items-start gap-2">
             <p data-testid="combo-msg" className="text-sm text-soft">{scoring ? "Scoring your combo…" : "Ready when you are."}</p>
@@ -267,12 +274,6 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
           </div>
         )}
         {ready && c.error === "no_model" && <p data-testid="combo-msg" className="text-sm text-soft">No model chance for &ldquo;{c.noModel}&rdquo;, so this combo can&apos;t be scored. Remove that leg.</p>}
-        {/* known from the event ids alone, so it shows as soon as two legs share an event: no check is spent for it */}
-        {sameNow.length > 0 && (
-          <p data-testid="combo-same-event" className="rounded-input border border-border bg-bg p-3 text-[13px] text-soft">
-            Same event ({sameNow.map(cleanEventLine).join(", ")}): these legs move together, the combined chance is likely off. {sameEventAdvice(legs).join(" ")}
-          </p>
-        )}
         {n && (
           <>
             <dl className="grid grid-cols-2 gap-3 md:grid-cols-4">
