@@ -1,0 +1,2 @@
+const L = require("./lib"); const [w,h]=process.argv[2].split("x").map(Number);
+(async()=>{const {browser,page,log}=await L.start(w,h,"so");try{await page.goto("/onboarding",{waitUntil:"load",timeout:30000});await page.waitForTimeout(2500);await L.audit(page,`${process.env.BASE.slice(-4)} ${w} signed-out /onboarding`);}catch(e){console.log("ERR "+e.message.split("\n")[0]);}console.log(log.filter(l=>!/429|preload/.test(l)).join("\n"));await browser.close();})();

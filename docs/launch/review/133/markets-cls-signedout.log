@@ -1,0 +1,20 @@
+[audit 1440 signed-out /] / h1="Which Polymarket bets are worth it today?" disc=true/true cls=0 hscroll=false
+[audit 1440 signed-out /markets] /signup?next=%2Fmarkets h1="Create your free account" disc=true/true cls=0 hscroll=false
+[audit 1440 signed-out /settings] /signup?next=%2Fsettings h1="Create your free account" disc=true/true cls=0 hscroll=false
+ERR page.goto: Timeout 30000ms exceeded.
+
+[audit 390 signed-out /] / h1="Which Polymarket bets are worth it today?" disc=true/true cls=0 hscroll=false
+[audit 390 signed-out /markets] /signup?next=%2Fmarkets h1="Create your free account" disc=true/true cls=0 hscroll=false
+[audit 390 signed-out /settings] /signup?next=%2Fsettings h1="Create your free account" disc=true/true cls=0 hscroll=false
+ERR page.goto: Timeout 30000ms exceeded.
+
+[audit 1440 fav1 markets try0] /markets h1="All markets" disc=true/true cls=0.0098 hscroll=false shifts=[{"v":0.0006,"t":428,"src":["DIV.relative w-full max-w-[340px] 'Search markets/' 9.5->9.5 h44->44"]},{"v":0.0092,"t":875,"src":["BUTTON.inline-flex min-h-11 items-center gap-1. '+ Save this view' 406.5->406.5 h44->44","BUTTON.inline-flex min-h-11 items-center gap-1. 'NFL' 406.5->406.5 h44->44","BUTTON.inline-flex min-h-11 items-center gap-1. 'Saved views' 406.5->406.5 h44->44","BUTTON.inline-flex min-h-11 items-center gap-1. 'Hide sports' 406.5->406.5 h44->44","BUTTON.inline-flex min-h-11 items-center gap-1. 'Soccer' 406.5->406.5 h44->44"]}]
+[audit 1440 fav1 markets try1] /markets h1="All markets" disc=true/true cls=0.0098 hscroll=false shifts=[{"v":0.0006,"t":230,"src":["DIV.h-11 w-full max-w-[340px] rounded-input  '' 9.5->9.5 h44->44"]},{"v":0.0092,"t":663,"src":["BUTTON.inline-flex min-h-11 items-center gap-1. '+ Save this view' 406.5->406.5 h44->44","BUTTON.inline-flex min-h-11 items-center gap-1. 'NFL' 406.5->406.5 h44->44","BUTTON.inline-flex min-h-11 items-center gap-1. 'Saved views' 406.5->406.5 h44->44","BUTTON.inline-flex min-h-11 items-center gap-1. 'Hide sports' 406.5->406.5 h44->44","BUTTON.inline-flex min-h-11 items-center gap-1. 'Soccer' 406.5->406.5 h44->44"]}]
+
+[audit 1440 fav6 markets try0] /markets h1="All markets" disc=true/true cls=0.2737 hscroll=false shifts=[{"v":0.0006,"t":438,"src":["DIV.relative w-full max-w-[340px] 'Search markets/' 9.5->9.5 h44->44"]},{"v":0.2731,"t":868,"src":["DIV.relative rounded-card border border-bord 'Choose columnsMainBetEstimated returnWon' 592.5->644.5 h307.5->255.5","A.relative z-10 -my-3.5 inline-flex min-h- 'Check your state' 514.5->566.5 h44->44","P.rounded-input border border-warning/40 b 'The last price scan was 8 days ago, so t' 470.5->522.5 h42->42","SPAN.block text-center text-xs text-muted tex 'Bet only what you can afford to lose.' 560.5->612.5 h16->16","BUTTON.inline-flex min-h-11 items-center gap-1. '+ Save this view' 406.5->458.5 h44->44"]}]
+[audit 1440 fav6 markets try1] /markets h1="All markets" disc=true/true cls=0.2737 hscroll=false shifts=[{"v":0.0006,"t":220,"src":["DIV.h-11 w-full max-w-[340px] rounded-input  '' 9.5->9.5 h44->44"]},{"v":0.2731,"t":446,"src":["DIV.relative rounded-card border border-bord 'Choose columnsMainBetEstimated returnWon' 592.5->644.5 h307.5->255.5","A.relative z-10 -my-3.5 inline-flex min-h- 'Check your state' 514.5->566.5 h44->44","P.rounded-input border border-warning/40 b 'The last price scan was 8 days ago, so t' 470.5->522.5 h42->42","SPAN.block text-center text-xs text-muted tex 'Bet only what you can afford to lose.' 560.5->612.5 h16->16","BUTTON.inline-flex min-h-11 items-center gap-1. '+ Save this view' 406.5->458.5 h44->44"]}]
+
+[audit 4047 390 signed-out /onboarding] /signup?next=%2Fonboarding h1="Create your free account" disc=true/true cls=0 hscroll=false
+
+[audit 4048 390 signed-out /onboarding] /signup?next=%2Fonboarding h1="Create your free account" disc=true/true cls=0 hscroll=false
+

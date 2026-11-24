@@ -1,0 +1,20 @@
+[1440 d0 gap0] tapped Tennis, Esports (first PATCH fails). UI at once ["NFL","Tennis","Esports"]
+   after: UI ["NFL"] status="Couldn't save your topics. Check your connection and try again."
+   3010ms PATCH ->500 ["sports.nfl","sports.tennis"]
+[1440 d0 gap50] tapped Tennis, Esports (first PATCH fails). UI at once ["NFL","Esports"]
+   after: UI ["NFL","Esports"] status="2 chosen. They show first in your quick filters."
+   2902ms PATCH ->500 ["sports.nfl","sports.tennis"]
+   2959ms PATCH ->ok ["sports.nfl","sports.esports"]
+[1440 d0 gap150] tapped Tennis, Esports (first PATCH fails). UI at once ["NFL","Esports"]
+   after: UI ["NFL","Esports"] status="2 chosen. They show first in your quick filters."
+   2974ms PATCH ->500 ["sports.nfl","sports.tennis"]
+   3139ms PATCH ->ok ["sports.nfl","sports.esports"]
+[1440 d300 gap0] tapped Tennis, Esports (first PATCH fails). UI at once ["NFL","Tennis","Esports"]
+   after: UI ["NFL"] status="Couldn't save your topics. Check your connection and try again."
+   2983ms PATCH ->500 ["sports.nfl","sports.tennis"]
+[1440 d300 gap50] tapped Tennis, Esports (first PATCH fails). UI at once ["NFL","Tennis","Esports"]
+   after: UI ["NFL"] status="Couldn't save your topics. Check your connection and try again."
+   3015ms PATCH ->500 ["sports.nfl","sports.tennis"]
+[1440 d300 gap150] tapped Tennis, Esports (first PATCH fails). UI at once ["NFL"]
+   after: UI ["NFL"] status="Couldn't save your topics. Check your connection and try again."
+   2991ms PATCH ->500 ["sports.nfl","sports.tennis"]

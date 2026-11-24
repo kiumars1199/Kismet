@@ -62,6 +62,8 @@ Notes, not problems: 8-day-old fixture scan drives the stale banner and "Closed"
 - [should-fix] /markets chip row: keyboard focus (Tab/Shift+Tab) lands on chips mostly off-screen (1100: College basketball 0/161 px; 390: Crypto 2/72 px) (T-wt2k)
 - [should-fix] Below 1280 the open Choose-columns menu stays pinned at top after its button scrolls away (1100x800, 1024x600) (T-wt2k)
 - [nit] Tab past the last checkbox in the open column menu jumps to Skip to content; menu stays open (T-wt2k)
+- [should-fix] /markets at 1440, Free with 6 favorite topics: CLS 0.27 (favorite chips row wraps to 2 lines after load, table drops 52 px); pre-existing on f2ef7a9 (T-wt2k)
+- [should-fix] Topic picker: taps made while a failing save is in flight are dropped (saver.ts catch clears queue) (T-wt2j, #133)
 
 
 ## Walk-through 3: Pro user building a combo
@@ -79,6 +81,7 @@ Problems:
 - [nit] 375x667: the same-event alert's "combo checker" link first renders under the fixed bottom tray (y 535 of 667) until scrolled (T-wt3g, after #130)
 
 ## Found in review, outside a lane
+- 19:10 #133 T-wt2j review PASS at b86060f (race fixed at 390/1440, 0/300 ms, all tiers; cookie, Home, /markets match; CLS ≤0.0006). Held for one should-fix in the error path plus a merge of final (#132 touched FilterBar). Watch: one React #418 on /settings in ~100 loads, not reproduced in 48 retries.
 - 18:56 #132 T-wt2i merged (9f5c68b) after review r3 PASS at 6acff47 (menu portaled, 21/21 checkboxes hittable at every size; texans CLS 0.0095) and full CI green. Evidence review/132. Three r3 follow-ups → T-wt2k.
 - 17:55 #132 review r2 FAIL at 88ecfd5: column menu clipped by the table's overflow box at 1100x800 (blocker), chip fade stays on at scroll end, Tab focus lands under pinned chips. Sent back to T-wt2i. Topic-picker race split out to T-wt2j.
 - 17:20 #132 T-wt2i review FAIL at aa29356/4ccd245 (evidence scratchpad/review/132): /markets?q=texans CLS now 0.013–0.017 (was 0.193); fav=1 label + Top 5 refetch fixed; tz/tap targets fixed. Back to builder: /check limit hint cookie regresses CLS to 0.24 without a valid cookie and can flash the limit card to a user with a check left (decision: drop the cookie, server peeks the real counter); column menu still overflows at 1280x720 / 1100x800 when opened at the top; desktop chips need a scroll cue.

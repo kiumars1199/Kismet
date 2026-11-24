@@ -1,0 +1,176 @@
+### race.js 390x844 fast PATCH_DELAY=0
+[390 fast] onboarding clicked 4: UI right after=["NFL","NBA","College basketball","Soccer"] UI +3s=["NFL","NBA","College basketball","Soccer"] server=[{"user_id":"148467bf-14fc-4d70-be46-572fbd6f870f","accepted_terms_at":"2026-11-24T18:47:30.514Z","onboarded_at":null,"first_bets_at":null,"created_at":"2026-11-24T18:47:30.512Z","favorite_topics":["sports.nfl","sports.soccer","sports.ncaab","sports.nba"]}]
+[390 fast] onboarding after reload: ["NFL","NBA","College basketball","Soccer"]
+node:internal/process/promises:394
+    triggerUncaughtException(err, true /* fromPromise */);
+    ^
+
+locator.waitFor: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for getByTestId('topics-picker').getByRole('button', { name: /^NHL\b/ }).first() to be visible[22m
+
+    at /tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/wt2r2-scripts/race.js:27:74 {
+  log: [
+    "  - waiting for getByTestId('topics-picker').getByRole('button', { name: /^NHL\\b/ }).first() to be visible"
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v22.23.5
+### race.js 390x844 slow PATCH_DELAY=0
+[390 slow] onboarding clicked 4: UI right after=["NFL","NBA","College basketball","Soccer"] UI +3s=["NFL","NBA","College basketball","Soccer"] server=[{"user_id":"df80d1b4-66a6-4650-b0b3-901709f770aa","accepted_terms_at":"2026-11-24T18:48:11.339Z","onboarded_at":null,"first_bets_at":null,"created_at":"2026-11-24T18:48:11.336Z","favorite_topics":["sports.nfl","sports.soccer","sports.ncaab","sports.nba"]}]
+[390 slow] onboarding after reload: ["NFL","NBA","College basketball","Soccer"]
+node:internal/process/promises:394
+    triggerUncaughtException(err, true /* fromPromise */);
+    ^
+
+locator.waitFor: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for getByTestId('topics-picker').getByRole('button', { name: /^NHL\b/ }).first() to be visible[22m
+
+    at /tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/wt2r2-scripts/race.js:27:74 {
+  log: [
+    "  - waiting for getByTestId('topics-picker').getByRole('button', { name: /^NHL\\b/ }).first() to be visible"
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v22.23.5
+### race3.js 390x844 gap=0 PATCH_DELAY=0
+[390 gap=0ms] onboarding settled, clicked NFL, College football, NBA -> server ["sports.nfl","sports.cfb","sports.nba"]
+[390 gap=0ms] settings before=["sports.nfl","sports.cfb","sports.nba"], clicked +College basketball +Soccer -NFL -> server ["sports.cfb","sports.nba","sports.ncaab","sports.soccer"]
+### race3.js 390x844 gap=60 PATCH_DELAY=0
+[390 gap=60ms] onboarding settled, clicked NFL, College football, NBA -> server ["sports.nfl","sports.cfb","sports.nba"]
+[390 gap=60ms] settings before=["sports.nfl","sports.cfb","sports.nba"], clicked +College basketball +Soccer -NFL -> server ["sports.cfb","sports.nba","sports.ncaab","sports.soccer"]
+### race.js 1440x900 fast PATCH_DELAY=0
+[1440 fast] onboarding clicked 4: UI right after=["NFL","NBA","College basketball","Soccer"] UI +3s=["NFL","NBA","College basketball","Soccer"] server=[{"user_id":"18d5ca2c-abe0-4f7a-99a0-15de4895952a","accepted_terms_at":"2026-11-24T18:49:25.625Z","onboarded_at":null,"first_bets_at":null,"created_at":"2026-11-24T18:49:25.624Z","favorite_topics":["sports.nfl","sports.soccer","sports.ncaab","sports.nba"]}]
+[1440 fast] onboarding after reload: ["NFL","NBA","College basketball","Soccer"]
+node:internal/process/promises:394
+    triggerUncaughtException(err, true /* fromPromise */);
+    ^
+
+locator.waitFor: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for getByTestId('topics-picker').getByRole('button', { name: /^NHL\b/ }).first() to be visible[22m
+
+    at /tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/wt2r2-scripts/race.js:27:74 {
+  log: [
+    "  - waiting for getByTestId('topics-picker').getByRole('button', { name: /^NHL\\b/ }).first() to be visible"
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v22.23.5
+### race.js 1440x900 slow PATCH_DELAY=0
+[1440 slow] onboarding clicked 4: UI right after=["NFL","NBA","College basketball","Soccer"] UI +3s=["NFL","NBA","College basketball","Soccer"] server=[{"user_id":"e520a309-7f2e-4d6e-a844-ac0a561fb593","accepted_terms_at":"2026-11-24T18:50:06.537Z","onboarded_at":null,"first_bets_at":null,"created_at":"2026-11-24T18:50:06.535Z","favorite_topics":["sports.nfl","sports.soccer","sports.ncaab","sports.nba"]}]
+[1440 slow] onboarding after reload: ["NFL","NBA","College basketball","Soccer"]
+node:internal/process/promises:394
+    triggerUncaughtException(err, true /* fromPromise */);
+    ^
+
+locator.waitFor: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for getByTestId('topics-picker').getByRole('button', { name: /^NHL\b/ }).first() to be visible[22m
+
+    at /tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/wt2r2-scripts/race.js:27:74 {
+  log: [
+    "  - waiting for getByTestId('topics-picker').getByRole('button', { name: /^NHL\\b/ }).first() to be visible"
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v22.23.5
+### race3.js 1440x900 gap=0 PATCH_DELAY=0
+[1440 gap=0ms] onboarding settled, clicked NFL, College football, NBA -> server ["sports.nfl","sports.cfb","sports.nba"]
+[1440 gap=0ms] settings before=["sports.nfl","sports.cfb","sports.nba"], clicked +College basketball +Soccer -NFL -> server ["sports.cfb","sports.nba","sports.ncaab","sports.soccer"]
+### race3.js 1440x900 gap=60 PATCH_DELAY=0
+[1440 gap=60ms] onboarding settled, clicked NFL, College football, NBA -> server ["sports.nfl","sports.cfb","sports.nba"]
+[1440 gap=60ms] settings before=["sports.nfl","sports.cfb","sports.nba"], clicked +College basketball +Soccer -NFL -> server ["sports.cfb","sports.nba","sports.ncaab","sports.soccer"]
+### race.js 390x844 fast PATCH_DELAY=300
+[390 fast] onboarding clicked 4: UI right after=["NFL","NBA","College basketball","Soccer"] UI +3s=["NFL","NBA","College basketball","Soccer"] server=[{"user_id":"8d0b209b-bf6f-4cd4-933e-fda7e5a5aa31","accepted_terms_at":"2026-11-24T18:51:21.251Z","onboarded_at":null,"first_bets_at":null,"created_at":"2026-11-24T18:51:21.250Z","favorite_topics":["sports.nfl","sports.soccer","sports.ncaab","sports.nba"]}]
+[390 fast] onboarding after reload: ["NFL","NBA","College basketball","Soccer"]
+node:internal/process/promises:394
+    triggerUncaughtException(err, true /* fromPromise */);
+    ^
+
+locator.waitFor: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for getByTestId('topics-picker').getByRole('button', { name: /^NHL\b/ }).first() to be visible[22m
+
+    at /tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/wt2r2-scripts/race.js:27:74 {
+  log: [
+    "  - waiting for getByTestId('topics-picker').getByRole('button', { name: /^NHL\\b/ }).first() to be visible"
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v22.23.5
+### race.js 390x844 slow PATCH_DELAY=300
+[390 slow] onboarding clicked 4: UI right after=["NFL","NBA","College basketball","Soccer"] UI +3s=["NFL","NBA","College basketball","Soccer"] server=[{"user_id":"c60df9c3-a6c8-40cc-9584-596ce7dfeefe","accepted_terms_at":"2026-11-24T18:52:02.165Z","onboarded_at":null,"first_bets_at":null,"created_at":"2026-11-24T18:52:02.164Z","favorite_topics":["sports.nfl","sports.soccer","sports.ncaab","sports.nba"]}]
+[390 slow] onboarding after reload: ["NFL","NBA","College basketball","Soccer"]
+node:internal/process/promises:394
+    triggerUncaughtException(err, true /* fromPromise */);
+    ^
+
+locator.waitFor: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for getByTestId('topics-picker').getByRole('button', { name: /^NHL\b/ }).first() to be visible[22m
+
+    at /tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/wt2r2-scripts/race.js:27:74 {
+  log: [
+    "  - waiting for getByTestId('topics-picker').getByRole('button', { name: /^NHL\\b/ }).first() to be visible"
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v22.23.5
+### race3.js 390x844 gap=0 PATCH_DELAY=300
+[390 gap=0ms] onboarding settled, clicked NFL, College football, NBA -> server ["sports.nfl","sports.cfb","sports.nba"]
+[390 gap=0ms] settings before=["sports.nfl","sports.cfb","sports.nba"], clicked +College basketball +Soccer -NFL -> server ["sports.cfb","sports.nba","sports.ncaab","sports.soccer"]
+### race3.js 390x844 gap=60 PATCH_DELAY=300
+[390 gap=60ms] onboarding settled, clicked NFL, College football, NBA -> server ["sports.nfl","sports.cfb","sports.nba"]
+[390 gap=60ms] settings before=["sports.nfl","sports.cfb","sports.nba"], clicked +College basketball +Soccer -NFL -> server ["sports.cfb","sports.nba","sports.ncaab","sports.soccer"]
+### race.js 1440x900 fast PATCH_DELAY=300
+[1440 fast] onboarding clicked 4: UI right after=["NFL","NBA","College basketball","Soccer"] UI +3s=["NFL","NBA","College basketball","Soccer"] server=[{"user_id":"7bc56620-8a27-4386-be1c-9b9c560a5214","accepted_terms_at":"2026-11-24T18:53:18.658Z","onboarded_at":null,"first_bets_at":null,"created_at":"2026-11-24T18:53:18.657Z","favorite_topics":["sports.nfl","sports.soccer","sports.ncaab","sports.nba"]}]
+[1440 fast] onboarding after reload: ["NFL","NBA","College basketball","Soccer"]
+node:internal/process/promises:394
+    triggerUncaughtException(err, true /* fromPromise */);
+    ^
+
+locator.waitFor: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for getByTestId('topics-picker').getByRole('button', { name: /^NHL\b/ }).first() to be visible[22m
+
+    at /tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/wt2r2-scripts/race.js:27:74 {
+  log: [
+    "  - waiting for getByTestId('topics-picker').getByRole('button', { name: /^NHL\\b/ }).first() to be visible"
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v22.23.5
+### race.js 1440x900 slow PATCH_DELAY=300
+[1440 slow] onboarding clicked 4: UI right after=["NFL","NBA","College basketball","Soccer"] UI +3s=["NFL","NBA","College basketball","Soccer"] server=[{"user_id":"95847306-f5d4-4ecc-88df-e3de44ebc570","accepted_terms_at":"2026-11-24T18:53:59.696Z","onboarded_at":null,"first_bets_at":null,"created_at":"2026-11-24T18:53:59.695Z","favorite_topics":["sports.nfl","sports.soccer","sports.ncaab","sports.nba"]}]
+[1440 slow] onboarding after reload: ["NFL","NBA","College basketball","Soccer"]
+node:internal/process/promises:394
+    triggerUncaughtException(err, true /* fromPromise */);
+    ^
+
+locator.waitFor: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for getByTestId('topics-picker').getByRole('button', { name: /^NHL\b/ }).first() to be visible[22m
+
+    at /tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/wt2r2-scripts/race.js:27:74 {
+  log: [
+    "  - waiting for getByTestId('topics-picker').getByRole('button', { name: /^NHL\\b/ }).first() to be visible"
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v22.23.5
+### race3.js 1440x900 gap=0 PATCH_DELAY=300
+[1440 gap=0ms] onboarding settled, clicked NFL, College football, NBA -> server ["sports.nfl","sports.cfb","sports.nba"]
+[1440 gap=0ms] settings before=["sports.nfl","sports.cfb","sports.nba"], clicked +College basketball +Soccer -NFL -> server ["sports.cfb","sports.nba","sports.ncaab","sports.soccer"]
+### race3.js 1440x900 gap=60 PATCH_DELAY=300
+[1440 gap=60ms] onboarding settled, clicked NFL, College football, NBA -> server ["sports.nfl","sports.cfb","sports.nba"]
+[1440 gap=60ms] settings before=["sports.nfl","sports.cfb","sports.nba"], clicked +College basketball +Soccer -NFL -> server ["sports.cfb","sports.nba","sports.ncaab","sports.soccer"]

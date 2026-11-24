@@ -1,0 +1,26 @@
+[390 d300 gap0] tapped Tennis, Esports , UFC (2nd PATCH fails). UI at once ["NFL","Tennis","Esports","UFC"]
+   after: UI ["NFL","Tennis"] status="Couldn't save your topics. Check your connection and try again."
+   2656ms PATCH ->ok ["sports.nfl","sports.tennis"]
+   2985ms PATCH ->500 ["sports.nfl","sports.tennis","sports.esports","sports.ufc"]
+   server ["sports.nfl","sports.tennis"] cookie 68718691-1941-49fa-a2d4-0540088c3379|on:sports.nfl,sports.tennis
+[390 d300 gap150] tapped Tennis, Esports , UFC (2nd PATCH fails). UI at once ["NFL","Tennis","Esports","UFC"]
+   after: UI ["NFL","Tennis"] status="Couldn't save your topics. Check your connection and try again."
+   2593ms PATCH ->ok ["sports.nfl","sports.tennis"]
+   2923ms PATCH ->500 ["sports.nfl","sports.tennis","sports.esports","sports.ufc"]
+   server ["sports.nfl","sports.tennis"] cookie c8d46d0c-0615-46a3-b1c9-bc8898d41b6c|on:sports.nfl,sports.tennis
+[1440 d300 gap0] tapped Tennis, Esports , UFC (2nd PATCH fails). UI at once ["NFL","Tennis","Esports","UFC"]
+   after: UI ["NFL","Tennis"] status="Couldn't save your topics. Check your connection and try again."
+   2743ms PATCH ->ok ["sports.nfl","sports.tennis"]
+   3068ms PATCH ->500 ["sports.nfl","sports.tennis","sports.esports","sports.ufc"]
+   server ["sports.nfl","sports.tennis"] cookie 1cfe4be2-3e08-449d-a44d-ad0a39db66ec|on:sports.nfl,sports.tennis
+[1440 d300 gap400] tapped Tennis, Esports , UFC (2nd PATCH fails). UI at once ["NFL","Tennis","UFC"]
+   after: UI ["NFL","Tennis","UFC"] status="3 chosen. They show first in your quick filters."
+   2647ms PATCH ->ok ["sports.nfl","sports.tennis"]
+   3060ms PATCH ->500 ["sports.nfl","sports.tennis","sports.esports"]
+   3467ms PATCH ->ok ["sports.nfl","sports.tennis","sports.ufc"]
+   server ["sports.nfl","sports.tennis","sports.ufc"] cookie c29780d8-04f4-4bdc-aba1-6d8b3bec823a|on:sports.nfl,sports.tennis,sports.ufc
+[1440 d0 gap0] tapped Tennis, Esports , UFC (2nd PATCH fails). UI at once ["NFL","Tennis","Esports","UFC"]
+   after: UI ["NFL","Tennis"] status="Couldn't save your topics. Check your connection and try again."
+   2627ms PATCH ->ok ["sports.nfl","sports.tennis"]
+   2691ms PATCH ->500 ["sports.nfl","sports.tennis","sports.esports","sports.ufc"]
+   server ["sports.nfl","sports.tennis"] cookie 35e761b8-258d-47d7-8fa9-69cabd72de83|on:sports.nfl,sports.tennis
