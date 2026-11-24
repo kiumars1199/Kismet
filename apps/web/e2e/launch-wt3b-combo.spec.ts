@@ -323,6 +323,8 @@ for (const [name, size] of SIZES) {
       await p.waitForTimeout(800);
       const input = p.getByLabel("Add a bet by link or words");
       const note = p.getByTestId("combo-note");
+      // a real keystroke first (the next keystroke gives a refusal's room back, inside the input window), then the pasted value
+      const typeIn = async (value: string) => { await input.press("End"); await input.press("x"); await input.fill(value); };
       const out: string[] = [];
       const step = async (label: string, run: () => Promise<void>, expectNote: RegExp) => {
         const before = await cls(p);
@@ -334,17 +336,17 @@ for (const [name, size] of SIZES) {
         expect(d, label).toBeLessThan(0.02);
       };
       // 404: a link to a market that is not ours
-      await step("404", async () => { await input.fill("https://polymarket.com/event/not-a-real-market-xyz"); await p.getByRole("button", { name: "Add", exact: true }).click(); }, /find an open market/);
+      await step("404", async () => { await typeIn("https://polymarket.com/event/not-a-real-market-xyz"); await p.getByRole("button", { name: "Add", exact: true }).click(); }, /find an open market/);
       // network error
       mode = "abort";
-      await step("network", async () => { await input.fill("https://polymarket.com/event/anything-else-abc"); await p.getByRole("button", { name: "Add", exact: true }).click(); }, /Couldn't reach Kismet/);
+      await step("network", async () => { await typeIn("https://polymarket.com/event/anything-else-abc"); await p.getByRole("button", { name: "Add", exact: true }).click(); }, /Couldn't reach Kismet/);
       mode = "slow";
       // duplicate: search for a bet that is already a leg and tap its result
       const q = await p.evaluate(async ([m, s]) => {
         const r = await fetch("/api/check/leg", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ m, side: Number(s) }) });
         return ((await r.json()) as { market: { question: string } }).market.question;
       }, [picks[0]!.market.id, String(picks[0]!.side.side_index)]);
-      await input.fill(q.split(/\s+/).slice(0, 3).join(" "));
+      await typeIn(q.split(/\s+/).slice(0, 3).join(" "));
       await p.getByRole("button", { name: "Add", exact: true }).click();
       const hit = p.getByTestId("combo-hits").getByRole("button").filter({ hasText: q.slice(0, 25) }).first();
       await expect(hit).toBeVisible({ timeout: 20_000 });
