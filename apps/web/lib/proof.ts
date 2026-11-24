@@ -205,15 +205,16 @@ export function hitRateLive(l: LedgerSummary | null | undefined): string | null 
 }
 
 /** What a return means, in words: "…and overall they made 9.5% on what was staked" / "…but overall they lost 4.2% of what was staked". */
+const oneDec = (x: number) => String(Number(x.toFixed(1)));   // 9.5 -> "9.5", 100 -> "100" (never "100.0")
 const staked = (won: string, roi: number): string =>
   Math.abs(roi) < 0.05 ? `${won}, and overall they about broke even`
-    : roi > 0 ? `${won}, and overall they made ${roi.toFixed(1)}% on what was staked`
-      : `${won}, but overall they lost ${(-roi).toFixed(1)}% of what was staked`;
+    : roi > 0 ? `${won}, and overall they made ${oneDec(roi)}% on what was staked`
+      : `${won}, but overall they lost ${oneDec(-roi)}% of what was staked`;
 
 /** The one plain line above the pricing plans (T-wt1c). The live record leads only once it is comparable by the proof line's own rule
  *  (settled Polymarket US events >= what the test needs: the same rule behind "still too few to judge"); with 1 or 5 settled bets a 100%
  *  hit rate would mislead. Before that, the test's size, win rate and return (a win rate never stands alone: winning often is not
- *  profit), plus "Live record just started" once anything has settled. null with nothing to say. */
+ *  profit), plus "Live record: N settled so far, too few to judge yet." only while that is true (the test has a return to compare with, and the live US events are known and below what it needs). null with nothing to say. */
 export function proofSummary(o: { backtest: BacktestFile | null | undefined; ledger: LedgerSummary | null | undefined }): string | null {
   const proof = siteProof({ backtest: o.backtest, ledger: o.ledger, since: null });
   const b = liveBase(o.ledger);
@@ -221,7 +222,10 @@ export function proofSummary(o: { backtest: BacktestFile | null | undefined; led
   if (proof.enough && b && b.graded && roi !== null) return `Live so far: ${staked(`${pct(b.wins / b.graded)} of ${exactCount(b.graded)} settled best bets won`, roi)}.`;
   const t = o.backtest && o.backtest.results ? chosenResult(o.backtest)?.taker : null;
   if (!t || !t.flags || !ok(t.win_rate) || !ok(t.roi_pct)) return null;
-  return `Tested on ${exactCount(t.flags)} past best bets: ${staked(`${pct(t.win_rate)} won`, t.roi_pct)}.${b && b.graded ? " Live record just started." : ""}`;
+  const us = o.ledger?.us;
+  const events = us?.graded && ok(us.events) ? us.events : null;
+  const tooFew = b && b.graded && proof.needs !== null && events !== null && events < proof.needs;
+  return `Tested on ${exactCount(t.flags)} past best bets: ${staked(`${pct(t.win_rate)} won`, t.roi_pct)}.${tooFew ? ` Live record: ${exactCount(b.graded)} settled so far, too few to judge yet.` : ""}`;
 }
 
 /** FAQ items with the live facts appended to the hit-rate answer, so "most win" and "lost money" sit in one answer. */
