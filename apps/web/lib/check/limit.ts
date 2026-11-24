@@ -4,7 +4,7 @@
 // like the Free "3 exact reveals a day" (lib/data/reveals.ts); a different one is the next check.
 import { e2eMockOn } from "@/lib/e2e-mock";
 import { createHash } from "node:crypto";
-import { clientIp, distinct } from "@/lib/abuse";
+import { clientIp, distinct, peekDistinct } from "@/lib/abuse";
 import { quota, type Tier } from "@/lib/entitlements";
 
 /** The device the signed-out counter is keyed on: the platform IP. Under the e2e mock only (e2eMockOn(): E2E_MOCK=1, in a production build only with E2E_PROD_BUILD=1, never on Vercel)
@@ -34,19 +34,13 @@ export async function countCheck(req: Request, tier: Tier, userId: string | null
   return { ok: r.ok, left: Math.max(0, limit - r.size) };
 }
 
-// T-wt2i: a hint the /check page reads on the server so a Free visitor who has used today's check gets the limit card in the first HTML
-// (no skeleton, no screenful of reserved height that collapses later). Set by /api/check when the allowance is used up; only a hint:
-// the API still answers every check, and a different answer replaces the card.
-export const CHECK_USED_COOKIE = "chk_used";
-export const CHECK_USED_MAX_AGE = 26 * 3_600;
-/** "<utc day>|<market>:<side>": the check that used the allowance. */
-export const checkUsedCookie = (marketId: string, side: number, now = Date.now()) => `${utcDay(now)}|${marketId}:${side}`;
-/** True when today's allowance was used by a different market or side than the one being opened (re-opening that one is free). */
-export function limitHinted(cookie: string | undefined | null, marketId: string | undefined, side: number, now = Date.now()): boolean {
-  if (!cookie || !marketId) return false;
-  const bar = cookie.indexOf("|");
-  if (bar < 0 || cookie.slice(0, bar) !== utcDay(now)) return false;
-  return cookie.slice(bar + 1) !== `${marketId}:${side}`;
+/** Read only: would this check be refused right now (Free's allowance used by another market/side)? Never counts anything.
+ *  false = it would run; null = the store can't say, so callers assume nothing (the page keeps its reserved height until the API answers). */
+export async function checkWouldLimit(req: Request, tier: Tier, userId: string | null | undefined, marketId: string, side: number, now = Date.now()): Promise<boolean | null> {
+  const limit = quota(tier, "checks_day");
+  if (limit === Infinity) return false;
+  const r = await peekDistinct(checkKey(userId, deviceOf(req), now), [`${marketId}:${side}`], limit);
+  return r ? !r.ok : null;
 }
 
 /** A combo counts once, under this key: the sorted market:side list, so the same set in any order is the same check. */

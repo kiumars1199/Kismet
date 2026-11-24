@@ -1,7 +1,7 @@
 "use client";
 // Quick filter chips (docs/04 § Quick filter chips): the user's favorite topics pinned first, then the standard
 // chips, then "+ Save this view". Each chip toggles a FilterState patch. Screener pages render <QuickChips state onChange />.
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { FilterState } from "@/lib/filters/state";
 import { PresetQuotaError, savePresetFromState } from "@/lib/presets";
 import { useProfile } from "@/lib/repo/hooks";
@@ -41,6 +41,19 @@ export function QuickChips({ state, onChange }: { state: FilterState; onChange: 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
+  // Desktop: the row is one scrolling line; "+ Save this view" and "Saved views" stay pinned at its right end, and a fade says there is more.
+  const row = useRef<HTMLDivElement>(null);
+  const [more, setMore] = useState(false);
+  const nChips = favorite_topics.length;
+  useEffect(() => {
+    const el = row.current;
+    if (!el) return;
+    const measure = () => setMore(el.scrollWidth > el.clientWidth + 1);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [nChips]);
 
   const favs = favorite_topics.filter((id) => TAXONOMY[id]).map((id) => topicChip(id));
   const chips = [...favs, ...STANDARD.filter((c) => !favs.some((f) => f.key === c.key))];
@@ -58,7 +71,7 @@ export function QuickChips({ state, onChange }: { state: FilterState; onChange: 
     // One line at every width (T-wt2i): the server renders this row before the profile lands (no favorite chips), and the browser adds them
     // ~450 ms later. With wrapping, 3 saved topics at 1440 pushed the row's last chip (or an empty item) onto a second line and moved the
     // page 8 px (52 px when a wider set wraps). A single scrolling line has the same height with or without them.
-    <div role="group" aria-label="Quick filters" className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:px-0">
+    <div ref={row} role="group" aria-label="Quick filters" className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:px-0">
       {chips.map((c, i) => {
         const on = c.on(state);
         return (
@@ -73,10 +86,13 @@ export function QuickChips({ state, onChange }: { state: FilterState; onChange: 
           </button>
         );
       })}
-      <button type="button" onClick={() => setSaving(true)} className={`${chipClass(false)} flex-none`}>+ Save this view</button>
-      <SavedViews onApply={onChange} className={`${chipClass(false)} flex-none`} />
-      {/* empty:hidden: an empty flex item still takes a gap-2 slot, and when the chips fill the row (3 saved topics at 1440) that slot wrapped to a second line and moved the page 8 px once the profile loaded */}
-      <span role="status" className="flex-none text-[13px] text-accent-softer empty:hidden">{note}</span>
+      <div className="flex flex-none items-center gap-2 md:sticky md:right-0 md:bg-background md:pl-1">
+        {more && <span aria-hidden="true" data-testid="chips-fade" className="pointer-events-none absolute inset-y-0 -left-8 hidden w-8 bg-gradient-to-r from-transparent to-background md:block" />}
+        <button type="button" onClick={() => setSaving(true)} className={`${chipClass(false)} flex-none`}>+ Save this view</button>
+        <SavedViews onApply={onChange} className={`${chipClass(false)} flex-none`} />
+        {/* empty:hidden: an empty flex item still takes a gap-2 slot, and when the chips fill the row (3 saved topics at 1440) that slot wrapped to a second line and moved the page 8 px once the profile loaded */}
+        <span role="status" className="flex-none text-[13px] text-accent-softer empty:hidden">{note}</span>
+      </div>
       <SaveViewDialog open={saving} title="Save this view" name={suggestViewName(state)} error={error} onSubmit={save} onClose={() => { setSaving(false); setError(null); }} />
     </div>
   );

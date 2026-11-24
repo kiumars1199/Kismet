@@ -20,12 +20,12 @@ import { HowToBet } from "./HowToBet";
 type Found = { kind: "ok"; data: CheckResponse } | { kind: "limit" } | { kind: "missing" } | { kind: "error"; text: string } | null;
 const pts = (e: number) => { const v = Math.round(e * 100); return `${v < 0 ? "−" : v > 0 ? "+" : ""}${Math.abs(v)} ${Math.abs(v) === 1 ? "point" : "points"}`; };
 
-export function CheckClient({ limitHinted = false }: { limitHinted?: boolean } = {}) {
+export function CheckClient({ limitedNow = false }: { limitedNow?: boolean } = {}) {
   const sp = useSearchParams();
   const router = useRouter();
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
-  const [found, setFound] = useState<Found>(limitHinted ? { kind: "limit" } : null);   // T-wt2i: the page knows (hint cookie) the day's check is used; /api/check still answers and replaces this if it disagrees
+  const [found, setFound] = useState<Found>(limitedNow ? { kind: "limit" } : null);   // T-wt2i: the server page read the day's limit state (no check consumed); /api/check still answers and replaces this if it disagrees
   const [hits, setHits] = useState<CheckSearchResponse["markets"]>([]);
   const [side, setSide] = useState<0 | 1>(0);
   const [priceText, setPriceText] = useState("");
@@ -83,7 +83,7 @@ export function CheckClient({ limitHinted = false }: { limitHinted?: boolean } =
 
   // A deep link keeps one screen of height (so the footer stays below the fold whether the answer is the tall result, the missing note or the short limit card, and nothing moves when it arrives); the limit card itself is only as tall as its text (T-wt2g), and once it shows the screenful is released (T-wt2i: it left ~550 px of empty space under a 158 px card; the footer rises into view, which the reviewer's 0.02 budget has to absorb, see launch-wt2i).
   return (
-    <div className={`flex flex-col gap-5 [--check-h:1000px] md:[--check-h:700px] [--miss-h:640px] ${deepLink && found?.kind !== "limit" ? "min-h-[100svh]" : ""}`} data-testid="check-page">
+    <div className={`flex flex-col gap-5 [--check-h:1000px] md:[--check-h:700px] [--miss-h:640px] ${deepLink && !(limitedNow && found?.kind === "limit") ? "min-h-[100svh]" : ""}`} data-testid="check-page">
       <form onSubmit={submit} className="flex flex-col gap-2 sm:flex-row">
         <label className="sr-only" htmlFor="check-q">Market link or words</label>
         <input id="check-q" value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste a Polymarket or Kalshi link, or type a team or topic"

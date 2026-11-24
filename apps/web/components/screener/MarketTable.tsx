@@ -287,18 +287,26 @@ export function MarketTable({ items, sort, onSort, onToggleGroup, pro = false, l
 
 function ColumnChooser({ cols }: { cols: { id: string; label: string; pro: boolean; on: boolean; toggle: () => void }[] }) {
   const pick = cols.filter((c) => c.id !== "market" && c.id !== "star");
-  // The menu fits the visible screen wherever it is opened (from the top of the page it ran ~500 px past the bottom): its height is the
-  // room left under the button, measured on open and again while the page scrolls or resizes; the rows scroll inside.
+  // The menu fits the visible screen wherever it is opened. From the top of the page it ran ~500 px past the bottom; capping it at the room
+  // under the button fixed that, but on a short screen (1280x720, button ~64 px above the bottom) the cap left nothing. So it opens upward when
+  // the room above (under the 64 px top bar) is bigger, and is capped at the room on its side either way. Measured on open and again while the
+  // page scrolls or resizes; the rows scroll inside.
   const root = useRef<HTMLDetailsElement>(null);
   const [open, setOpen] = useState(false);
-  const [room, setRoom] = useState<number | undefined>();
-  useEffect(() => {
+  const [fit, setFit] = useState<{ up: boolean; room: number } | undefined>();
+  useLayoutEffect(() => {
     if (!open) return;
-    const fit = () => { const b = root.current?.querySelector("summary")?.getBoundingClientRect(); if (b) setRoom(Math.max(176, Math.floor(window.innerHeight - b.bottom - 16))); };
-    fit();
-    window.addEventListener("scroll", fit, { passive: true });
-    window.addEventListener("resize", fit);
-    return () => { window.removeEventListener("scroll", fit); window.removeEventListener("resize", fit); };
+    const measure = () => {
+      const b = root.current?.querySelector("summary")?.getBoundingClientRect();
+      if (!b) return;
+      const below = Math.floor(window.innerHeight - b.bottom - 12), above = Math.floor(b.top - 72);
+      const up = below < 260 && above > below;
+      setFit({ up, room: Math.max(120, up ? above : below) });
+    };
+    measure();
+    window.addEventListener("scroll", measure, { passive: true });
+    window.addEventListener("resize", measure);
+    return () => { window.removeEventListener("scroll", measure); window.removeEventListener("resize", measure); };
   }, [open]);
   return (
     <details ref={root} className="relative" onToggle={(e) => setOpen(e.currentTarget.open)}>
@@ -306,7 +314,7 @@ function ColumnChooser({ cols }: { cols: { id: string; label: string; pro: boole
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
         <span className="sr-only">Choose columns</span>
       </summary>
-      <div style={room ? { maxHeight: room } : undefined} className="absolute left-0 z-20 mt-1 max-h-[calc(100svh-9rem)] w-64 overflow-y-auto overscroll-contain rounded-input border border-border bg-raised p-3 text-sm">
+      <div style={fit ? { maxHeight: fit.room } : undefined} className={`absolute left-0 z-20 ${fit?.up ? "bottom-full mb-1" : "mt-1"} max-h-[calc(100svh-9rem)] w-64 overflow-y-auto overscroll-contain rounded-input border border-border bg-raised p-3 text-sm`}>
         <fieldset>
           <legend className="mb-1 text-xs text-muted">Main</legend>
           {pick.filter((c) => !c.pro).map((c) => <Check key={c.id} {...c} />)}

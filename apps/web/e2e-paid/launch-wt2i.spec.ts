@@ -144,7 +144,142 @@ test("/markets?q=texans at 1100px with 3 saved topics: CLS <= 0.02, chips stay o
   if (v > 0.02) console.log(await why(page));
   expect(v).toBeLessThanOrEqual(0.02);
   expect(await chipRowHeight(page), "chips row is one line").toBeLessThanOrEqual(52);
+  // the row scrolls sideways here: "+ Save this view" and "Saved views" stay in view at its right end, and a fade says there is more
+  for (const name of ["+ Save this view", "Saved views"]) {
+    const b = (await page.getByRole("button", { name, exact: true }).first().boundingBox())!;
+    expect(b.x >= 0 && b.x + b.width <= 1100, `${name} is inside the screen`).toBe(true);
+  }
+  await expect(page.getByTestId("chips-fade")).toBeVisible();
 });
+
+test("/markets?q=texans at 1280px with 3 saved topics: CLS <= 0.02", async ({ page }) => {
+  test.setTimeout(240_000);
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await signUpWithTopics(page, `wt2i-1280-${Date.now()}@example.com`, THREE);
+  await installCls(page);
+  await page.goto("/markets?q=texans", { waitUntil: "networkidle" });
+  await expect(page.getByRole("heading", { level: 1, name: "All markets" })).toBeVisible();
+  await settle(page);
+  const v = await clsOf(page);
+  console.log(`CLS /markets?q=texans at 1280px: ${v.toFixed(4)}`);
+  if (v > 0.02) console.log(await why(page));
+  expect(v).toBeLessThanOrEqual(0.02);
+});
+
+// Short desktop screens: the room under the button is ~64 px at 1280x720, so the menu opens upward there; it always fits.
+for (const { w, h } of [{ w: 1280, h: 720 }, { w: 1100, h: 800 }]) {
+  test(`/markets column menu fits at ${w}x${h}: opened at the top of the page and after scrolling`, async ({ page }) => {
+    test.setTimeout(240_000);
+    await page.setViewportSize({ width: w, height: h });
+    await signUpWithTopics(page, `wt2i-menu-${w}-${Date.now()}@example.com`, []);
+    await page.goto("/markets", { waitUntil: "networkidle" });
+    await expect(page.locator("tbody tr[data-row]").first()).toBeVisible({ timeout: 30_000 });
+    const choose = page.getByTitle("Choose columns");
+    const fits = async (where: string) => {
+      await choose.click();
+      const panel = page.locator("details[open] > div");
+      await expect(panel).toBeVisible();
+      const b = (await panel.boundingBox())!;
+      console.log(`column menu ${Math.round(b.y)}-${Math.round(b.y + b.height)} of ${h} at ${w} (${where})`);
+      expect(b.y, `menu top is inside the screen (${where})`).toBeGreaterThanOrEqual(0);
+      expect(b.y + b.height, `menu bottom is inside the screen (${where})`).toBeLessThanOrEqual(h);
+      expect(b.height, "the menu is usable (not squeezed)").toBeGreaterThanOrEqual(176);
+      await choose.click();
+      await expect(panel).toBeHidden();
+    };
+    await fits("top of the page");
+    await page.evaluate(() => window.scrollBy(0, 800));
+    await fits("after scrolling");
+  });
+}
+
+// The /check limit card from the server's own read of the day's counter (no hint cookie, nothing consumed by looking).
+async function signIn(page: Page, email: string) {
+  await page.goto("/login");
+  await expect(async () => {
+    await page.getByRole("tab", { name: "Email link" }).click();
+    await expect(page.getByRole("button", { name: "Email me a sign-in link" })).toBeVisible({ timeout: 2_000 });
+  }).toPass({ timeout: 60_000 });
+  await page.getByLabel("Email", { exact: true }).fill(email);
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "Email me a sign-in link" }).click();
+  await expect(page.getByRole("heading", { name: "Check your email" })).toBeVisible({ timeout: 30_000 });
+  const { url } = await (await page.request.get(`/e2e-mock/supabase/_inbox?email=${encodeURIComponent(email)}`)).json();
+  await page.goto(url);
+  await page.waitForURL((u) => u.pathname === "/" || u.pathname === "/bets" || u.pathname === "/onboarding", { timeout: 60_000 });
+}
+const marketIds = async (page: Page) => ((await (await page.request.get("/api/markets?limit=40")).json()).rows as { market: { id: string } }[]).map((x) => x.market.id);
+const checkOnce = (page: Page, m: string) => page.request.post("/api/check", { data: { m, side: 0 }, headers: { Origin: new URL(page.url()).origin } });
+
+for (const { w, h } of [{ w: 390, h: 844 }, { w: 1440, h: 900 }]) {
+  test.describe(`/check limit state at ${w}px`, () => {
+    test.beforeEach(async ({ page }) => { await page.setViewportSize({ width: w, height: h }); });
+
+    test("a second browser (no cookies from the first) opens straight on the limit card: CLS <= 0.02", async ({ page, browser }) => {
+      test.setTimeout(300_000);
+      const device = `wt2i-2nd-${w}-${Date.now()}`;
+      await page.context().setExtraHTTPHeaders({ "x-e2e-device": device });
+      const email = `wt2i-2nd-${w}-${Date.now()}@example.com`;
+      await signUpWithTopics(page, email, []);
+      const ids = await marketIds(page);
+      expect((await checkOnce(page, ids[0]!)).status()).toBe(200);
+      const ctx2 = await browser.newContext({ viewport: { width: w, height: h }, baseURL: new URL(page.url()).origin, extraHTTPHeaders: { "x-e2e-device": device + "-b" } });
+      const p2 = await ctx2.newPage();
+      await installCls(p2);
+      await signIn(p2, email);
+      await skipTour(p2);
+      await installCls(p2);
+      await p2.goto(`/check?m=${ids[1]}&side=0`);
+      await expect(p2.getByTestId("check-upgrade")).toBeVisible({ timeout: 30_000 });
+      await settle(p2, false);
+      const v = await clsOf(p2);
+      console.log(`CLS /check limit, second browser at ${w}px: ${v.toFixed(4)}`);
+      if (v > 0.02) console.log(await why(p2));
+      expect(v).toBeLessThanOrEqual(0.02);
+      await ctx2.close();
+    });
+
+    test("signed out, one check used; then a new Free signup in the same browser: no 'out of checks' flash, CLS <= 0.02", async ({ page }) => {
+      test.setTimeout(300_000);
+      await page.context().setExtraHTTPHeaders({ "x-e2e-device": `wt2i-so-${w}-${Date.now()}` });
+      await signUpWithTopics(page, `wt2i-ids-${w}-${Date.now()}@example.com`, []);   // only to read two market ids (the list needs sign-in)
+      const ids = await marketIds(page);
+      await page.context().clearCookies();   // signed out, same browser and device
+      expect((await checkOnce(page, ids[0]!)).status()).toBe(200);
+      await signUpWithTopics(page, `wt2i-new-${w}-${Date.now()}@example.com`, []);
+      await installCls(page);
+      await page.goto(`/check?m=${ids[1]}&side=0`);
+      await expect(page.getByRole("region", { name: "Check result" })).toBeVisible({ timeout: 30_000 });
+      await expect(page.getByTestId("check-upgrade")).toHaveCount(0);
+      await settle(page, false);
+      const v = await clsOf(page);
+      console.log(`CLS /check, new signup after a signed-out check at ${w}px: ${v.toFixed(4)}`);
+      if (v > 0.02) console.log(await why(page));
+      expect(v).toBeLessThanOrEqual(0.02);
+    });
+
+    test("normal path: a Free user with their check unused gets the result, the same market stays free, CLS <= 0.02", async ({ page }) => {
+      test.setTimeout(300_000);
+      await page.context().setExtraHTTPHeaders({ "x-e2e-device": `wt2i-ok-${w}-${Date.now()}` });
+      await signUpWithTopics(page, `wt2i-ok-${w}-${Date.now()}@example.com`, []);
+      const ids = await marketIds(page);
+      await installCls(page);
+      await page.goto(`/check?m=${ids[0]}&side=0`);
+      await expect(page.getByRole("region", { name: "Check result" })).toBeVisible({ timeout: 30_000 });
+      await settle(page, false);
+      const v = await clsOf(page);
+      console.log(`CLS /check, unused check at ${w}px: ${v.toFixed(4)}`);
+      if (v > 0.02) console.log(await why(page));
+      expect(v).toBeLessThanOrEqual(0.02);
+      // the check is now used: re-opening the SAME market is free (result, not the limit card); another market is the limit card
+      await page.goto(`/check?m=${ids[0]}&side=0`);
+      await expect(page.getByRole("region", { name: "Check result" })).toBeVisible({ timeout: 30_000 });
+      await expect(page.getByTestId("check-upgrade")).toHaveCount(0);
+      await page.goto(`/check?m=${ids[1]}&side=0`);
+      await expect(page.getByTestId("check-upgrade")).toBeVisible({ timeout: 30_000 });
+    });
+  });
+}
 
 test("the check-your-email step's 'Use a different email' is a 44 px target", async ({ page }) => {
   await page.goto("/login");

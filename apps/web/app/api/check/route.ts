@@ -6,7 +6,7 @@ import { sameOrigin } from "@/lib/auth/server";
 import { readJson, TOO_LARGE, tooLarge } from "@/lib/body";
 import { notFound, liveMarketBody, withTier } from "@/lib/data/respond";
 import { MAX_STAKE, MIN_STAKE, validate } from "@/lib/check/compute";
-import { CHECK_USED_COOKIE, CHECK_USED_MAX_AGE, checkUsedCookie, countCheck } from "@/lib/check/limit";
+import { countCheck } from "@/lib/check/limit";
 import { isOpenIn, NOT_OPEN } from "@/lib/check/open";
 import { parseLink, resolveLink } from "@/lib/check/parse-link";
 import { buildCheck } from "@/lib/check/response";
@@ -59,10 +59,6 @@ export async function POST(req: Request) {
       const own = kalshiOwnPrices((await getKalshiIndex())?.rows ?? [], kalshiParts, { index: bs.side_index as 0 | 1, outcome: bs.outcome });
       if (own) out.kalshi = own;
     }
-    // Free, allowance now used: tell the /check page (a hint cookie) so the next different check opens on the limit card at once
-    const headers: Record<string, string> = c.left === 0
-      ? { "Set-Cookie": `${CHECK_USED_COOKIE}=${encodeURIComponent(checkUsedCookie(market.id, side))}; Path=/; Max-Age=${CHECK_USED_MAX_AGE}; SameSite=Lax; HttpOnly${process.env.NODE_ENV === "production" && !process.env.E2E_MOCK ? "; Secure" : ""}` }
-      : {};
-    return Response.json(out, { headers });
+    return Response.json(out);
   });
 }
