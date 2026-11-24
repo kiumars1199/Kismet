@@ -135,3 +135,6 @@ Before hydration a disabled button drops a real tap; it can't queue it. A captur
 
 ## Nov 24, 2026: signed-out "Check this bet" from the locked teaser
 The teaser's own verdict is behind sign-up, but its "Check this bet" link uses the device's one free check on /check (F1). Accepted as intended: the free check is the F1 trial, and it shows one bet per day, not the list.
+
+## Nov 24, 2026: merge #110 (htmlLimitedBots) despite the /m first-byte risk
+With blocking metadata, /m's first byte waits for generateMetadata's load(id). On a cold 120 s cache with the real markets.json this could delay first paint, where today the loading skeleton flushes first. The page body needs the same load either way, so time to real content shouldn't change; only the skeleton goes. The fix removes a ~0.7% hydration error on dynamic routes. Decision: merge on green, then measure /m first byte on production after an idle period of more than 120 s against the pre-merge numbers (warm medians 172–183 ms). If cold first byte grows by more than 1 s, revert by PR and look for a narrower fix.
