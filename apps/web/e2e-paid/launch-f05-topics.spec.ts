@@ -351,3 +351,50 @@ for (const { w, h } of SIZES) for (const method of ["link", "password"] as const
     await expect(pill(page)).toBeVisible({ timeout: 30_000 });
   });
 }
+
+// T-wt2h: the bar says "Your topics (N)" only for the saved set; "Everything" + Apply clears the saved-topics filter.
+const WT2H = path.resolve(process.cwd(), "../../docs/launch/review/wt2h");
+for (const { w, h } of SIZES) {
+  test(`bar label and Everything at ${w}px: hand-picked topics read "2 topics"; Everything on a saved view shows the full list`, async ({ page }) => {
+    test.setTimeout(300_000);
+    await page.setViewportSize({ width: w, height: h });
+    await signUp(page, `f05-every-${w}-${Date.now()}@example.com`);
+    await makePremium(page);
+    for (const re of [/^NFL/, /^Elections/]) {
+      const t = page.getByRole("button", { name: re });
+      await expect(t).toContainText("open", { timeout: 60_000 });
+      await page.waitForTimeout(500);
+      await t.click();
+      await expect(t).toHaveAttribute("aria-pressed", "true", { timeout: 30_000 });
+    }
+    await page.getByRole("button", { name: "Skip setup" }).click();
+    await page.waitForURL(/fav=1/, { timeout: 60_000 });
+    const bar = page.getByTestId("bar-sport");
+    const checked = bar.locator("option:checked");
+    await expect(checked).toHaveText("Your topics (2)", { timeout: 30_000 });
+    const filtered = await page.getByTestId("bar-count").innerText();
+    await page.getByRole("button", { name: "Skip tour" }).click({ timeout: 30_000 });   // the first-run tour covers the page
+    await page.waitForLoadState("networkidle");
+    await page.screenshot({ path: `${WT2H}/${w}-saved-topics-label.png` });
+
+    // Everything + Apply on the saved view: the full list, no pill, no fav=1
+    await hydrated(page.getByTestId("bar-apply"));
+    await bar.selectOption("");
+    await page.getByTestId("bar-apply").click();
+    await expect(page).not.toHaveURL(/fav=1/, { timeout: 30_000 });
+    await expect(pill(page)).toHaveCount(0, { timeout: 30_000 });
+    await expect(bar).toHaveValue("");
+    await expect(checked).toHaveText("Everything");
+    await expect(page.getByTestId("bar-count")).not.toHaveText(filtered, { timeout: 30_000 });
+    console.log(`bar count at ${w}px: saved topics "${filtered}" -> Everything "${await page.getByTestId("bar-count").innerText()}"`);
+    await page.waitForLoadState("networkidle");
+    await page.screenshot({ path: `${WT2H}/${w}-everything-applied.png` });
+
+    // a hand-built list of topics (not the saved set) is "2 topics", not "Your topics"
+    await page.goto("/bets?t=sports.nfl%2Cpolitics.elections");
+    await expect(bar).toHaveValue("multi", { timeout: 30_000 });
+    await expect(checked).toHaveText("2 topics");
+    await expect(pill(page)).toHaveCount(0);
+    await page.screenshot({ path: `${WT2H}/${w}-hand-built-2-topics.png` });
+  });
+}
