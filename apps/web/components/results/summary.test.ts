@@ -56,7 +56,7 @@ describe("event counts: only the US record's", () => {
     expect(usEvents(l)).toBe(10);
     expect(liveHeadline(l, null).sentence).toMatch(/^Return on 772 settled bets logged,/);
     const p = siteProof({ backtest: b, ledger: l, since: NOV17 });
-    expect(p.live).toBe(`Live since Nov 17: 772 settled bets, ${ret(p.liveRoi)}; on Polymarket US 30 settled bets in 10 events, ${ret((0.6 / 24.4) * 100)}, still too few to judge (needs ~${eventsNeeded(taker)} events).`);
+    expect(p.live).toBe(`Live since Nov 17: 772 settled bets, ${ret(p.liveRoi)}; on Polymarket US 30 settled bets in 10 events, ${ret((0.6 / 24.4) * 100)}, still too few to judge (10 of about ${eventsNeeded(taker)} settled events needed so far).`);
     expect(p.enough).toBe(false);
   });
   it("no settled US bets: no events, no 'enough' call, no international-only note", () => {

@@ -37,7 +37,7 @@ const Bell = dynamic(() => import("@/components/header/Bell").then((m) => m.Bell
 });
 
 const navItem = (active: boolean) =>
-  `relative flex min-h-9 items-center gap-1.5 whitespace-nowrap rounded-input px-3 text-sm transition-colors ${active
+  `relative flex min-h-9 items-center gap-1.5 whitespace-nowrap rounded-input px-1.5 text-sm transition-colors xl:px-3 ${active
     ? "bg-nav-active font-medium text-text"
     : "text-muted hover:bg-muted-bg hover:text-text"}`;
 
@@ -54,7 +54,7 @@ export function Header({ signedOutHint = false, hint = null }: { signedOutHint?:
   const signedOut = me ? !!me.auth && !me.user : hint ? !hint.signedIn : signedOutHint;
   const tabs = signedOut ? SALES_TABS : MAIN_TABS;
   return (
-    <header className="flex flex-wrap items-center gap-x-6 gap-y-3 border-b border-border bg-background px-4 py-3 md:px-8 lg:sticky lg:top-0 lg:z-30 lg:h-16 lg:flex-nowrap lg:py-0">
+    <header className="flex flex-wrap items-center gap-x-4 gap-y-3 xl:gap-x-6 border-b border-border bg-background px-4 py-3 md:px-8 lg:sticky lg:top-0 lg:z-30 lg:h-16 lg:flex-nowrap lg:py-0">
       <Logo />
       <nav aria-label="Main" className="hidden min-w-0 items-center gap-1 md:flex lg:overflow-x-auto lg:[scrollbar-width:none]">
         {tabs.map((t) => {

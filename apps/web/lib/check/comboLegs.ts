@@ -37,11 +37,38 @@ export function addStored(legs: StoredLeg[], leg: StoredLeg): { legs: StoredLeg[
   return { legs: [...legs, leg], refused: null };
 }
 
-/** Legs to reserve room for on first paint: one when the URL carries a ?m= leg (the server knows it from searchParams), else none.
- *  Legs kept in this tab's sessionStorage are invisible to the server, and nothing is shared across tabs to guess them: a reload with
- *  stored legs measured the same CLS without a reserve (0.0019 at 390), so there is none. */
-export function reservedLegs(m: string | undefined): number {
-  return m ? 1 : 0;
+/** Legs to reserve room for on first paint: the legs in the URL (?legs=), or one for a ?m= leg. Legs kept in this tab's
+ *  sessionStorage are not known to the server (no cookie: tabs do not share them); the legs region stays hidden until they are in. */
+export function reservedLegs(m: string | undefined, legs?: string): number {
+  return Math.max(m ? 1 : 0, parseLegsParam(legs).length);
+}
+
+/** The legs in the URL: /check/combo?legs=<id>:<side>,<id>:<side> (&check=1 scores them on load). Shared links and reloads carry
+ *  every leg. Ids and sides are validated, duplicates dropped, at most the combo maximum; a missing side means 0. */
+export interface LegRef { m: string; side: 0 | 1 }
+const ID = /^[A-Za-z0-9._-]{1,120}$/;   // market ids never contain ":" (that separates the side)
+
+export function parseLegsParam(v: string | null | undefined): LegRef[] {
+  if (!v) return [];
+  const out: LegRef[] = [];
+  const seen = new Set<string>();
+  for (const part of v.split(",")) {
+    const bits = part.split(":");
+    if (bits.length > 2) continue;
+    const [m, side = "0"] = bits;
+    if (!m || !ID.test(m) || !/^[01]$/.test(side) || seen.has(m)) continue;
+    seen.add(m);
+    out.push({ m, side: side === "1" ? 1 : 0 });
+    if (out.length >= MAX_COMBO_LEGS) break;
+  }
+  return out;
+}
+export const legsParam = (refs: LegRef[]): string => refs.map((r) => `${r.m}:${r.side}`).join(",");
+export function comboUrl(refs: LegRef[], check: boolean): string {
+  if (!refs.length) return "/check/combo";
+  const q = new URLSearchParams({ legs: legsParam(refs) });
+  if (check) q.set("check", "1");
+  return `/check/combo?${q}`;
 }
 
 export const readStored = (): StoredLeg[] => { try { return parseStored(sessionStorage.getItem(STORE_KEY)); } catch { return []; } };

@@ -165,7 +165,7 @@ function Body({ id, legs, onRemove, onClear }: { id: string; legs: Leg[]; onRemo
         <>
           <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm sm:grid-cols-4">
             <div><dt className="text-xs text-muted">Chance to win</dt><dd data-testid="combo-chance" className="font-semibold">{pct(c.q_low)} <span className="font-normal text-muted">(about {winsAbout(c.q_low)})</span></dd></div>
-            <div><dt className="text-xs text-muted">Pays</dt><dd className="font-semibold">{paysX(c.pays)}</dd></div>
+            <div><dt className="text-xs text-muted">Pays</dt><dd data-testid="combo-pays" className="font-semibold">{paysX(c.pays)}</dd></div>
             <div><dt className="text-xs text-muted">Estimated return at {pct(c.q_low)}</dt><dd data-testid="combo-return" className={`font-semibold ${c.ret >= 0 ? "text-accent" : "text-negative"}`}>{ret(c.ret * 100)}</dd></div>
             <div title="The chance to win, against the combo's price after fees. The combo only counts as a better price than usual if the chance still beats the price.">
               <dt className="text-xs text-muted">Against the price</dt>

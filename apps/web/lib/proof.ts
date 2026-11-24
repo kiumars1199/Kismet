@@ -30,7 +30,8 @@ const MIN_TEST = 30;
  */
 export function eventsNeeded(r: Pick<BacktestRecord, "events" | "roi_pct" | "t_stat"> | null | undefined): number | null {
   if (!r || !ok(r.events) || r.events < MIN_TEST || !ok(r.roi_pct) || r.roi_pct <= 0 || !ok(r.t_stat) || r.t_stat <= 0) return null;
-  return Math.max(1, Math.ceil(r.events * (JUDGE_T / r.t_stat) ** 2));
+  // round on the exact value: 75 × (2 ÷ 2.5)² is 48.00000000000001 in floats, which Math.ceil alone turns into 49
+  return Math.max(1, Math.ceil(r.events * (JUDGE_T / r.t_stat) ** 2 - 1e-9));
 }
 
 /**
@@ -163,7 +164,7 @@ export function proofLine(o: {
     const what = `${head}: ${bets(settled)}, ${ret(roi)}${u ? `; on Polymarket US ${bets(u.graded)} in ${evs(events!)}, ${ret(liveReturn(u))}` : ""}`;
     live = needs === null || events === null ? `${what}.`
       : enough ? `${what}, enough to compare with testing.`
-        : `${what}, still too few to judge (needs ~${formatCount(needs)} events).`;
+        : `${what}, still too few to judge (${exactCount(events)} of about ${formatCount(needs)} settled events needed so far).`;
     live += calibration(l) ?? "";
   }
 

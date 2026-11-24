@@ -37,15 +37,18 @@ async function fromCheck(page: Page) {
 /** Signed in: a card's drawer on /bets. */
 async function fromDrawer(page: Page) {
   await page.goto("/bets");
-  await page.locator("[data-row] h3 a").first().click();
   const dialog = page.getByRole("dialog", { name: "Market details" });
+  await expect(async () => {   // a tap before the page has hydrated just follows the link: tap again until the drawer is open
+    if (!(await dialog.isVisible())) await page.locator("[data-row] h3 a").first().click({ timeout: 3_000 });
+    await expect(dialog).toBeVisible({ timeout: 6_000 });
+  }).toPass({ timeout: 60_000 });
   const link = dialog.getByRole("link", { name: "Add to combo checker" });
   await expect(link).toBeVisible({ timeout: 30_000 });
   await expect(dialog.getByRole("button", { name: /^Add to combo tray/ })).toHaveCount(0);   // the Premium tray is not shown to Free or Pro
   // next dev can still be hydrating when the first tap lands: tap again until the page has moved
   await expect(async () => {
     if (!/\/check\/combo/.test(page.url())) await link.click({ timeout: 3_000 });
-    await expect(page).toHaveURL(/\/check\/combo\?m=/, { timeout: 8_000 });
+    await expect(page).toHaveURL(/\/check\/combo\?(m|legs)=/, { timeout: 8_000 });   // the page turns ?m= into ?legs= once the leg is in
   }).toPass({ timeout: 60_000 });
   await expect(page.getByTestId("combo-leg"), `note: ${await page.getByTestId("combo-note").innerText().catch(() => "?")}`).toHaveCount(1, { timeout: 30_000 });
 }
@@ -65,7 +68,7 @@ test("signed out: /check and a bet's page lead to the combo checker at 390 and 1
     await expect(link).toBeVisible();
     await expect(async () => {
       if (!/\/check\/combo/.test(page.url())) await link.click({ timeout: 3_000 });
-      await expect(page).toHaveURL(/\/check\/combo\?m=6674492/, { timeout: 8_000 });
+      await expect(page).toHaveURL(/\/check\/combo\?(m=|legs=)6674492/, { timeout: 8_000 });
     }).toPass({ timeout: 60_000 });
     await expect(page.getByTestId("combo-leg")).toHaveCount(1, { timeout: 30_000 });
     await page.evaluate(() => sessionStorage.clear());
@@ -73,7 +76,7 @@ test("signed out: /check and a bet's page lead to the combo checker at 390 and 1
 });
 
 test("Free, then Pro: both reach the combo checker from /check and the drawer; /combos says what they have; only Free sees the check note", async ({ page }) => {
-  test.setTimeout(420_000);
+  test.setTimeout(600_000);
   await signIn(page, `wt3-${Date.now()}@example.com`);
   const ids = ((await (await page.request.get("/api/markets?limit=20")).json()).rows as { market: { id: string }; side: { side_index: number } }[]);
   expect(ids.length).toBeGreaterThanOrEqual(2);
@@ -98,7 +101,7 @@ test("Free, then Pro: both reach the combo checker from /check and the drawer; /
       await expect(page.getByTestId("combo-leg")).toHaveCount(i + 1, { timeout: 30_000 });
     }
     await expect(page.getByTestId("combo-check-btn")).toBeVisible();
-    if (plan === "free") await expect(page.getByTestId("combo-free-note")).toHaveText("Free includes 1 check a day; this combo counts as one.");
+    if (plan === "free") await expect(page.getByTestId("combo-free-note")).toHaveText("Free includes 1 check a day (a bet or a combo); this combo counts as one.");
     else await expect(page.getByTestId("combo-free-note")).toHaveText("");
     await page.evaluate(() => sessionStorage.clear());
     if (plan === "free") {
@@ -175,7 +178,7 @@ async function headerAt(page: Page, w: number, path: string, plan: string) {
   expect(m.hasLink, tag).toBe(true);
   expect(m.shown, `link shown only from 1440 (${tag})`).toBe(w >= 1440);
   expect(m.withLink.h, `header no taller than final (${tag})`).toBeLessThanOrEqual(m.without.h);
-  expect(m.withLink.clipped, `no nav item clips (${tag})`).toBe(m.without.clipped);
+  expect(m.withLink.clipped, `no nav item clips (${tag})`).toBe(false);   // T-wt3c: no plan clips its nav at 768 to 1440
   if (m.withLink.search !== null && m.without.search !== null) {
     expect(m.withLink.search, `search no narrower than final (${tag})`).toBeGreaterThanOrEqual(Math.min(m.without.search, 120));
   }
@@ -245,4 +248,29 @@ test("Free: first leg, 2nd leg and scoring each shift the page < 0.02 at 390 and
     expect(worst.second).toBeLessThan(0.02);
     expect(worst.scoring).toBeLessThan(0.02);
   }
+});
+
+// T-wt3b: Free's note before the check and the box after the limit open with the same sentence, and after the 429 the legs keep the
+// chance and payout they were scored with.
+test("Free: note and limit box say one thing; after the limit the legs keep their chance and payout", async ({ page }) => {
+  test.setTimeout(240_000);
+  await signIn(page, `wt3b-free-${Date.now()}@example.com`);
+  const all = ((await (await page.request.get("/api/markets?limit=20")).json()).rows as { market: { id: string; event_id: string }; side: { side_index: number } }[]);
+  const [a, b, c] = all.filter((r, i) => all.findIndex((x) => x.market.event_id === r.market.event_id) === i);
+  const q = (rs: typeof all) => rs.map((r) => `${r.market.id}:${r.side.side_index}`).join(",");
+  await page.goto(`/check/combo?legs=${q([a!, b!])}`);
+  await expect(page.getByTestId("combo-leg")).toHaveCount(2, { timeout: 30_000 });
+  await expect(page.getByTestId("combo-free-note")).toHaveText("Free includes 1 check a day (a bet or a combo); this combo counts as one.", { timeout: 30_000 });
+  await page.getByTestId("combo-check-btn").click();
+  await expect(page.getByTestId("combo-score")).toBeVisible({ timeout: 30_000 });   // the day's check, used
+  // add a third bet in the same page (no reload): a different set, so the limit answers 429
+  await page.evaluate(([m, side]) => window.history.pushState(null, "", `/check/combo?m=${m}&side=${side}`), [c!.market.id, String(c!.side.side_index)]);
+  await expect(page.getByTestId("combo-leg")).toHaveCount(3, { timeout: 30_000 });
+  await page.getByTestId("combo-check-btn").click();
+  const box = page.getByTestId("check-upgrade");
+  await expect(box).toBeVisible({ timeout: 30_000 });
+  await expect(box).toContainText("Free includes 1 check a day (a bet or a combo), and you've used it.");
+  expect(await box.innerText()).toContain("Pro and Premium check as many bets and combos as you like.");
+  const subs = await page.getByTestId("combo-leg").locator("p").filter({ hasText: /^Bet / }).allInnerTexts();
+  expect(subs.slice(0, 2).every((t) => /% chance/.test(t) && /pays /.test(t)), `the first two legs keep their numbers: ${subs.join(" | ")}`).toBe(true);
 });

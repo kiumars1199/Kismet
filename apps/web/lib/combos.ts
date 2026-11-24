@@ -4,6 +4,7 @@
 // them, the tray refuses them (legProblem), and combo() still reports any that slip in (an old saved tray).
 // One chance everywhere (Marc #15, #74): the return, "wins about" and every leg's chance use the cautious chance.
 import { pct } from "@/lib/format";
+import { betQuote } from "@/lib/betFigures";
 import { feeCents } from "@/lib/trade/intent";
 import type { Side, StoreMarket } from "@/lib/types";
 
@@ -22,11 +23,16 @@ export const COMBO_PAYS = [2, 3, 5, 10] as const;
 export type ComboPays = (typeof COMBO_PAYS)[number];
 export const MAX_LEGS = 6;
 
-export const legOf = (m: Pick<StoreMarket, "id" | "question" | "event_id" | "event" | "url" | "kalshi_ticker"> & Partial<Pick<StoreMarket, "closes_at">>, s: Side): Leg => ({
-  market_id: m.id, side_index: s.side_index, question: m.question, outcome: s.outcome, event_id: m.event_id, event: m.event,
-  url: m.url, kalshi_ticker: m.kalshi_ticker ?? null, ask: s.ask, fee: s.fee, q: s.win_prob, q_low: s.win_prob_low,
-  ...(m.closes_at ? { closes_at: m.closes_at } : {}),
-});
+/** A leg is priced where its card prices it (betQuote: the US price and fee on a US card, else the international one): the same ask and
+ *  fee the combo checker uses (lib/check/compute.ts baseOf), so the tray and the checker pay the same (T-wt3c). */
+export const legOf = (m: Pick<StoreMarket, "id" | "question" | "event_id" | "event" | "url" | "kalshi_ticker"> & Partial<Pick<StoreMarket, "closes_at" | "us" | "best">>, s: Side): Leg => {
+  const q = betQuote(m.best ? { us: m.us, best: m.best } : null, s);
+  return {
+    market_id: m.id, side_index: s.side_index, question: m.question, outcome: s.outcome, event_id: m.event_id, event: m.event,
+    url: m.url, kalshi_ticker: m.kalshi_ticker ?? null, ask: q.ask ?? s.ask, fee: q.fee ?? s.fee, q: s.win_prob, q_low: s.win_prob_low,
+    ...(m.closes_at ? { closes_at: m.closes_at } : {}),
+  };
+};
 
 export interface Combo {
   legs: number;
@@ -41,10 +47,14 @@ export interface Combo {
 
 const prod = (xs: number[]) => xs.reduce((a, b) => a * b, 1);
 
+/** The one payout rule for a combo (tray, suggested combos and the combo checker): every leg bought at its price plus fee and the
+ *  winnings rolled into the next, so the combo's price is the product of (ask + fee) and it pays 1 / price. */
+export const comboPrice = (legs: { ask: number; fee: number }[]): number => prod(legs.map((l) => l.ask + l.fee));
+
 export function combo(legs: Pick<Leg, "ask" | "fee" | "q" | "q_low" | "event_id" | "event">[]): Combo {
   const q = prod(legs.map((l) => l.q));
   const q_low = prod(legs.map((l) => l.q_low));
-  const price = prod(legs.map((l) => l.ask + l.fee));
+  const price = comboPrice(legs);
   const ret = price > 0 ? q_low / price - 1 : 0;
   const seen = new Map<string, number>();
   for (const l of legs) seen.set(l.event_id, (seen.get(l.event_id) ?? 0) + 1);
@@ -104,7 +114,7 @@ export function legProblem(leg: Pick<Leg, "market_id" | "event_id" | "event" | "
   if (leg.closes_at !== undefined && leg.closes_at <= now) return "This market has closed, so it can't go in a combo.";
   if (pastDated(`${leg.question} ${leg.event}`, now, leg.closes_at)) return "This market's date has passed, so it can't go in a combo.";
   if (legs.some((l) => l.market_id !== leg.market_id && l.event_id === leg.event_id))
-    return "Your combo already has a bet from this event. Results in one event move together, so pick a different event.";
+    return "Your combo already has a bet from this event. Results in one event move together, so pick a different event. You can still check them together in the combo checker.";
   return null;
 }
 /** A saved leg that can no longer be bet: closed, or its date has passed. */
