@@ -1,0 +1,51 @@
+signed in wt3r2-pro-1795529582519@example.com tier=pro
+
+===== pro @ 1440 =====
+pro 1440 [home] {"url":"/","cls":0.0004,"shifts":["0.0004 DIV y10->10 h44->44"],"disc":true,"cents":false,"hs":false,"h1":"34 bets where the odds lean your way"}
+  header: {"h":64,"links":["Kismet 94x44@10","Best bets 87x36@14","All markets 97x36@14","My list 67x36@14","My bets 77x36@14","Results 72x36@14","Check a bet 103x36@14","Kalshi 64x36@14","Updated 1 h ago 126x44@10","Alerts 44x44@10","Account 79x44@10"]}
+  small on /: ["a:\"Best bets\" 87x36","a:\"All markets\" 97x36","a:\"My list\" 67x36","a:\"My bets\" 77x36","a:\"Results\" 72x36","a:\"Check a bet\" 103x36","a:\"Kalshi\" 64x36","inline a:\"source\" 39x15","a:\"How it works\" 82x24","a:\"Pricing\" 47x24","a:\"Check a bet\" 76x24","a:\"Check a combo\" 97x24","a:\"Terms\" 43x24","a:\"Privacy\" 50x24","a:\"Refunds\" 55x24","a:\"Disclaimer\" 67x24","a:\"Contact\" 53x24","a:\"Status\" 44x24","a:\"Kalshi markets\" 91x24"]
+  first best-bet card: "Miami (OH) to win the 1st quarter"
+  drawer combo controls: ["Add to combo checker 198x44 /check/combo?m=7077574&side=0"]
+pro 1440 [drawer] {"url":"/?m=7077574&side=0","cls":0.0004,"shifts":["0.0004 DIV y10->10 h44->44"],"disc":true,"cents":false,"hs":false}
+  CLS[leg 1 via Best bets drawer (nav)] 0 []
+  after leg 1: url /check/combo?legs=7077574%3A0 legs ["Miami (OH) vs. Kent State: 1Q Moneyline Bet Miami (OH) at 69% ✕"]
+pro 1440 [checker-1leg] {"url":"/check/combo?legs=7077574%3A0","cls":0.0004,"shifts":["0.0004 DIV y10->10 h44->44"],"disc":true,"cents":false,"hs":false}
+  CLS[search "Colts"] 0 []
+  CLS[add hit /Colts vs\. Texans/] 0 []
+  added /Colts vs\. Texans/: legs 2 note "" url /check/combo?legs=7077574%3A0%2C6417673%3A1
+  CLS[search "Denmark"] 0 []
+  CLS[add hit /O\/U 2\.5/] 0 []
+  added /O\/U 2\.5/: legs 3 note "" url /check/combo?legs=7077574%3A0%2C6417673%3A1%2C6674501%3A1
+  legs: ["Miami (OH) vs. Kent State: 1Q Moneyline Bet Miami (OH) at 69% ✕","Colts vs. Texans Bet Texans at 85% ✕","Denmark vs. Norway: Denmark O/U 2.5 Bet Under at 75% ✕"]
+  small on checker: ["a:\"Best bets\" 86x36","a:\"All markets\" 97x36","a:\"My list\" 67x36","a:\"My bets\" 77x36","a:\"Results\" 72x36","a:\"Check a bet\" 103x36","a:\"Kalshi\" 64x36","inline a:\"source\" 39x15","a:\"How it works\" 82x24","a:\"Pricing\" 47x24","a:\"Check a bet\" 76x24","a:\"Check a combo\" 97x24","a:\"Terms\" 43x24","a:\"Privacy\" 50x24","a:\"Refunds\" 55x24","a:\"Disclaimer\" 67x24","a:\"Contact\" 53x24","a:\"Status\" 44x24","a:\"Kalshi markets\" 91x24"]
+  check btn {"y":599,"h":44,"b":643}; free-note ""
+    < 200 /api/check/combo
+  CLS[Check this combo (3 legs)] 0 []
+  RESULT 3 legs: {"chance":"70%","mult":"2.13x","edge":"+23 points","score":"83","drop":"Weakest leg: “Colts vs. Texans”. Without it: 74% chance, pays 1.83x, score 89.\n\nDrop that leg","same-event":null} url /check/combo?legs=7077574%3A0%2C6417673%3A1%2C6674501%3A1&check=1
+  CLS[open Why] 0 []
+  WHY: "Why these numbers?\n\nPays 1.41x × 1.16x × 1.30x = 2.13x: each leg's payout after its fee, multiplied.\n\nCombined chance 84% × 95% × 87% = 70%.\n\nCombos use each bet's cautious chance, a little below its card, because small errors multiply.\n\nScore sample: the smallest leg, about 130 similar past bets.\n\nMiami (OH) vs. Kent State: 1Q Moneyline (Miami (OH)): about 274 similar past bets in College football in-game bets\nColts vs. Texans (Texans): about 130 similar past bets in NFL match-winner bets\nDenmark vs. Norway: Denmark O/U 2.5 (Under): about 350 similar past bets in UEFA Nations League over/under bets"
+pro 1440 [checker-scored] {"url":"/check/combo?legs=7077574%3A0%2C6417673%3A1%2C6674501%3A1&check=1","cls":0.0004,"shifts":["0.0004 DIV y10->10 h44->44"],"disc":true,"cents":false,"hs":false}
+  share button: 1 {"y":708,"h":44,"b":752} label "Copy link"
+  CLS[Copy link] 0 []
+  copied "Link copied" link http://localhost:3741/check/combo?legs=7077574%3A0%2C6417673%3A1%2C6674501%3A1&check=1
+  shared link as pro (new tab): legs 3 mult 2.13x chance 70% cls {"cls":0.005,"n":3,"s":["0.0004 DIV y10->10 h44->44","0.0016 DIV y863->807 h18->74","0.0029 DIV y807->0 h74->0"]}
+  shared link signed out: legs 3 mult null button true cls {"cls":0.0016,"n":1,"s":["0.0016 DIV y863->807 h18->74"]} main "Combo checker\n\nEvery leg has to win, so the payout is bigger and the chance is lower.\n\nAdd a bet by link or words\nAdd\n\nMiami (OH) vs. Kent State: 1Q Moneyline\n\nBet Miami (OH) at 69%\n\n✕\n\nColts vs. Texans\n\nBet Texans at 85%\n\n✕\n\nDenmark vs. Norway: Denmark O/U 2.5\n\nBet Under at 75%\n\n✕\n\nReady when you are.\n\nFree includes 1 check a day (a bet or a combo); this combo counts as one.\n\nCheck this combo\nCop"
+    < 200 /api/check/combo
+  RELOAD /check/combo?legs=7077574%3A0%2C6417673%3A1%2C6674501%3A1&check=1: legs 3 -> 3; note ""; result kept {"chance":"70%","mult":"2.13x","edge":"+23 points","score":"83","drop":"Weakest leg: “Colts vs. Texans”. Without it: 74% chance, pays 1.83x, score 89.\n\nDrop that leg","same-event":null}; url now /check/combo?legs=7077574%3A0%2C6417673%3A1%2C6674501%3A1&check=1; cls {"cls":0.0079,"n":3,"s":["0.0004 DIV y10->10 h44->44","0.0016 DIV y660->604 h18->74","0.0059 DIV y604->708 h74->74"]}
+  CLS[remove leg 1] 0 []
+  after remove: legs ["Colts vs. Texans Bet Texans at 85% · 95%","Denmark vs. Norway: Denmark O/U 2.5 Bet "] url /check/combo?legs=6417673%3A1%2C6674501%3A1&check=1 result {"chance":"83%","mult":"1.51x","edge":"+17 points","score":"74","drop":null,"same-event":null}
+    < 200 /api/check/combo
+  removed "Miami (OH) vs. Kent State: 1Q Moneyline "; after reload legs 2: back? false url /check/combo?legs=6417673%3A1%2C6674501%3A1&check=1
+  CLS[search "Denmark"] 0 []
+  CLS[add hit /Both Teams to Score(?! in)/] 0 []
+  added /Both Teams to Score(?! in)/: legs 3 note "" url /check/combo?legs=6417673%3A1%2C6674501%3A1%2C6674492%3A0
+  legs: ["Colts vs. Texans Bet Texans at 85% · 95% chance (c","Denmark vs. Norway: Denmark O/U 2.5 Bet Under at 7","Denmark vs. Norway: Both Teams to Score Bet Yes at"]
+  same-event note before check: "Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off. Drop one of the two Denmark vs. Norway bets."
+    < 200 /api/check/combo
+  CLS[Check this combo (same-event pair)] 0 []
+  RESULT same-event: {"chance":"73%","mult":"2.19x","edge":"+27 points","score":"—","drop":null,"same-event":"Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off. Drop one of the two Denmark vs. Norway bets. \"Denmark vs. Norway: Denmark O/U 2.5\" (Under) is the weaker one."}
+pro 1440 [checker-end] {"url":"/check/combo?legs=6417673%3A1%2C6674501%3A1%2C6674492%3A0&check=1","cls":0.002,"shifts":["0.0004 DIV y10->10 h44->44","0.0016 DIV y660->604 h18->74"],"disc":true,"cents":false,"hs":false}
+  small on checker end: ["a:\"Best bets\" 86x36","a:\"All markets\" 97x36","a:\"My list\" 67x36","a:\"My bets\" 77x36","a:\"Results\" 72x36","a:\"Check a bet\" 103x36","a:\"Kalshi\" 64x36","inline a:\"source\" 39x15","a:\"How it works\" 82x24","a:\"Pricing\" 47x24","a:\"Check a bet\" 76x24","a:\"Check a combo\" 97x24","a:\"Terms\" 43x24","a:\"Privacy\" 50x24","a:\"Refunds\" 55x24","a:\"Disclaimer\" 67x24","a:\"Contact\" 53x24","a:\"Status\" 44x24","a:\"Kalshi markets\" 91x24"]
+pro 1440 [/combos] {"url":"/combos","cls":0.0004,"shifts":["0.0004 DIV y10->10 h44->44"],"disc":true,"cents":false,"hs":false}
+pro 1440 [/check] {"url":"/check","cls":0.0004,"shifts":["0.0004 DIV y10->10 h44->44"],"disc":true,"cents":false,"hs":false}
+ERRORS pro: []

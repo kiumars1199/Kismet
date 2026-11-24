@@ -1,0 +1,163 @@
+signed in r125-same-1795530097038@example.com tier=pro
+390 fourSame delay 600 top r0: CLS 0.0108 [{"t":709,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSame delay 600 top r1: CLS 0.0108 [{"t":663,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSame delay 600 top r2: CLS 0.0108 [{"t":688,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSame delay 600 scrolled r0: CLS 0.0108 [{"t":674,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSame delay 600 scrolled r1: CLS 0.0108 [{"t":659,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSame delay 600 scrolled r2: CLS 0.0108 [{"t":666,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSame delay 1000 top r0: CLS 0.0108 [{"t":1094,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSame delay 1000 top r1: CLS 0.0108 [{"t":1067,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSame delay 1000 top r2: CLS 0.0108 [{"t":1075,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSame delay 1000 scrolled r0: CLS 0.0108 [{"t":1077,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSame delay 1000 scrolled r1: CLS 0.0108 [{"t":1067,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSame delay 1000 scrolled r2: CLS 0.0108 [{"t":1055,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSame delay 1500 top r0: CLS 0.0108 [{"t":1567,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+   note before: "Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off. Drop one of the two Denmark vs. Norway bets."
+   note after:  "Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off. Drop one of the two Denmark vs. Norway bets. \"Denmark vs. Norway: O/U 2.5\" (Over) is the weaker one."
+390 fourSame delay 1500 top r1: CLS 0.0108 [{"t":1566,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSame delay 1500 top r2: CLS 0.0108 [{"t":1553,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSame delay 1500 scrolled r0: CLS 0.0108 [{"t":1558,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSame delay 1500 scrolled r1: CLS 0.0108 [{"t":1574,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSame delay 1500 scrolled r2: CLS 0.0108 [{"t":1664,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSame delay 3000 top r0: CLS 0.0108 [{"t":3158,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSame delay 3000 top r1: CLS 0.0108 [{"t":3061,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSame delay 3000 top r2: CLS 0.0108 [{"t":3081,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSame delay 3000 scrolled r0: CLS 0.0108 [{"t":3102,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSame delay 3000 scrolled r1: CLS 0.0108 [{"t":3089,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSame delay 3000 scrolled r2: CLS 0.0108 [{"t":3076,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+== 390 fourSame: {"n":24,"max":0.0108,"mean":0.0108}
+390 threeSame delay 600 top r0: CLS 0.0108 [{"t":795,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 threeSame delay 600 top r1: CLS 0.0108 [{"t":778,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 threeSame delay 600 top r2: CLS 0.0108 [{"t":806,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 threeSame delay 600 scrolled r0: CLS 0.0108 [{"t":762,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 threeSame delay 600 scrolled r1: CLS 0.0108 [{"t":759,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 threeSame delay 600 scrolled r2: CLS 0.0108 [{"t":738,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 threeSame delay 1000 top r0: CLS 0.0108 [{"t":1157,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 threeSame delay 1000 top r1: CLS 0.0108 [{"t":1141,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 threeSame delay 1000 top r2: CLS 0.0108 [{"t":1183,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 threeSame delay 1000 scrolled r0: CLS 0.0108 [{"t":1179,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 threeSame delay 1000 scrolled r1: CLS 0.0108 [{"t":1170,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 threeSame delay 1000 scrolled r2: CLS 0.0108 [{"t":1167,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 threeSame delay 1500 top r0: CLS 0.0108 [{"t":1670,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+   note before: "Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off. Drop one of the two Denmark vs. Norway bets."
+   note after:  "Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off. Drop one of the two Denmark vs. Norway bets. \"Denmark vs. Norway: O/U 2.5\" (Over) is the weaker one."
+390 threeSame delay 1500 top r1: CLS 0.0108 [{"t":1688,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 threeSame delay 1500 top r2: CLS 0.0108 [{"t":1663,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 threeSame delay 1500 scrolled r0: CLS 0.0108 [{"t":1656,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 threeSame delay 1500 scrolled r1: CLS 0.0108 [{"t":1652,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 threeSame delay 1500 scrolled r2: CLS 0.0108 [{"t":1702,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 threeSame delay 3000 top r0: CLS 0.0108 [{"t":3181,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 threeSame delay 3000 top r1: CLS 0.0108 [{"t":3181,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 threeSame delay 3000 top r2: CLS 0.0108 [{"t":3216,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 threeSame delay 3000 scrolled r0: CLS 0.0108 [{"t":3182,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 threeSame delay 3000 scrolled r1: CLS 0.0108 [{"t":3167,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 threeSame delay 3000 scrolled r2: CLS 0.0108 [{"t":3165,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+== 390 threeSame: {"n":24,"max":0.0108,"mean":0.0108}
+390 twoSame delay 600 top r0: CLS 0 []
+390 twoSame delay 600 top r1: CLS 0 []
+390 twoSame delay 600 top r2: CLS 0 []
+390 twoSame delay 600 scrolled r0: CLS 0 []
+390 twoSame delay 600 scrolled r1: CLS 0 []
+390 twoSame delay 600 scrolled r2: CLS 0 []
+390 twoSame delay 1000 top r0: CLS 0 []
+390 twoSame delay 1000 top r1: CLS 0 []
+390 twoSame delay 1000 top r2: CLS 0 []
+390 twoSame delay 1000 scrolled r0: CLS 0 []
+390 twoSame delay 1000 scrolled r1: CLS 0 []
+390 twoSame delay 1000 scrolled r2: CLS 0 []
+390 twoSame delay 1500 top r0: CLS 0 []
+   note before: "Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off. Drop one of the two Denmark vs. Norway bets."
+   note after:  "Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off. Drop one of the two Denmark vs. Norway bets. \"Denmark vs. Norway: O/U 2.5\" (Over) is the weaker one."
+390 twoSame delay 1500 top r1: CLS 0 []
+390 twoSame delay 1500 top r2: CLS 0 []
+390 twoSame delay 1500 scrolled r0: CLS 0 []
+390 twoSame delay 1500 scrolled r1: CLS 0 []
+390 twoSame delay 1500 scrolled r2: CLS 0 []
+390 twoSame delay 3000 top r0: CLS 0 []
+390 twoSame delay 3000 top r1: CLS 0 []
+390 twoSame delay 3000 top r2: CLS 0 []
+390 twoSame delay 3000 scrolled r0: CLS 0 []
+390 twoSame delay 3000 scrolled r1: CLS 0 []
+390 twoSame delay 3000 scrolled r2: CLS 0 []
+== 390 twoSame: {"n":24,"max":0,"mean":0}
+390 fourSameAlt delay 600 top r0: CLS 0.0108 [{"t":660,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSameAlt delay 600 top r1: CLS 0.0108 [{"t":705,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSameAlt delay 600 top r2: CLS 0.0108 [{"t":669,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSameAlt delay 600 scrolled r0: CLS 0.0108 [{"t":655,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSameAlt delay 600 scrolled r1: CLS 0.0108 [{"t":697,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSameAlt delay 600 scrolled r2: CLS 0.0108 [{"t":695,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSameAlt delay 1000 top r0: CLS 0.0108 [{"t":1066,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSameAlt delay 1000 top r1: CLS 0.0108 [{"t":1090,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSameAlt delay 1000 top r2: CLS 0.0108 [{"t":1063,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSameAlt delay 1000 scrolled r0: CLS 0.0108 [{"t":1146,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSameAlt delay 1000 scrolled r1: CLS 0.0108 [{"t":1109,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSameAlt delay 1000 scrolled r2: CLS 0.0108 [{"t":1158,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSameAlt delay 1500 top r0: CLS 0.0108 [{"t":1593,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+   note before: "Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off. Drop one of the two Denmark vs. Norway bets."
+   note after:  "Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off. Drop one of the two Denmark vs. Norway bets. \"Denmark vs. Norway: Denmark O/U 2.5\" (Under) is the weaker one."
+390 fourSameAlt delay 1500 top r1: CLS 0.0108 [{"t":1577,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSameAlt delay 1500 top r2: CLS 0.0108 [{"t":1576,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSameAlt delay 1500 scrolled r0: CLS 0.0108 [{"t":1576,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSameAlt delay 1500 scrolled r1: CLS 0.0108 [{"t":1596,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSameAlt delay 1500 scrolled r2: CLS 0.0108 [{"t":1568,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSameAlt delay 3000 top r0: CLS 0.0108 [{"t":3094,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSameAlt delay 3000 top r1: CLS 0.0108 [{"t":3093,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSameAlt delay 3000 top r2: CLS 0.0108 [{"t":3080,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSameAlt delay 3000 scrolled r0: CLS 0.0108 [{"t":3065,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSameAlt delay 3000 scrolled r1: CLS 0.0108 [{"t":3083,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+390 fourSameAlt delay 3000 scrolled r2: CLS 0.0108 [{"t":3052,"v":0.0108,"input":false,"src":"DIV y776->0 h68->0"}]
+== 390 fourSameAlt: {"n":24,"max":0.0108,"mean":0.0108}
+390 four delay 600 top r0: CLS 0.0102 [{"t":694,"v":0.0102,"input":false,"src":"DIV y776->0 h68->0"}]
+390 four delay 600 top r1: CLS 0.0102 [{"t":719,"v":0.0102,"input":false,"src":"DIV y776->0 h68->0"}]
+390 four delay 600 top r2: CLS 0.0102 [{"t":742,"v":0.0102,"input":false,"src":"DIV y776->0 h68->0"}]
+390 four delay 600 scrolled r0: CLS 0.0102 [{"t":674,"v":0.0102,"input":false,"src":"DIV y776->0 h68->0"}]
+390 four delay 600 scrolled r1: CLS 0.0102 [{"t":752,"v":0.0102,"input":false,"src":"DIV y776->0 h68->0"}]
+390 four delay 600 scrolled r2: CLS 0.0102 [{"t":677,"v":0.0102,"input":false,"src":"DIV y776->0 h68->0"}]
+390 four delay 1000 top r0: CLS 0.0102 [{"t":1098,"v":0.0102,"input":false,"src":"DIV y776->0 h68->0"}]
+390 four delay 1000 top r1: CLS 0.0102 [{"t":1095,"v":0.0102,"input":false,"src":"DIV y776->0 h68->0"}]
+390 four delay 1000 top r2: CLS 0.0102 [{"t":1115,"v":0.0102,"input":false,"src":"DIV y776->0 h68->0"}]
+390 four delay 1000 scrolled r0: CLS 0.0102 [{"t":1065,"v":0.0102,"input":false,"src":"DIV y776->0 h68->0"}]
+390 four delay 1000 scrolled r1: CLS 0.0102 [{"t":1106,"v":0.0102,"input":false,"src":"DIV y776->0 h68->0"}]
+390 four delay 1000 scrolled r2: CLS 0.0102 [{"t":1150,"v":0.0102,"input":false,"src":"DIV y776->0 h68->0"}]
+390 four delay 1500 top r0: CLS 0.0102 [{"t":1649,"v":0.0102,"input":false,"src":"DIV y776->0 h68->0"}]
+   note before: null
+   note after:  null
+390 four delay 1500 top r1: CLS 0.0102 [{"t":1575,"v":0.0102,"input":false,"src":"DIV y776->0 h68->0"}]
+390 four delay 1500 top r2: CLS 0.0102 [{"t":1558,"v":0.0102,"input":false,"src":"DIV y776->0 h68->0"}]
+390 four delay 1500 scrolled r0: CLS 0.0102 [{"t":1592,"v":0.0102,"input":false,"src":"DIV y776->0 h68->0"}]
+390 four delay 1500 scrolled r1: CLS 0.0102 [{"t":1571,"v":0.0102,"input":false,"src":"DIV y776->0 h68->0"}]
+390 four delay 1500 scrolled r2: CLS 0.0102 [{"t":1580,"v":0.0102,"input":false,"src":"DIV y776->0 h68->0"}]
+390 four delay 3000 top r0: CLS 0.0102 [{"t":3059,"v":0.0102,"input":false,"src":"DIV y776->0 h68->0"}]
+390 four delay 3000 top r1: CLS 0.0102 [{"t":3090,"v":0.0102,"input":false,"src":"DIV y776->0 h68->0"}]
+390 four delay 3000 top r2: CLS 0.0102 [{"t":3071,"v":0.0102,"input":false,"src":"DIV y776->0 h68->0"}]
+390 four delay 3000 scrolled r0: CLS 0.0102 [{"t":3100,"v":0.0102,"input":false,"src":"DIV y776->0 h68->0"}]
+390 four delay 3000 scrolled r1: CLS 0.0102 [{"t":3064,"v":0.0102,"input":false,"src":"DIV y776->0 h68->0"}]
+390 four delay 3000 scrolled r2: CLS 0.0102 [{"t":3079,"v":0.0102,"input":false,"src":"DIV y776->0 h68->0"}]
+== 390 four: {"n":24,"max":0.0102,"mean":0.0102}
+SUMMARY {
+ "390 fourSame": {
+  "n": 24,
+  "max": 0.0108,
+  "mean": 0.0108
+ },
+ "390 threeSame": {
+  "n": 24,
+  "max": 0.0108,
+  "mean": 0.0108
+ },
+ "390 twoSame": {
+  "n": 24,
+  "max": 0,
+  "mean": 0
+ },
+ "390 fourSameAlt": {
+  "n": 24,
+  "max": 0.0108,
+  "mean": 0.0108
+ },
+ "390 four": {
+  "n": 24,
+  "max": 0.0102,
+  "mean": 0.0102
+ }
+}

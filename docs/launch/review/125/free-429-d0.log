@@ -1,0 +1,30 @@
+signed in r125-free-1795533312261@example.com tier=free
+390 different events top: statuses [200,429] D=0 scrollY 0->0 legs viewport 426->426 doc 426->426 OK; CLS 0.0000 []; box shown true inside-combo-check 1
+   legs ["Singapore vs. Brazil: O/U 4.5 Bet Over at 65%","Miami (OH) vs. Kent State: 1Q Moneyline Bet Miami (OH) at 69%"]
+390 different events scrolled: statuses [200,429,429] D=0 scrollY 0->0 legs viewport 426->426 doc 426->426 OK; CLS 0.0000 []; box shown true inside-combo-check 1
+   legs ["Singapore vs. Brazil: O/U 4.5 Bet Over at 65%","Miami (OH) vs. Kent State: 1Q Moneyline Bet Miami (OH) at 69%"]
+signed in r125-free-1795533329030@example.com tier=free
+390 same-event pair top: statuses [200,429] D=0 scrollY 0->407 legs viewport 426->19 doc 426->426 OK; CLS 0.0000 [{"t":2819,"v":0.0526,"input":true,"src":"combo-same-event y518->700 h104->104,DIV y776->816 h68->28"}]; box shown true inside-combo-check 1
+   legs ["Denmark vs. Norway: O/U 2.5 Bet Over at 67%","Denmark vs. Norway: Both Teams to Score Bet Yes at 68%","Miami (OH) vs. Kent State: 1Q Moneyline Bet Miami (OH) at 69%"]
+390 same-event pair scrolled: statuses [200,429,429] D=0 scrollY 407->407 legs viewport 19->19 doc 426->426 OK; CLS 0.0000 [{"t":3038,"v":0.0526,"input":true,"src":"combo-same-event y518->700 h104->104,DIV y776->816 h68->28"}]; box shown true inside-combo-check 1
+   legs ["Denmark vs. Norway: O/U 2.5 Bet Over at 67%","Denmark vs. Norway: Both Teams to Score Bet Yes at 68%","Miami (OH) vs. Kent State: 1Q Moneyline Bet Miami (OH) at 69%"]
+signed in r125-free-1795533345466@example.com tier=free
+390 scored then add 3rd top: statuses [200,429] D=0 scrollY 0->407 legs viewport 426->19 doc 426->426 OK; CLS 0.0000 []; box shown true inside-combo-check 1
+   legs ["Colts vs. Texans Bet Texans at 85% · 95% chance (cautious) · pays 1.16x","Denmark vs. Norway: O/U 2.5 Bet Over at 67% · 82% chance (cautious) · pays 1.45x","Miami (OH) vs. Kent State: 1H Moneyline Bet Miami (OH) at 76%"]
+390 scored then add 3rd scrolled: statuses [200,429,429] D=0 scrollY 407->407 legs viewport 19->19 doc 426->426 OK; CLS 0.0000 []; box shown true inside-combo-check 1
+   legs ["Colts vs. Texans Bet Texans at 85%","Denmark vs. Norway: O/U 2.5 Bet Over at 67%","Miami (OH) vs. Kent State: 1H Moneyline Bet Miami (OH) at 76%"]
+signed in r125-free-1795533362122@example.com tier=free
+1440 different events top: statuses [200,429] D=0 scrollY 0->0 legs viewport 276->276 doc 276->276 OK; CLS 0.0000 []; box shown true inside-combo-check 1
+   legs ["Singapore vs. Brazil: O/U 4.5 Bet Over at 65%","Miami (OH) vs. Kent State: 1Q Moneyline Bet Miami (OH) at 69%"]
+1440 different events scrolled: statuses [200,429,429] D=0 scrollY 0->0 legs viewport 276->276 doc 276->276 OK; CLS 0.0000 []; box shown true inside-combo-check 1
+   legs ["Singapore vs. Brazil: O/U 4.5 Bet Over at 65%","Miami (OH) vs. Kent State: 1Q Moneyline Bet Miami (OH) at 69%"]
+signed in r125-free-1795533378883@example.com tier=free
+1440 same-event pair top: statuses [200,429] D=0 scrollY 0->0 legs viewport 276->276 doc 276->276 OK; CLS 0.0000 [{"t":2726,"v":0.0092,"input":true,"src":"combo-same-event y655->797 h65->65,DIV y807->874 h74->26"}]; box shown true inside-combo-check 1
+   legs ["Denmark vs. Norway: O/U 2.5 Bet Over at 67%","Denmark vs. Norway: Both Teams to Score Bet Yes at 68%","Miami (OH) vs. Kent State: 1Q Moneyline Bet Miami (OH) at 69%"]
+1440 same-event pair scrolled: statuses [200,429,429] D=0 scrollY 0->0 legs viewport 276->276 doc 276->276 OK; CLS 0.0000 [{"t":3038,"v":0.0092,"input":true,"src":"combo-same-event y655->797 h65->65,DIV y807->874 h74->26"}]; box shown true inside-combo-check 1
+   legs ["Denmark vs. Norway: O/U 2.5 Bet Over at 67%","Denmark vs. Norway: Both Teams to Score Bet Yes at 68%","Miami (OH) vs. Kent State: 1Q Moneyline Bet Miami (OH) at 69%"]
+signed in r125-free-1795533395433@example.com tier=free
+1440 scored then add 3rd top: statuses [200,429] D=0 scrollY 0->0 legs viewport 276->276 doc 276->276 OK; CLS 0.0000 []; box shown true inside-combo-check 1
+   legs ["Colts vs. Texans Bet Texans at 85% · 95% chance (cautious) · pays 1.16x","Denmark vs. Norway: O/U 2.5 Bet Over at 67% · 82% chance (cautious) · pays 1.45x","Miami (OH) vs. Kent State: 1H Moneyline Bet Miami (OH) at 76%"]
+1440 scored then add 3rd scrolled: statuses [200,429,429] D=0 scrollY 0->0 legs viewport 276->276 doc 276->276 OK; CLS 0.0000 []; box shown true inside-combo-check 1
+   legs ["Colts vs. Texans Bet Texans at 85%","Denmark vs. Norway: O/U 2.5 Bet Over at 67%","Miami (OH) vs. Kent State: 1H Moneyline Bet Miami (OH) at 76%"]

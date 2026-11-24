@@ -1,0 +1,156 @@
+signed in r125-same-1795531571872@example.com tier=pro
+768 fourSame delay 1500 top r0: CLS 0 []
+   note before: "Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off. Drop one of the two Denmark vs. Norway bets."
+   note after:  "Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off. Drop one of the two Denmark vs. Norway bets. \"Denmark vs. Norway: O/U 2.5\" (Over) is the weaker one."
+768 fourSame delay 1500 top r1: CLS 0 []
+768 fourSame delay 1500 scrolled r0: CLS 0 []
+768 fourSame delay 1500 scrolled r1: CLS 0 []
+== 768 fourSame: {"n":4,"max":0,"mean":0}
+768 twoSame delay 1500 top r0: CLS 0.0064 [{"t":1553,"v":0.0064,"input":false,"src":"DIV y790->0 h54->0"}]
+   note before: "Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off. Drop one of the two Denmark vs. Norway bets."
+   note after:  "Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off. Drop one of the two Denmark vs. Norway bets. \"Denmark vs. Norway: O/U 2.5\" (Over) is the weaker one."
+768 twoSame delay 1500 top r1: CLS 0.0064 [{"t":1588,"v":0.0064,"input":false,"src":"DIV y790->0 h54->0"}]
+768 twoSame delay 1500 scrolled r0: CLS 0.0064 [{"t":1566,"v":0.0064,"input":false,"src":"DIV y790->0 h54->0"}]
+768 twoSame delay 1500 scrolled r1: CLS 0.0064 [{"t":1576,"v":0.0064,"input":false,"src":"DIV y790->0 h54->0"}]
+== 768 twoSame: {"n":4,"max":0.0064,"mean":0.0064}
+768 four delay 1500 top r0: CLS 0 []
+   note before: null
+   note after:  null
+768 four delay 1500 top r1: CLS 0 []
+768 four delay 1500 scrolled r0: CLS 0 []
+768 four delay 1500 scrolled r1: CLS 0 []
+== 768 four: {"n":4,"max":0,"mean":0}
+1440 fourSame delay 1500 top r0: CLS 0.0004 [{"t":1558,"v":0.0004,"input":false,"src":"DIV y885->0 h15->0"}]
+   note before: "Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off. Drop one of the two Denmark vs. Norway bets."
+   note after:  "Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off. Drop one of the two Denmark vs. Norway bets. \"Denmark vs. Norway: O/U 2.5\" (Over) is the weaker one."
+1440 fourSame delay 1500 top r1: CLS 0.0004 [{"t":1575,"v":0.0004,"input":false,"src":"DIV y885->0 h15->0"}]
+1440 fourSame delay 1500 scrolled r0: CLS 0.0004 [{"t":1591,"v":0.0004,"input":false,"src":"DIV y885->0 h15->0"}]
+1440 fourSame delay 1500 scrolled r1: CLS 0.0004 [{"t":1568,"v":0.0004,"input":false,"src":"DIV y885->0 h15->0"}]
+== 1440 fourSame: {"n":4,"max":0.0004,"mean":0.0004}
+1440 twoSame delay 1500 top r0: CLS 0.0044 [{"t":1556,"v":0.0044,"input":false,"src":"DIV y729->807 h74->74"}]
+   note before: "Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off. Drop one of the two Denmark vs. Norway bets."
+   note after:  "Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off. Drop one of the two Denmark vs. Norway bets. \"Denmark vs. Norway: O/U 2.5\" (Over) is the weaker one."
+1440 twoSame delay 1500 top r1: CLS 0.0044 [{"t":1562,"v":0.0044,"input":false,"src":"DIV y729->807 h74->74"}]
+1440 twoSame delay 1500 scrolled r0: CLS 0.0044 [{"t":1564,"v":0.0044,"input":false,"src":"DIV y729->807 h74->74"}]
+1440 twoSame delay 1500 scrolled r1: CLS 0.0044 [{"t":1568,"v":0.0044,"input":false,"src":"DIV y729->807 h74->74"}]
+== 1440 twoSame: {"n":4,"max":0.0044,"mean":0.0044}
+1440 four delay 1500 top r0: CLS 0.0006 [{"t":1606,"v":0.0006,"input":false,"src":"DIV y885->0 h15->0"}]
+   note before: null
+   note after:  null
+1440 four delay 1500 top r1: CLS 0.0006 [{"t":1575,"v":0.0006,"input":false,"src":"DIV y885->0 h15->0"}]
+1440 four delay 1500 scrolled r0: CLS 0.0006 [{"t":1665,"v":0.0006,"input":false,"src":"DIV y885->0 h15->0"}]
+1440 four delay 1500 scrolled r1: CLS 0.0006 [{"t":1567,"v":0.0006,"input":false,"src":"DIV y885->0 h15->0"}]
+== 1440 four: {"n":4,"max":0.0006,"mean":0.0006}
+375x667 fourSame delay 1500 top r0: CLS 0 []
+   note before: "Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off. Drop one of the two Denmark vs. Norway bets."
+   note after:  "Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off. Drop one of the two Denmark vs. Norway bets. \"Denmark vs. Norway: O/U 2.5\" (Over) is the weaker one."
+375x667 fourSame delay 1500 top r1: CLS 0 []
+375x667 fourSame delay 1500 scrolled r0: CLS 0 []
+375x667 fourSame delay 1500 scrolled r1: CLS 0 []
+== 375x667 fourSame: {"n":4,"max":0,"mean":0}
+375x667 twoSame delay 1500 top r0: CLS 0 []
+   note before: "Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off. Drop one of the two Denmark vs. Norway bets."
+   note after:  "Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off. Drop one of the two Denmark vs. Norway bets. \"Denmark vs. Norway: O/U 2.5\" (Over) is the weaker one."
+375x667 twoSame delay 1500 top r1: CLS 0 []
+375x667 twoSame delay 1500 scrolled r0: CLS 0 []
+375x667 twoSame delay 1500 scrolled r1: CLS 0 []
+== 375x667 twoSame: {"n":4,"max":0,"mean":0}
+375x667 four delay 1500 top r0: CLS 0 []
+   note before: null
+   note after:  null
+375x667 four delay 1500 top r1: CLS 0 []
+375x667 four delay 1500 scrolled r0: CLS 0 []
+375x667 four delay 1500 scrolled r1: CLS 0 []
+== 375x667 four: {"n":4,"max":0,"mean":0}
+360x800 fourSame delay 1500 top r0: CLS 0.0092 [{"t":1562,"v":0.0092,"input":false,"src":"DIV y754->0 h46->0"}]
+   note before: "Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off. Drop one of the two Denmark vs. Norway bets."
+   note after:  "Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off. Drop one of the two Denmark vs. Norway bets. \"Denmark vs. Norway: O/U 2.5\" (Over) is the weaker one."
+360x800 fourSame delay 1500 top r1: CLS 0.0092 [{"t":1567,"v":0.0092,"input":false,"src":"DIV y754->0 h46->0"}]
+360x800 fourSame delay 1500 scrolled r0: CLS 0.0092 [{"t":1564,"v":0.0092,"input":false,"src":"DIV y754->0 h46->0"}]
+360x800 fourSame delay 1500 scrolled r1: CLS 0.0092 [{"t":1566,"v":0.0092,"input":false,"src":"DIV y754->0 h46->0"}]
+== 360x800 fourSame: {"n":4,"max":0.0092,"mean":0.0092}
+360x800 twoSame delay 1500 top r0: CLS 0 []
+   note before: "Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off. Drop one of the two Denmark vs. Norway bets."
+   note after:  "Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off. Drop one of the two Denmark vs. Norway bets. \"Denmark vs. Norway: O/U 2.5\" (Over) is the weaker one."
+360x800 twoSame delay 1500 top r1: CLS 0 []
+360x800 twoSame delay 1500 scrolled r0: CLS 0 []
+360x800 twoSame delay 1500 scrolled r1: CLS 0 []
+== 360x800 twoSame: {"n":4,"max":0,"mean":0}
+360x800 four delay 1500 top r0: CLS 0.0087 [{"t":1594,"v":0.0087,"input":false,"src":"DIV y754->0 h46->0"}]
+   note before: null
+   note after:  null
+360x800 four delay 1500 top r1: CLS 0.0087 [{"t":1578,"v":0.0087,"input":false,"src":"DIV y754->0 h46->0"}]
+360x800 four delay 1500 scrolled r0: CLS 0.0087 [{"t":1575,"v":0.0087,"input":false,"src":"DIV y754->0 h46->0"}]
+360x800 four delay 1500 scrolled r1: CLS 0.0087 [{"t":1560,"v":0.0087,"input":false,"src":"DIV y754->0 h46->0"}]
+== 360x800 four: {"n":4,"max":0.0087,"mean":0.0087}
+412x915 fourSame delay 1500 top r0: CLS 0.0101 [{"t":1651,"v":0.0101,"input":false,"src":"DIV y811->0 h74->0"}]
+   note before: "Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off. Drop one of the two Denmark vs. Norway bets."
+   note after:  "Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off. Drop one of the two Denmark vs. Norway bets. \"Denmark vs. Norway: O/U 2.5\" (Over) is the weaker one."
+412x915 fourSame delay 1500 top r1: CLS 0.0101 [{"t":1653,"v":0.0101,"input":false,"src":"DIV y811->0 h74->0"}]
+412x915 fourSame delay 1500 scrolled r0: CLS 0.0101 [{"t":1658,"v":0.0101,"input":false,"src":"DIV y811->0 h74->0"}]
+412x915 fourSame delay 1500 scrolled r1: CLS 0.0101 [{"t":1633,"v":0.0101,"input":false,"src":"DIV y811->0 h74->0"}]
+== 412x915 fourSame: {"n":4,"max":0.0101,"mean":0.0101}
+412x915 twoSame delay 1500 top r0: CLS 0 []
+   note before: "Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off. Drop one of the two Denmark vs. Norway bets."
+   note after:  "Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off. Drop one of the two Denmark vs. Norway bets. \"Denmark vs. Norway: O/U 2.5\" (Over) is the weaker one."
+412x915 twoSame delay 1500 top r1: CLS 0 []
+412x915 twoSame delay 1500 scrolled r0: CLS 0 []
+412x915 twoSame delay 1500 scrolled r1: CLS 0 []
+== 412x915 twoSame: {"n":4,"max":0,"mean":0}
+412x915 four delay 1500 top r0: CLS 0.0079 [{"t":1706,"v":0.0079,"input":false,"src":"DIV y811->0 h74->0"}]
+   note before: null
+   note after:  null
+412x915 four delay 1500 top r1: CLS 0.0079 [{"t":1668,"v":0.0079,"input":false,"src":"DIV y811->0 h74->0"}]
+412x915 four delay 1500 scrolled r0: CLS 0.0079 [{"t":1728,"v":0.0079,"input":false,"src":"DIV y811->0 h74->0"}]
+412x915 four delay 1500 scrolled r1: CLS 0.0079 [{"t":1637,"v":0.0079,"input":false,"src":"DIV y811->0 h74->0"}]
+== 412x915 four: {"n":4,"max":0.0079,"mean":0.0079}
+430x932 fourSame delay 1500 top r0: CLS 0 []
+   note before: "Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off. Drop one of the two Denmark vs. Norway bets."
+   note after:  "Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off. Drop one of the two Denmark vs. Norway bets. \"Denmark vs. Norway: O/U 2.5\" (Over) is the weaker one."
+430x932 fourSame delay 1500 top r1: CLS 0 []
+430x932 fourSame delay 1500 scrolled r0: CLS 0 []
+430x932 fourSame delay 1500 scrolled r1: CLS 0 []
+== 430x932 fourSame: {"n":4,"max":0,"mean":0}
+430x932 twoSame delay 1500 top r0: CLS 0 []
+   note before: "Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off. Drop one of the two Denmark vs. Norway bets."
+   note after:  "Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off. Drop one of the two Denmark vs. Norway bets. \"Denmark vs. Norway: O/U 2.5\" (Over) is the weaker one."
+430x932 twoSame delay 1500 top r1: CLS 0 []
+430x932 twoSame delay 1500 scrolled r0: CLS 0 []
+430x932 twoSame delay 1500 scrolled r1: CLS 0 []
+== 430x932 twoSame: {"n":4,"max":0,"mean":0}
+430x932 four delay 1500 top r0: CLS 0 []
+   note before: null
+   note after:  null
+430x932 four delay 1500 top r1: CLS 0 []
+430x932 four delay 1500 scrolled r0: CLS 0 []
+430x932 four delay 1500 scrolled r1: CLS 0 []
+== 430x932 four: {"n":4,"max":0,"mean":0}
+390x664 fourSame delay 1500 top r0: CLS 0 []
+   note before: "Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off. Drop one of the two Denmark vs. Norway bets."
+   note after:  "Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off. Drop one of the two Denmark vs. Norway bets. \"Denmark vs. Norway: O/U 2.5\" (Over) is the weaker one."
+390x664 fourSame delay 1500 top r1: CLS 0 []
+390x664 fourSame delay 1500 scrolled r0: CLS 0 []
+390x664 fourSame delay 1500 scrolled r1: CLS 0 []
+== 390x664 fourSame: {"n":4,"max":0,"mean":0}
+390x664 twoSame delay 1500 top r0: CLS 0 []
+   note before: "Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off. Drop one of the two Denmark vs. Norway bets."
+   note after:  "Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off. Drop one of the two Denmark vs. Norway bets. \"Denmark vs. Norway: O/U 2.5\" (Over) is the weaker one."
+390x664 twoSame delay 1500 top r1: CLS 0 []
+390x664 twoSame delay 1500 scrolled r0: CLS 0 []
+390x664 twoSame delay 1500 scrolled r1: CLS 0 []
+== 390x664 twoSame: {"n":4,"max":0,"mean":0}
+390x664 four delay 1500 top r0: CLS 0 []
+   note before: null
+   note after:  null
+390x664 four delay 1500 top r1: CLS 0 []
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+page.evaluate: Target page, context or browser has been closed
+    at entries (/tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/wt3r2/same.mjs:13:25)
+    at /tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/wt3r2/same.mjs:24:25 {
+  log: []
+}
+
+Node.js v22.23.5

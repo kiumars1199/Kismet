@@ -1,0 +1,58 @@
+signed in r125-rl-1795529680380@example.com tier=pro
+768 scroll 0 r0: restored scrollY 0 CLS 0.0002 ["0.0002 DIV y68->68 h44->44"]
+768 scroll 0 r1: restored scrollY 0 CLS 0.0002 ["0.0002 DIV y68->68 h44->44"]
+768 scroll 0 r2: restored scrollY 0 CLS 0.0002 ["0.0002 DIV y68->68 h44->44"]
+768 scroll 200 r0: restored scrollY 200 CLS 0.0233 ["0.0050 DIV y724->668 h18->74","0.0183 DIV y668->772 h74->72"]
+768 scroll 200 r1: restored scrollY 200 CLS 0.0233 ["0.0050 DIV y724->668 h18->74","0.0183 DIV y668->772 h74->72"]
+768 scroll 200 r2: restored scrollY 200 CLS 0.0233 ["0.0050 DIV y724->668 h18->74","0.0183 DIV y668->772 h74->72"]
+768 scroll 300 r0: restored scrollY 300 CLS 0.0236 ["0.0050 DIV y624->568 h18->74","0.0185 DIV y568->672 h74->74"]
+768 scroll 300 r1: restored scrollY 300 CLS 0.0236 ["0.0050 DIV y624->568 h18->74","0.0185 DIV y568->672 h74->74"]
+768 scroll 300 r2: restored scrollY 300 CLS 0.0236 ["0.0050 DIV y624->568 h18->74","0.0185 DIV y568->672 h74->74"]
+768 scroll 400 r0: restored scrollY 400 CLS 0.0236 ["0.0050 DIV y524->468 h18->74","0.0185 DIV y468->572 h74->74"]
+768 scroll 400 r1: restored scrollY 400 CLS 0.0236 ["0.0050 DIV y524->468 h18->74","0.0185 DIV y468->572 h74->74"]
+768 scroll 400 r2: restored scrollY 400 CLS 0.0236 ["0.0050 DIV y524->468 h18->74","0.0185 DIV y468->572 h74->74"]
+768 scroll 500 r0: restored scrollY 474 CLS 0.0236 ["0.0050 DIV y450->394 h18->74","0.0185 DIV y394->498 h74->74"]
+768 scroll 500 r1: restored scrollY 474 CLS 0.0236 ["0.0050 DIV y450->394 h18->74","0.0185 DIV y394->498 h74->74"]
+768 scroll 500 r2: restored scrollY 474 CLS 0.0236 ["0.0050 DIV y450->394 h18->74","0.0185 DIV y394->498 h74->74"]
+768 scroll 600 r0: restored scrollY 474 CLS 0.0236 ["0.0050 DIV y450->394 h18->74","0.0185 DIV y394->498 h74->74"]
+768 scroll 600 r1: restored scrollY 474 CLS 0.0236 ["0.0050 DIV y450->394 h18->74","0.0185 DIV y394->498 h74->74"]
+768 scroll 600 r2: restored scrollY 474 CLS 0.0236 ["0.0050 DIV y450->394 h18->74","0.0185 DIV y394->498 h74->74"]
+768 scroll 504 r0: restored scrollY 474 CLS 0.0236 ["0.0050 DIV y450->394 h18->74","0.0185 DIV y394->498 h74->74"]
+768 scroll 504 r1: restored scrollY 474 CLS 0.0236 ["0.0050 DIV y450->394 h18->74","0.0185 DIV y394->498 h74->74"]
+768 scroll 504 r2: restored scrollY 474 CLS 0.0236 ["0.0050 DIV y450->394 h18->74","0.0185 DIV y394->498 h74->74"]
+768 scroll 504 r0: restored scrollY 474 CLS 0.0236 ["0.0050 DIV y450->394 h18->74","0.0185 DIV y394->498 h74->74"]
+768 scroll 504 r1: restored scrollY 474 CLS 0.0236 ["0.0050 DIV y450->394 h18->74","0.0185 DIV y394->498 h74->74"]
+768 scroll 504 r2: restored scrollY 474 CLS 0.0236 ["0.0050 DIV y450->394 h18->74","0.0185 DIV y394->498 h74->74"]
+== 768 reload worst 0.0236
+390 scroll 0 r0: restored scrollY 0 CLS 0.0004 ["0.0004 freshness y68->68 h44->44"]
+390 scroll 0 r1: restored scrollY 0 CLS 0.0004 ["0.0004 freshness y68->68 h44->44"]
+390 scroll 0 r2: restored scrollY 0 CLS 0.0004 ["0.0004 freshness y68->68 h44->44"]
+390 scroll 200 r0: restored scrollY 200 CLS 0 []
+390 scroll 200 r1: restored scrollY 200 CLS 0 []
+390 scroll 200 r2: restored scrollY 200 CLS 0 []
+390 scroll 300 r0: restored scrollY 300 CLS 0 []
+390 scroll 300 r1: restored scrollY 300 CLS 0 []
+390 scroll 300 r2: restored scrollY 300 CLS 0 []
+390 scroll 400 r0: restored scrollY 400 CLS 0.0131 ["0.0040 DIV y839->783 h5->61","0.0091 DIV y783->0 h61->0"]
+390 scroll 400 r1: restored scrollY 400 CLS 0.0131 ["0.0040 DIV y839->783 h5->61","0.0091 DIV y783->0 h61->0"]
+390 scroll 400 r2: restored scrollY 400 CLS 0.0131 ["0.0040 DIV y839->783 h5->61","0.0091 DIV y783->0 h61->0"]
+390 scroll 500 r0: restored scrollY 500 CLS 0.0208 ["0.0048 DIV y739->683 h18->74","0.0160 DIV y683->811 h74->33"]
+390 scroll 500 r1: restored scrollY 500 CLS 0.0208 ["0.0048 DIV y739->683 h18->74","0.0160 DIV y683->811 h74->33"]
+390 scroll 500 r2: restored scrollY 500 CLS 0.0208 ["0.0048 DIV y739->683 h18->74","0.0160 DIV y683->811 h74->33"]
+390 scroll 600 r0: restored scrollY 600 CLS 0.0269 ["0.0048 DIV y639->583 h18->74","0.0221 DIV y583->711 h74->74"]
+390 scroll 600 r1: restored scrollY 600 CLS 0.0269 ["0.0048 DIV y639->583 h18->74","0.0221 DIV y583->711 h74->74"]
+390 scroll 600 r2: restored scrollY 600 CLS 0.0269 ["0.0048 DIV y639->583 h18->74","0.0221 DIV y583->711 h74->74"]
+390 scroll 800 r0: restored scrollY 872 CLS 0 []
+390 scroll 800 r1: restored scrollY 872 CLS 0 []
+390 scroll 800 r2: restored scrollY 872 CLS 0 []
+390 scroll 1047 r0: restored scrollY 926 CLS 0 []
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+page.waitForTimeout: Target page, context or browser has been closed
+    at /tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/wt3r2/reload.mjs:17:52 {
+  log: []
+}
+
+Node.js v22.23.5

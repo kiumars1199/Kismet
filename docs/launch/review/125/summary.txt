@@ -1,0 +1,16 @@
+PR #125 T-wt3e head 877c3fc - reviewer verdict: PASS with notes
+Setup: local prod build (E2E mock) on :3741, Pro + Premium tray + Free, 390/768/1440 (+ other phone sizes).
+
+390 same-event slow "Check this combo" CLS (same.log / same-other.log): worst 0.0108 over 24 runs each for
+ fourSame/threeSame/fourSameAlt (delays 600/1000/1500/3000 ms, top+scrolled, 3 reps); twoSame 0; diff-event four 0.0102.
+ Other sizes <= 0.0101 (375x667 0, 360x800 0.0092, 412x915 0.0101, 430x932 0, 390x664 0, 768 <= 0.0064, 1440 <= 0.0044).
+Free 429 (free-429.log, free-429-d0.log, free-429-d1500.log): legs never move in document coords at 390 or 1440
+ (different events, same-event pair, scored-then-add-3rd; top and scrolled). Viewport "move" at 390 top = Playwright
+ click auto-scroll (scrollY 0->407, doc 426->426). Upgrade box inside combo-check in every case.
+ NOTE: same-event Free 429 with a slow (1.5 s) 429 response: the same-event note is pushed down 182 px,
+ CLS 0.0526 at 390, 0.0092 at 1440 (with fast 429 it's inside the 500 ms input window -> CLS 0).
+Reload of scored URL (reload-scored.log): 768 worst 0.016 (was 0.0236), 1440 0.0079, 390 worst 0.0269 at scroll 600
+ (0.0208 at 500) - different-event legs, so not from the same-event slot; 390 reload not measured on earlier heads.
+Tray (premium-tray.log): same-event alert link 95x44; hit test: top 36 px of it are link, bottom ~4 px overlap is won by the next button. No errors, disclaimer present, no cents, no h-scroll.
+Blank space (precheck-same-390-b.png): ~40 px empty free-note reserve above the button (pre-existing) + 74 px gap button->note. Looks a bit loose but reads as card padding; acceptable.
+WT3 items: 1 fixed; 2 fixed at 768 (0.016) but same reload shift 0.0269 at 390; 3 fixed (after scoring names weaker leg); 4 fixed (44 px).

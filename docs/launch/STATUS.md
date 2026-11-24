@@ -70,12 +70,16 @@ Notes, not problems: Free "tour over an empty list" is only reachable via ?tour=
 Status: re-walk on final 6da7905 (local prod build; 13:10 UTC; evidence review/walkthrough-3-r2/): FAIL on one should-fix. Every item from the earlier walk is fixed (tray/checker agree, restore CLS ≤0.0004 at 390, shareable link, ?m= → ?legs=, Free note wording, tray same-event pointer, button clear of Premium tray). Fixes assigned: T-wt3e (builder lane, 13:12).
 
 Problems:
-- [should-fix] /check/combo at 390: "Check this combo" shifts CLS 0.0425 (budget 0.02) when legs include a same-event pair and the result is slow; the button block collapses and the same-event note jumps 132 px (T-wt3e)
-- [nit] /check/combo at 768: reload of a scored link while scrolled shifts 0.0236 (pre-existing on 053b671) (T-wt3e)
-- [nit] Same-event note says "Drop one of the two … bets" without saying which (T-wt3e)
-- [nit] Premium tray same-event alert: "combo checker" inline link is 16 px tall (T-wt3e)
+- ~~[should-fix] /check/combo at 390: "Check this combo" shifts CLS 0.0425 (budget 0.02) when legs include a same-event pair and the result is slow; the button block collapses and the same-event note jumps 132 px~~ fixed by #125
+- ~~[nit] /check/combo at 768: reload of a scored link while scrolled shifts 0.0236 (pre-existing on 053b671)~~ fixed by #125
+- ~~[nit] Same-event note says "Drop one of the two … bets" without saying which~~ fixed by #125
+- ~~[nit] Premium tray same-event alert: "combo checker" inline link is 16 px tall~~ fixed by #125
+- [should-fix] /check/combo Free, same-event combo, slow 429 (1.5 s): upgrade box pushes the same-event note down 182 px, CLS 0.0526 at 390 / 0.0092 at 1440; legs don't move (T-wt3f)
+- [nit] /check/combo at 390: reload of a scored link scrolled to 500–600 px shifts 0.021–0.027 (different-event legs; first measured at 390 in #125 review) (T-wt3f)
+- [nit] Same-event alert "combo checker" link 95x44 has its bottom 4 px under the button below (T-wt3f)
 
 ## Found in review, outside a lane
+- 15:31 merged #125 T-wt3e (e2bdf27): 390 same-event slow check CLS 0.0108 (was 0.0425), 768 scrolled reload 0.016, drop hint names the weaker leg, tray link 44 px. Reviewer PASS on 877c3fc (evidence review/125/). New review items added to WT3 as T-wt3f.
 - 15:12 merged #127 T-wt2g (d1cc7dc): /alerts and /dashboards CLS at 390 (paid /alerts 0.014, was 0.16), /check limit card 358x158, /markets tap targets 44 px, column menu reachable at 1440x900, selects 16 px on phones and 14 px on desktop. Reviewer PASS on 7277418 after one FAIL (evidence review/127/). Follow-up nits: Phone alerts card grows 88→146 px after the device check (one cold run CLS 0.022; a fixed phone height would remove it); wheeling only over the column menu doesn't scroll the page.
 - 14:49 merged #126 T-wt2f (434222b): tour targets visible and no needless scroll (0 px at 1440), step 1 copy "Pays 1.45x", one "Already have an account?", onboarding bar meets tab bar. Reviewer PASS on 323aaa5 after one FAIL (evidence review/126/). Watch: one #418 in 1 of 4 Premium runs at 1440, not reproduced.
 - 14:38 merged #124 T-wt2e (c16fc61): saved topics survive re-login (link + password, 390/1440, CLS ≤0.0001), filter bar "Your topics (N)", Settings topic names, "Today's top bet". Reviewer PASS (evidence review/124/). Follow-up T-wt2h (same builder): label only when fav=1, "Everything" clears fav.
