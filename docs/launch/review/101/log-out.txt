@@ -1,0 +1,47 @@
+390-1-empty {"url":"/check/combo","cls":0,"shifts":[],"hscroll":false,"disclaimer":true,"footerTop":537,"vh":844,"discInFirstView":true,"cardBottom":513,"legs":0,"note":"","cents":false}
+390-2-add-m-side1 {"url":"/check/combo?legs=6674492%3A1","cls":0,"shifts":[],"hscroll":false,"disclaimer":true,"footerTop":1138,"vh":844,"discInFirstView":false,"cardBottom":689,"legs":1,"note":"","cents":false}
+390-3-add-second {"url":"/check/combo?legs=6674492%3A1%2C6654466%3A0","cls":0.0089,"shifts":[{"v":0.0089,"t":1696,"src":["P.text-[12px] text-muted"]}],"hscroll":false,"disclaimer":true,"footerTop":1138,"vh":844,"discInFirstView":false,"cardBottom":1110,"legs":2,"note":"","cents":false}
+390-4-reload {"url":"/check/combo?legs=6674492%3A1%2C6654466%3A0","cls":0,"shifts":[],"hscroll":false,"disclaimer":true,"footerTop":1138,"vh":844,"discInFirstView":false,"cardBottom":1110,"legs":2,"note":"","cents":false}
+390-5 hits 3 ["Ball State vs. Ohio: 1H Moneyline\nOhio","Ball State vs. Ohio: 1Q Moneyline\nOhio","Spread: Ball State (-16.5)\nOhio"]
+390-5-add-search {"url":"/check/combo?legs=6674492%3A1%2C6654466%3A0%2C7078473%3A1","cls":0,"shifts":[],"hscroll":false,"disclaimer":true,"footerTop":1226,"vh":844,"discInFirstView":false,"cardBottom":1202,"legs":3,"note":"","cents":false}
+390-5 delta 0
+390-6-removed-reload {"url":"/check/combo?legs=6674492%3A1%2C6654466%3A0","cls":0,"shifts":[],"hscroll":false,"disclaimer":true,"footerTop":1138,"vh":844,"discInFirstView":false,"cardBottom":1110,"legs":2,"note":"","cents":false}
+390-7-restore-stored {"url":"/check/combo?legs=6674492%3A1%2C6654466%3A0","cls":0,"shifts":[],"hscroll":false,"disclaimer":true,"footerTop":1138,"vh":844,"discInFirstView":false,"cardBottom":1110,"legs":2,"note":"","cents":false}
+390-8-scored {"url":"/check/combo?legs=6674492%3A1%2C6654466%3A0&check=1","cls":0,"shifts":[],"hscroll":false,"disclaimer":true,"footerTop":1138,"vh":844,"discInFirstView":false,"cardBottom":1110,"legs":2,"note":"","cents":false}
+390-8 freeNote Free includes 1 check a day (a bet or a combo); this combo counts as one. delta 0 score 26 upgrade none leg lines ["Bet No at 33% · 9% chance · pays 2.93x","Bet Yes at 30% · 9% chance · pays 3.22x"]
+390-9-reload-scored {"url":"/check/combo?legs=6674492%3A1%2C6654466%3A0&check=1","cls":0,"shifts":[],"hscroll":false,"disclaimer":true,"footerTop":1138,"vh":844,"discInFirstView":false,"cardBottom":1110,"legs":2,"note":"","cents":false}
+390-9 score 26
+390-10 copy btn {"x":33,"y":1019.25,"width":96.203125,"height":44} share fn undefined coarse true
+390-10 status Link copied clip http://localhost:3755/check/combo?legs=6674492%3A1%2C6654466%3A0&check=1
+390-10b share {"title":"A combo on Kismet","url":"http://localhost:3755/check/combo?legs=6674492%3A1%2C6654466%3A0&check=1"} Shared
+390-10c share-fails fallback Link copied http://localhost:3755/check/combo?legs=6674492%3A1%2C6654466%3A0&check=1
+390-10d share-cancel "Link copied"
+390-11 shared-open {"url":"/check/combo?legs=6674492%3A1%2C6654466%3A0&check=1","cls":0,"shifts":[],"hscroll":false,"disclaimer":true,"footerTop":1138,"vh":844,"discInFirstView":false,"cardBottom":1110,"legs":2,"note":"","cents":false} combo statuses [200] score 26
+390-12-same-event {"url":"/check/combo?legs=7077573%3A0%2C7077574%3A0%2C7078474%3A0","cls":0,"shifts":[],"hscroll":false,"disclaimer":true,"footerTop":1226,"vh":844,"discInFirstView":false,"cardBottom":1202,"legs":3,"note":"","cents":false}
+390-12 same none upgrade Free includes 1 check a day (a bet or a combo), and you've used it. Pro and Premium check as many bets and combos as you like.
+
+See plans legline ["Bet Miami (OH) at 76%","Bet Miami (OH) at 69%","Bet Ball State at 36%"]
+390-13-bad-id {"url":"/check/combo?legs=6674492%3A0%2C6654466%3A0","cls":0,"shifts":[],"hscroll":false,"disclaimer":true,"footerTop":1226,"vh":844,"discInFirstView":false,"cardBottom":1202,"legs":2,"note":"Some bets in that link aren't open any more.","cents":false}
+390 combo statuses [200,200,429]
+1440-1-empty {"url":"/check/combo","cls":0,"shifts":[],"hscroll":false,"disclaimer":true,"footerTop":707,"vh":900,"discInFirstView":true,"cardBottom":421,"legs":0,"note":"","cents":false}
+1440-2-add-m-side1 {"url":"/check/combo?legs=6674492%3A1","cls":0,"shifts":[],"hscroll":false,"disclaimer":true,"footerTop":1000,"vh":900,"discInFirstView":false,"cardBottom":569,"legs":1,"note":"","cents":false}
+1440-3-add-second {"url":"/check/combo?legs=6674492%3A1%2C6654466%3A0","cls":0.009,"shifts":[{"v":0.009,"t":1286,"src":["DIV.mt-auto flex flex-col gap-3"]}],"hscroll":false,"disclaimer":true,"footerTop":1000,"vh":900,"discInFirstView":false,"cardBottom":824,"legs":2,"note":"","cents":false}
+1440-4-reload {"url":"/check/combo?legs=6674492%3A1%2C6654466%3A0","cls":0.0016,"shifts":[{"v":0.0016,"t":1530,"src":["DIV.mt-auto flex flex-col gap-3"]}],"hscroll":false,"disclaimer":true,"footerTop":1000,"vh":900,"discInFirstView":false,"cardBottom":824,"legs":2,"note":"","cents":false}
+1440-5 hits 3 ["Ball State vs. Ohio: 1H Moneyline\nOhio","Ball State vs. Ohio: 1Q Moneyline\nOhio","Spread: Ball State (-16.5)\nOhio"]
+1440-5-add-search {"url":"/check/combo?legs=6674492%3A1%2C6654466%3A0%2C7078473%3A1","cls":0.0016,"shifts":[{"v":0.0016,"t":1530,"src":["DIV.mt-auto flex flex-col gap-3"]}],"hscroll":false,"disclaimer":true,"footerTop":1000,"vh":900,"discInFirstView":false,"cardBottom":902,"legs":3,"note":"","cents":false}
+1440-5 delta 0
+1440-6-removed-reload {"url":"/check/combo?legs=6674492%3A1%2C6654466%3A0","cls":0.0016,"shifts":[{"v":0.0016,"t":1540,"src":["DIV.mt-auto flex flex-col gap-3"]}],"hscroll":false,"disclaimer":true,"footerTop":1000,"vh":900,"discInFirstView":false,"cardBottom":824,"legs":2,"note":"","cents":false}
+1440-7-restore-stored {"url":"/check/combo?legs=6674492%3A1%2C6654466%3A0","cls":0,"shifts":[],"hscroll":false,"disclaimer":true,"footerTop":1000,"vh":900,"discInFirstView":false,"cardBottom":824,"legs":2,"note":"","cents":false}
+1440-8-scored {"url":"/check/combo?legs=6674492%3A1%2C6654466%3A0&check=1","cls":0,"shifts":[],"hscroll":false,"disclaimer":true,"footerTop":1000,"vh":900,"discInFirstView":false,"cardBottom":824,"legs":2,"note":"","cents":false}
+1440-8 freeNote Free includes 1 check a day (a bet or a combo); this combo counts as one. delta 0 score 26 upgrade none leg lines ["Bet No at 33% · 9% chance · pays 2.93x","Bet Yes at 30% · 9% chance · pays 3.22x"]
+1440-9-reload-scored {"url":"/check/combo?legs=6674492%3A1%2C6654466%3A0&check=1","cls":0.0016,"shifts":[{"v":0.0016,"t":1558,"src":["DIV.mt-auto flex flex-col gap-3"]}],"hscroll":false,"disclaimer":true,"footerTop":1000,"vh":900,"discInFirstView":false,"cardBottom":824,"legs":2,"note":"","cents":false}
+1440-9 score 26
+1440-10 copy btn {"x":361,"y":729.125,"width":96.203125,"height":44} share fn undefined coarse false
+1440-10 status Link copied clip http://localhost:3755/check/combo?legs=6674492%3A1%2C6654466%3A0&check=1
+1440-11 shared-open {"url":"/check/combo?legs=6674492%3A1%2C6654466%3A0&check=1","cls":0.0016,"shifts":[{"v":0.0016,"t":1553,"src":["DIV.mt-auto flex flex-col gap-3"]}],"hscroll":false,"disclaimer":true,"footerTop":1000,"vh":900,"discInFirstView":false,"cardBottom":824,"legs":2,"note":"","cents":false} combo statuses [200] score 26
+1440-12-same-event {"url":"/check/combo?legs=7077573%3A0%2C7077574%3A0%2C7078474%3A0","cls":0.0016,"shifts":[{"v":0.0016,"t":3990,"src":["DIV.mt-auto flex flex-col gap-3"]}],"hscroll":false,"disclaimer":true,"footerTop":1000,"vh":900,"discInFirstView":false,"cardBottom":902,"legs":3,"note":"","cents":false}
+1440-12 same none upgrade Free includes 1 check a day (a bet or a combo), and you've used it. Pro and Premium check as many bets and combos as you like.
+
+See plans legline ["Bet Miami (OH) at 76%","Bet Miami (OH) at 69%","Bet Ball State at 36%"]
+1440-13-bad-id {"url":"/check/combo?legs=6674492%3A0%2C6654466%3A0","cls":0.0016,"shifts":[{"v":0.0016,"t":1897,"src":["DIV.mt-auto flex flex-col gap-3"]}],"hscroll":false,"disclaimer":true,"footerTop":1000,"vh":900,"discInFirstView":false,"cardBottom":902,"legs":2,"note":"Some bets in that link aren't open any more.","cents":false}
+1440 combo statuses [200,200,429]

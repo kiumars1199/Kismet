@@ -1,0 +1,16 @@
+PR #101 T-wt3b at c4c541b. Local paid-mode dev (E2E mock, fixtures), probe: scratchpad/probe/rv101.mjs
+Logs: log-out.txt (390+1440), log-{free,pro,premium}-{390,1440}.txt; PNGs <tier>-<w>-<step>.png
+CI: web success (check run 138128234516); checks job 138123334226: "/: first-load JS 149.9 kB gzipped; budget 150 kB: OK"
+
+Worst CLS per run (all steps: empty, ?m= add, 2nd add, reload, search add, remove+reload, stored restore, score w/ 900ms delay, reload scored, shared open, same-event, bad id):
+ out 390 0.0089 | out 1440 0.009 | free 390 0.0282 | free 1440 0.0097 | pro 390 0.0282 | pro 1440 0.0167 | premium 390 0.0089 | premium 1440 0.009
+ Score with 900 ms answer: delta 0 everywhere (0.0006 pro 1440 = header search box).
+ Largest: adding a 3rd leg via search moves the result SECTION by ~92 px: 0.0282 @390, 0.0145 @1440 (when lookup > 500 ms after the tap).
+Empty /check/combo: 1440 footer top 707, disclaimer in first view (all tiers). 390: card bottom 513/footer 537 signed out, 569/593 signed in; disclaimer in first view.
+hscroll false, cents false, disclaimer visible: every step, every tier/width (0 violations).
+?m=6674492&side=1 -> URL becomes ?legs=6674492:1, side 1 honoured ("Bet No"). Reload keeps legs, no "already in your combo". Removed leg stays removed after reload.
+Scored -> URL gains &check=1; reload re-scores (same set free for Free: statuses 200,200).
+Copy link 1440: clipboard = .../check/combo?legs=6674492:1,6654466:0&check=1, "Link copied". 390 (coarse): headless has no navigator.share -> clipboard; stubbed share called with {title:"A combo on Kismet",url}; "Shared"; share NotAllowedError -> clipboard fallback "Link copied"; AbortError -> no new message.
+Shared link in a fresh context: loads 2 legs and auto-scores (POST /api/check/combo 200 without a tap; Free/out spends the day's check).
+Same event (7077573+7077574, Pro/Premium): "...Drop one of the two Miami (OH) vs. Kent State bets." Free after limit: limit box with COMBO_LIMIT_USED.
+Bad id in ?legs=: valid legs load, note "Some bets in that link aren't open any more.", URL rewritten without it.

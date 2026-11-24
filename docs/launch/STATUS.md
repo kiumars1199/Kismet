@@ -88,6 +88,7 @@ Problems:
 - Not walked: signed-in headers at 768–1280, the Premium drawer path to the tray, WebKit, and signed-in steps on a production build. Re-walk after the fixes.
 
 ## Found in review, outside a lane
+- 01:47 Merged #101 (T-wt3b: combo share, reload, restore CLS) at c4c541b -> 714b5cf; reviewer PASS with 2 should-fix (shared &check=1 link auto-scores and burns the Free daily check; 3rd/4th leg shifts result card, CLS 0.028) + nit ("Share link" label on touch) -> T-wt3d, data lane. Evidence in review/101/.
 - 01:43 Merged #105 (T-95c) at 59fafed -> de95d56; reviewer PASS with notes (follow-up T-95d queued with trust lane). Evidence in review/105/.
 - 01:41 Merged #104 (T-hot2: real-title venue parity test, test-only) at 7f2ac28 -> 9649c5f; reviewer PASS. #103 FAIL (docs: patched-chunk row contradicts logs, throws vs hits, hyd3.mjs missing, unlogged rows) — back to trust lane with htmlLimitedBots A/B. #105 PASS with notes; follow-up T-95d (summary counts bets, not events) to trust lane.
 - 01:35 T-hot2 verdict: #102 lost no matches. The venues count is US-matched markets plus Kalshi-only matches. Kalshi-only stayed 64, 64, 76 across the old and new code. The drop follows the scan, whose US-matched markets fell from 5,981 of 21,648 to 4,777 of 18,269 as evening games closed, while the old counts came from an 85+ min stale markets.json. Kismet#104 adds a real-title parity test with no matcher change; it waits for a reviewer slot. Untested: real Kalshi rows (the Kalshi API is unreachable from the container).

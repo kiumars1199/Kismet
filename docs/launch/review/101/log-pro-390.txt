@@ -1,0 +1,49 @@
+tier pro pro
+390-1-empty {"url":"/check/combo","cls":0,"shifts":[],"hscroll":false,"disclaimer":true,"footerTop":593,"vh":844,"discInFirstView":true,"cardBottom":569,"legs":0,"note":"","cents":false}
+390-2-add-m-side1 {"url":"/check/combo?legs=6674492%3A1","cls":0,"shifts":[],"hscroll":false,"disclaimer":true,"footerTop":1194,"vh":844,"discInFirstView":false,"cardBottom":745,"legs":1,"note":"","cents":false}
+390-3-add-second {"url":"/check/combo?legs=6674492%3A1%2C6654466%3A0","cls":0.0089,"shifts":[{"v":0.0089,"t":5377,"src":["P.text-[12px] text-muted"]}],"hscroll":false,"disclaimer":true,"footerTop":1194,"vh":844,"discInFirstView":false,"cardBottom":1166,"legs":2,"note":"","cents":false}
+390-4-reload {"url":"/check/combo?legs=6674492%3A1%2C6654466%3A0","cls":0,"shifts":[],"hscroll":false,"disclaimer":true,"footerTop":1194,"vh":844,"discInFirstView":false,"cardBottom":1166,"legs":2,"note":"","cents":false}
+390-5 hits 3 ["Ball State vs. Ohio: 1Q Moneyline\nOhio","Ball State vs. Ohio: 1H Moneyline\nOhio","Spread: Ball State (-16.5)\nOhio"]
+390-5-add-search {"url":"/check/combo?legs=6674492%3A1%2C6654466%3A0%2C7078474%3A1","cls":0.0282,"shifts":[{"v":0.0282,"t":14192,"src":["SECTION.flex flex-col gap-3 rounded-card border "]}],"hscroll":false,"disclaimer":true,"footerTop":1282,"vh":844,"discInFirstView":false,"cardBottom":1258,"legs":3,"note":"","cents":false}
+390-5 delta 0.0282
+390-6-removed-reload {"url":"/check/combo?legs=6674492%3A1%2C6654466%3A0","cls":0,"shifts":[],"hscroll":false,"disclaimer":true,"footerTop":1194,"vh":844,"discInFirstView":false,"cardBottom":1166,"legs":2,"note":"","cents":false}
+390-7-restore-stored {"url":"/check/combo?legs=6674492%3A1%2C6654466%3A0","cls":0,"shifts":[],"hscroll":false,"disclaimer":true,"footerTop":1194,"vh":844,"discInFirstView":false,"cardBottom":1166,"legs":2,"note":"","cents":false}
+390-8-scored {"url":"/check/combo?legs=6674492%3A1%2C6654466%3A0&check=1","cls":0,"shifts":[],"hscroll":false,"disclaimer":true,"footerTop":1194,"vh":844,"discInFirstView":false,"cardBottom":1166,"legs":2,"note":"","cents":false}
+390-8 freeNote  delta 0 score 26 upgrade none leg lines ["Bet No at 33% · 9% chance · pays 2.93x","Bet Yes at 30% · 9% chance · pays 3.22x"]
+390-9-reload-scored {"url":"/check/combo?legs=6674492%3A1%2C6654466%3A0&check=1","cls":0,"shifts":[],"hscroll":false,"disclaimer":true,"footerTop":1194,"vh":844,"discInFirstView":false,"cardBottom":1166,"legs":2,"note":"","cents":false}
+390-9 score 26
+390-10 copy btn {"x":33,"y":1075.25,"width":96.203125,"height":44} share fn undefined coarse true
+390-10 status Link copied clip http://localhost:3755/check/combo?legs=6674492%3A1%2C6654466%3A0&check=1
+390-10b share {"title":"A combo on Kismet","url":"http://localhost:3755/check/combo?legs=6674492%3A1%2C6654466%3A0&check=1"} Shared
+390-10c share-fails fallback Link copied http://localhost:3755/check/combo?legs=6674492%3A1%2C6654466%3A0&check=1
+390-10d share-cancel "Link copied"
+tier pro pro
+390-11 shared-open {"url":"/check/combo?legs=6674492%3A1%2C6654466%3A0&check=1","cls":0,"shifts":[],"hscroll":false,"disclaimer":true,"footerTop":1194,"vh":844,"discInFirstView":false,"cardBottom":1166,"legs":2,"note":"","cents":false} combo statuses [200] score 26
+390-12-same-event {"url":"/check/combo?legs=7077573%3A0%2C7077574%3A0%2C7078474%3A0&check=1","cls":0,"shifts":[],"hscroll":false,"disclaimer":true,"footerTop":1379,"vh":844,"discInFirstView":false,"cardBottom":1355,"legs":3,"note":"","cents":false}
+390-12 same Same event (Miami (OH) vs. Kent State): these legs move together, the combined chance is likely off. Drop one of the two Miami (OH) vs. Kent State bets. upgrade none legline ["Bet Miami (OH) at 76% · 96% chance · pays 1.29x","Bet Miami (OH) at 69% · 90% chance · pays 1.41x","Bet Ball State at 36% · 8% chance · pays 2.69x"]
+390-13-bad-id {"url":"/check/combo?legs=6674492%3A0%2C6654466%3A0","cls":0,"shifts":[],"hscroll":false,"disclaimer":true,"footerTop":1282,"vh":844,"discInFirstView":false,"cardBottom":1258,"legs":2,"note":"Some bets in that link aren't open any more.","cents":false}
+390 combo statuses [200,200,200]
+tier pro pro
+1440-1-empty {"url":"/check/combo","cls":0.0006,"shifts":[{"v":0.0006,"t":4944,"src":["DIV.relative w-full max-w-[340px]"]}],"hscroll":false,"disclaimer":true,"footerTop":707,"vh":900,"discInFirstView":true,"cardBottom":421,"legs":0,"note":"","cents":false}
+1440-2-add-m-side1 {"url":"/check/combo?legs=6674492%3A1","cls":0.0006,"shifts":[{"v":0.0006,"t":4623,"src":["DIV.relative w-full max-w-[340px]"]}],"hscroll":false,"disclaimer":true,"footerTop":1000,"vh":900,"discInFirstView":false,"cardBottom":569,"legs":1,"note":"","cents":false}
+1440-3-add-second {"url":"/check/combo?legs=6674492%3A1%2C6654466%3A0","cls":0.0097,"shifts":[{"v":0.0006,"t":2128,"src":["DIV.relative w-full max-w-[340px]"]},{"v":0.009,"t":2447,"src":["DIV.mt-auto flex flex-col gap-3"]}],"hscroll":false,"disclaimer":true,"footerTop":1000,"vh":900,"discInFirstView":false,"cardBottom":824,"legs":2,"note":"","cents":false}
+1440-4-reload {"url":"/check/combo?legs=6674492%3A1%2C6654466%3A0","cls":0.0022,"shifts":[{"v":0.0006,"t":2147,"src":["DIV.relative w-full max-w-[340px]"]},{"v":0.0016,"t":2469,"src":["DIV.mt-auto flex flex-col gap-3"]}],"hscroll":false,"disclaimer":true,"footerTop":1000,"vh":900,"discInFirstView":false,"cardBottom":824,"legs":2,"note":"","cents":false}
+1440-5 hits 3 ["Ball State vs. Ohio: 1Q Moneyline\nOhio","Ball State vs. Ohio: 1H Moneyline\nOhio","Spread: Ball State (-16.5)\nOhio"]
+1440-5-add-search {"url":"/check/combo?legs=6674492%3A1%2C6654466%3A0%2C7078474%3A1","cls":0.0167,"shifts":[{"v":0.0006,"t":2147,"src":["DIV.relative w-full max-w-[340px]"]},{"v":0.0016,"t":2469,"src":["DIV.mt-auto flex flex-col gap-3"]},{"v":0.0145,"t":15787,"src":["SECTION.flex flex-col gap-3 rounded-card border "]}],"hscroll":false,"disclaimer":true,"footerTop":1000,"vh":900,"discInFirstView":false,"cardBottom":902,"legs":3,"note":"","cents":false}
+1440-5 delta 0.0145
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+locator.click: Target crashed 
+Call log:
+[2m  - waiting for getByRole('button', { name: /^Remove / }).nth(2)[22m
+
+    at /tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/probe/rv101.mjs:109:63 {
+  log: [
+    "  - waiting for getByRole('button', { name: /^Remove / }).nth(2)"
+  ],
+  name: 'Error'
+}
+
+Node.js v22.23.5
