@@ -39,46 +39,83 @@ async function setTopics(page: Page, topic: string) {
   expect(res.status()).toBeLessThan(300);
 }
 
-/** Walk the five steps; each spotlight must be fully inside the viewport, above the tab bar, and not covered by the tour card. */
-async function walk(page: Page, label: string) {
-  const dialog = page.getByTestId("tour").getByRole("dialog");
-  await expect(page.getByRole("dialog", { name: "A best bet" })).toBeVisible({ timeout: 60_000 });
+/** Walk the tour's steps; each spotlight must be fully inside the viewport, above the tab bar, and not covered by the tour card, and the
+ *  tour card must not sit under the tab bar. Logs the scroll per step (evidence for "no needless scrolling"). */
+async function walk(page: Page, label: string, expectStart?: string) {
+  const tour = page.getByTestId("tour");
+  const dialog = tour.getByRole("dialog");
+  await expect(tour).toBeVisible({ timeout: 60_000 });
+  if (expectStart) await expect(page.getByRole("dialog", { name: expectStart })).toBeVisible();
   const vh = page.viewportSize()!.height;
-  for (let i = 1; i <= 5; i++) {
-    await expect(page.getByText(`${i} of 5`)).toBeVisible();
+  const y0 = await page.evaluate(() => scrollY);
+  const log: string[] = [];
+  let prevY = y0;
+  for (let n = 0; n < 5; n++) {
+    const i = Number((await tour.getByText(/^\d of 5$/).innerText()).slice(0, 1));
     await page.waitForTimeout(900);   // the scroll and the 300 ms glide settle
-    const spot = await page.getByTestId("tour-spot").boundingBox();
+    const spot = (await page.getByTestId("tour-spot").count()) ? await page.getByTestId("tour-spot").boundingBox() : null;
     const card = (await dialog.boundingBox())!;
     const nav = page.locator('nav.fixed[aria-label="Main"]');
     const navTop = (await nav.isVisible()) ? (await nav.boundingBox())!.y : vh;
-    expect(spot, `${label} step ${i}: a spotlight`).not.toBeNull();
-    const s = spot!;
+    const y = await page.evaluate(() => scrollY);
+    log.push(`${i}:${Math.round(y - y0)}`);
+    expect(card.y + card.height, `${label} step ${i}: the tour card is above the tab bar`).toBeLessThanOrEqual(navTop + 0.5);
+    expect(card.y, `${label} step ${i}: the tour card is on screen`).toBeGreaterThanOrEqual(0);
+    if (!spot) { expect(label, `${label} step ${i}: a spotlight`).toBe("premium-empty"); expect(i, "only the last step may have no target on a phone").toBe(5); await shot(page, `tour-${label}-${i}`); break; }
+    const s = spot;
     // the ring is the target plus 6 px padding; the target itself must be in view
     expect(s.y + 6, `${label} step ${i}: target top in view`).toBeGreaterThanOrEqual(0);
-    expect(s.y + s.height - 6, `${label} step ${i}: target above the tab bar (${navTop})`).toBeLessThanOrEqual(navTop);
+    const inBar = s.y + 6 >= navTop - 1;   // a target that IS the tab bar (My list)
+    // the free-bets fallback at 1440 keeps its heading in view, so there the card may run past the bottom: at least 120 px of it is shown
+    const partial = label === "zero" && i === 1 && page.viewportSize()!.width >= 1024;
+    if (partial) expect(navTop - (s.y + 6), `${label} step ${i}: at least 120 px of the card shows`).toBeGreaterThanOrEqual(120);
+    else if (!inBar) expect(s.y + s.height - 6, `${label} step ${i}: target above the tab bar (${navTop})`).toBeLessThanOrEqual(navTop + 0.5);
     const overlap = Math.min(s.x + s.width - 6, card.x + card.width) - Math.max(s.x + 6, card.x) > 0 && Math.min(s.y + s.height - 6, card.y + card.height) - Math.max(s.y + 6, card.y) > 0;
     expect(overlap, `${label} step ${i}: the tour card does not cover the target (target y ${s.y + 6}-${s.y + s.height - 6}, tour card y ${card.y}-${card.y + card.height}, tab bar ${navTop})`).toBe(false);
-    await shot(page, `tour-${label.replace(" ", "-")}-${i}`);
+    // a step whose target is pinned (My list in the phone tab bar) never scrolls the page
+    if (label.includes("empty") && i === 4) expect(Math.abs(y - prevY), "My list is in the tab bar: no scrolling for it").toBeLessThan(2);
+    prevY = y;
+    await shot(page, `tour-${label}-${i}`);
     if (i === 1) await expect(dialog).not.toContainText("$10");
-    if (i < 5) await page.getByTestId("tour").getByRole("button", { name: "Next", exact: true }).click();
+    if (i === 5) break;
+    await tour.getByRole("button", { name: "Next", exact: true }).click();
+    await expect(tour.getByText(`${i + 1} of 5`)).toBeVisible();
   }
+  console.log(`scroll per step (${label} ${page.viewportSize()!.width}px): ${log.join(" ")}`);
+}
+
+async function makePremium(page: Page) {
+  const me = await (await page.request.get("/api/me")).json();
+  const res = await page.request.patch(`/e2e-mock/supabase/rest/v1/subscriptions?user_id=eq.${me.user.id}`, {
+    headers: { authorization: "Bearer e2e-service", apikey: "e2e-service", "content-type": "application/json" }, data: { comp_tier: "premium" },
+  });
+  expect(res.status()).toBeLessThan(300);
+}
+async function emptyTopicAny(page: Page) {
+  for (const t of CANDIDATES) {
+    const r = (await (await page.request.get(`/api/flags?t=${encodeURIComponent(t)}`)).json()) as Flags;
+    if (r.total === 0) return t;
+  }
+  return null;
 }
 
 for (const { w, h } of SIZES) {
-  for (const zero of [false, true]) {
-    test(`tour targets stay on screen at ${w}px, ${zero ? "free-bets fallback" : "cards"}`, async ({ page }) => {
+  for (const kind of ["cards", "zero", "premium-empty"] as const) {
+    test(`tour targets stay on screen at ${w}px, ${kind}`, async ({ page }) => {
       test.setTimeout(300_000);
       await page.setViewportSize({ width: w, height: h });
-      await signUp(page, `wt2f-${zero ? "z" : "c"}-${w}-${Date.now()}@example.com`);
-      if (zero) {
-        const topic = await zeroTopic(page);
+      await signUp(page, `wt2f-${kind}-${w}-${Date.now()}@example.com`);
+      if (kind === "premium-empty") await makePremium(page);
+      if (kind !== "cards") {
+        const topic = kind === "zero" ? await zeroTopic(page) : await emptyTopicAny(page);
         expect(topic).not.toBeNull();
         await setTopics(page, topic!);
       }
       await page.getByRole("button", { name: "Skip setup" }).click();
       await page.waitForURL(/\/(bets|\?|$)|fav=1/, { timeout: 60_000 });
-      await expect(page.locator("article[data-row]").first()).toBeVisible({ timeout: 60_000 });
-      await walk(page, zero ? "zero" : "cards");
+      if (kind === "premium-empty") await expect(page.locator("[data-tour-empty]").first()).toBeVisible({ timeout: 60_000 });
+      else await expect(page.locator("article[data-row]").first()).toBeVisible({ timeout: 60_000 });
+      await walk(page, kind, kind === "premium-empty" ? undefined : "A best bet");
     });
   }
 }

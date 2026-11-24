@@ -25,7 +25,18 @@ const STEPS = [
 /** Step 1 over a Best bets list that came back empty (a topic with no bets today): the tour points at that empty state, in its own words. */
 const EMPTY_STEP = { title: "No best bets in your topics today", body: "Nothing in your topics looks like good value right now. Widen your topics, or see all best bets, and the cards appear here." };
 
-const visible = (el: Element) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0; };
+/** Really drawn: laid out, and not inside a closed <details> (Chrome still gives its content a position without painting it). */
+const visible = (el: Element) => {
+  const r = el.getBoundingClientRect();
+  if (r.width <= 0 || r.height <= 0) return false;
+  if (typeof el.checkVisibility === "function") return el.checkVisibility();
+  return !el.closest("details:not([open])");
+};
+/** Inside a fixed or sticky element (the phone tab bar, the desktop header): it is always on screen, so the page never scrolls for it. */
+const pinned = (el: Element) => {
+  for (let n: Element | null = el; n && n !== document.body; n = n.parentElement) { const p = getComputedStyle(n).position; if (p === "fixed" || p === "sticky") return true; }
+  return false;
+};
 const find = (sel: readonly string[]) => {
   for (const s of sel) for (const el of document.querySelectorAll(s)) if (visible(el)) return el as HTMLElement;
   return null;
@@ -61,6 +72,7 @@ export function Tour() {
   const [rect, setRect] = useState<DOMRect | null>(null);
   const [onEmpty, setOnEmpty] = useState(false);
   const card = useRef<HTMLDivElement>(null);
+  const startY = useRef<number | null>(null);   // scroll position when the tour began
   const next = useRef<HTMLButtonElement>(null);
   const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
 
@@ -75,11 +87,13 @@ export function Tour() {
       }
       start ||= localStorage.getItem(TOUR_KEY) === "1";
     } catch { /* storage off: replay link still works */ }
-    if (start) setStep(0);
+    if (start) { startY.current = scrollY; setStep(0); }
   }, []);
 
   const end = useCallback(() => {
     setStep(null);
+    // the tour scrolled the page to its targets: put the visitor back where they were (a pill or heading they saw stays where it was)
+    if (startY.current !== null) { scrollTo({ top: startY.current, behavior: "instant" }); startY.current = null; }
     try { localStorage.removeItem(TOUR_KEY); } catch { /* storage off */ }
   }, []);
 
@@ -92,9 +106,22 @@ export function Tour() {
     const head = document.querySelector("header");
     const headBottom = head && getComputedStyle(head).position === "sticky" ? head.getBoundingClientRect().bottom : 0;
     const r = el.getBoundingClientRect();
-    const need = (card.current?.offsetHeight ?? 220) + 12 + 16;   // the tour card, its gap and its margin
-    const inBand = r.top >= headBottom + 4 && r.bottom <= barTop - 4;
-    if (inBand && (r.bottom + need <= barTop || r.top - need >= headBottom + 4)) return;
+    if (pinned(el)) return;
+    const ch = card.current?.offsetHeight ?? 220, cw = card.current?.offsetWidth ?? 360;
+    const need = ch + 12 + 16;   // the tour card, its gap and its margin
+    const lo = headBottom + 4, hi = barTop - 4;
+    const room = (top: number, bottom: number) => bottom + need <= barTop || top - need >= lo || r.right + 12 + cw <= innerWidth - 16 || r.left - 12 - cw >= 16;   // the card fits below, above or beside
+    if (r.top >= lo && r.bottom <= hi && room(r.top, r.bottom)) return;   // already in the band with room for the card: no scrolling
+    // otherwise move as little as keeps the target in the band (the heading above it stays in view where it can) ...
+    // On a desktop the heading that explains the free-bets fallback never scrolls out of view (a phone shows the whole card instead): past that point the card is only partly shown.
+    const h1 = document.querySelector("h1[data-free-fallback]");
+    const cap = h1 && innerWidth >= 1024 ? Math.max(0, h1.getBoundingClientRect().top - (lo + 4)) : Infinity;
+    if (r.height <= hi - lo) {
+      const d = r.top < lo ? r.top - (lo + 4) : r.bottom > hi ? r.bottom - (hi - 4) : 0;
+      if (d > cap) return scrollBy({ top: cap, behavior: "instant" });
+      if (room(r.top - d, r.bottom - d)) return scrollBy({ top: d, behavior: "instant" });
+    }
+    // ... else put the target as near the top of the band as the card needs (a tall card on a phone)
     const top = Math.min(88, Math.max(headBottom + 8, barTop - need - r.height));
     scrollBy({ top: r.top - top, behavior: "instant" });
   };

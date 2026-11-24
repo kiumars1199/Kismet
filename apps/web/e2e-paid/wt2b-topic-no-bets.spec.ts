@@ -77,10 +77,22 @@ for (const { w, h } of SIZES) {
     const tour = page.getByRole("dialog", { name: "A best bet" });
     await expect(tour).toBeVisible({ timeout: 30_000 });
     await page.waitForTimeout(800);
-    // T-wt2f: the tour scrolls to the card, so the spotlight (the card) is on screen above the tab bar; the h1 may scroll away
+    // T-wt2f: the spotlit card is visible, the tour card neither covers it nor sits under the phone tab bar; at 1440 the heading stays in view
     const spot = (await page.getByTestId("tour-spot").boundingBox())!;
+    const tcard = (await tour.boundingBox())!;
+    const nav = page.locator('nav.fixed[aria-label="Main"]');
+    const navTop = (await nav.isVisible()) ? (await nav.boundingBox())!.y : h;
     expect(spot.y + 6, "the spotlit card's top is on screen").toBeGreaterThanOrEqual(0);
-    expect(spot.y + 6, "and starts above the bottom of the viewport").toBeLessThan(h - 100);
+    if (w < 1024) expect(spot.y + spot.height - 6, "the spotlit card ends above the tab bar").toBeLessThanOrEqual(navTop + 0.5);
+    else expect(navTop - (spot.y + 6), "at 1440 the heading wins: at least 120 px of the card shows").toBeGreaterThanOrEqual(120);
+    expect(tcard.y + tcard.height, "the tour card is above the tab bar").toBeLessThanOrEqual(navTop + 0.5);
+    const hit = Math.min(spot.x + spot.width - 6, tcard.x + tcard.width) - Math.max(spot.x + 6, tcard.x) > 0 && Math.min(spot.y + spot.height - 6, tcard.y + tcard.height) - Math.max(spot.y + 6, tcard.y) > 0;
+    expect(hit, "the tour card does not cover the card it points at").toBe(false);
+    if (w >= 1024) {
+      const box = (await h1.boundingBox())!;
+      expect(box.y, "the h1 is not scrolled off the top").toBeGreaterThanOrEqual(0);
+      expect(box.y + box.height, "the h1 is on screen").toBeLessThanOrEqual(h);
+    }
     const cls = await page.evaluate(() => (window as unknown as { __cls: number }).__cls);
     console.log(`first screen at ${w}px: CLS ${cls.toFixed(4)}`);
     expect(cls).toBeLessThan(0.1);
