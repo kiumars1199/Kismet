@@ -32,6 +32,13 @@ export function baseOf(m: Pick<Market, "us" | "best" | "category">, s: Side): Ch
   };
 }
 
+/** The leg inputs the COMBO checker scores with: the same price (venue-aware betQuote, fee included) as baseOf, and the cautious chance
+ *  (win_prob_low), the one chance the combo tray shows (docs/18 §5, Marc #15/#74): one rule for the tray and the checker. */
+export function comboBaseOf(m: Pick<Market, "us" | "best" | "category">, s: Side): CheckBase {
+  const b = baseOf(m, s);
+  return { ...b, winProb: Number.isFinite(s.win_prob_low) ? s.win_prob_low : b.winProb };
+}
+
 export type CheckError = "price_range" | "stake_range" | "no_model";
 export interface CheckResult {
   price: number; stake: number;

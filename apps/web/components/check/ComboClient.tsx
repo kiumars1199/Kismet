@@ -10,6 +10,7 @@ import { checkCombo, MAX_COMBO_LEGS, MIN_COMBO_LEGS, sameEventAdvice, type Combo
 import { addStored, comboUrl, parseLegsParam, readStored, writeStored } from "@/lib/check/comboLegs";
 import { COMBO_CHECK_FREE_NOTE, COMBO_LIMIT_USED } from "@/lib/check/copy";
 import { useMe } from "@/lib/me";
+import { useCombo } from "@/components/combo/useCombo";
 import { parseLink } from "@/lib/check/parse-link";
 import type { ComboLegsResponse, LegLookup } from "@/lib/check/response";
 import { SCORE_FORMULA } from "@/lib/check/score";
@@ -38,6 +39,7 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
   const [copied, setCopied] = useState("");
   const [engaged, setEngaged] = useState(false);   // the person has started adding: from then on the page keeps its reserved height
   const me = useMe();
+  const trayLegs = useCombo((c) => c.legs.length);   // Premium's combo tray is fixed to the bottom of the screen: leave room under the page for it
   const legsRef = useRef(legs);
   legsRef.current = legs;
   const started = useRef("");
@@ -180,7 +182,7 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
   const smallest = ready ? Math.min(...combos.map((l) => l.base.n ?? 0)) : null;
 
   return (
-    <div className="flex flex-col gap-5" data-testid="combo-check">
+    <div className={`flex flex-col gap-5 ${trayLegs > 0 ? "pb-36 md:pb-24" : ""}`} data-testid="combo-check">
       <div ref={box} className="relative">
       <form onSubmit={submit} className="flex flex-col gap-2 sm:flex-row">
         <label className="sr-only" htmlFor="combo-q">Add a bet by link or words</label>

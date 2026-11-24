@@ -37,8 +37,11 @@ async function fromCheck(page: Page) {
 /** Signed in: a card's drawer on /bets. */
 async function fromDrawer(page: Page) {
   await page.goto("/bets");
-  await page.locator("[data-row] h3 a").first().click();
   const dialog = page.getByRole("dialog", { name: "Market details" });
+  await expect(async () => {   // a tap before the page has hydrated just follows the link: tap again until the drawer is open
+    if (!(await dialog.isVisible())) await page.locator("[data-row] h3 a").first().click({ timeout: 3_000 });
+    await expect(dialog).toBeVisible({ timeout: 6_000 });
+  }).toPass({ timeout: 60_000 });
   const link = dialog.getByRole("link", { name: "Add to combo checker" });
   await expect(link).toBeVisible({ timeout: 30_000 });
   await expect(dialog.getByRole("button", { name: /^Add to combo tray/ })).toHaveCount(0);   // the Premium tray is not shown to Free or Pro
@@ -73,7 +76,7 @@ test("signed out: /check and a bet's page lead to the combo checker at 390 and 1
 });
 
 test("Free, then Pro: both reach the combo checker from /check and the drawer; /combos says what they have; only Free sees the check note", async ({ page }) => {
-  test.setTimeout(420_000);
+  test.setTimeout(600_000);
   await signIn(page, `wt3-${Date.now()}@example.com`);
   const ids = ((await (await page.request.get("/api/markets?limit=20")).json()).rows as { market: { id: string }; side: { side_index: number } }[]);
   expect(ids.length).toBeGreaterThanOrEqual(2);
@@ -175,7 +178,7 @@ async function headerAt(page: Page, w: number, path: string, plan: string) {
   expect(m.hasLink, tag).toBe(true);
   expect(m.shown, `link shown only from 1440 (${tag})`).toBe(w >= 1440);
   expect(m.withLink.h, `header no taller than final (${tag})`).toBeLessThanOrEqual(m.without.h);
-  expect(m.withLink.clipped, `no nav item clips (${tag})`).toBe(m.without.clipped);
+  expect(m.withLink.clipped, `no nav item clips (${tag})`).toBe(false);   // T-wt3c: no plan clips its nav at 768 to 1440
   if (m.withLink.search !== null && m.without.search !== null) {
     expect(m.withLink.search, `search no narrower than final (${tag})`).toBeGreaterThanOrEqual(Math.min(m.without.search, 120));
   }
