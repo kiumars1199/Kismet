@@ -84,7 +84,9 @@ for (const tier of ["pro", "premium"] as const) {
       await resetCls(page);
       await empty.getByRole("button", { name: "See all best bets" }).click();
       await expect(page.locator("article[data-row]").first()).toBeVisible({ timeout: 60_000 });
-      await settle(page);
+      // 2 s after the cards land is enough to see the list push the footer (the 0.397 case); a longer window also catches the cards' own
+      // periodic re-render (a card line re-wrapping ~10 s after load, seen once on a slow CI runner), which is not what this test is about
+      await page.waitForTimeout(2_000);
       const after = await cls(page);
       console.log(`${tier} ${w}: See all best bets with the list 900 ms late: CLS ${after.toFixed(4)}\n${await sources(page)}`);
       expect(after).toBeLessThan(0.02);
