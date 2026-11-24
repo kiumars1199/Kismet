@@ -175,7 +175,7 @@ async function headerAt(page: Page, w: number, path: string, plan: string) {
   expect(m.hasLink, tag).toBe(true);
   expect(m.shown, `link shown only from 1440 (${tag})`).toBe(w >= 1440);
   expect(m.withLink.h, `header no taller than final (${tag})`).toBeLessThanOrEqual(m.without.h);
-  expect(m.withLink.clipped, `no nav item clips (${tag})`).toBe(m.without.clipped);
+  expect(m.withLink.clipped, `no nav item clips (${tag})`).toBe(false);   // T-wt3c: no plan clips its nav at 768 to 1440
   if (m.withLink.search !== null && m.without.search !== null) {
     expect(m.withLink.search, `search no narrower than final (${tag})`).toBeGreaterThanOrEqual(Math.min(m.without.search, 120));
   }
