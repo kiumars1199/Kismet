@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { MULTI, barPatch, barValues } from "./FilterBar";
+import { MULTI, barPatch, barValues, multiLabel } from "./FilterBar";
 import { todayHeading } from "@/lib/format";
 import type { FilterState } from "@/lib/filters/state";
 
@@ -15,6 +15,13 @@ describe("filter bar with saved topics", () => {
   it("Apply with the multi value leaves the topics alone", () => {
     const p = barPatch({ sport: MULTI, mult: "", date: "", from: "", to: "" }, win);
     expect("topics" in p || "categories" in p).toBe(false);
+  });
+});
+describe("multiLabel", () => {
+  it("Your topics (N) only for the saved topics; a hand-picked set is 'N topics'", () => {
+    expect(multiLabel({ topics: ["a", "b"], favorites_only: true })).toBe("Your topics (2)");
+    expect(multiLabel({ topics: ["a", "b"] })).toBe("2 topics");
+    expect(multiLabel({ topics: ["a", "b", "c"], favorites_only: false })).toBe("3 topics");
   });
 });
 describe("todayHeading", () => {

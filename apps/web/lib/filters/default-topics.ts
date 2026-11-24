@@ -31,3 +31,19 @@ export function defaultTopicsHref(search: string, favorites: string[], dismissed
   p.forEach((v, k) => out.set(k, v));
   return `?${out.toString()}`;
 }
+
+/** A "Your topics" link with no ids (fav=1 only: an old link, onboarding) resolves to the saved topics on the server.
+ *  fav=0 is the cleared pill / "Everything": never resolved. */
+export function wantsSavedTopics(params: URLSearchParams): boolean {
+  const v = params.get("fav");
+  return (v === "1" || v === "true") && !params.has("t");
+}
+
+/** On a saved-topics view (fav=1), a topics change that leaves the saved set also leaves "Your topics": the patch gets
+ *  favorites_only:false, so the pill and the bar show the real topics, not a saved set that no longer applies. */
+export function leaveSavedTopics<P extends { topics?: string[]; favorites_only?: boolean }>(state: { favorites_only?: boolean }, patch: P, saved: string[]): P & { favorites_only?: boolean } {
+  if (!state.favorites_only || "favorites_only" in patch || !("topics" in patch)) return patch;
+  const next = patch.topics ?? [];
+  const same = next.length === saved.length && next.every((t) => saved.includes(t));
+  return same ? patch : { ...patch, favorites_only: false };
+}

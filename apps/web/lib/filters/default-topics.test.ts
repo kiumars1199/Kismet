@@ -1,5 +1,29 @@
 import { describe, expect, it } from "vitest";
-import { TOPICS_COOKIE_MAX_AGE, defaultTopicsHref, parseTopicsCookie, topicsCookieValue } from "./default-topics";
+import { TOPICS_COOKIE_MAX_AGE, defaultTopicsHref, leaveSavedTopics, parseTopicsCookie, topicsCookieValue, wantsSavedTopics } from "./default-topics";
+
+describe("wantsSavedTopics", () => {
+  it("fav=1 without ids resolves the saved topics; fav=0 (Everything / cleared pill) never does", () => {
+    expect(wantsSavedTopics(new URLSearchParams("fav=1"))).toBe(true);
+    expect(wantsSavedTopics(new URLSearchParams("fav=0"))).toBe(false);
+    expect(wantsSavedTopics(new URLSearchParams("fav=false"))).toBe(false);
+    expect(wantsSavedTopics(new URLSearchParams("fav=1&t=sports.nfl"))).toBe(false);
+    expect(wantsSavedTopics(new URLSearchParams(""))).toBe(false);
+  });
+});
+
+describe("leaveSavedTopics", () => {
+  const saved = ["sports.nfl", "politics.elections"];
+  it("adding or swapping a topic on a saved view leaves 'Your topics'", () => {
+    expect(leaveSavedTopics({ favorites_only: true }, { topics: [...saved, "sports.nba"] }, saved)).toEqual({ topics: [...saved, "sports.nba"], favorites_only: false });
+    expect(leaveSavedTopics({ favorites_only: true }, { topics: ["sports.nba"] }, saved).favorites_only).toBe(false);
+  });
+  it("the saved set (any order), other patches, and views that are not saved views are left alone", () => {
+    expect(leaveSavedTopics({ favorites_only: true }, { topics: [...saved].reverse() }, saved).favorites_only).toBeUndefined();
+    expect(leaveSavedTopics({ favorites_only: true }, {}, saved)).toEqual({});
+    expect(leaveSavedTopics({}, { topics: ["sports.nba"] }, saved).favorites_only).toBeUndefined();
+    expect(leaveSavedTopics({ favorites_only: true }, { topics: ["x"], favorites_only: undefined }, saved).favorites_only).toBeUndefined();   // explicit wins
+  });
+});
 
 describe("defaultTopicsHref", () => {
   it("opens with the user's topics when the URL has no filters", () => {

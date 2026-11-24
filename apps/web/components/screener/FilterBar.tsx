@@ -40,6 +40,8 @@ export const SORTS: { key: string; label: string; sort: FilterState["sort"] }[] 
 
 /** Sport value when 2+ topics filter the list (saved "Your topics"): shown as "Your topics (N)", left as they are on Apply. */
 export const MULTI = "multi";
+/** The multi option's label: "Your topics (N)" only for the saved topics (fav=1); a hand-picked set is just "N topics". */
+export const multiLabel = (s: Pick<FilterState, "topics" | "favorites_only">) => { const n = s.topics?.length ?? 0; return s.favorites_only ? `Your topics (${n})` : `${n} topics`; };
 type Bar = { sport: string; mult: string; date: string; from: string; to: string };
 
 /** The bar's values read from a FilterState ("" = any). date "custom" = the From/To days below. */
@@ -115,10 +117,10 @@ export function FilterBar({ state, facets, win, total, shown, fallback = false, 
   return (
     <div className="flex flex-col gap-3">
       <form data-testid="filter-bar" className="grid grid-cols-2 gap-2 rounded-2xl border border-border bg-raised p-2 md:flex md:flex-row md:items-stretch"
-        onSubmit={(e) => { e.preventDefault(); onChange(barPatch(draft, win)); }}>
+        onSubmit={(e) => { e.preventDefault(); onChange({ ...barPatch(draft, win), ...(!draft.sport && state.favorites_only ? { favorites_only: false } : {}) }); }}>
         <Field wide label="Sport or topic" icon={ICON.sport} value={draft.sport} testid="bar-sport" onChange={(sport) => setDraft((d) => ({ ...d, sport }))}>
           <option value="">Everything</option>
-          {(draft.sport === MULTI || applied.sport === MULTI) && <option value={MULTI}>Your topics ({state.topics?.length ?? 0})</option>}
+          {(draft.sport === MULTI || applied.sport === MULTI) && <option value={MULTI}>{multiLabel(state)}</option>}
           {groups.map((g) => (
             <optgroup key={g.id} label={g.label}>
               <option value={`t:${g.id}`}>All {g.label}{n(facets?.topics[g.id] ?? facets?.categories[g.id])}</option>
