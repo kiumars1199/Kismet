@@ -1,0 +1,18 @@
+== f350267
+76 76 "Will … highest … between 66-67°F on November 18?"
+84 82 "Will … highest … Los … between 66-67°F on November 18?"
+88 82 "Will … highest … Los … between 66-67°F on November 18?"
+91 90 "Will … highest … Los Angeles … between 66-67°F on November 18?"
+92 92 "Will the highest … Los Angeles … between 66-67°F on November 18?"
+96 92 "Will the highest … Los Angeles … between 66-67°F on November 18?"
+== 85051ad
+76 73 "Will … highest … Los … 66-67°F … November 18?"
+84 84 "Will the highest … Los Angeles … 66-67°F on November 18?"
+88 84 "Will the highest … Los Angeles … 66-67°F on November 18?"
+91 84 "Will the highest … Los Angeles … 66-67°F on November 18?"
+92 84 "Will the highest … Los Angeles … 66-67°F on November 18?"
+96 96 "Will the highest temperature … Los Angeles … 66-67°F on November 18?"
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+Expected: "Los Angeles"
+Received: "Will … highest … Los … between 66-67°F on November 18?"
+      Tests  1 failed | 20 passed (21)

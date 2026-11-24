@@ -1,0 +1,21 @@
+or higher / exact
+  Will … highest … Rio … Janeiro on Tuesday November 24 … 29°C or higher … station?
+  Will the highest … Rio … Janeiro on Tuesday November 24 … 29°C … station?
+or higher / or lower
+  Will … highest … Rio … Janeiro on Tuesday November 24 … 29°C or higher … station?
+  Will … highest … Rio … Janeiro on Tuesday November 24 … 29°C or lower … station?
+or below / exact
+  Will … highest … Rio … Janeiro on Tuesday November 24 … 29°C or below … station?
+  Will the highest … Rio … Janeiro on Tuesday November 24 … 29°C … station?
+highest / lowest (or higher)
+  Will … highest … Rio … Janeiro on Tuesday November 24 … 29°C or higher … station?
+  Will the lowest … Rio … Janeiro on Tuesday November 24 … 29°C or higher … station?
+highest / lowest (exact)
+  Will the highest … Rio … Janeiro on Tuesday November 24 … 29°C … station?
+  Will the lowest … Rio … Janeiro on Tuesday November 24 … 29°C … official station?
+fewer / more
+  Will US initial … November 21 … fewer … 225,000 … Department of Labor?
+  Will US initial jobless claims … November 21 … more … 225,000 … Department of Labor?
+fewer / exactly
+  Will US initial … November 21 … fewer … 225,000 … Department of Labor?
+  Will US initial jobless claims for … November 21 … 225,000 … to … Department of Labor?

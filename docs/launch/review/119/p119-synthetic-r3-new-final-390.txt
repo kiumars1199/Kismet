@@ -1,0 +1,48 @@
+more than / less than
+  Will Patrick Mahomes … more … 285 … Chiefs … Las Vegas Raiders … Thanksgiving?
+  Will Patrick Mahomes … less … 285 … City Chiefs … Las Vegas Raiders … Thanksgiving?
+more than / exact
+  Will Patrick Mahomes … more … 285 … Chiefs … Las Vegas Raiders … Thanksgiving?
+  Will Patrick Mahomes … 285 … City Chiefs … Las Vegas Raiders … Thanksgiving?
+up to / at least
+  Will Patrick Mahomes … 285 … City Chiefs … Las Vegas Raiders … Thanksgiving?
+  Will Patrick Mahomes … least 285 … City Chiefs … Las Vegas Raiders … Thanksgiving?
+up to / exact
+  Will Patrick Mahomes … 285 … City Chiefs … Las Vegas Raiders … Thanksgiving?
+  Will Patrick Mahomes … 285 … City Chiefs … Las Vegas Raiders … Thanksgiving?
+beats / loses to
+  Will Novak Djokovic beat Carlos Alcaraz … 2026 … Finals … Turin, Italy … Sunday?
+  Will Novak Djokovic lose … Carlos Alcaraz … 2026 … Finals … Turin, Italy … Sunday?
+beats / loses to (3rd person)
+  Novak Djokovic … Carlos Alcaraz … 2026 Nitto ATP Finals … Turin, Italy … Sunday?
+  Novak Djokovic … Carlos Alcaraz … 2026 Nitto ATP Finals … Turin, Italy … Sunday?
+wins / loses
+  Novak Djokovic wins … Carlos Alcaraz … 2026 Nitto ATP Finals … Turin, Italy … Sunday?
+  Novak Djokovic … Carlos Alcaraz … 2026 Nitto ATP Finals … Turin, Italy … Sunday?
+Yes / No lead-in
+  Yes: … Bank … England … December 2026 Monetary Policy Committee … London?
+  No: … Bank … England … December 2026 Monetary Policy Committee … London?
+Yes / No lead-in (lowercase, no colon)
+  yes … Bank … England … Bank … December 2026 Monetary Policy Committee … London
+  no … Bank … England … Bank … December 2026 Monetary Policy Committee … London
+first / last
+  Will Max Verstappen finish first … 2026 Abu Dhabi Grand … Yas Marina Circuit … FIA …
+  Will Max Verstappen finish … 2026 Abu Dhabi Grand Prix … Yas Marina Circuit … FIA …
+1st / last
+  Will Max Verstappen finish 1st … 2026 Abu Dhabi Grand … Yas Marina Circuit … FIA …
+  Will Max Verstappen finish … 2026 Abu Dhabi Grand Prix … Yas Marina Circuit … FIA …
+first / second
+  Will Max Verstappen finish first … 2026 Abu Dhabi Grand … Yas Marina Circuit … FIA …
+  Will Max Verstappen finish second … 2026 Abu Dhabi … Yas Marina Circuit … FIA …
+last / exact (no place)
+  Will Max Verstappen finish … 2026 Abu Dhabi Grand Prix … Yas Marina Circuit … FIA …
+  Will Max Verstappen finish … podium … 2026 Abu … Prix … Yas Marina Circuit … FIA …
+earliest / latest
+  Will the earliest US … 1 … more … Atlanta, Georgia … 2026-27 … happen in December?
+  Will the latest US … 1 … more … Atlanta, Georgia … 2026-27 … happen in December?
+over / under (by date)
+  Will … Bitcoin … over $95,000 … 30 … 12:00 … Time … Friday November 27, 2026?
+  Will … Bitcoin … under $95,000 … 30 … 12:00 … Friday November 27, 2026?
+lead / trail
+  Will … Kansas City Chiefs … Las Vegas … Day … Arrowhead Stadium … Kansas City?
+  Will … Kansas City Chiefs … Las Vegas … Day … Arrowhead Stadium … Kansas City?

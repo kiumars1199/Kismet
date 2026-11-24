@@ -88,6 +88,7 @@ Problems:
 - Not walked: signed-in headers at 768–1280, the Premium drawer path to the tray, WebKit, and signed-in steps on a production build. Re-walk after the fixes.
 
 ## Found in review, outside a lane
+- 10:58 #119 T-wt1f merged at c7dbb10 (head f350267, reviewer 2 r3 PASS, CI green). Follow-up T-wt1g (pre-existing, no real title today): beats/loses-to, lead/trail, losing side of wins/loses and first/last loses its word, 'up to' becomes 'up … 285', and at tight widths the city is dropped before direction words.
 - 10:25 #119 85051ad review 2 FAIL on the break-it set (top/bottom, reach/dip, between/outside, min/max, by/on dates). Every PR-targeted pair passes, and the remaining clashes already exist on final: 13-14 there vs 8 here, with no real title affected. Sent back to the tracker lane to close them in this PR. #106 c4d2e93 CI green, with reviewer 1. #120 T-ci1 (e2e-paid on a production build) opened, first CI red, lane working.
 - 09:45 #119 4017b04 FAIL (check 2): 'or higher'/exact, highest/lowest, fewer/exact siblings still clash when shortened. Sent back to the tracker lane. #106 578b58b: the pro 390 CLS is fixed (blurb link on its own line on phones; fonts display:optional kept pending review); e2e-paid (1) /m teaser timed out with a dev-server ECONNRESET, so I re-ran it via the empty commit 438eb04. Prod 4ae6ca5 is READY with 0 runtime errors in the last hour (Vercel read-only).
 - 09:25 Prod: curl from the lead container gets 403 x-vercel-mitigated deny (default firewall, no custom rules, no attack); browsers get 200. See decisions 09:25.

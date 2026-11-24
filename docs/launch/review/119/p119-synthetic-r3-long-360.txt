@@ -1,0 +1,39 @@
+BQ over/under
+  Will Jean-Michel Basquiat's “Untitled (Leonardo … His … Heads)” … over $40m …
+  Will Jean-Michel Basquiat's “Untitled (Leonardo … His … Heads)” … under $40m …
+BQ above/below
+  Will Jean-Michel Basquiat's “Untitled (Leonardo … His … Heads)” … above $40m …
+  Will Jean-Michel Basquiat's “Untitled (Leonardo … His … Heads)” … below $40m …
+BQ or higher/exact
+  Will Jean-Michel Basquiat's “Untitled (Leonardo … His Five … $40m or higher …
+  Will Jean-Michel Basquiat's “Untitled (Leonardo … His … Heads)” … $40m …
+BQ or more/exact
+  Will Jean-Michel Basquiat's “Untitled (Leonardo … His Five … $40m or more …
+  Will Jean-Michel Basquiat's “Untitled (Leonardo … His … Heads)” … $40m …
+BQ fewer/at
+  Will Jean-Michel Basquiat's “Untitled (Leonardo … His Five … fewer … $40m …
+  Will Jean-Michel Basquiat's “Untitled (Leonardo … His Five … Heads)” … $40m …
+VG over/under
+  Will Vincent van Gogh's “Châtaigniers … over $175m at auction on November 20?
+  Will Vincent van Gogh's “Châtaigniers … under $175m … on November 20?
+VG or higher/exact
+  Will Vincent van Gogh's “Châtaigniers … $175m or higher … on November 20?
+  Will Vincent van Gogh's “Châtaigniers en … $175m at auction on November 20?
+HG or higher/exact
+  Will "The Hunger Games: … 70 or higher … Rotten Tomatoes Tomatometer?
+  Will "The Hunger Games: Sunrise … 70 … Rotten Tomatoes Tomatometer?
+HG fewer/at
+  Will "The Hunger Games: Sunrise … fewer … 70 … Rotten Tomatoes Tomatometer?
+  Will "The Hunger Games: Sunrise … 70 … Rotten Tomatoes Tomatometer?
+HG at least/at most
+  Will "The Hunger Games: Sunrise … at least 70 … Rotten Tomatoes Tomatometer?
+  Will "The Hunger Games: Sunrise … at most 70 … Rotten Tomatoes Tomatometer?
+WX highest/lowest
+  Will … highest … Jean-Michel Basquiat's … New York … 56°F on November 17?
+  Will … lowest … Jean-Michel Basquiat's … New York … 56°F on November 17?
+WX or higher/exact
+  Will … highest … Jean-Michel Basquiat's … York … 56°F or higher on November 17?
+  Will … highest … Jean-Michel Basquiat's … New York … 56°F on November 17?
+WX or below/exact
+  Will … highest … Jean-Michel Basquiat's … York … 56°F or below on November 17?
+  Will … highest … Jean-Michel Basquiat's … New York … 56°F on November 17?

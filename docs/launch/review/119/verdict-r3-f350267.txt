@@ -1,0 +1,47 @@
+#119 (T-wt1f, fix/wt1f) re-review r3 at f350267d228d9a663b60fd393f75f435569d8ee5 -- VERDICT: PASS
+
+Method: the PR's fit-clamp.ts with middle-clamp.ts inlined into it (fitclamp119r3.ts). I re-ran my own r2 sets on it; I did not use the lane's logs:
+  real-swapped (cands119-r3), the Rio and jobless sets (cands119b-r3), the r2 break set of 27 pairs (cands119c-r3),
+  the long real shapes (cands119d-r3), and a new r3 set of 16 pairs (cands119e-r3).
+Browser measure: p119fit-r3.mjs (it checks both height and width) against `next dev` of f350267 on :3755, at 360, 390 and 1440.
+
+1. Real titles, output/flags.json (2769): shortened 23 at 360, 22 at 390 and 20 at 1440. Over 2 lines 0, over width 0, clashes 0,
+   direction words lost 0. The 389 sibling groups (380 swapped from real titles) show the same line 0 times (p119-fit-r3-real.log).
+   Compared with r2, only 6 real lines changed at 360 (5 at 1440): "between" and "at least" now stay. All are still at most 2 lines
+   and fit the width.
+2. The r2 break set (27 pairs) shows the same line 0 times at all 3 widths, and no direction word is lost. That includes the r2 blockers:
+   top/bottom, reach/dip to, drop/hit, between/outside, minimum/maximum, min/max, positive/negative, by/on and by/in a date,
+   weekend/weekday. Before this change (85051ad) the count was 8; on final it is 13-14 (p119-fit-r3-break.log).
+   Rio and jobless (7): 0. Long real shapes (13): 0. "or higher" never reads as exact.
+3. The 84->92 budget change is justified (p119-budget-r3.log). Keeping "between " costs exactly 8 characters (84+8=92).
+   - At 84 the test fails on Expected "Los Angeles"; the line received is "Will … highest … Los … between 66-67°F on November 18?".
+   - At 92 the line is "Will the highest … Los Angeles … between 66-67°F on November 18?". 91 passes too, and no assertion changed.
+   - vitest fit-clamp: 21/21 pass.
+4. New break pairs (p119-synthetic-r3-new-*.txt):
+   distinct and correct:
+   - more than vs less than ("more … 285" / "less … 285")
+   - "up to" vs "at least" ("up … 285" / "at least 285")
+   - beat vs "lose to"
+   - Yes: vs No: lead-ins, both with and without a colon
+   - first vs second, 1st vs last, earliest vs latest
+   - over vs under with "by <date>"
+   Same line:
+   - "Novak Djokovic beats / loses to Carlos Alcaraz …" at 360 and 390 only: "beats" and "loses" are not in KEEP
+     (only beat, lose and wins are).
+   - "Chiefs lead / trail the Raiders" at 360, 390 and 1440.
+   Distinct but the direction word is dropped:
+   - "wins" vs "loses": the "loses" line reads as "Novak Djokovic … Carlos Alcaraz …".
+   - first vs last: the "last" line reads as "finish … 2026 Abu Dhabi …".
+   All of these are pre-existing: final gives the same clashes plus "up to" vs exact (p119-fit-r3-new-final.log). None is in the PR's scope,
+   and no real title has beats, loses, last, lead or "up to" today (the 14 "trail" titles are "Trail Blazers").
+   So per the rule these are follow-up notes, not blockers.
+5. Page, signed out, at 390 and 1440 (including slow fonts; 4 fixture titles): CLS 0, the line takes 1-2 lines and is not clipped,
+   disclaimer present, no cents, no sideways scroll. Screenshots: signup-r3-390x844.png and signup-r3-1440x900.png (p119-page-r3.log).
+6. CI: all 11 check runs succeeded, the combined status is success, and Vercel succeeded. check:js is 149.5 kB, under the 150 kB limit (p119-ci-r3.txt).
+
+FOLLOW-UPS (pre-existing, not blockers)
+- Add inflections: beats, loses, lost, won, last, trail, lead (or match on the stem).
+- "up to" renders as "up … 285". Keep "to" after "up", the way "at" is kept before "least".
+- At tight budgets the city goes first: at 76 characters the unit line is "Will … highest … between 66-67°F on November 18?".
+  No real title reached this in the browser.
+- The middle cuts in clampCandidates can still drop "or higher". The browser never reached them.
