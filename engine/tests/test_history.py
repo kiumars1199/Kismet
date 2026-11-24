@@ -1,5 +1,6 @@
 """F14: per-market price history, downsampled (<= 200 points) and capped (<= 90 days). No network."""
 import gzip
+import os
 import json
 
 from engine import history as h
@@ -152,3 +153,41 @@ def test_projected_size_for_2800_series_stays_under_6mb_gzipped():
     plain, gz = len(blob), len(gzip.compress(blob))
     print(f"280 series: {plain} B plain, {gz} B gzipped; x10 = {plain * 10 / 1e6:.2f} MB plain, {gz * 10 / 1e6:.2f} MB gzipped")
     assert gz * 10 < 6_000_000
+
+
+# --- T-hot1: the CLOB rejects batch-prices-history with more than 20 markets ("invalid filters: 'markets' exceeds maximum of 20") ---
+
+def test_batch_size_is_the_clob_maximum_of_20():
+    from pipeline import fetch_prices as fp
+    assert fp.CLOB_BATCH_MAX == 20
+    assert h.BATCH == fp.CLOB_BATCH_MAX
+
+
+def test_the_history_step_never_sends_more_than_20_markets_in_one_request(tmp_path):
+    sizes = []
+
+    def fetch(tokens, start, end):
+        sizes.append(len(tokens))
+        return {}
+
+    flags = [dict(id=str(i), best=dict(side_index=0), tokens=[f"t{i}", f"u{i}"]) for i in range(95)]
+    os.makedirs(tmp_path / "output")
+    (tmp_path / "output" / "flags.json").write_text(json.dumps({"flags": flags}))
+    h.run(Cfg(str(tmp_path)), fetch=fetch, now=NOW, log=lambda *a: None)
+    assert sizes and max(sizes) <= 20 and sum(sizes) == 95
+
+
+def test_pipeline_history_splits_any_token_list_into_requests_of_at_most_20(monkeypatch):
+    from pipeline import fetch_prices as fp
+    calls = []
+
+    def fake_http(method, url, json=None, **kw):
+        calls.append(len(json["markets"]))
+        return {"history": {t: [{"t": 1, "p": 0.5}] for t in json["markets"]}}
+
+    monkeypatch.setattr(fp, "http", fake_http)
+    out = fp.history([f"t{i}" for i in range(65)], 60)
+    assert calls == [20, 20, 20, 5] and len(out) == 65
+    calls.clear()
+    fp.history([f"t{i}" for i in range(20)], 60, 1, 2)
+    assert calls == [20]

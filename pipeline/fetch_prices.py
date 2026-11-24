@@ -82,16 +82,22 @@ def extend_sample(per_niche_month, seed=7):
     return jl_read(SAMPLE)
 
 
+CLOB_BATCH_MAX = 20   # the CLOB answers 400 "invalid filters: 'markets' exceeds maximum of 20" above this
+
+
 def history(tokens, fidelity, start_ts=None, end_ts=None):
     """Price history per token. Without a window the CLOB uses interval=max, which returns
-    nothing at 1 h fidelity for older markets; a start/end window (at most ~15 days) does."""
-    body = dict(markets=tokens, fidelity=fidelity)
-    if start_ts is None:
-        body["interval"] = "max"
-    else:
-        body.update(start_ts=int(start_ts), end_ts=int(end_ts))
-    d = http("POST", f"{CLOB}/batch-prices-history", json=body)
-    return d.get("history") or {}
+    nothing at 1 h fidelity for older markets; a start/end window (at most ~15 days) does.
+    Any number of tokens: sent CLOB_BATCH_MAX at a time."""
+    out = {}
+    for k in range(0, len(tokens), CLOB_BATCH_MAX):
+        body = dict(markets=tokens[k:k + CLOB_BATCH_MAX], fidelity=fidelity)
+        if start_ts is None:
+            body["interval"] = "max"
+        else:
+            body.update(start_ts=int(start_ts), end_ts=int(end_ts))
+        out.update(http("POST", f"{CLOB}/batch-prices-history", json=body).get("history") or {})
+    return out
 
 
 WINDOW_S = 14 * 86400          # CLOB rejects longer start/end windows

@@ -15,7 +15,9 @@ cent, the per-contract fee is that total / C, and the multiplier is 1 / (P + per
 rounding inflated longshots: 1% showed 50x where a $100 order gives about 93.5x.) This is Kalshi's STANDARD fee: some Kalshi
 markets use a different fee multiplier, so the web labels it "for a $100 bet, standard Kalshi fee", never "exact".
 """
+import bisect
 import json
+import math
 import os
 import re
 import time
@@ -89,6 +91,88 @@ def match_kalshi(pm, rows):
     return best
 
 
+# --- the indexed matcher (T-hot1) ---------------------------------------------------------------------------------------------
+# The pairwise loop above (match_kalshi) is the reference: it scored every Kalshi row for every Polymarket market, ~15K x 183K
+# calls, ~82 minutes in prod. KalshiIndex returns exactly the same match without the scan.
+#
+# Why a token index can be exact. score() is  round(0.7 * title_sim + 0.2 + 0.1 * (1 - gap / MAX_CLOSE_GAP_S), 4)  after hard gates
+# that only return 0 (close time, category, numbers, side name, subject words). The only terms that add anything are title_sim
+# (a Jaccard, 0..1), a constant 0.2, and 0.1 * (1 - gap / MAX) with 0 <= gap <= MAX (a larger gap is a gate -> 0), so that term is
+# in [0, 0.1]. For score >= MIN_SCORE = 0.9 after rounding to 4 places we need  0.7 * sim + 0.3 >= 0.89995, i.e.
+# sim >= 0.857071...; MIN_SIM below is 0.857, a hair lower, so we can only over-include candidates, never miss one. Gates only
+# remove candidates, so they cannot break the bound; the real score() still runs on every candidate and decides.
+#
+# sim = max(J(event, title), J(question, title)) over token SETS. Jaccard(A, B) >= t  =>  |A & B| >= t * |A | B| >= t * |A|, so B holds at
+# least need = ceil(t * |A|) of A's tokens and misses at most |A| - need. Any |A| - need + 1 tokens of A therefore include one that B
+# holds (pigeonhole): index Kalshi titles by token, look up the rarest |A| - need + 1 tokens of each Polymarket variant, and the union
+# of those posting lists contains every row that can reach MIN_SCORE. Candidates are scored in original row order with the same strict
+# '>' as the loop, so ties still go to the first row.
+MIN_SIM = 0.857
+
+
+class BudgetExceeded(Exception):
+    """The matcher ran past its wall-clock budget (checked inside the loops, never a background thread)."""
+
+
+class KalshiIndex:
+    """Token postings per Kalshi title, each posting list sorted by close time (rows without a close time can never score, so they are
+    left out), so a lookup is: rarest prefix tokens -> the rows in the +-48 h window -> the title-size window -> score()."""
+
+    def __init__(self, rows, deadline=None):
+        self.rows = rows
+        self.ntok = [0] * len(rows)
+        post = {}
+        order = sorted((i for i, k in enumerate(rows) if k["close_epoch"]), key=lambda i: (rows[i]["close_epoch"], i))
+        for n, i in enumerate(order):
+            if deadline is not None and n % 4096 == 0 and time.monotonic() > deadline:
+                raise BudgetExceeded("indexing")
+            toks = set(tokens(rows[i]["title"]))
+            self.ntok[i] = len(toks)
+            e = rows[i]["close_epoch"]
+            for t in toks:
+                lst = post.get(t)
+                if lst is None:
+                    post[t] = lst = ([], [])
+                lst[0].append(e)
+                lst[1].append(i)
+        self.post = post
+
+    def _variants(self, pm):
+        out = []
+        for text in (pm.get("event"), pm.get("question")):
+            a = set(tokens(text))
+            if a:   # an empty side has Jaccard 0 with everything
+                need = math.ceil(MIN_SIM * len(a) - 1e-9)
+                out.append((a, need, math.floor(len(a) / MIN_SIM + 1e-9)))   # tokens needed in common; largest title that can still reach MIN_SIM
+        return out
+
+    def match(self, pm):
+        """(row, score) exactly as match_kalshi(pm, rows), else None."""
+        c = pm.get("closes_at")
+        if not c:
+            return None   # score() is 0 without a close time
+        variants = self._variants(pm)
+        cand = set()
+        for a, need, _ in variants:
+            take = len(a) - need + 1
+            # the `take` rarest tokens of A; a token no row holds is the rarest of all (it fills a slot and finds nothing)
+            prefix = sorted(a, key=lambda t: len(self.post[t][0]) if t in self.post else 0)[:take]
+            lists = [self.post[t] for t in prefix if t in self.post]
+            for times, idx in lists:
+                lo, hi = bisect.bisect_left(times, c - MAX_CLOSE_GAP_S), bisect.bisect_right(times, c + MAX_CLOSE_GAP_S)
+                cand.update(idx[lo:hi])
+        best, best_i = None, None
+        for i in cand:
+            n = self.ntok[i]
+            if not any(need <= n <= hi for _, need, hi in variants):   # Jaccard >= t needs t|A| <= |B| <= |A| / t
+                continue
+            k = self.rows[i]
+            s = score(pm, k)
+            if s >= MIN_SCORE and (best is None or s > best[1] or (s == best[1] and i < best_i)):   # ties go to the first row, as in the loop
+                best, best_i = (k, s), i
+        return best
+
+
 def kalshi_price(pm, k):
     """Price (0-1) of the SAME side on Kalshi: the Yes ask, or for a "No" side what No costs (1 - the Yes bid)."""
     if pm["best"]["outcome"].lower() == "no":
@@ -124,27 +208,32 @@ def _mult(ask, fee):
     return round(1 / (ask + (fee or 0)), 4) if ask and ask > 0 else None
 
 
-def quotes(pm, rows):
-    """-> (venues, kalshi_match). venues in a fixed order: polymarket, us, kalshi (absent = not listed)."""
+def quotes(pm, rows, index=None):
+    """-> (venues, kalshi_match). venues in a fixed order: polymarket, us, kalshi (absent = not listed). `index`: a KalshiIndex over
+    `rows` (the same answer as scanning `rows`, without the scan)."""
     b = pm["best"]
     out = [dict(venue="polymarket", price=b["ask"], multiplier=_mult(b["ask"], b.get("fee")), url=pm["url"])]
     us = pm.get("us")
     if us:
         out.append(dict(venue="us", price=us.get("ask"), multiplier=_mult(us.get("ask"), us.get("fee")), url=us["url"]))
-    hit = match_kalshi(pm, rows) if rows else None
+    hit = (index.match(pm) if index is not None else match_kalshi(pm, rows)) if rows else None
     if hit:
         k, s = hit
         out.append(dict(venue="kalshi", price=kalshi_price(pm, k), multiplier=kalshi_multiplier(kalshi_price(pm, k)), url=kalshi_url(k["series"])))
     return out, hit
 
 
-def build(markets, tuples):
+def build(markets, tuples, deadline=None):
+    """deadline: time.monotonic() value after which BudgetExceeded is raised (checked every 64 markets and while indexing)."""
     rows = kalshi_rows(tuples or [])
+    index = KalshiIndex(rows, deadline) if rows else None
     res = {}
-    for pm in markets:
+    for n, pm in enumerate(markets):
+        if deadline is not None and n % 64 == 0 and time.monotonic() > deadline:
+            raise BudgetExceeded("matching")
         if pm.get("venue") == "us":   # US-native rows are priced on US only
             continue
-        venues, hit = quotes(pm, rows)
+        venues, hit = quotes(pm, rows, index)
         if len(venues) < 2:
             continue
         res[pm["id"]] = dict(venues=venues, side=pm["best"].get("side_index"))
@@ -164,7 +253,10 @@ def _read(path):
 KEEP_PREV = 2   # older snapshots kept in venues.json (the web's delayed stores read them)
 
 
-def write(cfg, log=print):
+BUDGET_S = 150   # the matcher gets 2.5 minutes of a scan cycle; on overrun the previous venues.json stays
+
+
+def write(cfg, log=print, budget_s=BUDGET_S):
     """output/venues.json from output/markets.json and (when present) output/kalshi_index.json.
 
     Kalshi quotes are only as new as the crawl (meta.kalshi_fetched_at), and Free's store is a scan or more behind, so the
@@ -173,7 +265,13 @@ def write(cfg, log=print):
     out = cfg.path("output", "venues.json")
     markets = (_read(cfg.path("output", "markets.json")) or {}).get("markets") or []
     ix = _read(cfg.path("output", "kalshi_index.json"))
-    res = build(markets, (ix or {}).get("rows"))
+    try:
+        res = build(markets, (ix or {}).get("rows"), time.monotonic() + budget_s)
+    except BudgetExceeded as e:
+        # never hold up the scan loop: keep what is on disk (the web reads it as is) and say so once
+        old = _read(out) or {}
+        log(f"[venues] WARNING time budget of {budget_s:g}s used while {e}; keeping the previous venues.json ({len(old.get('venues') or {})} markets)")
+        return old.get("venues") or {}
     fetched = int(((ix or {}).get("meta") or {}).get("fetched_at") or 0) or None
     meta = {"n": len(res), "kalshi": bool(ix), "generated_at": int(time.time())}
     if fetched:

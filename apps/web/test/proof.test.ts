@@ -116,7 +116,7 @@ describe("proofLine: the test result, then the live record beside it", () => {
     const l = stats({ entries: 80, graded: 60, wins: 50, losses: 10, avg_pnl: -0.013 });
     const u = us({ entries: 40, graded: 35, wins: 27, losses: 8, avg_pnl: 0.01, events: 9 });
     const p = proofLine({ record, backtest: BT, live: l, us: u, since: NOV17 });
-    expect(p.live).toBe(`Live since Nov 17: 60 settled bets, ${ret(liveReturn(l))}; on Polymarket US 35 settled bets in 9 events, ${ret(liveReturn(u))}, still too few to judge (needs ~22 events).`);
+    expect(p.live).toBe(`Live since Nov 17: 60 settled bets, ${ret(liveReturn(l))}; on Polymarket US 35 settled bets in 9 events, ${ret(liveReturn(u))}, still too few to judge (9 of about 22 settled events needed so far).`);
     expect(p.liveRoi).toBeCloseTo(liveReturn(l)!, 9);
   });
   it("US record with enough events to compare", () => {
@@ -280,5 +280,18 @@ describe("proofSummary: the one plain line above the plans", () => {
   });
   it("nothing to say → null (the page shows a plain 'How it did in testing')", () => {
     expect(proofSummary({ backtest: null, ledger: null })).toBeNull();
+  });
+});
+
+describe("eventsNeeded rounds on the exact value, not on float noise", () => {
+  const r = (events: number, t_stat: number) => ({ events, roi_pct: 5, t_stat });
+  it("75 events at t 2.5 need exactly 48, not 49 (75 x (2 / 2.5)^2 is 48.00000000000001 in floats)", () => {
+    expect(eventsNeeded(r(75, 2.5))).toBe(48);
+    expect(eventsNeeded(r(300, 5))).toBe(48);
+    expect(eventsNeeded(r(45, 1.2))).toBe(125);
+  });
+  it("still rounds a real fraction up", () => {
+    expect(eventsNeeded(r(76, 2.5))).toBe(49);   // 48.64
+    expect(eventsNeeded(r(1394, 18.5))).toBe(17);
   });
 });
