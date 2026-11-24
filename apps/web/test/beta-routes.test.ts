@@ -27,13 +27,14 @@ describe("combos are live for Premium", () => {
     const html = JSON.stringify(await Page());
     expect(html).not.toContain("beta-banner");
     expect(html).not.toContain("combos-upgrade");
+    expect(html, "T-wt3j: the first list is handed to the browser, so it is in the first HTML").toContain("market_id");
   });
   it("Free and Pro (even a tester) get none, and /combos shows the upgrade link instead of a 404", async () => {
     for (const t of ["free", "pro"] as Tier[]) {
       h.tier = t; h.beta = true;
       expect((await combos()).groups, t).toEqual([]);
       expect((await combos("?pays=2")).groups, t).toEqual([]);
-      expect(renderToStaticMarkup(await Page()), t).toContain('data-testid="combos-upgrade"');
+      expect(renderToStaticMarkup(await Page()), t).toContain('data-testid="combos-upgrade"');   // no ComboBrowser, so no list is built for them (the e2e checks their HTML)
     }
   });
 });

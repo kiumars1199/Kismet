@@ -6,13 +6,32 @@ import { Suspense } from "react";
 import { getMe } from "@/lib/auth/server";
 import { canBeta } from "@/lib/beta";
 import { COMBOS_PAGE_FREE_PRO } from "@/lib/check/copy";
+import { pausedResponse } from "@/lib/account/pause";
+import { browseCombos, COMBO_PAYS, gateCombos, type CombosResponse, type ComboPays } from "@/lib/data/combos";
+import { getStoreFor } from "@/lib/data/store";
 import { ComboBrowser } from "./ComboBrowser";
 
 export const metadata = { title: "Combos", description: "Two- and three-leg combos from Best bets on different events, by payout.", alternates: { canonical: "/combos" } };
 export const dynamic = "force-dynamic";
 
+/** All four payout lists (2x+, 3x+, 5x+, 10x+), built here so they are in the first HTML (T-wt3j): fetched in the browser they arrived after the footer had been painted, and the
+ *  footer jumped by the list's whole height; and a payout tap that waited for the API moved the page on a slow connection. With all four in hand, a tap is instant (no request).
+ *  Only for a Premium viewer the same way /api/combos is (canBeta + the tier's own gating); anything else, or a store that cannot load, returns undefined and the browser asks the API
+ *  as before (with the room held). */
+async function firstLists(me: Awaited<ReturnType<typeof getMe>>): Promise<Record<ComboPays, CombosResponse> | undefined> {
+  try {
+    if (!canBeta(me, "combos") || pausedResponse(me)) return undefined;
+    const store = await getStoreFor(me.tier);
+    return Object.fromEntries(COMBO_PAYS.map((p) => [p, gateCombos(browseCombos(store, p), me.tier)])) as Record<ComboPays, CombosResponse>;
+  } catch {
+    return undefined;
+  }
+}
+
 export default async function Page() {
-  const allowed = canBeta(await getMe(), "combos");
+  const me = await getMe();
+  const allowed = canBeta(me, "combos");
+  const lists = allowed ? await firstLists(me) : undefined;
   return (
     <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-5">
       <div>
@@ -25,7 +44,7 @@ export default async function Page() {
       </div>
       {allowed ? (
         <Suspense>
-          <ComboBrowser />
+          <ComboBrowser lists={lists} />
         </Suspense>
       ) : (
         <div data-testid="combos-upgrade" className="flex flex-col items-start gap-3 rounded-card border border-border bg-surface p-5">
