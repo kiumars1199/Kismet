@@ -1,0 +1,36 @@
+[390 d300 gap0] tapped Tennis, Esports (first PATCH fails). UI at once ["NFL","Tennis","Esports"]
+   after: UI ["NFL","Esports"] status="Couldn't save Tennis. Tap to try again." clsDuringRevert=0.0000 shifts=[]
+   +5500ms: UI ["NFL","Esports"] status="2 chosen. They show first in your quick filters." clsTotal=0.0000
+   2605ms PATCH ->500 ["sports.nfl","sports.tennis"]
+   2919ms PATCH ->ok ["sports.nfl","sports.esports"]
+   server ["sports.nfl","sports.esports"] cookie 2ff1e913-c17f-4ce6-bad7-08590b4305bb|on:sports.nfl,sports.esports
+[390 d300 gap80] tapped Tennis, Esports (first PATCH fails). UI at once ["NFL","Tennis","Esports"]
+   after: UI ["NFL","Esports"] status="Couldn't save Tennis. Tap to try again." clsDuringRevert=0.0000 shifts=[]
+   +5500ms: UI ["NFL","Esports"] status="2 chosen. They show first in your quick filters." clsTotal=0.0000
+   2576ms PATCH ->500 ["sports.nfl","sports.tennis"]
+   2892ms PATCH ->ok ["sports.nfl","sports.esports"]
+   server ["sports.nfl","sports.esports"] cookie 5bac8d0b-ddaa-44da-a322-a8da552234ac|on:sports.nfl,sports.esports
+[390 d300 gap300] tapped Tennis, Esports (first PATCH fails). UI at once ["NFL","Esports"]
+   after: UI ["NFL","Esports"] status="Couldn't save Tennis. Tap to try again." clsDuringRevert=0.0000 shifts=[]
+   +5500ms: UI ["NFL","Esports"] status="2 chosen. They show first in your quick filters." clsTotal=0.0000
+   2667ms PATCH ->500 ["sports.nfl","sports.tennis"]
+   2995ms PATCH ->ok ["sports.nfl","sports.esports"]
+   server ["sports.nfl","sports.esports"] cookie 5741f234-278a-491f-8c4a-cde5681ccffc|on:sports.nfl,sports.esports
+[1440 d300 gap0] tapped Tennis, Esports (first PATCH fails). UI at once ["NFL","Tennis","Esports"]
+   after: UI ["NFL","Esports"] status="Couldn't save Tennis. Tap to try again." clsDuringRevert=0.0000 shifts=[{"v":0.0006,"t":174,"src":["DIV.h-11 w-full max-w-[340px] rounded-input  '' 9.5->9.5 h44->44"]}]
+   +5500ms: UI ["NFL","Esports"] status="2 chosen. They show first in your quick filters." clsTotal=0.0000
+   2591ms PATCH ->500 ["sports.nfl","sports.tennis"]
+   2904ms PATCH ->ok ["sports.nfl","sports.esports"]
+   server ["sports.nfl","sports.esports"] cookie 7be234b7-c4f9-45cf-91ac-6ceb7acbb115|on:sports.nfl,sports.esports
+[1440 d300 gap80] tapped Tennis, Esports (first PATCH fails). UI at once ["NFL","Tennis","Esports"]
+   after: UI ["NFL","Esports"] status="Couldn't save Tennis. Tap to try again." clsDuringRevert=0.0000 shifts=[{"v":0.0006,"t":274,"src":["DIV.h-11 w-full max-w-[340px] rounded-input  '' 9.5->9.5 h44->44"]}]
+   +5500ms: UI ["NFL","Esports"] status="2 chosen. They show first in your quick filters." clsTotal=0.0000
+   2896ms PATCH ->500 ["sports.nfl","sports.tennis"]
+   3209ms PATCH ->ok ["sports.nfl","sports.esports"]
+   server ["sports.nfl","sports.esports"] cookie 8a701abd-cc2c-4317-81c0-07d5a7aa5ecf|on:sports.nfl,sports.esports
+[1440 d300 gap300] tapped Tennis, Esports (first PATCH fails). UI at once ["NFL","Esports"]
+   after: UI ["NFL","Esports"] status="Couldn't save Tennis. Tap to try again." clsDuringRevert=0.0000 shifts=[{"v":0.0006,"t":245,"src":["DIV.h-11 w-full max-w-[340px] rounded-input  '' 9.5->9.5 h44->44"]}]
+   +5500ms: UI ["NFL","Esports"] status="2 chosen. They show first in your quick filters." clsTotal=0.0000
+   2916ms PATCH ->500 ["sports.nfl","sports.tennis"]
+   3238ms PATCH ->ok ["sports.nfl","sports.esports"]
+   server ["sports.nfl","sports.esports"] cookie 5326f76b-62c4-4ffc-82b8-4bd6083e703c|on:sports.nfl,sports.esports

@@ -1,0 +1,12 @@
+[375 long] after Tennis fails: UI=["NFL"] status="Couldn't save Tennis. Tap to try again." statusH=20(was 40) cls=0.0177 server=["sports.nfl"] cookie=on:sports.nfl
+[375 long] +5s: UI=["NFL"] status="1 chosen. They show first in your quick filters." statusH=40(was 40) cls=0.0354 server=["sports.nfl"] cookie=on:sports.nfl
+[375 long] 3244ms PATCH#1 ->500 after 800ms ["sports.nfl","sports.tennis"]
+
+[360 long] after Tennis fails: UI=["NFL"] status="Couldn't save Tennis. Tap to try again." statusH=20(was 40) cls=0.0185 server=["sports.nfl"] cookie=on:sports.nfl
+[360 long] +5s: UI=["NFL"] status="1 chosen. They show first in your quick filters." statusH=40(was 40) cls=0.0371 server=["sports.nfl"] cookie=on:sports.nfl
+[360 long] 2903ms PATCH#1 ->500 after 800ms ["sports.nfl","sports.tennis"]
+
+[375 long] after Tennis fails: UI=["NFL"] status="Couldn't save Tennis. Tap to try again." statusH=20(was 40) cls=0.0000 server=["sports.nfl"] cookie=on:sports.nfl
+[375 long] +5s: UI=["NFL"] status="1 chosen. They show first in your quick filters." statusH=40(was 40) cls=0.0177 server=["sports.nfl"] cookie=on:sports.nfl
+[375 long] 3199ms PATCH#1 ->500 after 300ms ["sports.nfl","sports.tennis"]
+

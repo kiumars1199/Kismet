@@ -1,0 +1,21 @@
+PR #134 T-wt3g head 6936a201d12786e06ac2660d43e94ec92deb6a8d - verdict: PASS with notes
+Own prod build (E2E_MOCK=1 E2E_PROD_BUILD=1) on :4217, listening socket owned by next-server pid 9849, cwd scratchpad/wt4 (6936a20).
+
+(1) chancePct
+ - Checker, 10 long shots: combined "<1%", Why line "88% x 93% x 5% ... = <1%"; no 0%/100% chance in card or legs (chance.log).
+ - Checker extremes: leg q_low 0.0004 -> "<1% chance (cautious)"; combined "<1%".
+ - Suggested combos (9 cards): no 0%/100%; first 3 cards agree card = tray = checker (78/78/78, 71/71/71, 72/72/72).
+ - Tray, 5 long shots: chance "<1% (about 1 in 9672161)", central "<1%", BUT the multiply line in the same tray card still says
+   "5% x 6% x 3% x 3% x 4% ≈ 0%" -> lib/combos.ts multiplyLine (line 84) still uses pct. Also used in SuggestedCombos cards. [should-fix]
+ - Tray return shows "−100%" for that combo (ret rounds −99.99%) [nit].
+ - Checker leg line "Bet No at 100%" for ask 0.999 (legLine uses pct(l.price)) - a price, not a chance [nit, pre-existing].
+ - Unit tests format/combo/combos: 47 pass.
+(2) Alert self-scroll (alert-scroll.log, alert-*.png)
+ - 375x667: one instant 111 px scroll right after the tap; link fully tappable without scrolling (all 5 hit points link, link bottom 472 < tray top 529).
+ - 390/768/1440: no scroll needed, 0 px; link tappable.
+ - Fires once per error (1 scrollIntoView call); no re-fire on tray expand/collapse re-render or on a second tap with the same error.
+ - Does not fight the user: tap then wheel up -> final scrollY follows the wheel.
+ - CLS (non-input) 0 at all 4 sizes (alert insertion shifts are within the input window, as before).
+ - nit: at 375 the sentence's final "." wraps alone onto its own line after the inline-block link.
+Regressions (#130): Free slow 429 at 390/375x667/768/1440: CLS 0, legs fixed. Scored reload worst 0.0006. Link 44+ px tappable.
+Tiers on /check/combo (signed-out, Free, Pro, Premium at 390/1440): disclaimer yes, no cents, no h-scroll, no personalized copy, CLS <= 0.0004, no errors.

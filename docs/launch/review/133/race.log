@@ -1,0 +1,64 @@
+### race.js 390x844 fast PATCH_DELAY=0
+[390 fast] onboarding clicked 4: UI right after=["NFL","NBA","College basketball","Soccer"] UI +3s=["NFL","NBA","College basketball","Soccer"] server.favorite_topics=["sports.nfl","sports.soccer","sports.ncaab","sports.nba"]
+[390 fast] onboarding after reload: ["NFL","NBA","College basketball","Soccer"]
+[390 fast] settings before=["NFL","NBA","College basketball","Soccer"] clicked +MLB +NHL -NFL: UI=["NBA","College basketball","Soccer","Hockey","Baseball"] server.favorite_topics=["sports.soccer","sports.ncaab","sports.nba","sports.mlb","sports.nhl"]
+[390 fast] settings after reload: ["NBA","College basketball","Soccer","Hockey","Baseball"]
+[390 fast] settings right-after-hydration -Soccer -College basketball, after reload: ["NBA","Hockey","Baseball"] server.favorite_topics=["sports.nba","sports.mlb","sports.nhl"]
+--- LOG
+
+### race.js 390x844 slow PATCH_DELAY=0
+[390 slow] onboarding clicked 4: UI right after=["NFL","NBA","College basketball","Soccer"] UI +3s=["NFL","NBA","College basketball","Soccer"] server.favorite_topics=["sports.nfl","sports.soccer","sports.ncaab","sports.nba"]
+[390 slow] onboarding after reload: ["NFL","NBA","College basketball","Soccer"]
+[390 slow] settings before=["NFL","NBA","College basketball","Soccer"] clicked +MLB +NHL -NFL: UI=["NBA","College basketball","Soccer","Hockey","Baseball"] server.favorite_topics=["sports.soccer","sports.ncaab","sports.nba","sports.mlb","sports.nhl"]
+[390 slow] settings after reload: ["NBA","College basketball","Soccer","Hockey","Baseball"]
+[390 slow] settings right-after-hydration -Soccer -College basketball, after reload: ["NBA","Hockey","Baseball"] server.favorite_topics=["sports.nba","sports.mlb","sports.nhl"]
+--- LOG
+
+### race.js 1440x900 fast PATCH_DELAY=0
+[1440 fast] onboarding clicked 4: UI right after=["NFL","NBA","College basketball","Soccer"] UI +3s=["NFL","NBA","College basketball","Soccer"] server.favorite_topics=["sports.nfl","sports.soccer","sports.ncaab","sports.nba"]
+[1440 fast] onboarding after reload: ["NFL","NBA","College basketball","Soccer"]
+[1440 fast] settings before=["NFL","NBA","College basketball","Soccer"] clicked +MLB +NHL -NFL: UI=["NBA","College basketball","Soccer","Hockey","Baseball"] server.favorite_topics=["sports.soccer","sports.ncaab","sports.nba","sports.mlb","sports.nhl"]
+[1440 fast] settings after reload: ["NBA","College basketball","Soccer","Hockey","Baseball"]
+[1440 fast] settings right-after-hydration -Soccer -College basketball, after reload: ["NBA","Hockey","Baseball"] server.favorite_topics=["sports.nba","sports.mlb","sports.nhl"]
+--- LOG
+
+### race.js 1440x900 slow PATCH_DELAY=0
+[1440 slow] onboarding clicked 4: UI right after=["NFL","NBA","College basketball","Soccer"] UI +3s=["NFL","NBA","College basketball","Soccer"] server.favorite_topics=["sports.nfl","sports.soccer","sports.ncaab","sports.nba"]
+[1440 slow] onboarding after reload: ["NFL","NBA","College basketball","Soccer"]
+[1440 slow] settings before=["NFL","NBA","College basketball","Soccer"] clicked +MLB +NHL -NFL: UI=["NBA","College basketball","Soccer","Hockey","Baseball"] server.favorite_topics=["sports.soccer","sports.ncaab","sports.nba","sports.mlb","sports.nhl"]
+[1440 slow] settings after reload: ["NBA","College basketball","Soccer","Hockey","Baseball"]
+[1440 slow] settings right-after-hydration -Soccer -College basketball, after reload: ["NBA","Hockey","Baseball"] server.favorite_topics=["sports.nba","sports.mlb","sports.nhl"]
+--- LOG
+
+### race.js 390x844 fast PATCH_DELAY=300
+[390 fast] onboarding clicked 4: UI right after=["NFL","NBA","College basketball","Soccer"] UI +3s=["NFL","NBA","College basketball","Soccer"] server.favorite_topics=["sports.nfl","sports.soccer","sports.ncaab","sports.nba"]
+[390 fast] onboarding after reload: ["NFL","NBA","College basketball","Soccer"]
+[390 fast] settings before=["NFL","NBA","College basketball","Soccer"] clicked +MLB +NHL -NFL: UI=["NBA","College basketball","Soccer","Hockey","Baseball"] server.favorite_topics=["sports.soccer","sports.ncaab","sports.nba","sports.mlb","sports.nhl"]
+[390 fast] settings after reload: ["NBA","College basketball","Soccer","Hockey","Baseball"]
+[390 fast] settings right-after-hydration -Soccer -College basketball, after reload: ["NBA","Hockey","Baseball"] server.favorite_topics=["sports.nba","sports.mlb","sports.nhl"]
+--- LOG
+
+### race.js 390x844 slow PATCH_DELAY=300
+[390 slow] onboarding clicked 4: UI right after=["NFL","NBA","College basketball","Soccer"] UI +3s=["NFL","NBA","College basketball","Soccer"] server.favorite_topics=["sports.nfl","sports.soccer","sports.ncaab","sports.nba"]
+[390 slow] onboarding after reload: ["NFL","NBA","College basketball","Soccer"]
+[390 slow] settings before=["NFL","NBA","College basketball","Soccer"] clicked +MLB +NHL -NFL: UI=["NBA","College basketball","Soccer","Hockey","Baseball"] server.favorite_topics=["sports.soccer","sports.ncaab","sports.nba","sports.mlb","sports.nhl"]
+[390 slow] settings after reload: ["NBA","College basketball","Soccer","Hockey","Baseball"]
+[390 slow] settings right-after-hydration -Soccer -College basketball, after reload: ["NBA","Hockey","Baseball"] server.favorite_topics=["sports.nba","sports.mlb","sports.nhl"]
+--- LOG
+
+### race.js 1440x900 fast PATCH_DELAY=300
+[1440 fast] onboarding clicked 4: UI right after=["NFL","NBA","College basketball","Soccer"] UI +3s=["NFL","NBA","College basketball","Soccer"] server.favorite_topics=["sports.nfl","sports.soccer","sports.ncaab","sports.nba"]
+[1440 fast] onboarding after reload: ["NFL","NBA","College basketball","Soccer"]
+[1440 fast] settings before=["NFL","NBA","College basketball","Soccer"] clicked +MLB +NHL -NFL: UI=["NBA","College basketball","Soccer","Hockey","Baseball"] server.favorite_topics=["sports.soccer","sports.ncaab","sports.nba","sports.mlb","sports.nhl"]
+[1440 fast] settings after reload: ["NBA","College basketball","Soccer","Hockey","Baseball"]
+[1440 fast] settings right-after-hydration -Soccer -College basketball, after reload: ["NBA","Hockey","Baseball"] server.favorite_topics=["sports.nba","sports.mlb","sports.nhl"]
+--- LOG
+
+### race.js 1440x900 slow PATCH_DELAY=300
+[1440 slow] onboarding clicked 4: UI right after=["NFL","NBA","College basketball","Soccer"] UI +3s=["NFL","NBA","College basketball","Soccer"] server.favorite_topics=["sports.nfl","sports.soccer","sports.ncaab","sports.nba"]
+[1440 slow] onboarding after reload: ["NFL","NBA","College basketball","Soccer"]
+[1440 slow] settings before=["NFL","NBA","College basketball","Soccer"] clicked +MLB +NHL -NFL: UI=["NBA","College basketball","Soccer","Hockey","Baseball"] server.favorite_topics=["sports.soccer","sports.ncaab","sports.nba","sports.mlb","sports.nhl"]
+[1440 slow] settings after reload: ["NBA","College basketball","Soccer","Hockey","Baseball"]
+[1440 slow] settings right-after-hydration -Soccer -College basketball, after reload: ["NBA","Hockey","Baseball"] server.favorite_topics=["sports.nba","sports.mlb","sports.nhl"]
+--- LOG
+

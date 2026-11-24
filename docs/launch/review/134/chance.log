@@ -1,0 +1,33 @@
+signed in r134-ch-1795548397566@example.com tier=premium
+[checker ten] chance "<1%" why "Combined chance 88% × 93% × 5% × 6% × 3% × 3% × 4% × 12% × 13% × 12% = <1%."
+   legs ["Denmark vs. Norway: Both Teams to Score Bet Yes at 68% · 88% chance (cautious) · pays 1.45x","Miami (OH) vs. Kent State: 1H Moneyline Bet Miami (OH) at 76% · 93% chance (cautious) · pays 1.29x","Ball State vs. Ohio: 1Q Moneyline Bet Ball State at 36% · 5% chance (cautious) · pays 2.69x","Singapore vs. Brazil: Both Teams to Score Bet Yes at 30% · 6% chance (cautious) · pays 3.22x","Eastern Michigan vs. Western Michigan: 1Q Moneyline Bet Eastern Michigan at 31% · 3% chance (cautious) · pays 3.12x","Spread: FC Barcelona (-2.5) Bet FC Barcelona at 26% · 3% chance (cautious) · pays 3.71x","Exact Score: Any Other Score? Bet Yes at 23% · 4% chance (cautious) · pays 4.19x","Will the highest temperature in Dallas be between 70-71°F on November 18? Bet Yes at 30% · 12% chance (cautious) · pays 3.22x","Will the highest temperature in Cape Town be 31°C on November 17? Bet Yes at 31% · 13% chance (cautious) · pays 3.12x","Will the highest temperature in Wellington be 18°C on November 18? Bet Yes at 30% · 12% chance (cautious) · pays 3.22x"]
+   bad 0%/100% in checker card+legs: []
+[tray ten] skipped: tray max 6 legs
+[checker six] chance "<1%" why "Combined chance 5% × 6% × 3% × 3% × 4% × 12% = <1%."
+   legs ["Ball State vs. Ohio: 1Q Moneyline Bet Ball State at 36% · 5% chance (cautious) · pays 2.69x","Singapore vs. Brazil: Both Teams to Score Bet Yes at 30% · 6% chance (cautious) · pays 3.22x","Eastern Michigan vs. Western Michigan: 1Q Moneyline Bet Eastern Michigan at 31% · 3% chance (cautious) · pays 3.12x","Spread: FC Barcelona (-2.5) Bet FC Barcelona at 26% · 3% chance (cautious) · pays 3.71x","Exact Score: Any Other Score? Bet Yes at 23% · 4% chance (cautious) · pays 4.19x","Will the highest temperature in Dallas be between 70-71°F on November 18? Bet Yes at 30% · 12% chance (cautious) · pays 3.22x"]
+   bad 0%/100% in checker card+legs: []
+   tray raw: "Your combo · 5 legs\nPays 420x · wins about 1 in 9672161\n\nOne bet left your combo because it closed."
+[tray six] summary "Pays 420x · wins about 1 in 9672161" chance "<1% (about 1 in 9672161)"
+   multiply line: "The combo wins only if every leg wins, so the legs' chances multiply: 5% × 6% × 3% × 3% × 4% ≈ 0%. Chances are our cautious ones (our central estimate is <1%). Payouts include each leg's fee: every leg bought and the winnings rolled into the next. Prices are from when you added each leg. Most of the time this loses. The edge means you're getting a better price than usual, not that it will hit. Small errors in each leg multiply in a combo."
+   central: "central estimate is <1%"
+   leg lines: ["Bet Ball State · Pays 2.7x after fee · 5% chance to win (cautious)","Bet Yes · Pays 3.2x after fee · 6% chance to win (cautious)","Bet Eastern Michigan · Pays 3.1x after fee · 3% chance to win (cautious)","Bet FC Barcelona · Pays 3.7x after fee · 3% chance to win (cautious)","Bet Yes · Pays 4.2x after fee · 4% chance to win (cautious)"]
+   bad 0%/100% in tray: ["100%","0%"] ctx ["−100%","nces multiply: 5% × 6% × 3% × 3% × 4% ≈ 0%. Chances are our ca"]
+[checker ext] chance "<1%" why "Combined chance <1% × 99% × 99% = <1%."
+   legs ["Will the next Gemini Carbon model (4.1+) be released on November 18, 2026? Bet Yes at 1% · <1% chance (cautious) · pays 120x","Will \"Final Destination: Bloodlines\" be the #2 global Netflix movie this week? Bet No at 100% · 99% chance (cautious) · pays 1.00x","Will Elon Musk post 190-214 tweets from November 16 to November 18, 2026? Bet No at 100% · 99% chance (cautious) · pays 1.00x"]
+   bad 0%/100% in checker card+legs: ["100%","100%","100%","100%"]
+   tray raw: "NO TRAY"
+   (no Expand button)
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+locator.innerText: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for getByTestId('combo-tray')[22m
+
+    at /tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/r134/chance.mjs:33:25 {
+  log: [ "  - waiting for getByTestId('combo-tray')" ],
+  name: 'TimeoutError'
+}
+
+Node.js v22.23.5

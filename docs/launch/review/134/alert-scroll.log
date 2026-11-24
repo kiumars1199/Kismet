@@ -1,0 +1,44 @@
+signed in r134-s-1795548677285@example.com tier=premium
+375x667 top: btn {"y":446,"b":492,"inView":true} scrollY 0->111(sync)->111 jump 111px; scrollIntoView calls 1 [[2699,"P","[{\"block\":\"nearest\"}]"]]; scroll events 1 [2701@111]; CLS(non-input) 0.0000 all ["0.0454i A y335->497 h46->46,DIV y335->497 h46->46,BUTTON y335->497 h44->44,share-bet y387->497 h44->44"]
+   link hit (no extra scroll): {"2":"link","8":"link","24":"link","40":"link","46":"link","y":424,"b":472,"vh":667,"trayTop":529}
+   after user wheel +400: scrollY 511; after tray expand/collapse re-render: 511, new scrollIntoView calls 0
+   second tap (via JS, no auto-scroll) from scrollY 511: -> 511, scrollIntoView calls 0
+375x667 scrolled-to-button: btn {"y":310,"b":356,"inView":true} scrollY 136->136(sync)->136 jump 0px; scrollIntoView calls 1 [[3140,"P","[{\"block\":\"nearest\"}]"]]; scroll events 0 []; CLS(non-input) 0.0000 all ["0.1657i SECTION y474->586 h193->81,DIV y414->526 h44->44,A y310->472 h46->46,DIV y310->472 h46->46,share-bet y362->472 h44->44"]
+   link hit (no extra scroll): {"2":"link","8":"link","24":"link","40":"link","46":"link","y":399,"b":447,"vh":667,"trayTop":529}
+   after user wheel +400: scrollY 536; after tray expand/collapse re-render: 536, new scrollIntoView calls 0
+   second tap (via JS, no auto-scroll) from scrollY 536: -> 536, scrollIntoView calls 0
+   fight test (tap then wheel up 10x60 over ~1 s) from 0: final scrollY 0, scrollIntoView calls 1, last scroll positions [111,51,0]
+   facts disc true cents false hs false; errors []
+signed in r134-s-1795548701908@example.com tier=premium
+390x844 top: btn {"y":462,"b":508,"inView":true} scrollY 0->0(sync)->0 jump 0px; scrollIntoView calls 1 [[2719,"P","[{\"block\":\"nearest\"}]"]]; scroll events 0 []; CLS(non-input) 0.0000 all ["0.1249i SECTION y626->719 h218->126,DIV y566->659 h44->44,A y462->605 h46->46,DIV y462->605 h46->46,share-bet y514->605 h44->44"]
+   link hit (no extra scroll): {"2":"link","8":"link","24":"link","40":"link","46":"link","y":551,"b":599,"vh":844,"trayTop":706}
+   after user wheel +400: scrollY 400; after tray expand/collapse re-render: 400, new scrollIntoView calls 0
+   second tap (via JS, no auto-scroll) from scrollY 400: -> 400, scrollIntoView calls 0
+390x844 scrolled-to-button: btn {"y":399,"b":445,"inView":true} scrollY 63->63(sync)->63 jump 0px; scrollIntoView calls 1 [[3101,"P","[{\"block\":\"nearest\"}]"]]; scroll events 0 []; CLS(non-input) 0.0000 all ["0.1504i SECTION y563->656 h253->189,DIV y503->596 h44->44,A y399->542 h46->46,DIV y832->0 h12->0,DIV y399->542 h46->46"]
+   link hit (no extra scroll): {"2":"link","8":"link","24":"link","40":"link","46":"link","y":488,"b":536,"vh":844,"trayTop":706}
+   after user wheel +400: scrollY 463; after tray expand/collapse re-render: 463, new scrollIntoView calls 0
+   second tap (via JS, no auto-scroll) from scrollY 463: -> 463, scrollIntoView calls 0
+   fight test (tap then wheel up 10x60 over ~1 s) from 0: final scrollY 0, scrollIntoView calls 1, last scroll positions []
+   facts disc true cents false hs false; errors []
+signed in r134-s-1795548726309@example.com tier=premium
+768x1024 top: btn {"y":410,"b":456,"inView":true} scrollY 0->0(sync)->0 jump 0px; scrollIntoView calls 1 [[2807,"P","[{\"block\":\"nearest\"}]"]]; scroll events 0 []; CLS(non-input) 0.0000 all ["0.138i SECTION y524->651 h184->184,SECTION y810->937 h214->87,DIV y724->851 h70->70,DIV y464->591 h44->44,A y410->537 h46->46"]
+   link hit (no extra scroll): {"2":"link","8":"link","24":"link","40":"link","46":"link","y":482,"b":529,"vh":1024,"trayTop":938}
+   after user wheel +400: scrollY 400; after tray expand/collapse re-render: 400, new scrollIntoView calls 0
+   second tap (via JS, no auto-scroll) from scrollY 400: -> 400, scrollIntoView calls 0
+768x1024 scrolled-to-button: btn {"y":410,"b":456,"inView":true} scrollY 0->0(sync)->0 jump 0px; scrollIntoView calls 1 [[3177,"P","[{\"block\":\"nearest\"}]"]]; scroll events 0 []; CLS(non-input) 0.0000 all ["0.138i SECTION y524->651 h184->184,SECTION y810->937 h214->87,DIV y724->851 h70->70,DIV y464->591 h44->44,A y410->537 h46->46"]
+   link hit (no extra scroll): {"2":"link","8":"link","24":"link","40":"link","46":"link","y":482,"b":529,"vh":1024,"trayTop":938}
+   after user wheel +400: scrollY 400; after tray expand/collapse re-render: 400, new scrollIntoView calls 0
+   second tap (via JS, no auto-scroll) from scrollY 400: -> 400, scrollIntoView calls 0
+   fight test (tap then wheel up 10x60 over ~1 s) from 0: final scrollY 0, scrollIntoView calls 1, last scroll positions []
+   facts disc true cents false hs false; errors []
+signed in r134-s-1795548750682@example.com tier=premium
+1440x900 top: btn {"y":349,"b":395,"inView":true} scrollY 0->0(sync)->0 jump 0px; scrollIntoView calls 1 [[2710,"P","[{\"block\":\"nearest\"}]"]]; scroll events 0 []; CLS(non-input) 0.0000 all ["0.0557i SECTION y463->590 h184->184,SECTION y749->876 h151->24,DIV y663->790 h70->70,DIV y403->530 h44->44,A y349->476 h46->46"]
+   link hit (no extra scroll): {"2":"link","8":"link","24":"link","40":"link","46":"link","y":421,"b":468,"vh":900,"trayTop":814}
+   after user wheel +400: scrollY 400; after tray expand/collapse re-render: 400, new scrollIntoView calls 0
+   second tap (via JS, no auto-scroll) from scrollY 400: -> 400, scrollIntoView calls 0
+1440x900 scrolled-to-button: btn {"y":349,"b":395,"inView":true} scrollY 0->0(sync)->0 jump 0px; scrollIntoView calls 1 [[3154,"P","[{\"block\":\"nearest\"}]"]]; scroll events 0 []; CLS(non-input) 0.0000 all ["0.0557i SECTION y463->590 h184->184,SECTION y749->876 h151->24,DIV y663->790 h70->70,DIV y403->530 h44->44,A y349->476 h46->46"]
+   link hit (no extra scroll): {"2":"link","8":"link","24":"link","40":"link","46":"link","y":421,"b":468,"vh":900,"trayTop":814}
+   after user wheel +400: scrollY 400; after tray expand/collapse re-render: 400, new scrollIntoView calls 0
+   second tap (via JS, no auto-scroll) from scrollY 400: -> 400, scrollIntoView calls 0
+   fight test (tap then wheel up 10x60 over ~1 s) from 0: final scrollY 0, scrollIntoView calls 1, last scroll positions []
+   facts disc true cents false hs false; errors []

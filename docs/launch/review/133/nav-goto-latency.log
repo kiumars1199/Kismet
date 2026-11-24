@@ -1,0 +1,12 @@
+[390 free goto] UI at leave=["NFL","NBA","Soccer","Hockey"] -> /markets chips=["NFL","NBA","Soccer","Hockey"] server=["sports.nba","sports.nfl","sports.nhl","sports.soccer"]
+[390 free goto] Home -> /bets t=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] matchesServer=true
+
+[390 free goto] UI at leave=["NFL","NBA","Soccer","Hockey"] -> /markets chips=["NFL","NBA"] server=["sports.nba","sports.nfl"]
+[390 free goto] Home -> /bets t=["sports.nba","sports.nfl"] matchesServer=true
+
+[1440 free goto] UI at leave=["NFL","NBA","Soccer","Hockey"] -> /markets chips=["NFL","NBA","Soccer","Hockey"] server=["sports.nba","sports.nfl","sports.nhl","sports.soccer"]
+[1440 free goto] Home -> /bets t=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] matchesServer=true
+
+[1440 free goto] UI at leave=["NFL","NBA","Soccer","Hockey"] -> /markets chips=["NFL","NBA"] server=["sports.nba","sports.nfl"]
+[1440 free goto] Home -> /bets t=["sports.nba","sports.nfl"] matchesServer=true
+
