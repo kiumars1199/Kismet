@@ -78,7 +78,10 @@ export function useScreener(mode: Mode, initial?: MarketsResponse) {
     () => resolveUserFilters(state, { favorites: favKey ? favKey.split(",") : [], watchlistIds: new Set(watchKey.split(",")) }),
     [state, favKey, watchKey],
   );
-  const fetchKey = `${mode}?${key}#${watchKey}#${favKey}`;
+  // The server already resolved "Your topics" for the URL the page loaded with (firstPage), so the profile landing later is not a new
+  // question: it refetched the same answer and "Updating bets…" came and went (CLS 0.024). `query` still carries the favorites, so "Show more" asks for the right pages.
+  const initialKey = useRef(initial ? key : null);
+  const fetchKey = `${mode}?${key}#${watchKey}#${initialKey.current === key ? "" : favKey}`;
   const load = useCallback(
     (s: typeof query, init?: RequestInit) =>
       (mode === "flags" ? fetchFlags : fetchMarkets)(s, init).then((d) => (state.watchlisted_only ? { ...d, groups: undefined, rows: d.rows.filter((r) => keep(r.market.id)) } : d)), // groups dropped: they would point past filtered rows

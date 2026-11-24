@@ -80,13 +80,24 @@ for (const { w, h } of [{ w: 1440, h: 900 }, { w: 390, h: 844 }]) {
     const r = (await choose.boundingBox())!;
     expect(r.height).toBeGreaterThanOrEqual(44);
     expect(r.width).toBeGreaterThanOrEqual(44);
-    await page.evaluate(() => window.scrollBy(0, 800));   // the table header is sticky (64 px under the top bar): that is where the menu is used from
+    // wait for the rows: scrolling before they arrive left the page unscrolled (the sticky header never engaged) and the test flaked
+    await expect(page.locator("tbody tr[data-row]").first()).toBeVisible({ timeout: 30_000 });
+    // 1. opened from the top of the page (the header is not sticky yet): the menu still fits the screen (it ran ~500 px past the bottom)
+    await choose.click();
+    const top = page.getByTestId("column-menu");
+    await expect(top).toBeVisible();
+    const tb = (await top.boundingBox())!;
+    expect(tb.y + tb.height, "menu bottom is inside the screen (opened at the top of the page)").toBeLessThanOrEqual(h);
+    await page.keyboard.press("Escape");   // closes it
+    await expect(top).toBeHidden();
+    // 2. after scrolling: the table header is sticky (64 px under the top bar), where the menu is used from
+    await page.evaluate(() => window.scrollBy(0, 800));
     await expect(choose).toBeVisible();
     await choose.click();
-    const panel = page.locator("details[open] > div");
+    const panel = page.getByTestId("column-menu");
     await expect(panel).toBeVisible();
     const pb = (await panel.boundingBox())!;
-    expect(pb.y + pb.height, "menu bottom is inside the screen").toBeLessThanOrEqual(h);
+    expect(pb.y + pb.height, "menu bottom is inside the screen (opened after scrolling)").toBeLessThanOrEqual(h);
     if (process.env.WT2G_SHOTS) await page.screenshot({ path: `${process.env.WT2G_SHOTS}/${w}-markets-columns.png` });   // evidence only
     const rows = panel.locator("label:has(input[type=checkbox])");
     const n = await rows.count();
@@ -97,6 +108,8 @@ for (const { w, h } of [{ w: 1440, h: 900 }, { w: 390, h: 844 }]) {
       await row.scrollIntoViewIfNeeded();
       const b = (await row.boundingBox())!;
       expect(b.y >= 0 && b.y + b.height <= h, `row ${i} is inside the screen after scrolling the menu`).toBe(true);
+      const hit = await row.evaluate((e) => { const r = e.getBoundingClientRect(); return document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2)?.closest("label") === e; });
+      expect(hit, `row ${i} is what the pointer reaches (not clipped by another box)`).toBe(true);
       const box = row.locator("input");
       const before = await box.isChecked();
       await row.click();

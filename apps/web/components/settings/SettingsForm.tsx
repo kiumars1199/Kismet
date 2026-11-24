@@ -5,6 +5,7 @@ import { NumberInput, Segmented, Switch, btn, btnDanger, card, input } from "@/c
 import { TopicsPicker } from "@/components/settings/TopicsPicker";
 import { TAXONOMY } from "@/lib/taxonomy";
 import { money } from "@/lib/format";
+import { timeZoneOptions } from "@/lib/timezones";
 import { askPermission, browserAlertsOn, notifyState, setBrowserAlerts, type NotifyState } from "@/lib/notify";
 import { ODDS_CHOICES, ODDS_LABEL, formatOdds } from "@/lib/odds";
 import Link from "next/link";
@@ -42,9 +43,7 @@ function Row({ title, sub, children }: { title: string; sub?: ReactNode; childre
 
 export function SettingsForm() {
   const profile = useProfile();
-  const zones = useMemo(() => {
-    try { return Intl.supportedValuesOf("timeZone"); } catch { return [profile.timezone]; }
-  }, [profile.timezone]);
+  const zones = useMemo(() => timeZoneOptions(profile.timezone), [profile.timezone]);   // the saved zone and "UTC" are always options
 
   return (
     <div className="flex flex-col gap-5">

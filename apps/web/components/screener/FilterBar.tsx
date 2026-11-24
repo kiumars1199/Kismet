@@ -9,6 +9,7 @@ import type { FilterState } from "@/lib/filters/state";
 import { SortNote } from "./SortNote";
 import { TAXONOMY, TAXONOMY_TREE } from "@/lib/taxonomy";
 import { formatCount, plural } from "@/lib/format";
+import { useProfile } from "@/lib/repo/hooks";
 
 type Change = (p: Partial<FilterState>, opts?: { replace?: boolean }) => void;
 type Win = { closes_after_h: number | undefined; closes_within_h: number };
@@ -103,7 +104,10 @@ export function FilterBar({ state, facets, win, total, shown, fallback = false, 
 }) {
   // T-wt2b: on the first-screen fallback the cards are NOT in the saved topics, so the bar must not name them: Sport or topic reads
   // Everything, and the count is the one for the cards shown (the "Your topics" pill carries the topics).
-  const applied = fallback ? { ...barValues(state, win), sport: "" } : barValues(state, win);
+  // "Your topics" (fav=1) with no t=: the server resolved the saved topics but the URL doesn't carry them, so the bar reads them from the profile (as for /bets?fav=1&t=…)
+  const saved = useProfile().favorite_topics.filter((id) => TAXONOMY[id]);
+  const shownState = state.favorites_only && !state.topics?.length && saved.length ? { ...state, topics: saved } : state;
+  const applied = fallback ? { ...barValues(shownState, win), sport: "" } : barValues(shownState, win);
   const [draft, setDraft] = useState(applied);
   const key = `${applied.sport}|${applied.mult}|${applied.date}`;
   useEffect(() => setDraft(applied), [key]);   // eslint-disable-line react-hooks/exhaustive-deps -- follow the URL (back, pills, reset)
@@ -120,7 +124,7 @@ export function FilterBar({ state, facets, win, total, shown, fallback = false, 
         onSubmit={(e) => { e.preventDefault(); onChange({ ...barPatch(draft, win), ...(!draft.sport && state.favorites_only ? { favorites_only: false } : {}) }); }}>
         <Field wide label="Sport or topic" icon={ICON.sport} value={draft.sport} testid="bar-sport" onChange={(sport) => setDraft((d) => ({ ...d, sport }))}>
           <option value="">Everything</option>
-          {(draft.sport === MULTI || applied.sport === MULTI) && <option value={MULTI}>{multiLabel(state)}</option>}
+          {(draft.sport === MULTI || applied.sport === MULTI) && <option value={MULTI}>{multiLabel(shownState)}</option>}
           {groups.map((g) => (
             <optgroup key={g.id} label={g.label}>
               <option value={`t:${g.id}`}>All {g.label}{n(facets?.topics[g.id] ?? facets?.categories[g.id])}</option>
