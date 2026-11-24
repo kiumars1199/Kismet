@@ -1,0 +1,70 @@
+[390] [audit landing] / h1="Which Polymarket bets are worth it today?" disc=true hscroll=false cls=0
+[390] [audit signup] /signup h1="Create your free account" disc=true hscroll=false cls=0 SMALL=["INPUT 20x20"]
+[390] CHECK-EMAIL "Already have an account?" x1
+[390] [audit check-email] /signup h1="Create your free account" disc=true hscroll=false cls=0
+[390] [audit onboarding-1] /onboarding?next=%2F h1="What do you bet on?" disc=true hscroll=false cls=0.0005
+[390] ONB bar: {"next":[727,771],"tabTop":787,"gapHit":"DIV.sticky bottom-0 z-10 -mx-4 flex items-ce"}
+[390] TILES (first 8): NFL 40 open; College football 106 open; NBA 55 open; College basketball none open; Soccer 83 open; Hockey 10 open; Baseball none open; Tennis 25 open
+[390] PICKED: NFL 40 open, College basketball none open, Soccer 83 open
+[390] [audit onboarding-2] /onboarding?next=%2F h1="How do you bet?" disc=true hscroll=false cls=0
+[390] ONB2 bar: {"next":[727,771],"tabTop":787,"gapHit":"DIV.sticky bottom-0 z-10 -mx-4 flex items-ce"}
+[390] [audit onboarding-3] /onboarding?next=%2F h1="Thirty seconds on the screen" disc=true hscroll=false cls=0
+[390] FIRST url /?view=flags&t=sports.nfl%2Csports.soccer%2Csports.ncaab&fav=1
+[390] first STEP 1 "A best bet" spot=[267,785,10,380] dlg=[22,261,16,374] tabTop=787 scrollY=644 painted="RCD Mallorca to score no " overlap=false dlgAboveTab=true h1=[-495,-433,16,374] cls=0
+[390]    body: Each bet looks like good value today: how often bets like it win, what it pays (like "Pays 1.45x"), and when it closes. Tap "Why this bet?" for details. Any bet can lose.
+[390] first STEP 2 "Narrow the list" spot=[2,224,10,380] dlg=[230,423,16,374] tabTop=787 scrollY=313 painted="SPAN.-mb-2 pt-1 text-xs text-m" overlap=false dlgAboveTab=true h1=[-164,-102,16,374] cls=0
+[390] first STEP 3 "Search any market" spot=[2,38,51,126] dlg=[44,238,16,374] tabTop=787 scrollY=70 painted="INPUT.w-full min-w-0 text-ellip" overlap=false dlgAboveTab=true h1=[79,141,16,374] cls=0
+[390] first STEP 4 "Save and get alerts" spot=[786,842,189,299] dlg=[577,771,16,374] tabTop=787 scrollY=70 painted="My list" overlap=false dlgAboveTab=true h1=[79,141,16,374] cls=0
+[390] first STEP 5 "Check the results" spot=[185,241,10,188] dlg=[247,463,16,374] tabTop=787 scrollY=70 painted="See how we track results" overlap=false dlgAboveTab=true h1=[79,141,16,374] cls=0
+[390] after tour scrollY 0
+[390] [audit first-screen-after-tour] /?view=flags&t=sports.nfl%2Csports.soccer%2Csports.ncaab&fav=1 h1="8 of 28 bets where the odds lean your way" disc=true hscroll=false cls=0
+[390] FIRST BAR: {"sport":"Your topics (3)","pill":true,"headings":["Today's top 5","More bets"],"showing":"28 bets where the odds lean"}
+[390] FIRST TEXT: 8 of 28 bets where the odds lean your way | Each one has won more often in the past than its price suggests, after the fee. | See how we track results | Sport or topic | Everything | Your topics (3) | All Sports (34) | Soccer (27) | College football (6) | NFL (1) | NBA (0 now) | College basketball (0 now) | Hockey (0 now) | Baseball (0 now) | Tennis (0 now) | Esports (0 now) | UFC (0 now) | Boxing (0 now) | Golf (0 now) | Formula 1 (0 now) | Cricket (0 now) | All Crypto (0 now) | Bitcoin (0 now) | Ethereum (0 now) | Solana (0 now) | XRP (0 now) | Crypto up or down (0 now) | Hit a price (0 now) | Price ranges (0 now) | All Weather & Climate (0 now) | Highest temperature (0 now) | Lowest tempe
+[390] [audit settings] /settings h1="Settings" disc=true hscroll=false cls=0
+[390] BEST BETS url /bets?fav=1&t=sports.nfl%2Csports.soccer%2Csports.ncaab {"sport":"Your topics (3)","pill":true,"headings":["Today's top 5","More bets"],"showing":"28 bets where the odds lean"}
+[390] [audit best-bets-tap] /bets?fav=1&t=sports.nfl%2Csports.soccer%2Csports.ncaab h1="8 of 28 bets where the odds lean your way" disc=true hscroll=false cls=0
+[390] [audit why-open] /bets?fav=1&t=sports.nfl%2Csports.soccer%2Csports.ncaab h1="8 of 28 bets where the odds lean your way" disc=true hscroll=false cls=0
+[390] EVERYTHING url /bets?fav=0 {"sport":"Everything","pill":false,"headings":["Today's top 5","More bets"],"showing":"34 bets where the odds lean"}
+[390] [audit everything] /bets?fav=0 h1="10 of 34 bets where the odds lean your way" disc=true hscroll=false cls=0
+[390] RELOAD url /bets?fav=0 {"sport":"Everything","pill":false,"headings":["Today's top 5","More bets"],"showing":"34 bets where the odds lean"}
+[390] [audit everything-reload] /bets?fav=0 h1="10 of 34 bets where the odds lean your way" disc=true hscroll=false cls=0.0005
+[390] [audit bets-after-everything] /bets?fav=1&t=sports.nfl%2Csports.soccer%2Csports.ncaab h1="8 of 28 bets where the odds lean your way" disc=true hscroll=false cls=0.0005
+[390] /bets after Everything -> /bets?fav=1&t=sports.nfl%2Csports.soccer%2Csports.ncaab {"sport":"Your topics (3)","pill":true,"headings":["Today's top 5","More bets"],"showing":"28 bets where the odds lean"}
+[390] SPORT OPTIONS: =Everything ; multi=Your topics (3) ; t:sports=All Sports (34) ; t:sports.soccer=Soccer (27) ; t:sports.cfb=College football (6) ; t:sports.nfl=NFL (1) ; t:sports.nba=NBA (0 now) ; t:sports.ncaab=College basketball (0 now) ; t:sports.nhl=Hockey (0 now) ; t:sports.mlb=Baseball (0 now) ; t:sports.tennis=Tennis (0 now) ; t:sports.esports=Esports (0 now)
+[390] FILTER Soccer url /bets?t=sports.soccer&fav=0 {"sport":"Soccer (27)","pill":false,"headings":["Today's top 5","More bets"],"showing":"27 bets where the odds lean"}
+[390] [audit filter-soccer] /bets?t=sports.soccer&fav=0 h1="8 of 27 bets where the odds lean your way" disc=true hscroll=false cls=0
+[390] FILTER mult url /bets?t=sports.soccer&x0=1.5&x1=2&fav=0 {"sport":"Soccer (7)","pill":false,"headings":["Today's top bet"],"showing":"7 bets where the odds lean"} :: 1 of 7 bets where the odds lean your way | Each one has won more often in the past than its price suggests, after the fee. | See how we track results | Sport or topic | Everything | All Sports (7) | Soccer (7) | NFL (0 now) | College football (0 now) | NBA (0 now) | College basketball (0 now) | Hockey (0 now) | Baseball (0 now) | Tennis (0 now) | Esports (0 now) | UFC (0 now) | Boxing (0 now) | Go
+[390] [audit filter-mult] /bets?t=sports.soccer&x0=1.5&x1=2&fav=0 h1="1 of 7 bets where the odds lean your way" disc=true hscroll=false cls=0
+[390] [audit filter-zero] /?view=flags&t=sports.mlb h1="No best bets in Baseball today" disc=true hscroll=false cls=0.0005
+[390] ZERO: No best bets in Baseball today | No bet with these filters is good value right now. Widen your topics, or see all best bets. Prices refresh about every 15 minutes. | See all best bets | Choose more topics | Sport or topic | Everything | All Sports (34) | Soccer (27) | College football (6) | NFL (1) 
+[390] [audit fav1] /?view=flags&fav=1 h1="8 of 28 bets where the odds lean your way" disc=true hscroll=false cls=0.0005
+[390] FAV=1 url /?view=flags&fav=1 {"sport":"Your topics (3)","pill":true,"headings":["Today's top 5","More bets"],"showing":"28 bets where the odds lean"}
+[390] [audit flags] /?view=flags h1="10 of 34 bets where the odds lean your way" disc=true hscroll=false cls=0.0005
+[390] check hrefs ["/check?m=6674202&side=1","/check?m=6674206&side=0"]
+[390] [audit check-1] /check?m=6674202&side=1 h1="Bet checker" disc=true hscroll=false cls=0.0005
+[390] (networkidle timeout on /check?m=6674206&side=0)
+[390] [audit check-2] /check?m=6674206&side=0 h1="Bet checker" disc=true hscroll=false cls=0.0005
+[390] CHECK-2 LIMIT: {"text":"Free includes 1 bet check a day, and you've used it. Pro and Premium check as many bets as you like. | See plans","h":158,"tallDivs":[],"mainH":519}
+[390] [audit /alerts] /alerts h1="Alerts" disc=true hscroll=false cls=0.0005
+[390] [audit /dashboards] /dashboards h1="Dashboards" disc=true hscroll=false cls=0.0005
+[390] [audit /alerts] /alerts h1="Alerts" disc=true hscroll=false cls=0.0005
+[390] [audit /dashboards] /dashboards h1="Dashboards" disc=true hscroll=false cls=0.0005
+[390] [audit settings] /settings h1="Settings" disc=true hscroll=false cls=0.0005
+[390] SETTINGS: {"fav":["Favorites: NFL, Soccer, College basketball"],"raw":[],"sels":["State:16px/44","UTC:16px/44"]}
+[390] [audit markets-search] /markets?q=texans h1="All markets" disc=true hscroll=false cls=0.0005
+[390] [audit account] /account h1="Account" disc=true hscroll=false cls=0.0005
+[390] CLAUSE: Signed in as r3-390-1795557299163@example.com, with an email link.
+[390] PAUSE: Take a break | Pause your account for 24 hours, 7 days or 30 days. While it is paused Kismet shows only a pause screen, and it can't be ended early. | 24 hours | 7 days | 30 days | Pause for 24 hours | Cancel | Gambling problem? Free, confidential help: | Call or text 1-800-MY-RESET | Chat online | (National Council on Problem Gambling, 24/7, source, checked 2026-11-22).
+[390] PAUSE buttons: [["24 hours",94,44],["7 days",78,44],["30 days",88,44],["Pause for 24 hours",161,44],["Cancel",70,44]]
+[390] after Cancel: Take a break | Pause your account for 24 hours, 7 days or 30 days. While it is paused Kismet shows only a pause screen, and it can't be ended early. | 24 hours | 7 days | 30 days | Gambling problem? F
+[390] after sign out /
+[390] [audit signed-out] / h1="Which Polymarket bets are worth it today?" disc=true hscroll=false cls=0
+[390] [audit login] /login h1="Log in" disc=true hscroll=false cls=0 SMALL=["INPUT 20x20"]
+[390] AFTER LOGIN url /bets?fav=1&t=sports.nfl%2Csports.soccer%2Csports.ncaab {"sport":"Your topics (3)","pill":true,"headings":["Today's top 5","More bets"],"showing":"28 bets where the odds lean"}
+[390] [audit after-login] /bets?fav=1&t=sports.nfl%2Csports.soccer%2Csports.ncaab h1="8 of 28 bets where the odds lean your way" disc=true hscroll=false cls=0.0005
+[390] AFTER LOGIN tap Best bets /bets?fav=1&t=sports.nfl%2Csports.soccer%2Csports.ncaab {"sport":"Your topics (3)","pill":true,"headings":["Today's top 5","More bets"],"showing":"28 bets where the odds lean"}
+[390] NEW DEVICE landing /bets?fav=1&t=sports.nfl%2Csports.soccer%2Csports.ncaab {"sport":"Your topics (3)","pill":true,"headings":["Today's top 5","More bets"],"showing":"28 bets where the odds lean"}
+[390] NEW DEVICE /bets /bets?fav=1&t=sports.nfl%2Csports.soccer%2Csports.ncaab {"sport":"Your topics (3)","pill":true,"headings":["Today's top 5","More bets"],"showing":"28 bets where the odds lean"}
+[390] --- LOG
+[http 429] POST http://localhost:4072/api/check
+[console.error] http://localhost:4072/check?m=6674206&side=0 :: Failed to load resource: the server responded with a status of 429 (Too Many Requests)
