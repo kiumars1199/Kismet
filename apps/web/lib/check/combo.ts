@@ -4,7 +4,7 @@
 // independent, which same-event legs are not (flagged).
 import { comboPrice } from "@/lib/combos";
 import { chancePct, pricePct } from "@/lib/chance";
-import { multX } from "@/lib/card";
+import { paysAfterFee } from "./pays";
 import type { CheckBase } from "./compute";
 import { cleanEventLine } from "@/lib/format";
 import { score } from "./score";
@@ -107,5 +107,5 @@ export function addLeg(legs: ComboLeg[], leg: ComboLeg): { legs: ComboLeg[]; ref
 export function legLine(l: { outcome: string; price: number }, b?: CheckBase): string {
   const head = `Bet ${l.outcome} at ${pricePct(l.price)}`;
   if (!b) return head;
-  return `${head} · ${b.winProb === null ? "No model chance" : `${chancePct(b.winProb)} chance (cautious)`} · pays ${multX(1 / (b.ask + b.fee))}`;
+  return `${head} · ${b.winProb === null ? "No model chance" : `${chancePct(b.winProb)} chance (cautious)`} · pays ${paysAfterFee(1 / (b.ask + b.fee))}`;
 }

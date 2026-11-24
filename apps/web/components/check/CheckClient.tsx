@@ -13,7 +13,9 @@ import type { CheckResponse } from "@/lib/check/response";
 import { SCORE_FORMULA } from "@/lib/check/score";
 import { payoutMoney, ret } from "@/lib/format";
 import { chancePct, pricePct } from "@/lib/chance";
-import { multX, INTL_ONLY, US_SMALL_PRINT } from "@/lib/card";
+import { effectivePrice, fillText } from "@/lib/check/price";
+import { INTL_ONLY, US_SMALL_PRINT } from "@/lib/card";
+import { paysAfterFee } from "@/lib/check/pays";
 import { gapPts } from "@/lib/betFigures";
 import { LogBetButton } from "@/components/journal/LogBetButton";
 import { HowToBet } from "./HowToBet";
@@ -30,6 +32,8 @@ export function CheckClient({ limitedNow = false }: { limitedNow?: boolean } = {
   const [hits, setHits] = useState<CheckSearchResponse["markets"]>([]);
   const [side, setSide] = useState<0 | 1>(0);
   const [priceText, setPriceText] = useState("");
+  const [filled, setFilled] = useState<number | null>(null);   // the exact market price the field was filled with (T-wt3i): the numbers use it while the text is unchanged
+  const fill = (ask: number) => { setFilled(ask); setPriceText(fillText(ask)); };
   const [stakeText, setStakeText] = useState("100");
   const started = useRef("");
 
@@ -43,7 +47,7 @@ export function CheckClient({ limitedNow = false }: { limitedNow?: boolean } = {
       const data = (await r.json()) as CheckResponse;
       setFound({ kind: "ok", data });
       setSide(data.side);
-      setPriceText(String(Math.round(data.result.price * 100)));
+      setFilled(data.result.price); setPriceText(fillText(data.result.price));
     } catch {
       setFound({ kind: "error", text: "Couldn't reach Kismet. Check your connection and try again." });
     } finally { setBusy(false); }
@@ -78,9 +82,9 @@ export function CheckClient({ limitedNow = false }: { limitedNow?: boolean } = {
   const deepLink = !!sp.get("m");
   const loading = busy || (deepLink && found === null);
   const cur = data?.sides.find((s) => s.index === side) ?? null;
-  const price = priceText.trim() === "" ? NaN : Number(priceText) / 100;
+  const { price, fromMarket } = effectivePrice(priceText, filled);
   const stake = stakeText.trim() === "" ? NaN : Number(stakeText);
-  const r = useMemo(() => (cur ? compute(cur.base, Number.isNaN(price) ? 0 : price, Number.isNaN(stake) ? 0 : stake) : null), [cur, price, stake]);
+  const r = useMemo(() => (cur ? compute(cur.base, Number.isNaN(price) ? 0 : price, Number.isNaN(stake) ? 0 : stake, fromMarket) : null), [cur, price, stake, fromMarket]);
 
   // A deep link keeps one screen of height (so the footer stays below the fold whether the answer is the tall result, the missing note or the short limit card, and nothing moves when it arrives); the limit card itself is only as tall as its text (T-wt2g), and once it shows the screenful is released (T-wt2i: it left ~550 px of empty space under a 158 px card; the footer rises into view, which the reviewer's 0.02 budget has to absorb, see launch-wt2i).
   return (
@@ -132,7 +136,7 @@ export function CheckClient({ limitedNow = false }: { limitedNow?: boolean } = {
           <div role="group" aria-label="Side" className="flex flex-wrap gap-2">
             {data.sides.map((s) => (
               <button key={s.index} type="button" aria-pressed={s.index === side}
-                onClick={() => { setSide(s.index); setPriceText(String(Math.round(s.base.ask * 100))); }}
+                onClick={() => { setSide(s.index); fill(s.base.ask); }}
                 className={`min-h-11 rounded-input border px-4 text-sm font-semibold ${s.index === side ? "border-accent bg-accent-soft/10 text-accent-soft" : "border-border text-soft"}`}>
                 {s.outcome}
               </button>
@@ -141,7 +145,7 @@ export function CheckClient({ limitedNow = false }: { limitedNow?: boolean } = {
 
           <div className="grid grid-cols-2 gap-3">
             <label className="flex flex-col gap-1 text-[13px] text-muted">Price (%)
-              <input data-testid="check-price" inputMode="numeric" value={priceText} onChange={(e) => setPriceText(e.target.value.replace(/[^\d.]/g, ""))}
+              <input data-testid="check-price" inputMode="decimal" value={priceText} onChange={(e) => setPriceText(e.target.value.replace(/[^\d.]/g, ""))}
                 className="min-h-11 rounded-input border border-border bg-bg px-3 text-base text-text" />
             </label>
             <label className="flex flex-col gap-1 text-[13px] text-muted">Stake ($)
@@ -153,7 +157,7 @@ export function CheckClient({ limitedNow = false }: { limitedNow?: boolean } = {
           {data.kalshi?.prices[side] != null && (
             <p data-testid="check-kalshi" className="text-[13px] text-soft">
               Kalshi&apos;s own price for {cur.outcome} is {pricePct(data.kalshi.prices[side]!)}.{" "}
-              <button type="button" className="min-h-11 text-accent-soft underline" onClick={() => setPriceText(String(Math.round(data.kalshi!.prices[side]! * 100)))}>Use it</button>
+              <button type="button" className="min-h-11 text-accent-soft underline" onClick={() => fill(data.kalshi!.prices[side]!)}>Use it</button>
             </p>
           )}
           <div data-testid="check-error" className="min-h-[1.5rem] text-[13px] text-negative" role="alert">{r.error && r.error !== "no_model" ? ERROR_TEXT[r.error] : ""}</div>
@@ -164,7 +168,7 @@ export function CheckClient({ limitedNow = false }: { limitedNow?: boolean } = {
             <dl className="grid grid-cols-2 gap-3 md:grid-cols-5">
               <Stat id="chance" label="Our chance" value={chancePct(r.chance)} />
               <Stat id="market" label="Market says" value={r.error ? "—" : pricePct(r.marketPct)} />
-              <Stat id="mult" label="Pays" value={r.multiplier === null ? "—" : multX(r.multiplier)} />
+              <Stat id="mult" label="Pays" value={r.multiplier === null ? "—" : paysAfterFee(r.multiplier)} />
               <Stat id="edge" label="Edge (points)" value={r.gap === null || r.chance === null ? "—" : gapPts({ ask: r.price, win_prob: r.chance, fee: 0, edge: 0 })} />
               <Stat id="return" label="Estimated return" value={r.multiplier === null || r.chance === null || r.error ? "—" : ret((r.chance * r.multiplier - 1) * 100)} />
             </dl>

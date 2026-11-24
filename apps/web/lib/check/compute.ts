@@ -53,8 +53,9 @@ export interface CheckResult {
   error: CheckError | null;
 }
 
-export function validate(price: number, stake: number): CheckError | null {
-  if (!Number.isFinite(price) || price < 0.01 - 1e-9 || price > 0.99 + 1e-9) return "price_range";
+/** A TYPED price must be 1–99%. A price that comes from the market (fromMarket) may be outside that (a 99.9% side is still a real price): it only has to be a price (between 0 and 1, exclusive). */
+export function validate(price: number, stake: number, fromMarket = false): CheckError | null {
+  if (fromMarket ? !(Number.isFinite(price) && price > 0 && price < 1) : !Number.isFinite(price) || price < 0.01 - 1e-9 || price > 0.99 + 1e-9) return "price_range";
   if (!Number.isFinite(stake) || stake < MIN_STAKE || stake > MAX_STAKE) return "stake_range";
   return null;
 }
@@ -65,11 +66,11 @@ export const ERROR_TEXT: Record<CheckError, string> = {
   no_model: "No model chance for this market",
 };
 
-export function compute(b: CheckBase, price: number, stake: number): CheckResult {
-  const bad = validate(price, stake);
+export function compute(b: CheckBase, price: number, stake: number, fromMarket = false): CheckResult {
+  const own = price === b.ask;   // the card's own price: the card's own fee and edge, so the figures are identical
+  const bad = validate(price, stake, fromMarket || own);
   const empty: CheckResult = { price, stake, chance: b.winProb, marketPct: price, multiplier: null, edge: null, gap: null, score: null, payout: null, profit: null, error: bad };
   if (bad) return empty;
-  const own = price === b.ask;   // the card's own price: the card's own fee and edge, so the figures are identical
   const fee = own && Number.isFinite(b.fee) ? b.fee : feePerShare(price, b.feeRate);
   const mult = 1 / (price + fee);
   const base: CheckResult = { ...empty, multiplier: mult, payout: stake * mult };

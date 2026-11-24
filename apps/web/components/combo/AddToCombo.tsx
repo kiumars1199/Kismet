@@ -38,7 +38,7 @@ export function AddToCombo({ m, s, className, reserve = false }: { m: StoreMarke
       >
         {inCombo ? "In combo ✓" : leg ? "Switch combo side" : "Add to combo tray"} <BetaBadge className="ml-1.5" />
       </button>
-      {error && <p ref={alertRef} role="alert" className="basis-full scroll-mb-[calc(176px+env(safe-area-inset-bottom))] text-[13px] text-warning md:scroll-mb-28">{error.includes(CHECKER_LINE) ? <>{error.replace(CHECKER_LINE, "")}You can still check them together in the <span className="whitespace-nowrap"><Link href={`/check/combo?legs=${encodeURIComponent([...trayLegs.map((l) => `${l.market_id}:${l.side_index}`), `${m.id}:${s.side_index}`].join(","))}`} className="inline-block py-3.5 underline underline-offset-2">combo checker</Link>.</span></> : error}</p>}
+      {error && <p ref={alertRef} role="alert" className="basis-full scroll-mb-[calc(176px+env(safe-area-inset-bottom))] text-[13px] text-warning md:scroll-mb-28">{error.includes(CHECKER_LINE) ? <>{error.replace(CHECKER_LINE, "")}You can still check them together in the <span className="whitespace-nowrap"><Link href={`/check/combo?legs=${encodeURIComponent([...trayLegs.map((l) => `${l.market_id}:${l.side_index}`), `${m.id}:${s.side_index}`].join(","))}`} className="-mt-2.5 inline-block py-3.5 underline underline-offset-2">combo checker</Link>.</span></> : error}</p>}
     </>
   );
 }
