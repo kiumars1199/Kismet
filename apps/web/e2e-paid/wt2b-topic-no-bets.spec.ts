@@ -101,8 +101,15 @@ for (const { w, h } of SIZES) {
   test(`plain topic filter (no 'Your topics') at ${w}px: neutral h1, the locked card is in the first view and reads naturally`, async ({ page }) => {
     test.setTimeout(300_000);
     await page.setViewportSize({ width: w, height: h });
-    await signUp(page, `wt2b-plain-${w}-${Date.now()}@example.com`);
-    const found = await emptyTopic(page);
+    // The Free sample is 10 random bets per user id (random uuid in the mock) and day, out of the fixture's 28. About 1 user in 150 draws a
+    // sample that has a bet in every topic that has bets, so no topic is "with bets but none in my sample". That is the data, not a bug:
+    // such a user gets a fresh account (up to 8 tries, so 8 unlucky draws in a row is about 1 in 10^17). What the test asserts is unchanged.
+    let found: Awaited<ReturnType<typeof emptyTopic>> = null;
+    for (let attempt = 0; attempt < 8 && !found; attempt++) {
+      await page.context().clearCookies();
+      await signUp(page, `wt2b-plain-${w}-${Date.now()}-${attempt}@example.com`);
+      found = await emptyTopic(page);
+    }
     expect(found, "a topic with bets but none in this user's sample").not.toBeNull();
     await page.getByRole("button", { name: "Skip setup" }).click();
     await page.waitForURL(/\/(bets)?(\?|$)/, { timeout: 60_000 });
