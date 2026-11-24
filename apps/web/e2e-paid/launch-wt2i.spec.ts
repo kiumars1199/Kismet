@@ -16,7 +16,14 @@ async function signUpWithTopics(page: Page, email: string, topics: RegExp[]) {
   const { url } = await (await page.request.get(`/e2e-mock/supabase/_inbox?email=${encodeURIComponent(email)}`)).json();
   await page.goto(url);
   await page.waitForURL(/\/onboarding/, { timeout: 60_000 });
-  for (const t of topics) await page.getByRole("button", { name: t }).click();
+  for (const t of topics) {   // one at a time, each confirmed: a click before the picker is ready, or two in a row, can save fewer topics than were clicked
+    const b = page.getByRole("button", { name: t });
+    await expect(async () => {
+      if ((await b.getAttribute("aria-pressed")) !== "true") await b.click();
+      await expect(b).toHaveAttribute("aria-pressed", "true", { timeout: 1_500 });
+    }).toPass({ timeout: 30_000 });
+    await page.waitForTimeout(400);   // let the save land before the next click builds on it
+  }
   await page.getByRole("button", { name: "Skip setup" }).click();
   await page.waitForURL((u) => u.pathname === "/" || u.pathname === "/bets", { timeout: 60_000 });
   await page.waitForLoadState("networkidle");
