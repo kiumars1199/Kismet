@@ -108,10 +108,12 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
       if (!r.ok) return setNote("Something went wrong. Try again in a moment.");
       const l = listed((await r.json()) as LegLookup);
       const cur = legsRef.current;
-      // An EVENT link (no market in it) resolves to one of that event's markets, which may not be the one already in the combo: when
-      // the event already has a leg, that is a duplicate too (to add another market of it, paste that market's own link).
+      // A polymarket.com EVENT link (no market in it) resolves to one of that event's markets, which may not be the one already in the
+      // combo: when the event already has a leg, that is a duplicate too (to add another market of it, paste that market's own link).
+      // Polymarket US is different: /event/<slug> and /market/<slug> both name ONE market (its aec-... twin), so only the same market
+      // id is a duplicate (addStored below).
       const asked = body.link ? parseLink(body.link) : null;
-      if (asked && asked.parts.length === 1 && (asked.venue === "polymarket" || asked.venue === "polymarket-us") && cur.some((x) => x.eventId === l.eventId)) return setNote("That bet is already in your combo.");
+      if (asked && asked.parts.length === 1 && asked.venue === "polymarket" && cur.some((x) => x.eventId === l.eventId)) return setNote("That bet is already in your combo.");
       const r2 = addStored(cur, l);
       if (r2.refused === "duplicate") return setNote("That bet is already in your combo.");
       if (r2.refused === "full") return setNote(`A combo holds at most ${MAX_COMBO_LEGS} legs.`);
@@ -207,7 +209,8 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
       <div ref={box} className="relative">
       <form onSubmit={submit} className="flex flex-col gap-2 sm:flex-row">
         <label className="sr-only" htmlFor="combo-q">Add a bet by link or words</label>
-        <input id="combo-q" value={text} onChange={(e) => { setText(e.target.value); if (!busy) setIncoming(false); }} placeholder="Add a bet: paste a link or type a team or topic"
+        <input id="combo-q" value={text} onChange={(e) => { setText(e.target.value); if (!busy) setIncoming(false); }}
+          onFocus={() => { if (!busy) setIncoming(false); }} onPointerDown={() => { if (!busy) setIncoming(false); }} placeholder="Add a bet: paste a link or type a team or topic"
           className="min-h-11 min-w-0 flex-1 rounded-input border border-border bg-surface px-3 text-sm text-text placeholder:text-muted" />
         <button type="submit" disabled={busy} className="min-h-11 rounded-input bg-accent px-4 text-sm font-semibold text-on-accent hover:bg-accent-hover disabled:opacity-60">Add</button>
       </form>

@@ -324,7 +324,7 @@ for (const [name, size] of SIZES) {
       const input = p.getByLabel("Add a bet by link or words");
       const note = p.getByTestId("combo-note");
       // a real keystroke first (the next keystroke gives a refusal's room back, inside the input window), then the pasted value
-      const typeIn = async (value: string) => { await input.press("End"); await input.press("x"); await input.fill(value); };
+      const typeIn = async (value: string) => { await input.click(); await input.press("End"); await input.press("x"); await input.fill(value); };   // the tap that focuses the field, like a person
       const out: string[] = [];
       const step = async (label: string, run: () => Promise<void>, expectNote: RegExp) => {
         const before = await cls(p);
@@ -385,6 +385,7 @@ for (const [name, size] of SIZES) {
     await p.waitForTimeout(1500);
     expect(await cls(p), "nothing moves by itself").toBe(idle);
     expect(await legsH(), "the room is still held with no input").toBe(held);
+    await input.click();   // the tap that focuses the field (a person taps before typing)
     await input.press("End");
     await input.pressSequentially("x");   // the next keystroke
     await p.waitForTimeout(600);
@@ -429,3 +430,52 @@ test("an event link whose event already has a leg is refused as a duplicate (whi
     await expect(page.getByTestId("combo-leg")).toHaveCount(1);
   }
 });
+
+// T-wt3f (review): a Polymarket US link names ONE market (/event/<aec-...> and /market/<aec-...> alike), so the sibling of a leg is a
+// different bet and is added; only polymarket.com EVENT links are refused when their event already has a leg.
+for (const [name, size] of SIZES) {
+  test(`a Polymarket US link to a sibling market in the same event is added, not refused, at ${name}px`, async ({ browser }) => {
+    test.setTimeout(240_000);
+    for (const [have, want, kind] of [["7077573", "7077574", "market"], ["7077574", "7077573", "market"], ["7077573", "7077574", "event"]] as const) {
+      const ctx = await browser.newContext({ viewport: size, baseURL: test.info().project.use.baseURL });
+      const p = await ctx.newPage();
+      await p.goto(`/check/combo?legs=${have}:0`);
+      await expect(p.getByTestId("combo-leg")).toHaveCount(1, { timeout: 30_000 });
+      await p.getByLabel("Add a bet by link or words").fill(`https://polymarket.us/${kind}/aec-cfb-${want}`);
+      await p.getByRole("button", { name: "Add", exact: true }).click();
+      await expect(p.getByTestId("combo-leg"), `${kind} link ${want} after ${have}`).toHaveCount(2, { timeout: 20_000 });
+      await expect(p.getByTestId("combo-note")).not.toContainText("already in your combo");
+      await ctx.close();
+    }
+  });
+}
+
+// T-wt3f (review): the refused add's room is given back on focus or tap in the input (user input), so a long-press Paste or an autofill,
+// which fire no keystroke, move nothing that counts.
+for (const [name, size] of SIZES) {
+  test(`pasting without a keypress after a refusal shifts nothing (the tap in the input gives the room back) at ${name}px`, async ({ browser, page }) => {
+    test.setTimeout(180_000);
+    const picks = distinct(await rows(page), 2);
+    const ctx = await browser.newContext({ viewport: size, baseURL: test.info().project.use.baseURL });
+    const p = await ctx.newPage();
+    await p.addInitScript(watchCls);
+    await p.goto(`/check/combo?legs=${legsQuery(picks)}`);
+    await expect(p.getByTestId("combo-leg")).toHaveCount(2, { timeout: 30_000 });
+    await p.waitForTimeout(800);
+    const input = p.getByLabel("Add a bet by link or words");
+    await input.press("End"); await input.press("x");
+    await input.fill("https://polymarket.com/event/not-a-real-market-xyz");
+    await p.getByRole("button", { name: "Add", exact: true }).click();
+    await expect(p.getByTestId("combo-note")).toContainText("find an open market", { timeout: 20_000 });
+    await p.waitForTimeout(900);
+    const before = await cls(p);
+    await input.click();   // the tap that starts a long-press Paste
+    await p.waitForTimeout(1200);   // the paste menu, then Paste: well past the 500 ms input window
+    await p.keyboard.insertText("https://polymarket.com/event/another-one");   // no keydown at all
+    await p.waitForTimeout(700);
+    const delta = (await cls(p)) - before;
+    console.log(`T-wt3f paste-without-keypress CLS at ${name}px: ${delta.toFixed(4)}`);
+    expect(delta).toBeLessThan(0.001);   // nothing that counts moves
+    await ctx.close();
+  });
+}
