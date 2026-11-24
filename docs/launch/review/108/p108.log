@@ -1,0 +1,55 @@
+label touch390: sequence ["Share link"] {"disc":true,"cents":false,"side":0,"cls":0,"s":""}
+label mouse1440: sequence ["Copy link"] {"disc":true,"cents":false,"side":0,"cls":0.0016,"s":"0.0016 DIV y785->729 h18->74"}
+label mouse390: sequence ["Copy link"] {"disc":true,"cents":false,"side":0,"cls":0,"s":""}
+signed-out 390 open: posts=0 seen=[legs0,legs2] firstScore=nullms urls=?legs=..&check=1 | ?legs=..
+signed-out 390 reload: posts=0 seen=[legs0,legs2] firstScore=nullms urls=?legs=..
+  signed-out 390 after tap: url ?legs=..&check=1 {"disc":true,"cents":false,"side":0,"cls":0,"s":""}
+signed-out 1440 open: posts=0 seen=[legs0,legs2] firstScore=nullms urls=?legs=..&check=1 | ?legs=..
+signed-out 1440 reload: posts=0 seen=[legs0,legs2] firstScore=nullms urls=?legs=..
+  signed-out 1440 after tap: url ?legs=..&check=1 {"disc":true,"cents":false,"side":0,"cls":0.0016,"s":"0.0016 DIV y785->729 h18->74"}
+distinct 4
+  free used check: 200
+free 390 open (me +3s): posts=0 seen=[legs0,legs2] firstScore=nullms urls=?legs=..&check=1 | ?legs=..
+  free 390 after tap: 429box=1 {"disc":true,"cents":false,"side":0,"cls":0,"s":""}
+  free used check: 200
+free 1440 open (me +3s): posts=0 seen=[legs0,legs2] firstScore=nullms urls=?legs=..&check=1 | ?legs=..
+  free 1440 after tap: 429box=1 {"disc":true,"cents":false,"side":0,"cls":0.0022,"s":"0.0006 DIV y10->10 h44->44 ; 0.0016 DIV y785->729 h18->74"}
+pro 390 open (me +3s): posts=5963 seen=[legs0,legs2,score] firstScore=6734ms urls=?legs=..&check=1 | ?legs=.. | ?legs=..&check=1
+  pro 390 reload at 0.8 s (url check=1): score=2 url=1 {"disc":true,"cents":false,"side":0,"cls":0,"s":""}
+pro 1440 open (me +3s): posts=0 seen=[legs0] firstScore=nullms urls=?legs=..&check=1
+distinct 4
+pro 1440 open (me +3s): posts=0 seen=[legs0] firstScore=nullms urls=?legs=..&check=1
+  pro 1440 reload at 0.8 s (url check=1): score=0 url=null {"disc":true,"cents":false,"side":0,"cls":0.0022,"s":"0.0006 DIV y10->10 h44->44 ; 0.0016 DIV y785->729 h18->74"}
+distinct 4
+pro 390 open (me +3s): posts=6923 seen=[legs0,legs2,score] firstScore=7590ms urls=?legs=..&check=1 | ?legs=.. | ?legs=..&check=1
+distinct 4
+distinct 4
+pro 1440 open (me +3s): posts=5882 seen=[legs0,legs2,score] firstScore=9213ms urls=?legs=..&check=1 | ?legs=.. | ?legs=..&check=1
+  pro 1440 reload at 0.8 s (url check=1): score=2 url=1 {"disc":true,"cents":false,"side":0,"cls":0.0022,"s":"0.0006 DIV y10->10 h44->44 ; 0.0016 DIV y785->729 h18->74"}
+distinct 4
+premium 390 open (me +3s): posts=8615 seen=[legs0,legs2,score] firstScore=9252ms urls=?legs=..&check=1 | ?legs=.. | ?legs=..&check=1
+  premium 390 reload at 0.8 s (url check=null): score=0 url=null {"disc":true,"cents":false,"side":0,"cls":0,"s":""}
+distinct 4
+distinct 4
+  390 run0 3rd: legs 2->3 cls +0.0000 shifts [] notes []
+  390 run0 4th: legs 3->4 cls +0.0000 shifts [] notes []
+  390 run0 duplicate (refused at 4): legs 4->4 cls +0.0130 shifts ["0.0130 SECTION y826->734 h18->110"] notes ["That bet is already in your combo."]
+  390 run1 3rd: legs 2->3 cls +0.0000 shifts [] notes []
+  390 run1 4th: legs 3->4 cls +0.0000 shifts [] notes []
+  390 run1 duplicate (refused at 4): legs 4->4 cls +0.0130 shifts ["0.0130 SECTION y826->734 h18->110"] notes ["That bet is already in your combo."]
+  390 run2 3rd: legs 2->3 cls +0.0000 shifts [] notes []
+  390 run2 4th: legs 3->4 cls +0.0000 shifts [] notes []
+  390 run2 duplicate (refused at 4): legs 4->4 cls +0.0130 shifts ["0.0130 SECTION y826->734 h18->110"] notes ["That bet is already in your combo."]
+  390 duplicate at 2 legs: legs 2->2 cls +0.0349 shifts ["0.0349 SECTION y642->550 h202->294"] notes ["That bet is already in your combo."]
+  390 facts {"disc":true,"cents":false,"side":0,"cls":0.0349,"s":"0.0349 SECTION y642->550 h202->294"}
+  1440 run0 3rd: legs 2->3 cls +0.0000 shifts [] notes []
+  1440 run0 4th: legs 3->4 cls +0.0000 shifts [] notes []
+  1440 run0 duplicate (refused at 4): legs 4->4 cls +0.0095 shifts ["0.0095 SECTION y678->600 h222->300"] notes ["That bet is already in your combo."]
+  1440 run1 3rd: legs 2->3 cls +0.0000 shifts [] notes []
+  1440 run1 4th: legs 3->4 cls +0.0000 shifts [] notes []
+  1440 run1 duplicate (refused at 4): legs 4->4 cls +0.0095 shifts ["0.0095 SECTION y678->600 h222->300"] notes ["That bet is already in your combo."]
+  1440 run2 3rd: legs 2->3 cls +0.0000 shifts [] notes []
+  1440 run2 4th: legs 3->4 cls +0.0000 shifts [] notes []
+  1440 run2 duplicate (refused at 4): legs 4->4 cls +0.0095 shifts ["0.0095 SECTION y678->600 h222->300"] notes ["That bet is already in your combo."]
+  1440 duplicate at 2 legs: legs 2->2 cls +0.0145 shifts ["0.0145 SECTION y522->444 h378->380"] notes ["That bet is already in your combo."]
+  1440 facts {"disc":true,"cents":false,"side":0,"cls":0.0161,"s":"0.0145 SECTION y522->444 h378->380"}
