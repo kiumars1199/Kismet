@@ -1,0 +1,45 @@
+[1440x900-menu-premium] chooser buttons=1 visible=true table=1 thead=57
+[1440x900-menu-premium] OK  after-load #0 at click: {"open":true,"menu":[41,68,297,596],"btn":[41,600,644],"iw":1440,"ih":900,"hdrBottom":64,"inView":true,"underHeader":false,"n":21,"hittable":21,"miss":[],"gap":4,"minRow":44,"pos":"fixed","parent":"BODY","vis":"visible","sy":0,"sh":1000,"ch":526}
+[1440x900-menu-premium] OK  after-load #0 +800ms: {"open":true,"menu":[41,68,297,596],"btn":[41,600,644],"iw":1440,"ih":900,"hdrBottom":64,"inView":true,"underHeader":false,"n":21,"hittable":21,"miss":[],"gap":4,"minRow":44,"pos":"fixed","parent":"BODY","vis":"visible","sy":0,"sh":1000,"ch":526}
+[1440x900-menu-premium] toggle after-load: 21/21  after={"open":true,"menu":[41,68,297,596],"btn":[41,600,644],"gap":4,"inView":true}
+[1440x900-menu-premium] OK  after-load #1 at click: {"open":true,"menu":[41,68,297,596],"btn":[41,600,644],"iw":1440,"ih":900,"hdrBottom":64,"inView":true,"underHeader":false,"n":21,"hittable":21,"miss":[],"gap":4,"minRow":44,"pos":"fixed","parent":"BODY","vis":"visible","sy":0,"sh":1000,"ch":526}
+[1440x900-menu-premium] OK  after-load #1 +800ms: {"open":true,"menu":[41,68,297,596],"btn":[41,600,644],"iw":1440,"ih":900,"hdrBottom":64,"inView":true,"underHeader":false,"n":21,"hittable":21,"miss":[],"gap":4,"minRow":44,"pos":"fixed","parent":"BODY","vis":"visible","sy":0,"sh":1000,"ch":526}
+[1440x900-menu-premium] OK  after-load #2 at click: {"open":true,"menu":[41,68,297,596],"btn":[41,600,644],"iw":1440,"ih":900,"hdrBottom":64,"inView":true,"underHeader":false,"n":21,"hittable":21,"miss":[],"gap":4,"minRow":44,"pos":"fixed","parent":"BODY","vis":"visible","sy":0,"sh":1000,"ch":526}
+[1440x900-menu-premium] OK  after-load #2 +800ms: {"open":true,"menu":[41,68,297,596],"btn":[41,600,644],"iw":1440,"ih":900,"hdrBottom":64,"inView":true,"underHeader":false,"n":21,"hittable":21,"miss":[],"gap":4,"minRow":44,"pos":"fixed","parent":"BODY","vis":"visible","sy":0,"sh":1000,"ch":526}
+[1440x900-menu-premium] OK  after-load #3 at click: {"open":true,"menu":[41,68,297,596],"btn":[41,600,644],"iw":1440,"ih":900,"hdrBottom":64,"inView":true,"underHeader":false,"n":21,"hittable":21,"miss":[],"gap":4,"minRow":44,"pos":"fixed","parent":"BODY","vis":"visible","sy":0,"sh":1000,"ch":526}
+[1440x900-menu-premium] OK  after-load #3 +800ms: {"open":true,"menu":[41,68,297,596],"btn":[41,600,644],"iw":1440,"ih":900,"hdrBottom":64,"inView":true,"underHeader":false,"n":21,"hittable":21,"miss":[],"gap":4,"minRow":44,"pos":"fixed","parent":"BODY","vis":"visible","sy":0,"sh":1000,"ch":526}
+[1440x900-menu-premium] OK  after-load #4 at click: {"open":true,"menu":[41,68,297,596],"btn":[41,600,644],"iw":1440,"ih":900,"hdrBottom":64,"inView":true,"underHeader":false,"n":21,"hittable":21,"miss":[],"gap":4,"minRow":44,"pos":"fixed","parent":"BODY","vis":"visible","sy":0,"sh":1000,"ch":526}
+[1440x900-menu-premium] OK  after-load #4 +800ms: {"open":true,"menu":[41,68,297,596],"btn":[41,600,644],"iw":1440,"ih":900,"hdrBottom":64,"inView":true,"underHeader":false,"n":21,"hittable":21,"miss":[],"gap":4,"minRow":44,"pos":"fixed","parent":"BODY","vis":"visible","sy":0,"sh":1000,"ch":526}
+[1440x900-menu-premium] OK  top #0: {"open":true,"menu":[41,68,297,596],"btn":[41,600,644],"iw":1440,"ih":900,"hdrBottom":64,"inView":true,"underHeader":false,"n":21,"hittable":21,"miss":[],"gap":4,"minRow":44,"pos":"fixed","parent":"BODY","vis":"visible","sy":0,"sh":1000,"ch":526}
+[1440x900-menu-premium] toggle top: 21/21  after={"open":true,"menu":[41,68,297,596],"btn":[41,600,644],"gap":4,"inView":true}
+[1440x900-menu-premium] OK  top #1: {"open":true,"menu":[41,68,297,596],"btn":[41,600,644],"iw":1440,"ih":900,"hdrBottom":64,"inView":true,"underHeader":false,"n":21,"hittable":21,"miss":[],"gap":4,"minRow":44,"pos":"fixed","parent":"BODY","vis":"visible","sy":0,"sh":1000,"ch":526}
+[1440x900-menu-premium] OK  top #2: {"open":true,"menu":[41,68,297,596],"btn":[41,600,644],"iw":1440,"ih":900,"hdrBottom":64,"inView":true,"underHeader":false,"n":21,"hittable":21,"miss":[],"gap":4,"minRow":44,"pos":"fixed","parent":"BODY","vis":"visible","sy":0,"sh":1000,"ch":526}
+[1440x900-menu-premium] OK  top #3: {"open":true,"menu":[41,68,297,596],"btn":[41,600,644],"iw":1440,"ih":900,"hdrBottom":64,"inView":true,"underHeader":false,"n":21,"hittable":21,"miss":[],"gap":4,"minRow":44,"pos":"fixed","parent":"BODY","vis":"visible","sy":0,"sh":1000,"ch":526}
+[1440x900-menu-premium] OK  top #4: {"open":true,"menu":[41,68,297,596],"btn":[41,600,644],"iw":1440,"ih":900,"hdrBottom":64,"inView":true,"underHeader":false,"n":21,"hittable":21,"miss":[],"gap":4,"minRow":44,"pos":"fixed","parent":"BODY","vis":"visible","sy":0,"sh":1000,"ch":526}
+[1440x900-menu-premium] OK  scrolled y=0 #0: {"open":true,"menu":[41,68,297,596],"btn":[41,600,644],"iw":1440,"ih":900,"hdrBottom":64,"inView":true,"underHeader":false,"n":21,"hittable":21,"miss":[],"gap":4,"minRow":44,"pos":"fixed","parent":"BODY","vis":"visible","sy":0,"sh":1000,"ch":526}
+[1440x900-menu-premium] toggle scrolled-0: 21/21  after={"open":true,"menu":[41,68,297,596],"btn":[41,600,644],"gap":4,"inView":true}
+[1440x900-menu-premium] OK  scrolled y=150 #1: {"open":true,"menu":[41,498,297,888],"btn":[41,450,494],"iw":1440,"ih":900,"hdrBottom":64,"inView":true,"underHeader":false,"n":21,"hittable":21,"miss":[],"gap":4,"minRow":44,"pos":"fixed","parent":"BODY","vis":"visible","sy":150,"sh":1000,"ch":389}
+[1440x900-menu-premium] OK  scrolled y=400 #2: {"open":true,"menu":[41,248,297,888],"btn":[41,200,244],"iw":1440,"ih":900,"hdrBottom":64,"inView":true,"underHeader":false,"n":21,"hittable":21,"miss":[],"gap":4,"minRow":44,"pos":"fixed","parent":"BODY","vis":"visible","sy":400,"sh":1000,"ch":639}
+[1440x900-menu-premium] toggle scrolled-400: 21/21  after={"open":true,"menu":[41,248,297,888],"btn":[41,200,244],"gap":4,"inView":true}
+[1440x900-menu-premium] OK  scrolled y=510 #3: {"open":true,"menu":[41,138,297,888],"btn":[41,90,134],"iw":1440,"ih":900,"hdrBottom":64,"inView":true,"underHeader":false,"n":21,"hittable":21,"miss":[],"gap":4,"minRow":44,"pos":"fixed","parent":"BODY","vis":"visible","sy":510,"sh":1000,"ch":749}
+[1440x900-menu-premium] OK  scrolled y=525 #4: {"open":true,"menu":[41,128,297,888],"btn":[41,80,124],"iw":1440,"ih":900,"hdrBottom":64,"inView":true,"underHeader":false,"n":21,"hittable":21,"miss":[],"gap":4,"minRow":44,"pos":"fixed","parent":"BODY","vis":"visible","sy":520,"sh":1000,"ch":759}
+[1440x900-menu-premium] page-wheel step 0: open=true menu=[41,528,297,888] btn=[41,480,524] gap=4 inView=true underHeader=false sy=120
+[1440x900-menu-premium] page-wheel step 1: open=true menu=[41,408,297,888] btn=[41,360,404] gap=4 inView=true underHeader=false sy=240
+[1440x900-menu-premium] page-wheel step 2: open=true menu=[41,288,297,888] btn=[41,240,284] gap=4 inView=true underHeader=false sy=360
+[1440x900-menu-premium] page-wheel step 3: open=true menu=[41,168,297,888] btn=[41,120,164] gap=4 inView=true underHeader=false sy=480
+[1440x900-menu-premium] page-wheel step 4: open=true menu=[41,118,297,888] btn=[41,70,114] gap=4 inView=true underHeader=false sy=600
+[1440x900-menu-premium] page-wheel step 5: open=true menu=[41,118,297,888] btn=[41,70,114] gap=4 inView=true underHeader=false sy=720
+[1440x900-menu-premium] page-wheel step 6: open=true menu=[41,118,297,888] btn=[41,70,114] gap=4 inView=true underHeader=false sy=840
+[1440x900-menu-premium] page-wheel step 7: open=true menu=[41,118,297,888] btn=[41,70,114] gap=4 inView=true underHeader=false sy=960
+[1440x900-menu-premium] page-wheel step 8: open=true menu=[41,118,297,888] btn=[41,70,114] gap=4 inView=true underHeader=false sy=1080
+[1440x900-menu-premium] page-wheel step 9: open=true menu=[41,118,297,888] btn=[41,70,114] gap=4 inView=true underHeader=false sy=1200
+[1440x900-menu-premium] page-wheel step 10: open=true menu=[41,118,297,888] btn=[41,70,114] gap=4 inView=true underHeader=false sy=1319
+[1440x900-menu-premium] page-wheel step 11: open=true menu=[41,118,297,888] btn=[41,70,114] gap=4 inView=true underHeader=false sy=1439
+[1440x900-menu-premium] wheel inside panel: page sy 0->0 panelScrollable=true
+[1440x900-menu-premium] table scroll box: null
+[1440x900-menu-premium] escape closes=true focusBack=true outsideClick closes=true button-toggle closes=true
+[1440x900-menu-premium] keyboard: Enter -> {"tag":"INPUT","txt":"Bet","inMenu":true,"open":true,"expanded":"true"}; Space toggles first=true; Tab x23: Estimated return > Won before > Market says > Chance > Closes > Topic > Alert me > Mid > Spread > Fee > Volume > 24h volume > Liquidity > Evidence (events) > Model level > Market type > Retention > Capacity > Price check > Realistic edge > Skip to contentKisme(OUT open=true) > Skip to content(OUT open=true) > Kismet(OUT open=true)
+[1440x900-menu-premium] keyboard: Shift+Tab from first -> {"tag":"A","txt":"Kalshi markets","inMenu":false,"open":true,"expanded":"true"}
+[1440x900-menu-premium] SUMMARY fails=0 []
+--- LOG
+

@@ -1,0 +1,10 @@
+[390] signup email step: different-email {"x":37,"y":292.1875,"width":136.296875,"height":44} count=1
+[audit 390-misc check-email] /signup h1="Create your free account" disc=true/true cls=0 hscroll=false
+[390] after click: email field visible=true
+[390] patch profile tz UTC: 204
+[390] settings tz after patch: ["=>\"Not set\" (52)","America/New_York=>\"America/New York\" (419)"]
+[390] settings tz after choosing UTC + reload: ["=>\"Not set\" (52)","UTC=>\"UTC\" (419)"] profile=undefined
+[audit 390-misc settings] /settings h1="Settings" disc=true/true cls=0.0005 hscroll=false shifts=[{"v":0.0005,"t":303,"src":["A.flex min-h-11 flex-none items-center gap 'Updated 8 days ago · data may be stale' 68->68 h44->44"]}]
+[390] sort headers: [] thead h=0
+--- LOG
+

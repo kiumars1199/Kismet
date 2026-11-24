@@ -1,0 +1,12 @@
+[390-pro] tier=pro
+[audit 390-pro /markets] /markets h1="All markets" disc=true/true cls=0 hscroll=false
+[390-pro] /markets personalized-language: []
+[390-pro] /markets CLS=0 [] bar="null" chips={"h":48,"w":390,"sw":1405,"cw":390,"overflowX":"auto","scrollbar":0,"mask":"none","offRow":["Best bets only","Confident","Validated","Closes < 24h","Live","Weather","Crypto","Hide sports","+ Save this viewSave"],"chips":["NFL","Soccer","College basketball","Best bets only","Confident","Validated","Closes < 24h","Live","Weather","Crypto","Hide sports","+ Save this viewSa"]}
+[audit 390-pro /markets?q=texans] /markets?q=texans h1="All markets" disc=true/true cls=0.0005 hscroll=false shifts=[{"v":0.0005,"t":308,"src":["A.flex min-h-11 flex-none items-center gap 'Updated 8 days ago · data may be stale' 68->68 h44->44"]}]
+[390-pro] /markets?q=texans personalized-language: []
+[390-pro] /markets?q=texans CLS=0.0005 [] bar="null" chips={"h":48,"w":390,"sw":1405,"cw":390,"overflowX":"auto","scrollbar":0,"mask":"none","offRow":["Best bets only","Confident","Validated","Closes < 24h","Live","Weather","Crypto","Hide sports","+ Save this viewSave"],"chips":["NFL","Soccer","College basketball","Best bets only","Confident","Validated","Closes < 24h","Live","Weather","Crypto","Hide sports","+ Save this viewSa"]}
+[audit 390-pro /?view=flags&fav=1] /?view=flags&fav=1 h1="28 bets where the odds lean your way" disc=true/true cls=0.0005 hscroll=false shifts=[{"v":0.0005,"t":310,"src":["A.flex min-h-11 flex-none items-center gap 'Updated 8 days ago · data may be stale' 68->68 h44->44"]}]
+[390-pro] /?view=flags&fav=1 personalized-language: []
+[390-pro] /?view=flags&fav=1 CLS=0.0005 [] bar="Your topics (3)" chips=null
+--- LOG
+

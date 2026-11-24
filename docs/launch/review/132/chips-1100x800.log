@@ -1,0 +1,14 @@
+[1100] /markets?q=texans CLS=0.0132 start: {"sl":0,"sw":1359,"cw":1036,"ox":"auto","wrap":"nowrap","h":48,"fade":[787,819],"spe":"261px"} => fade shown (ok, more to the right)
+[1100] /markets?q=texans end: {"sl":323,"sw":1359,"cw":1036,"ox":"auto","wrap":"nowrap","h":48,"fade":null,"spe":"261px"} => fade hidden (ok)
+[1100] /markets?q=texans 20px-before-end: fade=true
+[1100] /markets?q=texans back to start: fade=true
+[1100] /markets?q=texans tab: hidden=1 :: Soccer > College basketball > Best bets only > Confident > Validated > Closes < 24h > Live > Weather(HIDDEN inRow=true inVp=true cov=011 x=801,883) > NFL > Crypto > Hide sports > + Save this view > Saved views > [left row -> Texans]
+[1100] /markets?q=texans shift-tab: hidden=1 :: Saved views < + Save this view < Hide sports < Crypto < NFL < Weather < Live < Closes < 24h < Validated < Confident < Best bets only(HIDDEN) < College basketball < Soccer
+[1100] /markets CLS=0.0133 start: {"sl":0,"sw":1359,"cw":1036,"ox":"auto","wrap":"nowrap","h":48,"fade":[787,819],"spe":"261px"} => fade shown (ok, more to the right)
+[1100] /markets end: {"sl":323,"sw":1359,"cw":1036,"ox":"auto","wrap":"nowrap","h":48,"fade":null,"spe":"261px"} => fade hidden (ok)
+[1100] /markets 20px-before-end: fade=true
+[1100] /markets back to start: fade=true
+[1100] /markets tab: hidden=1 :: Soccer > College basketball > Best bets only > Confident > Validated > Closes < 24h > Live > Weather(HIDDEN inRow=true inVp=true cov=011 x=801,883) > NFL > Crypto > Hide sports > + Save this view > Saved views > [left row -> Check your state]
+[1100] /markets shift-tab: hidden=1 :: Saved views < + Save this view < Hide sports < Crypto < NFL < Weather < Live < Closes < 24h < Validated < Confident < Best bets only(HIDDEN) < College basketball < Soccer
+--- LOG
+

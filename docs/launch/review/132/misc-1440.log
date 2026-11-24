@@ -1,0 +1,10 @@
+[1440] signup email step: different-email {"x":531,"y":410,"width":136.296875,"height":44} count=1
+[audit 1440-misc check-email] /signup h1="Create your free account" disc=true/true cls=0 hscroll=false
+[1440] after click: email field visible=true
+[1440] patch profile tz UTC: 204
+[1440] settings tz after patch: ["=>\"Not set\" (52)","America/New_York=>\"America/New York\" (419)"]
+[1440] settings tz after choosing UTC + reload: ["=>\"Not set\" (52)","UTC=>\"UTC\" (419)"] profile=undefined
+[audit 1440-misc settings] /settings h1="Settings" disc=true/true cls=0.0006 hscroll=false shifts=[{"v":0.0006,"t":200,"src":["DIV.h-11 w-full max-w-[340px] rounded-input  '' 9.5->9.5 h44->44"]}]
+[1440] sort headers: ["Choose colum 44x44","Estimated re 109x44","Won before↕ 81x44","Market says↕ 84x44","Closes↕ 53x44"] thead h=57
+--- LOG
+

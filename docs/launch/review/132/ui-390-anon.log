@@ -1,0 +1,11 @@
+[audit 390-anon /markets] /signup?next=%2Fmarkets h1="Create your free account" disc=true/true cls=0 hscroll=false
+[390-anon] /markets personalized-language: []
+[390-anon] /markets CLS=0 [] bar="null" chips=null
+[audit 390-anon /markets?q=texans] /signup?next=%2Fmarkets%3Fq%3Dtexans h1="Create your free account" disc=true/true cls=0 hscroll=false
+[390-anon] /markets?q=texans personalized-language: []
+[390-anon] /markets?q=texans CLS=0 [] bar="null" chips=null
+[audit 390-anon /?view=flags&fav=1] /?view=flags&fav=1 h1="Which Polymarket bets are worth it today?" disc=true/true cls=0 hscroll=false
+[390-anon] /?view=flags&fav=1 personalized-language: ["on Polymarket. Kismet never places bets for you."]
+[390-anon] /?view=flags&fav=1 CLS=0 [] bar="null" chips=null
+--- LOG
+[console.warning] http://localhost:4137/signup?next=%2Fmarkets%3Fq%3Dtexans :: The resource http://localhost:4137/_next/static/css/ee299ee92075b9f0.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.

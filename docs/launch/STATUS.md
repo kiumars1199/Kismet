@@ -50,15 +50,18 @@ Notes, not problems (decisions.md 13:05): /pricing inline "account page" link is
 Status: re-walk r3 on final f2ef7a9 (local prod build, mock auth; 15:55 UTC; evidence review/walkthrough-2-r3/): FAIL on one should-fix. All 13 items from r2 are fixed (#124, #126, #127, #128); Everything + reload stays on fav=0. New items assigned to T-wt2i (16:00).
 
 Problems:
-- [should-fix] /markets?q=texans at 1440, Free with 3 saved topics: CLS 0.193 (6 of 6 runs); ~450 ms after load the search chips and table card drop 8 px. 1-topic account 0.0098, 390 0.0005. Likely the 36→44 px tap-target change in SearchChips/FilterPills/MarketTable with something late-rendering above (T-wt2i)
-- [nit] /check limit page at 390 keeps ~550 px of empty space under the 158 px limit card (main stays 1045 px) (T-wt2i)
-- [nit] `/?view=flags&fav=1` with no t= shows the pill and 28 filtered bets but the bar says "Everything"; 1440 load CLS 0.024 from "Today's top 5" collapsing 42 px (T-wt2i)
-- [nit] Settings Time zone select shows "Africa/Abidjan" when the saved zone is UTC (UTC not in Intl.supportedValuesOf) (T-wt2i)
-- [nit] "Use a different email" on the check-your-email step is 136x20 (T-wt2i)
-- [nit] /markets table sort headers 32 px tall at 1440 (T-wt2i)
+- ~~[should-fix] /markets?q=texans at 1440, Free with 3 saved topics: CLS 0.193 (6 of 6 runs); ~450 ms after load the search chips and table card drop 8 px. 1-topic account 0.0098, 390 0.0005. Likely the 36→44 px tap-target change in SearchChips/FilterPills/MarketTable with something late-rendering above (T-wt2i)~~ fixed by #132
+- ~~[nit] /check limit page at 390 keeps ~550 px of empty space under the 158 px limit card (main stays 1045 px) (T-wt2i)~~ fixed by #132
+- ~~[nit] `/?view=flags&fav=1` with no t= shows the pill and 28 filtered bets but the bar says "Everything"; 1440 load CLS 0.024 from "Today's top 5" collapsing 42 px (T-wt2i)~~ fixed by #132
+- ~~[nit] Settings Time zone select shows "Africa/Abidjan" when the saved zone is UTC (UTC not in Intl.supportedValuesOf) (T-wt2i)~~ fixed by #132
+- ~~[nit] "Use a different email" on the check-your-email step is 136x20 (T-wt2i)~~ fixed by #132
+- ~~[nit] /markets table sort headers 32 px tall at 1440 (T-wt2i)~~ fixed by #132
 
 Notes, not problems: 8-day-old fixture scan drives the stale banner and "Closed" labels; second Free /check returns the expected 429. Free "tour over an empty list" only via ?tour=1 on a manual filter. Supabase amr order: code reads amr[0]; multi-entry case leaves the clause blank (unit-tested).
 - [should-fix] Topic picker loses or flips topics on quick taps (TopicsPicker.toggle reads a stale snapshot; SupabaseRepo.profile.patch updates only after the reply). Tiles show nothing selected until the server answers. (T-wt2j)
+- [should-fix] /markets chip row: keyboard focus (Tab/Shift+Tab) lands on chips mostly off-screen (1100: College basketball 0/161 px; 390: Crypto 2/72 px) (T-wt2k)
+- [should-fix] Below 1280 the open Choose-columns menu stays pinned at top after its button scrolls away (1100x800, 1024x600) (T-wt2k)
+- [nit] Tab past the last checkbox in the open column menu jumps to Skip to content; menu stays open (T-wt2k)
 
 
 ## Walk-through 3: Pro user building a combo
@@ -76,6 +79,7 @@ Problems:
 - [nit] 375x667: the same-event alert's "combo checker" link first renders under the fixed bottom tray (y 535 of 667) until scrolled (T-wt3g, after #130)
 
 ## Found in review, outside a lane
+- 18:56 #132 T-wt2i merged (9f5c68b) after review r3 PASS at 6acff47 (menu portaled, 21/21 checkboxes hittable at every size; texans CLS 0.0095) and full CI green. Evidence review/132. Three r3 follow-ups → T-wt2k.
 - 17:55 #132 review r2 FAIL at 88ecfd5: column menu clipped by the table's overflow box at 1100x800 (blocker), chip fade stays on at scroll end, Tab focus lands under pinned chips. Sent back to T-wt2i. Topic-picker race split out to T-wt2j.
 - 17:20 #132 T-wt2i review FAIL at aa29356/4ccd245 (evidence scratchpad/review/132): /markets?q=texans CLS now 0.013–0.017 (was 0.193); fav=1 label + Top 5 refetch fixed; tz/tap targets fixed. Back to builder: /check limit hint cookie regresses CLS to 0.24 without a valid cookie and can flash the limit card to a user with a check left (decision: drop the cookie, server peeks the real counter); column menu still overflows at 1280x720 / 1100x800 when opened at the top; desktop chips need a scroll cue.
 - 15:44 merged #128 T-wt2h (f2ef7a9): bar says "Your topics (N)" only on the saved view; Everything + Apply shows all bets and survives reload/shared link (`?fav=0` no longer re-filters on the server, also fixes the no-JS Clear all); changing topics off the saved set drops the "Your topics" pill. Reviewer FAIL on 79e1b44, PASS on b5c111e; merge of final into 21de45d left app diff identical (lead-checked). Evidence review/128/.
