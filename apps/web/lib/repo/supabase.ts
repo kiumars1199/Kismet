@@ -24,7 +24,9 @@ export class SupabaseRepo implements Repo {
   async load(): Promise<this> {
     const all = (await this.call("GET", "")) as Record<string, unknown> & { profile: Profile };
     for (const n of NAMES) this.data.set(n, (all[n] as unknown[]) ?? []);
-    this.profileRow = { ...DEFAULT_PROFILE, ...all.profile };
+    this.confirmed = { ...DEFAULT_PROFILE, ...all.profile };
+    this.profileRow = this.confirmed;
+    this.recompute();
     this.emit();
     return this;
   }
@@ -88,12 +90,42 @@ export class SupabaseRepo implements Repo {
   alert_events = this.table("alert_events");
   journal = this.table("journal");
 
+  // Profile writes are optimistic and ordered (T-wt2j). The snapshot every reader sees (the topic picker, the filter bar) is the
+  // last server-confirmed profile with the not-yet-answered patches laid over it, so it changes the moment a patch is made, not
+  // after a 150-400 ms round trip. Patches go to the server one at a time in the order made, so a slow earlier answer can't
+  // overwrite a later one (and the me_topics cookie, set by each answer, ends on the final list). A failed patch drops out of
+  // the overlay (the snapshot rolls back to the confirmed profile) and the queue carries on.
+  private confirmed: Profile | null = null;
+  private pending: Partial<Profile>[] = [];
+  private profileQueue: Promise<unknown> = Promise.resolve();
+  private recompute() { this.profileRow = this.pending.reduce<Profile>((p, q) => ({ ...p, ...q }), this.confirmed ?? this.profileRow); }
+
+  /** The page is being left (pagehide): send this profile change once, with keepalive so it survives the navigation. Not queued, not
+   *  awaited; the full-list saves still queued or in flight are idempotent, so they can land before or after it. */
+  flushProfile(p: Partial<Profile>): void {
+    try { void this.fetcher(this.base + "/profile", { method: "PATCH", keepalive: true, credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify(p) }).catch(() => {}); } catch { /* best effort */ }
+  }
+
   profile = {
     get: async () => this.profileRow,
-    patch: async (p: Partial<Profile>) => {
-      this.profileRow = (await this.call("PATCH", "/profile", p)) as Profile;
+    patch: (p: Partial<Profile>): Promise<Profile> => {
+      this.confirmed ??= this.profileRow;
+      this.pending.push(p);
+      this.recompute();
       this.emit();
-      return this.profileRow;
+      const run = async (): Promise<Profile> => {
+        try {
+          this.confirmed = (await this.call("PATCH", "/profile", p)) as Profile;
+          return this.confirmed;
+        } finally {
+          this.pending = this.pending.filter((x) => x !== p);   // answered, either way
+          this.recompute();
+          this.emit();
+        }
+      };
+      const result = this.profileQueue.then(run, run);
+      this.profileQueue = result.catch(() => undefined);
+      return result;
     },
   };
 }
