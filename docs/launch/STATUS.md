@@ -47,21 +47,24 @@ Problems:
 Notes, not problems (decisions.md 13:05): /pricing inline "account page" link is 91x17, allowed by WCAG 2.5.8 inline exception. Watch on prod: one #418 seen once on 6da7905 on a first cold walk, never reproduced in 200+ later loads. Signed-out combo from /m is BotID-blocked for headless on prod (real-phone check is on Q's list).
 
 ## Walk-through 2: new Free user
-Status: official walk on 137ad1f (22:50; evidence review/walkthrough-2/): FAIL. Signed-in steps were walked on a local build of 137ad1f with the E2E mock, and signed-out steps on prod (decisions.md). Fixes assigned: T-wt2b (data), T-wt2c (tracker). Dry-run items fixed: onboarding CLS (now 0.0006), "over over", locked-card copy, "- More Markets" (#81). The empty first screen is fixed only when the topic has bets that aren't in the sample.
+Status: re-walk on final 6da7905 (local prod build, mock auth; 13:25 UTC; evidence review/walkthrough-2-r2/): FAIL. Every item from the 22:50 walk is fixed (topic with no bets, locked card after filter, TopicsPicker before hydration, Pause Cancel, sign-in clause, help line once, drawer "Check this bet", password signup, leaving onboarding mid-way). New and newly found items assigned to T-wt2e (topics), T-wt2f (tour + auth copy), T-wt2g (layout + tap targets), 13:30.
 
 Problems:
-- ~~[should-fix] The empty first screen still happens when a topic has no best bets today~~ fixed by #98 (merged 957c14b)
-- ~~[should-fix] On the fallback first screen the filter bar contradicts the cards; the tour scrolls the h1 away~~ fixed by #98
-- [should-fix] ~~The pause "Cancel" button is 46x20 and sits next to "Pause for 24 hours" (tracker, T-wt2c)~~ fixed by #99 (merged 00:19; re-walk pending)
-- ~~[nit] The h1 says "your topics" for a plain topic filter; the locked card is not in the first view on load~~ fixed by #98
-- [should-fix] (#98 review) After a filter change to an empty result, the locked card that says where the bet is sits 1.5 screens below; put it under the h1 when the result is empty. (tracker, T-wt2d)
-- [should-fix] (#98 review) A new Pro or Premium user who picks only a topic with no bets today lands on 0 cards and no tour. (tracker, T-wt2d)
-- [should-fix] (#98 review) A TopicsPicker tap before hydration is lost (the tile's name changes from "NBA" to "NBA none open" once counts load), so the user ends up unfiltered. (tracker, T-wt2d)
-- [nit] ~~Tap targets: onboarding Back, "Track your bets with Pro", /markets rows, the drawer's See plans / Why two numbers? / Settings. (tracker, T-wt2c)~~ fixed by #99 (merged 00:19; re-walk pending)
-- [nit] ~~/account says "with Google or an email link" to password users. The help line is shown twice on /account. (tracker, T-wt2c)~~ fixed by #99 (merged 00:19; re-walk pending)
-- [nit] ~~The drawer has no single-bet "Check" entry. (tracker, T-wt2c)~~ fixed by #99 (merged 00:19; re-walk pending)
-- Not seen yet, to re-walk after the fixes: email + password signup (stalled under shared-machine load), the first screen for a topic with no bets, and the tour over an empty list.
-- Accepted, not a problem: the console logs 429 on the 2nd Free check (decisions.md).
+- [should-fix] /alerts and /dashboards at 390 shift CLS 0.116 / 0.125 on load (footer jumps while content loads) (T-wt2g)
+- [should-fix] Saved topics lost after sign-out/sign-in or new device: Home/Best bets open unfiltered until a reload (F5) (T-wt2e)
+- [should-fix] /check Free limit card is a 1000 px (390) / 700 px (1440) box with ~100 px of content (T-wt2g)
+- [should-fix] Tour step 4 "Save and get alerts" points at a Save button off screen (y≈2117) with cards (T-wt2f)
+- [should-fix] Filter bar says "Everything" while 2+ saved topics filter the list (T-wt2e)
+- [should-fix] Settings → Topics shows raw ids ("sports.nfl, sports.ncaab") (T-wt2e)
+- [should-fix] /markets search chips 36 px tall, header clear × 18x32 at 390; "Choose columns" 36x36 and row checkboxes 16x16 at 1440 (T-wt2g)
+- [nit] Tour step 1 "A best bet" card hidden behind the tab bar at 390 when the stale banner shows (T-wt2f)
+- [nit] Tour step 1 copy says cards show "what $10 wins"; cards show "Pays 1.45x" (T-wt2f)
+- [nit] "Already have an account?" twice on the check-your-email screen (T-wt2f)
+- [nit] "Today's top 1" heading with one bet (T-wt2e)
+- [nit] Onboarding step 1 at 390: tiles show through the ~15 px gap between the sticky Next bar and the tab bar (T-wt2f)
+- [nit] Settings at 1440: Time zone select text larger than State select (T-wt2g)
+
+Notes, not problems: Free "tour over an empty list" is only reachable via ?tour=1 on a manual filter. Supabase amr order: code reads amr[0]; multi-entry case leaves the clause blank (unit-tested), not checkable without live Supabase.
 
 ## Walk-through 3: Pro user building a combo
 Status: re-walk on final 6da7905 (local prod build; 13:10 UTC; evidence review/walkthrough-3-r2/): FAIL on one should-fix. Every item from the earlier walk is fixed (tray/checker agree, restore CLS ≤0.0004 at 390, shareable link, ?m= → ?legs=, Free note wording, tray same-event pointer, button clear of Premium tray). Fixes assigned: T-wt3e (builder lane, 13:12).

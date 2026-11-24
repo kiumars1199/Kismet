@@ -1,0 +1,19 @@
+logged in, tier=free
+[390] /markets -> /markets h1="All markets" disc=true hscroll=false cls=0 idle=ok SMALL=["Skip to content 1x1"]
+[390] /markets?q=texans -> /markets?q=texans h1="All markets" disc=true hscroll=false cls=0 idle=ok SMALL=["Skip to content 1x1","Clear search 18x32","Remove from search: Texans 84x36","Clear search 94x36"]
+[390] /watchlist -> /watchlist h1="My list" disc=true hscroll=false cls=0.0005 idle=ok SMALL=["Skip to content 1x1"]
+[390] /journal -> /journal h1="My bets" disc=true hscroll=false cls=0.0005 idle=ok SMALL=["Skip to content 1x1"]
+[390] /track-record -> /track-record h1="How best bets have done" disc=true hscroll=false cls=0.0005 idle=ok SMALL=["Skip to content 1x1"]
+[390] /tools -> /tools h1="Calculators" disc=true hscroll=false cls=0.0005 idle=ok SMALL=["Skip to content 1x1"]
+[390] /check/combo -> /check/combo h1="Combo checker" disc=true hscroll=false cls=0.0005 idle=ok SMALL=["Skip to content 1x1"]
+[390] /combos -> /combos h1="Combos" disc=true hscroll=false cls=0.0005 idle=ok SMALL=["Skip to content 1x1"]
+[390] /alerts -> /alerts h1="Alerts" disc=true hscroll=false cls=0.1158 idle=ok SMALL=["Skip to content 1x1"]
+[390] /dashboards -> /dashboards h1="Dashboards" disc=true hscroll=false cls=0.1255 idle=ok SMALL=["Skip to content 1x1"]
+[390] /status -> /status h1="Status" disc=true hscroll=false cls=0.0005 idle=ok SMALL=["Skip to content 1x1"]
+[390] /about -> /about h1="Same payout. Different odds." disc=true hscroll=false cls=0.0005 idle=ok SMALL=["Skip to content 1x1"]
+[390] /kalshi -> /kalshi h1="Kalshi markets" disc=true hscroll=false cls=0 idle=ok SMALL=["Skip to content 1x1"]
+[390] /state -> /state h1="Your state" disc=true hscroll=false cls=0.0005 idle=ok SMALL=["Skip to content 1x1"]
+[390] /check?m=7077573&side=0 -> /check?m=7077573&side=0 h1="Bet checker" disc=true hscroll=false cls=0.0005 idle=ok SMALL=["Skip to content 1x1"]
+[390] /?view=flags&t=sports.mlb&tour=1 -> /?view=flags&t=sports.mlb h1="No best bets in Baseball today" disc=true hscroll=false cls=0.0005 idle=ok SMALL=["Skip to content 1x1"]
+--- LOG
+

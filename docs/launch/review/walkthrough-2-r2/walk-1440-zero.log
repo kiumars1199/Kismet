@@ -1,0 +1,79 @@
+[audit landing] / h1="Which Polymarket bets are worth it today?" disc=true/true cls=0 hscroll=false
+   shot 1440-zero-01-landing.png
+[audit signup] /signup h1="Create your free account" disc=true/true cls=0 hscroll=false
+   shot 1440-zero-02-signup.png
+[audit signup-filled] /signup h1="Create your free account" disc=true/true cls=0 hscroll=false
+   shot 1440-zero-03-signup-filled.png
+[audit check-email] /signup h1="Create your free account" disc=true/true cls=0 hscroll=false
+   shot 1440-zero-04-check-email.png
+Skip to content
+Kismet
+How it works
+Results
+Pricing
+Check a bet
+Updated
+8 days ago
+· data may be stale
+Log in
+Create your free account
+
+10 best bets a day free, no card. Save views and keep My list on every device.
+
+Check your email
+
+To finish, confirm your email: open the link we sent to wt2r2-zero-1440-1795525681306@example.com in this browser and you're signed in. Already have an account? Log in instead.
+
+Use a different email
+
+Already have an account?
+Log in
+
+Kismet. Good-value bets on Polymarket, in plain words.
+
+Market analytics, not financial advice. Based on past results. 18+.
+
+Gamblin
+[audit onboarding-1] /onboarding?next=%2F h1="What do you bet on?" disc=true/true cls=0.0006 hscroll=false shifts=[{"v":0.0006,"t":215,"src":["DIV.h-11 w-full max-w-[340px] rounded-input  '' 9.5->9.5 h44->44"]}]
+   shot 1440-zero-05-onboarding-1.png
+ONB1: Skip to content | Kismet | Best bets | All markets | My list | My bets | Results | Check a bet | Kalshi | Search markets | / | Updated | 8 days ago | · data may be stale | Account | Skip setup | Step 1 of 3 | What do you bet on? | Your topics show first in quick filters and on Best bets. | Choose any you follow. You can change them later in Settings. | Sports | NFL | 40 open | College football | 106 open | NBA | 55 open | College basketball | none open | Soccer | 83 open | Hockey | 10 open | Baseball | none open | Tennis | 25 open | Esports | 5 open | UFC | none open | Boxing | none open | Golf | none open | Formula 1 | none open | Cricket | none open | Crypto | Bitcoin | 2 open | Ethereum | 6 open | Solana | 5 open | XRP | 3 open | Crypto up or down | 1 open | Hit a price | 3 open | Price ranges | 6 open | Weather & Climate | Highest temperature | 106 open | Lowest temperature | 13 open | Rain & snow | 3 open | Hurricanes | none open | Finance & Economics | Stocks | 11 open | Earnings calls | none open | Commodities | 7 open | Fed | none open | Inflation | 1 open | Jobs | none open | Daily close | none open | Stock market up or down | 7 open | Politics & Elections | Elections | 1 open | US | none open | Congress | none open | Courts | none open | Trump admin | none open | Culture | Awards | 2 open | Music | 3 open | Movies | 1 open | Celebrities | 2 open | Tweets | 1 open | Netflix | 1 open | Art auctions | 1 open | Tech & Science | AI | 5 open | Big Tech | 2 open | OpenAI | 1 open | Anthropic | 1 open | Google | 3 open | Nvidia | 1 open | More | World | 7 open | Mentions | none open | Email me a short morning list | Up to 5 bets in your topics, once a day. Turn it off any time from the email. | Next | Kismet. Good-value bets on Polymarket, in plain words. | Market analytics, not financial advice. Based on past results. 18+. | Gambling problem? Free, confidential help: | Call or text 1-800-MY-RESET | Chat online | (National Council on Problem Gambling, 24/7, source, checked 2026-11-22). | © 2026 Kiumars Momtaz and Marc Yamin | How it works
+TILES: NFL 40 open ; College football 106 open ; NBA 55 open ; College basketball none open ; Soccer 83 open ; Hockey 10 open ; Baseball none open ; Tennis 25 open ; Esports 5 open ; UFC none open ; Boxing none open ; Golf none open ; Formula 1 none open ; Cricket none open ; Bitcoin 2 open ; Ethereum 6 open ; Solana 5 open ; XRP 3 open ; Crypto up or down 1 open ; Hit a price 3 open ; Price ranges 6 open ; Highest temperature 106 open ; Lowest temperature 13 open ; Rain & snow 3 open ; Hurricanes none open ; Stocks 11 open ; Earnings calls none open ; Commodities 7 open ; Fed none open ; Inflation 1 open ; Jobs none open ; Daily close none open ; Stock market up or down 7 open ; Elections 1 open ; US none open ; Congress none open ; Courts none open ; Trump admin none open ; Awards 2 open ; Music 3 open ; Movies 1 open ; Celebrities 2 open ; Tweets 1 open ; Netflix 1 open ; Art auctions 1 open ; AI 5 open ; Big Tech 2 open ; OpenAI 1 open ; Anthropic 1 open ; Google 3 open ; Nvidia 1 open ; World 7 open ; Mentions none open
+NONE-OPEN tiles: College basketball none open, Baseball none open, UFC none open, Boxing none open, Golf none open, Formula 1 none open, Cricket none open, Hurricanes none open, Earnings calls none open, Fed none open, Jobs none open, Daily close none open, US none open, Congress none open, Courts none open, Trump admin none open, Mentions none open
+[audit onboarding-1-picked] /onboarding?next=%2F h1="What do you bet on?" disc=true/true cls=0.0006 hscroll=false shifts=[{"v":0.0006,"t":215,"src":["DIV.h-11 w-full max-w-[340px] rounded-input  '' 9.5->9.5 h44->44"]}]
+   shot 1440-zero-06-onboarding-1-picked.png
+PICKED: College basketball none open
+[audit onboarding-2] /onboarding?next=%2F h1="How do you bet?" disc=true/true cls=0.0006 hscroll=false shifts=[{"v":0.0006,"t":215,"src":["DIV.h-11 w-full max-w-[340px] rounded-input  '' 9.5->9.5 h44->44"]}]
+   shot 1440-zero-07-onboarding-2.png
+ONB2: Skip to content | Kismet | Best bets | All markets | My list | My bets | Results | Check a bet | Kalshi | Search markets | / | Updated | 8 days ago | · data may be stale | Account | Skip setup | Step 2 of 3 | How do you bet? | So the numbers match how you actually place bets. | When you place a bet, you usually… | Take the price shown | Fills right away at the current price | Set my own price | Waits until someone sells at your price | Typical stake | $10 | $25 | $50 | $100 | $250 | Other $ | Used for the “per $100 bet” figures and the fill check. | Back | Next | Kismet. Good-value bets on Polymarket, in plain words. | Market analytics, not financial advice. Based on past results. 18+. | Gambling problem? Free, confidential help: | Call or text 1-800-MY-RESET | Chat online | (National Council on Problem Gambling, 24/7, source, checked 2026-11-22). | © 2026 Kiumars Momtaz and Marc Yamin | How it works | Pricing | Check a bet | Check a combo | Terms | Privacy | Refunds | Disclaimer | Contact | Status | Kalshi markets
+[audit onboarding-3] /onboarding?next=%2F h1="Thirty seconds on the screen" disc=true/true cls=0.0006 hscroll=false shifts=[{"v":0.0006,"t":215,"src":["DIV.h-11 w-full max-w-[340px] rounded-input  '' 9.5->9.5 h44->44"]}]
+   shot 1440-zero-08-onboarding-3.png
+ONB3: Skip to content | Kismet | Best bets | All markets | My list | My bets | Results | Check a bet | Kalshi | Search markets | / | Updated | 8 days ago | · data may be stale | Account | Skip setup | Step 3 of 3 | Thirty seconds on the screen | Three things worth knowing before you start. | Best bets | Each card is a bet priced lower than how often bets like it have won. The big number is what it pays: Pays 1.4x turns $100 into $140 if it wins, and next to it is how often bets like it have won. Any single bet can lose. | Tap a card for details | The details panel shows Market says vs Won before, what a stake would fill at, and the past record behind the number. | Save views and markets | Save a set of filters as a view to reopen it in one tap, and star markets to follow them on My list. | Back | Show my best bets | Kismet. Good-value bets on Polymarket, in plain words. | Market analytics, not financial advice. Based on past results. 18+. | Gambling problem? Free, confidential help: | Call or text 1-800-MY-RESET | Chat online | (National Council on Problem Gambling, 24/7, source, checked 2026-11-22). | © 2026 Kiumars Momtaz and Marc Yamin | How it works | Pricing | Check a bet | Check a combo | Terms | Privacy | Refunds | Disclaimer | Contact | Status | Kalshi markets
+[audit first-screen] /?view=flags&t=sports.ncaab&fav=1 h1="No best bets in College basketball today. Here are today's free bets." disc=true/true cls=0.0006 hscroll=false shifts=[{"v":0.0006,"t":233,"src":["DIV.h-11 w-full max-w-[340px] rounded-input  '' 9.5->9.5 h44->44"]}]
+   shot 1440-zero-09-first-screen.png
+FIRST: Skip to content | Kismet | Best bets | All markets | My list | My bets | Results | Check a bet | Kalshi | Search markets | / | Updated | 8 days ago | · data may be stale | Account | 1 of 5 | A best bet | Each card is a bet that looks like good value today: how often bets like it win, what $10 wins, and when it closes. Tap "Why this bet?" for the details. Any single bet can lose. | Skip tour | Next | No best bets in College basketball today. Here are today's free bets. | Each one has won more often in the past than its price suggests, after the fee. See how we track results | Sport or topic | Everything | All Sports (34) | Soccer (27) | College football (6) | NFL (1) | NBA (0 now) | College basketball (0 now) | Hockey (0 now) | Baseball (0 now) | Tennis (0 now) | Esports (0 now) | UFC (0 now) | Boxing (0 now) | Golf (0 now) | Formula 1 (0 now) | Cricket (0 now) | All Crypto (0 now) | Bitcoin (0 now) | Ethereum (0 now) | Solana (0 now) | XRP (0 now) | Crypto up or down (0 now) | Hit a price (0 now) | Price ranges (0 now) | All Weather & Climate (0 now) | Highest temperature (0 now) | Lowest temperature (0 now) | Rain & snow (0 now) | Hurricanes (0 now) | All Finance & Economics (0 now) | Stocks (0 now) | Earnings calls (0 now) | Commodities (0 now) | Fed (0 now) | Inflation (0 now) | Jobs (0 now) | Daily close (0 now) | Stock market up or down (0 now) | All Politics & Elections (0 now) | Elections (0 now) | US (0 now) | Congress (0 now) | Courts (0 now) | Trump admin (0 now) | All World (0 now) | All Culture (0 now) | Awards (0 now) | Music (0 now) | Movies (0 now) | Celebrities (0 now) | Tweets (0 now) | Netflix (0 now) | Art auctions (0 now) | All Tech & Science (0 now) | AI (0 now) | Big Tech (0 now) | OpenAI (0 now) | Anthropic (0 now) | Google (0 now) | Nvidia (0 now) | All Mentions (0 now) | Multiplier | Any | Under 1.5x | 1.5x–2x | 2x–3x | 3x–5x | 5x or more | Date | Any | Closes today | Closes this week | Pick dates… | Apply | Showing 10 of 34 bets | Sort by | Best value | Most likely to win | Biggest payout | Closing soonest | On Polymarket US | More filters (3) | + Save this view | Saved views | Your topics | Clear all | The last price scan was 8 days ago, so these prices may have moved. Check the live price on the market before you bet. | Today's top 5 | Denmark vs Norway: 3 or more goals | Bet Over | 85% chance to win | +20–50% est. return | Pays 1.45x | Polymarket US price, incl. its fee | Tue 7:45 PM · Closed | Check your state | Bet on Polymarket US | Bet only what you can afford to lose. | Check | How to bet this | Why this bet? | Miami (OH) to win the 1st half | Bet Miami (OH) | 95% chance to win | +20–50% est. return | Pays 1.29x | Polymarket US price, incl. its fee | Wed 12
+TOUR 0: 1 of 5 | A best bet | Each card is a bet that looks like good value today: how often bets like it win, what $10 wins, and when it closes. Tap "Why this bet?" for the details. Any single bet can lose. | Skip tour | Next
+   tour box y=310 h=247 bottom=557 ; h1 y=88
+[audit tour-0] /?view=flags&t=sports.ncaab&fav=1 h1="No best bets in College basketball today. Here are today's free bets." disc=true/true cls=0.0006 hscroll=false shifts=[{"v":0.0006,"t":233,"src":["DIV.h-11 w-full max-w-[340px] rounded-input  '' 9.5->9.5 h44->44"]}]
+   shot 1440-zero-10-tour-0.png
+TOUR 1: 2 of 5 | Narrow the list | Pick a sport, a multiplier and a date, then Apply. Bigger multipliers pay more and win less often. | Skip tour | Back | Next
+   tour box y=287 h=202 bottom=489 ; h1 y=88
+[audit tour-1] /?view=flags&t=sports.ncaab&fav=1 h1="No best bets in College basketball today. Here are today's free bets." disc=true/true cls=0.0006 hscroll=false shifts=[{"v":0.0006,"t":233,"src":["DIV.h-11 w-full max-w-[340px] rounded-input  '' 9.5->9.5 h44->44"]}]
+   shot 1440-zero-11-tour-1.png
+TOUR 2: 3 of 5 | Search any market | Find a team, an election or a ticker and see whether it's priced well today. | Skip tour | Back | Next
+   tour box y=56 h=202 bottom=257 ; h1 y=88
+[audit tour-2] /?view=flags&t=sports.ncaab&fav=1 h1="No best bets in College basketball today. Here are today's free bets." disc=true/true cls=0.0006 hscroll=false shifts=[{"v":0.0006,"t":233,"src":["DIV.h-11 w-full max-w-[340px] rounded-input  '' 9.5->9.5 h44->44"]}]
+   shot 1440-zero-12-tour-2.png
+TOUR 3: 4 of 5 | Save and get alerts | Star a market to follow it on My list. Alerts tell you when a saved market's price moves. | Skip tour | Back | Next
+   tour box y=682 h=202 bottom=884 ; h1 y=88
+[audit tour-3] /?view=flags&t=sports.ncaab&fav=1 h1="No best bets in College basketball today. Here are today's free bets." disc=true/true cls=0.0006 hscroll=false shifts=[{"v":0.0006,"t":233,"src":["DIV.h-11 w-full max-w-[340px] rounded-input  '' 9.5->9.5 h44->44"]}]
+   shot 1440-zero-13-tour-3.png
+TOUR 4: 5 of 5 | Check the results | Results shows how past flagged bets actually did, wins and losses, so you can judge the numbers yourself. | Skip tour | Back | Done
+   tour box y=62 h=224 bottom=286 ; h1 y=88
+[audit tour-4] /?view=flags&t=sports.ncaab&fav=1 h1="No best bets in College basketball today. Here are today's free bets." disc=true/true cls=0.0006 hscroll=false shifts=[{"v":0.0006,"t":233,"src":["DIV.h-11 w-full max-w-[340px] rounded-input  '' 9.5->9.5 h44->44"]}]
+   shot 1440-zero-14-tour-4.png
+[audit after-tour] /?view=flags&t=sports.ncaab&fav=1 h1="No best bets in College basketball today. Here are today's free bets." disc=true/true cls=0.0006 hscroll=false shifts=[{"v":0.0006,"t":233,"src":["DIV.h-11 w-full max-w-[340px] rounded-input  '' 9.5->9.5 h44->44"]}]
+   shot 1440-zero-15-after-tour.png
+[audit after-tour-full] /?view=flags&t=sports.ncaab&fav=1 h1="No best bets in College basketball today. Here are today's free bets." disc=true/true cls=0.0006 hscroll=false shifts=[{"v":0.0006,"t":233,"src":["DIV.h-11 w-full max-w-[340px] rounded-input  '' 9.5->9.5 h44->44"]}]
+   shot 1440-zero-16-after-tour-full.png
+--- LOG
+
