@@ -146,7 +146,7 @@ jobs:
           # before it as *-prev2.json, so a cold web instance can serve the newest one old enough (RT3-03: at a
           # 10-minute cadence the replaced scan is only ~10 min old). Same shift as engine scan_keeping_prev and
           # ops/upload.py. FETCH_HEAD = the live branch fetched above; first publishes have none.
-          for f in markets flags top counts; do   # T-295: top.json / counts.json (engine/precompute.py) shift too
+          for f in markets flags top counts teasers; do   # T-295: top.json / counts.json / teasers.json (engine/precompute.py) shift too
             git show "FETCH_HEAD:$f-prev.json" > "/tmp/pub/$f-prev2.json" 2>/dev/null || rm -f "/tmp/pub/$f-prev2.json"
             git show "FETCH_HEAD:$f.json" > "/tmp/pub/$f-prev.json" 2>/dev/null || rm -f "/tmp/pub/$f-prev.json"
           done

@@ -90,3 +90,28 @@ def test_counts_use_the_us_set_when_the_scan_priced_us():
     rows = precompute.top_rows(ff)
     assert [r["market"]["id"] for r in rows] == ["b", "c", "a"]
     assert precompute.counts(ff, rows)["best_bets"]["total"] == 3
+
+
+def market(i, *, q="Will it rain?", ev="Weather · Mon", cat="weather", closes=2000, mid=0.4, outcome="Yes"):
+    return {"id": str(i), "question": q, "event": ev, "category": cat, "closes_at": closes, "sides": [{"mid": mid, "outcome": outcome}, {"mid": None if mid is None else 1 - mid, "outcome": "No"}]}
+
+
+def test_teasers_file_is_one_compact_row_per_market():
+    mf = {"meta": {"scanned_at": 1000}, "markets": [market(1), market(2, mid=None, outcome=None, closes=None)]}
+    t = precompute.teasers_file(mf)
+    assert t["meta"] == {"scanned_at": 1000}
+    assert t["rows"]["1"] == ["Will it rain?", "Weather · Mon", "weather", 2000, 0.4, "Yes"]
+    assert t["rows"]["2"] == ["Will it rain?", "Weather · Mon", "weather", None, None, None]
+    assert "teasers.json" in precompute.FILES   # rotated to *-prev / *-prev2 with the scan (Free delay)
+
+
+def test_write_adds_teasers_and_a_teaser_failure_keeps_top_and_counts(tmp_path):
+    d = str(tmp_path)
+    json.dump(flags_file([flag(1)]), open(os.path.join(d, "flags.json"), "w"))
+    json.dump({"meta": {"scanned_at": 1000}, "markets": [market(1)]}, open(os.path.join(d, "markets.json"), "w"))
+    assert precompute.write(d, log=lambda *_: None)
+    assert json.load(open(os.path.join(d, "teasers.json")))["rows"]["1"][0] == "Will it rain?"
+    open(os.path.join(d, "markets.json"), "w").write("{broken")   # a bad markets.json removes only teasers.json
+    assert precompute.write(d, log=lambda *_: None)
+    assert not os.path.exists(os.path.join(d, "teasers.json"))
+    assert os.path.exists(os.path.join(d, "top.json")) and os.path.exists(os.path.join(d, "counts.json"))

@@ -124,7 +124,10 @@ def test_upload_keeps_previous_scan_for_the_free_delay(tmp_path):
                       {"bucketId": "scan", "sourceKey": "top-prev.json", "destinationKey": "top-prev2.json"},
                       {"bucketId": "scan", "sourceKey": "top.json", "destinationKey": "top-prev.json"},
                       {"bucketId": "scan", "sourceKey": "counts-prev.json", "destinationKey": "counts-prev2.json"},
-                      {"bucketId": "scan", "sourceKey": "counts.json", "destinationKey": "counts-prev.json"}]
+                      {"bucketId": "scan", "sourceKey": "counts.json", "destinationKey": "counts-prev.json"},
+                      # the compact teaser rows behind /m/<id> rotate with them (Free's delayed price)
+                      {"bucketId": "scan", "sourceKey": "teasers-prev.json", "destinationKey": "teasers-prev2.json"},
+                      {"bucketId": "scan", "sourceKey": "teasers.json", "destinationKey": "teasers-prev.json"}]
     first_put = next(i for i, c in enumerate(http.calls) if c[0] == "POST" and "/object/scan/" in c[1])
     last_copy = max(i for i, c in enumerate(http.calls) if c[1].endswith("/copy"))
     assert last_copy < first_put  # the old scan is kept before the new one overwrites it
@@ -239,7 +242,7 @@ def test_upload_rotates_prev_only_when_far_enough_apart(tmp_path):
     assert _copies(near) == []
     far = GapHttp(live_at="2026-11-19T10:13:00Z", prev_at="2026-11-19T10:00:00Z")    # 780 s apart
     assert upload.publish(out, upload.Storage("https://x.supabase.co", "svc", far), log=lambda *_: None, rotate_min_sec=780)
-    assert len(_copies(far)) == 8
+    assert len(_copies(far)) == 10
 
 
 def test_scheduler_state_survives_restart(monkeypatch, tmp_path):
