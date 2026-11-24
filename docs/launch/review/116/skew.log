@@ -1,0 +1,16 @@
+rv2-116base t=0 cold /m: [200 0.856336]  warm: [200 0.020415]
+rv2-116base new scan written (all three files, same scanned_at)
+rv2-116base t=35s /m other id: [200 0.039183]  next: [200 0.015263]
+rv2-116base t=65s /m other id: [200 0.052530]  next: [200 0.020659]
+rv2-116 t=0 cold /m: [200 0.894198]  warm: [200 0.027094]
+rv2-116 new scan written (all three files, same scanned_at)
+rv2-116 t=35s /m other id: [200 0.871904]  next: [200 0.016252]
+rv2-116 t=65s /m other id: [200 0.054313]  next: [200 0.016777]
+rv2-116base t=0 cold /m: [200 0.854625]  warm: [200 0.032048]
+rv2-116base new scan written (all three files, same scanned_at)
+rv2-116base t=35s /m other id: [200 0.049410]  next: [200 0.022561]
+rv2-116base t=65s /m other id: [200 0.059280]  next: [200 0.025081]
+rv2-116 t=0 cold /m: [200 0.852778]  warm: [200 0.028400]
+rv2-116 new scan written (all three files, same scanned_at)
+rv2-116 t=35s /m other id: [200 1.274487]  next: [200 0.030070]
+rv2-116 t=65s /m other id: [200 0.056054]  next: [200 0.012303]

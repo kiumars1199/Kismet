@@ -1,0 +1,47 @@
+#116 (T-hydr4, fix/teaser-stale-guard) at 2d4997b: FAIL (1 blocker, 1 should-fix, 1 nit)
+The merge adds nothing new: `git diff origin/final 2d4997b` is byte-identical to `git diff origin/final...311d7f1` (4 files, +55 -2).
+Production-build timings: 311d7f1 (ttfb.log, skew.log) and 2d4997b (skew-control.log, rebuilt). Vitest and Free cells: 2d4997b.
+Data: scratchpad/t116/data = real-size output (26 MB markets.json) plus top/counts/teasers from engine.precompute.write; next start on :3755.
+
+(1) Guard logic
+  - Delay tier: the guard compares the NEWEST teasers.json/top.json with the NEWEST counts.json. Both are the live copies, compared before
+    the Free delay selection, and -prev/-prev2 are never compared with a counts-prev. Correct for detecting a leftover. Free can only fall
+    back to the store, which applies its own delay, so it can never get fresher data. scanned_at matches: counts takes flags meta and
+    teasers takes markets meta, and both come from the same scan meta (engine/scan.py:278). The real output has 1794895125 in both.
+  - BLOCKER: the teaser path is lost after every NORMAL scan. A warm instance falls back to the full 35 MB store even though all three
+    files are from the same scan.
+      Repro (skew2.sh): a fresh next start, then /m at t=0. Then rewrite counts.json, teasers.json and top.json with the same newer
+      scanned_at, as a normal scan would. At t=35s, /m for another id:
+        control (no new scan), 2d4997b:  0.046 s, 0.042 s
+        new scan, 2d4997b:               2.067 s, 1.888 s   (store path)
+        new scan, 311d7f1:               0.872 s, 1.274 s;  base final: 0.039 s, 0.049 s
+        t=65s: fast again everywhere.
+      Cause (a): the caches are out of step. counts.json is cached for 30 s (top.ts TTL_MS) and teasers.json for 60 s (teasers.ts
+      TTL_MS). Between the two refreshes, counts is new and teasers is old, so the guard misfires. /api/revalidate calls resetTop(),
+      which clears counts, but never clears the teaser cache, so on the instance that upload.py revalidates the window can reach 60 s.
+      Cause (b), from reading the code, not measured: ops/upload.py publish() uploads files in alphabetical order with flags.json last.
+      counts.json goes up before markets.json (26 MB), and teasers.json and top.json go after it. For the length of every upload,
+      counts.json is newer than teasers.json and top.json, so the guard trips on both whatever the TTLs are. The scheduler scans every
+      120 s (ops/scheduler.py SCAN_EVERY), so this repeats every couple of minutes.
+      The tests miss this because every step calls _resetTeaserIndex() and resetTop() together, so the caches are never out of step.
+      Suggested fix: when counts is newer than the cached teasers/top, re-read that file once, bypassing the cache, before falling
+      back. In upload.py, upload counts.json after teasers.json and top.json (e.g. just before flags.json). Add a test where the two
+      caches are out of step.
+  - top.json on / is not measured for skew. / is force-static with revalidate=300, and the upload revalidates after every file is up,
+    so the impact there is mostly on background regenerations.
+  - NIT (pre-existing): after a leftover, rotation copies the leftover into teasers-prev/-prev2. Once the scans recover, Free can be
+    given an older teaser than its delay needs. It is staler, never fresher.
+(2) Cold latency. Cold /m TTFB on local disk, fresh next start each run, 4 runs each: base 0.75/0.84/0.75/0.95 s, PR 1.00/0.90/1.03/0.73 s.
+    That is within noise. teasers.ts loads counts in parallel (Promise.all). A local read cannot show a bucket round trip.
+    SHOULD-FIX (from reading the code, not measured): top.ts getTopStore awaits getCounts() serially after top.json. On a cold instance
+    that adds one bucket round trip before getResults. Put it in the same Promise.all.
+(3) Red then green is real. guard-red.log / PR comment 7121539392 show the 3 new tests failing on the expected assertions (a stale
+    teaser was served, 'STALE TITLE', a stale top store). I reproduced it: with lib/data/{teasers,top}.ts reverted to final and the
+    PR's tests kept, 3 failed and 17 passed (vitest-red.txt). 20/20 pass at 311d7f1 and at 2d4997b (vitest-green*.txt).
+(4) Pages unchanged (rv116.mjs).
+    - Signed out, next start: / and two /m ids at 390 (touch) and 1440 have identical text and pixel-identical screenshots against base.
+    - Free, dev server at 2d4997b against base: both /m ids have identical text at 390 and 1440. The only difference on / is the
+      rotating weather card in the same slot, which also differs between two base runs (facts/base vs facts2/base2).
+    - In every cell: disclaimer present, no cents, no sideways scroll, CLS <= 0.023, no page errors.
+(5) CI on 2d4997b: all green (web, checks, e2e-paid 1-4, e2e-paid-webkit, e2e-demo, python, supply-chain, Vercel).
+    check:js 149.5 kB of the 150 kB budget.

@@ -1,0 +1,9 @@
+
+ RUN  v5.1.0 /tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/rv2-116/apps/web
+
+
+ Test Files  2 passed (2)
+      Tests  20 passed (20)
+   Start at  07:57:21
+   Duration  2.67s (import 40%, transform 33%, tests 26%, worker 1%)
+

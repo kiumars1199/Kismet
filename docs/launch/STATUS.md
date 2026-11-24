@@ -88,6 +88,9 @@ Problems:
 - Not walked: signed-in headers at 768–1280, the Premium drawer path to the tray, WebKit, and signed-in steps on a production build. Re-walk after the fixes.
 
 ## Found in review, outside a lane
+- 07:58 #116 (T-hydr4) 2d4997b FAIL: guard drops the /m teaser path after every normal scan (30 s counts vs 60 s teasers cache skew; upload.py puts counts.json before teasers/top). Back to the data lane: bypass-cache re-read, upload order, skew test.
+- 07:50 #106 still red: pro 390 CLS 0.2689 on CI only, not reproduced locally (slow font, late backtest, late book all 0). Lane adding layout-shift source logging.
+- 04:40-07:44 all lanes paused: usage limit.
 - 04:34 #117 (T-wt1d) merged at 0e09e11 after reviewer PASS with notes and green CI. Follow-up T-wt1e to the tracker lane: fit-based 2-line title instead of the 52/64 middle clamp (129 shared clipped titles), and the 360x640 H1 overlap.
 - 04:34 #115 fix pushed by the data lane at 8b27731: Polymarket US sibling links add (red then green at 390/1440), and the refused room is released on focus/pointerdown (paste without a keypress: 0.026 -> 0). Queued for reviewer 1 after #117.
 - 04:26 Merged #112 (T-wt3e: combo notes; #107 N1/N2/N4 and #108 N1 fixed) at 76a36ad -> a1e5a2b; reviewer 2 PASS at c7ef710 (later commits: an empty rerun and a one-line test text update), CI web green, preview success. #117 CI green, in review with reviewer 1.
