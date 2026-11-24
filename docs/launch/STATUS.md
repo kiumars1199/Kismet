@@ -88,6 +88,7 @@ Problems:
 - Not walked: signed-in headers at 768–1280, the Premium drawer path to the tray, WebKit, and signed-in steps on a production build. Re-walk after the fixes.
 
 ## Found in review, outside a lane
+- 04:04 #112 CI red at 635fb16 (e2e-demo, which was cancelled at c7ef710 so never ran): e2e/multipliers.spec.ts:103 still expects the old prune-note text 'its bets have closed'. Real, not a flake -> data lane, then merge into #115. Reviewer 2 has finished all its queued reviews.
 - 04:01 Merged #111 (T-95e: proof-line help reachable by tap and keyboard; Escape in the drawer closes only the help) at 524b546 -> 526c1df; reviewer 2 re-review PASS, CI web green, preview success. The 'about N events needed' number matches the help (same eventsNeeded).
 - 03:58 #116 (T-hydr4) opened by the trust lane at 311d7f1, based on fix/cold-ttfb: the web ignores a teasers.json or top.json older than counts.json. Red: 3 tests; green: 20 of 20. Retarget to final after #114 merges, then review. #115 (T-wt3f, #112 should-fixes) opened by the data lane at 043892a, with reviewer 1.
 - 03:55 #106 partial re-review at a78c26f (reviewer 1): blocker and fixes 1-3 hold locally, but CI reproduces the Pro 390 card shift. New: a returning Pro/Premium user's '0 bets…' empty state is below the fold at 390 (top 873); Next stays enabled while the tiles are not ready. Both sent to the onboarding lane for the same push. Trust lane resumed on T-hydr4.
