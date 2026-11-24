@@ -1,8 +1,9 @@
 import type { NextConfig } from "next";
 import { withBotId } from "botid/next/config";
 import { DEMO_MODE } from "./lib/config";
+import { e2eMockOn } from "./lib/e2e-mock";
 
-const e2eMock = process.env.E2E_MOCK === "1" && process.env.NODE_ENV !== "production";
+const e2eMock = e2eMockOn();
 /** Vercel BotID only where its challenge proxy exists (docs/15); elsewhere checkBotId() passes through. */
 const onVercel = !!process.env.VERCEL;
 

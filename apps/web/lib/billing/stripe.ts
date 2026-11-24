@@ -1,6 +1,7 @@
 // Stripe billing (docs/08 § Billing, docs/14 §2, docs/15 § Billing). Server only.
 // Two modes, picked by config: Checkout (keys + price ids in env) or Payment Links (config/site.json).
 // Either way the tier is written only here, from verified webhook events.
+import { e2eMockOn } from "@/lib/e2e-mock";
 import "server-only";
 import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import Stripe from "stripe";
@@ -24,7 +25,7 @@ const links = () => site.stripe.paymentLinks as Record<PriceKey, string>;
 export function stripeClient(): Stripe | null {
   const key = process.env.STRIPE_SECRET_KEY;
   if (!key) return null;
-  const base = process.env.NODE_ENV !== "production" && process.env.STRIPE_API_BASE ? new URL(process.env.STRIPE_API_BASE) : null;
+  const base = (process.env.NODE_ENV !== "production" || e2eMockOn()) && process.env.STRIPE_API_BASE ? new URL(process.env.STRIPE_API_BASE) : null;
   return new Stripe(key, base
     ? { host: base.hostname, port: Number(base.port), protocol: base.protocol.replace(":", "") as "http" | "https", maxNetworkRetries: 0 }
     : { maxNetworkRetries: 2 });
