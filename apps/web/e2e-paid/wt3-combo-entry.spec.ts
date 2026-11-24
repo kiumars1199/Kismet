@@ -274,3 +274,54 @@ test("Free: note and limit box say one thing; after the limit the legs keep thei
   const subs = await page.getByTestId("combo-leg").locator("p").filter({ hasText: /^Bet / }).allInnerTexts();
   expect(subs.slice(0, 2).every((t) => /% chance/.test(t) && /pays /.test(t)), `the first two legs keep their numbers: ${subs.join(" | ")}`).toBe(true);
 });
+
+// T-wt3d: a shared link (&check=1) loads the legs; for signed-out and Free visitors it does NOT score by itself (the day's one check is
+// theirs to spend with a tap); Pro and Premium keep the automatic score.
+const shared = (legs: { market: { id: string }; side: { side_index: number } }[]) => `/check/combo?legs=${legs.map((r) => `${r.market.id}:${r.side.side_index}`).join(",")}&check=1`;
+test("a shared link scores nothing for a signed-out or Free visitor until they tap; Pro scores it on open", async ({ page, browser }) => {
+  test.setTimeout(420_000);
+  const posts: string[] = [];
+  const watch = (p: Page) => p.on("request", (r) => { if (r.method() === "POST" && new URL(r.url()).pathname === "/api/check/combo") posts.push(r.url()); });
+  // signed out
+  const anon = await browser.newContext({ extraHTTPHeaders: { "x-e2e-device": `wt3d-${Date.now()}` } });
+  const ap = await anon.newPage();
+  watch(ap);
+  // two fixture markets from different events (signed out has no market list to pick from), and a third for the day's one check
+  const two = [{ market: { id: "6674492" }, side: { side_index: 0 } }, { market: { id: "7078474" }, side: { side_index: 1 } }];
+  const third = "7077573";
+  await ap.goto(shared(two));
+  await expect(ap.getByTestId("combo-leg")).toHaveCount(2, { timeout: 30_000 });
+  await expect(ap.getByTestId("combo-check-btn")).toBeVisible();
+  await ap.waitForTimeout(4_000);
+  expect(posts, "signed out: no check before the tap").toHaveLength(0);
+  expect(new URL(ap.url()).searchParams.get("check")).toBeNull();
+  await ap.getByTestId("combo-check-btn").click();
+  await expect(ap.getByTestId("combo-score")).toBeVisible({ timeout: 30_000 });
+  expect(posts).toHaveLength(1);
+  await anon.close();
+  // Free, with the day's check already used: the link shows the legs, not the 429 box
+  posts.length = 0;
+  await signIn(page, `wt3d-${Date.now()}@example.com`);
+  watch(page);
+  const used = await page.request.post("/api/check", { data: { m: third, side: 0 }, headers: { Origin: new URL(page.url()).origin } });
+  expect(used.status()).toBe(200);
+  await page.goto(shared(two));
+  await expect(page.getByTestId("combo-leg")).toHaveCount(2, { timeout: 30_000 });
+  await page.waitForTimeout(4_000);
+  expect(posts, "Free: no check before the tap").toHaveLength(0);
+  await expect(page.getByTestId("check-upgrade")).toHaveCount(0);
+  await page.getByTestId("combo-check-btn").click();
+  await expect(page.getByTestId("check-upgrade")).toBeVisible({ timeout: 30_000 });   // the tap is theirs to spend: now the limit answers
+  expect(posts).toHaveLength(1);
+  // Pro (a comp through the mock database): the link scores itself
+  const me = await (await page.request.get("/api/me")).json();
+  const res = await page.request.patch(`/e2e-mock/supabase/rest/v1/subscriptions?user_id=eq.${me.user.id}`, {
+    headers: { authorization: "Bearer e2e-service", apikey: "e2e-service", "content-type": "application/json" }, data: { comp_tier: "pro" },
+  });
+  expect(res.status()).toBeLessThan(300);
+  expect((await (await page.request.get("/api/me")).json()).tier).toBe("pro");
+  posts.length = 0;
+  await page.goto(shared(two));
+  await expect(page.getByTestId("combo-score")).toBeVisible({ timeout: 60_000 });   // no tap
+  expect(posts.length).toBeGreaterThanOrEqual(1);
+});
