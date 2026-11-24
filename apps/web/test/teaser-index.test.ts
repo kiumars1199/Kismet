@@ -18,13 +18,14 @@ vi.mock("@/lib/data/store", async (orig) => {
 const { getStoreFor } = await import("@/lib/data/store");
 const { marketTeaser } = await import("@/lib/teaser");
 const { indexedMarketTeaser, _resetTeaserIndex } = await import("@/lib/data/teasers");
+const { resetTop } = await import("@/lib/data/top");
 
 /** The documented row shape (engine/precompute.py teasers_file): [question, event, category, closes_at, price, price_outcome]. */
 const compact = (m: Market) => [m.question, m.event, m.category, m.closes_at ?? null, typeof m.sides?.[0]?.mid === "number" ? m.sides[0].mid : null, m.sides?.[0]?.outcome ?? null];
 const file = (at: number, ms: Market[]) => JSON.stringify({ meta: { scanned_at: at }, rows: Object.fromEntries(ms.map((m) => [m.id, compact(m)])) });
 const NOW = 1_800_000_000;   // seconds; Free is 15 min behind: a copy at or before NOW - 900 is eligible
 
-beforeEach(() => { h.files.clear(); h.reads.length = 0; h.storeCalls = 0; _resetTeaserIndex(); });
+beforeEach(() => { h.files.clear(); h.reads.length = 0; h.storeCalls = 0; _resetTeaserIndex(); resetTop(); });
 
 describe("marketTeaser reads teasers.json first", () => {
   it("gives the same Teaser as the full store for every fixture market, without touching the store", async () => {
@@ -80,6 +81,32 @@ describe("marketTeaser reads teasers.json first", () => {
   it("an unknown id still reaches the store (so a real 404 is decided there)", async () => {
     h.files.set("teasers.json", file(Date.now() / 1000 - 3600, []));
     expect(await marketTeaser("no-such-market")).toBeNull();
+    expect(h.storeCalls).toBeGreaterThan(0);
+  });
+
+  it("a teasers.json older than the scan's counts.json (a failed precompute left it in the bucket) is ignored; a matching pair is used", async () => {
+    const store = await getStoreFor("free");
+    const m = store.markets[0]!;
+    const counts = (at: number) => h.files.set("counts.json", JSON.stringify({ scanned_at: at, meta: { scanned_at: at }, best_bets: { total: 0, sections: {}, by_category: {} } }));
+    h.files.set("teasers.json", file(NOW - 1800, [m]));
+    counts(NOW - 300);                                             // the newest scan wrote counts.json but not teasers.json
+    expect(await indexedMarketTeaser(m.id, NOW * 1000)).toBeUndefined();
+    h.files.set("teasers-prev.json", file(NOW - 3000, [m])); _resetTeaserIndex(); resetTop();
+    expect(await indexedMarketTeaser(m.id, NOW * 1000)).toBeUndefined();   // its prev copies are older still: also not used
+    counts(NOW - 1800); _resetTeaserIndex(); resetTop();           // same scan: used
+    expect((await indexedMarketTeaser(m.id, NOW * 1000))?.id).toBe(m.id);
+    h.files.delete("counts.json"); _resetTeaserIndex(); resetTop(); // no counts file to compare with: used, as before
+    expect((await indexedMarketTeaser(m.id, NOW * 1000))?.id).toBe(m.id);
+  });
+
+  it("through marketTeaser: the stale teasers file sends the request to the store", async () => {
+    const store = await getStoreFor("free");
+    const m = store.markets[0]!;
+    h.files.set("teasers.json", file(Date.now() / 1000 - 1800, [{ ...m, question: "STALE TITLE" } as Market]));
+    h.files.set("counts.json", JSON.stringify({ scanned_at: Date.now() / 1000 - 300, meta: { scanned_at: Date.now() / 1000 - 300 }, best_bets: { total: 0, sections: {}, by_category: {} } }));
+    h.storeCalls = 0;
+    const t = await marketTeaser(m.id);
+    expect(t?.title).toBe(m.question);       // the store's title, not the stale file's
     expect(h.storeCalls).toBeGreaterThan(0);
   });
 });

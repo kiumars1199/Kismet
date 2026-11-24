@@ -88,6 +88,10 @@ const stale = (f: TopFile, now = Date.now() / 1000) => process.env.DATA_CLOCK !=
 export async function getTopStore(tier: Tier, category?: string): Promise<Store | undefined> {
   const [newest] = await Promise.all([cachedJson<TopFile>("top.json"), getSettings()]);   // getSettings: the Free delay
   if (!isTop(newest) || stale(newest)) return undefined;
+  // A top.json older than the newest counts.json is a leftover from a scan whose precompute failed (the publisher never
+  // deletes bucket objects; T-295 left this gap): serve from the full store instead. No counts file = nothing to compare.
+  const counts = await getCounts();
+  if (counts && newest.meta.scanned_at < counts.scanned_at) return undefined;
   const delay = delayMin(tier);
   if (delay > 0) {
     const cutoff = Date.now() / 1000 - delay * 60;

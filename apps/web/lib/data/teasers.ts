@@ -9,6 +9,7 @@ import { DATA_SOURCE } from "@/lib/config";
 import { getSettings } from "@/lib/settings";
 import { delayMin } from "@/lib/settings-core";
 import { readSource, sourceChain } from "./store";
+import { getCounts } from "./top";
 
 /** Small files, re-read often so a fresh upload shows within a minute. */
 const TTL_MS = 60_000;
@@ -43,8 +44,12 @@ function load(name: string): Promise<TeaserFile | undefined> {
 /** The compact row for market `id` from the newest copy Free may see, or undefined (the caller uses the store).
  *  `nowMs`/`liveClock` are for tests: with DATA_CLOCK=scan (fixtures) a file is never "stale". */
 export async function indexedMarketTeaser(id: string, nowMs = Date.now(), liveClock = process.env.DATA_CLOCK !== "scan"): Promise<IndexedTeaser | undefined> {
-  const [newest] = await Promise.all([load("teasers.json"), getSettings()]);   // getSettings: the Free delay
+  const [newest, counts] = await Promise.all([load("teasers.json"), getCounts(), getSettings()]);   // getSettings: the Free delay
   if (!newest) return undefined;
+  // The publisher never deletes bucket objects: when a scan's precompute failed for this file only, the previous scan's
+  // teasers.json stays next to the new counts.json. A copy older than the counts of the same newest scan is that leftover
+  // (its -prev copies are older still): use the store instead. No counts file = nothing to compare with.
+  if (counts && newest.meta.scanned_at < counts.scanned_at) return undefined;
   if (liveClock && nowMs / 1000 - newest.meta.scanned_at > MAX_AGE_S) return undefined;
   const cutoff = nowMs / 1000 - delayMin("free") * 60;
   let file = newest.meta.scanned_at <= cutoff ? newest : undefined;
