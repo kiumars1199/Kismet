@@ -299,8 +299,9 @@ function ColumnChooser({ cols }: { cols: { id: string; label: string; pro: boole
   const measure = () => {
     const r = btn.current?.getBoundingClientRect();
     if (!r) return;
-    if (r.bottom <= 0 || r.top >= window.innerHeight) return setOpen(false);   // the button scrolled away (below xl the header is not sticky): the menu must not stay behind at the top of the screen
-    const vh = window.innerHeight, minTop = 68;
+    const topBar = 64, minTop = topBar + 4;
+    if (r.bottom <= topBar || r.top >= window.innerHeight) return setOpen(false);   // the button scrolled away, or is hidden behind the 64 px top bar (below xl the header is not sticky): the menu must not stay behind
+    const vh = window.innerHeight;
     const below = vh - Math.max(r.bottom, minTop) - 16, above = Math.max(r.top, minTop) - minTop - 4;
     const up = below < 260 && above > below;
     const left = Math.min(Math.max(8, r.left), Math.max(8, window.innerWidth - 256 - 8));
