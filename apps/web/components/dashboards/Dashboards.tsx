@@ -44,7 +44,7 @@ export function DashboardList() {
     router.push(`/dashboards/${d.id}`);
   };
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-6">
+    <div className="mx-auto flex min-h-[100svh] max-w-6xl flex-col gap-6">   {/* the footer stays below the first screen while the list appears (T-wt2g) */}
       <PageTitle title="Dashboards" sub="Your views side by side. Each panel refreshes on its own and opens its full view.">
         <button type="button" className={btnPrimary} onClick={create} disabled={busy}>New dashboard</button>
       </PageTitle>

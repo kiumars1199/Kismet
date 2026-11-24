@@ -81,8 +81,9 @@ export function CheckClient() {
   const stake = stakeText.trim() === "" ? NaN : Number(stakeText);
   const r = useMemo(() => (cur ? compute(cur.base, Number.isNaN(price) ? 0 : price, Number.isNaN(stake) ? 0 : stake) : null), [cur, price, stake]);
 
+  // A deep link keeps one screen of height (so the footer stays below the fold whether the answer is the tall result, the missing note or the short limit card, and nothing moves when it arrives); the limit card itself is only as tall as its text (T-wt2g).
   return (
-    <div className="flex flex-col gap-5 [--check-h:1000px] md:[--check-h:700px] [--miss-h:640px]" data-testid="check-page">
+    <div className={`flex flex-col gap-5 [--check-h:1000px] md:[--check-h:700px] [--miss-h:640px] ${deepLink ? "min-h-[100svh]" : ""}`} data-testid="check-page">
       <form onSubmit={submit} className="flex flex-col gap-2 sm:flex-row">
         <label className="sr-only" htmlFor="check-q">Market link or words</label>
         <input id="check-q" value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste a Polymarket or Kalshi link, or type a team or topic"
@@ -112,7 +113,7 @@ export function CheckClient() {
       )}
       {found?.kind === "error" && <p className="rounded-card border border-border bg-surface p-4 text-sm text-soft">{found.text}</p>}
       {found?.kind === "limit" && (
-        <div data-testid="check-upgrade" style={deepLink ? { minHeight: "var(--check-h)" } : undefined} className="flex flex-col items-start gap-3 rounded-card border border-accent-border bg-surface p-5">
+        <div data-testid="check-upgrade" className="flex flex-col items-start gap-3 rounded-card border border-accent-border bg-surface p-5">
           <p className="text-sm text-soft">Free includes 1 bet check a day, and you&apos;ve used it. Pro and Premium check as many bets as you like.</p>
           <Link href="/pricing" className="inline-flex min-h-11 items-center rounded-input bg-accent px-4 text-sm font-semibold text-on-accent hover:bg-accent-hover">See plans</Link>
         </div>

@@ -43,3 +43,33 @@ test("the top nav links are at least 24 px tall at 1440", async ({ page }) => {
   expect(s.length).toBeGreaterThan(3);
   for (const x of s) expect(x.h, `${x.t} height`).toBeGreaterThanOrEqual(24);
 });
+
+// T-wt2g: the search chips, the header clear-search ×, the column chooser and its checkbox rows are 44 px targets
+// (a checkbox's label row is its hit area), without making rows taller or the page shift.
+test("/markets?q=texans at 390: search chips, Clear search and the header × are at least 44 px", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/markets?q=texans");
+  const chip = page.getByRole("button", { name: /^Remove from search:/ }).first();
+  await expect(chip).toBeVisible({ timeout: 30_000 });
+  if (process.env.WT2G_SHOTS) await page.screenshot({ path: `${process.env.WT2G_SHOTS}/390-markets-q-texans.png` });   // evidence only
+  for (const [name, loc] of [["chip", chip], ["Clear search (row)", page.getByRole("button", { name: "Clear search", exact: true }).last()], ["header x", page.getByRole("button", { name: "Clear search" }).first()]] as const) {
+    const r = (await loc.boundingBox())!;
+    expect(r.height, `${name} height`).toBeGreaterThanOrEqual(44);
+    expect(r.width, `${name} width`).toBeGreaterThanOrEqual(44);
+  }
+});
+
+test("/markets at 1440: 'Choose columns' and its checkbox rows are at least 44 px", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/markets");
+  const choose = page.getByTitle("Choose columns");
+  await expect(choose).toBeVisible({ timeout: 30_000 });
+  const r = (await choose.boundingBox())!;
+  expect(r.height).toBeGreaterThanOrEqual(44);
+  expect(r.width).toBeGreaterThanOrEqual(44);
+  await choose.click();
+  if (process.env.WT2G_SHOTS) await page.screenshot({ path: `${process.env.WT2G_SHOTS}/1440-markets-columns.png` });   // evidence only
+  const rows = page.locator("details[open] label:has(input[type=checkbox])");
+  expect(await rows.count()).toBeGreaterThan(2);
+  for (const row of await rows.all()) expect((await row.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+});

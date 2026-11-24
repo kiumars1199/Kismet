@@ -85,7 +85,9 @@ export function AlertsView() {
   const rules = useCollection("alert_rules");
   const loaded = useRepoLoaded();
   const { can, known } = useEntitlements();
-  const freeNote = !DEMO && known && !can("alerts");   // Nov 21 (Q): Free sees a short upgrade note, never a blank page
+  // Nov 21 (Q): Free sees a short upgrade note, never a blank page. Before the plan is known the note is in the page but shown only when the
+  // server says Free (<body data-tier=free>), so the page does not grow by ~100 px when /api/me answers (T-wt2g, CLS 0.12 at 390).
+  const freeNote = !DEMO && (known ? !can("alerts") : true);
   const email = !DEMO && can("alerts");   // the server cron emails paid plans only
   const { events, unread } = useInbox();
   const [tab, setTab] = useState<"rules" | "inbox">(params.get("tab") === "inbox" ? "inbox" : "rules");
@@ -115,15 +117,16 @@ export function AlertsView() {
     setRunMsg(n ? `${n} new alert${n === 1 ? "" : "s"}.` : "No new alerts.");
   };
 
+  // min-h-[100svh]: the page grows as the account's rules and plan arrive; the footer stays below the first screen, so it never jumps (T-wt2g)
   return (
-    <div className="mx-auto flex max-w-5xl flex-col gap-6">
+    <div className="mx-auto flex min-h-[100svh] max-w-5xl flex-col gap-6">
       <PageTitle title="Alerts" sub={email ? `${TAB_TEXT} ${EMAIL_TEXT}` : TAB_TEXT}>
         {(DEV || DEMO) && <button type="button" className={btn} onClick={runNow} title="Demo and development only">Run now</button>}
         <button type="button" className={btnPrimary} onClick={() => setDraft({ ...blank(email), view_id: filters ? "current" : "builtin:best" })}>New alert</button>
       </PageTitle>
       {runMsg && <p role="status" className="-mt-3 text-sm text-muted">{runMsg}</p>}
       {freeNote && (
-        <p data-testid="alerts-free-note" className={`${card} -mt-2 px-4 py-3 text-sm text-muted`}>
+        <p data-testid="alerts-free-note" className={`${card} -mt-2 px-4 py-3 text-sm text-muted ${known ? "" : "hidden [[data-tier=free]_&]:block"}`}>
           On Free, alerts reach you only while Kismet is open in a tab. Pro adds email, checked once a day even when Kismet is closed.{" "}
           <Link href="/pricing" onClick={() => track("upgrade_clicked", { feature: "alerts" })} className="font-medium text-emerald-400 hover:underline">See plans</Link>
         </p>
