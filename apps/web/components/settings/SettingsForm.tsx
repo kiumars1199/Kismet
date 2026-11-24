@@ -68,7 +68,7 @@ export function SettingsForm() {
             options={[{ value: "comfortable", label: "Comfortable" }, { value: "compact", label: "Compact" }]} />
         </Row>
         <Row title="Time zone" sub="Used for closing times and the dates in My bets.">
-          <select aria-label="Time zone" value={profile.timezone} onChange={(e) => patch({ timezone: e.target.value })} className={`${input} md:w-72`}>
+          <select aria-label="Time zone" value={profile.timezone} onChange={(e) => patch({ timezone: e.target.value })} className={`${input} md:w-72 md:text-sm`}>
             {zones.map((z) => <option key={z} value={z}>{z.replaceAll("_", " ")}</option>)}
           </select>
         </Row>

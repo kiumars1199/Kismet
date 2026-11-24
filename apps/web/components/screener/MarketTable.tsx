@@ -289,11 +289,11 @@ function ColumnChooser({ cols }: { cols: { id: string; label: string; pro: boole
   const pick = cols.filter((c) => c.id !== "market" && c.id !== "star");
   return (
     <details className="relative">
-      <summary title="Choose columns" className="flex size-9 cursor-pointer list-none items-center justify-center rounded-input text-muted hover:bg-muted-bg hover:text-text">
+      <summary title="Choose columns" className="-my-1 flex size-11 cursor-pointer list-none items-center justify-center rounded-input text-muted hover:bg-muted-bg hover:text-text">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
         <span className="sr-only">Choose columns</span>
       </summary>
-      <div className="absolute left-0 z-20 mt-1 w-64 rounded-input border border-border bg-raised p-3 text-sm">
+      <div className="absolute left-0 z-20 mt-1 max-h-[calc(100svh-9rem)] w-64 overflow-y-auto overscroll-contain rounded-input border border-border bg-raised p-3 text-sm">
         <fieldset>
           <legend className="mb-1 text-xs text-muted">Main</legend>
           {pick.filter((c) => !c.pro).map((c) => <Check key={c.id} {...c} />)}
@@ -309,7 +309,7 @@ function ColumnChooser({ cols }: { cols: { id: string; label: string; pro: boole
 
 function Check({ label, on, toggle }: { label: string; on: boolean; toggle: () => void }) {
   return (
-    <label className="flex min-h-8 cursor-pointer items-center gap-2 text-soft">
+    <label className="flex min-h-11 cursor-pointer items-center gap-2 text-soft">
       <input type="checkbox" checked={on} onChange={toggle} className="size-4 accent-[var(--accent)]" />
       {label}
     </label>

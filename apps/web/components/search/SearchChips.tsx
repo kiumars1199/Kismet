@@ -14,24 +14,27 @@ export function SearchChips({ q, search, onChange }: { q?: string; search?: Mark
   const setQ = (next: string) => onChange({ q: next.trim() || undefined });
   return (
     <div className="flex flex-col gap-2">
-      <ul aria-label="Search understood as" className="flex flex-wrap items-center gap-2">
-        <li className="text-[13px] text-muted">Searching</li>
+      <ul aria-label="Search understood as" className="flex flex-wrap items-center gap-x-2">
+        <li className="py-3 text-[13px] text-muted">Searching</li>
         {chips.map((c) => (
           <li key={`${c.kind}:${c.raw}`}>
             <button
               type="button"
               onClick={() => setQ(removeChip(q, c))}
               aria-label={`Remove from search: ${c.label}`}
-              className="flex min-h-9 items-center gap-1.5 rounded-full border border-border bg-surface py-1 pl-3 pr-2 text-[13px] text-soft hover:border-accent-border hover:text-text"
+              className="group flex min-h-11 min-w-11 items-center text-[13px] text-soft hover:text-text"
             >
-              {c.label}
-              {X}
+              {/* the button is the 44 px target; the pill inside keeps its 36 px look */}
+              <span className="flex min-h-9 items-center gap-1.5 rounded-full border border-border bg-surface py-1 pl-3 pr-2 group-hover:border-accent-border">
+                {c.label}
+                {X}
+              </span>
             </button>
           </li>
         ))}
-        {!chips.length && <li className="text-[13px] text-soft">“{q}”</li>}
+        {!chips.length && <li className="py-3 text-[13px] text-soft">“{q}”</li>}
         <li>
-          <button type="button" onClick={() => setQ("")} className="min-h-9 px-2 text-[13px] text-muted hover:text-text">Clear search</button>
+          <button type="button" onClick={() => setQ("")} className="min-h-11 min-w-11 px-2 text-[13px] text-muted hover:text-text">Clear search</button>
         </li>
       </ul>
       {search?.relaxed && (
