@@ -113,3 +113,63 @@ for (const { w, h } of [{ w: 390, h: 844 }, { w: 1440, h: 900 }]) {
     } finally { await proxy.close(); }
   });
 }
+
+// Leaving /combos by an in-app link and coming Back (or Forward) must show the payout the address says: the router restores the page from its cache, so the browser reads the URL, not the
+// payout the server render was made with. The pressed button, ?pays= and the card count must agree.
+for (const { w, h } of [{ w: 390, h: 844 }, { w: 1440, h: 900 }]) {
+  test(`Premium /combos at ${w}x${h}: after an in-app link and Back, the pressed payout, ?pays= and the cards agree`, async ({ page }) => {
+    test.setTimeout(300_000);
+    await page.setViewportSize({ width: w, height: h });
+    await signIn(page, `wt3k-nav-${w}-${Date.now()}@example.com`);
+    await setTier(page, "premium");
+    const cards = () => page.getByTestId("combo-card").count();
+    const pressed = async () => (await page.locator('[role="group"][aria-label="Payout"] [aria-pressed="true"]').allInnerTexts()).join("|");
+    const urlPays = () => new URL(page.url()).searchParams.get("pays");
+    const press = async (p: number) => { await page.getByRole("button", { name: `Pays ${p}x+` }).click(); await expect(page.getByRole("button", { name: `Pays ${p}x+` })).toHaveAttribute("aria-pressed", "true"); await page.waitForTimeout(400); };
+    const leaveAndBack = async (link: string) => {
+      await page.locator("footer").getByRole("link", { name: link, exact: true }).click();
+      await page.waitForURL((u) => !u.pathname.startsWith("/combos"));
+      await page.goBack();
+      await page.waitForURL(/\/combos/);
+      await page.waitForTimeout(800);
+    };
+
+    // 1: /combos, tap 5x, leave, Back
+    await page.goto("/combos");
+    await expect(page.getByTestId("combos-range")).toBeVisible();
+    await press(5);
+    const five = await cards();
+    await leaveAndBack("How it works");
+    expect(urlPays()).toBe("5");
+    expect(await pressed(), "pressed button after Back (repro 1)").toBe("Pays 5x+");
+    expect(await cards(), "cards after Back (repro 1)").toBe(five);
+
+    // 2: land on ?pays=5, tap 2x, leave, Back
+    await page.goto("/combos?pays=5");
+    await expect(page.getByTestId("combos-range").or(page.getByTestId("combos-empty"))).toBeVisible();   // (the fixtures may have no 5x+ combos: then the list is the empty note)
+    await press(2);
+    const two = await cards();
+    await leaveAndBack("Check a combo");
+    expect(urlPays()).toBe("2");
+    expect(await pressed(), "pressed button after Back (repro 2)").toBe("Pays 2x+");
+    expect(await cards(), "cards after Back (repro 2)").toBe(two);
+
+    // Forward, then Back again
+    await page.goForward();
+    await page.waitForURL((u) => !u.pathname.startsWith("/combos"));
+    await page.goBack();
+    await page.waitForURL(/\/combos/);
+    await page.waitForTimeout(600);
+    expect(await pressed(), "pressed button after Forward and Back").toBe(`Pays ${urlPays()}x+`);
+    expect(await cards()).toBe(two);
+    expect(five, "the two payouts really differ in the fixtures, so the counts can tell them apart").not.toBe(two);
+  });
+}
+
+test("Premium /combos?pays=5&pays=10 uses the first value (5)", async ({ page }) => {
+  test.setTimeout(300_000);
+  await signIn(page, `wt3k-dup-${Date.now()}@example.com`);
+  await setTier(page, "premium");
+  await page.goto("/combos?pays=5&pays=10");
+  await expect(page.getByRole("button", { name: "Pays 5x+" })).toHaveAttribute("aria-pressed", "true");
+});

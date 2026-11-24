@@ -27,12 +27,10 @@ async function firstLists(me: Awaited<ReturnType<typeof getMe>>): Promise<Record
   }
 }
 
-export default async function Page({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+export default async function Page() {
   const me = await getMe();
   // No <Suspense> around the browser (T-wt3k): React outlines a boundary bigger than ~13 kB into a <template> that streams in after the footer, and the footer jumps when it lands.
-  // The chosen payout comes from the URL here, so the client component does not need useSearchParams (which is what asked for the boundary).
-  const asked = Number((await searchParams).pays);
-  const pays: ComboPays = COMBO_PAYS.includes(asked as ComboPays) ? (asked as ComboPays) : 2;
+  // The page is dynamic (getMe reads the cookies), so useSearchParams in the browser needs no boundary: it reads the URL itself, which stays right when Back or Forward restores the page from the router cache.
   const allowed = canBeta(me, "combos");
   const lists = allowed ? await firstLists(me) : undefined;
   return (
@@ -46,7 +44,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Rec
         </p>
       </div>
       {allowed ? (
-        <ComboBrowser lists={lists} initialPays={pays} />
+        <ComboBrowser lists={lists} />
       ) : (
         <div data-testid="combos-upgrade" className="flex flex-col items-start gap-3 rounded-card border border-border bg-surface p-5">
           <p className="text-sm text-soft">
