@@ -1,0 +1,8 @@
+ids ["6674492","7077573","7078474","7077574","6654466"]
+rv99b-link @390: Signed in as <email>, with an email link. {"cls":0,"hscroll":false,"disclaimer":true,"cents":false,"helplines":["pause-card"]}
+rvgoogle-x @390: Signed in as <email>, with Google. {"cls":0,"hscroll":false,"disclaimer":true,"cents":false,"helplines":["pause-card"]}
+rvgrec-x @1440: Signed in as <email>. {"cls":0.0004,"hscroll":false,"disclaimer":true,"cents":false,"helplines":["pause-card"]}
+rvgoogle-y @1440: Signed in as <email>, with Google. {"cls":0.0011,"hscroll":false,"disclaimer":true,"cents":false,"helplines":["pause-card"]}
+pw after confirm link: Signed in as <email>, with an email link.
+pw after password login: Signed in as <email>, with your email and password. {"cls":0,"hscroll":false,"disclaimer":true,"cents":false,"helplines":["pause-card"]}
+pw after reload: Signed in as <email>, with your email and password.

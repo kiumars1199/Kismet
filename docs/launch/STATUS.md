@@ -60,14 +60,14 @@ Status: official walk on 137ad1f (22:50; evidence review/walkthrough-2/): FAIL. 
 Problems:
 - ~~[should-fix] The empty first screen still happens when a topic has no best bets today~~ fixed by #98 (merged 957c14b)
 - ~~[should-fix] On the fallback first screen the filter bar contradicts the cards; the tour scrolls the h1 away~~ fixed by #98
-- [should-fix] The pause "Cancel" button is 46x20 and sits next to "Pause for 24 hours" (tracker, T-wt2c)
+- [should-fix] ~~The pause "Cancel" button is 46x20 and sits next to "Pause for 24 hours" (tracker, T-wt2c)~~ fixed by #99 (merged 00:19; re-walk pending)
 - ~~[nit] The h1 says "your topics" for a plain topic filter; the locked card is not in the first view on load~~ fixed by #98
 - [should-fix] (#98 review) After a filter change to an empty result, the locked card that says where the bet is sits 1.5 screens below; put it under the h1 when the result is empty. (tracker, T-wt2d)
 - [should-fix] (#98 review) A new Pro or Premium user who picks only a topic with no bets today lands on 0 cards and no tour. (tracker, T-wt2d)
 - [should-fix] (#98 review) A TopicsPicker tap before hydration is lost (the tile's name changes from "NBA" to "NBA none open" once counts load), so the user ends up unfiltered. (tracker, T-wt2d)
-- [nit] Tap targets: onboarding Back, "Track your bets with Pro", /markets rows, the drawer's See plans / Why two numbers? / Settings. (tracker, T-wt2c)
-- [nit] /account says "with Google or an email link" to password users. The help line is shown twice on /account. (tracker, T-wt2c)
-- [nit] The drawer has no single-bet "Check" entry. (tracker, T-wt2c)
+- [nit] ~~Tap targets: onboarding Back, "Track your bets with Pro", /markets rows, the drawer's See plans / Why two numbers? / Settings. (tracker, T-wt2c)~~ fixed by #99 (merged 00:19; re-walk pending)
+- [nit] ~~/account says "with Google or an email link" to password users. The help line is shown twice on /account. (tracker, T-wt2c)~~ fixed by #99 (merged 00:19; re-walk pending)
+- [nit] ~~The drawer has no single-bet "Check" entry. (tracker, T-wt2c)~~ fixed by #99 (merged 00:19; re-walk pending)
 - Not seen yet, to re-walk after the fixes: email + password signup (stalled under shared-machine load), the first screen for a topic with no bets, and the tour over an empty list.
 - Accepted, not a problem: the console logs 429 on the 2nd Free check (decisions.md).
 
@@ -88,6 +88,7 @@ Problems:
 - Not walked: signed-in headers at 768–1280, the Premium drawer path to the tray, WebKit, and signed-in steps on a production build. Re-walk after the fixes.
 
 ## Found in review, outside a lane
+- 00:19 Merged #99 (T-wt2c: pause Cancel, tap targets, sign-in clause, one help line on /account, Check this bet) at 49ef71f -> 15e60f5. Re-review PASS. WT2 items closed: pause Cancel and tap targets. Live Supabase amr order not checked (mock only); it goes into the WT2 re-walk.
 - 00:06 Merged #100 (T-95b, proof line) at 08b2191 -> abd292d. Reviewer PASS with one should-fix, T-95c (trust lane, after T-hydr): the live-record note says "3,411 settled so far, too few to judge" while the rule counts US events (30 of about 149). Make the note count the rule's unit, or drop the number. Nit: eventsNeeded gives 49, not 48 (float rounding).
 - 00:06 #99 (T-wt2c) FAIL at 5b7275d: a Google account in a recovery/invite session read "with Google". The lead fixed it at 49ef71f (Google only from oauth amr; provider fallback only when amr is empty; regression test). Re-review is with reviewer 2. "Check this bet" on the signed-out /m teaser goes to T-wt2d.
 - 00:00 Merged #96 (T-89c: combo first-leg CLS, cookie/route removed, "2 to 10" once) at 43a2750 -> b07f2a3. Reviewer PASS with one note (empty /check/combo reserves 700-760 px, pushing the 1440 footer below the fold), which goes to T-wt3b. Prod /api/health is 503 since about 23:40: the Railway venue matcher took 82 min (22:38-00:00), so markets.json is 85+ min old, and Polymarket's batch-prices-history now caps requests at 20 markets (80 failed batches). Hotfix T-hot1 is with the tracker lane. The merge did not cause this; it is data age.
