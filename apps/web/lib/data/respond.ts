@@ -21,6 +21,7 @@ import type { LedgerStats, StoreMarket } from "@/lib/types";
 import { proofLine, type Proof } from "@/lib/proof";
 import { headers } from "next/headers";
 import { profileTopics } from "@/lib/repo/server";
+import { wantsSavedTopics } from "@/lib/filters/default-topics";
 import { pausedResponse } from "@/lib/account/pause";
 
 /** RT-15: tier-shaped bodies must never sit in a shared cache. A route's own private Cache-Control is kept. */
@@ -334,7 +335,7 @@ export const listRoute = (req: Request, view?: "flags") =>
  *  or on any error. Free page loads count every row shown against the row budget, like the API. */
 export async function firstPage(params: URLSearchParams, view: "flags" | "markets"): Promise<{ main: MarketsResponse; soon?: MarketsResponse; scanned_at: number } | undefined> {
   if (params.has("wl")) return undefined;
-  if (params.has("fav") && !params.has("t")) {   // F5: "Your topics" without ids (an old link, onboarding): resolve them here, like a bare /bets
+  if (wantsSavedTopics(params)) {   // F5: "Your topics" without ids (an old link, onboarding): resolve them here, like a bare /bets
     const uid = (await getMe()).user?.id;   // the profile decides; the cookie is only a hint
     const favorites = uid ? await profileTopics(uid) : [];
     if (!favorites.length) return undefined;
