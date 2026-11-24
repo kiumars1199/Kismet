@@ -154,3 +154,11 @@ With blocking metadata, /m's first byte waits for generateMetadata's load(id). O
   - Re-run flaky heads with empty commits, so batch-1 merges keep moving.
   - In parallel, the trust lane moves e2e-paid to `next build && next start` (T-ci1). No test is loosened.
   - The dev overlay's injected fonts also go away with this. They caused fake layout-shift readings at pro 1440.
+
+## 2026-11-24 10:50: Title-shortening reviews: pre-existing gaps are follow-ups
+- #119 went through three review rounds as the reviewers kept finding new direction-word pairs.
+- Rule from here:
+  - A gap that already exists on final, is outside the PR's stated scope, and affects no real title today goes on the follow-up list.
+  - It does not block the merge.
+  - A gap that hits a real title today is a blocker.
+- Reason: the break-it search has no natural end. Each round made the product strictly better, with clashes going from 13–14 on final down to 0 on the tested set.
