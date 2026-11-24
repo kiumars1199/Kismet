@@ -84,12 +84,13 @@ Problems:
 - ~~[nit] Long-shot combo tray return reads "−100%" when it is −99.99% (T-wt3h)~~ fixed by #137
 - ~~[nit] A 0.999 price reads "Bet No at 100%" (/check/combo?legs=6949344:1,7043355:1) (T-wt3h)~~ fixed by #137
 - ~~[nit] 375x667: the "." after the "combo checker" link wraps onto its own line (T-wt3h)~~ fixed by #137
-- [should-fix] /check deep link with price >99.5% opens with "Price must be between 1% and 99%" (Price filled with Math.round(ask*100); also 0.8% scored as 1%) (/check?m=6949344&side=1) (T-wt3i)
-- [nit] Combo leg line says "pays 1.00x" for a 0.999 price; after fees it is under 1x (T-wt3i)
-- [nit] 375/360: larger gap above the "combo checker." line from its tap area (T-wt3i)
+- ~~[should-fix] /check deep link with price >99.5% opens with "Price must be between 1% and 99%" (Price filled with Math.round(ask*100); also 0.8% scored as 1%) (/check?m=6949344&side=1) (T-wt3i)~~ fixed by #138
+- ~~[nit] Combo leg line says "pays 1.00x" for a 0.999 price; after fees it is under 1x (T-wt3i)~~ fixed by #138
+- ~~[nit] 375/360: larger gap above the "combo checker." line from its tap area (T-wt3i)~~ fixed by #138
 
 
 ## Found in review, outside a lane
+- #138 merged at 582e4d6 (Nov 24), PASS at 2782071. Known nits, logged not tasked: the field shows 0.8 while the card says 1% (rounding); typed "99.90" gets the range error while "0.80" is accepted; editing a filled 99.9 to 99.8 shows the 1–99% message; the 375 gap above the combo link is still slightly larger. Evidence: review/138/.
 - #133 r3 FAIL at 77153c7 (Nov 24): settings fixes pass. Onboarding: Skip setup right after quick taps lands filtered by the first tap only (finish() builds t= from a patch queued behind the first save). Also fast Next/Show loses taps, and a stale older save can win while the tab is hidden. Sent back to the builder. Evidence: review/133-r3/.
 - 20:55 #136 T-wt2l merged (4b44880) after review r2 PASS at f0af1b9 (menu uses the header's real covered area: opens/stays open below 1024, closes under the sticky bar at 1024+, 21/21 checkboxes, Tab/Escape intact) and full CI green. Kept as a known nit, not a walk-through item: measure() finds the site header with querySelector("header"), which relies on it being the first <header> in the DOM (true today on every page checked).
 - 20:40 #137 T-wt3h merged (8389704) after review PASS at fa96d3f (+ 09be2c3 confirmed a pure module move to keep landing JS at 149.5 kB) and full CI green. Notes → T-wt3i.

@@ -1,0 +1,12 @@
+PR #138 T-wt3i 2782071bcd72b211302ccc92d186e27bf996f2f0 : PASS with notes
+Build: local prod build, worktree wt6, port 4238 (socket ownership confirmed), E2E mock. Unit tests lib/check: 63/63.
+check-pro.txt / check-free.txt / check-out.txt / check-premium.txt / check-pro-375.txt / check-pro-360.txt : /check walks (field value, all stats, edits, side switch)
+alert.txt + alert-only-*.png : combo-checker link gap/target at 375/360/390
+chance.txt : combo leg lines (ext, hi2, six) and chance agreement
+cls.txt : free 429 flows at 390/375/360 + reload CLS at 390 (all <= 0.0004)
+Notes:
+1 [nit] 0.8%/0.7% field shows "0.8"/"0.7" while "Market says" and combo leg say "1%" (pricePct rounding, pre-existing).
+2 [nit] retyping "0.80"/"68.0" counts as market price (float equality with ask), but "99.90" errors (99.90/100 != 0.999). Harmless, inconsistent.
+3 [nit] after editing 99.9 -> 99.8 the guard says "must be between 1% and 99%" right after the app filled 99.9 itself.
+4 [nit] 375: link line gap still slightly larger than the others (much reduced); 360 normal.
+Kalshi "Use it": no fixture market has a Kalshi ticker; reviewed by code (calls fill(), same path as side switch).

@@ -1,0 +1,23 @@
+signed in r138-pro-1795554668287@example.com tier=pro
+
+== pro 375 /check?m=6949344&side=1  disc true cents false hscroll false cls 0.0004 ["0.0004 freshness y68->68 h44->44"]
+  load: {"field":"99.9","inputmode":"decimal","err":"","chance":">99%","market":">99%","pays":"1.00x","edge":"−0.3 pts","ret":"−0.3%","score":"49","net":"After the fee: 0 points of win chance over the price.","pay":"A $100 bet brings back $100 if it wins; estimated return −$0.27 on average. Any single bet can lose.","upgrade":null,"sides":["Yes","No*"]}
+  side->0: field=1 err="" chance=<1% market=1% pays=95.2x edge=−0.6 pts ret=−65% score=48 sides=Yes*|No
+  side->1: field=99.9 err="" chance=>99% market=>99% pays=1.00x edge=−0.3 pts ret=−0.3% score=49 sides=Yes|No*
+  typed 50 then side->0: field=1 err="" market=1% pays=95.2x
+  apiCalls this case 1; personal-copy []
+
+== pro 375 /check?m=7029427&side=0  disc true cents false hscroll false cls 0.0004 ["0.0004 freshness y68->68 h44->44"]
+  load: {"field":"0.8","inputmode":"decimal","err":"","chance":"<1%","market":"1%","pays":"120x","edge":"−0.6 pts","ret":"−75%","score":"48","net":"After the fee: −1 point of win chance over the price.","pay":"A $100 bet brings back $12,048 if it wins; estimated return −$75 on average. Any single bet can lose.","upgrade":null,"sides":["Yes*","No"]}
+  side->1: field=99.7 err="" chance=>99% market=>99% pays=1.00x edge=+0.1 pts ret=+0.1% score=50 sides=Yes|No*
+  side->0: field=0.8 err="" chance=<1% market=1% pays=120x edge=−0.6 pts ret=−75% score=48 sides=Yes*|No
+  typed 50 then side->1: field=99.7 err="" market=>99% pays=1.00x
+  apiCalls this case 1; personal-copy []
+
+== pro 375 /check?m=6674492&side=0  disc true cents false hscroll false cls 0.0004 ["0.0004 freshness y68->68 h44->44"]
+  load: {"field":"68","inputmode":"decimal","err":"","chance":"92%","market":"68%","pays":"1.45x","edge":"+24 pts","ret":"+33%","score":"100","net":"After the fee: +23 points of win chance over the price.","pay":"A $100 bet brings back $145 if it wins; estimated return +$33 on average. Any single bet can lose.","upgrade":null,"sides":["Yes*","No"]}
+  side->1: field=33 err="" chance=9% market=33% pays=2.93x edge=−24 pts ret=−73% score=0 sides=Yes|No*
+  side->0: field=68 err="" chance=92% market=68% pays=1.45x edge=+24 pts ret=+33% score=100 sides=Yes*|No
+  typed 50 then side->1: field=33 err="" market=33% pays=2.93x
+  apiCalls this case 1; personal-copy []
+errors [] apiCalls ["POST /api/check","POST /api/check","POST /api/check"]

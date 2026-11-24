@@ -1,0 +1,27 @@
+signed in r134-ch-1795554039960@example.com tier=premium
+[checker six] chance "<1%" why "Combined chance 5% × 6% × 3% × 3% × 4% × 12% = <1%."
+   legs ["Ball State vs. Ohio: 1Q Moneyline Bet Ball State at 36% · 5% chance (cautious) · pays 2.69x","Singapore vs. Brazil: Both Teams to Score Bet Yes at 30% · 6% chance (cautious) · pays 3.22x","Eastern Michigan vs. Western Michigan: 1Q Moneyline Bet Eastern Michigan at 31% · 3% chance (cautious) · pays 3.12x","Spread: FC Barcelona (-2.5) Bet FC Barcelona at 26% · 3% chance (cautious) · pays 3.71x","Exact Score: Any Other Score? Bet Yes at 23% · 4% chance (cautious) · pays 4.19x","Will the highest temperature in Dallas be between 70-71°F on November 18? Bet Yes at 30% · 12% chance (cautious) · pays 3.22x"]
+   bad 0%/100% in checker card+legs: []
+   tray raw: "Your combo · 5 legs\nPays 420x · wins about 1 in 9672161\n\nOne bet left your combo because it closed."
+[tray six] summary "Pays 420x · wins about 1 in 9672161" chance "<1% (about 1 in 9672161)"
+   multiply line: "The combo wins only if every leg wins, so the legs' chances multiply: 5% × 6% × 3% × 3% × 4% ≈ <1%. Chances are our cautious ones (our central estimate is <1%). Payouts include each leg's fee: every leg bought and the winnings rolled into the next. Prices are from when you added each leg. Most of the time this loses. The edge means you're getting a better price than usual, not that it will hit. Small errors in each leg multiply in a combo."
+   return: "about −100%" about-100 count 1
+   central: "central estimate is <1%"
+   leg lines: ["Bet Ball State · Pays 2.7x after fee · 5% chance to win (cautious)","Bet Yes · Pays 3.2x after fee · 6% chance to win (cautious)","Bet Eastern Michigan · Pays 3.1x after fee · 3% chance to win (cautious)","Bet FC Barcelona · Pays 3.7x after fee · 3% chance to win (cautious)","Bet Yes · Pays 4.2x after fee · 4% chance to win (cautious)"]
+   bad 0%/100% in tray: [] ctx ["about −100%"]
+[checker ext] chance "<1%" why "Combined chance <1% × 99% × 99% = <1%."
+   legs ["Will the next Gemini Carbon model (4.1+) be released on November 18, 2026? Bet Yes at 1% · <1% chance (cautious) · pays 120x","Will \"Final Destination: Bloodlines\" be the #2 global Netflix movie this week? Bet No at >99% · 99% chance (cautious) · pays 1.00x","Will Elon Musk post 190-214 tweets from November 16 to November 18, 2026? Bet No at >99% · 99% chance (cautious) · pays 1.00x"]
+   bad 0%/100% in checker card+legs: []
+   tray raw: "NO TRAY"
+[tray ext] no tray rendered; localStorage []
+[checker hi2] chance "98%" why "Combined chance 99% × 99% = 98%."
+   legs ["Will \"Final Destination: Bloodlines\" be the #2 global Netflix movie this week? Bet No at >99% · 99% chance (cautious) · pays 1.00x","Will Elon Musk post 190-214 tweets from November 16 to November 18, 2026? Bet No at >99% · 99% chance (cautious) · pays 1.00x"]
+   bad 0%/100% in checker card+legs: []
+   tray raw: "NO TRAY"
+[tray hi2] no tray rendered; localStorage []
+[combos page] cards 9; bad 0%/100% in cards []; in titles []; <1% count 0; >99% count 0
+   facts disc true cents false hs false
+[suggested #1] Combo · 2 legs Pays 2.0x · wins about 8 in 10 Denmark vs. Norway: Both Teams to Score Yes  | card 78% | tray "78% (about 8 in 10)" | checker "78%" | legs 6674492:0,6654466:1
+[suggested #2] Combo · 2 legs Pays 2.1x · wins about 7 in 10 Denmark vs. Norway: Both Teams to Score Yes  | card 71% | tray "71% (about 7 in 10)" | checker "71%" | legs 6674492:0,6674202:1
+[suggested #3] Combo · 2 legs Pays 2.0x · wins about 7 in 10 Singapore vs. Brazil: Both Teams to Score No | card 72% | tray "72% (about 7 in 10)" | checker "72%" | legs 6654466:1,6674202:1
+errors []

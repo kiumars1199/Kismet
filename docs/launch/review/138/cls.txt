@@ -1,0 +1,121 @@
+signed in r125-free-1795554163985@example.com tier=free
+390 different events top: statuses [200,429] D=0 scrollY 0->0 legs viewport 426->426 doc 426->426 OK; CLS 0.0000 []; box shown true inside-combo-check 1
+   legs ["Singapore vs. Brazil: O/U 4.5 Bet Over at 65%","Miami (OH) vs. Kent State: 1Q Moneyline Bet Miami (OH) at 69%"]
+390 different events scrolled: statuses [200,429,429] D=0 scrollY 0->0 legs viewport 426->426 doc 426->426 OK; CLS 0.0000 []; box shown true inside-combo-check 1
+   legs ["Singapore vs. Brazil: O/U 4.5 Bet Over at 65%","Miami (OH) vs. Kent State: 1Q Moneyline Bet Miami (OH) at 69%"]
+signed in r125-free-1795554180192@example.com tier=free
+390 same-event pair top: statuses [200,429] D=0 scrollY 0->407 legs viewport 426->19 doc 426->426 OK; CLS 0.0000 []; box shown true inside-combo-check 1
+   legs ["Denmark vs. Norway: O/U 2.5 Bet Over at 67%","Denmark vs. Norway: Both Teams to Score Bet Yes at 68%","Miami (OH) vs. Kent State: 1Q Moneyline Bet Miami (OH) at 69%"]
+390 same-event pair scrolled: statuses [200,429,429] D=0 scrollY 407->407 legs viewport 19->19 doc 426->426 OK; CLS 0.0000 []; box shown true inside-combo-check 1
+   legs ["Denmark vs. Norway: O/U 2.5 Bet Over at 67%","Denmark vs. Norway: Both Teams to Score Bet Yes at 68%","Miami (OH) vs. Kent State: 1Q Moneyline Bet Miami (OH) at 69%"]
+signed in r125-free-1795554196240@example.com tier=free
+390 scored then add 3rd top: statuses [200,429] D=0 scrollY 0->407 legs viewport 426->19 doc 426->426 OK; CLS 0.0000 []; box shown true inside-combo-check 1
+   legs ["Colts vs. Texans Bet Texans at 85% · 95% chance (cautious) · pays 1.16x","Denmark vs. Norway: O/U 2.5 Bet Over at 67% · 82% chance (cautious) · pays 1.45x","Miami (OH) vs. Kent State: 1H Moneyline Bet Miami (OH) at 76%"]
+390 scored then add 3rd scrolled: statuses [200,429,429] D=0 scrollY 407->407 legs viewport 19->19 doc 426->426 OK; CLS 0.0000 []; box shown true inside-combo-check 1
+   legs ["Colts vs. Texans Bet Texans at 85%","Denmark vs. Norway: O/U 2.5 Bet Over at 67%","Miami (OH) vs. Kent State: 1H Moneyline Bet Miami (OH) at 76%"]
+signed in r125-free-1795554212472@example.com tier=free
+375 different events top: statuses [200,429] D=0 scrollY 0->388 legs viewport 410->22 doc 410->410 OK; CLS 0.0000 []; box shown true inside-combo-check 1
+   legs ["Singapore vs. Brazil: O/U 4.5 Bet Over at 65%","Miami (OH) vs. Kent State: 1Q Moneyline Bet Miami (OH) at 69%"]
+375 different events scrolled: statuses [200,429,429] D=0 scrollY 388->388 legs viewport 22->22 doc 410->410 OK; CLS 0.0000 []; box shown true inside-combo-check 1
+   legs ["Singapore vs. Brazil: O/U 4.5 Bet Over at 65%","Miami (OH) vs. Kent State: 1Q Moneyline Bet Miami (OH) at 69%"]
+signed in r125-free-1795554228436@example.com tier=free
+375 same-event pair top: statuses [200,429] D=0 scrollY 0->480 legs viewport 410->-70 doc 410->410 OK; CLS 0.0000 []; box shown true inside-combo-check 1
+   legs ["Denmark vs. Norway: O/U 2.5 Bet Over at 67%","Denmark vs. Norway: Both Teams to Score Bet Yes at 68%","Miami (OH) vs. Kent State: 1Q Moneyline Bet Miami (OH) at 69%"]
+375 same-event pair scrolled: statuses [200,429,429] D=0 scrollY 480->480 legs viewport -70->-70 doc 410->410 OK; CLS 0.0000 []; box shown true inside-combo-check 1
+   legs ["Denmark vs. Norway: O/U 2.5 Bet Over at 67%","Denmark vs. Norway: Both Teams to Score Bet Yes at 68%","Miami (OH) vs. Kent State: 1Q Moneyline Bet Miami (OH) at 69%"]
+signed in r125-free-1795554244504@example.com tier=free
+375 scored then add 3rd top: statuses [200,429] D=0 scrollY 247->247 legs viewport 163->163 doc 410->410 OK; CLS 0.0000 []; box shown true inside-combo-check 1
+   legs ["Colts vs. Texans Bet Texans at 85% · 95% chance (cautious) · pays 1.16x","Denmark vs. Norway: O/U 2.5 Bet Over at 67% · 82% chance (cautious) · pays 1.45x","Miami (OH) vs. Kent State: 1H Moneyline Bet Miami (OH) at 76%"]
+375 scored then add 3rd scrolled: statuses [200,429,429] D=0 scrollY 247->247 legs viewport 163->163 doc 410->410 OK; CLS 0.0000 []; box shown true inside-combo-check 1
+   legs ["Colts vs. Texans Bet Texans at 85%","Denmark vs. Norway: O/U 2.5 Bet Over at 67%","Miami (OH) vs. Kent State: 1H Moneyline Bet Miami (OH) at 76%"]
+signed in r125-free-1795554260628@example.com tier=free
+360 different events top: statuses [200,429] D=0 scrollY 0->0 legs viewport 426->426 doc 426->426 OK; CLS 0.0000 []; box shown true inside-combo-check 1
+   legs ["Singapore vs. Brazil: O/U 4.5 Bet Over at 65%","Miami (OH) vs. Kent State: 1Q Moneyline Bet Miami (OH) at 69%"]
+360 different events scrolled: statuses [200,429,429] D=0 scrollY 0->0 legs viewport 426->426 doc 426->426 OK; CLS 0.0000 []; box shown true inside-combo-check 1
+   legs ["Singapore vs. Brazil: O/U 4.5 Bet Over at 65%","Miami (OH) vs. Kent State: 1Q Moneyline Bet Miami (OH) at 69%"]
+signed in r125-free-1795554276578@example.com tier=free
+360 same-event pair top: statuses [200,429] D=0 scrollY 0->429 legs viewport 426->-3 doc 426->426 OK; CLS 0.0000 []; box shown true inside-combo-check 1
+   legs ["Denmark vs. Norway: O/U 2.5 Bet Over at 67%","Denmark vs. Norway: Both Teams to Score Bet Yes at 68%","Miami (OH) vs. Kent State: 1Q Moneyline Bet Miami (OH) at 69%"]
+360 same-event pair scrolled: statuses [200,429,429] D=0 scrollY 429->429 legs viewport -3->-3 doc 426->426 OK; CLS 0.0000 []; box shown true inside-combo-check 1
+   legs ["Denmark vs. Norway: O/U 2.5 Bet Over at 67%","Denmark vs. Norway: Both Teams to Score Bet Yes at 68%","Miami (OH) vs. Kent State: 1Q Moneyline Bet Miami (OH) at 69%"]
+signed in r125-free-1795554292677@example.com tier=free
+360 scored then add 3rd top: statuses [200,429] D=0 scrollY 0->429 legs viewport 426->-3 doc 426->426 OK; CLS 0.0000 []; box shown true inside-combo-check 1
+   legs ["Colts vs. Texans Bet Texans at 85% · 95% chance (cautious) · pays 1.16x","Denmark vs. Norway: O/U 2.5 Bet Over at 67% · 82% chance (cautious) · pays 1.45x","Miami (OH) vs. Kent State: 1H Moneyline Bet Miami (OH) at 76%"]
+360 scored then add 3rd scrolled: statuses [200,429,429] D=0 scrollY 429->429 legs viewport -3->-3 doc 426->426 OK; CLS 0.0000 []; box shown true inside-combo-check 1
+   legs ["Colts vs. Texans Bet Texans at 85%","Denmark vs. Norway: O/U 2.5 Bet Over at 67%","Miami (OH) vs. Kent State: 1H Moneyline Bet Miami (OH) at 76%"]
+signed in r125-rl-1795554309133@example.com tier=pro
+390x844 scroll 0 r0: restored scrollY 0 CLS 0.0004 ["0.0004 freshness y68->68 h44->44"]
+390x844 scroll 0 r1: restored scrollY 0 CLS 0.0004 ["0.0004 freshness y68->68 h44->44"]
+390x844 scroll 0 r2: restored scrollY 0 CLS 0.0004 ["0.0004 freshness y68->68 h44->44"]
+390x844 scroll 200 r0: restored scrollY 200 CLS 0 []
+390x844 scroll 200 r1: restored scrollY 200 CLS 0 []
+390x844 scroll 200 r2: restored scrollY 200 CLS 0 []
+390x844 scroll 300 r0: restored scrollY 300 CLS 0 []
+390x844 scroll 300 r1: restored scrollY 300 CLS 0 []
+390x844 scroll 300 r2: restored scrollY 300 CLS 0 []
+390x844 scroll 400 r0: restored scrollY 400 CLS 0 []
+390x844 scroll 400 r1: restored scrollY 400 CLS 0 []
+390x844 scroll 400 r2: restored scrollY 400 CLS 0 []
+390x844 scroll 500 r0: restored scrollY 500 CLS 0 []
+390x844 scroll 500 r1: restored scrollY 500 CLS 0 []
+390x844 scroll 500 r2: restored scrollY 500 CLS 0 []
+390x844 scroll 600 r0: restored scrollY 600 CLS 0 []
+390x844 scroll 600 r1: restored scrollY 600 CLS 0 []
+390x844 scroll 600 r2: restored scrollY 600 CLS 0 []
+390x844 scroll 800 r0: restored scrollY 800 CLS 0 []
+390x844 scroll 800 r1: restored scrollY 800 CLS 0 []
+390x844 scroll 800 r2: restored scrollY 800 CLS 0 []
+390x844 scroll 1049 r0: restored scrollY 856 CLS 0 []
+390x844 scroll 1049 r1: restored scrollY 856 CLS 0 []
+390x844 scroll 1049 r2: restored scrollY 856 CLS 0 []
+== 390x844 reload worst 0.0004
+375x667 scroll 0 r0: restored scrollY 0 CLS 0.0006 ["0.0006 freshness y68->68 h44->44"]
+375x667 scroll 0 r1: restored scrollY 0 CLS 0.0006 ["0.0006 freshness y68->68 h44->44"]
+375x667 scroll 0 r2: restored scrollY 0 CLS 0.0006 ["0.0006 freshness y68->68 h44->44"]
+375x667 scroll 200 r0: restored scrollY 200 CLS 0 []
+375x667 scroll 200 r1: restored scrollY 200 CLS 0 []
+375x667 scroll 200 r2: restored scrollY 200 CLS 0 []
+375x667 scroll 300 r0: restored scrollY 300 CLS 0 []
+375x667 scroll 300 r1: restored scrollY 300 CLS 0 []
+375x667 scroll 300 r2: restored scrollY 300 CLS 0 []
+375x667 scroll 400 r0: restored scrollY 400 CLS 0 []
+375x667 scroll 400 r1: restored scrollY 400 CLS 0 []
+375x667 scroll 400 r2: restored scrollY 400 CLS 0 []
+375x667 scroll 500 r0: restored scrollY 500 CLS 0 []
+375x667 scroll 500 r1: restored scrollY 500 CLS 0 []
+375x667 scroll 500 r2: restored scrollY 500 CLS 0 []
+375x667 scroll 600 r0: restored scrollY 600 CLS 0 []
+375x667 scroll 600 r1: restored scrollY 600 CLS 0 []
+375x667 scroll 600 r2: restored scrollY 600 CLS 0 []
+375x667 scroll 800 r0: restored scrollY 800 CLS 0 []
+375x667 scroll 800 r1: restored scrollY 800 CLS 0 []
+375x667 scroll 800 r2: restored scrollY 800 CLS 0 []
+375x667 scroll 1210 r0: restored scrollY 1210 CLS 0 []
+375x667 scroll 1210 r1: restored scrollY 1210 CLS 0 []
+375x667 scroll 1210 r2: restored scrollY 1210 CLS 0 []
+== 375x667 reload worst 0.0006
+360x800 scroll 0 r0: restored scrollY 0 CLS 0.0005 ["0.0005 freshness y68->68 h44->44"]
+360x800 scroll 0 r1: restored scrollY 0 CLS 0.0005 ["0.0005 freshness y68->68 h44->44"]
+360x800 scroll 0 r2: restored scrollY 0 CLS 0.0005 ["0.0005 freshness y68->68 h44->44"]
+360x800 scroll 200 r0: restored scrollY 200 CLS 0 []
+360x800 scroll 200 r1: restored scrollY 200 CLS 0 []
+360x800 scroll 200 r2: restored scrollY 200 CLS 0 []
+360x800 scroll 300 r0: restored scrollY 300 CLS 0 []
+360x800 scroll 300 r1: restored scrollY 300 CLS 0 []
+360x800 scroll 300 r2: restored scrollY 300 CLS 0 []
+360x800 scroll 400 r0: restored scrollY 400 CLS 0 []
+360x800 scroll 400 r1: restored scrollY 400 CLS 0 []
+360x800 scroll 400 r2: restored scrollY 400 CLS 0 []
+360x800 scroll 500 r0: restored scrollY 500 CLS 0 []
+360x800 scroll 500 r1: restored scrollY 500 CLS 0 []
+360x800 scroll 500 r2: restored scrollY 500 CLS 0 []
+360x800 scroll 600 r0: restored scrollY 600 CLS 0 []
+360x800 scroll 600 r1: restored scrollY 600 CLS 0 []
+360x800 scroll 600 r2: restored scrollY 600 CLS 0 []
+360x800 scroll 800 r0: restored scrollY 800 CLS 0 []
+360x800 scroll 800 r1: restored scrollY 800 CLS 0 []
+360x800 scroll 800 r2: restored scrollY 800 CLS 0 []
+360x800 scroll 1093 r0: restored scrollY 900 CLS 0 []
+360x800 scroll 1093 r1: restored scrollY 900 CLS 0 []
+360x800 scroll 1093 r2: restored scrollY 900 CLS 0 []
+== 360x800 reload worst 0.0005

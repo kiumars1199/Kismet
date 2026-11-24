@@ -1,0 +1,22 @@
+signed in r138-free-1795553919301@example.com tier=free
+
+== free 390 /check?m=6949344&side=1  disc true cents false hscroll false cls 0.0004 ["0.0004 freshness y68->68 h44->44"]
+  load: {"field":"99.9","inputmode":"decimal","err":"","chance":">99%","market":">99%","pays":"1.00x","edge":"−0.3 pts","ret":"−0.3%","score":"49","net":"After the fee: 0 points of win chance over the price.","pay":"A $100 bet brings back $100 if it wins; estimated return −$0.27 on average. Any single bet can lose.","upgrade":null,"sides":["Yes","No*"]}
+  typed "99.5": field=99.5 err="Price must be between 1% and 99%." chance=>99% market=— pays=— edge=— ret=— score=— net=- pay=-
+  typed "99.9": field=99.9 err="" chance=>99% market=>99% pays=1.00x edge=−0.3 pts ret=−0.3% score=49 net=After the fee: 0 points of win chance over the price. pay=A $100 bet brings back $100 if it wins; estimated return −$0.27 on average. Any single bet
+  side->0: field=1 err="" chance=<1% market=1% pays=95.2x edge=−0.6 pts ret=−65% score=48 sides=Yes*|No
+  side->1: field=99.9 err="" chance=>99% market=>99% pays=1.00x edge=−0.3 pts ret=−0.3% score=49 sides=Yes|No*
+  typed 50 then side->0: field=1 err="" market=1% pays=95.2x
+  apiCalls this case 1; personal-copy []
+
+== free 390 /check?m=7029427&side=0  disc true cents false hscroll false cls 0.0004 ["0.0004 freshness y68->68 h44->44"]
+  load: {"field":null,"err":null,"chance":null,"market":null,"pays":null,"edge":null,"ret":null,"score":null,"net":null,"pay":null,"upgrade":"Free includes 1 bet check a day, and you've used it. Pro and Premium check as many bets as you like. See plans","sides":[]}
+  apiCalls 1
+
+== free 390 /check?m=6949344&side=1  disc true cents false hscroll false cls 0.0004 ["0.0004 freshness y68->68 h44->44"]
+  load: {"field":"99.9","inputmode":"decimal","err":"","chance":">99%","market":">99%","pays":"1.00x","edge":"−0.3 pts","ret":"−0.3%","score":"49","net":"After the fee: 0 points of win chance over the price.","pay":"A $100 bet brings back $100 if it wins; estimated return −$0.27 on average. Any single bet can lose.","upgrade":null,"sides":["Yes","No*"]}
+  side->0: field=1 err="" chance=<1% market=1% pays=95.2x edge=−0.6 pts ret=−65% score=48 sides=Yes*|No
+  side->1: field=99.9 err="" chance=>99% market=>99% pays=1.00x edge=−0.3 pts ret=−0.3% score=49 sides=Yes|No*
+  typed 50 then side->0: field=1 err="" market=1% pays=95.2x
+  apiCalls this case 1; personal-copy []
+errors [] apiCalls ["POST /api/check","POST /api/check","POST /api/check"]
