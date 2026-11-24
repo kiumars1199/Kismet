@@ -149,3 +149,41 @@ test("same-event legs: the warning says 'Drop one of the two <event> bets.' with
   await expect(box).toContainText(/Drop one of the two .+ bets\./);
   expect(await box.innerText()).not.toMatch(/more markets/i);
 });
+
+// Review of #96: an empty combo checker is not padded to a tall page: the footer starts inside the first view at 1440 and stays close
+// below the card at 390 (the tall reserve applies once there is a leg, a ?m=/?legs= link, or the person has started adding).
+test("the empty page: footer inside the first view at 1440, close below the card at 390", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/check/combo");
+  await expect(page.getByTestId("combo-msg")).toBeVisible();
+  const f1440 = await page.locator("footer").evaluate((el) => el.getBoundingClientRect().top);
+  console.log(`empty page footer top at 1440px: ${Math.round(f1440)}`);
+  expect(f1440).toBeLessThan(900);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/check/combo");
+  await expect(page.getByTestId("combo-msg")).toBeVisible();
+  const m = await page.evaluate(() => ({ card: document.querySelector("section[aria-label='Combo result']")!.getBoundingClientRect().bottom, footer: document.querySelector("footer")!.getBoundingClientRect().top }));
+  console.log(`empty page at 390px: card bottom ${Math.round(m.card)}, footer top ${Math.round(m.footer)}`);
+  expect(m.footer - m.card, "footer close below the card").toBeLessThan(200);
+});
+
+test("adding the first leg by hand after a slow lookup does not shift the page (CLS < 0.02 at 390 and 1440)", async ({ browser }) => {
+  test.setTimeout(120_000);
+  for (const [name, size] of SIZES) {
+    const ctx = await browser.newContext({ viewport: size, baseURL: test.info().project.use.baseURL });
+    const page = await ctx.newPage();
+    await page.addInitScript(watchCls);
+    await page.route("**/api/check/leg", async (r) => { await new Promise((ok) => setTimeout(ok, 900)); await r.continue(); });
+    const [a] = distinct(await rows(page), 1);
+    await page.goto("/check/combo");
+    await expect(page.getByTestId("combo-msg")).toBeVisible();
+    const before = await cls(page);
+    await page.getByLabel("Add a bet by link or words").fill(`https://polymarket.com/event/x-${a!.market.id}`);   // a link that is not ours: the lookup takes its time and says so
+    await page.getByRole("button", { name: "Add", exact: true }).click();
+    await page.waitForTimeout(1600);
+    const delta = (await cls(page)) - before;
+    console.log(`first Add (slow answer) at ${name}px: ${delta.toFixed(4)}`);
+    expect(delta, name).toBeLessThan(0.02);
+    await ctx.close();
+  }
+});

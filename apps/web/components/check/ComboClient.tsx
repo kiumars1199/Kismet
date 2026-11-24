@@ -36,6 +36,7 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
   const [loaded, setLoaded] = useState(false);   // the legs of this tab (or of the link) are in; until then the legs region is hidden, not moved
   const [known, setKnown] = useState<Map<string, ComboLeg["base"]>>(new Map());   // every leg's numbers once scored: they stay after a 429 or an added leg
   const [copied, setCopied] = useState("");
+  const [engaged, setEngaged] = useState(false);   // the person has started adding: from then on the page keeps its reserved height
   const me = useMe();
   const legsRef = useRef(legs);
   legsRef.current = legs;
@@ -82,7 +83,7 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
   }
 
   async function add(body: { m?: string; link?: string; side?: 0 | 1 }) {
-    setBusy(true); setNote(""); setHits([]);
+    setEngaged(true); setBusy(true); setNote(""); setHits([]);
     try {
       const r = await fetch("/api/check/leg", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       if (r.status === 404) return setNote("We couldn't find an open market at that link.");
@@ -137,6 +138,7 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
     e.preventDefault();
     const q = text.trim();
     if (!q) return;
+    setEngaged(true);
     if (parseLink(q)) return void add({ link: q });
     setBusy(true); setNote("");
     try {
@@ -202,10 +204,10 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
       <div className="min-h-6 text-[13px] text-muted" role="status" aria-live="polite" data-testid="combo-note">{busy ? "Looking it up…" : scoring ? "Scoring your combo…" : note}</div>
 
 
-      {/* This region always holds the height of the legs and a scored result (the sub-line wraps to 36 px once scored, the result
+      {/* Once there is a leg, a link with legs, or the person has started adding, this region holds the height of the legs and a scored result (the sub-line wraps to 36 px once scored, the result
           grows to about 533 px on a phone and 360 on a desktop: those final sizes are reserved), so adding legs and scoring grow inside
           it and the page below never moves. The empty result card itself stays small: the room is blank space under it, not a box. */}
-      <div className={`flex min-h-[760px] flex-col gap-5 md:min-h-[700px] ${loaded || reserve ? "" : "invisible"}`}>
+      <div data-combo-pending={loaded ? undefined : ""} className={`flex flex-col gap-5 ${legs.length || reserve || engaged ? "min-h-[760px] md:min-h-[700px]" : ""} ${loaded || reserve ? "" : "invisible"}`}>
       <ul data-testid="combo-legs" style={{ "--n": Math.max(legs.length, reserve, 2) } as React.CSSProperties}
         className={`flex flex-col gap-2 ${legs.length || reserve ? "min-h-[calc(var(--n)*84px+(var(--n)-1)*8px)] sm:min-h-[calc(var(--n)*70px+(var(--n)-1)*8px)]" : ""}`}>
         {legs.map((l, i) => {
