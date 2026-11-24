@@ -50,19 +50,19 @@ Notes, not problems (decisions.md 13:05): /pricing inline "account page" link is
 Status: re-walk on final 6da7905 (local prod build, mock auth; 13:25 UTC; evidence review/walkthrough-2-r2/): FAIL. Every item from the 22:50 walk is fixed (topic with no bets, locked card after filter, TopicsPicker before hydration, Pause Cancel, sign-in clause, help line once, drawer "Check this bet", password signup, leaving onboarding mid-way). New and newly found items assigned to T-wt2e (topics), T-wt2f (tour + auth copy), T-wt2g (layout + tap targets), 13:30.
 
 Problems:
-- [should-fix] /alerts and /dashboards at 390 shift CLS 0.116 / 0.125 on load (footer jumps while content loads) (T-wt2g)
+- ~~[should-fix] /alerts and /dashboards at 390 shift CLS 0.116 / 0.125 on load (footer jumps while content loads)~~ fixed by #127
 - ~~[should-fix] Saved topics lost after sign-out/sign-in or new device~~ fixed by #124
-- [should-fix] /check Free limit card is a 1000 px (390) / 700 px (1440) box with ~100 px of content (T-wt2g)
+- ~~[should-fix] /check Free limit card is a 1000 px (390) / 700 px (1440) box with ~100 px of content~~ fixed by #127
 - ~~[should-fix] Tour step 4 "Save and get alerts" points at a Save button off screen (y≈2117) with cards~~ fixed by #126
 - ~~[should-fix] Filter bar says "Everything" while 2+ saved topics filter the list~~ fixed by #124; label edge cases in T-wt2h
 - ~~[should-fix] Settings → Topics shows raw ids~~ fixed by #124
-- [should-fix] /markets search chips 36 px tall, header clear × 18x32 at 390; "Choose columns" 36x36 and row checkboxes 16x16 at 1440 (T-wt2g)
+- ~~[should-fix] /markets search chips 36 px tall, header clear × 18x32 at 390; "Choose columns" 36x36 and row checkboxes 16x16 at 1440~~ fixed by #127
 - ~~[nit] Tour step 1 "A best bet" card hidden behind the tab bar at 390 when the stale banner shows~~ fixed by #126
 - ~~[nit] Tour step 1 copy says cards show "what $10 wins"; cards show "Pays 1.45x"~~ fixed by #126
 - ~~[nit] "Already have an account?" twice on the check-your-email screen~~ fixed by #126
 - ~~[nit] "Today's top 1" heading with one bet~~ fixed by #124
 - ~~[nit] Onboarding step 1 at 390: tiles show through the ~15 px gap between the sticky Next bar and the tab bar~~ fixed by #126
-- [nit] Settings at 1440: Time zone select text larger than State select (T-wt2g)
+- ~~[nit] Settings at 1440: Time zone select text larger than State select~~ fixed by #127
 
 Notes, not problems: Free "tour over an empty list" is only reachable via ?tour=1 on a manual filter. Supabase amr order: code reads amr[0]; multi-entry case leaves the clause blank (unit-tested), not checkable without live Supabase.
 
@@ -76,6 +76,7 @@ Problems:
 - [nit] Premium tray same-event alert: "combo checker" inline link is 16 px tall (T-wt3e)
 
 ## Found in review, outside a lane
+- 15:12 merged #127 T-wt2g (d1cc7dc): /alerts and /dashboards CLS at 390 (paid /alerts 0.014, was 0.16), /check limit card 358x158, /markets tap targets 44 px, column menu reachable at 1440x900, selects 16 px on phones and 14 px on desktop. Reviewer PASS on 7277418 after one FAIL (evidence review/127/). Follow-up nits: Phone alerts card grows 88→146 px after the device check (one cold run CLS 0.022; a fixed phone height would remove it); wheeling only over the column menu doesn't scroll the page.
 - 14:49 merged #126 T-wt2f (434222b): tour targets visible and no needless scroll (0 px at 1440), step 1 copy "Pays 1.45x", one "Already have an account?", onboarding bar meets tab bar. Reviewer PASS on 323aaa5 after one FAIL (evidence review/126/). Watch: one #418 in 1 of 4 Premium runs at 1440, not reproduced.
 - 14:38 merged #124 T-wt2e (c16fc61): saved topics survive re-login (link + password, 390/1440, CLS ≤0.0001), filter bar "Your topics (N)", Settings topic names, "Today's top bet". Reviewer PASS (evidence review/124/). Follow-up T-wt2h (same builder): label only when fav=1, "Everything" clears fav.
 - 12:55 merged #121 T-wt1g (73e7d67), reviewer PASS (evidence review/121/). Still open follow-ups: tight-width city dropped before direction words (no real title hits it); nit: "loses to" shortens to "loses …" at 360/390.
