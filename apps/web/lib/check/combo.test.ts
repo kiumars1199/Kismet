@@ -2,6 +2,17 @@ import { describe, expect, it } from "vitest";
 import { combo } from "@/lib/combos";
 import { addLeg, checkCombo, legLine, MAX_COMBO_LEGS, NOT_SCORED_SAME_EVENT, sameEventAdvice, type ComboLeg } from "./combo";
 import { score } from "./score";
+import { paysAfterFee } from "./pays";
+
+describe("pays after the fee below 1x (T-wt3i)", () => {
+  it("a price of 0.999 plus its fee pays less than 1x, and says so", () => {
+    expect(paysAfterFee(1 / (0.9995 + 0.001))).toBe("less than 1x");
+    expect(paysAfterFee(1 / (0.999 + 0.0004))).toBe("1.00x");
+    expect(paysAfterFee(1)).toBe("1.00x");
+    expect(paysAfterFee(1.47)).toBe("1.47x");
+    expect(legLine({ outcome: "No", price: 0.999 }, { winProb: 0.999, n: 100, ask: 0.9995, fee: 0.001, edge: null, feeRate: 0.02, venue: "intl" })).toBe("Bet No at >99% · >99% chance (cautious) · pays less than 1x");
+  });
+});
 
 describe("legLine at the extremes (T-wt3h)", () => {
   it("a price of 0.999 reads >99%, not 100%, and 0.002 reads <1%", () => {
