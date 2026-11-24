@@ -1,0 +1,650 @@
+﻿2026-11-24T03:30:33.7573344Z Current runner version: '2.338.2'
+2026-11-24T03:30:33.7598136Z ##[group]Runner Image Provisioner
+2026-11-24T03:30:33.7599255Z Hosted Compute Agent
+2026-11-24T03:30:33.7600068Z Version: 20261111.635
+2026-11-24T03:30:33.7600756Z Commit: b8a594ea514ff44cadb5342986c68b1eac6e22ed
+2026-11-24T03:30:33.7601531Z Build Date: 2026-11-11T01:49:01Z
+2026-11-24T03:30:33.7602243Z Worker ID: {f69d2c0c-c7f1-44cd-bdfb-23eb6a046c93}
+2026-11-24T03:30:33.7602959Z Region: westus2
+2026-11-24T03:30:33.7603558Z Cloud: Azure
+2026-11-24T03:30:33.7604135Z ##[endgroup]
+2026-11-24T03:30:33.7605590Z ##[group]Operating System
+2026-11-24T03:30:33.7606313Z Ubuntu
+2026-11-24T03:30:33.7606838Z 26.04.1
+2026-11-24T03:30:33.7607380Z LTS
+2026-11-24T03:30:33.7607976Z ##[endgroup]
+2026-11-24T03:30:33.7608505Z ##[group]Runner Image
+2026-11-24T03:30:33.7609394Z Image: ubuntu-26.04
+2026-11-24T03:30:33.7609983Z Version: 20261116.202.1
+2026-11-24T03:30:33.7611345Z Included Software: https://github.com/actions/runner-images/blob/ubuntu26/20261116.202/images/ubuntu/Ubuntu2604-Readme.md
+2026-11-24T03:30:33.7612894Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu26%2F20261116.202
+2026-11-24T03:30:33.7613958Z ##[endgroup]
+2026-11-24T03:30:33.7615033Z ##[group]GITHUB_TOKEN Permissions
+2026-11-24T03:30:33.7617254Z Contents: read
+2026-11-24T03:30:33.7617860Z Metadata: read
+2026-11-24T03:30:33.7618482Z ##[endgroup]
+2026-11-24T03:30:33.7620898Z Secret source: Actions
+2026-11-24T03:30:33.7621928Z Cache mode: write
+2026-11-24T03:30:33.7623044Z Prepare workflow directory
+2026-11-24T03:30:33.8032483Z Prepare all required actions
+2026-11-24T03:30:33.8080072Z Getting action download info
+2026-11-24T03:30:34.1120058Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-11-24T03:30:34.2416347Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-11-24T03:30:34.4741737Z Complete job name: e2e-paid (4)
+2026-11-24T03:30:34.5534430Z ##[group]Run actions/checkout@v4
+2026-11-24T03:30:34.5535337Z with:
+2026-11-24T03:30:34.5535801Z   repository: kiumars1199/Kismet
+2026-11-24T03:30:34.5540021Z   token: ***
+2026-11-24T03:30:34.5540469Z   ssh-strict: true
+2026-11-24T03:30:34.5540914Z   ssh-user: git
+2026-11-24T03:30:34.5541370Z   persist-credentials: true
+2026-11-24T03:30:34.5541860Z   clean: true
+2026-11-24T03:30:34.5542306Z   sparse-checkout-cone-mode: true
+2026-11-24T03:30:34.5542827Z   fetch-depth: 1
+2026-11-24T03:30:34.5543259Z   fetch-tags: false
+2026-11-24T03:30:34.5543711Z   show-progress: true
+2026-11-24T03:30:34.5544160Z   lfs: false
+2026-11-24T03:30:34.5544572Z   submodules: false
+2026-11-24T03:30:34.5545022Z   set-safe-directory: true
+2026-11-24T03:30:34.5545532Z   allow-unsafe-pr-checkout: false
+2026-11-24T03:30:34.5546350Z ##[endgroup]
+2026-11-24T03:30:34.8733755Z Syncing repository: kiumars1199/Kismet
+2026-11-24T03:30:34.8735731Z ##[group]Getting Git version info
+2026-11-24T03:30:34.8736750Z Working directory is '/home/runner/work/Kismet/Kismet'
+2026-11-24T03:30:34.8737872Z [command]/usr/bin/git version
+2026-11-24T03:30:34.8771351Z git version 2.56.1
+2026-11-24T03:30:34.8801055Z ##[endgroup]
+2026-11-24T03:30:34.8812496Z Temporarily overriding HOME='/home/runner/work/_temp/2424ef65-54af-408e-ad63-3d0b9cbbfce6' before making global git config changes
+2026-11-24T03:30:34.8815408Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-24T03:30:34.8819304Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Kismet/Kismet
+2026-11-24T03:30:34.8896422Z Deleting the contents of '/home/runner/work/Kismet/Kismet'
+2026-11-24T03:30:34.8900189Z ##[group]Initializing the repository
+2026-11-24T03:30:34.8905044Z [command]/usr/bin/git init /home/runner/work/Kismet/Kismet
+2026-11-24T03:30:34.9038605Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-24T03:30:34.9041311Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-24T03:30:34.9044096Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-24T03:30:34.9045932Z hint: call:
+2026-11-24T03:30:34.9047009Z hint:
+2026-11-24T03:30:34.9048243Z hint: 	git config --global init.defaultBranch <name>
+2026-11-24T03:30:34.9049927Z hint:
+2026-11-24T03:30:34.9051317Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-24T03:30:34.9053378Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-24T03:30:34.9055207Z hint:
+2026-11-24T03:30:34.9056650Z hint: 	git branch -m <name>
+2026-11-24T03:30:34.9057801Z hint:
+2026-11-24T03:30:34.9059394Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-24T03:30:34.9061595Z Initialized empty Git repository in /home/runner/work/Kismet/Kismet/.git/
+2026-11-24T03:30:34.9071036Z [command]/usr/bin/git remote add origin https://github.com/kiumars1199/Kismet
+2026-11-24T03:30:34.9133537Z ##[endgroup]
+2026-11-24T03:30:34.9135064Z ##[group]Disabling automatic garbage collection
+2026-11-24T03:30:34.9136842Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-24T03:30:34.9173824Z ##[endgroup]
+2026-11-24T03:30:34.9175119Z ##[group]Setting up auth
+2026-11-24T03:30:34.9181669Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-24T03:30:34.9217452Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-24T03:30:34.9749828Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-24T03:30:34.9783963Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-24T03:30:35.0055938Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-24T03:30:35.0092452Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-24T03:30:35.0361785Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-24T03:30:35.0402991Z ##[endgroup]
+2026-11-24T03:30:35.0403876Z ##[group]Fetching the repository
+2026-11-24T03:30:35.0416632Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +91dd81152d7df23939733bdd1da337875ef7bacf:refs/remotes/pull/114/merge
+2026-11-24T03:30:41.4850508Z From https://github.com/kiumars1199/Kismet
+2026-11-24T03:30:41.4854166Z  * [new ref]         91dd81152d7df23939733bdd1da337875ef7bacf -> pull/114/merge
+2026-11-24T03:30:41.4859979Z ##[endgroup]
+2026-11-24T03:30:41.4861988Z ##[group]Determining the checkout info
+2026-11-24T03:30:41.4864426Z ##[endgroup]
+2026-11-24T03:30:41.4865959Z [command]/usr/bin/git sparse-checkout disable
+2026-11-24T03:30:41.4928595Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-24T03:30:41.4958417Z ##[group]Checking out the ref
+2026-11-24T03:30:41.4963737Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/114/merge
+2026-11-24T03:30:42.5154378Z Updating files:  86% (1956/2267)
+2026-11-24T03:30:42.5253572Z Updating files:  87% (1973/2267)
+2026-11-24T03:30:42.5372300Z Updating files:  88% (1995/2267)
+2026-11-24T03:30:42.5477451Z Updating files:  89% (2018/2267)
+2026-11-24T03:30:42.5548904Z Updating files:  90% (2041/2267)
+2026-11-24T03:30:42.5635284Z Updating files:  91% (2063/2267)
+2026-11-24T03:30:42.5756321Z Updating files:  92% (2086/2267)
+2026-11-24T03:30:42.5772077Z Updating files:  93% (2109/2267)
+2026-11-24T03:30:42.5791972Z Updating files:  94% (2131/2267)
+2026-11-24T03:30:42.5805084Z Updating files:  95% (2154/2267)
+2026-11-24T03:30:42.5833240Z Updating files:  96% (2177/2267)
+2026-11-24T03:30:42.6387076Z Updating files:  97% (2199/2267)
+2026-11-24T03:30:42.6399248Z Updating files:  98% (2222/2267)
+2026-11-24T03:30:42.6413246Z Updating files:  99% (2245/2267)
+2026-11-24T03:30:42.6413820Z Updating files: 100% (2267/2267)
+2026-11-24T03:30:42.6414306Z Updating files: 100% (2267/2267), done.
+2026-11-24T03:30:42.6439423Z Note: switching to 'refs/remotes/pull/114/merge'.
+2026-11-24T03:30:42.6439923Z 
+2026-11-24T03:30:42.6440258Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-11-24T03:30:42.6440866Z changes and commit them, and you can discard any commits you make in this
+2026-11-24T03:30:42.6441449Z state without impacting any branches by switching back to a branch.
+2026-11-24T03:30:42.6441768Z 
+2026-11-24T03:30:42.6441968Z If you want to create a new branch to retain commits you create, you may
+2026-11-24T03:30:42.6442451Z do so (now or later) by using -c with the switch command. Example:
+2026-11-24T03:30:42.6442911Z 
+2026-11-24T03:30:42.6443120Z   git switch -c <new-branch-name>
+2026-11-24T03:30:42.6443488Z 
+2026-11-24T03:30:42.6443672Z Or undo this operation with:
+2026-11-24T03:30:42.6444004Z 
+2026-11-24T03:30:42.6444158Z   git switch -
+2026-11-24T03:30:42.6444386Z 
+2026-11-24T03:30:42.6444754Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-24T03:30:42.6445315Z 
+2026-11-24T03:30:42.6445927Z HEAD is now at 91dd811 Merge 3668cda61c800a7611159af46ddcb30b5417c871 into 5c27037d124b54983b7fae07b4724a2924db726a
+2026-11-24T03:30:42.6503806Z ##[endgroup]
+2026-11-24T03:30:42.6555648Z [command]/usr/bin/git log -1 --format=%H
+2026-11-24T03:30:42.6582072Z 91dd81152d7df23939733bdd1da337875ef7bacf
+2026-11-24T03:30:42.6924087Z Prepare all required actions
+2026-11-24T03:30:42.6924675Z Getting action download info
+2026-11-24T03:30:42.8195398Z Download action repository 'pnpm/action-setup@v4' (SHA:b906affcce14559ad1aafd4ab0e942779e9f58b1)
+2026-11-24T03:30:43.0368889Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+2026-11-24T03:30:43.1434925Z Download action repository 'actions/cache@v4' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+2026-11-24T03:30:43.2894705Z ##[group]Run ./.github/actions/web-setup
+2026-11-24T03:30:43.2895022Z with:
+2026-11-24T03:30:43.2895231Z   browsers: true
+2026-11-24T03:30:43.2895444Z   webkit-deps: false
+2026-11-24T03:30:43.2895664Z   extension: false
+2026-11-24T03:30:43.2895872Z ##[endgroup]
+2026-11-24T03:30:43.2954693Z ##[start-action display=Run pnpm/action-setup@v4;id=__self.__pnpm_action-setup]
+2026-11-24T03:30:43.3014045Z ##[group]Run pnpm/action-setup@v4
+2026-11-24T03:30:43.3014318Z with:
+2026-11-24T03:30:43.3014578Z   package_json_file: apps/web/package.json
+2026-11-24T03:30:43.3014865Z   dest: ~/setup-pnpm
+2026-11-24T03:30:43.3015082Z   run_install: null
+2026-11-24T03:30:43.3015288Z   cache: false
+2026-11-24T03:30:43.3015506Z   cache_dependency_path: pnpm-lock.yaml
+2026-11-24T03:30:43.3015780Z   standalone: false
+2026-11-24T03:30:43.3015983Z ##[endgroup]
+2026-11-24T03:30:43.4642759Z ##[group]Running self-installer...
+2026-11-24T03:30:44.0450078Z (node:2889) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-24T03:30:44.0452219Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-24T03:30:44.1969548Z Progress: resolved 1, reused 0, downloaded 0, added 0
+2026-11-24T03:30:44.3422981Z Packages: +3
+2026-11-24T03:30:44.3423414Z +++
+2026-11-24T03:30:45.1712466Z Progress: resolved 16, reused 0, downloaded 3, added 3, done
+2026-11-24T03:30:45.1878770Z .../.pnpm/pnpm@12.21.0/node_modules/pnpm preinstall$ node install.js
+2026-11-24T03:30:47.2542033Z .../.pnpm/pnpm@12.21.0/node_modules/pnpm preinstall: Done
+2026-11-24T03:30:47.2546880Z .../.pnpm/pnpm@12.21.0/node_modules/pnpm postinstall$ node install.js
+2026-11-24T03:30:47.3063494Z .../.pnpm/pnpm@12.21.0/node_modules/pnpm postinstall: Done
+2026-11-24T03:30:53.2214213Z 
+2026-11-24T03:30:53.2214660Z dependencies:
+2026-11-24T03:30:53.2215255Z + pnpm 12.21.0 (12.23.0 is available)
+2026-11-24T03:30:53.2215470Z 
+2026-11-24T03:30:53.2241544Z Done in 9.5s
+2026-11-24T03:30:53.2877581Z ##[endgroup]
+2026-11-24T03:30:53.2878086Z Installation Completed!
+2026-11-24T03:30:53.2987032Z ##[end-action id=__self.__pnpm_action-setup;outcome=success;conclusion=success;duration_ms=10003]
+2026-11-24T03:30:53.2990697Z ##[start-action display=Run actions/setup-node@v4;id=__self.__actions_setup-node]
+2026-11-24T03:30:53.3069194Z ##[group]Run actions/setup-node@v4
+2026-11-24T03:30:53.3069466Z with:
+2026-11-24T03:30:53.3069682Z   node-version: 22
+2026-11-24T03:30:53.3069891Z   cache: pnpm
+2026-11-24T03:30:53.3070148Z   cache-dependency-path: apps/web/pnpm-lock.yaml
+2026-11-24T03:30:53.3070462Z   always-auth: false
+2026-11-24T03:30:53.3070688Z   check-latest: false
+2026-11-24T03:30:53.3073478Z   token: ***
+2026-11-24T03:30:53.3073674Z env:
+2026-11-24T03:30:53.3073954Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+2026-11-24T03:30:53.3074274Z ##[endgroup]
+2026-11-24T03:30:53.4540591Z Found in cache @ /opt/hostedtoolcache/node/22.23.5/x64
+2026-11-24T03:30:53.4541646Z (node:2922) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-24T03:30:53.4542368Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-24T03:30:53.4544396Z ##[group]Environment details
+2026-11-24T03:30:53.9052096Z node: v22.23.5
+2026-11-24T03:30:53.9052537Z npm: 10.9.9
+2026-11-24T03:30:53.9052857Z yarn: 1.22.22
+2026-11-24T03:30:53.9054255Z ##[endgroup]
+2026-11-24T03:30:53.9077701Z [command]/home/runner/setup-pnpm/node_modules/.bin/pnpm store path --silent
+2026-11-24T03:30:53.9267650Z /home/runner/setup-pnpm/node_modules/.bin/store/v11
+2026-11-24T03:30:54.1756804Z Cache hit for: node-cache-Linux-x64-pnpm-c77e8fe9f388c56a3b7e0ad757394a8746b2f23493ae1da9583566833e514faf
+2026-11-24T03:30:54.1935176Z (node:2922) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-24T03:30:55.4784921Z Received 8388608 of 193716250 (4.3%), 8.0 MBs/sec
+2026-11-24T03:30:56.4794945Z Received 134217728 of 193716250 (69.3%), 64.0 MBs/sec
+2026-11-24T03:30:57.1962064Z Received 193716250 of 193716250 (100.0%), 68.0 MBs/sec
+2026-11-24T03:30:57.1963272Z Cache Size: ~185 MB (193716250 B)
+2026-11-24T03:30:57.2093665Z [command]/usr/bin/tar -xf /home/runner/work/_temp/39c40084-6c8e-49f7-b613-8f83d8f95fe8/cache.tzst -P -C /home/runner/work/Kismet/Kismet --use-compress-program unzstd
+2026-11-24T03:30:59.5885943Z Cache restored successfully
+2026-11-24T03:30:59.5973903Z Cache restored from key: node-cache-Linux-x64-pnpm-c77e8fe9f388c56a3b7e0ad757394a8746b2f23493ae1da9583566833e514faf
+2026-11-24T03:30:59.6113487Z ##[end-action id=__self.__actions_setup-node;outcome=success;conclusion=success;duration_ms=6312]
+2026-11-24T03:30:59.6116119Z ##[start-action display=Run pnpm i --frozen-lockfile;id=__self.__run]
+2026-11-24T03:30:59.6148691Z ##[group]Run pnpm i --frozen-lockfile
+2026-11-24T03:30:59.6149643Z [36;1mpnpm i --frozen-lockfile[0m
+2026-11-24T03:30:59.6195771Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-24T03:30:59.6196148Z env:
+2026-11-24T03:30:59.6196417Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+2026-11-24T03:30:59.6196747Z ##[endgroup]
+2026-11-24T03:30:59.6882035Z ? Verifying lockfile against supply-chain policies (685 entries)...
+2026-11-24T03:30:59.8889643Z Packages are hard linked from the content-addressable store to the virtual store.
+2026-11-24T03:30:59.8890485Z   Content-addressable store is at: /home/runner/setup-pnpm/node_modules/.bin/store/v11
+2026-11-24T03:30:59.8891867Z   Virtual store is at:             node_modules/.pnpm
+2026-11-24T03:31:03.0567339Z ✓ Lockfile passes supply-chain policies (685 entries in 3.4s)
+2026-11-24T03:31:03.0568383Z Lockfile is up to date, resolution step is skipped
+2026-11-24T03:31:03.0628208Z Packages: +549
+2026-11-24T03:31:03.0629477Z ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+2026-11-24T03:31:03.1080112Z Progress: resolved 549, reused 548, downloaded 0, added 549, done
+2026-11-24T03:31:03.1526338Z 
+2026-11-24T03:31:03.1540804Z dependencies:
+2026-11-24T03:31:03.1541558Z + @modelcontextprotocol/server 2.4.0
+2026-11-24T03:31:03.1542291Z + @sentry/nextjs 11.9.0
+2026-11-24T03:31:03.1543042Z + @supabase/ssr 0.12.7
+2026-11-24T03:31:03.1543686Z + @supabase/supabase-js 2.118.0
+2026-11-24T03:31:03.1544357Z + @tanstack/react-table 8.21.3
+2026-11-24T03:31:03.1545094Z + @tanstack/react-virtual 3.14.26
+2026-11-24T03:31:03.1545730Z + @upstash/ratelimit 2.2.1
+2026-11-24T03:31:03.1546449Z + @upstash/redis 1.41.0
+2026-11-24T03:31:03.1547131Z + botid 1.5.13
+2026-11-24T03:31:03.1547734Z + minisearch 7.2.0
+2026-11-24T03:31:03.1548239Z + next 15.5.29
+2026-11-24T03:31:03.1548747Z + posthog-js 1.440.0
+2026-11-24T03:31:03.1549477Z + qrcode 1.5.4
+2026-11-24T03:31:03.1549967Z + react 19.3.1
+2026-11-24T03:31:03.1550477Z + react-dom 19.3.1
+2026-11-24T03:31:03.1551016Z + recharts 3.10.1
+2026-11-24T03:31:03.1551559Z + server-only 0.0.1
+2026-11-24T03:31:03.1552059Z + stripe 23.1.0
+2026-11-24T03:31:03.1552610Z + web-push 4.0.0
+2026-11-24T03:31:03.1553118Z + zod 4.6.7
+2026-11-24T03:31:03.1553583Z + zustand 5.1.0
+2026-11-24T03:31:03.1553970Z 
+2026-11-24T03:31:03.1554390Z devDependencies:
+2026-11-24T03:31:03.1554972Z + @axe-core/playwright 4.14.0
+2026-11-24T03:31:03.1555715Z + @electric-sql/pglite 0.5.14
+2026-11-24T03:31:03.1556329Z + @eslint/eslintrc 3.3.7
+2026-11-24T03:31:03.1557297Z + @modelcontextprotocol/client 2.4.0
+2026-11-24T03:31:03.1557982Z + @playwright/test 1.65.1
+2026-11-24T03:31:03.1558578Z + @tailwindcss/postcss 4.3.5
+2026-11-24T03:31:03.1559506Z + @testing-library/react 16.3.3
+2026-11-24T03:31:03.1560311Z + @types/node 26.6.6
+2026-11-24T03:31:03.1561042Z + @types/qrcode 1.5.5
+2026-11-24T03:31:03.1561606Z + @types/react 19.3.0
+2026-11-24T03:31:03.1562151Z + @types/react-dom 19.3.0
+2026-11-24T03:31:03.1562864Z + @types/web-push 3.6.4
+2026-11-24T03:31:03.1563645Z + eslint 9.39.5
+2026-11-24T03:31:03.1564555Z + eslint-config-next 15.5.29
+2026-11-24T03:31:03.1565495Z + fast-check 4.10.2
+2026-11-24T03:31:03.1566126Z + jsdom 31.0.1
+2026-11-24T03:31:03.1566905Z + tailwindcss 4.3.5
+2026-11-24T03:31:03.1567714Z + typescript 5.9.3
+2026-11-24T03:31:03.1568467Z + vitest 5.1.0
+2026-11-24T03:31:03.1568911Z 
+2026-11-24T03:31:03.1569604Z Done in 3.5s using pnpm v12.21.0
+2026-11-24T03:31:03.1710131Z ##[end-action id=__self.__run;outcome=success;conclusion=success;duration_ms=3559]
+2026-11-24T03:31:03.1712771Z ##[start-action display=Run pnpm i --frozen-lockfile;id=__self.__run_2]
+2026-11-24T03:31:03.1719333Z ##[end-action id=__self.__run_2;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-24T03:31:03.1721901Z ##[start-action display=Run echo "version=$(pnpm exec playwright --version | awk '{print $NF}')" >> "$GITHUB_OUTPUT";id=__self.pw]
+2026-11-24T03:31:03.1745024Z ##[group]Run echo "version=$(pnpm exec playwright --version | awk '{print $NF}')" >> "$GITHUB_OUTPUT"
+2026-11-24T03:31:03.1745767Z [36;1mecho "version=$(pnpm exec playwright --version | awk '{print $NF}')" >> "$GITHUB_OUTPUT"[0m
+2026-11-24T03:31:03.1780537Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-24T03:31:03.1780897Z env:
+2026-11-24T03:31:03.1781159Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+2026-11-24T03:31:03.1781488Z ##[endgroup]
+2026-11-24T03:31:03.8194251Z ##[end-action id=__self.pw;outcome=success;conclusion=success;duration_ms=647]
+2026-11-24T03:31:03.8201230Z ##[start-action display=Run actions/cache@v4;id=__self.pwcache]
+2026-11-24T03:31:03.8266333Z ##[group]Run actions/cache@v4
+2026-11-24T03:31:03.8266733Z with:
+2026-11-24T03:31:03.8267069Z   path: ~/.cache/ms-playwright
+2026-11-24T03:31:03.8267564Z   key: playwright-Linux-1.65.1-chromium-webkit
+2026-11-24T03:31:03.8268105Z   enableCrossOsArchive: false
+2026-11-24T03:31:03.8268531Z   fail-on-cache-miss: false
+2026-11-24T03:31:03.8268920Z   lookup-only: false
+2026-11-24T03:31:03.8269699Z   save-always: false
+2026-11-24T03:31:03.8270036Z env:
+2026-11-24T03:31:03.8270424Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+2026-11-24T03:31:03.8270938Z ##[endgroup]
+2026-11-24T03:31:03.9408792Z (node:3118) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-24T03:31:03.9410449Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-24T03:31:04.1775699Z Cache hit for: playwright-Linux-1.65.1-chromium-webkit
+2026-11-24T03:31:04.1930274Z (node:3118) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-24T03:31:05.4805135Z Received 8388608 of 400074988 (2.1%), 8.0 MBs/sec
+2026-11-24T03:31:06.4813906Z Received 134217728 of 400074988 (33.5%), 63.9 MBs/sec
+2026-11-24T03:31:07.4860977Z Received 272629760 of 400074988 (68.1%), 86.6 MBs/sec
+2026-11-24T03:31:08.0733490Z Received 400074988 of 400074988 (100.0%), 106.2 MBs/sec
+2026-11-24T03:31:08.0735536Z Cache Size: ~382 MB (400074988 B)
+2026-11-24T03:31:08.0777770Z [command]/usr/bin/tar -xf /home/runner/work/_temp/4603dd80-3439-45de-8327-7bb261eef77d/cache.tzst -P -C /home/runner/work/Kismet/Kismet --use-compress-program unzstd
+2026-11-24T03:31:09.7446042Z Cache restored successfully
+2026-11-24T03:31:09.7691948Z Cache restored from key: playwright-Linux-1.65.1-chromium-webkit
+2026-11-24T03:31:09.7971642Z ##[end-action id=__self.pwcache;outcome=success;conclusion=success;duration_ms=5976]
+2026-11-24T03:31:09.7977388Z ##[start-action display=Run libs="chromium"%3B if [ "false" = "true" %5D%3B then libs="chromium webkit"%3B fi;id=__self.__run_3]
+2026-11-24T03:31:09.8001047Z ##[group]Run libs="chromium"; if [ "false" = "true" ]; then libs="chromium webkit"; fi
+2026-11-24T03:31:09.8001638Z [36;1mlibs="chromium"; if [ "false" = "true" ]; then libs="chromium webkit"; fi[0m
+2026-11-24T03:31:09.8002347Z [36;1mfor i in 1 2 3; do pnpm exec playwright install-deps $libs && exit 0; echo "install-deps try $i failed"; sleep 10; done[0m
+2026-11-24T03:31:09.8002904Z [36;1mexit 1[0m
+2026-11-24T03:31:09.8035570Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-24T03:31:09.8035946Z env:
+2026-11-24T03:31:09.8036218Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+2026-11-24T03:31:09.8036572Z ##[endgroup]
+2026-11-24T03:31:10.3703658Z Installing dependencies...
+2026-11-24T03:31:10.3847285Z Switching to root user to install dependencies...
+2026-11-24T03:31:10.5591283Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+2026-11-24T03:31:10.5705447Z Get:6 https://packages.microsoft.com/ubuntu/26.04/prod resolute InRelease [3964 B]
+2026-11-24T03:31:10.5890975Z Hit:2 http://azure.archive.ubuntu.com/ubuntu resolute InRelease
+2026-11-24T03:31:10.5913696Z Get:3 http://azure.archive.ubuntu.com/ubuntu resolute-updates InRelease [137 kB]
+2026-11-24T03:31:10.6018136Z Get:4 http://azure.archive.ubuntu.com/ubuntu resolute-backports InRelease [137 kB]
+2026-11-24T03:31:10.6106387Z Get:5 http://azure.archive.ubuntu.com/ubuntu resolute-security InRelease [137 kB]
+2026-11-24T03:31:10.6258822Z Get:7 https://packages.microsoft.com/ubuntu/26.04/prod resolute/main arm64 Packages [173 kB]
+2026-11-24T03:31:10.6390786Z Get:8 https://packages.microsoft.com/ubuntu/26.04/prod resolute/main amd64 Packages [186 kB]
+2026-11-24T03:31:10.6670971Z Get:9 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main amd64v3 Packages [914 kB]
+2026-11-24T03:31:10.6830563Z Get:10 http://azure.archive.ubuntu.com/ubuntu resolute-updates/main Translation-en [201 kB]
+2026-11-24T03:31:10.6861599Z Get:11 http://azure.archive.ubuntu.com/ubuntu resolute-updates/universe amd64v3 Packages [394 kB]
+2026-11-24T03:31:10.6863563Z Get:12 http://azure.archive.ubuntu.com/ubuntu resolute-updates/universe Translation-en [124 kB]
+2026-11-24T03:31:10.6865192Z Get:13 http://azure.archive.ubuntu.com/ubuntu resolute-updates/restricted amd64v3 Packages [640 kB]
+2026-11-24T03:31:10.6905748Z Get:14 http://azure.archive.ubuntu.com/ubuntu resolute-updates/restricted Translation-en [132 kB]
+2026-11-24T03:31:10.6982065Z Get:15 http://azure.archive.ubuntu.com/ubuntu resolute-security/main amd64v3 Packages [753 kB]
+2026-11-24T03:31:10.7021832Z Get:16 http://azure.archive.ubuntu.com/ubuntu resolute-security/main Translation-en [162 kB]
+2026-11-24T03:31:10.7047303Z Get:17 http://azure.archive.ubuntu.com/ubuntu resolute-security/universe amd64v3 Packages [224 kB]
+2026-11-24T03:31:10.7058460Z Get:18 http://azure.archive.ubuntu.com/ubuntu resolute-security/universe Translation-en [73.2 kB]
+2026-11-24T03:31:10.7553630Z Get:19 http://azure.archive.ubuntu.com/ubuntu resolute-security/restricted amd64v3 Packages [618 kB]
+2026-11-24T03:31:10.7586456Z Get:20 http://azure.archive.ubuntu.com/ubuntu resolute-security/restricted Translation-en [128 kB]
+2026-11-24T03:31:15.9427741Z Fetched 5139 kB in 0s (11.7 MB/s)
+2026-11-24T03:31:16.6011108Z Reading package lists...
+2026-11-24T03:31:16.6280183Z Reading package lists...
+2026-11-24T03:31:16.7766804Z Building dependency tree...
+2026-11-24T03:31:16.7774558Z Reading state information...
+2026-11-24T03:31:16.8085420Z libasound2t64 is already the newest version (1.2.15.3-1ubuntu1.1).
+2026-11-24T03:31:16.8086147Z libasound2t64 set to manually installed.
+2026-11-24T03:31:16.8086910Z libatk-bridge2.0-0t64 is already the newest version (2.60.4-0ubuntu0.1).
+2026-11-24T03:31:16.8087651Z libatk-bridge2.0-0t64 set to manually installed.
+2026-11-24T03:31:16.8088861Z libatk1.0-0t64 is already the newest version (2.60.4-0ubuntu0.1).
+2026-11-24T03:31:16.8089796Z libatk1.0-0t64 set to manually installed.
+2026-11-24T03:31:16.8090486Z libatspi2.0-0t64 is already the newest version (2.60.4-0ubuntu0.1).
+2026-11-24T03:31:16.8091134Z libatspi2.0-0t64 set to manually installed.
+2026-11-24T03:31:16.8091717Z libcairo2 is already the newest version (1.18.4-3).
+2026-11-24T03:31:16.8092267Z libcairo2 set to manually installed.
+2026-11-24T03:31:16.8092920Z libcups2t64 is already the newest version (2.4.16-1ubuntu1.3).
+2026-11-24T03:31:16.8093563Z libcups2t64 set to manually installed.
+2026-11-24T03:31:16.8094180Z libdbus-1-3 is already the newest version (1.16.2-2ubuntu4).
+2026-11-24T03:31:16.8094778Z libdbus-1-3 set to manually installed.
+2026-11-24T03:31:16.8095335Z libdrm2 is already the newest version (2.4.131-1).
+2026-11-24T03:31:16.8095876Z libdrm2 set to manually installed.
+2026-11-24T03:31:16.8096464Z libgbm1 is already the newest version (26.0.8-1ubuntu0.3).
+2026-11-24T03:31:16.8097049Z libgbm1 set to manually installed.
+2026-11-24T03:31:16.8097687Z libglib2.0-0t64 is already the newest version (2.88.0-1ubuntu0.1).
+2026-11-24T03:31:16.8098341Z libglib2.0-0t64 set to manually installed.
+2026-11-24T03:31:16.8099171Z libnspr4 is already the newest version (2:4.38.2-1ubuntu1).
+2026-11-24T03:31:16.8099817Z libnspr4 set to manually installed.
+2026-11-24T03:31:16.8100410Z libnss3 is already the newest version (2:3.120-1ubuntu2.2).
+2026-11-24T03:31:16.8101012Z libnss3 set to manually installed.
+2026-11-24T03:31:16.8101613Z libpango-1.0-0 is already the newest version (1.57.0-1).
+2026-11-24T03:31:16.8102205Z libpango-1.0-0 set to manually installed.
+2026-11-24T03:31:16.8102836Z libx11-6 is already the newest version (2:1.8.13-1ubuntu0.1).
+2026-11-24T03:31:16.8103415Z libx11-6 set to manually installed.
+2026-11-24T03:31:16.8103978Z libxcb1 is already the newest version (1.17.0-2ubuntu1).
+2026-11-24T03:31:16.8104541Z libxcb1 set to manually installed.
+2026-11-24T03:31:16.8105164Z libxcomposite1 is already the newest version (1:0.4.6-1build1).
+2026-11-24T03:31:16.8105802Z libxcomposite1 set to manually installed.
+2026-11-24T03:31:16.8106401Z libxdamage1 is already the newest version (1:1.1.7-1).
+2026-11-24T03:31:16.8106962Z libxdamage1 set to manually installed.
+2026-11-24T03:31:16.8107578Z libxext6 is already the newest version (2:1.3.4-1build3).
+2026-11-24T03:31:16.8108143Z libxext6 set to manually installed.
+2026-11-24T03:31:16.8108748Z libxfixes3 is already the newest version (1:6.0.0-2build2).
+2026-11-24T03:31:16.8109733Z libxfixes3 set to manually installed.
+2026-11-24T03:31:16.8110318Z libxkbcommon0 is already the newest version (1.13.1-1).
+2026-11-24T03:31:16.8110900Z libxkbcommon0 set to manually installed.
+2026-11-24T03:31:16.8111522Z libxrandr2 is already the newest version (2:1.5.4-1build1).
+2026-11-24T03:31:16.8112111Z libxrandr2 set to manually installed.
+2026-11-24T03:31:16.8112697Z xvfb is already the newest version (2:21.1.22-1ubuntu1.3).
+2026-11-24T03:31:16.8113464Z fonts-noto-color-emoji is already the newest version (2.051-1build1).
+2026-11-24T03:31:16.8114259Z libfontconfig1 is already the newest version (2.17.1-3ubuntu1).
+2026-11-24T03:31:16.8114897Z libfontconfig1 set to manually installed.
+2026-11-24T03:31:16.8115576Z libfreetype6 is already the newest version (2.14.2+dfsg-1ubuntu0.2).
+2026-11-24T03:31:16.8116225Z libfreetype6 set to manually installed.
+2026-11-24T03:31:16.8116894Z fonts-liberation is already the newest version (1:2.1.5-3build1).
+2026-11-24T03:31:16.8117558Z fonts-liberation set to manually installed.
+2026-11-24T03:31:16.8623078Z Solving dependencies...
+2026-11-24T03:31:16.9439477Z The following additional packages will be installed:
+2026-11-24T03:31:16.9440190Z   xfonts-encodings xfonts-utils
+2026-11-24T03:31:16.9448017Z Recommended packages:
+2026-11-24T03:31:16.9448490Z   fonts-ipafont-mincho fonts-tlwg-loma
+2026-11-24T03:31:16.9741922Z The following NEW packages will be installed:
+2026-11-24T03:31:16.9743461Z   fonts-freefont-ttf fonts-ipafont-gothic fonts-tlwg-loma-otf fonts-unifont
+2026-11-24T03:31:16.9748133Z   fonts-wqy-zenhei xfonts-cyrillic xfonts-encodings xfonts-scalable
+2026-11-24T03:31:16.9749258Z   xfonts-utils
+2026-11-24T03:31:16.9955473Z 0 upgraded, 9 newly installed, 0 to remove and 57 not upgraded.
+2026-11-24T03:31:16.9956085Z Need to get 21.9 MB of archives.
+2026-11-24T03:31:16.9956567Z After this operation, 80.2 MB of additional disk space will be used.
+2026-11-24T03:31:16.9957097Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+2026-11-24T03:31:17.2268425Z Get:2 http://azure.archive.ubuntu.com/ubuntu resolute/universe amd64v3 fonts-ipafont-gothic all 00303-23ubuntu1 [3703 kB]
+2026-11-24T03:31:17.3813937Z Get:3 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 fonts-freefont-ttf all 20211204+svn4273-4build1 [5656 kB]
+2026-11-24T03:31:17.5807477Z Get:4 http://azure.archive.ubuntu.com/ubuntu resolute/universe amd64v3 fonts-tlwg-loma-otf all 1:0.7.3-1build1 [106 kB]
+2026-11-24T03:31:17.6542836Z Get:5 http://azure.archive.ubuntu.com/ubuntu resolute/universe amd64v3 fonts-unifont all 1:16.0.04-1build1 [3169 kB]
+2026-11-24T03:31:17.7973528Z Get:6 http://azure.archive.ubuntu.com/ubuntu resolute/universe amd64v3 fonts-wqy-zenhei all 0.9.45-8build1 [7863 kB]
+2026-11-24T03:31:18.0462705Z Get:7 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 xfonts-encodings all 1:1.0.5-0ubuntu3 [576 kB]
+2026-11-24T03:31:18.1302275Z Get:8 http://azure.archive.ubuntu.com/ubuntu resolute/main amd64v3 xfonts-utils amd64 1:7.7+7build1 [97.3 kB]
+2026-11-24T03:31:18.2032259Z Get:9 http://azure.archive.ubuntu.com/ubuntu resolute/universe amd64v3 xfonts-cyrillic all 1:1.0.5+nmu1build1 [384 kB]
+2026-11-24T03:31:18.2888756Z Get:10 http://azure.archive.ubuntu.com/ubuntu resolute/universe amd64v3 xfonts-scalable all 1:1.0.3-1.3build1 [304 kB]
+2026-11-24T03:31:19.0545694Z Fetched 21.9 MB in 1s (16.7 MB/s)
+2026-11-24T03:31:19.0892304Z Selecting previously unselected package fonts-ipafont-gothic.
+2026-11-24T03:31:19.1538358Z (Reading database ... 
+2026-11-24T03:31:19.1538883Z (Reading database ... 5%
+2026-11-24T03:31:19.1539558Z (Reading database ... 10%
+2026-11-24T03:31:19.1539927Z (Reading database ... 15%
+2026-11-24T03:31:19.1540210Z (Reading database ... 20%
+2026-11-24T03:31:19.1540631Z (Reading database ... 25%
+2026-11-24T03:31:19.1541133Z (Reading database ... 30%
+2026-11-24T03:31:19.1541612Z (Reading database ... 35%
+2026-11-24T03:31:19.1542069Z (Reading database ... 40%
+2026-11-24T03:31:19.1542501Z (Reading database ... 45%
+2026-11-24T03:31:19.1543118Z (Reading database ... 50%
+2026-11-24T03:31:19.3082725Z (Reading database ... 55%
+2026-11-24T03:31:19.4164072Z (Reading database ... 60%
+2026-11-24T03:31:19.5040041Z (Reading database ... 65%
+2026-11-24T03:31:19.5813035Z (Reading database ... 70%
+2026-11-24T03:31:19.7237269Z (Reading database ... 75%
+2026-11-24T03:31:20.2652554Z (Reading database ... 80%
+2026-11-24T03:31:20.8468231Z (Reading database ... 85%
+2026-11-24T03:31:21.4271065Z (Reading database ... 90%
+2026-11-24T03:31:22.0200562Z (Reading database ... 95%
+2026-11-24T03:31:22.0201101Z (Reading database ... 100%
+2026-11-24T03:31:22.0201608Z (Reading database ... 214296 files and directories currently installed.)
+2026-11-24T03:31:22.0242650Z Preparing to unpack .../0-fonts-ipafont-gothic_00303-23ubuntu1_all.deb ...
+2026-11-24T03:31:22.0337624Z Unpacking fonts-ipafont-gothic (00303-23ubuntu1) ...
+2026-11-24T03:31:22.1165484Z Selecting previously unselected package fonts-freefont-ttf.
+2026-11-24T03:31:22.1302518Z Preparing to unpack .../1-fonts-freefont-ttf_20211204+svn4273-4build1_all.deb ...
+2026-11-24T03:31:22.1312904Z Unpacking fonts-freefont-ttf (20211204+svn4273-4build1) ...
+2026-11-24T03:31:22.2206502Z Selecting previously unselected package fonts-tlwg-loma-otf.
+2026-11-24T03:31:22.2344399Z Preparing to unpack .../2-fonts-tlwg-loma-otf_1%3a0.7.3-1build1_all.deb ...
+2026-11-24T03:31:22.2350600Z Unpacking fonts-tlwg-loma-otf (1:0.7.3-1build1) ...
+2026-11-24T03:31:22.2567941Z Selecting previously unselected package fonts-unifont.
+2026-11-24T03:31:22.2704793Z Preparing to unpack .../3-fonts-unifont_1%3a16.0.04-1build1_all.deb ...
+2026-11-24T03:31:22.2710592Z Unpacking fonts-unifont (1:16.0.04-1build1) ...
+2026-11-24T03:31:22.3812923Z Selecting previously unselected package fonts-wqy-zenhei.
+2026-11-24T03:31:22.3950507Z Preparing to unpack .../4-fonts-wqy-zenhei_0.9.45-8build1_all.deb ...
+2026-11-24T03:31:22.4135368Z Unpacking fonts-wqy-zenhei (0.9.45-8build1) ...
+2026-11-24T03:31:22.5097301Z Selecting previously unselected package xfonts-encodings.
+2026-11-24T03:31:22.5234030Z Preparing to unpack .../5-xfonts-encodings_1%3a1.0.5-0ubuntu3_all.deb ...
+2026-11-24T03:31:22.5239963Z Unpacking xfonts-encodings (1:1.0.5-0ubuntu3) ...
+2026-11-24T03:31:22.5639788Z Selecting previously unselected package xfonts-utils.
+2026-11-24T03:31:22.5777037Z Preparing to unpack .../6-xfonts-utils_1%3a7.7+7build1_amd64v3.deb ...
+2026-11-24T03:31:22.5785181Z Unpacking xfonts-utils (1:7.7+7build1) ...
+2026-11-24T03:31:22.6340324Z Selecting previously unselected package xfonts-cyrillic.
+2026-11-24T03:31:22.6477578Z Preparing to unpack .../7-xfonts-cyrillic_1%3a1.0.5+nmu1build1_all.deb ...
+2026-11-24T03:31:22.6496365Z Unpacking xfonts-cyrillic (1:1.0.5+nmu1build1) ...
+2026-11-24T03:31:22.6817836Z Selecting previously unselected package xfonts-scalable.
+2026-11-24T03:31:22.6956060Z Preparing to unpack .../8-xfonts-scalable_1%3a1.0.3-1.3build1_all.deb ...
+2026-11-24T03:31:22.6961853Z Unpacking xfonts-scalable (1:1.0.3-1.3build1) ...
+2026-11-24T03:31:22.7392820Z Setting up fonts-wqy-zenhei (0.9.45-8build1) ...
+2026-11-24T03:31:22.7541189Z Setting up fonts-freefont-ttf (20211204+svn4273-4build1) ...
+2026-11-24T03:31:22.7557864Z Setting up fonts-tlwg-loma-otf (1:0.7.3-1build1) ...
+2026-11-24T03:31:22.7574343Z Setting up xfonts-encodings (1:1.0.5-0ubuntu3) ...
+2026-11-24T03:31:22.7593613Z Setting up fonts-ipafont-gothic (00303-23ubuntu1) ...
+2026-11-24T03:31:22.7653631Z update-alternatives: using /usr/share/fonts/opentype/ipafont-gothic/ipag.ttf to provide /usr/share/fonts/truetype/fonts-japanese-gothic.ttf (fonts-japanese-gothic.ttf) in auto mode
+2026-11-24T03:31:22.7667148Z Setting up fonts-unifont (1:16.0.04-1build1) ...
+2026-11-24T03:31:22.7684758Z Setting up xfonts-utils (1:7.7+7build1) ...
+2026-11-24T03:31:22.7736105Z Setting up xfonts-cyrillic (1:1.0.5+nmu1build1) ...
+2026-11-24T03:31:22.8520442Z Setting up xfonts-scalable (1:1.0.3-1.3build1) ...
+2026-11-24T03:31:22.8924104Z Processing triggers for man-db (2.13.1-1build1) ...
+2026-11-24T03:31:22.8994423Z Not building database; man-db/auto-update is not 'true'.
+2026-11-24T03:31:22.9006605Z Processing triggers for fontconfig (2.17.1-3ubuntu1) ...
+2026-11-24T03:31:24.3648442Z 
+2026-11-24T03:31:24.3649365Z Running kernel seems to be up-to-date.
+2026-11-24T03:31:24.3649957Z 
+2026-11-24T03:31:24.3650127Z Restarting services...
+2026-11-24T03:31:24.3743929Z 
+2026-11-24T03:31:24.3744477Z Service restarts being deferred:
+2026-11-24T03:31:24.3748618Z  systemctl restart hosted-compute-agent.service
+2026-11-24T03:31:24.3748922Z 
+2026-11-24T03:31:24.3749799Z No containers need to be restarted.
+2026-11-24T03:31:24.3750139Z 
+2026-11-24T03:31:24.3750343Z No user sessions are running outdated binaries.
+2026-11-24T03:31:24.3750585Z 
+2026-11-24T03:31:24.3750888Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+2026-11-24T03:31:25.2384164Z ##[end-action id=__self.__run_3;outcome=success;conclusion=success;duration_ms=15440]
+2026-11-24T03:31:25.2387794Z ##[start-action display=Run pnpm exec playwright install chromium webkit;id=__self.__run_4]
+2026-11-24T03:31:25.2418943Z ##[end-action id=__self.__run_4;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-24T03:31:25.2458548Z ##[group]Run free -m
+2026-11-24T03:31:25.2458889Z [36;1mfree -m[0m
+2026-11-24T03:31:25.2459749Z [36;1mnode -p 'Math.round(require("v8").getHeapStatistics().heap_size_limit / 2 ** 20) + " MB default heap limit"'[0m
+2026-11-24T03:31:25.2493208Z shell: /usr/bin/bash -e {0}
+2026-11-24T03:31:25.2493481Z env:
+2026-11-24T03:31:25.2493767Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+2026-11-24T03:31:25.2494117Z ##[endgroup]
+2026-11-24T03:31:25.2561441Z                total        used        free      shared  buff/cache   available
+2026-11-24T03:31:25.2562051Z Mem:           15983        1374       10572          46        4427       14608
+2026-11-24T03:31:25.2562603Z Swap:           3071           0        3071
+2026-11-24T03:31:25.2834162Z 4144 MB default heap limit
+2026-11-24T03:31:25.2905006Z ##[group]Run pnpm e2e:paid --project=chromium --shard=4/4
+2026-11-24T03:31:25.2905504Z [36;1mpnpm e2e:paid --project=chromium --shard=4/4[0m
+2026-11-24T03:31:25.2938614Z shell: /usr/bin/bash -e {0}
+2026-11-24T03:31:25.2938879Z env:
+2026-11-24T03:31:25.2939388Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+2026-11-24T03:31:25.2939719Z ##[endgroup]
+2026-11-24T03:31:25.3327109Z $ playwright test -c playwright.paid.config.ts --project=chromium --shard=4/4
+2026-11-24T03:31:29.2315685Z 
+2026-11-24T03:31:29.2324017Z Running 22 tests using 1 worker, shard 4 of 4
+2026-11-24T03:31:36.1821502Z [WebServer] <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (114kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+2026-11-24T03:31:36.1861107Z [WebServer] <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (268kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+2026-11-24T03:31:56.4821051Z [WebServer] [abuse] UPSTASH_REDIS_REST_URL/TOKEN not set: rate limits are OFF (dev / demo only)
+2026-11-24T03:32:00.7867752Z [WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+2026-11-24T03:32:55.2710292Z [WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+2026-11-24T03:33:04.7353581Z [WebServer]  ⨯ [Error: aborted]
+2026-11-24T03:33:12.9570544Z [WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+2026-11-24T03:33:45.7700988Z [WebServer]  ⨯ [Error: aborted]
+2026-11-24T03:33:47.3421107Z [WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+2026-11-24T03:33:55.8638006Z [WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+2026-11-24T03:34:02.2036654Z ·····CLS onboarding step 1 at 390px: 0.0000
+2026-11-24T03:34:03.8028649Z [WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+2026-11-24T03:34:13.9286139Z [WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+2026-11-24T03:34:20.2493326Z ··CLS onboarding step 1 at 1440px: 0.0007
+2026-11-24T03:34:21.7608374Z [WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+2026-11-24T03:34:28.7996523Z ·first screen at 390px: CLS 0.0000
+2026-11-24T03:34:30.7552051Z [WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+2026-11-24T03:34:38.3780847Z [WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+2026-11-24T03:35:45.9994740Z [WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+2026-11-24T03:36:25.4334861Z [WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+2026-11-24T03:38:09.0066441Z [WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+2026-11-24T03:38:27.9353900Z ··F···limit box CLS at 390px: 0.0000
+2026-11-24T03:38:37.2009645Z limit box CLS at 1440px: 0.0000
+2026-11-24T03:38:40.8706437Z ·header signed out at 768px: link hidden, height 69 (final 69), search null (final null), nav clipped false
+2026-11-24T03:38:42.3366906Z header signed out at 1024px: link hidden, height 64 (final 64), search null (final null), nav clipped false
+2026-11-24T03:38:43.4791146Z header signed out at 1100px: link hidden, height 64 (final 64), search null (final null), nav clipped false
+2026-11-24T03:38:44.6306148Z header signed out at 1280px: link hidden, height 64 (final 64), search null (final null), nav clipped false
+2026-11-24T03:38:45.7933864Z header signed out at 1440px: link shown, height 64 (final 64), search null (final null), nav clipped false
+2026-11-24T03:38:47.4986018Z [WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+2026-11-24T03:38:55.2801106Z header free at 768px: link hidden, height 125 (final 125), search 340 (final 340), nav clipped false
+2026-11-24T03:38:58.6310681Z header free at 1024px: link hidden, height 64 (final 64), search 184 (final 184), nav clipped false
+2026-11-24T03:39:01.7633858Z header free at 1100px: link hidden, height 64 (final 64), search 260 (final 260), nav clipped false
+2026-11-24T03:39:05.2271427Z header free at 1280px: link hidden, height 64 (final 64), search 294 (final 294), nav clipped false
+2026-11-24T03:39:09.6250937Z header free at 1440px: link shown, height 64 (final 64), search 340 (final 340), nav clipped false
+2026-11-24T03:39:34.2995792Z header pro at 768px: link hidden, height 125 (final 125), search 340 (final 340), nav clipped false
+2026-11-24T03:39:37.5583885Z header pro at 1024px: link hidden, height 64 (final 64), search 184 (final 184), nav clipped false
+2026-11-24T03:39:41.1109630Z header pro at 1100px: link hidden, height 64 (final 64), search 260 (final 260), nav clipped false
+2026-11-24T03:39:46.5661032Z header pro at 1280px: link hidden, height 64 (final 64), search 294 (final 294), nav clipped false
+2026-11-24T03:39:50.1516442Z header pro at 1440px: link shown, height 64 (final 64), search 340 (final 340), nav clipped false
+2026-11-24T03:39:54.4644054Z header premium at 768px: link hidden, height 125 (final 125), search 340 (final 340), nav clipped false
+2026-11-24T03:39:57.6878569Z header premium at 1024px: link hidden, height 64 (final 64), search 113 (final 113), nav clipped false
+2026-11-24T03:40:01.0644651Z header premium at 1100px: link hidden, height 64 (final 64), search 189 (final 189), nav clipped false
+2026-11-24T03:40:04.5723158Z header premium at 1280px: link hidden, height 64 (final 64), search 211 (final 211), nav clipped false
+2026-11-24T03:40:08.2530544Z header premium at 1440px: link shown, height 64 (final 64), search 262 (final 340), nav clipped false
+2026-11-24T03:40:10.5330614Z [WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+2026-11-24T03:41:31.4734264Z ·T-89c Free CLS at 390px, worst of 5: first 0.0000, 2nd 0.0089, scoring 0.0000
+2026-11-24T03:42:23.2663634Z T-89c Free CLS at 1440px, worst of 5: first 0.0007, 2nd 0.0097, scoring 0.0000
+2026-11-24T03:42:24.8904749Z [WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+2026-11-24T03:42:41.7360375Z [WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+2026-11-24T03:43:10.7805133Z [WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+2026-11-24T03:44:02.6741404Z ···CLS /check/combo with the tray at 1440px: 0.0016
+2026-11-24T03:44:03.5201148Z tray 66% / 2.7x, checker 66% / 2.72x
+2026-11-24T03:44:05.1836494Z [WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+2026-11-24T03:44:21.8642851Z [WebServer] [lifecycle] first sign-in hook failed: UNSUBSCRIBE_SECRET is not set
+2026-11-24T03:44:43.3748897Z ··button -356--312, tray 706-776
+2026-11-24T03:44:43.3762064Z CLS /check/combo with the tray at 390px: 0.0000
+2026-11-24T03:44:44.1967170Z ·
+2026-11-24T03:44:44.1974788Z 
+2026-11-24T03:44:44.1984732Z   1) [chromium] › e2e-paid/wt2b-topic-no-bets.spec.ts:56:3 › new Free user, only topic has no best bets today, at 1440px: 10 cards under a matching h1, honest filter bar, pill kept, tour over a card, CLS < 0.1 
+2026-11-24T03:44:44.1986165Z 
+2026-11-24T03:44:44.1986599Z     TimeoutError: page.waitForURL: Timeout 60000ms exceeded.
+2026-11-24T03:44:44.1987392Z     =========================== logs ===========================
+2026-11-24T03:44:44.1988095Z     waiting for navigation until "load"
+2026-11-24T03:44:44.1988856Z       navigated to "http://localhost:3100/?view=flags"
+2026-11-24T03:44:44.1989776Z     ============================================================
+2026-11-24T03:44:44.1990181Z 
+2026-11-24T03:44:44.1990446Z       63 |     await setTopics(page, topic!);
+2026-11-24T03:44:44.1991531Z       64 |     await page.getByRole("button", { name: "Skip setup" }).click();   // finishing lands on Best bets filtered to the chosen topics
+2026-11-24T03:44:44.1992816Z     > 65 |     await page.waitForURL(/fav=1/, { timeout: 60_000 });
+2026-11-24T03:44:44.1993456Z          |                ^
+2026-11-24T03:44:44.1993881Z       66 |
+2026-11-24T03:44:44.1995083Z       67 |     const h1 = page.getByRole("heading", { level: 1 });
+2026-11-24T03:44:44.1996385Z       68 |     await expect(h1).toHaveText(/^No best bets in .+ today\. Here are today's free bets\.$/, { timeout: 60_000 });
+2026-11-24T03:44:44.1997807Z         at /home/runner/work/Kismet/Kismet/apps/web/e2e-paid/wt2b-topic-no-bets.spec.ts:65:16
+2026-11-24T03:44:44.1998513Z 
+2026-11-24T03:44:44.1999675Z     Error Context: test-results/wt2b-topic-no-bets-new-Fre-eefc1-pt-tour-over-a-card-CLS-0-1-chromium/error-context.md
+2026-11-24T03:44:44.2000641Z 
+2026-11-24T03:44:44.2001272Z   Slow test file: [chromium] › e2e-paid/wt3-combo-entry.spec.ts (7.3m)
+2026-11-24T03:44:44.2002584Z   Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+2026-11-24T03:44:44.2003517Z   1 failed
+2026-11-24T03:44:44.2005285Z     [chromium] › e2e-paid/wt2b-topic-no-bets.spec.ts:56:3 › new Free user, only topic has no best bets today, at 1440px: 10 cards under a matching h1, honest filter bar, pill kept, tour over a card, CLS < 0.1 
+2026-11-24T03:44:44.2006461Z   21 passed (13.3m)
+2026-11-24T03:44:44.2156325Z [ELIFECYCLE] Command failed with exit code 1.
+2026-11-24T03:44:44.2202909Z ##[error]Process completed with exit code 1.
+2026-11-24T03:44:44.2302249Z ##[group]Run actions/upload-artifact@v4
+2026-11-24T03:44:44.2302594Z with:
+2026-11-24T03:44:44.2302824Z   name: playwright-report-paid-4
+2026-11-24T03:44:44.2303124Z   path: apps/web/test-results/
+2026-11-24T03:44:44.2303386Z   retention-days: 7
+2026-11-24T03:44:44.2303609Z   if-no-files-found: warn
+2026-11-24T03:44:44.2303852Z   compression-level: 6
+2026-11-24T03:44:44.2304079Z   overwrite: false
+2026-11-24T03:44:44.2304303Z   include-hidden-files: false
+2026-11-24T03:44:44.2304547Z env:
+2026-11-24T03:44:44.2304798Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+2026-11-24T03:44:44.2305142Z ##[endgroup]
+2026-11-24T03:44:44.4000998Z (node:8749) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-24T03:44:44.4001878Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-24T03:44:44.4093817Z With the provided path, there will be 15 files uploaded
+2026-11-24T03:44:44.4098052Z Artifact name is valid!
+2026-11-24T03:44:44.4098837Z Root directory input is valid!
+2026-11-24T03:44:44.7978244Z Beginning upload of artifact content to blob storage
+2026-11-24T03:44:44.8926113Z (node:8749) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-24T03:44:45.5292091Z Uploaded bytes 441743
+2026-11-24T03:44:45.6082204Z Finished uploading artifact content to blob storage!
+2026-11-24T03:44:45.6083291Z SHA256 digest of uploaded artifact zip is 694a21a8ed2798fb99c3ee1ebc699b4dbd48571114f56c759efb38d07fae3f9d
+2026-11-24T03:44:45.6084824Z Finalizing artifact upload
+2026-11-24T03:44:46.0047773Z Artifact playwright-report-paid-4.zip successfully finalized. Artifact ID 14887179125
+2026-11-24T03:44:46.0049188Z Artifact playwright-report-paid-4 has been successfully uploaded! Final size is 441743 bytes. Artifact ID is 14887179125
+2026-11-24T03:44:46.0056924Z Artifact download URL: https://github.com/kiumars1199/Kismet/actions/runs/45319990283/artifacts/14887179125
+2026-11-24T03:44:46.0293865Z Post job cleanup.
+2026-11-24T03:44:46.0298517Z ##[start-action display=Run actions/cache@v4;id=__1f9f402a-55bd-4745-bda0-574932b20e03.pwcache]
+2026-11-24T03:44:46.0301192Z ##[end-action id=__1f9f402a-55bd-4745-bda0-574932b20e03.pwcache;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-24T03:44:46.0303332Z ##[start-action display=Run actions/setup-node@v4;id=__1f9f402a-55bd-4745-bda0-574932b20e03.__actions_setup-node]
+2026-11-24T03:44:46.0305446Z ##[end-action id=__1f9f402a-55bd-4745-bda0-574932b20e03.__actions_setup-node;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-24T03:44:46.0307578Z ##[start-action display=Run pnpm/action-setup@v4;id=__1f9f402a-55bd-4745-bda0-574932b20e03.__pnpm_action-setup]
+2026-11-24T03:44:46.0341203Z Post job cleanup.
+2026-11-24T03:44:46.1864400Z Pruning is unnecessary.
+2026-11-24T03:44:46.1997157Z ##[end-action id=__1f9f402a-55bd-4745-bda0-574932b20e03.__pnpm_action-setup;outcome=success;conclusion=success;duration_ms=168]
+2026-11-24T03:44:46.2104543Z Post job cleanup.
+2026-11-24T03:44:46.3194053Z [command]/usr/bin/git version
+2026-11-24T03:44:46.3242859Z git version 2.56.1
+2026-11-24T03:44:46.3291682Z Temporarily overriding HOME='/home/runner/work/_temp/161992b4-10f4-47bc-9e5a-a42a09001e40' before making global git config changes
+2026-11-24T03:44:46.3293236Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-24T03:44:46.3297114Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Kismet/Kismet
+2026-11-24T03:44:46.3342711Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-24T03:44:46.3379564Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-24T03:44:46.3700328Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-24T03:44:46.3726667Z http.https://github.com/.extraheader
+2026-11-24T03:44:46.3738709Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-24T03:44:46.3776047Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-24T03:44:46.4133914Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-24T03:44:46.4179602Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-24T03:44:46.4622757Z Cleaning up orphan processes
+2026-11-24T03:44:46.5152863Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/setup-node@v4, actions/upload-artifact@v4, pnpm/action-setup@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

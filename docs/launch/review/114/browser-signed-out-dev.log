@@ -1,0 +1,17 @@
+3394 signed-out 390 /m/7062032 200 {"title":"Will the highest temperature in New York City be between 56-57°F on November 17? · Kismet","h1":"Will the highest temperature in New York City be between 56-57°F on November 17?","disc":true,"cents":false,"cls":0,"hscroll":false,"og":"Will the highest temperature in New York City be between 56-57°F on November 17?","desc":"Kismet has a verdict on this market. Sign up free to see it. Market analytics, n","main":"Home Will the highest temperature in New York City be between 56-57°F on November 17? WEATHER & CLIMATE Will the highest temperature in New York City be between"}
+3394 signed-out 390 /m/6674492 200 {"title":"Denmark vs. Norway: Both Teams to Score · Kismet","h1":"Denmark vs. Norway: Both Teams to Score","disc":true,"cents":false,"cls":0,"hscroll":false,"og":"Denmark vs. Norway: Both Teams to Score","desc":"Kismet has a verdict on this market. Sign up free to see it. Market analytics, n","main":"Home Denmark vs. Norway: Both Teams to Score SPORTS Denmark vs. Norway: Both Teams to Score Closed · Nov 17, 2026, 7:45 PM UTC Market price: Yes 68% Kismet has "}
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+page.goto: Page crashed
+Call log:
+[2m  - navigating to "http://localhost:3394/m/7062032", waiting until "load"[22m
+
+    at /tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/probe/p114.mjs:25:23 {
+  log: [
+    '  - navigating to "http://localhost:3394/m/7062032", waiting until "load"'
+  ]
+}
+
+Node.js v22.23.5
