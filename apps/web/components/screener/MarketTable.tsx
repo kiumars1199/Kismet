@@ -8,6 +8,7 @@ import Link from "next/link";
 import { createColumnHelper, flexRender, getCoreRowModel, useReactTable, type ColumnDef, type VisibilityState } from "@tanstack/react-table";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import type { ApiGroup, ApiRow } from "@/lib/api";
 import type { SortKey } from "@/lib/filters/state";
 import type { FilterState } from "@/lib/filters/state";
@@ -212,7 +213,7 @@ export function MarketTable({ items, sort, onSort, onToggleGroup, pro = false, l
                   {hd.id === "star" ? (
                     <ColumnChooser cols={table.getAllLeafColumns().map((c) => ({ id: c.id, label: (c.columnDef as Col).meta?.label ?? c.id, pro: !!(c.columnDef as Col).meta?.pro, on: c.getIsVisible(), toggle: () => c.toggleVisibility() }))} />
                   ) : meta?.sort ? (
-                    <button type="button" onClick={() => sortBy(meta.sort)} title={meta.help} className={`inline-flex min-h-8 items-center gap-1 whitespace-nowrap hover:text-text ${active ? "text-text" : ""}`}>
+                    <button type="button" onClick={() => sortBy(meta.sort)} title={meta.help} className={`inline-flex min-h-11 -my-2 items-center gap-1 whitespace-nowrap hover:text-text ${active ? "text-text" : ""}`}>
                       {flexRender(hd.column.columnDef.header, hd.getContext())}
                       <span aria-hidden="true" className={active ? "text-accent" : "opacity-40"}>{active ? (sort.dir === "asc" ? "↑" : "↓") : "↕"}</span>
                     </button>
@@ -287,23 +288,75 @@ export function MarketTable({ items, sort, onSort, onToggleGroup, pro = false, l
 
 function ColumnChooser({ cols }: { cols: { id: string; label: string; pro: boolean; on: boolean; toggle: () => void }[] }) {
   const pick = cols.filter((c) => c.id !== "market" && c.id !== "star");
+  // The menu is a fixed-position panel in <body>, not a child of the table: the table sits in an overflow box (below xl, or with extra columns)
+  // that clipped an upward menu and grew when a downward one ran past its edge. Placed from the button's rect and clamped to the screen
+  // (under the 64 px top bar, above the bottom): downward when there is room, else upward, capped at the room on its side; the rows scroll
+  // inside. Measured on the opening click, when it mounts, and once per frame on scroll and resize while it is open.
+  const btn = useRef<HTMLButtonElement>(null);
+  const panel = useRef<HTMLDivElement>(null);
+  const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState<{ left: number; top?: number; bottom?: number; maxHeight: number } | null>(null);
+  const measure = () => {
+    const r = btn.current?.getBoundingClientRect();
+    if (!r) return;
+    const vh = window.innerHeight, minTop = 68;
+    const below = vh - Math.max(r.bottom, minTop) - 16, above = Math.max(r.top, minTop) - minTop - 4;
+    const up = below < 260 && above > below;
+    const left = Math.min(Math.max(8, r.left), Math.max(8, window.innerWidth - 256 - 8));
+    const next = up
+      ? { left, bottom: vh - Math.max(r.top, minTop) + 4, maxHeight: Math.max(120, above) }
+      : { left, top: Math.max(r.bottom, minTop - 4) + 4, maxHeight: Math.max(120, below) };
+    setPos((p) => (p && p.left === next.left && p.top === next.top && p.bottom === next.bottom && p.maxHeight === next.maxHeight ? p : next));
+  };
+  const close = (refocus = false) => { setOpen(false); if (refocus) btn.current?.focus(); };
+  useLayoutEffect(() => {
+    if (!open) return;
+    measure();
+    panel.current?.querySelector<HTMLElement>("input")?.focus({ preventScroll: true });
+    let raf = 0;
+    const again = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(measure); };
+    const out = (e: PointerEvent) => { const t = e.target as Node; if (!panel.current?.contains(t) && !btn.current?.contains(t)) close(); };
+    const esc = (e: KeyboardEvent) => { if (e.key === "Escape") close(true); };
+    window.addEventListener("scroll", again, { passive: true, capture: true });   // capture: the table's own scroll box counts too
+    window.addEventListener("resize", again);
+    document.addEventListener("pointerdown", out);
+    document.addEventListener("keydown", esc);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", again, { capture: true });
+      window.removeEventListener("resize", again);
+      document.removeEventListener("pointerdown", out);
+      document.removeEventListener("keydown", esc);
+    };
+  }, [open]);
   return (
-    <details className="relative">
-      <summary title="Choose columns" className="-my-1 flex size-11 cursor-pointer list-none items-center justify-center rounded-input text-muted hover:bg-muted-bg hover:text-text">
+    <>
+      <button
+        ref={btn} type="button" title="Choose columns" aria-haspopup="dialog" aria-expanded={open}
+        onClick={() => { if (!open) measure(); setOpen((o) => !o); }}
+        className="-my-1 flex size-11 cursor-pointer items-center justify-center rounded-input text-muted hover:bg-muted-bg hover:text-text"
+      >
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
         <span className="sr-only">Choose columns</span>
-      </summary>
-      <div className="absolute left-0 z-20 mt-1 max-h-[calc(100svh-9rem)] w-64 overflow-y-auto overscroll-contain rounded-input border border-border bg-raised p-3 text-sm">
-        <fieldset>
-          <legend className="mb-1 text-xs text-muted">Main</legend>
-          {pick.filter((c) => !c.pro).map((c) => <Check key={c.id} {...c} />)}
-        </fieldset>
-        <fieldset className="mt-3">
-          <legend className="mb-1 text-xs text-muted">Details for pros</legend>
-          {pick.filter((c) => c.pro).map((c) => <Check key={c.id} {...c} />)}
-        </fieldset>
-      </div>
-    </details>
+      </button>
+      {open && createPortal(
+        <div
+          ref={panel} role="dialog" aria-label="Choose columns" data-testid="column-menu"
+          style={pos ? { left: pos.left, top: pos.top, bottom: pos.bottom, maxHeight: pos.maxHeight } : { visibility: "hidden", left: 0, top: 0 }}
+          className="fixed z-50 w-64 overflow-y-auto overscroll-contain rounded-input border border-border bg-raised p-3 text-sm shadow-lg"
+        >
+          <fieldset>
+            <legend className="mb-1 text-xs text-muted">Main</legend>
+            {pick.filter((c) => !c.pro).map((c) => <Check key={c.id} {...c} />)}
+          </fieldset>
+          <fieldset className="mt-3">
+            <legend className="mb-1 text-xs text-muted">Details for pros</legend>
+            {pick.filter((c) => c.pro).map((c) => <Check key={c.id} {...c} />)}
+          </fieldset>
+        </div>,
+        document.body,
+      )}
+    </>
   );
 }
 

@@ -111,7 +111,7 @@ export function LoginForm({ next, error: initialError, mode = "login" }: { next:
               this browser and you&apos;re signed in.</>
           )}
         </p>
-        <button type="button" className="w-fit text-sm text-accent-hover underline-offset-4 hover:underline" onClick={() => setState("idle")}>
+        <button type="button" className="inline-flex min-h-11 w-fit items-center text-sm text-accent-hover underline-offset-4 hover:underline" onClick={() => setState("idle")}>
           Use a different email
         </button>
       </div>
