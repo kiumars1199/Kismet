@@ -1,0 +1,6 @@
+     × drops filler first and keeps the city, the range and the date 6ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  lib/fit-clamp.test.ts > fitClamp > drops filler first and keeps the city, the range and the date
+Expected: "Los Angeles"
+Received: "Will … highest … Los … 66-67°F … November 18?"
+      Tests  1 failed | 20 passed (21)

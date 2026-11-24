@@ -1,0 +1,81 @@
+reach / dip to
+  Will … Bitcoin … $95,000 … 12:00 PM Eastern Time … Friday November 27, 2026?
+  Will … Bitcoin … $95,000 … 12:00 PM Eastern Time … Friday November 27, 2026?
+Will Bitcoin reach / dip (real shape, long)
+  Will the price of Bitcoin reach $66,000 … November 16-22 according to Coinbase data?
+  Will the price of Bitcoin dip to $66,000 … November 16-22 according … Coinbase data?
+at least / at most
+  Will Patrick Mahomes … least 285 … City Chiefs … Las Vegas Raiders … Thanksgiving?
+  Will Patrick Mahomes … most 285 … City Chiefs … Las Vegas Raiders … Thanksgiving?
+at least / exactly
+  Will Patrick Mahomes … least 285 … City Chiefs … Las Vegas Raiders … Thanksgiving?
+  Will Patrick Mahomes … exactly 285 … City Chiefs … Las Vegas Raiders … Thanksgiving?
+between / outside
+  Will the highest … Rio … Janeiro … Tuesday November 24 … 28°C … 29°C … station?
+  Will the highest … Rio … Janeiro … Tuesday November 24 … 28°C … 29°C … station?
+between / not between
+  Will the highest … Rio … Janeiro … Tuesday November 24 … 28°C … 29°C … station?
+  Will the highest … Rio … Janeiro … Tuesday November 24 … not … 28°C … 29°C … station?
+or above / exact
+  Will the highest … Rio … Janeiro … Tuesday November 24 … 29°C or above … station?
+  Will the highest … Rio … Janeiro … Tuesday November 24 … 29°C … official station?
+or more / exact
+  Will Patrick Mahomes … 285 or more … City Chiefs … Las Vegas Raiders … Thanksgiving?
+  Will Patrick Mahomes … 285 … Kansas City Chiefs … Las Vegas Raiders … Thanksgiving?
+or less / exact
+  Will Patrick Mahomes … 285 or less … City Chiefs … Las Vegas Raiders … Thanksgiving?
+  Will Patrick Mahomes … 285 … Kansas City Chiefs … Las Vegas Raiders … Thanksgiving?
+or fewer / exact
+  Will Patrick Mahomes … 285 or fewer … Chiefs … Las Vegas Raiders … Thanksgiving?
+  Will Patrick Mahomes … 285 … Kansas City Chiefs … Las Vegas Raiders … Thanksgiving?
+or lower / exact
+  Will the highest … Rio … Janeiro … Tuesday November 24 … 29°C or lower … station?
+  Will the highest … Rio … Janeiro … Tuesday November 24 … 29°C … official station?
+under / at
+  Will … Bitcoin under $95,000 … 12:00 PM Eastern Time … Friday November 27, 2026?
+  Will … Bitcoin … $95,000 … 12:00 PM Eastern Time … Friday November 27, 2026?
+over / at
+  Will … Bitcoin over $95,000 … 12:00 PM Eastern Time … Friday November 27, 2026?
+  Will … Bitcoin … $95,000 … 12:00 PM Eastern Time … Friday November 27, 2026?
+top / bottom
+  Will the Kansas City Chiefs finish … 2026 NFL … top 5 … AFC … to NFL.com?
+  Will the Kansas City Chiefs finish … 2026 NFL … 5 … AFC … according to NFL.com?
+minimum / maximum
+  Will the … Rio … Janeiro … Tuesday November 24 … 22°C … official station?
+  Will the … Rio … Janeiro … Tuesday November 24 … 22°C … official station?
+fewest / most
+  Which team will allow the fewest … 2026 NFL … Week 12 according to ESPN?
+  Which team will allow the most … 2026 NFL … through Week 12 according to ESPN?
+by date / on date
+  Will … Bitcoin … $95,000 … 30 … 12:00 PM Eastern Time … Friday … 27, 2026?
+  Will … Bitcoin … $95,000 … 30 … 12:00 PM Eastern Time … Friday … 27, 2026?
+by date / in month
+  Will the Federal Reserve announce … cut … December 2026 … FOMC statement?
+  Will the Federal Reserve announce … cut … December 2026 … FOMC statement?
+before / after date
+  Will SpaceX … Starship … before … 15, 2026 … Starbase … Boca Chica, Texas?
+  Will SpaceX … Starship … after December 15, 2026 … Starbase … Boca Chica, Texas?
+drop / hit
+  Will … Bitcoin … $95,000 … 12:00 PM Eastern Time … Friday November 27, 2026?
+  Will … Bitcoin … $95,000 … 12:00 PM Eastern Time … Friday November 27, 2026?
+above / at or above
+  Will … Bitcoin above $95,000 … 12:00 PM Eastern Time … Friday November 27, 2026?
+  Will … Bitcoin … or above $95,000 … 12:00 … Time … Friday November 27, 2026?
+less than / no more than
+  Will Patrick Mahomes … less … 285 … City Chiefs … Las Vegas Raiders … Thanksgiving?
+  Will Patrick Mahomes … no more … 285 … Las Vegas Raiders … Thanksgiving?
+higher / exact (no 'or')
+  Will the highest … Rio … Janeiro … Tuesday November 24 … 29°C higher … official station?
+  Will the highest … Rio … Janeiro … Tuesday November 24 … 29°C … official station?
+max / min
+  Will the max … Rio … Janeiro … Tuesday November 24 … 22°C … official station?
+  Will the min … Rio … Janeiro … Tuesday November 24 … 22°C … official station?
+positive / negative
+  Will the US Bureau of Economic Analysis … GDP … third … 2026 in its advance estimate?
+  Will the US Bureau of Economic Analysis … GDP … third … 2026 in its advance estimate?
++ / - sign
+  Will … Kansas City Chiefs … -3.5 … Vegas Raiders … Thanksgiving Day … Arrowhead?
+  Will … Kansas City Chiefs … +3.5 … Vegas Raiders … Thanksgiving Day … Arrowhead?
+weekday / weekend (range words)
+  Will the highest … Rio … Janeiro … November 28-29 … 29°C … official station?
+  Will the highest … Rio … Janeiro … November 28-29 … 29°C … official station?

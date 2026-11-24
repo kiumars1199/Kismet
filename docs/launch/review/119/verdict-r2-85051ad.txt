@@ -1,0 +1,53 @@
+#119 (T-wt1f, fix/wt1f) re-review r2 at 85051ad031f5b95d03e9a229cbf9f0756060526a -- VERDICT: FAIL (check 1, break-it pairs)
+
+Method: PR fit-clamp.ts + middle-clamp.ts inlined (fitclamp119r2.ts); reviewer 1's cands119/cands119b rerun on it, plus a new
+break-it set cands119c-r2.ts (27 pairs). Browser measure p119fit-r2.mjs against `next dev` of 85051ad on :3755 (paid mode, E2E mock),
+/signup?next=/m/<longest fixture>, clone of [data-testid=signup-bet] with lede, fits = height AND width (same as BetLine now).
+
+PASSES
+- Fixed pairs distinct at 360/390/1440 (p119-synthetic-r2-rio-*.txt): 29°C or higher vs 29°C, or below vs exact, or higher vs or lower,
+  highest vs lowest (both), fewer vs more, fewer vs "at 225,000". Old increase/decrease, hike/cut, above/below, over/under, up/down,
+  more/fewer, win/lose, no/a: 389 groups (380 real-swapped), same visible line 0 at all widths (p119-fit-r2-real.log).
+- (2) "or higher/above/below/lower/more/less/fewer" always kept with its word; never renders as the exact line (break set, all widths).
+  Also on the longest real shapes (Basquiat 121 ch, van Gogh, Hunger Games, long weather) with the PR's words: over/under, above/below,
+  or higher|or more vs exact, fewer vs at, highest/lowest, or below vs exact -> 13 pairs, same line 0 at 360/390/1440
+  (cands119d-r2.ts, p119-synthetic-r2-long-*.txt). Caveat: clampCandidates' last-resort stages (middle cuts) do contain lines with the number
+  but without "or higher"; the browser never reached them on any title tested (shortest needed was 2 lines without them).
+- (3) Real titles output/flags.json (2769): 360 shortened 23, 390 22, 1440 20; over 2 lines 0, over width 0, clashes 0,
+  lost direction word 0 (p119-fit-r2-real.log, p119-shortened-r2-real2-*.txt).
+- (4) 76 -> 84 justified: at 76 the PR now keeps "highest" (8 chars) so the city collapses to "Los": received
+  "Will … highest … Los … 66-67°F … November 18?" (p119-budget76-r2.log). At 84 old and new code give the identical full line
+  "Will the highest … Los Angeles … 66-67°F on November 18?", filler still dropped; no assertion was weakened.
+- (5) Page (the changed line only renders signed out; BetLine/fitClamp used only by components/auth/AuthPage.tsx): signed out 360/375/390/1440 incl. slow fonts: CLS 0, lede 1-2 lines, not clipped, disclaimer yes, no cents, no h-scroll.
+  Free/Pro/Premium at 390 and 1440: disclaimer yes, cents none, h-scroll none, CLS 0 / 0.0043 (free 1440) / 0.0006 (pro 1440) / 0,
+  identical to reviewer 1's 4017b04 numbers (baseline is the previous PR head, not final). Signed-in plans are redirected to /m
+  (bet:false), so they show the page chrome, not the changed line (p119-page-r2.log, signup-r2-*.png).
+- vitest fit-clamp 21/21; CI all 11 check runs success, Vercel success; check:js 149.5 kB <= 150 (p119-ci-r2.txt).
+
+REGRESSION CHECK: the same break set on final's fit-clamp.ts (cands119c-final.ts, p119-fit-r2-break-final.log) gives 13-14 same-line
+pairs and 11-12 lost direction words; the PR gives 8 and 1. Every clash below is PRE-EXISTING on final; the PR adds none. 0 real titles
+in flags.json are affected today.
+
+BLOCKER (check 1: "no sibling pair shows the same line"; same standard reviewer 1 used: synthetic long siblings)
+Same visible line at 360, 390 AND 1440 (p119-fit-r2-break.log, p119-synthetic-r2-break-*.txt):
+  a. reach / dip to (same $):  "Will … Bitcoin … $95,000 … 12:00 PM Eastern Time … Friday November 27, 2026?" for both.
+     reach and dip are real Polymarket words (13 titles each in flags.json); today's are <=43 ch so never shortened, but a long one would clash.
+  b. drop to / hit: same line as (a).
+  c. between / outside 28°C and 29°C: "Will … highest … Rio … Janeiro … Tuesday November 24 … 28°C … 29°C … station?"
+  d. minimum / maximum temperature: "Will the … Rio … Janeiro … Tuesday November 24 … 22°C … official station?"
+  e. by November 30 / on November 30: "Will … Bitcoin … $95,000 … 30 … 12:00 PM …" ; by December 2026 / in December 2026 likewise.
+  f. positive / negative GDP growth: "Will the US Bureau … Economic Analysis … GDP … third … 2026 … estimate?"
+  g. top / bottom is asymmetric: "top 5" kept, but "bottom 5" renders "… 2026 NFL … 5 … AFC …" (LOST [bottom] at all widths).
+Ranking: g (bottom; asymmetric with kept "top") > a (reach/dip are real vocabulary, 26 titles) > e (by/on/in date; 4 real "by" titles)
+> b, c, d, f (contrived; no real counterpart today).
+Fix: add reach, dip, drop, hit, bottom, fewest, outside, between, minimum, maximum, min, max, positive, negative to KEEP;
+keep by/in/on (like orKeep) when the next token is a date/month. Add these pairs to SIBLINGS in fit-clamp.test.ts.
+Adding "between" etc. costs width on 131 real "between" titles: re-run the real-title measure after the change (0 over 2 lines / width / clashes).
+
+Held (no clash): at least/at most ("least 285" vs "most 285"), at least/exactly, under/at, over/at, above/at or above,
+less than/no more than, before/after date, fewest/most, max/min (kept as names), +3.5/-3.5, higher-without-or vs exact.
+
+NITS
+- "at least"/"at most" lose "at" ("… least 70 …" on the real Hunger Games title); readable but awkward.
+- At tight budgets the city name is now halved ("Los" for Los Angeles) before KEEP words go; names could be dropped whole.
+- weekend/weekday collapse to the same line (range words dropped); hypothetical.

@@ -1,0 +1,27 @@
+increase/decrease
+  Will … Federal Reserve increase … 25 … after … December 2026 FOMC …
+  Will … Federal Reserve decrease … 25 … after … December 2026 FOMC …
+hike/cut
+  Will the European Central Bank hike … 50+ … December 2026 … policy meeting?
+  Will the European Central Bank cut … 50+ … December 2026 … policy meeting?
+higher/lower
+  Will … highest … Rio … Janeiro … Tuesday November 24 … 29°C or higher … station?
+  Will … highest … Rio … Janeiro … Tuesday November 24 … 29°C or lower … station?
+above/below
+  Will … Bitcoin … above $95,000 … 12:00 … Time … Friday November 27, 2026?
+  Will … Bitcoin … below $95,000 … 12:00 … Time … Friday November 27, 2026?
+over/under
+  Total … Kansas City Chiefs … Las Vegas Raiders … Thanksgiving Day: over 47.5 …
+  Total … Kansas City Chiefs … Las Vegas Raiders … Thanksgiving Day: under 47.5 …
+up/down
+  Will the S&P 500 close up on … November 2026 compared with … previous … close?
+  Will the S&P 500 close down on … November 2026 … with … previous … close?
+more/fewer
+  Will US initial … November 21 … more … 225,000 … Department of Labor?
+  Will US initial … November 21 … fewer … 225,000 … Department of Labor?
+win/lose
+  Will Novak Djokovic win his … 2026 Nitto ATP Finals round-robin stage in Turin, Italy?
+  Will Novak Djokovic lose his … 2026 Nitto ATP Finals round-robin stage in Turin, Italy?
+no/a
+  Will … Bank … England … no change … 2026 Monetary Policy Committee …
+  Will … Bank … England … change … 2026 Monetary Policy Committee …
