@@ -52,11 +52,31 @@ export function sameEvents(legs: Pick<ComboLeg, "eventId" | "event">[]): string[
   return [...new Set(legs.filter((l) => count.get(l.eventId)! > 1).map((l) => l.event))];
 }
 
-/** With no score for same-event legs, say which leg to drop: "Drop one of the two Denmark vs. Norway bets." (one line per event). */
-export function sameEventAdvice(legs: Pick<ComboLeg, "eventId" | "event">[]): string[] {
-  const by = new Map<string, { event: string; n: number }>();
-  for (const l of legs) { const e = by.get(l.eventId); if (e) e.n++; else by.set(l.eventId, { event: cleanEventLine(l.event), n: 1 }); }
-  return [...by.values()].filter((e) => e.n > 1).map((e) => (e.n === 2 ? `Drop one of the two ${e.event} bets.` : `Keep one of the ${e.n} ${e.event} bets and drop the rest.`));
+type AdviceLeg = Pick<ComboLeg, "eventId" | "event"> & Partial<Pick<ComboLeg, "key" | "question" | "outcome" | "base">>;
+
+/** Of two legs from one event, the one whose removal leaves the better combo (the checkCombo "weakest leg" rule: higher score, then
+ *  higher edge). Null when the legs are not scored yet, or when it makes no difference. Only the combo's own legs are used. */
+function weakerOfPair(legs: AdviceLeg[], pair: AdviceLeg[]): AdviceLeg | null {
+  if (legs.some((l) => !l.base || l.base.winProb === null)) return null;
+  const full = legs as ComboLeg[];
+  const rest = (gone: AdviceLeg) => numbersOf(full.filter((l) => l !== gone))!;
+  const [a, b] = pair.map(rest);
+  const sa = a!.score ?? -1, sb = b!.score ?? -1;
+  if (sa !== sb) return sa > sb ? pair[0]! : pair[1]!;
+  if (Math.abs(a!.edge - b!.edge) < 1e-12) return null;
+  return a!.edge > b!.edge ? pair[0]! : pair[1]!;
+}
+
+/** With no score for same-event legs, say which leg to drop: 'Drop one of the two Denmark vs. Norway bets. "Q" (Yes) is the weaker one.'
+ *  (one line per event; the weaker leg is named once the legs are scored, and left out when they are equal or not scored yet). */
+export function sameEventAdvice(legs: AdviceLeg[]): string[] {
+  const by = new Map<string, { event: string; legs: AdviceLeg[] }>();
+  for (const l of legs) { const e = by.get(l.eventId); if (e) e.legs.push(l); else by.set(l.eventId, { event: cleanEventLine(l.event), legs: [l] }); }
+  return [...by.values()].filter((e) => e.legs.length > 1).map((e) => {
+    if (e.legs.length !== 2) return `Keep one of the ${e.legs.length} ${e.event} bets and drop the rest.`;
+    const weak = weakerOfPair(legs, e.legs);
+    return `Drop one of the two ${e.event} bets.${weak?.question ? ` "${weak.question}" (${weak.outcome}) is the weaker one.` : ""}`;
+  });
 }
 
 export function checkCombo(legs: ComboLeg[]): ComboCheck {

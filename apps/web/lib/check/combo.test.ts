@@ -101,3 +101,25 @@ describe("sameEventAdvice (no score, so say which leg to drop)", () => {
   });
 });
 
+describe("sameEventAdvice names the weaker leg once the legs are scored (T-wt3e)", () => {
+  const e = (id: string, q: number | null, o: Partial<ComboLeg> = {}) => leg(id, 0.5, 0, q, { eventId: "x", event: "Denmark vs. Norway - More Markets", ...o });
+  it("a pair: names the leg whose removal leaves the better combo; the line still starts 'Drop one of the two <event> bets.'", () => {
+    const out = sameEventAdvice([e("1", 0.7), e("2", 0.55)]);
+    expect(out).toEqual(['Drop one of the two Denmark vs. Norway bets. "Q2" (Yes) is the weaker one.']);
+    expect(sameEventAdvice([e("1", 0.55), e("2", 0.7)])).toEqual(['Drop one of the two Denmark vs. Norway bets. "Q1" (Yes) is the weaker one.']);
+  });
+  it("equal legs: says either, names none", () => {
+    expect(sameEventAdvice([e("1", 0.6), e("2", 0.6)])).toEqual(["Drop one of the two Denmark vs. Norway bets."]);
+  });
+  it("unscored legs (no model chance): no name", () => {
+    expect(sameEventAdvice([e("1", null), e("2", 0.6)])).toEqual(["Drop one of the two Denmark vs. Norway bets."]);
+  });
+  it("a pair inside a bigger combo uses the whole combo; only the combo's own legs matter", () => {
+    const legs = [e("1", 0.7), e("2", 0.55), leg("3", 0.5, 0, 0.6, { eventId: "y", event: "Other" })];
+    expect(sameEventAdvice(legs)).toEqual(['Drop one of the two Denmark vs. Norway bets. "Q2" (Yes) is the weaker one.']);
+  });
+  it("3 or more from one event: unchanged", () => {
+    expect(sameEventAdvice([e("1", 0.7), e("2", 0.55), e("3", 0.6)])).toEqual(["Keep one of the 3 Denmark vs. Norway bets and drop the rest."]);
+  });
+});
+
