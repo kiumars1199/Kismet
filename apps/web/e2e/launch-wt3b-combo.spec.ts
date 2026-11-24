@@ -202,3 +202,60 @@ test("an old ?m= link still loads its leg (with a side, and without one), and th
   expect(new URL(fresh.url()).searchParams.get("m")).toBeNull();
   await fresh.close();
 });
+
+// T-wt3d. The 3rd and 4th leg added by a tap on a search result (a slow lookup) shift nothing: the list holds room for the
+// incoming leg the moment it is tapped (inside the input window), then the leg lands in it. 2 -> 3 -> 4 legs, 900 ms lookup, 5 runs.
+for (const [name, size] of SIZES) {
+  test(`adding the 3rd and 4th leg from a search result (900 ms lookup) shifts nothing: CLS < 0.02 at ${name}px (5 runs)`, async ({ page }) => {
+    test.setTimeout(420_000);
+    await page.setViewportSize(size);
+    await page.addInitScript(watchCls);
+    await page.route("**/api/check/leg", async (r) => { await new Promise((ok) => setTimeout(ok, 900)); await r.continue(); });
+    const all = await rows(page);
+    const picks = distinct(all, 4);
+    const worst = { third: 0, fourth: 0 };
+    for (let run = 0; run < 5; run++) {
+      await page.goto("/check/combo");
+      await page.evaluate(() => sessionStorage.clear());
+      await page.goto(`/check/combo?legs=${legsQuery(picks.slice(0, 2))}`);
+      await expect(page.getByTestId("combo-leg")).toHaveCount(2, { timeout: 30_000 });
+      await page.waitForTimeout(600);
+      for (const [i, key] of (["third", "fourth"] as const).entries()) {
+        const target = picks[2 + i]!;
+        // find the market's own words in the result list: search for the first words of its question
+        const q = await page.evaluate(async ([m, s]) => {
+          const r = await fetch("/api/check/leg", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ m, side: Number(s) }) });
+          return ((await r.json()) as { market: { question: string } }).market.question;
+        }, [target.market.id, String(target.side.side_index)]);
+        await page.getByLabel("Add a bet by link or words").fill(q.split(/\s+/).slice(0, 3).join(" "));
+        await page.getByRole("button", { name: "Add", exact: true }).click();
+        const hit = page.getByTestId("combo-hits").getByRole("button").filter({ hasText: q.slice(0, 25) }).first();
+        await expect(hit).toBeVisible({ timeout: 20_000 });
+        await page.waitForTimeout(700);   // the search answer has landed and settled; what follows is the tap on a result
+        const afterSearch = await cls(page);
+        await hit.click();   // the lookup now takes 900 ms
+        await expect(page.getByTestId("combo-leg")).toHaveCount(3 + i, { timeout: 20_000 });
+        await page.waitForTimeout(700);
+        worst[key] = Math.max(worst[key], (await cls(page)) - afterSearch);
+      }
+    }
+    console.log(`T-wt3d add-leg CLS (900 ms lookup) at ${name}px, worst of 5: 2->3 ${worst.third.toFixed(4)}, 3->4 ${worst.fourth.toFixed(4)}`);
+    expect(worst.third).toBeLessThan(0.02);
+    expect(worst.fourth).toBeLessThan(0.02);
+  });
+}
+
+// On touch devices the button opens the share sheet, so it says "Share link"; elsewhere it copies: "Copy link".
+test("the link button says 'Share link' on a touch device and 'Copy link' with a mouse", async ({ browser, page }) => {
+  const [a, b] = distinct(await rows(page), 2);
+  const url = `/check/combo?legs=${legsQuery([a!, b!])}`;
+  await page.goto(url);
+  await expect(page.getByRole("button", { name: "Copy link" })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole("button", { name: "Share link" })).toHaveCount(0);
+  const touch = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, baseURL: test.info().project.use.baseURL });
+  const tp = await touch.newPage();
+  await tp.goto(url);
+  await expect(tp.getByRole("button", { name: "Share link" })).toBeVisible({ timeout: 30_000 });
+  await expect(tp.getByRole("button", { name: "Copy link" })).toHaveCount(0);
+  await touch.close();
+});

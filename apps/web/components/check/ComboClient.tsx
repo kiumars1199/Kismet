@@ -37,7 +37,10 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
   const [loaded, setLoaded] = useState(false);   // the legs of this tab (or of the link) are in; until then the legs region is hidden, not moved
   const [known, setKnown] = useState<Map<string, ComboLeg["base"]>>(new Map());   // every leg's numbers once scored: they stay after a 429 or an added leg
   const [copied, setCopied] = useState("");
-  const [engaged, setEngaged] = useState(false);   // the person has started adding: from then on the page keeps its reserved height
+  const [engaged, setEngaged] = useState(false);
+  const [incoming, setIncoming] = useState(false);   // a leg is being looked up: its room is held from the tap, so it lands in it
+  const [touch, setTouch] = useState(false);   // a touch device: the link button opens the share sheet
+  const pendingCheck = useRef<Listed[] | null>(null);   // a shared link asked for a score; Pro and Premium get it without a tap   // the person has started adding: from then on the page keeps its reserved height
   const me = useMe();
   const trayLegs = useCombo((c) => c.legs.length);   // Premium's combo tray is fixed to the bottom of the screen: leave room under the page for it
   const legsRef = useRef(legs);
@@ -63,9 +66,19 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
       } else initial = readStored();
       legsRef.current = initial; setLegs(initial);
       setLoaded(true);
-      if (wantCheck && initial.length >= MIN_COMBO_LEGS) await checkNow(initial);
+      if (wantCheck && initial.length >= MIN_COMBO_LEGS) pendingCheck.current = initial;
     })();
   }, []);   // eslint-disable-line react-hooks/exhaustive-deps -- once, on mount
+
+  // A shared link (&check=1) loads the legs; Pro and Premium see the score at once. Signed-out and Free visitors tap to score:
+  // that tap spends the day's one check, so a link must not spend it for them (nor show a 429 for a check they never asked for).
+  useEffect(() => { setTouch(window.matchMedia("(pointer: coarse)").matches); }, []);
+  useEffect(() => {
+    const list = pendingCheck.current;
+    if (!loaded || !list || !me) return;
+    pendingCheck.current = null;
+    if (me.tier === "pro" || me.tier === "premium") void checkNow(list);
+  }, [loaded, me]);   // eslint-disable-line react-hooks/exhaustive-deps
   // the search dropdown closes on Escape or a tap outside it
   useEffect(() => {
     if (!hits.length) return;
@@ -85,7 +98,7 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
   }
 
   async function add(body: { m?: string; link?: string; side?: 0 | 1 }) {
-    setEngaged(true); setBusy(true); setNote(""); setHits([]);
+    setEngaged(true); setIncoming(true); setBusy(true); setNote(""); setHits([]);
     try {
       const r = await fetch("/api/check/leg", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       if (r.status === 404) return setNote("We couldn't find an open market at that link.");
@@ -97,7 +110,7 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
       if (r2.refused === "full") return setNote(`A combo holds at most ${MAX_COMBO_LEGS} legs.`);
       legsRef.current = r2.legs; setLegs(r2.legs); setText("");
     } catch { setNote("Couldn't reach Kismet. Check your connection and try again."); }
-    finally { setBusy(false); }
+    finally { setBusy(false); setIncoming(false); }
   }
 
   // A card, the drawer or /m links here with ?m=<id>&side=<n>: add that bet once the tab's legs are in. The URL then holds the legs
@@ -165,7 +178,7 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
   async function copyLink() {
     const url = `${window.location.origin}${comboUrl(legs.map((l) => ({ m: l.marketId, side: l.side })), true)}`;
     try {
-      if (window.matchMedia("(pointer: coarse)").matches && typeof navigator.share === "function") {
+      if (touch && typeof navigator.share === "function") {
         await navigator.share({ title: "A combo on Kismet", url });
         setCopied("Shared");
       } else {
@@ -210,8 +223,8 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
           grows to about 533 px on a phone and 360 on a desktop: those final sizes are reserved), so adding legs and scoring grow inside
           it and the page below never moves. The empty result card itself stays small: the room is blank space under it, not a box. */}
       <div data-combo-pending={loaded ? undefined : ""} className={`flex flex-col gap-5 ${legs.length || reserve || engaged ? "min-h-[760px] md:min-h-[700px]" : ""} ${loaded || reserve ? "" : "invisible"}`}>
-      <ul data-testid="combo-legs" style={{ "--n": Math.max(legs.length, reserve, 2) } as React.CSSProperties}
-        className={`flex flex-col gap-2 ${legs.length || reserve ? "min-h-[calc(var(--n)*84px+(var(--n)-1)*8px)] sm:min-h-[calc(var(--n)*70px+(var(--n)-1)*8px)]" : ""}`}>
+      <ul data-testid="combo-legs" style={{ "--n": Math.min(MAX_COMBO_LEGS, Math.max(legs.length + (incoming ? 1 : 0), reserve, 2)) } as React.CSSProperties}
+        className={`flex flex-col gap-2 ${legs.length || reserve || incoming ? "min-h-[calc(var(--n)*84px+(var(--n)-1)*8px)] sm:min-h-[calc(var(--n)*70px+(var(--n)-1)*8px)]" : ""}`}>
         {legs.map((l, i) => {
           const b = known.get(l.key);
           return (
@@ -280,7 +293,7 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
         <div className="mt-auto flex flex-col gap-3">
           {legs.length >= MIN_COMBO_LEGS && (
             <div className="flex items-center gap-3">
-              <button type="button" onClick={() => void copyLink()} className="min-h-11 rounded-input border border-border px-4 text-sm font-medium text-text hover:border-accent-border">Copy link</button>
+              <button type="button" onClick={() => void copyLink()} className="min-h-11 rounded-input border border-border px-4 text-sm font-medium text-text hover:border-accent-border">{touch ? "Share link" : "Copy link"}</button>
               <span role="status" data-testid="combo-copied" className="text-[13px] text-accent-softer empty:hidden">{copied}</span>
             </div>
           )}
