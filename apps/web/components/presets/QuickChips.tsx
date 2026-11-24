@@ -53,7 +53,8 @@ export function QuickChips({ state, onChange }: { state: FilterState; onChange: 
     // (or any focus) scrolls a chip fully clear of them.
     const measure = () => {
       const desktop = window.matchMedia("(min-width: 768px)").matches;
-      el.style.scrollPaddingInlineEnd = desktop && pinned.current ? `${pinned.current.offsetWidth + 12}px` : "";
+      el.style.scrollPaddingInlineStart = "12px";
+      el.style.scrollPaddingInlineEnd = desktop && pinned.current ? `${pinned.current.offsetWidth + 12}px` : "12px";
       setMore(desktop && el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
     };
     measure();
@@ -78,7 +79,10 @@ export function QuickChips({ state, onChange }: { state: FilterState; onChange: 
     // One line at every width (T-wt2i): the server renders this row before the profile lands (no favorite chips), and the browser adds them
     // ~450 ms later. With wrapping, 3 saved topics at 1440 pushed the row's last chip (or an empty item) onto a second line and moved the
     // page 8 px (52 px when a wider set wraps). A single scrolling line has the same height with or without them.
-    <div ref={row} role="group" aria-label="Quick filters" className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:px-0">
+    <div ref={row} role="group" aria-label="Quick filters"
+      // Chrome does not scroll a chip that is only partly visible into view on focus (Tab to the end and Shift+Tab back left "College basketball"
+      // 0 of 161 px visible at 1100). The scroll padding above keeps a focused chip clear of the pinned chips and the row's edges.
+      onFocus={(e) => (e.target as HTMLElement).scrollIntoView?.({ inline: "nearest", block: "nearest" })} className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:px-0">
       {chips.map((c, i) => {
         const on = c.on(state);
         return (

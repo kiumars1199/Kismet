@@ -1,7 +1,8 @@
 "use client";
 // The Best bets headline. Free sees the day's sample, so it reads "10 of 34 bets ...". When the user's topics filter that
-// sample down to nothing it says so plainly, with one button to see it; the line is the same for every Free user
-// (it depends on counts only: no personalized picks). T-wt2b: a topic with no best bets today says so; a plain topic filter
+// sample down to nothing it says so plainly, with one button to see it. The wording depends on counts and the filter only (never
+// positions, saves or history: no personalized picks), but WHICH bets are in a Free user's sample is not the same for everyone: it is
+// shuffled per user per UTC day (freeSample in lib/data/respond.ts), so two Free users can see this line on different filters. T-wt2b: a topic with no best bets today says so; a plain topic filter
 // says "this filter" or the topic, never "your topics".
 import { useEffect, useState, type ReactNode } from "react";
 import { Count } from "@/components/kit";
