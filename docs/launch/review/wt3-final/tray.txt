@@ -1,0 +1,58 @@
+signed in wt3r2-premium-1795555988314@example.com tier=premium
+
+===== premium tray @ 390 =====
+  /bets rows 12
+  row 0 "Miami (OH) vs. Kent State: 1Q Moneyline" tray btn {"y":273,"h":46,"b":319} checker /check/combo?m=7077574&side=0
+  CLS[drawer Add to combo tray (row 0)] 0 []
+   -> btn "In combo ✓" summary "Add one more bet to see the combo" alerts []
+  row 1 "Ball State vs. Ohio: 1Q Moneyline" tray btn {"y":273,"h":46,"b":319} checker /check/combo?m=7078474&side=1
+  CLS[drawer Add to combo tray (row 1)] 0 []
+   -> btn "In combo ✓" summary "Pays 1.9x · wins about 7–8 in 10" alerts []
+  row 2 "Denmark vs. Norway: O/U 2.5" tray btn {"y":273,"h":46,"b":319} checker /check/combo?m=6674485&side=0
+  CLS[drawer Add to combo tray (row 2)] 0 []
+   -> btn "In combo ✓" summary "Pays 2.7x · wins about 6 in 10" alerts []
+  /m/6674485: alerts [] link none
+  /m/6674492: alerts ["Your combo already has a bet from this event. Results in one event move together, so pick a different event. You can still check them together in the combo checker."] link combo checker -> /check/combo?legs=7077574%3A0%2C7078474%3A1%2C6674485%3A0%2C6674492%3A0 {"y":541,"h":48,"b":589}
+   link hit test: {"rects":["95x48"],"pBottom":589,"linkBottom":589,"nextTop":595,"out":{"2":"link","8":"link","24":"link","40":"link","46":"link"}}
+   pointer -> /check/combo?legs=7077574%3A0%2C7078474%3A1%2C6674485%3A0%2C6674492%3A0 legs ["Miami (OH) vs. Kent State: 1Q Moneyline","Ball State vs. Ohio: 1Q Moneyline","Denmark vs. Norway: O/U 2.5","Denmark vs. Norway: Both Teams to Score"] same-event note "Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off. Drop one of the two Denmark vs. Norway bets."
+  tray {"y":706,"h":70,"b":776} summary "Pays 2.7x · wins about 6 in 10"
+  TRAY: "Your combo · 3 legs\nPays 2.7x · wins about 6 in 10\n1\n\nMiami (OH) vs. Kent State: 1Q Moneyline\n\nBet Miami (OH) · Pays 1.4x after fee · 84% chance to win (cautious)\n\nOpen\nMiami (OH) vs. Kent State: 1Q Moneyline on Polymarket\n2\n\nBall State vs. Ohio: 1Q Moneyline\n\nBet Ohio · Pays 1.3x after fee · 89% chance to win (cautious)\n\nOpen\nBall State vs. Ohio: 1Q Moneyline on Polymarket\n3\n\nDenmark vs. Norway: O/U 2.5\n\nBet Over · Pays 1.4x after fee · 82% chance to win (cautious)\n\nOpen\nDenmark vs. Norway: O/U 2.5 on Polymarket\nChance to win\n62% (about 6 in 10)\nPays\n2.7x\nEstimated return at 62%\n+67%\nAgainst the price\nBeats it\n\nThe combo wins only if every leg wins, so the legs' chances multiply: 84% × 89% × 82% ≈ 62%. Chances are our cautious ones (our central estimate is 73%). Payouts include each leg's fee: every leg bought and the winnings rolled into the next. Prices are from when you added each leg. Small errors in each leg multiply in a combo. 3-leg combos: won 65% of the time, +26% return in testing. No live record for combos yet: the live record tracks single best bets only.\n\nClear combo"
+  tray nums {"chance":"62% (about 6 in 10)","pays":"2.7x","ret":"+67%"}; tray links ["Open\nMiami (OH) vs. Kent State: 1Q Moneyline on Polymarket->https://polymarket.com/event/cfb-miaoh-kentst-2026-11-17","Open\nBall State vs. Ohio: 1Q Moneyline on Polymarket->https://polymarket.com/event/cfb-ballst-ohio-2026-11-17","Open\nDenmark vs. Norway: O/U 2.5 on Polymarket->https://polymarket.com/event/unl-den-nor-2026-11-17-more-markets"]
+  tray small []
+  facts {"url":"/bets","cls":0.0004,"shifts":["0.0004 freshness y68->68 h44->44"],"disc":true,"cents":false,"hs":false}
+  checker 7077574:0,7078474:1,6674485:0: tray {"y":706,"h":70,"b":776} btn {"y":807,"h":44,"b":851} vh 844 btn topmost false
+  after scrollIntoView: tray {"y":706,"h":70,"b":776} btn {"y":800,"h":44,"b":844} btn topmost false
+  scroll positions where Check button overlaps the tray: [100]
+  CLS[Check this combo (with tray)] 0 []
+  CHECKER same legs: {"chance":"62%","mult":"2.72x","edge":"+25 points","score":"100"}  vs TRAY {"chance":"62% (about 6 in 10)","pays":"2.7x","ret":"+67%"}
+  bottom: disclaimer {"y":348,"h":32,"b":380} tray {"y":706,"h":70,"b":776} disclaimer topmost true
+  facts {"url":"/check/combo?legs=7077574%3A0%2C7078474%3A1%2C6674485%3A0&check=1","cls":0.0004,"shifts":["0.0004 freshness y68->68 h44->44"],"disc":true,"cents":false,"hs":false}; small ["inline a:\"source\" 39x15"]
+
+===== premium tray @ 1440 =====
+  /bets rows 12
+  row 0 "Miami (OH) vs. Kent State: 1Q Moneyline" tray btn {"y":263,"h":46,"b":309} checker /check/combo?m=7077574&side=0
+  CLS[drawer Add to combo tray (row 0)] 0 []
+   -> btn "In combo ✓" summary "Add one more bet to see the combo" alerts []
+  row 1 "Ball State vs. Ohio: 1Q Moneyline" tray btn {"y":236,"h":46,"b":282} checker /check/combo?m=7078474&side=1
+  CLS[drawer Add to combo tray (row 1)] 0 []
+   -> btn "In combo ✓" summary "Pays 1.9x · wins about 7–8 in 10" alerts []
+  row 2 "Denmark vs. Norway: O/U 2.5" tray btn {"y":236,"h":46,"b":282} checker /check/combo?m=6674485&side=0
+  CLS[drawer Add to combo tray (row 2)] 0 []
+   -> btn "In combo ✓" summary "Pays 2.7x · wins about 6 in 10" alerts []
+  /m/6674485: alerts [] link none
+  /m/6674492: alerts ["Your combo already has a bet from this event. Results in one event move together, so pick a different event. You can still check them together in the combo checker."] link combo checker -> /check/combo?legs=7077574%3A0%2C7078474%3A1%2C6674485%3A0%2C6674492%3A0 {"y":411,"h":48,"b":458}
+   link hit test: {"rects":["95x48"],"pBottom":458,"linkBottom":458,"nextTop":466,"out":{"2":"link","8":"link","24":"link","40":"link","46":"link"}}
+   pointer -> /check/combo?legs=7077574%3A0%2C7078474%3A1%2C6674485%3A0%2C6674492%3A0 legs ["Miami (OH) vs. Kent State: 1Q Moneyline","Ball State vs. Ohio: 1Q Moneyline","Denmark vs. Norway: O/U 2.5","Denmark vs. Norway: Both Teams to Score"] same-event note "Same event (Denmark vs. Norway): these legs move together, the combined chance is likely off. Drop one of the two Denmark vs. Norway bets."
+  tray {"y":814,"h":70,"b":884} summary "Pays 2.7x · wins about 6 in 10"
+  TRAY: "Your combo · 3 legs\nPays 2.7x · wins about 6 in 10\nEstimated return\n+67%\n1\n\nMiami (OH) vs. Kent State: 1Q Moneyline\n\nBet Miami (OH) · Pays 1.4x after fee · 84% chance to win (cautious)\n\nOpen\nMiami (OH) vs. Kent State: 1Q Moneyline on Polymarket\n2\n\nBall State vs. Ohio: 1Q Moneyline\n\nBet Ohio · Pays 1.3x after fee · 89% chance to win (cautious)\n\nOpen\nBall State vs. Ohio: 1Q Moneyline on Polymarket\n3\n\nDenmark vs. Norway: O/U 2.5\n\nBet Over · Pays 1.4x after fee · 82% chance to win (cautious)\n\nOpen\nDenmark vs. Norway: O/U 2.5 on Polymarket\nChance to win\n62% (about 6 in 10)\nPays\n2.7x\nEstimated return at 62%\n+67%\nAgainst the price\nBeats it\n\nThe combo wins only if every leg wins, so the legs' chances multiply: 84% × 89% × 82% ≈ 62%. Chances are our cautious ones (our central estimate is 73%). Payouts include each leg's fee: every leg bought and the winnings rolled into the next. Prices are from when you added each leg. Small errors in each leg multiply in a combo. 3-leg combos: won 65% of the time, +26% return in testing. No live record for combos yet: the live record tracks single best bets only.\n\nClear combo"
+  tray nums {"chance":"62% (about 6 in 10)","pays":"2.7x","ret":"+67%"}; tray links ["Open\nMiami (OH) vs. Kent State: 1Q Moneyline on Polymarket->https://polymarket.com/event/cfb-miaoh-kentst-2026-11-17","Open\nBall State vs. Ohio: 1Q Moneyline on Polymarket->https://polymarket.com/event/cfb-ballst-ohio-2026-11-17","Open\nDenmark vs. Norway: O/U 2.5 on Polymarket->https://polymarket.com/event/unl-den-nor-2026-11-17-more-markets"]
+  tray small []
+  facts {"url":"/bets","cls":0.0001,"shifts":["0.0001 freshness y10->10 h44->44"],"disc":true,"cents":false,"hs":false}
+  checker 7077574:0,7078474:1,6674485:0: tray {"y":814,"h":70,"b":884} btn {"y":599,"h":44,"b":643} vh 900 btn topmost true
+  after scrollIntoView: tray {"y":814,"h":70,"b":884} btn {"y":599,"h":44,"b":643} btn topmost true
+  scroll positions where Check button overlaps the tray: []
+  CLS[Check this combo (with tray)] 0 []
+  CHECKER same legs: {"chance":"62%","mult":"2.72x","edge":"+25 points","score":"100"}  vs TRAY {"chance":"62% (about 6 in 10)","pays":"2.7x","ret":"+67%"}
+  bottom: disclaimer {"y":672,"h":16,"b":688} tray {"y":814,"h":70,"b":884} disclaimer topmost true
+  facts {"url":"/check/combo?legs=7077574%3A0%2C7078474%3A1%2C6674485%3A0&check=1","cls":0.0001,"shifts":["0.0001 freshness y10->10 h44->44"],"disc":true,"cents":false,"hs":false}; small ["a:\"Best bets\" 86x36","a:\"All markets\" 97x36","a:\"My list\" 67x36","a:\"My bets\" 77x36","a:\"Results\" 72x36","a:\"Check a bet\" 103x36","a:\"Combos\" 79x36","a:\"Kalshi\" 64x36","inline a:\"source\" 39x15","a:\"How it works\" 82x24","a:\"Pricing\" 47x24","a:\"Check a bet\" 76x24","a:\"Check a combo\" 97x24","a:\"Terms\" 43x24","a:\"Privacy\" 50x24","a:\"Refunds\" 55x24","a:\"Disclaimer\" 67x24","a:\"Contact\" 53x24","a:\"Status\" 44x24","a:\"Kalshi markets\" 91x24"]
+ERRORS premium: []

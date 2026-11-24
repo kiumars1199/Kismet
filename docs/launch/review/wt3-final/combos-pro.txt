@@ -1,0 +1,20 @@
+signed in wt3f-cb-pro-390-1795555623886@example.com tier=pro
+pro 390 /combos [empty-tray] cls 0.0004 disc true cents false hs false
+  entries [{"t":304,"v":0.0004,"input":false,"src":"freshness y68->68 h44->44"}]
+  timeline 336:f475/465:n1:doc940:cards0 589:f475/465:n1:doc940:cards0 843:f475/465:n1:doc940:cards0 1095:f475/465:n1:doc940:cards0 1348:f475/465:n1:doc940:cards0 1602:f475/465:n1:doc940:cards0 1855:f475/465:n1:doc940:cards0 2108:f475/465:n1:doc940:cards0 2362:f475/465:n1:doc940:cards0 2615:f475/465:n1:doc940:cards0 2868:f475/465:n1:doc940:cards0 3122:f475/465:n1:doc940:cards0
+pro 390 /combos [reload] cls 0.0004 disc true cents false hs false
+  entries [{"t":302,"v":0.0004,"input":false,"src":"freshness y68->68 h44->44"}]
+  timeline 324:f475/465:n1:doc940:cards0 577:f475/465:n1:doc940:cards0 831:f475/465:n1:doc940:cards0 1084:f475/465:n1:doc940:cards0 1340:f475/465:n1:doc940:cards0 1594:f475/465:n1:doc940:cards0 1847:f475/465:n1:doc940:cards0 2100:f475/465:n1:doc940:cards0 2354:f475/465:n1:doc940:cards0 2607:f475/465:n1:doc940:cards0 2862:f475/465:n1:doc940:cards0 3116:f475/465:n1:doc940:cards0
+pro 390 /combos [with-tray] cls 0.0004 disc true cents false hs false
+  entries [{"t":302,"v":0.0004,"input":false,"src":"freshness y68->68 h44->44"}]
+  timeline 339:f475/465:n1:doc940:cards0 593:f475/465:n1:doc940:cards0 846:f475/465:n1:doc940:cards0 1099:f475/465:n1:doc940:cards0 1352:f475/465:n1:doc940:cards0 1605:f475/465:n1:doc940:cards0 1858:f475/465:n1:doc940:cards0 2111:f475/465:n1:doc940:cards0 2364:f475/465:n1:doc940:cards0 2618:f475/465:n1:doc940:cards0 2871:f475/465:n1:doc940:cards0 3124:f475/465:n1:doc940:cards0
+signed in wt3f-cb-pro-1440-1795555635628@example.com tier=pro
+pro 1440 /combos [empty-tray] cls 0.0004 disc true cents false hs false
+  entries [{"t":123,"v":0.0004,"input":false,"src":"DIV y10->10 h44->44"}]
+  timeline 336:f707/193:n1:doc900:cards0 589:f707/193:n1:doc900:cards0 842:f707/193:n1:doc900:cards0 1094:f707/193:n1:doc900:cards0 1347:f707/193:n1:doc900:cards0 1600:f707/193:n1:doc900:cards0 1853:f707/193:n1:doc900:cards0 2107:f707/193:n1:doc900:cards0 2360:f707/193:n1:doc900:cards0 2614:f707/193:n1:doc900:cards0 2867:f707/193:n1:doc900:cards0 3120:f707/193:n1:doc900:cards0
+pro 1440 /combos [reload] cls 0.0004 disc true cents false hs false
+  entries [{"t":162,"v":0.0004,"input":false,"src":"DIV y10->10 h44->44"}]
+  timeline 341:f707/193:n1:doc900:cards0 595:f707/193:n1:doc900:cards0 848:f707/193:n1:doc900:cards0 1100:f707/193:n1:doc900:cards0 1353:f707/193:n1:doc900:cards0 1607:f707/193:n1:doc900:cards0 1860:f707/193:n1:doc900:cards0 2113:f707/193:n1:doc900:cards0 2366:f707/193:n1:doc900:cards0 2619:f707/193:n1:doc900:cards0 2872:f707/193:n1:doc900:cards0 3125:f707/193:n1:doc900:cards0
+pro 1440 /combos [with-tray] cls 0.0004 disc true cents false hs false
+  entries [{"t":157,"v":0.0004,"input":false,"src":"DIV y10->10 h44->44"}]
+  timeline 337:f707/193:n1:doc900:cards0 590:f707/193:n1:doc900:cards0 844:f707/193:n1:doc900:cards0 1097:f707/193:n1:doc900:cards0 1350:f707/193:n1:doc900:cards0 1604:f707/193:n1:doc900:cards0 1858:f707/193:n1:doc900:cards0 2111:f707/193:n1:doc900:cards0 2364:f707/193:n1:doc900:cards0 2618:f707/193:n1:doc900:cards0 2871:f707/193:n1:doc900:cards0 3124:f707/193:n1:doc900:cards0

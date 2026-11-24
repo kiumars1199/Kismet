@@ -1,0 +1,11 @@
+WT3 re-walk on final 582e4d6 (local prod build, E2E mock, port 4239, socket confirmed; server stopped, worktree removed)
+Widths 390 + 1440; tiers signed-out / free / pro / premium.
+walk-pro.txt, walk-premium.txt : drawer -> combo checker, search-add legs, check, Why, share link (pro + signed out), reload, remove leg, same-event pair, /combos, /check
+tiers.txt : /check/combo empty + deep link, 4 tiers x 2 widths
+free-limit.txt : free combo 429 flows at 390/1440 (CLS 0)
+check-<tier>-<w>.txt : /check deep links, 99.9 / 0.8 / normal, edits, side switch, free daily limit
+tray.txt : premium tray, disclaimer above tray
+combos-premium.txt / combos-pro.txt / combos-pays.txt : /combos load CLS probe
+FINDING
+1 [should-fix] Premium /combos load CLS 0.4636 @390, 0.1189 @1440 (budget 0.02). Server HTML has no cards (only "Loading combos…" line), footer paints at y453 (390) inside first screen, ~350 ms later ComboBrowser's client fetch renders 33 cards and the footer jumps to y3909. Same on reload, with/without tray. Pro/Free (upgrade card) 0.0004. Pays-filter switching 0. Cause: app/combos/ComboBrowser.tsx loading state has no reserved height (or no server render of the list). Not in previous WT3 walks (premium /combos was never measured).
+Everything else: all numbers present, free limit counts deep links correctly, disclaimer on every page, no cents, no personalized copy, no page errors, CLS <= 0.0004 elsewhere.

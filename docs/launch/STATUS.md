@@ -88,6 +88,7 @@ Problems:
 - ~~[nit] Combo leg line says "pays 1.00x" for a 0.999 price; after fees it is under 1x (T-wt3i)~~ fixed by #138
 - ~~[nit] 375/360: larger gap above the "combo checker." line from its tap area (T-wt3i)~~ fixed by #138
 
+- [should-fix] Premium /combos page jumps on load: CLS 0.46 at 390, 0.12 at 1440; the list loads client-side with no reserved height (T-wt3j)
 
 ## Found in review, outside a lane
 - #138 merged at 582e4d6 (Nov 24), PASS at 2782071. Known nits, logged not tasked: the field shows 0.8 while the card says 1% (rounding); typed "99.90" gets the range error while "0.80" is accepted; editing a filled 99.9 to 99.8 shows the 1–99% message; the 375 gap above the combo link is still slightly larger. Evidence: review/138/.

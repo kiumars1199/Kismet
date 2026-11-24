@@ -1,0 +1,30 @@
+signed-out 390 /check/combo: chance null upgrade false disc true cents false hs false cls 0 gate [] perso [] badpct []
+signed-out 390 /check/combo?legs=7077574%3A0%2C6417673%3A1%2C6674501%3A1: chance 70% upgrade false disc true cents false hs false cls 0 gate [] perso [] badpct []
+  errors []
+signed-out 1440 /check/combo: chance null upgrade false disc true cents false hs false cls 0 gate [] perso [] badpct []
+signed-out 1440 /check/combo?legs=7077574%3A0%2C6417673%3A1%2C6674501%3A1: chance 70% upgrade false disc true cents false hs false cls 0 gate [] perso [] badpct []
+  errors []
+signed in r134-t-free-1795555365141@example.com tier=free
+free 390 /check/combo: chance null upgrade false disc true cents false hs false cls 0.0004 gate [] perso [] badpct []
+free 390 /check/combo?legs=7077574%3A0%2C6417673%3A1%2C6674501%3A1: chance 70% upgrade false disc true cents false hs false cls 0.0004 gate [] perso [] badpct []
+  errors []
+signed in r134-t-free-1795555405294@example.com tier=free
+free 1440 /check/combo: chance null upgrade false disc true cents false hs false cls 0.0004 gate [] perso [] badpct []
+free 1440 /check/combo?legs=7077574%3A0%2C6417673%3A1%2C6674501%3A1: chance 70% upgrade false disc true cents false hs false cls 0.0004 gate [] perso [] badpct []
+  errors []
+signed in r134-t-pro-1795555445513@example.com tier=pro
+pro 390 /check/combo: chance null upgrade false disc true cents false hs false cls 0.0004 gate [] perso [] badpct []
+pro 390 /check/combo?legs=7077574%3A0%2C6417673%3A1%2C6674501%3A1: chance 70% upgrade false disc true cents false hs false cls 0.0004 gate [] perso [] badpct []
+  errors []
+signed in r134-t-pro-1795555485835@example.com tier=pro
+pro 1440 /check/combo: chance null upgrade false disc true cents false hs false cls 0.0004 gate [] perso [] badpct []
+pro 1440 /check/combo?legs=7077574%3A0%2C6417673%3A1%2C6674501%3A1: chance 70% upgrade false disc true cents false hs false cls 0.0004 gate [] perso [] badpct []
+  errors []
+signed in r134-t-premium-1795555526017@example.com tier=premium
+premium 390 /check/combo: chance null upgrade false disc true cents false hs false cls 0.0004 gate [] perso [] badpct []
+premium 390 /check/combo?legs=7077574%3A0%2C6417673%3A1%2C6674501%3A1: chance 70% upgrade false disc true cents false hs false cls 0.0004 gate [] perso [] badpct []
+  errors []
+signed in r134-t-premium-1795555566226@example.com tier=premium
+premium 1440 /check/combo: chance null upgrade false disc true cents false hs false cls 0.0001 gate [] perso [] badpct []
+premium 1440 /check/combo?legs=7077574%3A0%2C6417673%3A1%2C6674501%3A1: chance 70% upgrade false disc true cents false hs false cls 0.0001 gate [] perso [] badpct []
+  errors []

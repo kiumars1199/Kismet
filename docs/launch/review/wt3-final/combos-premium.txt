@@ -1,0 +1,20 @@
+signed in wt3f-cb-premium-390-1795555599234@example.com tier=premium
+premium 390 /combos [empty-tray] cls 0.4636 disc true cents false hs false
+  entries [{"t":308,"v":0.0004,"input":false,"src":"freshness y68->68 h44->44"},{"t":393,"v":0.4633,"input":false,"src":"FOOTER y453->0 h392->0"}]
+  timeline 401:f3909/465:n1:doc4374:cards33 655:f3909/465:n1:doc4374:cards33 909:f3909/465:n1:doc4374:cards33 1162:f3909/465:n1:doc4374:cards33 1415:f3909/465:n1:doc4374:cards33 1671:f3909/465:n1:doc4374:cards33 1927:f3909/465:n1:doc4374:cards33 2183:f3909/465:n1:doc4374:cards33 2436:f3909/465:n1:doc4374:cards33 2690:f3909/465:n1:doc4374:cards33 2943:f3909/465:n1:doc4374:cards33 3197:f3909/465:n1:doc4374:cards33
+premium 390 /combos [reload] cls 0.4636 disc true cents false hs false
+  entries [{"t":305,"v":0.0004,"input":false,"src":"freshness y68->68 h44->44"},{"t":362,"v":0.4633,"input":false,"src":"FOOTER y453->0 h392->0"}]
+  timeline 329:f453/465:n1:doc918:cards0 582:f3909/465:n1:doc4374:cards33 836:f3909/465:n1:doc4374:cards33 1089:f3909/465:n1:doc4374:cards33 1344:f3909/465:n1:doc4374:cards33 1598:f3909/465:n1:doc4374:cards33 1852:f3909/465:n1:doc4374:cards33 2105:f3909/465:n1:doc4374:cards33 2358:f3909/465:n1:doc4374:cards33 2612:f3909/465:n1:doc4374:cards33 2865:f3909/465:n1:doc4374:cards33 3119:f3909/465:n1:doc4374:cards33
+premium 390 /combos [with-tray] cls 0.4636 disc true cents false hs false
+  entries [{"t":304,"v":0.0004,"input":false,"src":"freshness y68->68 h44->44"},{"t":347,"v":0.4633,"input":false,"src":"FOOTER y453->0 h392->0"}]
+  timeline 337:f453/465:n1:doc918:cards0 589:f3909/465:n1:doc4374:cards33 842:f3909/465:n1:doc4374:cards33 1095:f3909/465:n1:doc4374:cards33 1348:f3909/465:n1:doc4374:cards33 1601:f3909/465:n1:doc4374:cards33 1853:f3909/465:n1:doc4374:cards33 2106:f3909/465:n1:doc4374:cards33 2359:f3909/465:n1:doc4374:cards33 2612:f3909/465:n1:doc4374:cards33 2865:f3909/465:n1:doc4374:cards33 3118:f3909/465:n1:doc4374:cards33
+signed in wt3f-cb-premium-1440-1795555611548@example.com tier=premium
+premium 1440 /combos [empty-tray] cls 0.1189 disc true cents false hs false
+  entries [{"t":306,"v":0.0001,"input":false,"src":"freshness y10->10 h44->44"},{"t":352,"v":0.1189,"input":false,"src":"FOOTER y707->0 h193->0"}]
+  timeline 347:f1505/193:n1:doc1698:cards33 601:f1505/193:n1:doc1698:cards33 859:f1505/193:n1:doc1698:cards33 1112:f1505/193:n1:doc1698:cards33 1366:f1505/193:n1:doc1698:cards33 1618:f1505/193:n1:doc1698:cards33 1872:f1505/193:n1:doc1698:cards33 2125:f1505/193:n1:doc1698:cards33 2379:f1505/193:n1:doc1698:cards33 2633:f1505/193:n1:doc1698:cards33 2894:f1505/193:n1:doc1698:cards33 3148:f1505/193:n1:doc1698:cards33
+premium 1440 /combos [reload] cls 0.1189 disc true cents false hs false
+  entries [{"t":305,"v":0.0001,"input":false,"src":"freshness y10->10 h44->44"},{"t":354,"v":0.1189,"input":false,"src":"FOOTER y707->0 h193->0"}]
+  timeline 329:f707/193:n1:doc900:cards0 583:f1505/193:n1:doc1698:cards33 837:f1505/193:n1:doc1698:cards33 1089:f1505/193:n1:doc1698:cards33 1343:f1505/193:n1:doc1698:cards33 1596:f1505/193:n1:doc1698:cards33 1853:f1505/193:n1:doc1698:cards33 2108:f1505/193:n1:doc1698:cards33 2361:f1505/193:n1:doc1698:cards33 2615:f1505/193:n1:doc1698:cards33 2868:f1505/193:n1:doc1698:cards33 3121:f1505/193:n1:doc1698:cards33
+premium 1440 /combos [with-tray] cls 0.1189 disc true cents false hs false
+  entries [{"t":308,"v":0.0001,"input":false,"src":"freshness y10->10 h44->44"},{"t":380,"v":0.1189,"input":false,"src":"FOOTER y707->0 h193->0"}]
+  timeline 368:f707/193:n1:doc900:cards0 624:f1505/193:n1:doc1698:cards33 878:f1505/193:n1:doc1698:cards33 1131:f1505/193:n1:doc1698:cards33 1385:f1505/193:n1:doc1698:cards33 1638:f1505/193:n1:doc1698:cards33 1891:f1505/193:n1:doc1698:cards33 2145:f1505/193:n1:doc1698:cards33 2399:f1505/193:n1:doc1698:cards33 2652:f1505/193:n1:doc1698:cards33 2906:f1505/193:n1:doc1698:cards33 3159:f1505/193:n1:doc1698:cards33

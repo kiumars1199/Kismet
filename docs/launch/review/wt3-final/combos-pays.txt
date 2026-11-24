@@ -1,0 +1,18 @@
+signed in wt3f-pay-390-1795555667283@example.com tier=premium
+  CLS[390 Pays 3x+] 0 []
+   cards 0 empty 1
+  CLS[390 Pays 5x+] 0 []
+   cards 0 empty 1
+  CLS[390 Pays 10x+] 0 []
+   cards 0 empty 1
+  CLS[390 Pays 2x+] 0 []
+   cards 33 empty 0
+signed in wt3f-pay-1440-1795555680021@example.com tier=premium
+  CLS[1440 Pays 3x+] 0 []
+   cards 0 empty 1
+  CLS[1440 Pays 5x+] 0 []
+   cards 0 empty 1
+  CLS[1440 Pays 10x+] 0 []
+   cards 0 empty 1
+  CLS[1440 Pays 2x+] 0 []
+   cards 33 empty 0
