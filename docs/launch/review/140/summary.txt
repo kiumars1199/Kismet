@@ -1,0 +1,18 @@
+#140 (T-wt3k) c251a795864830cd5acd246debfaf5fcdc92289f: FAIL (1 blocker: Back/Forward regression)
+
+Diff vs final fb982c1 (merge-base): only app/combos/ComboBrowser.tsx, app/combos/page.tsx, test/beta-routes.test.ts,
+e2e-paid/launch-wt3k-combos-order.spec.ts, docs/launch/review/wt3k/*.png. Clean despite cherry-pick.
+
+1 Held-chunk proxy (400 ms), split before first card and before <footer>: CLS <= 0.0006 at 390/375/1440 (held-chunk.txt).
+  r2 was 0.55/0.55/0.12. held-card-390-before-list.png: footer not painted until list arrives.
+2 Raw HTML: /combos first card @9062 < footer @28049, no B:n/<!--$?--> in document. pays 3/5/10/abc/4 fine (deep-links.txt).
+3 Slow API (+1200 ms) taps at 390/375/1440: 0 requests, nonInput CLS 0, ?pays synced. Loads/reloads/?pays=5: 0.0001-0.0006.
+  goto-based back/forward OK (switch-load-bf.txt).
+  BLOCKER: client-side nav away (footer link) then Back/Forward: URL /combos?pays=5 but 2x pressed and 9 cards shown;
+  /combos?pays=2 (landed on 5) shows 5x list; 12/12 MISMATCH at 390 and 1440 (clientnav-bf.txt).
+  final fb982c1: 18/18 OK (clientnav-bf-BASE-fb982c1.txt). Reload fixes. Cause: router cache restores the page rendered
+  for the original URL, ComboBrowser remounts with stale initialPays; nothing re-reads location.
+4 Leak: signed-out/Free/Pro/paused 0 in html, rsc, rscNav; paused 423 (leak.txt). Parity 2/3/5/10 identical (parity.txt).
+5 Tray / Build this combo / checker: 78% 2.01x +28, 73% 2.59x +34, CLS 0 (tray-check.txt).
+6 Disclaimer present, no cents, no personalized copy, no page errors.
+Nits: ?pays=5&pays=10 now -> 2 (was 5, first value). Pre-existing: Back to /bets at 390 CLS 0.55 (1 of 3 widths here).

@@ -1,0 +1,4 @@
+'' ['Pays 2x+'] personal-words [] DISC True cents False
+'?pays=5' ['Pays 5x+'] personal-words [] DISC True cents False
+'?pays=5&pays=10' ['Pays 5x+'] personal-words [] DISC True cents False
+'?pays=abc' ['Pays 2x+'] personal-words [] DISC True cents False

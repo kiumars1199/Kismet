@@ -1,0 +1,19 @@
+signed in r140-lk-390-1795561691036@example.com tier=premium
+premium api: 7 questions, 7 ids; sample ["6674492","6654466","6674202","7078475"]
+premium raw html: has-cards 9 q-hits 7
+out: html {"q":0,"ids":0,"cardsMarkup":0,"groups":false} rsc {"q":0,"ids":0,"cardsMarkup":0,"groups":false} rscNav {"q":0,"ids":0,"cardsMarkup":0,"groups":false} api 401 len html 31116 rsc 12395
+  page: cls 0 [] disc true cents false hs false cards 0 main "Create your free account 10 best bets a day free, no card. Save views and keep My list on every device. I'm 18 or older and agree to the Terms and Privacy Policy. Terms Privacy Policy Continue with Google Password Email link Email Password Show At least 8 char"
+  errors []
+signed in r140-lkfree-390-1795561696138@example.com tier=free
+free: html {"q":0,"ids":0,"cardsMarkup":0,"groups":false} rsc {"q":0,"ids":0,"cardsMarkup":0,"groups":false} rscNav {"q":0,"ids":0,"cardsMarkup":0,"groups":false} api 200 len html 30654 rsc 12690
+  page: cls 0.0004 ["0.0004 freshness y68->68 h44->44"] disc true cents false hs false cards 0 main "Combos Best bets from different events, closing within a day, in one bet. Every leg has to win, so the payout is bigger and the chance is lower. A combo is shown only if it still beats its price when every leg uses our cautious chance. Check any combo you buil"
+  errors []
+signed in r140-lkpro-390-1795561701058@example.com tier=pro
+pro: html {"q":0,"ids":0,"cardsMarkup":0,"groups":false} rsc {"q":0,"ids":0,"cardsMarkup":0,"groups":false} rscNav {"q":0,"ids":0,"cardsMarkup":0,"groups":false} api 200 len html 30651 rsc 12688
+  page: cls 0.0004 ["0.0004 freshness y68->68 h44->44"] disc true cents false hs false cards 0 main "Combos Best bets from different events, closing within a day, in one bet. Every leg has to win, so the payout is bigger and the chance is lower. A combo is shown only if it still beats its price when every leg uses our cautious chance. Check any combo you buil"
+  errors []
+signed in r140-lkpaused-390-1795561706018@example.com tier=premium
+paused patch 204 uid d38adae1-fc46-45f3-b2e3-784c339dd755 (me keys user,tier,beta,status,current_period_end,cancel_at_period_end,paused_until,demo,auth,billing,admin,nav)
+paused: html {"q":0,"ids":0,"cardsMarkup":0,"groups":false} rsc {"q":0,"ids":0,"cardsMarkup":0,"groups":false} rscNav {"q":0,"ids":0,"cardsMarkup":0,"groups":false} api 423 len html 24855 rsc 12166
+  page: cls 0 [] disc true cents false hs false cards 0 main "Your account is paused You asked for a break. Kismet is off until Nov 25, 2026, 11:08 PM. There is nothing to do. The pause can't be ended early, and your plan and data are kept. Gambling problem? Free, confidential help: Call or text 1-800-MY-RESET Chat onlin"
+  errors []

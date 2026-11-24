@@ -1,0 +1,9 @@
+
+ RUN  v5.1.0 /tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/wt140r2/apps/web
+
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  23:43:29
+   Duration  1.19s (transform 52%, tests 28%, import 20%)
+

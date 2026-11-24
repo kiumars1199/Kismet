@@ -1,0 +1,55 @@
+signed in r140r2-bf-390-1795563100700@example.com tier=premium
+390 expected per pays {"2":"9","3":"0 empty","5":"0 empty","10":"0 empty"}
+390 r0 /combos tap 5: {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"first":null,"empty":"No combo pays 5x or mo"} OK
+   via "How it works": back:/combos?pays=5|Pays 5x+|0  forward:/about|-|0  back:/combos?pays=5|Pays 5x+|0  forward:/about|-|0  back:/combos?pays=5|Pays 5x+|0
+390 r0 /combos?pays=5 tap 2: {"url":"/combos?pays=2","pressed":"Pays 2x+","cards":9,"first":"Combo · 2 legs Pays 2.0x · wins about 8 in 10 Denm","empty":null} OK
+   via "Check a combo": back:/combos?pays=2|Pays 2x+|9  forward:/check/combo|-|0  back:/combos?pays=2|Pays 2x+|9  forward:/check/combo|-|0  back:/combos?pays=2|Pays 2x+|9
+390 r0 /combos tap 10: {"url":"/combos?pays=10","pressed":"Pays 10x+","cards":0,"first":null,"empty":"No combo pays 10x or m"} OK
+   via "Pricing": back:/combos?pays=10|Pays 10x+|0  forward:/pricing|-|0  back:/combos?pays=10|Pays 10x+|0  forward:/pricing|-|0  back:/combos?pays=10|Pays 10x+|0
+390 r0 /combos?pays=3 tap 5: {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"first":null,"empty":"No combo pays 5x or mo"} OK
+   via "How it works": back:/combos?pays=5|Pays 5x+|0  forward:/about|-|0  back:/combos?pays=5|Pays 5x+|0  forward:/about|-|0  back:/combos?pays=5|Pays 5x+|0
+390 r1 /combos tap 5: {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"first":null,"empty":"No combo pays 5x or mo"} OK
+   via "How it works": back:/combos?pays=5|Pays 5x+|0  forward:/about|-|0  back:/combos?pays=5|Pays 5x+|0  forward:/about|-|0  back:/combos?pays=5|Pays 5x+|0
+390 r1 /combos?pays=5 tap 2: {"url":"/combos?pays=2","pressed":"Pays 2x+","cards":9,"first":"Combo · 2 legs Pays 2.0x · wins about 8 in 10 Denm","empty":null} OK
+   via "Check a combo": back:/combos?pays=2|Pays 2x+|9  forward:/check/combo|-|0  back:/combos?pays=2|Pays 2x+|9  forward:/check/combo|-|0  back:/combos?pays=2|Pays 2x+|9
+390 r1 /combos tap 10: {"url":"/combos?pays=10","pressed":"Pays 10x+","cards":0,"first":null,"empty":"No combo pays 10x or m"} OK
+   via "Pricing": back:/combos?pays=10|Pays 10x+|0  forward:/pricing|-|0  back:/combos?pays=10|Pays 10x+|0  forward:/pricing|-|0  back:/combos?pays=10|Pays 10x+|0
+390 r1 /combos?pays=3 tap 5: {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"first":null,"empty":"No combo pays 5x or mo"} OK
+   via "How it works": back:/combos?pays=5|Pays 5x+|0  forward:/about|-|0  back:/combos?pays=5|Pays 5x+|0  forward:/about|-|0  back:/combos?pays=5|Pays 5x+|0
+390 r2 /combos tap 5: {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"first":null,"empty":"No combo pays 5x or mo"} OK
+   via "How it works": back:/combos?pays=5|Pays 5x+|0  forward:/about|-|0  back:/combos?pays=5|Pays 5x+|0  forward:/about|-|0  back:/combos?pays=5|Pays 5x+|0
+390 r2 /combos?pays=5 tap 2: {"url":"/combos?pays=2","pressed":"Pays 2x+","cards":9,"first":"Combo · 2 legs Pays 2.0x · wins about 8 in 10 Denm","empty":null} OK
+   via "Check a combo": back:/combos?pays=2|Pays 2x+|9  forward:/check/combo|-|0  back:/combos?pays=2|Pays 2x+|9  forward:/check/combo|-|0  back:/combos?pays=2|Pays 2x+|9
+390 r2 /combos tap 10: {"url":"/combos?pays=10","pressed":"Pays 10x+","cards":0,"first":null,"empty":"No combo pays 10x or m"} OK
+   via "Pricing": back:/combos?pays=10|Pays 10x+|0  forward:/pricing|-|0  back:/combos?pays=10|Pays 10x+|0  forward:/pricing|-|0  back:/combos?pays=10|Pays 10x+|0
+390 r2 /combos?pays=3 tap 5: {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"first":null,"empty":"No combo pays 5x or mo"} OK
+   via "How it works": back:/combos?pays=5|Pays 5x+|0  forward:/about|-|0  back:/combos?pays=5|Pays 5x+|0  forward:/about|-|0  back:/combos?pays=5|Pays 5x+|0
+390 errors [] apiRequests 0
+signed in r140r2-bf-1440-1795563197461@example.com tier=premium
+1440 expected per pays {"2":"9","3":"0 empty","5":"0 empty","10":"0 empty"}
+1440 r0 /combos tap 5: {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"first":null,"empty":"No combo pays 5x or mo"} OK
+   via "How it works": back:/combos?pays=5|Pays 5x+|0  forward:/about|-|0  back:/combos?pays=5|Pays 5x+|0  forward:/about|-|0  back:/combos?pays=5|Pays 5x+|0
+1440 r0 /combos?pays=5 tap 2: {"url":"/combos?pays=2","pressed":"Pays 2x+","cards":9,"first":"Combo · 2 legs Pays 2.0x · wins about 8 in 10 Denm","empty":null} OK
+   via "Check a combo": back:/combos?pays=2|Pays 2x+|9  forward:/check/combo|-|0  back:/combos?pays=2|Pays 2x+|9  forward:/check/combo|-|0  back:/combos?pays=2|Pays 2x+|9
+1440 r0 /combos tap 10: {"url":"/combos?pays=10","pressed":"Pays 10x+","cards":0,"first":null,"empty":"No combo pays 10x or m"} OK
+   via "Pricing": back:/combos?pays=10|Pays 10x+|0  forward:/pricing|-|0  back:/combos?pays=10|Pays 10x+|0  forward:/pricing|-|0  back:/combos?pays=10|Pays 10x+|0
+1440 r0 /combos?pays=3 tap 5: {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"first":null,"empty":"No combo pays 5x or mo"} OK
+   via "How it works": back:/combos?pays=5|Pays 5x+|0  forward:/about|-|0  back:/combos?pays=5|Pays 5x+|0  forward:/about|-|0  back:/combos?pays=5|Pays 5x+|0
+1440 r1 /combos tap 5: {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"first":null,"empty":"No combo pays 5x or mo"} OK
+   via "How it works": back:/combos?pays=5|Pays 5x+|0  forward:/about|-|0  back:/combos?pays=5|Pays 5x+|0  forward:/about|-|0  back:/combos?pays=5|Pays 5x+|0
+1440 r1 /combos?pays=5 tap 2: {"url":"/combos?pays=2","pressed":"Pays 2x+","cards":9,"first":"Combo · 2 legs Pays 2.0x · wins about 8 in 10 Denm","empty":null} OK
+   via "Check a combo": back:/combos?pays=2|Pays 2x+|9  forward:/check/combo|-|0  back:/combos?pays=2|Pays 2x+|9  forward:/check/combo|-|0  back:/combos?pays=2|Pays 2x+|9
+1440 r1 /combos tap 10: {"url":"/combos?pays=10","pressed":"Pays 10x+","cards":0,"first":null,"empty":"No combo pays 10x or m"} OK
+   via "Pricing": back:/combos?pays=10|Pays 10x+|0  forward:/pricing|-|0  back:/combos?pays=10|Pays 10x+|0  forward:/pricing|-|0  back:/combos?pays=10|Pays 10x+|0
+1440 r1 /combos?pays=3 tap 5: {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"first":null,"empty":"No combo pays 5x or mo"} OK
+   via "How it works": back:/combos?pays=5|Pays 5x+|0  forward:/about|-|0  back:/combos?pays=5|Pays 5x+|0  forward:/about|-|0  back:/combos?pays=5|Pays 5x+|0
+1440 r2 /combos tap 5: {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"first":null,"empty":"No combo pays 5x or mo"} OK
+   via "How it works": back:/combos?pays=5|Pays 5x+|0  forward:/about|-|0  back:/combos?pays=5|Pays 5x+|0  forward:/about|-|0  back:/combos?pays=5|Pays 5x+|0
+1440 r2 /combos?pays=5 tap 2: {"url":"/combos?pays=2","pressed":"Pays 2x+","cards":9,"first":"Combo · 2 legs Pays 2.0x · wins about 8 in 10 Denm","empty":null} OK
+   via "Check a combo": back:/combos?pays=2|Pays 2x+|9  forward:/check/combo|-|0  back:/combos?pays=2|Pays 2x+|9  forward:/check/combo|-|0  back:/combos?pays=2|Pays 2x+|9
+1440 r2 /combos tap 10: {"url":"/combos?pays=10","pressed":"Pays 10x+","cards":0,"first":null,"empty":"No combo pays 10x or m"} OK
+   via "Pricing": back:/combos?pays=10|Pays 10x+|0  forward:/pricing|-|0  back:/combos?pays=10|Pays 10x+|0  forward:/pricing|-|0  back:/combos?pays=10|Pays 10x+|0
+1440 r2 /combos?pays=3 tap 5: {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"first":null,"empty":"No combo pays 5x or mo"} OK
+   via "How it works": back:/combos?pays=5|Pays 5x+|0  forward:/about|-|0  back:/combos?pays=5|Pays 5x+|0  forward:/about|-|0  back:/combos?pays=5|Pays 5x+|0
+1440 errors [] apiRequests 0
+TOTAL combos states checked 96, mismatches 0

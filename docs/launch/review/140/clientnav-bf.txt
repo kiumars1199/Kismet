@@ -1,0 +1,46 @@
+signed in r140-bf-390-1795561623344@example.com tier=premium
+390 start /combos tapped 5: {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or mo","loading":false}
+  clicked "How it works" -> /about
+  back: {"url":"/combos?pays=5","pressed":"Pays 2x+","cards":9,"empty":null,"loading":false} MISMATCH url vs pressed
+  forward: {"url":"/about","cards":0,"empty":null,"loading":false} OK
+  back: {"url":"/combos?pays=5","pressed":"Pays 2x+","cards":9,"empty":null,"loading":false} MISMATCH url vs pressed
+  reload: {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or mo","loading":false}
+  api 0 rsc/doc ["document /combos?pays=5"]
+390 start /combos?pays=5 tapped 2: {"url":"/combos?pays=2","pressed":"Pays 2x+","cards":9,"empty":null,"loading":false}
+  clicked "Check a combo" -> /check/combo
+  back: {"url":"/combos?pays=2","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or mo","loading":false} MISMATCH url vs pressed
+  forward: {"url":"/check/combo","cards":0,"empty":null,"loading":false} OK
+  back: {"url":"/combos?pays=2","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or mo","loading":false} MISMATCH url vs pressed
+  reload: {"url":"/combos?pays=2","pressed":"Pays 2x+","cards":9,"empty":null,"loading":false}
+  api 0 rsc/doc ["document /combos?pays=2"]
+390 start /combos tapped 10: {"url":"/combos?pays=10","pressed":"Pays 10x+","cards":0,"empty":"No combo pays 10x or m","loading":false}
+  clicked "Pricing" -> /pricing
+  back: {"url":"/combos?pays=10","pressed":"Pays 2x+","cards":9,"empty":null,"loading":false} MISMATCH url vs pressed
+  forward: {"url":"/pricing","cards":0,"empty":null,"loading":false} OK
+  back: {"url":"/combos?pays=10","pressed":"Pays 2x+","cards":9,"empty":null,"loading":false} MISMATCH url vs pressed
+  reload: {"url":"/combos?pays=10","pressed":"Pays 10x+","cards":0,"empty":"No combo pays 10x or m","loading":false}
+  api 0 rsc/doc ["document /combos?pays=10"]
+390 errors []
+signed in r140-bf-1440-1795561652263@example.com tier=premium
+1440 start /combos tapped 5: {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or mo","loading":false}
+  clicked "How it works" -> /about
+  back: {"url":"/combos?pays=5","pressed":"Pays 2x+","cards":9,"empty":null,"loading":false} MISMATCH url vs pressed
+  forward: {"url":"/about","cards":0,"empty":null,"loading":false} OK
+  back: {"url":"/combos?pays=5","pressed":"Pays 2x+","cards":9,"empty":null,"loading":false} MISMATCH url vs pressed
+  reload: {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or mo","loading":false}
+  api 0 rsc/doc ["document /combos?pays=5"]
+1440 start /combos?pays=5 tapped 2: {"url":"/combos?pays=2","pressed":"Pays 2x+","cards":9,"empty":null,"loading":false}
+  clicked "Check a combo" -> /check/combo
+  back: {"url":"/combos?pays=2","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or mo","loading":false} MISMATCH url vs pressed
+  forward: {"url":"/check/combo","cards":0,"empty":null,"loading":false} OK
+  back: {"url":"/combos?pays=2","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or mo","loading":false} MISMATCH url vs pressed
+  reload: {"url":"/combos?pays=2","pressed":"Pays 2x+","cards":9,"empty":null,"loading":false}
+  api 0 rsc/doc ["document /combos?pays=2"]
+1440 start /combos tapped 10: {"url":"/combos?pays=10","pressed":"Pays 10x+","cards":0,"empty":"No combo pays 10x or m","loading":false}
+  clicked "Pricing" -> /pricing
+  back: {"url":"/combos?pays=10","pressed":"Pays 2x+","cards":9,"empty":null,"loading":false} MISMATCH url vs pressed
+  forward: {"url":"/pricing","cards":0,"empty":null,"loading":false} OK
+  back: {"url":"/combos?pays=10","pressed":"Pays 2x+","cards":9,"empty":null,"loading":false} MISMATCH url vs pressed
+  reload: {"url":"/combos?pays=10","pressed":"Pays 10x+","cards":0,"empty":"No combo pays 10x or m","loading":false}
+  api 0 rsc/doc ["document /combos?pays=10"]
+1440 errors []

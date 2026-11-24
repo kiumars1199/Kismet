@@ -1,0 +1,43 @@
+signed in r140r2-deep-390-1795563322819@example.com tier=premium
+RAW /combos                  len 56583 footer@28049 firstCard@9062 empty@-1 ssrPressed "Pays " listBeforeFooter true suspenseMarkers []
+390 load /combos: {"url":"/combos","pressed":"Pays 2x+","cards":9,"empty":null,"busy":false,"listVisible":true,"cls":0.0004,"s":["0.0004 freshness y68->68 h44->44"]} api 0
+RAW /combos?pays=2           len 56615 footer@28049 firstCard@9062 empty@-1 ssrPressed "Pays " listBeforeFooter true suspenseMarkers []
+390 load /combos?pays=2: {"url":"/combos?pays=2","pressed":"Pays 2x+","cards":9,"empty":null,"busy":false,"listVisible":true,"cls":0.0004,"s":["0.0004 freshness y68->68 h44->44"]} api 0
+RAW /combos?pays=3           len 37241 footer@8675 firstCard@-1 empty@8494 ssrPressed "Pays " listBeforeFooter true suspenseMarkers []
+390 load /combos?pays=3: {"url":"/combos?pays=3","pressed":"Pays 3x+","cards":0,"empty":"No combo pays 3x or more","busy":false,"listVisible":true,"cls":0.0004,"s":["0.0004 freshness y68->68 h44->44"]} api 0
+RAW /combos?pays=5           len 37241 footer@8675 firstCard@-1 empty@8494 ssrPressed "Pays " listBeforeFooter true suspenseMarkers []
+390 load /combos?pays=5: {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or more","busy":false,"listVisible":true,"cls":0.0004,"s":["0.0004 freshness y68->68 h44->44"]} api 0
+RAW /combos?pays=10          len 37244 footer@8676 firstCard@-1 empty@8494 ssrPressed "Pays " listBeforeFooter true suspenseMarkers []
+390 load /combos?pays=10: {"url":"/combos?pays=10","pressed":"Pays 10x+","cards":0,"empty":"No combo pays 10x or mor","busy":false,"listVisible":true,"cls":0.0004,"s":["0.0004 freshness y68->68 h44->44"]} api 0
+RAW /combos?pays=abc         len 56619 footer@28049 firstCard@9062 empty@-1 ssrPressed "Pays " listBeforeFooter true suspenseMarkers []
+390 load /combos?pays=abc: {"url":"/combos?pays=abc","pressed":"Pays 2x+","cards":9,"empty":null,"busy":false,"listVisible":true,"cls":0.0004,"s":["0.0004 freshness y68->68 h44->44"]} api 0
+RAW /combos?pays=5&pays=10   len 37267 footer@8675 firstCard@-1 empty@8494 ssrPressed "Pays " listBeforeFooter true suspenseMarkers []
+390 load /combos?pays=5&pays=10: {"url":"/combos?pays=5&pays=10","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or more","busy":false,"listVisible":true,"cls":0.0004,"s":["0.0004 freshness y68->68 h44->44"]} api 0
+RAW /combos?pays=10&pays=5   len 37268 footer@8676 firstCard@-1 empty@8494 ssrPressed "Pays " listBeforeFooter true suspenseMarkers []
+390 load /combos?pays=10&pays=5: {"url":"/combos?pays=10&pays=5","pressed":"Pays 10x+","cards":0,"empty":"No combo pays 10x or mor","busy":false,"listVisible":true,"cls":0.0004,"s":["0.0004 freshness y68->68 h44->44"]} api 0
+RAW /combos?pays=4           len 56615 footer@28049 firstCard@9062 empty@-1 ssrPressed "Pays " listBeforeFooter true suspenseMarkers []
+390 load /combos?pays=4: {"url":"/combos?pays=4","pressed":"Pays 2x+","cards":9,"empty":null,"busy":false,"listVisible":true,"cls":0.0004,"s":["0.0004 freshness y68->68 h44->44"]} api 0
+  390 tap 3x+: 50ms Pays 3x+/0/No combo pays 3x or more busy false  300ms Pays 3x+/0 busy false  end /combos?pays=3 Pays 3x+/0/No combo pays 3x or more blank false
+  390 tap 5x+: 50ms Pays 5x+/0/No combo pays 5x or more busy false  300ms Pays 5x+/0 busy false  end /combos?pays=5 Pays 5x+/0/No combo pays 5x or more blank false
+  390 tap 10x+: 50ms Pays 10x+/0/No combo pays 10x or mor busy false  300ms Pays 10x+/0 busy false  end /combos?pays=10 Pays 10x+/0/No combo pays 10x or mor blank false
+  390 tap 2x+: 50ms Pays 2x+/9/- busy false  300ms Pays 2x+/9 busy false  end /combos?pays=2 Pays 2x+/9/- blank false
+  390 tap 5x+: 50ms Pays 5x+/0/No combo pays 5x or more busy false  300ms Pays 5x+/0 busy false  end /combos?pays=5 Pays 5x+/0/No combo pays 5x or more blank false
+  390 tap 2x+: 50ms Pays 2x+/9/- busy false  300ms Pays 2x+/9 busy false  end /combos?pays=2 Pays 2x+/9/- blank false
+  390 switching: api requests 0 nonInput CLS 0 errors []
+signed in r140r2-deep-1440-1795563352398@example.com tier=premium
+1440 load /combos: {"url":"/combos","pressed":"Pays 2x+","cards":9,"empty":null,"busy":false,"listVisible":true,"cls":0.0001,"s":["0.0001 freshness y10->10 h44->44"]} api 0
+1440 load /combos?pays=2: {"url":"/combos?pays=2","pressed":"Pays 2x+","cards":9,"empty":null,"busy":false,"listVisible":true,"cls":0.0001,"s":["0.0001 freshness y10->10 h44->44"]} api 0
+1440 load /combos?pays=3: {"url":"/combos?pays=3","pressed":"Pays 3x+","cards":0,"empty":"No combo pays 3x or more","busy":false,"listVisible":true,"cls":0.0001,"s":["0.0001 freshness y10->10 h44->44"]} api 0
+1440 load /combos?pays=5: {"url":"/combos?pays=5","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or more","busy":false,"listVisible":true,"cls":0.0001,"s":["0.0001 freshness y10->10 h44->44"]} api 0
+1440 load /combos?pays=10: {"url":"/combos?pays=10","pressed":"Pays 10x+","cards":0,"empty":"No combo pays 10x or mor","busy":false,"listVisible":true,"cls":0.0001,"s":["0.0001 freshness y10->10 h44->44"]} api 0
+1440 load /combos?pays=abc: {"url":"/combos?pays=abc","pressed":"Pays 2x+","cards":9,"empty":null,"busy":false,"listVisible":true,"cls":0.0001,"s":["0.0001 freshness y10->10 h44->44"]} api 0
+1440 load /combos?pays=5&pays=10: {"url":"/combos?pays=5&pays=10","pressed":"Pays 5x+","cards":0,"empty":"No combo pays 5x or more","busy":false,"listVisible":true,"cls":0.0001,"s":["0.0001 freshness y10->10 h44->44"]} api 0
+1440 load /combos?pays=10&pays=5: {"url":"/combos?pays=10&pays=5","pressed":"Pays 10x+","cards":0,"empty":"No combo pays 10x or mor","busy":false,"listVisible":true,"cls":0.0001,"s":["0.0001 freshness y10->10 h44->44"]} api 0
+1440 load /combos?pays=4: {"url":"/combos?pays=4","pressed":"Pays 2x+","cards":9,"empty":null,"busy":false,"listVisible":true,"cls":0.0001,"s":["0.0001 freshness y10->10 h44->44"]} api 0
+  1440 tap 3x+: 50ms Pays 3x+/0/No combo pays 3x or more busy false  300ms Pays 3x+/0 busy false  end /combos?pays=3 Pays 3x+/0/No combo pays 3x or more blank false
+  1440 tap 5x+: 50ms Pays 5x+/0/No combo pays 5x or more busy false  300ms Pays 5x+/0 busy false  end /combos?pays=5 Pays 5x+/0/No combo pays 5x or more blank false
+  1440 tap 10x+: 50ms Pays 10x+/0/No combo pays 10x or mor busy false  300ms Pays 10x+/0 busy false  end /combos?pays=10 Pays 10x+/0/No combo pays 10x or mor blank false
+  1440 tap 2x+: 50ms Pays 2x+/9/- busy false  300ms Pays 2x+/9 busy false  end /combos?pays=2 Pays 2x+/9/- blank false
+  1440 tap 5x+: 50ms Pays 5x+/0/No combo pays 5x or more busy false  300ms Pays 5x+/0 busy false  end /combos?pays=5 Pays 5x+/0/No combo pays 5x or more blank false
+  1440 tap 2x+: 50ms Pays 2x+/9/- busy false  300ms Pays 2x+/9 busy false  end /combos?pays=2 Pays 2x+/9/- blank false
+  1440 switching: api requests 0 nonInput CLS 0 errors []

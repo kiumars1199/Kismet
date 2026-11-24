@@ -1,0 +1,24 @@
+signed in r140-chk-390-1795563744261@example.com tier=premium
+  CLS[390 Build this combo #0] 0 []
+390 card#0 "Combo · 2 legs Pays 2.0x · wins about 8 in 10 Denmark vs. Norway: Both Teams to Score Yes · Pays 1.4x after fe"
+   tray "Your combo · 2 legs Pays 2.0x · wins about 8 in 10 1 Denmark vs. Norway: Both Teams to Score Bet Yes · Pays 1.4x after f"
+  CLS[390 Check this combo #0] 0 []
+   checker {"combo-chance":"78%","combo-mult":"2.01x","combo-edge":"+28 points","combo-score":"100"} cls 0.0004 disc true cents false hs false; tray still "Your combo · 2 legs Pays 2.0x · wins about 8 in 10"
+  CLS[390 Build this combo #3] 0 []
+390 card#3 "Combo · 3 legs Pays 2.6x · wins about 7–8 in 10 Denmark vs. Norway: Both Teams to Score Yes · Pays 1.4x after "
+   tray "Your combo · 3 legs Pays 2.6x · wins about 7–8 in 10 1 Denmark vs. Norway: Both Teams to Score Bet Yes · Pays 1.4x after"
+  CLS[390 Check this combo #3] 0 []
+   checker {"combo-chance":"73%","combo-mult":"2.59x","combo-edge":"+34 points","combo-score":"100"} cls 0.0004 disc true cents false hs false; tray still "Your combo · 3 legs Pays 2.6x · wins about 7–8 in 10"
+errors []
+signed in r140-chk-1440-1795563761786@example.com tier=premium
+  CLS[1440 Build this combo #0] 0 []
+1440 card#0 "Combo · 2 legs Pays 2.0x · wins about 8 in 10 Denmark vs. Norway: Both Teams to Score Yes · Pays 1.4x after fe"
+   tray "Your combo · 2 legs Pays 2.0x · wins about 8 in 10 Estimated return +57% 1 Denmark vs. Norway: Both Teams to Score Bet Y"
+  CLS[1440 Check this combo #0] 0 []
+   checker {"combo-chance":"78%","combo-mult":"2.01x","combo-edge":"+28 points","combo-score":"100"} cls 0.0001 disc true cents false hs false; tray still "Your combo · 2 legs Pays 2.0x · wins about 8 in 10 Estimated"
+  CLS[1440 Build this combo #3] 0 []
+1440 card#3 "Combo · 3 legs Pays 2.6x · wins about 7–8 in 10 Denmark vs. Norway: Both Teams to Score Yes · Pays 1.4x after "
+   tray "Your combo · 3 legs Pays 2.6x · wins about 7–8 in 10 Estimated return +88% 1 Denmark vs. Norway: Both Teams to Score Bet"
+  CLS[1440 Check this combo #3] 0 []
+   checker {"combo-chance":"73%","combo-mult":"2.59x","combo-edge":"+34 points","combo-score":"100"} cls 0.0001 disc true cents false hs false; tray still "Your combo · 3 legs Pays 2.6x · wins about 7–8 in 10 Estimat"
+errors []

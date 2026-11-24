@@ -1,0 +1,38 @@
+== SPLIT=card (proxy pid 16575)
+signed in r140-held-390-1795563389091@example.com tier=premium
+390 held-400ms /combos #0: CLS 0.0004 cards 9 ["0.0004 freshness y68->68 h44->44"]
+390 held-400ms /combos #1: CLS 0 cards 9 []
+390 held-400ms /combos?pays=5 #0: CLS 0.0004 cards 0 ["0.0004 freshness y68->68 h44->44"]
+390 held-400ms /combos?pays=5 #1: CLS 0.0004 cards 0 ["0.0004 freshness y68->68 h44->44"]
+signed in r140-held-375-1795563399023@example.com tier=premium
+375 held-400ms /combos #0: CLS 0.0006 cards 9 ["0.0006 freshness y68->68 h44->44"]
+375 held-400ms /combos #1: CLS 0 cards 9 []
+375 held-400ms /combos?pays=5 #0: CLS 0.0006 cards 0 ["0.0006 freshness y68->68 h44->44"]
+375 held-400ms /combos?pays=5 #1: CLS 0.0006 cards 0 ["0.0006 freshness y68->68 h44->44"]
+signed in r140-held-1440-1795563408966@example.com tier=premium
+1440 held-400ms /combos #0: CLS 0 cards 9 ["0.0000 KBD y23->23 h18->18"]
+1440 held-400ms /combos #1: CLS 0 cards 9 ["0.0000 KBD y23->23 h18->18"]
+1440 held-400ms /combos?pays=5 #0: CLS 0.0001 cards 0 ["0.0001 freshness y10->10 h44->44"]
+1440 held-400ms /combos?pays=5 #1: CLS 0.0001 cards 0 ["0.0001 freshness y10->10 h44->44"]
+      9 /combos len 56583 split card 9058
+      6 /combos?pays=5 len 37241 split card -1
+      1 proxy 4352 -> 4351 card
+== SPLIT=footer (proxy pid 16912)
+signed in r140-held-390-1795563420229@example.com tier=premium
+390 held-400ms /combos #0: CLS 0.0004 cards 9 ["0.0004 freshness y68->68 h44->44"]
+390 held-400ms /combos #1: CLS 0 cards 9 []
+390 held-400ms /combos?pays=5 #0: CLS 0 cards 0 []
+390 held-400ms /combos?pays=5 #1: CLS 0 cards 0 []
+signed in r140-held-375-1795563430801@example.com tier=premium
+375 held-400ms /combos #0: CLS 0.0006 cards 9 ["0.0006 freshness y68->68 h44->44"]
+375 held-400ms /combos #1: CLS 0 cards 9 []
+375 held-400ms /combos?pays=5 #0: CLS 0 cards 0 []
+375 held-400ms /combos?pays=5 #1: CLS 0 cards 0 []
+signed in r140-held-1440-1795563441385@example.com tier=premium
+1440 held-400ms /combos #0: CLS 0.0001 cards 9 ["0.0001 freshness y10->10 h44->44,KBD y23->23 h18->18"]
+1440 held-400ms /combos #1: CLS 0 cards 9 ["0.0000 KBD y23->23 h18->18"]
+1440 held-400ms /combos?pays=5 #0: CLS 0 cards 0 ["0.0000 KBD y23->23 h18->18"]
+1440 held-400ms /combos?pays=5 #1: CLS 0 cards 0 ["0.0000 KBD y23->23 h18->18"]
+      9 /combos len 56583 split footer 28049
+      6 /combos?pays=5 len 37241 split footer 8675
+      1 proxy 4352 -> 4351 footer

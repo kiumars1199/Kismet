@@ -1,0 +1,42 @@
+signed in r140-cls-390-1795563458685@example.com tier=premium
+390 load /combos: cls 0.0004 ["0.0004 freshness y68->68 h44->44"] cards 9 empty 0 disc true cents false hs false
+390 load RELOAD: cls 0.0004 ["0.0004 freshness y68->68 h44->44"] cards 9 empty 0 disc true cents false hs false
+390 load /combos?pays=3: cls 0.0004 ["0.0004 freshness y68->68 h44->44"] cards 0 empty 1 disc true cents false hs false
+390 load /combos?pays=2: cls 0.0004 ["0.0004 freshness y68->68 h44->44"] cards 9 empty 0 disc true cents false hs false
+  CLS[390 switch 3x+] 0 []
+  CLS[390 switch 5x+] 0 []
+  CLS[390 switch 10x+] 0 []
+  CLS[390 switch 2x+] 0 []
+  CLS[390 switch 3x+] 0 []
+  CLS[390 switch 2x+] 0 []
+  390 SLOW switch 3x+: mid {"busy":false,"visibleListEls":1,"docH":938,"hitOnHiddenCard":null,"focusableHiddenBtn":null} a11y-sees-held-cards empty-msg; non-input CLS after 0 []
+  390 SLOW switch 2x+: mid {"busy":false,"visibleListEls":10,"docH":4374,"hitOnHiddenCard":"CARD","focusableHiddenBtn":"visible"} a11y-sees-held-cards YES; non-input CLS after 0 []
+  errors []
+signed in r140-cls-375-1795563491009@example.com tier=premium
+375 load /combos: cls 0.0006 ["0.0006 freshness y68->68 h44->44"] cards 9 empty 0 disc true cents false hs false
+375 load RELOAD: cls 0.0006 ["0.0006 freshness y68->68 h44->44"] cards 9 empty 0 disc true cents false hs false
+375 load /combos?pays=3: cls 0.0006 ["0.0006 freshness y68->68 h44->44"] cards 0 empty 1 disc true cents false hs false
+375 load /combos?pays=2: cls 0.0006 ["0.0006 freshness y68->68 h44->44"] cards 9 empty 0 disc true cents false hs false
+  CLS[375 switch 3x+] 0 []
+  CLS[375 switch 5x+] 0 []
+  CLS[375 switch 10x+] 0 []
+  CLS[375 switch 2x+] 0 []
+  CLS[375 switch 3x+] 0 []
+  CLS[375 switch 2x+] 0 []
+  375 SLOW switch 3x+: mid {"busy":false,"visibleListEls":1,"docH":943,"hitOnHiddenCard":null,"focusableHiddenBtn":null} a11y-sees-held-cards empty-msg; non-input CLS after 0 []
+  375 SLOW switch 2x+: mid {"busy":false,"visibleListEls":10,"docH":4635,"hitOnHiddenCard":"CARD","focusableHiddenBtn":"visible"} a11y-sees-held-cards YES; non-input CLS after 0 []
+  errors []
+signed in r140-cls-1440-1795563522328@example.com tier=premium
+1440 load /combos: cls 0.0001 ["0.0001 freshness y10->10 h44->44"] cards 9 empty 0 disc true cents false hs false
+1440 load RELOAD: cls 0.0001 ["0.0001 freshness y10->10 h44->44"] cards 9 empty 0 disc true cents false hs false
+1440 load /combos?pays=3: cls 0.0001 ["0.0001 freshness y10->10 h44->44"] cards 0 empty 1 disc true cents false hs false
+1440 load /combos?pays=2: cls 0.0001 ["0.0001 freshness y10->10 h44->44"] cards 9 empty 0 disc true cents false hs false
+  CLS[1440 switch 3x+] 0 []
+  CLS[1440 switch 5x+] 0 []
+  CLS[1440 switch 10x+] 0 []
+  CLS[1440 switch 2x+] 0 []
+  CLS[1440 switch 3x+] 0 []
+  CLS[1440 switch 2x+] 0 []
+  1440 SLOW switch 3x+: mid {"busy":false,"visibleListEls":1,"docH":900,"hitOnHiddenCard":null,"focusableHiddenBtn":null} a11y-sees-held-cards empty-msg; non-input CLS after 0 []
+  1440 SLOW switch 2x+: mid {"busy":false,"visibleListEls":10,"docH":1698,"hitOnHiddenCard":"CARD","focusableHiddenBtn":"visible"} a11y-sees-held-cards YES; non-input CLS after 0 []
+  errors []

@@ -89,10 +89,11 @@ Problems:
 - ~~[nit] 375/360: larger gap above the "combo checker." line from its tap area (T-wt3i)~~ fixed by #138
 
 - ~~[should-fix] Premium /combos page jumps on load: CLS 0.46 at 390, 0.12 at 1440; the list loads client-side with no reserved height (T-wt3j)~~ fixed by #139 (normal loads 0/20 jump; switches instant)
-- [should-fix] Premium /combos still jumps (CLS 0.55 at 390, 0.12 at 1440) when the streamed list chunk arrives after first paint: the list sits in a Suspense boundary streamed after `<footer>` (T-wt3k)
+- ~~[should-fix] Premium /combos still jumps (CLS 0.55 at 390, 0.12 at 1440) when the streamed list chunk arrives after first paint: the list sits in a Suspense boundary streamed after `<footer>` (T-wt3k)~~ fixed by #140
 - [should-fix] Back from /check to /bets at 390 jumps 0.55 in 3 of 4 tries; same late-streamed-boundary signature (T-wt3l)
 
 ## Found in review, outside a lane
+- #140 merged at 7b8d41f (Nov 24), r2 PASS at c7ce56a: Suspense removed, list before footer (held-chunk CLS ≤0.0006 at 390/375/1440), Back/Forward 96/96 states agree, no leaks for signed-out/Free/Pro/paused. Evidence: review/140/, review/140-r2/ (raw HTML dumps left in scratch).
 - #141 (T-wt3l) PASS with notes at 225e90c (Nov 24): Back CLS ≤0.0001 in 60 tries; held first load, short and zero lists clean. HELD: the 12,000 px reserve can't cover a production page of 50 bets (about 33,000 px at 390), so a deep restore would still jump. Sent back to size the reserve from the last rendered height. #140 r2 (c7ce56a) in review. Evidence: review/141/ (scratch).
 - #140 (T-wt3k) r1 FAIL at c251a79 (Nov 24): list now before footer, held-chunk CLS ≤0.0006, but Back/Forward after an in-app link shows the wrong payout (12/12; final 18/18 correct). Sent back. #141 (T-wt3l) up at 225e90c (tall loading reserve, Back CLS 0); in review. Evidence: review/140/ (scratch).
 - #139 merged at fb982c1 (Nov 24), r2 PASS at 88d4a45: all four payout lists built on the server for unpaused Premium only (no leaks for signed-out/Free/Pro/paused), switches instant with no fetch, lists match /api/combos. Fallback 60svh jump when the store can't load accepted as a nit. Evidence: review/139/, review/139-r2/.

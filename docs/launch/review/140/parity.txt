@@ -1,0 +1,8 @@
+signed in r140-par-1440-1795561711307@example.com tier=premium
+pays 2: dom 9 api 9 identical true ssrCards 9 range "Two- and three-leg combos paying 2.0x to 2.9x." empty -
+pays 3: dom 0 api 0 identical true ssrCards 0 range "-" empty No combo pays 3x or more with an edge right now. New Best bets come in with every scan.
+pays 5: dom 0 api 0 identical true ssrCards 0 range "-" empty No combo pays 5x or more with an edge right now. New Best bets come in with every scan.
+pays 10: dom 0 api 0 identical true ssrCards 0 range "-" empty No combo pays 10x or more with an edge right now. New Best bets come in with every scan.
+build first card (2.009:Denmark vs. Norway: Both Teams to Score|Singapore vs. Brazil: Both Teams to Score): tray "Your combo · 2 legs Pays 2.0x · wins about 8 in 10 Estimated return +57% 1 Denmark vs. Norway: Both Teams to Score Bet Yes · Pays 1.4x after fee · 88% chance to win (cautious) Open Denmark vs. Norway: Both Teams to Score on Polymarket 2 Singapore vs. Brazil: Both Teams to Score Bet No · Pays 1.4x af"
+  check control count 0
+errors []

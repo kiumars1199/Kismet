@@ -1,0 +1,14 @@
+/combos                  len 56601 footer 28049 card 9062 empty -1 buttons -1 pressed undefined B-before-footer 0
+/combos?pays=2           len 56633 footer 28049 card 9062 empty -1 buttons -1 pressed undefined B-before-footer 0
+/combos?pays=3           len 37259 footer 8675 card -1 empty 8494 buttons -1 pressed undefined B-before-footer 0
+/combos?pays=5           len 37259 footer 8675 card -1 empty 8494 buttons -1 pressed undefined B-before-footer 0
+/combos?pays=10          len 37263 footer 8676 card -1 empty 8494 buttons -1 pressed undefined B-before-footer 0
+/combos?pays=abc         len 56637 footer 28049 card 9062 empty -1 buttons -1 pressed undefined B-before-footer 0
+/combos?pays=4           len 56633 footer 28049 card 9062 empty -1 buttons -1 pressed undefined B-before-footer 0
+/combos?pays=5&pays=10   len 56659 footer 28049 card 9062 empty -1 buttons -1 pressed undefined B-before-footer 0
+/combos pressed 2
+/combos?pays=3 pressed 3
+/combos?pays=5 pressed 5
+/combos?pays=10 pressed 10
+/combos?pays=abc pressed 2
+/combos?pays=5aria-pressed="true" class="min-h-11 rounded-input border px-4 text-sm font-medium border-accent bg-accent/10 text-text">Pays <!-- -->pays=10 pressed 2
