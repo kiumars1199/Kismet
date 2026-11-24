@@ -59,10 +59,10 @@ Problems:
 
 Notes, not problems: 8-day-old fixture scan drives the stale banner and "Closed" labels; second Free /check returns the expected 429. Free "tour over an empty list" only via ?tour=1 on a manual filter. Supabase amr order: code reads amr[0]; multi-entry case leaves the clause blank (unit-tested).
 - [should-fix] Topic picker loses or flips topics on quick taps (TopicsPicker.toggle reads a stale snapshot; SupabaseRepo.profile.patch updates only after the reply). Tiles show nothing selected until the server answers. (T-wt2j)
-- [should-fix] /markets chip row: keyboard focus (Tab/Shift+Tab) lands on chips mostly off-screen (1100: College basketball 0/161 px; 390: Crypto 2/72 px) (T-wt2k)
-- [should-fix] Below 1280 the open Choose-columns menu stays pinned at top after its button scrolls away (1100x800, 1024x600) (T-wt2k)
-- [nit] Tab past the last checkbox in the open column menu jumps to Skip to content; menu stays open (T-wt2k)
-- [should-fix] /markets at 1440, Free with 6 favorite topics: CLS 0.27 (favorite chips row wraps to 2 lines after load, table drops 52 px); pre-existing on f2ef7a9 (T-wt2k)
+- ~~[should-fix] /markets chip row: keyboard focus (Tab/Shift+Tab) lands on chips mostly off-screen (1100: College basketball 0/161 px; 390: Crypto 2/72 px) (T-wt2k)~~ fixed by #132/#135
+- ~~[should-fix] Below 1280 the open Choose-columns menu stays pinned at top after its button scrolls away (1100x800, 1024x600) (T-wt2k)~~ fixed by #132/#135
+- ~~[nit] Tab past the last checkbox in the open column menu jumps to Skip to content; menu stays open (T-wt2k)~~ fixed by #132/#135
+- ~~[should-fix] /markets at 1440, Free with 6 favorite topics: CLS 0.27 (favorite chips row wraps to 2 lines after load, table drops 52 px); pre-existing on f2ef7a9 (T-wt2k)~~ fixed by #132/#135
 - [should-fix] Topic picker: taps made while a failing save is in flight are dropped (saver.ts catch clears queue) (T-wt2j, #133)
 
 
@@ -81,6 +81,7 @@ Problems:
 - [nit] 375x667: the same-event alert's "combo checker" link first renders under the fixed bottom tray (y 535 of 667) until scrolled (T-wt3g, after #130)
 
 ## Found in review, outside a lane
+- 19:45 #135 T-wt2k merged (4c188e7) after review PASS at a3e24f5 (chip focus fully visible at 390/1100/1280; menu closes on scroll-out and focus-out; 21/21 checkboxes hittable; /markets 6 and 53 topics CLS ≤0.0084, the 0.27 was fixed by #132) and full CI green. One nit (menu stays open while its button is under the sticky top bar at 1100) → T-wt2l.
 - 19:13 #130 T-wt3f merged (feecd6e): final merged in (no conflicts, same changes as reviewed 2313dd2), full CI green. T-wt3g started.
 - 19:10 #133 T-wt2j review PASS at b86060f (race fixed at 390/1440, 0/300 ms, all tiers; cookie, Home, /markets match; CLS ≤0.0006). Held for one should-fix in the error path plus a merge of final (#132 touched FilterBar). Watch: one React #418 on /settings in ~100 loads, not reproduced in 48 retries.
 - 18:56 #132 T-wt2i merged (9f5c68b) after review r3 PASS at 6acff47 (menu portaled, 21/21 checkboxes hittable at every size; texans CLS 0.0095) and full CI green. Evidence review/132. Three r3 follow-ups → T-wt2k.

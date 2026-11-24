@@ -1,0 +1,10 @@
+[1440-all-free] tier=free onboarding topics=53 wanted=53 saved=0
+[audit 1440-all-free /markets try0] /markets h1="All markets" disc=true/true cls=0.0047 hscroll=false shifts=[{"v":0.0006,"t":177,"src":["DIV.h-11 w-full max-w-[340px] rounded-input  '' 9.5->9.5 h44->44"]},{"v":0.0041,"t":493,"src":["BUTTON.inline-flex min-h-11 items-center gap-1. 'Soccer' 406.5->406.5 h44->44","BUTTON.inline-flex min-h-11 items-center gap-1. 'NFL' 406.5->406.5 h44->44"]}]
+[1440-all-free] /markets try0 CLS=0.0047 ok row={"h":48,"chips":65,"starred":53} disc=true/true cents=0 personalized=[]
+[audit 1440-all-free /markets try1] /markets h1="All markets" disc=true/true cls=0.0047 hscroll=false shifts=[{"v":0.0006,"t":145,"src":["DIV.h-11 w-full max-w-[340px] rounded-input  '' 9.5->9.5 h44->44"]},{"v":0.0041,"t":476,"src":["BUTTON.inline-flex min-h-11 items-center gap-1. 'Soccer' 406.5->406.5 h44->44","BUTTON.inline-flex min-h-11 items-center gap-1. 'NFL' 406.5->406.5 h44->44"]}]
+[1440-all-free] /markets try1 CLS=0.0047 ok row={"h":48,"chips":65,"starred":53} disc=true/true cents=0 personalized=[]
+[audit 1440-all-free /markets?q=texans try0] /markets?q=texans h1="All markets" disc=true/true cls=0.0047 hscroll=false shifts=[{"v":0.0006,"t":208,"src":["DIV.h-11 w-full max-w-[340px] rounded-input  '' 9.5->9.5 h44->44"]},{"v":0.0041,"t":424,"src":["BUTTON.inline-flex min-h-11 items-center gap-1. 'Soccer' 406.5->406.5 h44->44","BUTTON.inline-flex min-h-11 items-center gap-1. 'NFL' 406.5->406.5 h44->44"]}]
+[1440-all-free] /markets?q=texans try0 CLS=0.0047 ok row={"h":48,"chips":65,"starred":53} disc=true/true cents=0 personalized=[]
+[audit 1440-all-free /markets?q=texans try1] /markets?q=texans h1="All markets" disc=true/true cls=0.0047 hscroll=false shifts=[{"v":0.0006,"t":154,"src":["DIV.h-11 w-full max-w-[340px] rounded-input  '' 9.5->9.5 h44->44"]},{"v":0.0041,"t":460,"src":["BUTTON.inline-flex min-h-11 items-center gap-1. 'Soccer' 406.5->406.5 h44->44","BUTTON.inline-flex min-h-11 items-center gap-1. 'NFL' 406.5->406.5 h44->44"]}]
+[1440-all-free] /markets?q=texans try1 CLS=0.0047 ok row={"h":48,"chips":65,"starred":53} disc=true/true cents=0 personalized=[]
+
