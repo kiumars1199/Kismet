@@ -1,7 +1,7 @@
 "use client";
 // Drawer → "Add to combo tray" (docs/18 §5.1). Toggles this market's chosen side in the user's combo tray.
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useEntitlements } from "@/lib/entitlements";
 import { legOf } from "@/lib/combos";
 import type { Side, StoreMarket } from "@/lib/types";
@@ -19,6 +19,9 @@ export function AddToCombo({ m, s, className, reserve = false }: { m: StoreMarke
   const remove = useCombo((c) => c.remove);
   const trayLegs = useCombo((c) => c.legs);
   const [error, setError] = useState<string | null>(null);
+  const alertRef = useRef<HTMLParagraphElement>(null);
+  // The tray (and the tab bar) are fixed to the bottom of the screen: when a refusal opens under them, bring it up above them, so its link can be tapped without scrolling (T-wt3g)
+  useEffect(() => { if (error) alertRef.current?.scrollIntoView({ block: "nearest" }); }, [error]);
   const inCombo = leg?.side_index === s.side_index;
   // Combos are Premium (lib/beta.ts live rule; out of beta since Nov 21)
   const ent = useEntitlements();
@@ -35,7 +38,7 @@ export function AddToCombo({ m, s, className, reserve = false }: { m: StoreMarke
       >
         {inCombo ? "In combo ✓" : leg ? "Switch combo side" : "Add to combo tray"} <BetaBadge className="ml-1.5" />
       </button>
-      {error && <p role="alert" className="basis-full text-[13px] text-warning">{error.includes(CHECKER_LINE) ? <>{error.replace(CHECKER_LINE, "")}You can still check them together in the <Link href={`/check/combo?legs=${encodeURIComponent([...trayLegs.map((l) => `${l.market_id}:${l.side_index}`), `${m.id}:${s.side_index}`].join(","))}`} className="inline-block py-3.5 underline underline-offset-2">combo checker</Link>.</> : error}</p>}
+      {error && <p ref={alertRef} role="alert" className="basis-full scroll-mb-[calc(176px+env(safe-area-inset-bottom))] text-[13px] text-warning md:scroll-mb-28">{error.includes(CHECKER_LINE) ? <>{error.replace(CHECKER_LINE, "")}You can still check them together in the <Link href={`/check/combo?legs=${encodeURIComponent([...trayLegs.map((l) => `${l.market_id}:${l.side_index}`), `${m.id}:${s.side_index}`].join(","))}`} className="inline-block py-3.5 underline underline-offset-2">combo checker</Link>.</> : error}</p>}
     </>
   );
 }

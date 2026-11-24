@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { fetchCombos } from "@/lib/api";
 import { comboLabel, multiplyLine, rangeLine } from "@/lib/combos";
 import type { CombosResponse, SuggestedCombo } from "@/lib/data/combos";
-import { pays, pct, price, ret, testedLine, winsAbout } from "@/lib/format";
+import { chancePct, pays, price, ret, testedLine, winsAbout } from "@/lib/format";
 import { noLiveRecord } from "@/lib/proof";
 import { useCombo } from "./useCombo";
 import { useNear } from "@/components/screener/useNear";
@@ -55,20 +55,20 @@ export function ComboCard({ c, wide = false }: { c: SuggestedCombo; wide?: boole
     <li data-testid="combo-card" data-pays={c.pays.toFixed(3)} className={`flex flex-col gap-3 rounded-card border border-border bg-surface p-4 ${wide ? "" : "w-[300px] flex-none snap-start"}`}>
       <p className="text-xs text-muted">Combo · {c.legs} legs</p>
       <p className="-mt-2 font-heading text-[22px] font-bold leading-tight">
-        <span title={`Price of the combo: ${price(c.price)} (each leg's price plus fee, multiplied). Wins if every leg wins: cautious chance ${pct(c.q_low)} (our central estimate ${pct(c.q)}).`}>Pays</span> {c.pays >= 10 ? Math.round(c.pays) : c.pays.toFixed(1)}x <span className="font-sans text-sm font-medium text-soft">· wins about {winsAbout(c.q_low)}</span>
+        <span title={`Price of the combo: ${price(c.price)} (each leg's price plus fee, multiplied). Wins if every leg wins: cautious chance ${chancePct(c.q_low)} (our central estimate ${chancePct(c.q)}).`}>Pays</span> {c.pays >= 10 ? Math.round(c.pays) : c.pays.toFixed(1)}x <span className="font-sans text-sm font-medium text-soft">· wins about {winsAbout(c.q_low)}</span>
       </p>
       <ol className="flex flex-col gap-1.5 text-[13px]">
         {c.items.map((l) => (
           <li key={l.market_id} data-testid="combo-leg" className="flex flex-col">
             <span className="line-clamp-1 text-soft">{l.question}</span>
             <span className="text-xs tabular-nums text-muted">
-              <span className="font-medium text-soft">{l.outcome}</span> · Pays {pays(l.ask + l.fee)} after fee · {pct(l.q_low)} chance to win (cautious)
+              <span className="font-medium text-soft">{l.outcome}</span> · Pays {pays(l.ask + l.fee)} after fee · {chancePct(l.q_low)} chance to win (cautious)
             </span>
           </li>
         ))}
       </ol>
       <p className="mt-auto text-[13px] text-muted">
-        Estimated return <span className="font-semibold text-accent">{retText(c)}</span> at a {pct(c.q_low)} chance to win
+        Estimated return <span className="font-semibold text-accent">{retText(c)}</span> at a {chancePct(c.q_low)} chance to win
         <span className="block text-xs">Chances are our cautious ones; payouts include fees. {multiplyLine(c.items)}</span>
       </p>
       <button type="button" onClick={load} aria-label={`Build this combo: ${comboLabel(c, winsAbout(c.q_low))}`}

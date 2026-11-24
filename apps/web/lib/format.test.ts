@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ago, basis, chance, closesIn, countdown, edge, exactCount, expectedProfit, formatCount, money, pays, payoutIfWins, payoutMoney, pct, price, realisticReturn, recordLabel, ret, testedLine, usd, utcWhen, winsAbout } from "./format";
+import { ago, basis, chance, closesIn, countdown, edge, exactCount, expectedProfit, formatCount, money, pays, payoutIfWins, payoutMoney, pct, chancePct, price, realisticReturn, recordLabel, ret, testedLine, usd, utcWhen, winsAbout } from "./format";
 
 describe("docs/18 numbers", () => {
   it("formatCount rounds down, never up", () => {
@@ -92,5 +92,16 @@ describe("plural (QA-A #6)", () => {
     const { plural } = await import("./format");
     expect([plural(1, "bet"), plural(0, "bet"), plural(2, "bet"), plural(1_066, "bet"), plural(12_340, "bet")]).toEqual(["1 bet", "0 bets", "2 bets", "1,066 bets", "12.3K bets"]);
     expect(plural(1, "more bet", "more bets")).toBe("1 more bet");
+  });
+});
+
+describe("chancePct (T-wt3g): a chance never reads as certain or impossible when it is not", () => {
+  it("shows <1% for a chance above 0 that rounds to 0, and >99% for one below 1 that rounds to 100", () => {
+    expect([0.0001, 0.004, 0.00499].map(chancePct)).toEqual(["<1%", "<1%", "<1%"]);
+    expect([0.995, 0.999, 0.99999].map(chancePct)).toEqual([">99%", ">99%", ">99%"]);
+  });
+  it("is plain pct everywhere else, including exactly 0 and exactly 1", () => {
+    expect([0, 0.005, 0.0149, 0.5, 0.792, 0.9949, 1].map(chancePct)).toEqual(["0%", "1%", "1%", "50%", "79%", "99%", "100%"]);
+    expect([null, undefined, NaN].map(chancePct)).toEqual(["—", "—", "—"]);
   });
 });

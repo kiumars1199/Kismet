@@ -15,7 +15,7 @@ import { parseLink } from "@/lib/check/parse-link";
 import type { ComboLegsResponse, LegLookup } from "@/lib/check/response";
 import { SCORE_FORMULA } from "@/lib/check/score";
 import { multX } from "@/lib/card";
-import { cleanEventLine, pct } from "@/lib/format";
+import { chancePct, cleanEventLine } from "@/lib/format";
 
 const pts = (e: number) => { const v = Math.round(e * 100); return `${v < 0 ? "−" : v > 0 ? "+" : ""}${Math.abs(v)} ${Math.abs(v) === 1 ? "point" : "points"}`; };
 
@@ -271,7 +271,7 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
         {ready && c.error === "no_model" && <p data-testid="combo-msg" className="text-sm text-soft">No model chance for &ldquo;{c.noModel}&rdquo;, so this combo can&apos;t be scored. Remove that leg.</p>}
         {n && (
             <dl className="grid grid-cols-2 gap-3 md:grid-cols-4">
-              <Stat id="chance" label="Combined chance (cautious)" value={pct(n.chance)} />
+              <Stat id="chance" label="Combined chance (cautious)" value={chancePct(n.chance)} />
               <Stat id="mult" label="Pays" value={multX(n.multiplier)} />
               <Stat id="edge" label="Edge after fee" value={pts(n.edge)} />
               <Stat id="score" label="Score (of 100)" value={n.score === null ? "—" : String(n.score)} />
@@ -290,7 +290,7 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
             <p data-testid="combo-formula" className="text-[13px] leading-relaxed text-muted">{c.scoreNote ? `${c.scoreNote}. ` : ""}{SCORE_FORMULA} For a combo, the chance is each leg&apos;s chance multiplied together and the sample is the smallest leg&apos;s. That assumes the legs are independent; legs from the same event aren&apos;t.</p>
             {c.drop && dropLeg && c.drop.numbers.score !== null && n.score !== null && c.drop.numbers.score > n.score && (
               <div data-testid="combo-drop" className="flex flex-col gap-2 rounded-input border border-accent-border bg-bg p-3">
-                <p className="text-[13px] text-soft">Weakest leg: &ldquo;{dropLeg.question}&rdquo;. Without it: {pct(c.drop.numbers.chance)} chance, pays {multX(c.drop.numbers.multiplier)}, score {c.drop.numbers.score}.</p>
+                <p className="text-[13px] text-soft">Weakest leg: &ldquo;{dropLeg.question}&rdquo;. Without it: {chancePct(c.drop.numbers.chance)} chance, pays {multX(c.drop.numbers.multiplier)}, score {c.drop.numbers.score}.</p>
                 <button type="button" onClick={() => setLegs(legs.filter((_, j) => j !== c.drop!.index))} className="min-h-11 self-start rounded-input bg-accent px-4 text-sm font-semibold text-on-accent hover:bg-accent-hover">Drop that leg</button>
               </div>
             )}
@@ -298,7 +298,7 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
               <summary className="min-h-11 cursor-pointer py-2">Why these numbers?</summary>
               <div className="flex flex-col gap-2 pb-2">
                 <p data-testid="combo-why-pays">Pays {combos.map((l) => multX(1 / (l.base.ask + l.base.fee))).join(" × ")} = {multX(n.multiplier)}: each leg&apos;s payout after its fee, multiplied.</p>
-                <p data-testid="combo-why-chance">Combined chance {combos.map((l) => pct(l.base.winProb)).join(" × ")} = {pct(n.chance)}.</p>
+                <p data-testid="combo-why-chance">Combined chance {combos.map((l) => chancePct(l.base.winProb)).join(" × ")} = {chancePct(n.chance)}.</p>
                 <p data-testid="combo-why-cautious">Combos use each bet&apos;s cautious chance, a little below its card, because small errors multiply.</p>
                 <p data-testid="combo-why-sample">Score sample: the smallest leg, about {smallest === null ? "—" : Math.round(smallest).toLocaleString("en-US")} similar past bets.</p>
                 <ul className="flex flex-col gap-1">
