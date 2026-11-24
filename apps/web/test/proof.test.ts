@@ -239,10 +239,26 @@ describe("proofSummary: the one plain line above the plans", () => {
   const live = (graded: number, wins: number, avg_pnl: number, usEvents?: number) => ({ entries: graded, graded, wins, losses: graded - wins, avg_pnl, avg_clv: null, by_category: {}, updated_at: 1794877967,
     ...(usEvents === undefined ? {} : { us: { entries: graded, graded, wins, losses: graded - wins, avg_pnl, avg_clv: null, events: usEvents } }) }) as never;
 
-  it.each([1, 2, 5, 20])("%i settled bets is below the threshold: the testing line (with its return), never a 100%%-won live line", (n) => {
+  it.each([1, 2, 5, 20])("%i settled bets is below the threshold: the testing line (with its return) and a true note, never an all-won live line", (n) => {
     const out = proofSummary({ backtest: bt(9.5), ledger: live(n, n, 0.4, n) })!;   // every one won: the trap
-    expect(out).toBe("Tested on 1,234 past best bets: 74% won, and overall they made 9.5% on what was staked. Live record just started.");
-    expect(out).not.toMatch(/Live so far|100%/);
+    expect(out).toBe(`Tested on 1,234 past best bets: 74% won, and overall they made 9.5% on what was staked. Live record: ${n} settled so far, too few to judge yet.`);
+    expect(out).not.toMatch(/Live so far|100%|just started/);
+  });
+  it("the note is only said while it is true: 2,000 settled bets with a test ROI <= 0 (nothing to compare with) carry no 'too few' note", () => {
+    const out = proofSummary({ backtest: bt(-4.2, 0.81), ledger: live(2000, 1500, 0.01, 40) })!;
+    expect(out).toBe("Tested on 1,234 past best bets: 81% won, but overall they lost 4.2% of what was staked.");
+  });
+  it("no Polymarket US events on the live record: nothing says how far it is from enough, so no note", () => {
+    const out = proofSummary({ backtest: bt(9.5), ledger: live(2000, 1500, 0.01) })!;
+    expect(out).toBe("Tested on 1,234 past best bets: 74% won, and overall they made 9.5% on what was staked.");
+  });
+  it("2,000 settled bets with enough US events lead with the live line (no stale note)", () => {
+    expect(proofSummary({ backtest: bt(9.5), ledger: live(2000, 1500, 0.01, 60) })).toMatch(/^Live so far: 75% of 2,000 settled best bets won, and overall they made /);
+  });
+  it("a whole-number return has no trailing .0 ('made 100%', not 'made 100.0%')", () => {
+    expect(proofSummary({ backtest: bt(100, 0.9), ledger: null })).toBe("Tested on 1,234 past best bets: 90% won, and overall they made 100% on what was staked.");
+    expect(proofSummary({ backtest: bt(-12, 0.5), ledger: null })).toBe("Tested on 1,234 past best bets: 50% won, but overall they lost 12% of what was staked.");
+    expect(proofSummary({ backtest: bt(9.5), ledger: null })).toContain("made 9.5%");
   });
   it("above the threshold (events >= needs, the same rule as 'still too few to judge'): the live line, in plain words", () => {
     const out = proofSummary({ backtest: bt(9.5), ledger: live(1155, 900, -0.0131, 60) })!;   // 60 US events >= 48
