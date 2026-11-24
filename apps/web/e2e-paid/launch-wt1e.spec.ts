@@ -120,6 +120,26 @@ SIBLINGS.push(
   ["Will initial jobless claims be fewer than 225,000 for the week ending November 15 according to the Department of Labor?", "Will initial jobless claims be at 225,000 for the week ending November 15 according to the Department of Labor?"],
   ["Will initial jobless claims be greater than 225,000 for the week ending November 15 according to the Department of Labor?", "Will initial jobless claims be at 225,000 for the week ending November 15 according to the Department of Labor?"],
 );
+// T-wt1f (review 3, break-it set): more words that decide which bet it is, and "by/in/on" before a date
+const btc = (x: string) => `Will the price of Bitcoin ${x} on Coinbase at 12:00 PM Eastern Time on Friday November 27, 2026?`;
+const rio2 = (x: string) => `Will the highest temperature in Rio de Janeiro on Tuesday November 24 be ${x} according to the official station?`;
+const nfl = (x: string) => `Will Patrick Mahomes throw for ${x} passing yards in the Kansas City Chiefs vs Las Vegas Raiders game on Thanksgiving?`;
+const CHIEFS = (x: string) => `Will the Kansas City Chiefs finish the 2026 NFL regular season in the ${x} 5 of the AFC standings according to NFL.com?`;
+SIBLINGS.push(
+  [CHIEFS("top"), CHIEFS("bottom")],
+  [btc("reach $95,000"), btc("dip to $95,000")],
+  [btc("drop to $95,000"), btc("hit $95,000")],
+  [rio2("between 28°C and 29°C"), rio2("outside 28°C and 29°C")],
+  ["Will the minimum temperature recorded in Rio de Janeiro on Tuesday November 24 be 22°C according to the official station?", "Will the maximum temperature recorded in Rio de Janeiro on Tuesday November 24 be 22°C according to the official station?"],
+  ["Will the min temperature recorded in Rio de Janeiro on Tuesday November 24 be 22°C according to the official station?", "Will the max temperature recorded in Rio de Janeiro on Tuesday November 24 be 22°C according to the official station?"],
+  ["Will the US Bureau of Economic Analysis report positive real GDP growth for the third quarter of 2026 in its advance estimate?", "Will the US Bureau of Economic Analysis report negative real GDP growth for the third quarter of 2026 in its advance estimate?"],
+  [btc("reach $95,000 by November 30"), btc("reach $95,000 on November 30")],
+  ["Will the Federal Reserve announce an emergency cut to the federal funds target range by December 2026 according to the FOMC statement?", "Will the Federal Reserve announce an emergency cut to the federal funds target range in December 2026 according to the FOMC statement?"],
+  [nfl("at least 285"), nfl("285")],
+  [nfl("at least 285"), nfl("at most 285")],
+  ["Which team will allow the fewest points across all games of the 2026 NFL regular season through Week 12 according to ESPN?", "Which team will allow the most points across all games of the 2026 NFL regular season through Week 12 according to ESPN?"],
+  ["Will the highest temperature in Rio de Janeiro during the weekend of November 28-29 be 29°C according to the official station?", "Will the highest temperature in Rio de Janeiro during the weekday of November 28-29 be 29°C according to the official station?"],
+);
 for (const size of SIZES) {
   test(`${size.width}: direction siblings (increase/decrease, hike/cut, raise/lower) render different lines`, async ({ page }) => {
     await page.setViewportSize(size);

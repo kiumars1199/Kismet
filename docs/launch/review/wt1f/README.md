@@ -18,3 +18,13 @@ Tests first (red: 3 failing at budgets 86, 98, 110): `lib/fit-clamp.test.ts` sib
 `e2e-paid/launch-wt1e.spec.ts` the same pairs in the real box at 360, 390, 1440. The fit now also requires the line to be no wider than its box.
 Real-title measure re-run (2,769 distinct titles): 360: 23 shortened, 0 over 2 lines or over width, 0 clashes; 390: 22, 0, 0; 1440: 20, 0, 0. See `browser-measure.log`.
 Note: "highest" is a deciding word now, so for a "highest temperature in <city>" title the city and the range are shortened later than before only if the line has room; the test for it uses a budget of 84.
+
+## Review 3 (break-it set)
+
+Reviewer 2 found pre-existing gaps. Tests first (red: `vitest-r3-red.log`, 3 failures at budgets 86/98/110), then green (`vitest-r3-green.log`, 21 of 21).
+- KEEP adds reach, dip, drop, hit, bottom, fewest, outside, between, minimum, maximum, min, max, positive, negative, weekend, weekday.
+- Small joining words are kept with the word after them: "or" + a deciding word, "at" + least/most, and by/in/on + a month or weekday ("by November 30" vs "on November 30", "by December 2026" vs "in December 2026").
+- Pairs added to SIBLINGS (unit at 86/98/110, browser at 360/390/1440): top/bottom, reach/dip to, drop to/hit, between/outside, minimum/maximum, min/max, positive/negative, by/on date, by/in month, at least vs exact and vs at most, fewest/most, weekend/weekday.
+- One older test premise moved (budget 84 to 92) because "between" is now kept with the city.
+- Browser e2e (`browser-measure-r3-full.log`): 12 of 12; real titles 360: 23 shortened, 390: 22, 1440: 20; 0 over 2 lines, 0 clashes.
+- Reviewer 2's scripts re-run on this code (`break-set-r3-measure.log`): real 2,769 titles at 360/390/1440: shortened 23/22/20, over 2 lines 0, over width 0, clashes 0, direction words lost 0, 389 swapped pairs same line 0; the 27-pair break set: same line 0; long shapes: 0.

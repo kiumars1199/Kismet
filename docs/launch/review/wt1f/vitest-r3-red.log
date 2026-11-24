@@ -1,0 +1,53 @@
+
+ RUN  v5.1.0 /home/user/MarketEdge/.claude/worktrees/agent-a4935cdb59e135211/apps/web
+
+ ❯ lib/fit-clamp.test.ts (21 tests | 3 failed) 151ms
+   ❯ direction words (9)
+     × siblings never render the same line (budget 86) 6ms
+     × siblings never render the same line (budget 98) 2ms
+     × siblings never render the same line (budget 110) 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  lib/fit-clamp.test.ts > direction words > siblings never render the same line (budget 86)
+AssertionError: Will the price of Bitcoin reach $95,000 on Coinbase at 12:00 PM Eastern Time on Friday November 27, 2026? | Will the price of Bitcoin dip to $95,000 on Coinbase at 12:00 PM Eastern Time on Friday November 27, 2026?: expected 'Will … $95,000 … 12:00 … Friday Novem…' not to be 'Will … $95,000 … 12:00 … Friday Novem…' // Object.is equality
+ ❯ lib/fit-clamp.test.ts:106:92
+    104|   for (const total of [86, 98, 110]) {
+    105|     it(`siblings never render the same line (budget ${total})`, () => {
+    106|       for (const [a, b] of SIBLINGS) expect(fitClamp(a, budget(total))…
+       |                                                                                            ^
+    107|     });
+    108|     it(`a repeated phrase goes before a distinct word (budget ${total}…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  lib/fit-clamp.test.ts > direction words > siblings never render the same line (budget 98)
+AssertionError: Will the price of Bitcoin reach $95,000 on Coinbase at 12:00 PM Eastern Time on Friday November 27, 2026? | Will the price of Bitcoin dip to $95,000 on Coinbase at 12:00 PM Eastern Time on Friday November 27, 2026?: expected 'Will … Bitcoin … $95,000 … 12:00 … Ti…' not to be 'Will … Bitcoin … $95,000 … 12:00 … Ti…' // Object.is equality
+ ❯ lib/fit-clamp.test.ts:106:92
+    104|   for (const total of [86, 98, 110]) {
+    105|     it(`siblings never render the same line (budget ${total})`, () => {
+    106|       for (const [a, b] of SIBLINGS) expect(fitClamp(a, budget(total))…
+       |                                                                                            ^
+    107|     });
+    108|     it(`a repeated phrase goes before a distinct word (budget ${total}…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  lib/fit-clamp.test.ts > direction words > siblings never render the same line (budget 110)
+AssertionError: Will the price of Bitcoin reach $95,000 on Coinbase at 12:00 PM Eastern Time on Friday November 27, 2026? | Will the price of Bitcoin dip to $95,000 on Coinbase at 12:00 PM Eastern Time on Friday November 27, 2026?: expected 'Will … Bitcoin … $95,000 … 12:00 PM E…' not to be 'Will … Bitcoin … $95,000 … 12:00 PM E…' // Object.is equality
+ ❯ lib/fit-clamp.test.ts:106:92
+    104|   for (const total of [86, 98, 110]) {
+    105|     it(`siblings never render the same line (budget ${total})`, () => {
+    106|       for (const [a, b] of SIBLINGS) expect(fitClamp(a, budget(total))…
+       |                                                                                            ^
+    107|     });
+    108|     it(`a repeated phrase goes before a distinct word (budget ${total}…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 18 passed (21)
+   Start at  10:29:23
+   Duration  347ms (tests 61%, import 32%, transform 5%, worker 1%)
+

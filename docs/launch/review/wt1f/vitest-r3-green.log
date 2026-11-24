@@ -1,0 +1,9 @@
+
+ RUN  v5.1.0 /home/user/MarketEdge/.claude/worktrees/agent-a4935cdb59e135211/apps/web
+
+
+ Test Files  1 passed (1)
+      Tests  21 passed (21)
+   Start at  10:34:14
+   Duration  583ms (tests 67%, import 29%, transform 3%, worker 1%)
+
