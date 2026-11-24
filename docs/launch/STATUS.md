@@ -88,6 +88,7 @@ Problems:
 - Not walked: signed-in headers at 768–1280, the Premium drawer path to the tray, WebKit, and signed-in steps on a production build. Re-walk after the fixes.
 
 ## Found in review, outside a lane
+- 09:25 Prod: curl from the lead container gets 403 x-vercel-mitigated deny (default firewall, no custom rules, no attack); browsers get 200. See decisions 09:25.
 - 09:22 #116 (T-hydr4) merged at 4ae6ca5 after reviewer PASS at 7451fb3: stale teasers/top guard keeps the teaser path after a normal scan (/m 0.05 s at t=35 s), refuses a true leftover, re-reads at most once per cache window (strace: 0 opens for 20 requests), upload.py sends counts.json last. Nit: overlapping normal/forced read can cost one extra read.
 - 09:08 #118 (T-wt1e) merged at bdbd019 after reviewer PASS with notes (2,769 real titles: ~1% shortened, 0 over 2 lines, 0 clashes at 360/390/1440; H1 clear of header; CLS 0). Should-fix -> T-wt1f, tracker lane: keep rate-direction words (increase/decrease siblings could clash).
 - 09:05 #116 (T-hydr4) 103b628 FAIL: normal-scan skew fixed (0.07 s at t=35 s), but the cache-bypass re-read is unbounded for a true leftover. Data lane bounding it (7451fb3).
