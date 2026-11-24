@@ -16,6 +16,8 @@ const GROUPS: { label: string; topics: TaxNode[] }[] = [
   { label: "More", topics: TAXONOMY_TREE.filter((c) => !c.children && c.id !== "other") },
 ];
 
+const WORST_ERROR = "Couldn't save College basketball, College football and 12 more. Tap them to try again.";
+
 export function TopicsPicker() {
   const { favorite_topics } = useProfile();
   const [counts, setCounts] = useState<Record<string, number> | null>(null);
@@ -51,15 +53,40 @@ export function TopicsPicker() {
     },
   });
   useEffect(() => () => { if (failTimer.current) clearTimeout(failTimer.current); }, []);
-  const toggle = (id: string) => { setFailed((f) => (f.includes(id) ? f.filter((x) => x !== id) : f)); saver.current!.toggle(id); };
+  // Leaving the page with saves still queued (a quick tap, then a link or reload): send the full current list once with keepalive.
+  useEffect(() => {
+    const flush = () => {
+      const list = saver.current?.freeze();
+      const repo = getRepo();
+      if (list) (repo as unknown as { flushProfile?: (p: object) => void }).flushProfile?.(repo.profileSnapshot().topics_off ? { favorite_topics: list, topics_off: false } : { favorite_topics: list });
+    };
+    const hidden = () => { if (document.visibilityState === "hidden") flush(); };
+    const back = () => { if (document.visibilityState !== "hidden") saver.current?.resume(); };
+    window.addEventListener("pagehide", flush);
+    window.addEventListener("pageshow", back);
+    document.addEventListener("visibilitychange", hidden);
+    document.addEventListener("visibilitychange", back);
+    return () => { window.removeEventListener("pagehide", flush); window.removeEventListener("pageshow", back); document.removeEventListener("visibilitychange", hidden); document.removeEventListener("visibilitychange", back); };
+  }, []);
+  const toggle = (id: string) => { setFailed((f) => (f.some((x) => x === id) ? [] : f)); saver.current!.toggle(id); };
   const label = (id: string) => GROUPS.flatMap((g) => g.topics).find((t) => t.id === id)?.label ?? id;
-  const errorLine = failed.length ? `Couldn't save ${failed.length === 1 ? label(failed[0]) : `${failed.length} topics`}. Tap to try again.` : null;
+  const errorText = (ids: string[]) => {
+    const names = ids.slice(0, 2).map(label);
+    const who = ids.length > 2 ? `${names.join(", ")} and ${ids.length - 2} more` : names.join(" and ");
+    return `Couldn't save ${who}. Tap ${ids.length === 1 ? "it" : "them"} to try again.`;
+  };
+  const errorLine = failed.length ? errorText(failed) : null;
   const chosen = local ?? favorite_topics;
 
   return (
     <div data-testid="topics-picker" aria-busy={!ready} className="flex flex-col gap-6">
-      <p className={`text-sm ${errorLine ? "text-warning" : "text-muted"}`} aria-live="polite">
-        {errorLine ?? (chosen.length ? `${chosen.length} chosen. They show first in your quick filters.` : "Choose any you follow. You can change them later in Settings.")}
+      {/* One grid cell holds the shown line and invisible copies of the longest others, so the cell is as tall as the tallest and swapping
+          lines (they wrap differently on phones) never moves the tiles. */}
+      <p className={`grid text-sm ${errorLine ? "text-warning" : "text-muted"}`} aria-live="polite">
+        {[WORST_ERROR, "12 chosen. They show first in your quick filters.", "Choose any you follow. You can change them later in Settings."].map((t) => (
+          <span key={t} aria-hidden="true" className="invisible col-start-1 row-start-1">{t}</span>
+        ))}
+        <span className="col-start-1 row-start-1">{errorLine ?? (chosen.length ? `${chosen.length} chosen. They show first in your quick filters.` : "Choose any you follow. You can change them later in Settings.")}</span>
       </p>
       {GROUPS.map((g) => {
         // Every group and topic from the static taxonomy is on screen from the first paint, and each tile reserves its count

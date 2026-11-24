@@ -100,6 +100,12 @@ export class SupabaseRepo implements Repo {
   private profileQueue: Promise<unknown> = Promise.resolve();
   private recompute() { this.profileRow = this.pending.reduce<Profile>((p, q) => ({ ...p, ...q }), this.confirmed ?? this.profileRow); }
 
+  /** The page is being left (pagehide): send this profile change once, with keepalive so it survives the navigation. Not queued, not
+   *  awaited; the full-list saves still queued or in flight are idempotent, so they can land before or after it. */
+  flushProfile(p: Partial<Profile>): void {
+    try { void this.fetcher(this.base + "/profile", { method: "PATCH", keepalive: true, credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify(p) }).catch(() => {}); } catch { /* best effort */ }
+  }
+
   profile = {
     get: async () => this.profileRow,
     patch: (p: Partial<Profile>): Promise<Profile> => {

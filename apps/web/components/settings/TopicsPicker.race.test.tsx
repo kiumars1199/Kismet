@@ -97,14 +97,38 @@ describe("TopicsPicker quick taps", () => {
     await act(async () => { await vi.advanceTimersByTimeAsync(500); });
     await act(async () => { fireEvent.click(tile("Esports")); });
     await act(async () => { await vi.advanceTimersByTimeAsync(500); });   // Esports saved fine afterwards; the line must stay
-    expect(screen.getByText("Couldn't save Tennis. Tap to try again.")).toBeTruthy();
+    expect(screen.getByText("Couldn't save Tennis. Tap it to try again.")).toBeTruthy();
     await act(async () => { fireEvent.click(tile("Tennis")); });
-    expect(screen.queryByText(/Couldn't save/)).toBeNull();
+    expect(screen.queryByText(/Couldn't save (Tennis|Esports|Soccer)/)).toBeNull();
     await act(async () => { await vi.advanceTimersByTimeAsync(1_000); });   // the retry saves
     fail.once = true;
     await act(async () => { fireEvent.click(tile("Soccer")); await vi.advanceTimersByTimeAsync(500); });
-    expect(screen.getByText("Couldn't save Soccer. Tap to try again.")).toBeTruthy();
+    expect(screen.getByText("Couldn't save Soccer. Tap it to try again.")).toBeTruthy();
     await act(async () => { await vi.advanceTimersByTimeAsync(5_100); });
-    expect(screen.queryByText(/Couldn't save/)).toBeNull();
+    expect(screen.queryByText(/Couldn't save (Tennis|Esports|Soccer)/)).toBeNull();
+  });
+
+  it("several failed topics are named, up to two, plus 'and N more'; tapping any of them clears the line", async () => {
+    server = confirmed = [];
+    render(<TopicsPicker />);
+    await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+    for (const name of ["Tennis", "Esports", "Soccer"]) {
+      fail.once = true;
+      await act(async () => { fireEvent.click(tile(name)); await vi.advanceTimersByTimeAsync(500); });
+    }
+    expect(screen.getByText("Couldn't save Tennis, Esports and 1 more. Tap them to try again.")).toBeTruthy();
+    await act(async () => { fireEvent.click(tile("Esports")); });
+    expect(screen.queryByText(/Couldn't save (Tennis|Esports|Soccer)/)).toBeNull();
+  });
+
+  it("two failed topics read 'A and B'", async () => {
+    server = confirmed = [];
+    render(<TopicsPicker />);
+    await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+    for (const name of ["Tennis", "Esports"]) {
+      fail.once = true;
+      await act(async () => { fireEvent.click(tile(name)); await vi.advanceTimersByTimeAsync(500); });
+    }
+    expect(screen.getByText("Couldn't save Tennis and Esports. Tap them to try again.")).toBeTruthy();
   });
 });

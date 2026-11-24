@@ -26,6 +26,8 @@ const flip = (list: string[], id: string) => (list.includes(id) ? list.filter((x
 export function createTopicSaver(io: TopicSaverIO) {
   let base: string[] | null = null;   // last confirmed list; null while idle
   let ops: string[] = [];             // taps since base, in order
+  let retried = false;                // a network-level failure is retried once before it counts as a failed save
+  let frozen = false;                 // the page is being left: the flush owns the final list, so queued saves stand down
   let early = false;                  // base was read before the account store was ready
   let chain: Promise<void> = Promise.resolve();
 
@@ -36,14 +38,24 @@ export function createTopicSaver(io: TopicSaverIO) {
       await io.ready();
       if (early && ops.length) { base = io.current(); early = false; io.onLocal(view()); }
     }
-    if (!ops.length) return;   // an earlier queued save already carried these taps
+    if (frozen || !ops.length) return;   // frozen, or an earlier queued save already carried these taps
     const n = ops.length;
     const sent = ops.slice(0, n).reduce(flip, base ?? []);
     try {
       await io.save(sent);
+      retried = false;
       base = sent;
       ops = ops.slice(n);
     } catch (e) {
+      if (frozen) return;   // a request cut off by the page leaving is not a failed save: the flush carries the list
+      // A request cut off by a navigation rejects just before pagehide fires (fetch TypeError / AbortError, not an HTTP error). Wait a
+      // moment: if the page is being left, the flush carries the list; if not, it is a dropped connection and we try once more.
+      if (!retried && (e instanceof TypeError || (e as { name?: string })?.name === "AbortError")) {
+        retried = true;
+        await new Promise((r) => setTimeout(r, 250));
+        return run();
+      }
+      retried = false;
       const dropped = ops.slice(0, n);
       ops = ops.slice(n);
       // roll back only the failed taps: later taps now sit on the confirmed list, and the next queued run sends them
@@ -62,6 +74,12 @@ export function createTopicSaver(io: TopicSaverIO) {
       io.onLocal(view());
       chain = chain.then(run, run);
     },
+    /** The full list still unconfirmed (queued or in flight), or null. Used when the page is being left, to send it once more. */
+    pending: (): string[] | null => (base !== null && ops.length ? view() : null),
+    /** The page is being left: returns the list to send once (keepalive) and stops the queue sending or reverting meanwhile. */
+    freeze(): string[] | null { frozen = true; return base !== null && ops.length ? view() : null; },
+    /** The page came back (bfcache, tab visible again): carry on; anything still unconfirmed is sent again as a full list. */
+    resume() { if (!frozen) return; frozen = false; if (ops.length) chain = chain.then(run, run); },
     /** For tests: resolves when every queued save has finished. */
     idle: () => chain,
   };

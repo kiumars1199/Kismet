@@ -54,4 +54,13 @@ describe("SupabaseRepo profile.patch under latency", () => {
     await repo.profile.patch({ favorite_topics: ["a", "b"] });
     expect(repo.profileSnapshot().favorite_topics).toEqual(["a", "b"]);
   });
+
+  it("flushProfile sends the given change once with keepalive", async () => {
+    const api = slowProfile([]);
+    const repo = await make(api);
+    repo.flushProfile({ favorite_topics: ["a", "b"] });
+    const call = api.fetcher.mock.calls.at(-1)!;
+    expect(call[1]).toMatchObject({ method: "PATCH", keepalive: true });
+    expect(JSON.parse(String(call[1]!.body))).toEqual({ favorite_topics: ["a", "b"] });
+  });
 });
