@@ -1,6 +1,7 @@
 // T-wt2d (walk-through 2): the signed-out teaser's "Check this bet" doesn't move its first view; a new Pro user who picks only a topic with
-// nothing open lands on a clear empty state with the tour running over it; a topic tile keeps its name when "none open" arrives and a
-// tap sticks. Supabase and Stripe: the in-app mocks.
+// nothing open lands on a clear empty state with the tour running over it; a topic tile keeps its name when "none open" arrives, and
+// before hydration the tiles look and behave as not ready (a real tap on them is dropped, so they must not look tappable). Supabase and
+// Stripe: the in-app mocks.
 import { expect, test, type Page } from "./fixtures";
 import { expectPlanActive } from "./checkout";
 
@@ -10,7 +11,58 @@ const cls = (page: Page) => page.addInitScript(() => {
   new PerformanceObserver((l) => { for (const e of l.getEntries() as unknown as { value: number; hadRecentInput: boolean }[]) if (!e.hadRecentInput) w.__cls += e.value; }).observe({ type: "layout-shift", buffered: true });
 });
 
+async function signInToOnboarding(page: Page, email: string) {
+  await page.goto("/login");
+  await expect(async () => {
+    await page.getByRole("tab", { name: "Email link" }).click();
+    await expect(page.getByRole("button", { name: "Email me a sign-in link" })).toBeVisible({ timeout: 2_000 });
+  }).toPass({ timeout: 60_000 });
+  await page.getByLabel("Email", { exact: true }).fill(email);
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "Email me a sign-in link" }).click();
+  await expect(page.getByRole("heading", { name: "Check your email" })).toBeVisible({ timeout: 30_000 });
+  const { url } = await (await page.request.get(`/e2e-mock/supabase/_inbox?email=${encodeURIComponent(email)}`)).json();
+  await page.goto(url);
+  await expect(page).toHaveURL(/\/onboarding/, { timeout: 60_000 });
+}
+
 for (const [w, h] of [[390, 844], [1440, 900]] as const) {
+  // The server HTML paints the tiles before React attaches. A DISABLED button drops a real tap (only Playwright's locator.click waits for
+  // "enabled"), so this test sends a real tap at the tile's coordinates with the JS held: the tile must LOOK not ready (dimmed, cursor-wait,
+  // group aria-busy) so nobody taps it expecting a result; after the JS runs, a tap works.
+  test(`onboarding at ${w}: tiles look not ready until hydration (a real tap before it is dropped), and a tap after it sticks`, async ({ browser }) => {
+    test.setTimeout(240_000);
+    const ctx = await browser.newContext({ viewport: { width: w, height: h }, hasTouch: w < 800, baseURL: test.info().project.use.baseURL, extraHTTPHeaders: { "x-e2e-device": `wt2d-early-${w}-${Date.now()}` } });
+    const page = await ctx.newPage();
+    await signInToOnboarding(page, `wt2d-early-${w}-${Date.now()}@example.com`);
+    await page.goto("about:blank");
+    let release: () => void = () => {};
+    const gate = new Promise<void>((r) => { release = r; });
+    await page.route("**/_next/static/**/*.js", async (route) => { await gate; await route.continue(); });   // client JS held
+    await page.goto("/onboarding", { waitUntil: "domcontentloaded" });
+    const nfl = page.getByRole("button", { name: "NFL", exact: true });
+    await expect(nfl).toBeVisible({ timeout: 60_000 });   // the server HTML is there
+    await expect(nfl).toBeDisabled();
+    const picker = page.getByTestId("topics-picker");
+    await expect(picker).toHaveAttribute("aria-busy", "true");
+    const look = await nfl.evaluate((el) => { const c = getComputedStyle(el); return { opacity: c.opacity, cursor: c.cursor }; });
+    console.log(`early tile at ${w}: opacity ${look.opacity}, cursor ${look.cursor}`);
+    expect(Number(look.opacity), "dimmed like Skip setup").toBeLessThan(1);
+    expect(look.cursor).toBe("wait");
+    // a REAL tap on the not-ready tile (coordinates, not locator.click): the browser drops it
+    const b = (await nfl.boundingBox())!;
+    if (w < 800) await page.touchscreen.tap(b.x + b.width / 2, b.y + b.height / 2);
+    else await page.mouse.click(b.x + b.width / 2, b.y + b.height / 2);
+    release();
+    await expect(picker).toHaveAttribute("aria-busy", "false", { timeout: 60_000 });   // hydrated
+    await expect(nfl).toBeEnabled();
+    await expect(nfl, "the early tap did nothing, and the tile never claimed otherwise").toHaveAttribute("aria-pressed", "false");
+    // after hydration a tap works
+    await nfl.click();
+    await expect(nfl).toHaveAttribute("aria-pressed", "true", { timeout: 30_000 });
+    await ctx.close();
+  });
+
   test(`signed out /m/<id> at ${w}: "Check this bet" beside "Add to combo checker", one row, CLS < 0.1`, async ({ page }) => {
     await page.context().setExtraHTTPHeaders({ "x-e2e-device": `wt2d-t-${w}-${Date.now()}` });
     await cls(page);
@@ -67,7 +119,7 @@ test("a new Pro user who picks only a topic with nothing open lands on a clear e
   const name = (await none.jsonValue()) as string;
   const tile = page.getByRole("button", { name, exact: true });
   await tile.click();
-  await expect(tile).toHaveAttribute("aria-pressed", "true", { timeout: 30_000 });   // each tap waits for the account store, then saves
+  await expect(tile).toHaveAttribute("aria-pressed", "true", { timeout: 30_000 });   // the tap saves once the account store is ready
   await page.getByRole("button", { name: "Next", exact: true }).click();
   await page.getByRole("button", { name: "Next", exact: true }).click();
   await page.getByRole("button", { name: "Show my best bets" }).click();

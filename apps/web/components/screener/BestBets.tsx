@@ -149,20 +149,14 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
   // the client's tier: that is "free" until /api/me answers, which painted a paid page as "Free shows 89 …" (T-288).
   const daily = data?.free_daily;
   const sample = daily !== undefined;
-  // T-wt2b: a page that LOADS as Free's empty sample (a plain topic filter with none of today's bets) puts the locked card right under
-  // the heading, so it is in the first view. Reached by changing filters in the page, the card stays pinned at the bottom of the
-  // reserved list as before (moving it up there would shift the whole page: e2e-paid/free-topics-cls). The tap on "Show today's
-  // free bets" takes the top card away at once (the input window); the list's own card then appears at the bottom, a new element.
-  const startedEmpty = useRef(!!initial?.main && initial.main.free_daily !== undefined && initial.main.rows.length === 0 && initial.main.total > 0);
-  const [askedAll, setAskedAll] = useState(false);
+  // T-wt2b/T-wt2d: when none of today's free bets match, the locked card sits right under the heading (first view, compact on a phone),
+  // whether the page loaded that way or a filter change emptied it. The tap on "Show today's free bets" takes it away at once (busy).
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState<{ ok: boolean; msg: string } | null>(null);
 
   const rows = data ? [...data.rows, ...view!.more] : [];
   const shortSample = sample && rows.length < (daily ?? 0);   // Free, with fewer than a day's allowance on the page
   const emptySample = sample && rows.length === 0;   // Free, and none of today's bets match (only meaningful once data is in)
-  if (rows.length > 0) startedEmpty.current = false;   // once cards have been shown, an empty sample is a filter change: bottom card
-  const topLocked = emptySample && startedEmpty.current && !askedAll;
   const slots = data ? slotsOf(rows, data.groups ? [...data.groups, ...view!.moreGroups] : undefined) : [];
   // QA-A #70/#71: bets left, in bets (`total` counts bets; a game slot holds `size` of them), never below 0. Live
   // re-pricing can drop rows from a page, so whether a button shows comes from the pages held (sc.hasMore), not this.
@@ -171,7 +165,9 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
   const scanned = data?.scanned_at ?? initial?.scanned_at ?? meta?.meta.scanned_at;
   usePublishScan(scanned);   // the header pill names this same scan
   // §G2: the "On Polymarket US" chip exists once the scan carries US quotes (older scans: the filter is a no-op)
-  const usOn = meta ? meta.meta.us?.ok === true : rows.some((r) => !!r.market.us);
+  // T-wt2d: with no rows yet to tell (an empty list before /api/meta answers) the chip is assumed: on a phone it wraps the
+  // "Save this view" row, so adding it a few seconds in moved the page 52 px (CLS 0.015 on a new Pro user's empty landing).
+  const usOn = meta ? meta.meta.us?.ok === true : rows.length === 0 || rows.some((r) => !!r.market.us);
   const win = useMemo(() => ({ today: windowFor("today", scanned), week: windowFor("week", scanned) }), [scanned]);
   const yoursOnly = !!state.favorites_only || !!state.topics?.length;   // narrowed to the topics the user chose
   const topic = state.topics?.length === 1 ? TAXONOMY[state.topics[0]!]?.label : state.categories?.length === 1 ? TAXONOMY[state.categories[0]!]?.label : undefined;
@@ -190,7 +186,7 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
     <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-4">
       <section className="flex flex-col gap-2">
         {/* P9: Free sees the day's sample, so the headline says "10 of 34", not a count it can't open */}
-        <BestBetsHeading total={total} shown={rows.length} sample={sample} daily={daily} fallback={data?.free_fallback} topicTotal={data?.free_fallback_topic_total} topic={topic} yours={!!state.favorites_only} onShowAll={() => { setAskedAll(true); set({ topics: undefined, categories: undefined, favorites_only: undefined }); }}>
+        <BestBetsHeading total={total} shown={rows.length} sample={sample} daily={daily} fallback={data?.free_fallback} topicTotal={data?.free_fallback_topic_total} topic={topic} yours={!!state.favorites_only} belowButton={!error && data && emptySample && !busy ? <LockedBets total={data.total} shown={0} daily={daily ?? 0} topic={topic} /> : undefined} onShowAll={() => { set({ topics: undefined, categories: undefined, favorites_only: undefined }); }}>
         <p className="max-w-[760px] text-sm leading-normal text-muted">
           Each one has won more often in the past than its price suggests, after the fee.
           {/* P9: when the stale banner shows, it carries the scan age; saying it here too was the third stale notice */}
@@ -198,9 +194,6 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
           <Link href="/track-record" className="inline-flex min-h-11 items-center text-accent-hover underline-offset-4 hover:underline">See how we track results</Link>
         </p>
         </BestBetsHeading>
-        {/* T-wt2b: when none of today's free bets match, the locked card is the first thing under the heading (first view at 390 and
-            1440), not below the filters and an empty list */}
-        {!error && data && topLocked && !busy && <LockedBets total={data.total} shown={0} daily={daily ?? 0} topic={topic} />}
       </section>
 
       <TodayCard />
@@ -228,7 +221,7 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
 
       {error && !data ? (
         <ErrorState onRetry={sc.retry} what="best bets" error={error} />
-      ) : !data || (busy && emptySample) ? (
+      ) : !data || (busy && (emptySample || data.total === 0)) ? (
         // no data yet, or the answer on screen is Free's empty sample (a short note and one locked card) and the next one is
         // loading: reserve the list's height with the skeleton, so the cards landing push nothing down
         <ul className={LIST(desktop)} aria-busy="true" aria-label="Loading best bets">
@@ -238,7 +231,7 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
         <EmptyState
           tourTarget
           title={topic ? `No best bets in ${topic} today` : yoursOnly ? "No best bets in your topics today" : "No best bets match these filters"}
-          line={`No bet with these filters is good value right now${state.us && usOn ? " on Polymarket US" : ""}. ${topic || yoursOnly ? "Widen your topics, or see all best bets. " : ""}Prices refresh ${REFRESH_WORDS}.`}
+          line={`No bet with these filters is good value right now. ${topic || yoursOnly ? "Widen your topics, or see all best bets. " : ""}Prices refresh ${REFRESH_WORDS}.`}
           onReset={reset}
           resetLabel={topic || yoursOnly ? "See all best bets" : "Reset filters"}
           link={topic || yoursOnly
@@ -256,9 +249,6 @@ export function BestBets({ initial }: { initial?: { main: MarketsResponse; soon?
             the fold both before and after and never jumps across the screen when the answer lands. */}
         <div data-testid="bets-list" aria-busy={busy} inert={busy || undefined} className={`flex flex-col gap-4 transition-opacity duration-200 ease-out ${busy ? "pointer-events-none opacity-40" : ""} ${shortSample ? "min-h-[100svh]" : ""}`}>
           {error && <ErrorState onRetry={sc.retry} what="best bets" error={error} />}
-          {/* T-wt2d: a filter change that empties the sample puts the locked card at the TOP of the reserved list (right under the filters,
-              in the first view), where the skeleton cards were: nothing moves. It used to sit at the bottom of the blank screenful. */}
-          {sample && emptySample && !topLocked && <LockedBets total={data.total} shown={0} daily={daily} topic={topic} />}
           {!emptySample && <h2 id="top-h" className="text-xl font-semibold">Today&apos;s top {Math.min(TOP, slots.length)}</h2>}
           {!emptySample && <Cards slots={slots.slice(0, TOP)} desktop={desktop} label="top-h" />}
           {slots.length > TOP && (

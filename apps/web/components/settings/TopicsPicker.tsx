@@ -18,8 +18,8 @@ const GROUPS: { label: string; topics: TaxNode[] }[] = [
 export function TopicsPicker() {
   const { favorite_topics } = useProfile();
   const [counts, setCounts] = useState<Record<string, number> | null>(null);
-  // A tap on the server HTML (before React has attached) does nothing, and the tile would look unchosen. Tiles are disabled until hydration
-  // (like "Skip setup"), so the tap waits for it instead of being lost; after it, the choice saves as before.
+  // A tap on the server HTML (before React has attached) is dropped by the browser. So until hydration the tiles are an honest not-ready
+  // state, the same as "Skip setup": disabled, dimmed, cursor-wait, and the picker is aria-busy. Nothing waits or replays the tap.
   const [ready, setReady] = useState(false);
   const uid = useId();
   useEffect(() => setReady(true), []);
@@ -40,7 +40,7 @@ export function TopicsPicker() {
   };
 
   return (
-    <div className="flex flex-col gap-6">
+    <div data-testid="topics-picker" aria-busy={!ready} className="flex flex-col gap-6">
       <p className="text-sm text-muted" aria-live="polite">
         {favorite_topics.length ? `${favorite_topics.length} chosen. They show first in your quick filters.` : "Choose any you follow. You can change them later in Settings."}
       </p>
@@ -59,8 +59,8 @@ export function TopicsPicker() {
               const n = counts?.[t.id];
               return (
                 <button key={t.id} type="button" aria-pressed={on} disabled={!ready} aria-describedby={`${uid}-${t.id}`} onClick={() => toggle(t.id)}
-                  className={`flex min-h-12 flex-col items-start justify-center gap-0.5 rounded-input border px-3.5 py-2.5 text-left text-sm ${
-                    on ? "border-accent-border bg-accent-bg text-accent-soft" : "border-border bg-input text-soft hover:border-accent-border hover:text-text"
+                  className={`flex min-h-12 flex-col items-start justify-center gap-0.5 rounded-input border px-3.5 py-2.5 text-left text-sm disabled:cursor-wait disabled:opacity-60 ${
+                    on ? "border-accent-border bg-accent-bg text-accent-soft" : "border-border bg-input text-soft enabled:hover:border-accent-border enabled:hover:text-text"
                   }`}>
                   <span className="flex items-center gap-2">
                     <span aria-hidden="true" className={`flex size-4 flex-none items-center justify-center rounded-[5px] border ${on ? "border-accent bg-accent text-on-accent" : "border-muted"}`}>

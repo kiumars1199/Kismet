@@ -7,7 +7,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Count } from "@/components/kit";
 
 /** `daily`: the Free allowance (free_daily), which decides "pick" or "bets": a topic with one match still leaves Free ten a day. */
-export function BestBetsHeading({ total, shown, sample = false, daily, fallback = false, topicTotal, topic, yours = false, onShowAll, children }: { total?: number; shown: number; sample?: boolean; daily?: number; fallback?: boolean; topicTotal?: number; topic?: string; yours?: boolean; onShowAll: () => void; children?: ReactNode }) {
+export function BestBetsHeading({ total, shown, sample = false, daily, fallback = false, topicTotal, topic, yours = false, onShowAll, belowButton, children }: { total?: number; shown: number; sample?: boolean; daily?: number; fallback?: boolean; topicTotal?: number; topic?: string; yours?: boolean; onShowAll: () => void; belowButton?: ReactNode; children?: ReactNode }) {
   // The tap switches the line at once, so the row loses the button's height inside the 500 ms input window instead of
   // when the (slower) answer lands, where it would count as layout shift.
   const [asked, setAsked] = useState(false);
@@ -18,13 +18,17 @@ export function BestBetsHeading({ total, shown, sample = false, daily, fallback 
     return (
       <>
         <h1 className={cls}>{`Today's free ${daily === 1 ? "pick isn't" : "bets aren't"} in ${yours ? "your topics" : topic ?? "this filter"}`}</h1>
-        {/* The button takes the blurb's place (same grid cell, the blurb stays and only hides), so the row doesn't grow */}
+        {/* The button takes the blurb's place (same grid cell, the blurb stays and only hides), so the row doesn't grow. T-wt2d: the locked
+            card (belowButton) sits under the button in that same cell, so it fills the blurb's reserved height instead of pushing the page. */}
         <div className="grid">
           <div aria-hidden="true" className="invisible [grid-area:1/1]">{children}</div>
-          <button type="button" data-testid="show-free-sample" onClick={() => { setAsked(true); onShowAll(); }}
-            className="inline-flex min-h-11 w-fit items-center self-start rounded-xl border border-border px-4 text-sm font-medium text-accent-hover hover:bg-raised [grid-area:1/1]">
-            Show today&apos;s free {what}
-          </button>
+          <div className="flex flex-col items-start gap-2 [grid-area:1/1]">
+            <button type="button" data-testid="show-free-sample" onClick={() => { setAsked(true); onShowAll(); }}
+              className="inline-flex min-h-11 w-fit items-center self-start rounded-xl border border-border px-4 text-sm font-medium text-accent-hover hover:bg-raised">
+              Show today&apos;s free {what}
+            </button>
+            {belowButton}
+          </div>
         </div>
       </>
     );

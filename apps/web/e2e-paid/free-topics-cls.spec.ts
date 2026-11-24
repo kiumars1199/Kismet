@@ -92,6 +92,13 @@ for (const { w, h } of [{ w: 390, h: 844 }, { w: 1440, h: 900 }]) {
       console.log(`locked card top ${Math.round(top)} (of ${h}) without the stale banner`);
       expect(top).toBeLessThan(h);
       expect(lockedBox.y).toBeGreaterThanOrEqual(h1Box.y + h1Box.height - 1);
+      // The card's MESSAGE (not just its top edge) is in the first screen, above the phone tab bar. Measured on a fresh scan: the stale banner
+      // (e2e data is a week old) is not counted. The tab bar only exists on phones.
+      const msg = (await page.getByTestId("locked-bets").locator("p").first().boundingBox())!;
+      const nav = await page.getByRole("navigation", { name: "Main" }).evaluate((n) => { const r = n.getBoundingClientRect(); return r.top > innerHeight / 2 ? r.top : innerHeight; });
+      const msgBottom = msg.y + (await page.evaluate(() => scrollY)) - banner + msg.height;
+      console.log(`locked card message bottom ${Math.round(msgBottom)} (fresh scan), tab bar top ${Math.round(nav)} at ${w}px`);
+      expect(msgBottom, "the whole message is above the tab bar on a fresh scan").toBeLessThanOrEqual(nav);
       await skipTour(page);
       await page.evaluate(() => window.scrollTo(0, 0));
       await resetCls(page);
