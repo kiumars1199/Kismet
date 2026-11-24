@@ -42,15 +42,6 @@ export const PAYS_HELP = "What $1 returns if this side wins: $1 ÷ price, before
 export function pct(p: number | null | undefined): string {
   return ok(p) ? `${Math.round(p * 100)}%` : DASH;
 }
-/** A chance (a leg's, a combo's): like pct, but never "0%" for a chance above 0 or "100%" for one below 1: "<1%" and ">99%". */
-export function chancePct(p: number | null | undefined): string {
-  if (!ok(p)) return DASH;
-  if (p > 0 && p < 0.005) return "<1%";
-  if (p < 1 && p >= 0.995) return ">99%";
-  return pct(p);
-}
-/** A price shown as a percentage (0.999 → ">99%", 0.002 → "<1%"): the same rule as a chance, so it never reads "100%" or "0%" when it is not exactly that. */
-export const pricePct = chancePct;
 /** estimated return from roi_pct: 33.2 → "+33%", 4.6 → "+4.6%", -2 → "−2%" */
 export function ret(roiPct: number | null | undefined): string {
   if (!ok(roiPct)) return DASH;

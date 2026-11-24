@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { ago, basis, chance, closesIn, countdown, edge, exactCount, expectedProfit, formatCount, money, pays, payoutIfWins, payoutMoney, pct, chancePct, pricePct, price, realisticReturn, recordLabel, ret, testedLine, usd, utcWhen, winsAbout } from "./format";
+import { ago, basis, chance, closesIn, countdown, edge, exactCount, expectedProfit, formatCount, money, pays, payoutIfWins, payoutMoney, pct, price, realisticReturn, recordLabel, ret, testedLine, usd, utcWhen, winsAbout } from "./format";
+import { chancePct, pricePct } from "./chance";
 
 describe("docs/18 numbers", () => {
   it("formatCount rounds down, never up", () => {

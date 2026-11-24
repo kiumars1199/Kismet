@@ -3,7 +3,7 @@
 // sit in two events); same-event legs are correlated and the simple product is wrong. Suggested combos never pair
 // them, the tray refuses them (legProblem), and combo() still reports any that slip in (an old saved tray).
 // One chance everywhere (Marc #15, #74): the return, "wins about" and every leg's chance use the cautious chance.
-import { chancePct } from "@/lib/format";
+import { chancePct } from "@/lib/chance";
 import { betQuote } from "@/lib/betFigures";
 import { feeCents } from "@/lib/trade/intent";
 import type { Side, StoreMarket } from "@/lib/types";

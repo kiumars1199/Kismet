@@ -3,7 +3,7 @@
 // meaning as F1's net_edge; score = F1's formula with n = the smallest leg sample. The chance assumes the legs are
 // independent, which same-event legs are not (flagged).
 import { comboPrice } from "@/lib/combos";
-import { chancePct, pricePct } from "@/lib/format";
+import { chancePct, pricePct } from "@/lib/chance";
 import { multX } from "@/lib/card";
 import type { CheckBase } from "./compute";
 import { cleanEventLine } from "@/lib/format";
