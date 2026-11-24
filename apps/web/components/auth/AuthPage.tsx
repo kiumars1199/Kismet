@@ -4,6 +4,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { accountsOffNote, authEnabled, getUser, safeNext } from "@/lib/auth/server";
+import { middleClamp } from "@/lib/middle-clamp";
 import { signupBetTitle } from "@/lib/teaser";
 import { FREE_BEST_BETS_A_DAY } from "@/lib/entitlements";
 
@@ -41,10 +42,16 @@ export async function AuthPage({ mode, searchParams }: {
   const other = next === "/" ? c.other.href : `${c.other.href}?next=${encodeURIComponent(next)}`;
 
   return (
-    <section className="mx-auto flex w-full max-w-[420px] flex-col gap-2 py-0.5 md:gap-4 md:py-6">
+    <section className="mx-auto flex w-full max-w-[420px] flex-col gap-2 py-0.5 [@media(max-height:700px)]:-mt-6 md:gap-4 md:py-6">
       <header className="flex flex-col gap-1 md:gap-2.5">
         <h1 className="text-balance text-[24px] font-bold leading-[1.05] tracking-[-0.02em] md:text-[40px]">{c.title}</h1>
-        {betTitle ? <p data-testid="signup-bet" title={betTitle} className="line-clamp-2 text-[13px] font-medium leading-snug text-accent-soft md:line-clamp-none md:text-[15px]">Sign up to see Kismet&apos;s verdict on {betTitle}{/[?!.]$/.test(betTitle) ? "" : "."}</p> : null}
+        {betTitle ? (
+          // A long title is shortened in the MIDDLE and keeps its end ("... on November 17?"): the date tells similar bets apart. Two
+          // lengths (phone, desktop) so the line stays at 2 lines and "Create account" clears the tab bar / the fold; the full title is the tooltip.
+          <p data-testid="signup-bet" title={betTitle} className="text-[13px] font-medium leading-snug text-accent-soft md:text-[15px]">
+            Sign up to see Kismet&apos;s verdict on <span className="md:hidden">{middleClamp(betTitle, 52)}</span><span className="hidden md:inline">{middleClamp(betTitle, 64)}</span>{/[?!.]$/.test(betTitle) ? "" : "."}
+          </p>
+        ) : null}
       </header>
       {/* One element: under the heading on a desktop, last on a phone (above the form it pushed the submit button behind the tab bar).
           Not shown at all on a phone when the page names a bet (that line is the lede). */}

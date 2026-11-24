@@ -259,3 +259,223 @@ test("the link button says 'Share link' on a touch device and 'Copy link' with a
   await expect(tp.getByRole("button", { name: "Copy link" })).toHaveCount(0);
   await touch.close();
 });
+
+// T-wt3e N1: two legs from one event show the same-event note BEFORE any score (it is free: the event ids are known), with no check
+// spent, and loading them shifts nothing. N3: the leg lines and the combined chance say "(cautious)" like the tray.
+test("same-event legs: the note shows before the tap (no check spent), and loading them shifts nothing (5 runs, 390 and 1440)", async ({ browser, page }) => {
+  test.setTimeout(300_000);
+  const all = await rows(page);
+  const byEvent = new Map<string, Row[]>();
+  for (const r of all) byEvent.set(r.market.event_id, [...(byEvent.get(r.market.event_id) ?? []), r]);
+  const pair = [...byEvent.values()].find((l) => new Set(l.map((r) => r.market.id)).size >= 2);
+  test.skip(!pair, "fixture has no event with two markets in the list");
+  const two = [...new Map(pair!.map((r) => [r.market.id, r])).values()].slice(0, 2);
+  const out: string[] = [];
+  for (const [name, size] of SIZES) {
+    let worst = 0;
+    for (let run = 0; run < 5; run++) {
+      const ctx = await browser.newContext({ viewport: size, baseURL: test.info().project.use.baseURL });
+      const p = await ctx.newPage();
+      let posts = 0;
+      p.on("request", (r) => { if (r.method() === "POST" && new URL(r.url()).pathname === "/api/check/combo") posts++; });
+      await p.addInitScript(watchCls);
+      await p.goto(`/check/combo?legs=${legsQuery(two)}`);
+      await expect(p.getByTestId("combo-leg")).toHaveCount(2, { timeout: 30_000 });
+      const note = p.getByTestId("combo-same-event");
+      await expect(note).toBeVisible({ timeout: 15_000 });
+      await expect(note).toContainText("move together");
+      await expect(note).toContainText(/Drop one of the two .+ bets\./);
+      await p.waitForTimeout(700);
+      expect(posts, "no check spent for a free note").toBe(0);
+      worst = Math.max(worst, await cls(p));
+      await ctx.close();
+    }
+    out.push(`${name}px ${worst.toFixed(4)}`);
+    expect(worst, name).toBeLessThan(0.02);
+  }
+  console.log(`T-wt3e same-event note on load, worst of 5: ${out.join(", ")}`);
+});
+
+test("leg lines and the combined chance are labelled '(cautious)' once scored", async ({ page }) => {
+  const [a, b] = distinct(await rows(page), 2);
+  await page.goto(`/check/combo?legs=${legsQuery([a!, b!])}`);
+  await expect(page.getByTestId("combo-leg")).toHaveCount(2, { timeout: 30_000 });
+  await page.getByTestId("combo-check-btn").click();
+  await expect(page.getByTestId("combo-score")).toBeVisible({ timeout: 30_000 });
+  for (const t of await page.getByTestId("combo-leg").locator("p").filter({ hasText: /^Bet / }).allInnerTexts()) expect(t).toMatch(/\d+% chance \(cautious\)/);
+  await expect(page.locator("dt", { hasText: "Combined chance" })).toHaveText("Combined chance (cautious)");
+});
+
+// T-wt3e (review of #108): a REFUSED add (duplicate, 404, network error) must not shift the page either: the room held at the tap is kept
+// (not given back when the lookup refuses), and a bet that is already a leg is refused on the page without a lookup or a reserve.
+for (const [name, size] of SIZES) {
+  for (const n of [2, 4]) {
+    test(`refused adds (duplicate, 404, network error) after a 900 ms lookup shift nothing: ${n} legs at ${name}px (CLS < 0.02)`, async ({ browser, page }) => {
+      test.setTimeout(240_000);
+      const picks = distinct(await rows(page), n);
+      const ctx = await browser.newContext({ viewport: size, baseURL: test.info().project.use.baseURL });
+      const p = await ctx.newPage();
+      await p.addInitScript(watchCls);
+      let mode: "slow" | "abort" = "slow";
+      await p.route("**/api/check/leg", async (r) => { await new Promise((ok) => setTimeout(ok, 900)); if (mode === "abort") await r.abort("failed"); else await r.continue(); });
+      await p.goto(`/check/combo?legs=${legsQuery(picks)}`);
+      await expect(p.getByTestId("combo-leg")).toHaveCount(n, { timeout: 30_000 });
+      await p.waitForTimeout(800);
+      const input = p.getByLabel("Add a bet by link or words");
+      const note = p.getByTestId("combo-note");
+      // a real keystroke first (the next keystroke gives a refusal's room back, inside the input window), then the pasted value
+      const typeIn = async (value: string) => { await input.click(); await input.press("End"); await input.press("x"); await input.fill(value); };   // the tap that focuses the field, like a person
+      const out: string[] = [];
+      const step = async (label: string, run: () => Promise<void>, expectNote: RegExp) => {
+        const before = await cls(p);
+        await run();
+        await expect(note).toHaveText(expectNote, { timeout: 20_000 });
+        await p.waitForTimeout(800);
+        const d = (await cls(p)) - before;
+        out.push(`${label} ${d.toFixed(4)}`);
+        expect(d, label).toBeLessThan(0.02);
+      };
+      // 404: a link to a market that is not ours
+      await step("404", async () => { await typeIn("https://polymarket.com/event/not-a-real-market-xyz"); await p.getByRole("button", { name: "Add", exact: true }).click(); }, /find an open market/);
+      // network error
+      mode = "abort";
+      await step("network", async () => { await typeIn("https://polymarket.com/event/anything-else-abc"); await p.getByRole("button", { name: "Add", exact: true }).click(); }, /Couldn't reach Kismet/);
+      mode = "slow";
+      // duplicate: search for a bet that is already a leg and tap its result
+      const q = await p.evaluate(async ([m, s]) => {
+        const r = await fetch("/api/check/leg", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ m, side: Number(s) }) });
+        return ((await r.json()) as { market: { question: string } }).market.question;
+      }, [picks[0]!.market.id, String(picks[0]!.side.side_index)]);
+      await typeIn(q.split(/\s+/).slice(0, 3).join(" "));
+      await p.getByRole("button", { name: "Add", exact: true }).click();
+      const hit = p.getByTestId("combo-hits").getByRole("button").filter({ hasText: q.slice(0, 25) }).first();
+      await expect(hit).toBeVisible({ timeout: 20_000 });
+      await p.waitForTimeout(700);
+      let lookups = 0;
+      p.on("request", (r) => { if (r.method() === "POST" && new URL(r.url()).pathname === "/api/check/leg") lookups++; });
+      await step("duplicate", async () => { await hit.click(); }, /already in your combo/);
+      expect(lookups, "a bet that is already a leg is refused without a lookup").toBe(0);
+      console.log(`T-wt3e refused adds CLS, ${n} legs at ${name}px: ${out.join(", ")}`);
+      await ctx.close();
+    });
+  }
+}
+
+// T-wt3f 1: after a refused add (404, network error) the room it held is given back on the NEXT KEYSTROKE (user input, so no layout shift
+// is counted), never by itself.
+for (const [name, size] of SIZES) {
+  test(`a refused add keeps its room until the next keystroke, then gives it back (no shift without input) at ${name}px`, async ({ browser, page }) => {
+    test.setTimeout(180_000);
+    const picks = distinct(await rows(page), 2);
+    const ctx = await browser.newContext({ viewport: size, baseURL: test.info().project.use.baseURL });
+    const p = await ctx.newPage();
+    await p.addInitScript(watchCls);
+    await p.route("**/api/check/leg", async (r) => { await new Promise((ok) => setTimeout(ok, 600)); await r.continue(); });
+    await p.goto(`/check/combo?legs=${legsQuery(picks)}`);
+    await expect(p.getByTestId("combo-leg")).toHaveCount(2, { timeout: 30_000 });
+    await p.waitForTimeout(800);
+    const legsH = () => p.getByTestId("combo-legs").evaluate((el) => Math.round(el.getBoundingClientRect().height));
+    const input = p.getByLabel("Add a bet by link or words");
+    await input.fill("https://polymarket.com/event/not-a-real-market-xyz");
+    await p.getByRole("button", { name: "Add", exact: true }).click();
+    await expect(p.getByTestId("combo-note")).toContainText("find an open market", { timeout: 20_000 });
+    await p.waitForTimeout(900);
+    const held = await legsH();
+    const idle = await cls(p);
+    await p.waitForTimeout(1500);
+    expect(await cls(p), "nothing moves by itself").toBe(idle);
+    expect(await legsH(), "the room is still held with no input").toBe(held);
+    await input.click();   // the tap that focuses the field (a person taps before typing)
+    await input.press("End");
+    await input.pressSequentially("x");   // the next keystroke
+    await p.waitForTimeout(600);
+    const released = await legsH();
+    console.log(`T-wt3f refusal room at ${name}px: held ${held}px -> after a keystroke ${released}px; CLS ${(await cls(p)).toFixed(4)}`);
+    expect(held - released, "the held room (about one leg) is given back").toBeGreaterThanOrEqual(60);
+    expect(await cls(p), "giving it back on a keystroke is not a counted shift").toBeLessThan(0.02);
+    await ctx.close();
+  });
+}
+
+// T-wt3f 2: "(cautious)" is explained once, in plain words, in the Why details.
+test("the Why details explain '(cautious)' once, in plain words", async ({ page }) => {
+  const [a, b] = distinct(await rows(page), 2);
+  await page.goto(`/check/combo?legs=${legsQuery([a!, b!])}`);
+  await expect(page.getByTestId("combo-leg")).toHaveCount(2, { timeout: 30_000 });
+  await page.getByTestId("combo-check-btn").click();
+  await expect(page.getByTestId("combo-score")).toBeVisible({ timeout: 30_000 });
+  await page.getByTestId("combo-why").locator("summary").click();
+  const why = page.getByTestId("combo-why-cautious");
+  await expect(why).toHaveText("Combos use each bet's cautious chance, a little below its card, because small errors multiply.");
+  await expect(page.getByText("cautious chance, a little below")).toHaveCount(1);
+});
+
+// T-wt3f 3: pasting the EVENT link of a leg already in the combo is a duplicate, not a different market from that event.
+test("an event link whose event already has a leg is refused as a duplicate (whichever of its markets is the leg)", async ({ page }) => {
+  test.setTimeout(240_000);
+  const all = (await (await page.request.get("/api/markets?limit=60&sort=edge")).json()).rows as (Row & { market: { slug: string } })[];
+  const byEvent = new Map<string, typeof all>();
+  for (const r of all) byEvent.set(r.market.event_id, [...(byEvent.get(r.market.event_id) ?? []), r]);
+  const pair = [...byEvent.values()].find((l) => new Set(l.map((r) => r.market.id)).size >= 2);
+  test.skip(!pair, "fixture has no event with two markets in the list");
+  const two = [...new Map(pair!.map((r) => [r.market.id, r])).values()].slice(0, 2);
+  for (const leg of two) {
+    await page.goto("/check/combo");
+    await page.evaluate(() => sessionStorage.clear());
+    await page.goto(`/check/combo?legs=${leg.market.id}:${leg.side.side_index}`);
+    await expect(page.getByTestId("combo-leg")).toHaveCount(1, { timeout: 30_000 });
+    await page.getByLabel("Add a bet by link or words").fill(`https://polymarket.com/event/${leg.market.slug}`);
+    await page.getByRole("button", { name: "Add", exact: true }).click();
+    await expect(page.getByTestId("combo-note")).toHaveText("That bet is already in your combo.", { timeout: 20_000 });
+    await expect(page.getByTestId("combo-leg")).toHaveCount(1);
+  }
+});
+
+// T-wt3f (review): a Polymarket US link names ONE market (/event/<aec-...> and /market/<aec-...> alike), so the sibling of a leg is a
+// different bet and is added; only polymarket.com EVENT links are refused when their event already has a leg.
+for (const [name, size] of SIZES) {
+  test(`a Polymarket US link to a sibling market in the same event is added, not refused, at ${name}px`, async ({ browser }) => {
+    test.setTimeout(240_000);
+    for (const [have, want, kind] of [["7077573", "7077574", "market"], ["7077574", "7077573", "market"], ["7077573", "7077574", "event"]] as const) {
+      const ctx = await browser.newContext({ viewport: size, baseURL: test.info().project.use.baseURL });
+      const p = await ctx.newPage();
+      await p.goto(`/check/combo?legs=${have}:0`);
+      await expect(p.getByTestId("combo-leg")).toHaveCount(1, { timeout: 30_000 });
+      await p.getByLabel("Add a bet by link or words").fill(`https://polymarket.us/${kind}/aec-cfb-${want}`);
+      await p.getByRole("button", { name: "Add", exact: true }).click();
+      await expect(p.getByTestId("combo-leg"), `${kind} link ${want} after ${have}`).toHaveCount(2, { timeout: 20_000 });
+      await expect(p.getByTestId("combo-note")).not.toContainText("already in your combo");
+      await ctx.close();
+    }
+  });
+}
+
+// T-wt3f (review): the refused add's room is given back on focus or tap in the input (user input), so a long-press Paste or an autofill,
+// which fire no keystroke, move nothing that counts.
+for (const [name, size] of SIZES) {
+  test(`pasting without a keypress after a refusal shifts nothing (the tap in the input gives the room back) at ${name}px`, async ({ browser, page }) => {
+    test.setTimeout(180_000);
+    const picks = distinct(await rows(page), 2);
+    const ctx = await browser.newContext({ viewport: size, baseURL: test.info().project.use.baseURL });
+    const p = await ctx.newPage();
+    await p.addInitScript(watchCls);
+    await p.goto(`/check/combo?legs=${legsQuery(picks)}`);
+    await expect(p.getByTestId("combo-leg")).toHaveCount(2, { timeout: 30_000 });
+    await p.waitForTimeout(800);
+    const input = p.getByLabel("Add a bet by link or words");
+    await input.press("End"); await input.press("x");
+    await input.fill("https://polymarket.com/event/not-a-real-market-xyz");
+    await p.getByRole("button", { name: "Add", exact: true }).click();
+    await expect(p.getByTestId("combo-note")).toContainText("find an open market", { timeout: 20_000 });
+    await p.waitForTimeout(900);
+    const before = await cls(p);
+    await input.click();   // the tap that starts a long-press Paste
+    await p.waitForTimeout(1200);   // the paste menu, then Paste: well past the 500 ms input window
+    await p.keyboard.insertText("https://polymarket.com/event/another-one");   // no keydown at all
+    await p.waitForTimeout(700);
+    const delta = (await cls(p)) - before;
+    console.log(`T-wt3f paste-without-keypress CLS at ${name}px: ${delta.toFixed(4)}`);
+    expect(delta).toBeLessThan(0.001);   // nothing that counts moves
+    await ctx.close();
+  });
+}

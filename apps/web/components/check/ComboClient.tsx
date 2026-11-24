@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CheckSearchResponse } from "@/app/api/check/search/route";
-import { checkCombo, MAX_COMBO_LEGS, MIN_COMBO_LEGS, sameEventAdvice, type ComboLeg } from "@/lib/check/combo";
+import { checkCombo, legLine, MAX_COMBO_LEGS, MIN_COMBO_LEGS, sameEvents, sameEventAdvice, type ComboLeg } from "@/lib/check/combo";
 import { addStored, comboUrl, parseLegsParam, readStored, writeStored } from "@/lib/check/comboLegs";
 import { COMBO_CHECK_FREE_NOTE, COMBO_LIMIT_USED } from "@/lib/check/copy";
 import { useMe } from "@/lib/me";
@@ -37,10 +37,10 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
   const [loaded, setLoaded] = useState(false);   // the legs of this tab (or of the link) are in; until then the legs region is hidden, not moved
   const [known, setKnown] = useState<Map<string, ComboLeg["base"]>>(new Map());   // every leg's numbers once scored: they stay after a 429 or an added leg
   const [copied, setCopied] = useState("");
-  const [engaged, setEngaged] = useState(false);
+  const [engaged, setEngaged] = useState(false);   // the person has started adding: from then on the page keeps its reserved height
   const [incoming, setIncoming] = useState(false);   // a leg is being looked up: its room is held from the tap, so it lands in it
   const [touch, setTouch] = useState(false);   // a touch device: the link button opens the share sheet
-  const pendingCheck = useRef<Listed[] | null>(null);   // a shared link asked for a score; Pro and Premium get it without a tap   // the person has started adding: from then on the page keeps its reserved height
+  const pendingCheck = useRef<Listed[] | null>(null);   // a shared link asked for a score; Pro and Premium get it without a tap
   const me = useMe();
   const trayLegs = useCombo((c) => c.legs.length);   // Premium's combo tray is fixed to the bottom of the screen: leave room under the page for it
   const legsRef = useRef(legs);
@@ -72,6 +72,7 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
 
   // A shared link (&check=1) loads the legs; Pro and Premium see the score at once. Signed-out and Free visitors tap to score:
   // that tap spends the day's one check, so a link must not spend it for them (nor show a 429 for a check they never asked for).
+  useEffect(() => { setIncoming(false); }, [legs.length]);   // a leg arrived or went: the held room is the list's own now
   useEffect(() => { setTouch(window.matchMedia("(pointer: coarse)").matches); }, []);
   useEffect(() => {
     const list = pendingCheck.current;
@@ -98,6 +99,8 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
   }
 
   async function add(body: { m?: string; link?: string; side?: 0 | 1 }) {
+    // a bet that is already a leg is refused on the page: no lookup, no room held for a leg that is not coming
+    if (body.m && legsRef.current.some((x) => x.marketId === body.m)) { setHits([]); setNote("That bet is already in your combo."); return; }
     setEngaged(true); setIncoming(true); setBusy(true); setNote(""); setHits([]);
     try {
       const r = await fetch("/api/check/leg", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
@@ -105,12 +108,18 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
       if (!r.ok) return setNote("Something went wrong. Try again in a moment.");
       const l = listed((await r.json()) as LegLookup);
       const cur = legsRef.current;
+      // A polymarket.com EVENT link (no market in it) resolves to one of that event's markets, which may not be the one already in the
+      // combo: when the event already has a leg, that is a duplicate too (to add another market of it, paste that market's own link).
+      // Polymarket US is different: /event/<slug> and /market/<slug> both name ONE market (its aec-... twin), so only the same market
+      // id is a duplicate (addStored below).
+      const asked = body.link ? parseLink(body.link) : null;
+      if (asked && asked.parts.length === 1 && asked.venue === "polymarket" && cur.some((x) => x.eventId === l.eventId)) return setNote("That bet is already in your combo.");
       const r2 = addStored(cur, l);
       if (r2.refused === "duplicate") return setNote("That bet is already in your combo.");
       if (r2.refused === "full") return setNote(`A combo holds at most ${MAX_COMBO_LEGS} legs.`);
-      legsRef.current = r2.legs; setLegs(r2.legs); setText("");
+      legsRef.current = r2.legs; setLegs(r2.legs); setText(""); setIncoming(false);
     } catch { setNote("Couldn't reach Kismet. Check your connection and try again."); }
-    finally { setBusy(false); setIncoming(false); }
+    finally { setBusy(false); }   // a refusal (404, network, duplicate, full) keeps the room it held: giving it back would move the page
   }
 
   // A card, the drawer or /m links here with ?m=<id>&side=<n>: add that bet once the tab's legs are in. The URL then holds the legs
@@ -148,6 +157,7 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
   const c = useMemo(() => checkCombo(combos), [combos]);
   const n = ready ? c.numbers : null;
   const dropLeg = c.drop ? legs[c.drop.index] : null;
+  const sameNow = legs.length >= MIN_COMBO_LEGS ? sameEvents(legs) : [];
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -199,7 +209,8 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
       <div ref={box} className="relative">
       <form onSubmit={submit} className="flex flex-col gap-2 sm:flex-row">
         <label className="sr-only" htmlFor="combo-q">Add a bet by link or words</label>
-        <input id="combo-q" value={text} onChange={(e) => setText(e.target.value)} placeholder="Add a bet: paste a link or type a team or topic"
+        <input id="combo-q" value={text} onChange={(e) => { setText(e.target.value); if (!busy) setIncoming(false); }}
+          onFocus={() => { if (!busy) setIncoming(false); }} onPointerDown={() => { if (!busy) setIncoming(false); }} placeholder="Add a bet: paste a link or type a team or topic"
           className="min-h-11 min-w-0 flex-1 rounded-input border border-border bg-surface px-3 text-sm text-text placeholder:text-muted" />
         <button type="submit" disabled={busy} className="min-h-11 rounded-input bg-accent px-4 text-sm font-semibold text-on-accent hover:bg-accent-hover disabled:opacity-60">Add</button>
       </form>
@@ -216,7 +227,7 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
         </ul>
       )}
       </div>
-      <div className="min-h-6 text-[13px] text-muted" role="status" aria-live="polite" data-testid="combo-note">{busy ? "Looking it up…" : scoring ? "Scoring your combo…" : note}</div>
+      <div className="min-h-10 text-[13px] text-muted sm:min-h-6" role="status" aria-live="polite" data-testid="combo-note">{busy ? "Looking it up…" : scoring ? "Scoring your combo…" : note}</div>
 
 
       {/* Once there is a leg, a link with legs, or the person has started adding, this region holds the height of the legs and a scored result (the sub-line wraps to 36 px once scored, the result
@@ -231,7 +242,7 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
             <li key={l.key} data-testid="combo-leg" className="flex items-center gap-3 rounded-card border border-border bg-surface p-3">
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold">{l.question}</p>
-                <p className="min-h-9 text-[12px] text-muted sm:min-h-4">Bet {l.outcome} at {pct(l.price)}{b ? ` · ${b.winProb === null ? "No model chance" : `${pct(b.winProb)} chance`} · pays ${multX(1 / (b.ask + b.fee))}` : ""}</p>
+                <p className="min-h-9 text-[12px] text-muted sm:min-h-4">{legLine(l, b)}</p>
               </div>
               <button type="button" aria-label={`Remove ${l.question}`} onClick={() => setLegs(legs.filter((_, j) => j !== i))} className="min-h-11 min-w-11 rounded-input border border-border text-soft">✕</button>
             </li>
@@ -256,15 +267,16 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
           </div>
         )}
         {ready && c.error === "no_model" && <p data-testid="combo-msg" className="text-sm text-soft">No model chance for &ldquo;{c.noModel}&rdquo;, so this combo can&apos;t be scored. Remove that leg.</p>}
-        {ready && c.sameEvent.length > 0 && (
+        {/* known from the event ids alone, so it shows as soon as two legs share an event: no check is spent for it */}
+        {sameNow.length > 0 && (
           <p data-testid="combo-same-event" className="rounded-input border border-border bg-bg p-3 text-[13px] text-soft">
-            Same event ({c.sameEvent.map(cleanEventLine).join(", ")}): these legs move together, the combined chance is likely off. {sameEventAdvice(legs).join(" ")}
+            Same event ({sameNow.map(cleanEventLine).join(", ")}): these legs move together, the combined chance is likely off. {sameEventAdvice(legs).join(" ")}
           </p>
         )}
         {n && (
           <>
             <dl className="grid grid-cols-2 gap-3 md:grid-cols-4">
-              <Stat id="chance" label="Combined chance" value={pct(n.chance)} />
+              <Stat id="chance" label="Combined chance (cautious)" value={pct(n.chance)} />
               <Stat id="mult" label="Pays" value={multX(n.multiplier)} />
               <Stat id="edge" label="Edge after fee" value={pts(n.edge)} />
               <Stat id="score" label="Score (of 100)" value={n.score === null ? "—" : String(n.score)} />
@@ -281,6 +293,7 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
               <div className="flex flex-col gap-2 pb-2">
                 <p data-testid="combo-why-pays">Pays {combos.map((l) => multX(1 / (l.base.ask + l.base.fee))).join(" × ")} = {multX(n.multiplier)}: each leg&apos;s payout after its fee, multiplied.</p>
                 <p data-testid="combo-why-chance">Combined chance {combos.map((l) => pct(l.base.winProb)).join(" × ")} = {pct(n.chance)}.</p>
+                <p data-testid="combo-why-cautious">Combos use each bet&apos;s cautious chance, a little below its card, because small errors multiply.</p>
                 <p data-testid="combo-why-sample">Score sample: the smallest leg, about {smallest === null ? "—" : Math.round(smallest).toLocaleString("en-US")} similar past bets.</p>
                 <ul className="flex flex-col gap-1">
                   {legs.map((l) => <li key={l.key} data-testid="combo-why-leg"><span className="text-soft">{l.question} ({l.outcome}):</span> {scored!.legs.get(l.key)?.basis}</li>)}

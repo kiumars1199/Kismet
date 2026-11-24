@@ -16,7 +16,10 @@ export interface Leg {
   q: number;        // our win chance (win_prob)
   q_low: number;    // cautious win chance (win_prob_low)
   closes_at?: number;   // unix s; legs saved before Nov 21 have none
+  v?: number;           // price version: LEG_V = priced through betQuote (T-wt3c); older saved legs keep the international ask and fee until re-quoted
 }
+/** Legs written by legOf carry this; a saved leg without it is re-quoted on load (requoteLeg). */
+export const LEG_V = 2;
 export const MIN_LEGS = 2;
 /** Payout floors on the Combos page (docs/19 P5): 2x+, 3x+, 5x+, 10x+. */
 export const COMBO_PAYS = [2, 3, 5, 10] as const;
@@ -31,8 +34,19 @@ export const legOf = (m: Pick<StoreMarket, "id" | "question" | "event_id" | "eve
     market_id: m.id, side_index: s.side_index, question: m.question, outcome: s.outcome, event_id: m.event_id, event: m.event,
     url: m.url, kalshi_ticker: m.kalshi_ticker ?? null, ask: q.ask ?? s.ask, fee: q.fee ?? s.fee, q: s.win_prob, q_low: s.win_prob_low,
     ...(m.closes_at ? { closes_at: m.closes_at } : {}),
+    v: LEG_V,
   };
 };
+
+/** A leg saved before the deploy, priced again where its card prices it (betQuote), with the chances of today's scan. Closing time,
+ *  event and the rest stay as saved. */
+export const requoteLeg = (old: Leg, m: Parameters<typeof legOf>[0], s: Side): Leg => {
+  const fresh = legOf(m, s);
+  return { ...old, ask: fresh.ask, fee: fresh.fee, q: fresh.q, q_low: fresh.q_low, v: LEG_V };
+};
+
+/** The note after saved legs that closed (or whose date passed) left the tray. */
+export const droppedNote = (n: number): string => (n <= 0 ? "" : n === 1 ? "One bet left your combo because it closed." : `${n} bets left your combo because they closed.`);
 
 export interface Combo {
   legs: number;
