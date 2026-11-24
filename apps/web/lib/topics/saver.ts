@@ -17,6 +17,8 @@ export type TopicSaverIO = {
   save(next: string[]): Promise<unknown>;
   /** The list the tiles should show now; null = nothing pending, follow the store. */
   onLocal(next: string[] | null): void;
+  /** The page is being left: send the full list once, fire-and-forget (keepalive). */
+  flush?(list: string[]): void;
   /** A save failed: the topics whose taps were dropped (the tiles already show the confirmed list plus later taps). */
   onError?(dropped: string[], e: unknown): void;
 };
@@ -46,8 +48,9 @@ export function createTopicSaver(io: TopicSaverIO) {
       retried = false;
       base = sent;
       ops = ops.slice(n);
+      if (frozen && ops.length) io.flush?.(view());   // this older save may have landed after the flush: send the newest list again
     } catch (e) {
-      if (frozen) return;   // a request cut off by the page leaving is not a failed save: the flush carries the list
+      if (frozen) { if (ops.length) io.flush?.(view()); return; }   // a request cut off by the page leaving is not a failed save: the flush carries the list
       // A request cut off by a navigation rejects just before pagehide fires (fetch TypeError / AbortError, not an HTTP error). Wait a
       // moment: if the page is being left, the flush carries the list; if not, it is a dropped connection and we try once more.
       if (!retried && (e instanceof TypeError || (e as { name?: string })?.name === "AbortError")) {
@@ -77,7 +80,15 @@ export function createTopicSaver(io: TopicSaverIO) {
     /** The full list still unconfirmed (queued or in flight), or null. Used when the page is being left, to send it once more. */
     pending: (): string[] | null => (base !== null && ops.length ? view() : null),
     /** The page is being left: returns the list to send once (keepalive) and stops the queue sending or reverting meanwhile. */
-    freeze(): string[] | null { frozen = true; return base !== null && ops.length ? view() : null; },
+    freeze(): string[] | null { frozen = true; const list = base !== null && ops.length ? view() : null; if (list) io.flush?.(list); return list; },
+    /** Send the pending list once now (keepalive) without freezing the queue. */
+    flushNow() { const l = base !== null && ops.length ? view() : null; if (l) io.flush?.(l); },
+    /** Waits until nothing is unconfirmed (saved, or failed and reverted), at most capMs. true = settled. */
+    async settled(capMs: number): Promise<boolean> {
+      const end = Date.now() + capMs;
+      while (base !== null && ops.length && Date.now() < end) await Promise.race([chain, new Promise((r) => setTimeout(r, 50))]);
+      return !(base !== null && ops.length);
+    },
     /** The page came back (bfcache, tab visible again): carry on; anything still unconfirmed is sent again as a full list. */
     resume() { if (!frozen) return; frozen = false; if (ops.length) chain = chain.then(run, run); },
     /** For tests: resolves when every queued save has finished. */

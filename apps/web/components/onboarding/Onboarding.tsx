@@ -5,6 +5,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { TopicsPicker } from "@/components/settings/TopicsPicker";
+import { pendingTopics, settleTopicSaves } from "@/lib/topics/active";
 import { toQuery } from "@/lib/filters/url";
 import { FilterState } from "@/lib/filters/state";
 import { money } from "@/lib/format";
@@ -67,8 +68,12 @@ export function Onboarding({ next }: { next?: string }) {
     try {
       // Signed in: wait until AuthBoot has switched to the account store, or the flag would land only in this browser.
       if (!DEMO_MODE) await within(repoReady, 8_000).catch(() => {});
+      // Topic taps may still be saving (80-400 ms each, in order). The landing filter is the list on the tiles, never the answer of
+      // whichever save happened to come back first: wait for the saves (2 s at most, then send the list once more with keepalive).
+      await settleTopicSaves(2_000);
       const p = await within(getRepo().profile.patch({ onboarded_at: new Date().toISOString() }), 8_000);
-      if (p.favorite_topics.length) topics = p.favorite_topics;
+      const list = pendingTopics() ?? p.favorite_topics;   // still pending after the cap: the chosen list; else the confirmed one
+      if (list.length) topics = list;
     } catch (e) {
       console.error("[onboarding] could not save:", e);
       setError("Couldn't save your setup. You can change it any time in Settings.");

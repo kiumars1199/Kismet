@@ -108,7 +108,7 @@ describe("TopicsPicker quick taps", () => {
     expect(screen.queryByText(/Couldn't save (Tennis|Esports|Soccer)/)).toBeNull();
   });
 
-  it("several failed topics are named, up to two, plus 'and N more'; tapping any of them clears the line", async () => {
+  it("up to three failed topics are all named; more read 'A, B and N more'; tapping one clears only that topic", async () => {
     server = confirmed = [];
     render(<TopicsPicker />);
     await act(async () => { await vi.advanceTimersByTimeAsync(0); });
@@ -116,9 +116,12 @@ describe("TopicsPicker quick taps", () => {
       fail.once = true;
       await act(async () => { fireEvent.click(tile(name)); await vi.advanceTimersByTimeAsync(500); });
     }
-    expect(screen.getByText("Couldn't save Tennis, Esports and 1 more. Tap them to try again.")).toBeTruthy();
+    expect(screen.getByText("Couldn't save Tennis, Esports and Soccer. Tap them to try again.")).toBeTruthy();
+    fail.once = true;
+    await act(async () => { fireEvent.click(tile("NFL")); await vi.advanceTimersByTimeAsync(500); });
+    expect(screen.getByText("Couldn't save Tennis, Esports and 2 more. Tap them to try again.")).toBeTruthy();
     await act(async () => { fireEvent.click(tile("Esports")); });
-    expect(screen.queryByText(/Couldn't save (Tennis|Esports|Soccer)/)).toBeNull();
+    expect(screen.getByText("Couldn't save Tennis, Soccer and NFL. Tap them to try again.")).toBeTruthy();
   });
 
   it("two failed topics read 'A and B'", async () => {

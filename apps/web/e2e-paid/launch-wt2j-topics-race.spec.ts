@@ -226,3 +226,36 @@ for (const delay of [80, 300]) {
     for (const n of ["NFL", "NBA", "Soccer"]) await expect(page.getByRole("button", { name: n, exact: true })).toHaveAttribute("aria-pressed", "true", { timeout: 30_000 });
   });
 }
+
+// Finishing onboarding right after quick taps: the first screen must be filtered to the topics on the tiles, not to what the
+// server had answered so far (it used to land on t=sports.nfl only), and the server must end holding all three.
+for (const delay of [80, 300]) {
+  for (const how of ["skip", "next-next-show"] as const) {
+    test(`onboarding at 390px: 3 quick taps then ${how} at once (saves take ${delay} ms): lands on all three topics`, async ({ page }) => {
+      test.setTimeout(300_000);
+      await page.setViewportSize({ width: 390, height: 844 });
+      await signUp(page, `wt2j-fin-${how}-${delay}-${Date.now()}@example.com`);
+      const id = await userId(page);
+      await expect(page.getByRole("button", { name: "NFL", exact: true })).toContainText("open", { timeout: 60_000 });
+      await expect(page.getByTestId("topics-picker")).toHaveAttribute("aria-busy", "false");
+      await page.waitForTimeout(500);
+      await page.route("**/api/data/profile", async (route) => {
+        if (route.request().method() === "PATCH") await new Promise((r) => setTimeout(r, delay));
+        await route.continue().catch(() => {});
+      });
+      for (const n of ["NFL", "NBA", "Soccer"]) { expect(await tapQuickly(page, [n])).toEqual(["true"]); await page.waitForTimeout(20); }   // the first save is in flight before the last tap
+      if (how === "skip") await page.getByRole("button", { name: "Skip setup" }).click();
+      else await page.evaluate(async () => {
+        const click = (re: RegExp) => [...document.querySelectorAll<HTMLButtonElement>("button")].find((b) => re.test(b.textContent ?? ""))!.click();
+        const frame = () => new Promise((r) => requestAnimationFrame(() => r(null)));
+        click(/^Next$/); await frame(); click(/^Next$/); await frame(); click(/^Show my best bets$/);
+      });
+      await page.waitForURL(/fav=1/, { timeout: 60_000 });
+      const want = ["sports.nba", "sports.nfl", "sports.soccer"];
+      expect((new URL(page.url()).searchParams.get("t") ?? "").split(",").filter(Boolean).sort(), "the first screen is filtered to all three").toEqual(want);
+      await settle(page, want);
+      await expect.poll(() => cookieTopics(page), { timeout: 10_000 }).toEqual(want);
+      expect(id).toBeTruthy();
+    });
+  }
+}

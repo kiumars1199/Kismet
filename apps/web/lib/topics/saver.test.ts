@@ -60,4 +60,41 @@ describe("createTopicSaver.pending", () => {
     expect(errors).toEqual([["a"]]);
     vi.useRealTimers();
   });
+
+  it("a save that lands after the flush while frozen triggers another flush with the newest list", async () => {
+    vi.useFakeTimers();
+    let server: string[] = [];
+    const flushed: string[][] = [];
+    const s = createTopicSaver({
+      isReady: () => true, ready: async () => {}, current: () => server,
+      save: async (n) => { await new Promise((r) => setTimeout(r, 200)); server = n; }, onLocal: () => {},
+      flush: (l) => flushed.push(l),
+    });
+    s.toggle("a");
+    await vi.advanceTimersByTimeAsync(10);
+    s.toggle("b");
+    expect(s.freeze()).toEqual(["a", "b"]);
+    expect(flushed).toEqual([["a", "b"]]);
+    await vi.advanceTimersByTimeAsync(300);   // the in-flight [a] lands after the flush
+    expect(flushed).toEqual([["a", "b"], ["a", "b"]]);   // so the newest list is sent again
+    vi.useRealTimers();
+  });
+
+  it("settled resolves false after the cap and true once saves land", async () => {
+    vi.useFakeTimers();
+    let server: string[] = [];
+    const s = createTopicSaver({
+      isReady: () => true, ready: async () => {}, current: () => server,
+      save: async (n) => { await new Promise((r) => setTimeout(r, 500)); server = n; }, onLocal: () => {},
+    });
+    s.toggle("a"); s.toggle("b");
+    const slow = s.settled(100);
+    await vi.advanceTimersByTimeAsync(200);
+    expect(await slow).toBe(false);
+    const ok = s.settled(2_000);
+    await vi.advanceTimersByTimeAsync(1_000);
+    expect(await ok).toBe(true);
+    expect(server).toEqual(["a", "b"]);
+    vi.useRealTimers();
+  });
 });

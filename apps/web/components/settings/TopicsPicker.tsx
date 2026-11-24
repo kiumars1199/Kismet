@@ -4,6 +4,7 @@
 // Used by /onboarding and the /settings page (Lane D2 renders <TopicsPicker />).
 import { useEffect, useId, useRef, useState } from "react";
 import { createTopicSaver } from "@/lib/topics/saver";
+import { setActiveTopicSaver } from "@/lib/topics/active";
 import { fetchMeta } from "@/lib/api";
 import { getRepo, isRepoReady, repoReady } from "@/lib/repo";
 import { useProfile } from "@/lib/repo/hooks";
@@ -16,7 +17,17 @@ const GROUPS: { label: string; topics: TaxNode[] }[] = [
   { label: "More", topics: TAXONOMY_TREE.filter((c) => !c.children && c.id !== "other") },
 ];
 
-const WORST_ERROR = "Couldn't save College basketball, College football and 12 more. Tap them to try again.";
+const LABELS = new Map(GROUPS.flatMap((g) => g.topics).map((t) => [t.id, t.label]));
+/** "Couldn't save A. Tap it to try again." Up to three are named; more read "A, B and N more". */
+function errorText(names: string[]): string {
+  const who = names.length <= 3
+    ? (names.length > 1 ? `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}` : names[0])
+    : `${names.slice(0, 2).join(", ")} and ${names.length - 2} more`;
+  return `Couldn't save ${who}. Tap ${names.length === 1 ? "it" : "them"} to try again.`;
+}
+// The status line reserves the height of its longest possible text, built from the longest real labels.
+const LONGEST = [...LABELS.values()].sort((a, b) => b.length - a.length);
+const WORST_ERRORS = [errorText(LONGEST.slice(0, 3)), errorText([...LONGEST.slice(0, 2), ...Array(12).fill("x")])];
 
 export function TopicsPicker() {
   const { favorite_topics } = useProfile();
@@ -45,6 +56,10 @@ export function TopicsPicker() {
     ready: () => Promise.race([repoReady, new Promise((r) => setTimeout(r, 8_000))]),
     current: () => getRepo().profileSnapshot().favorite_topics,
     save: (next) => getRepo().profile.patch(getRepo().profileSnapshot().topics_off ? { favorite_topics: next, topics_off: false } : { favorite_topics: next }),   // choosing topics turns "Your topics" back on; topics_off is only written when set, so a save never depends on the migration
+    flush: (list) => {
+      const repo = getRepo();
+      (repo as unknown as { flushProfile?: (p: object) => void }).flushProfile?.(repo.profileSnapshot().topics_off ? { favorite_topics: list, topics_off: false } : { favorite_topics: list });
+    },
     onLocal: setLocal,
     onError: (dropped) => {
       setFailed((f) => [...new Set([...f, ...dropped])]);
@@ -53,29 +68,25 @@ export function TopicsPicker() {
     },
   });
   useEffect(() => () => { if (failTimer.current) clearTimeout(failTimer.current); }, []);
-  // Leaving the page with saves still queued (a quick tap, then a link or reload): send the full current list once with keepalive.
+  // Leaving the page with saves still queued (a quick tap, then a link or reload): freeze the queue and send the full list once with
+  // keepalive. Unmounting (onboarding moving to its next step) with saves pending sends it too, without freezing: the queue goes on.
   useEffect(() => {
-    const flush = () => {
-      const list = saver.current?.freeze();
-      const repo = getRepo();
-      if (list) (repo as unknown as { flushProfile?: (p: object) => void }).flushProfile?.(repo.profileSnapshot().topics_off ? { favorite_topics: list, topics_off: false } : { favorite_topics: list });
-    };
-    const hidden = () => { if (document.visibilityState === "hidden") flush(); };
+    setActiveTopicSaver(saver.current);
+    const hidden = () => { if (document.visibilityState === "hidden") saver.current?.freeze(); };
     const back = () => { if (document.visibilityState !== "hidden") saver.current?.resume(); };
-    window.addEventListener("pagehide", flush);
+    const leave = () => { saver.current?.freeze(); };
+    window.addEventListener("pagehide", leave);
     window.addEventListener("pageshow", back);
     document.addEventListener("visibilitychange", hidden);
     document.addEventListener("visibilitychange", back);
-    return () => { window.removeEventListener("pagehide", flush); window.removeEventListener("pageshow", back); document.removeEventListener("visibilitychange", hidden); document.removeEventListener("visibilitychange", back); };
+    return () => {
+      window.removeEventListener("pagehide", leave); window.removeEventListener("pageshow", back);
+      document.removeEventListener("visibilitychange", hidden); document.removeEventListener("visibilitychange", back);
+      saver.current?.flushNow();
+    };
   }, []);
-  const toggle = (id: string) => { setFailed((f) => (f.some((x) => x === id) ? [] : f)); saver.current!.toggle(id); };
-  const label = (id: string) => GROUPS.flatMap((g) => g.topics).find((t) => t.id === id)?.label ?? id;
-  const errorText = (ids: string[]) => {
-    const names = ids.slice(0, 2).map(label);
-    const who = ids.length > 2 ? `${names.join(", ")} and ${ids.length - 2} more` : names.join(" and ");
-    return `Couldn't save ${who}. Tap ${ids.length === 1 ? "it" : "them"} to try again.`;
-  };
-  const errorLine = failed.length ? errorText(failed) : null;
+  const toggle = (id: string) => { setFailed((f) => f.filter((x) => x !== id)); saver.current!.toggle(id); };
+  const errorLine = failed.length ? errorText(failed.map((id) => LABELS.get(id) ?? id)) : null;
   const chosen = local ?? favorite_topics;
 
   return (
@@ -83,7 +94,7 @@ export function TopicsPicker() {
       {/* One grid cell holds the shown line and invisible copies of the longest others, so the cell is as tall as the tallest and swapping
           lines (they wrap differently on phones) never moves the tiles. */}
       <p className={`grid text-sm ${errorLine ? "text-warning" : "text-muted"}`} aria-live="polite">
-        {[WORST_ERROR, "12 chosen. They show first in your quick filters.", "Choose any you follow. You can change them later in Settings."].map((t) => (
+        {[...WORST_ERRORS, "12 chosen. They show first in your quick filters.", "Choose any you follow. You can change them later in Settings."].map((t) => (
           <span key={t} aria-hidden="true" className="invisible col-start-1 row-start-1">{t}</span>
         ))}
         <span className="col-start-1 row-start-1">{errorLine ?? (chosen.length ? `${chosen.length} chosen. They show first in your quick filters.` : "Choose any you follow. You can change them later in Settings.")}</span>
