@@ -299,6 +299,7 @@ function ColumnChooser({ cols }: { cols: { id: string; label: string; pro: boole
   const measure = () => {
     const r = btn.current?.getBoundingClientRect();
     if (!r) return;
+    if (r.bottom <= 0 || r.top >= window.innerHeight) return setOpen(false);   // the button scrolled away (below xl the header is not sticky): the menu must not stay behind at the top of the screen
     const vh = window.innerHeight, minTop = 68;
     const below = vh - Math.max(r.bottom, minTop) - 16, above = Math.max(r.top, minTop) - minTop - 4;
     const up = below < 260 && above > below;
@@ -308,7 +309,7 @@ function ColumnChooser({ cols }: { cols: { id: string; label: string; pro: boole
       : { left, top: Math.max(r.bottom, minTop - 4) + 4, maxHeight: Math.max(120, below) };
     setPos((p) => (p && p.left === next.left && p.top === next.top && p.bottom === next.bottom && p.maxHeight === next.maxHeight ? p : next));
   };
-  const close = (refocus = false) => { setOpen(false); if (refocus) btn.current?.focus(); };
+  const close = (refocus = false) => { setOpen(false); if (refocus) requestAnimationFrame(() => btn.current?.focus()); };   // a frame later: during a Tab the browser is still moving focus on
   useLayoutEffect(() => {
     if (!open) return;
     measure();
@@ -341,7 +342,9 @@ function ColumnChooser({ cols }: { cols: { id: string; label: string; pro: boole
       </button>
       {open && createPortal(
         <div
-          ref={panel} role="dialog" aria-label="Choose columns" data-testid="column-menu"
+          ref={panel} role="dialog" aria-label="Choose columns" data-testid="column-menu" tabIndex={-1}
+          // the panel is at the end of <body>, so Tab would leave it for the browser: focus leaving it closes it and goes back to the button
+          onBlur={(e) => { const to = e.relatedTarget as Node | null; if (document.hasFocus() && !panel.current?.contains(to) && to !== btn.current) close(true); }}
           style={pos ? { left: pos.left, top: pos.top, bottom: pos.bottom, maxHeight: pos.maxHeight } : { visibility: "hidden", left: 0, top: 0 }}
           className="fixed z-50 w-64 overflow-y-auto overscroll-contain rounded-input border border-border bg-raised p-3 text-sm shadow-lg"
         >
