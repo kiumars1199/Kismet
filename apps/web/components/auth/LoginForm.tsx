@@ -132,7 +132,7 @@ export function LoginForm({ next, error: initialError, mode = "login" }: { next:
   );
   const terms = (
     <div className="flex flex-col gap-0.5 md:gap-1.5">
-      <label htmlFor={ids.terms} className="flex cursor-pointer items-start gap-3 rounded-input border border-border bg-surface p-2 text-[13px] md:p-4 md:text-sm leading-snug md:leading-relaxed text-soft has-[:focus-visible]:border-accent-border">
+      <label htmlFor={ids.terms} className="flex cursor-pointer items-start gap-3 rounded-input border border-border bg-surface p-2 [@media(max-height:700px)]:py-1.5 text-[13px] md:p-4 md:text-sm leading-snug md:leading-relaxed text-soft has-[:focus-visible]:border-accent-border">
         <input
           id={ids.terms} type="checkbox" checked={accept} required aria-invalid={termsError && !accept}
           onChange={(e) => { setAccept(e.target.checked); setTermsError(false); }}

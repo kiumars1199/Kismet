@@ -16,10 +16,13 @@ test.describe("the longest bet title on /signup?next=", () => {
       await page.goto(`/signup?next=${encodeURIComponent(`/m/${longest.id}`)}`);
       const line = page.getByTestId("signup-bet");
       await expect(line).toBeVisible({ timeout: 60_000 });
+      // the fit runs once the page has hydrated (seconds on a cold CI server): wait for two lines, nothing clipped
+      await expect.poll(() => line.evaluate((e) => e.scrollHeight - e.clientHeight), { timeout: 30_000 }).toBeLessThanOrEqual(1);
       const shown = (await line.evaluate((e) => (e as HTMLElement).innerText)).trim();
       const tail = longest.question.slice(-15);   // "... on November 17?"
       console.log(`${size.width}x${size.height}: "${shown}"`);
       expect(shown, "the end of the title (the date) is in the line").toContain(tail);
+      expect(shown, "the line still says to sign up").toMatch(/^Sign up for the verdict on: /);
       // innerText still holds text a line clamp hides: nothing may be hidden (the date is the end of the line, so it shows)
       expect(await line.evaluate((e) => e.scrollHeight - e.clientHeight), "no line of the bet title is clipped").toBeLessThanOrEqual(1);
       const submit = page.getByRole("tabpanel").getByRole("button", { name: "Create account", exact: true });

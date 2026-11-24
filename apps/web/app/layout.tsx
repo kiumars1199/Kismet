@@ -77,7 +77,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         ) : (
           <>
             <Header signedOutHint={signedOut} hint={hint} />
-            <main id="main" className="flex-1 px-4 py-6 md:px-8">
+            <main id="main" className="flex-1 px-4 py-6 [@media(max-height:700px)]:pt-2 md:px-8">   {/* a short phone screen (360x640): the first view needs the room */}
               {children}
             </main>
             <Footer />

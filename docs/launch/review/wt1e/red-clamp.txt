@@ -1,0 +1,4 @@
+RED: the 52/64-character middle clamp (lib/middle-clamp.ts as used by #117), on every distinct title in the real output/flags.json (2,769):
+  phone: 634 shortened, 245 different bets share a visible line; desktop: 270 shortened, 23 clashes (fixture: 40 and 2)
+
+Fit-based, middle-clamp only (first attempt, measured in Chromium at 360): 845 shortened, 346 clashes; with word-dropping: 3 clashes at 360, 0 at 390, 7 at 1440; final candidate order below.

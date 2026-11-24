@@ -33,7 +33,7 @@ for (const { w, h } of [{ w: 390, h: 844 }, { w: 1440, h: 900 }]) {
 
     await t.getByRole("link", { name: "Sign up free" }).click();
     await expect(page).toHaveURL(/\/signup\?next=/, { timeout: 60_000 });
-    await expect(page.getByTestId("signup-bet")).toContainText("Sign up to see Kismet's verdict on");
+    await expect(page.getByTestId("signup-bet")).toContainText("Sign up for the verdict on:");
     const head = page.getByRole("banner");
     // each auth page shows only the OTHER page's link in the header
     await expect(head.getByRole("link", { name: "Sign up", exact: true })).toHaveCount(0);
