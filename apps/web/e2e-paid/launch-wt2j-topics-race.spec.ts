@@ -106,4 +106,47 @@ for (const { w, h } of SIZES) {
     for (const n of ["NBA", "College basketball", "Soccer", "NFL"]) await expect(page.getByRole("button", { name: n, exact: true })).toHaveAttribute("aria-pressed", "true", { timeout: 30_000 });
     await page.screenshot({ path: `${SHOTS}/${w}-settings-settled.png` });
   });
+
+  test(`settings at ${w}px: taps made while a failing save is in flight are still sent; the error line names the dropped topic without shifting the page`, async ({ page }) => {
+    test.setTimeout(300_000);
+    await page.setViewportSize({ width: w, height: h });
+    await page.addInitScript(() => {
+      (window as unknown as { __cls: number }).__cls = 0;
+      new PerformanceObserver((l) => { for (const e of l.getEntries() as unknown as { value: number; hadRecentInput: boolean }[]) if (!e.hadRecentInput) (window as unknown as { __cls: number }).__cls += e.value; })
+        .observe({ type: "layout-shift", buffered: true });
+    });
+    await signUp(page, `wt2j-err-${w}-${Date.now()}@example.com`);
+    const id = await userId(page);
+    await page.request.patch(`/e2e-mock/supabase/rest/v1/profiles?user_id=eq.${id}`, { headers: SERVICE, data: { favorite_topics: ["sports.nfl"] } });
+    await page.goto("/settings");
+    await expect(page.getByRole("button", { name: "NFL", exact: true })).toHaveAttribute("aria-pressed", "true", { timeout: 60_000 });
+    await expect(page.getByTestId("topics-picker")).toHaveAttribute("aria-busy", "false");
+    await page.getByRole("button", { name: "Tennis", exact: true }).scrollIntoViewIfNeeded();
+    await page.waitForTimeout(1_500);
+    const sent: string[][] = [];
+    let failed = false;
+    await page.route("**/api/data/profile", async (route) => {
+      if (route.request().method() !== "PATCH") return route.continue();
+      sent.push((route.request().postDataJSON() as { favorite_topics: string[] }).favorite_topics);
+      await new Promise((r) => setTimeout(r, 300));
+      if (!failed) { failed = true; return route.fulfill({ status: 500, contentType: "application/json", body: JSON.stringify({ error: "Couldn't save" }) }); }
+      return route.continue();
+    });
+    await page.evaluate(() => { (window as unknown as { __cls: number }).__cls = 0; });
+    expect(await tapQuickly(page, ["Tennis"])).toEqual(["true"]);   // its save is now in flight (500 after 300 ms)
+    await page.waitForTimeout(80);
+    expect(await tapQuickly(page, ["Esports"])).toEqual(["true"]);   // a tap made while the failing save is in flight
+    const line = page.getByTestId("topics-picker").locator("p").first();
+    await expect(line).toHaveText("Couldn't save Tennis. Tap to try again.", { timeout: 10_000 });
+    await expect(page.getByRole("button", { name: "Tennis", exact: true })).toHaveAttribute("aria-pressed", "false");
+    await expect(page.getByRole("button", { name: "Esports", exact: true })).toHaveAttribute("aria-pressed", "true");
+    await page.screenshot({ path: `${SHOTS}/${w}-settings-save-error.png` });
+    await settle(page, ["sports.esports", "sports.nfl"]);   // Esports was rebased on the confirmed list and sent
+    expect(sent[0].slice().sort()).toEqual(["sports.nfl", "sports.tennis"].sort());
+    await expect(line).toHaveText("Couldn't save Tennis. Tap to try again.");   // still there after the later save succeeded
+    await page.getByRole("button", { name: "Tennis", exact: true }).click();   // tapping the dropped topic again clears it
+    await expect(line).not.toContainText("Couldn't save");
+    await settle(page, ["sports.esports", "sports.nfl", "sports.tennis"]);
+    expect(await page.evaluate(() => (window as unknown as { __cls: number }).__cls)).toBeLessThanOrEqual(0.02);
+  });
 }

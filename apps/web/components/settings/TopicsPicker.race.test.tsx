@@ -11,13 +11,13 @@ const writes: string[][] = [];
 const delays = [300, 50, 150, 100, 100, 100];   // later saves can land before earlier ones if they were allowed to overlap
 let n = 0;
 const listeners = new Set<() => void>();
-const fail = { on: false };
+const fail = { on: false, once: false };
 
 const patch = vi.fn(async (p: { favorite_topics?: string[] }) => {
   const mine = n++;
   writes.push(p.favorite_topics ?? []);
   await new Promise((r) => setTimeout(r, delays[mine % delays.length]));
-  if (fail.on) throw new Error("save failed");
+  if (fail.on || fail.once) { fail.once = false; throw new Error("save failed"); }
   if (p.favorite_topics) { server = p.favorite_topics; confirmed = p.favorite_topics; }
   listeners.forEach((l) => l());
   return {};
@@ -33,7 +33,7 @@ const { TopicsPicker } = await import("./TopicsPicker");
 const tile = (name: string) => screen.getByRole("button", { name });
 const pressed = (name: string) => tile(name).getAttribute("aria-pressed");
 
-beforeEach(() => { vi.useFakeTimers(); server = []; confirmed = []; writes.length = 0; n = 0; fail.on = false; patch.mockClear(); });
+beforeEach(() => { vi.useFakeTimers(); server = []; confirmed = []; writes.length = 0; n = 0; fail.on = false; fail.once = false; patch.mockClear(); });
 afterEach(() => { cleanup(); vi.useRealTimers(); });
 
 describe("TopicsPicker quick taps", () => {
@@ -67,5 +67,44 @@ describe("TopicsPicker quick taps", () => {
     expect(pressed("NFL")).toBe("false");
     expect(pressed("NBA")).toBe("true");
     expect(server).toEqual(["sports.nba"]);
+  });
+
+  it("taps made while a failing save is in flight are not dropped: only the failed tap reverts, the later one is sent", async () => {
+    server = confirmed = ["sports.nfl"];
+    render(<TopicsPicker />);
+    await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+    fail.once = true;
+    await act(async () => { fireEvent.click(tile("Tennis")); });
+    await act(async () => { await vi.advanceTimersByTimeAsync(10); fireEvent.click(tile("Esports")); });
+    expect(pressed("Tennis")).toBe("true");
+    expect(pressed("Esports")).toBe("true");
+    await act(async () => { await vi.advanceTimersByTimeAsync(3_000); });
+    expect(pressed("Tennis")).toBe("false");   // its save failed: reverted
+    expect(pressed("Esports")).toBe("true");
+    expect(pressed("NFL")).toBe("true");
+    expect(server.length).toBe(2);   // [nfl, esports]: the second tap was sent on top of the confirmed list
+    expect(server).toContain("sports.nfl");
+    expect(server.some((t) => t !== "sports.nfl")).toBe(true);
+    expect(writes.at(-1)).toEqual(server);
+  });
+
+  it("the error line names the dropped topic until it is tapped again, or for 5 s", async () => {
+    server = confirmed = ["sports.nfl"];
+    render(<TopicsPicker />);
+    await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+    fail.once = true;
+    await act(async () => { fireEvent.click(tile("Tennis")); });
+    await act(async () => { await vi.advanceTimersByTimeAsync(500); });
+    await act(async () => { fireEvent.click(tile("Esports")); });
+    await act(async () => { await vi.advanceTimersByTimeAsync(500); });   // Esports saved fine afterwards; the line must stay
+    expect(screen.getByText("Couldn't save Tennis. Tap to try again.")).toBeTruthy();
+    await act(async () => { fireEvent.click(tile("Tennis")); });
+    expect(screen.queryByText(/Couldn't save/)).toBeNull();
+    await act(async () => { await vi.advanceTimersByTimeAsync(1_000); });   // the retry saves
+    fail.once = true;
+    await act(async () => { fireEvent.click(tile("Soccer")); await vi.advanceTimersByTimeAsync(500); });
+    expect(screen.getByText("Couldn't save Soccer. Tap to try again.")).toBeTruthy();
+    await act(async () => { await vi.advanceTimersByTimeAsync(5_100); });
+    expect(screen.queryByText(/Couldn't save/)).toBeNull();
   });
 });

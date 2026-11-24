@@ -35,23 +35,31 @@ export function TopicsPicker() {
   // network is. A failed save drops `local` and the tiles fall back to the confirmed list. F5: a tap before AuthBoot has
   // switched to the account store would land in this browser's store and be dropped by the switch, so the saver waits for it.
   const [local, setLocal] = useState<string[] | null>(null);
-  const [failed, setFailed] = useState(false);
+  const [failed, setFailed] = useState<string[]>([]);   // topics whose save failed: the line says so until they're tapped again, or 5 s
+  const failTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const saver = useRef<ReturnType<typeof createTopicSaver> | null>(null);
   saver.current ??= createTopicSaver({
     isReady: isRepoReady,
     ready: () => Promise.race([repoReady, new Promise((r) => setTimeout(r, 8_000))]),
     current: () => getRepo().profileSnapshot().favorite_topics,
     save: (next) => getRepo().profile.patch(getRepo().profileSnapshot().topics_off ? { favorite_topics: next, topics_off: false } : { favorite_topics: next }),   // choosing topics turns "Your topics" back on; topics_off is only written when set, so a save never depends on the migration
-    onLocal: (v) => { setLocal(v); if (v) setFailed(false); },
-    onError: () => setFailed(true),
+    onLocal: setLocal,
+    onError: (dropped) => {
+      setFailed((f) => [...new Set([...f, ...dropped])]);
+      if (failTimer.current) clearTimeout(failTimer.current);
+      failTimer.current = setTimeout(() => setFailed([]), 5_000);
+    },
   });
-  const toggle = (id: string) => saver.current!.toggle(id);
+  useEffect(() => () => { if (failTimer.current) clearTimeout(failTimer.current); }, []);
+  const toggle = (id: string) => { setFailed((f) => (f.includes(id) ? f.filter((x) => x !== id) : f)); saver.current!.toggle(id); };
+  const label = (id: string) => GROUPS.flatMap((g) => g.topics).find((t) => t.id === id)?.label ?? id;
+  const errorLine = failed.length ? `Couldn't save ${failed.length === 1 ? label(failed[0]) : `${failed.length} topics`}. Tap to try again.` : null;
   const chosen = local ?? favorite_topics;
 
   return (
     <div data-testid="topics-picker" aria-busy={!ready} className="flex flex-col gap-6">
-      <p className="text-sm text-muted" aria-live="polite">
-        {failed ? "Couldn't save your topics. Check your connection and try again." : chosen.length ? `${chosen.length} chosen. They show first in your quick filters.` : "Choose any you follow. You can change them later in Settings."}
+      <p className={`text-sm ${errorLine ? "text-warning" : "text-muted"}`} aria-live="polite">
+        {errorLine ?? (chosen.length ? `${chosen.length} chosen. They show first in your quick filters.` : "Choose any you follow. You can change them later in Settings.")}
       </p>
       {GROUPS.map((g) => {
         // Every group and topic from the static taxonomy is on screen from the first paint, and each tile reserves its count
