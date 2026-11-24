@@ -1,0 +1,16 @@
+bb-free-390 {"url":"/","cls":0,"shifts":[],"hscroll":false,"disclaimer":true,"cents":false,"cards":10,"locked":1,"upsell":true,"empty":null,"tour":null} tabbar {"x":0,"y":787,"w":390,"h":57} list children ["H2","UL","H2","UL","DIV(contents)"] locked {"x":16,"y":5385,"w":358,"h":208}
+tier pro pro
+bb-pro-390 {"url":"/","cls":0,"shifts":[],"hscroll":false,"disclaimer":true,"cents":false,"cards":12,"locked":0,"upsell":false,"empty":null,"tour":null} tabbar {"x":0,"y":787,"w":390,"h":57} list children ["H2","UL","H2","UL","DIV(contents)"] locked null
+tier premium premium
+bb-premium-390 {"url":"/","cls":0,"shifts":[],"hscroll":false,"disclaimer":true,"cents":false,"cards":12,"locked":0,"upsell":false,"empty":null,"tour":null} tabbar {"x":0,"y":787,"w":390,"h":57} list children ["H2","UL","H2","UL","DIV(contents)"] locked null
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+page.screenshot: Target page, context or browser has been closed
+    at shot (/tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/probe/rv106b.mjs:41:34)
+    at /tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/probe/rv106b.mjs:113:9 {
+  log: []
+}
+
+Node.js v22.23.5

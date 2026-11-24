@@ -1,0 +1,28 @@
+tier pro pro
+new-pro-390 picked College basketball
+new-pro-390 tour after ms 2569
+new-pro-390 {"url":"/?view=flags&t=sports.ncaab&fav=1","cls":0.0005,"shifts":[{"v":0.0005,"t":1593,"src":["A.freshness 68->68"]}],"hscroll":false,"disclaimer":true,"cents":false,"cards":0,"locked":0,"upsell":false,"empty":"No best bets in College basketball today | No bet with these filters is good value right now. Widen your topics, or see all best bets. Prices refresh about every 15 minutes. | See all best bets | Choose more topics","tour":"1 of 5 | No best bets in your topics today | Nothing in your topics looks like good value right now. Widen your topics, or see all best bets, and the cards appear here. | Skip tour | Next"} emptyRect {"x":16,"y":275,"w":358,"h":294} tourRect {"x":0,"y":0,"w":390,"h":844} highlight rgb(230, 239, 233) none 3px zauto
+new-pro-390 tour step2 2 of 5 | Narrow the list | Pick a sport, a multiplier and a date, then Apply. Bigger multipliers pay more and win less often. | Skip tour | Back | Next
+new-pro-390 choose href /settings#s-topics
+new-pro-390 after see-all {"url":"/","cls":0.0005,"shifts":[{"v":0.0005,"t":1593,"src":["A.freshness 68->68"]}],"hscroll":false,"disclaimer":true,"cents":false,"cards":12,"locked":0,"upsell":false,"empty":null,"tour":null}
+tier premium premium
+new-premium-390 picked College basketball
+new-premium-390 tour after ms 2200
+new-premium-390 {"url":"/?view=flags&t=sports.ncaab&fav=1","cls":0,"shifts":[],"hscroll":false,"disclaimer":true,"cents":false,"cards":0,"locked":0,"upsell":false,"empty":"No best bets in College basketball today | No bet with these filters is good value right now. Widen your topics, or see all best bets. Prices refresh about every 15 minutes. | See all best bets | Choose more topics","tour":"1 of 5 | No best bets in your topics today | Nothing in your topics looks like good value right now. Widen your topics, or see all best bets, and the cards appear here. | Skip tour | Next"} emptyRect {"x":16,"y":275,"w":358,"h":294} tourRect {"x":0,"y":0,"w":390,"h":844} highlight rgb(230, 239, 233) none 3px zauto
+new-premium-390 tour step2 2 of 5 | Narrow the list | Pick a sport, a multiplier and a date, then Apply. Bigger multipliers pay more and win less often. | Skip tour | Back | Next
+new-premium-390 choose href /settings#s-topics
+new-premium-390 after see-all {"url":"/","cls":0,"shifts":[],"hscroll":false,"disclaimer":true,"cents":false,"cards":12,"locked":0,"upsell":false,"empty":null,"tour":null}
+tier pro pro
+new-pro-1440 picked College basketball
+new-pro-1440 tour after ms 2177
+new-pro-1440 {"url":"/?view=flags&t=sports.ncaab&fav=1","cls":0.0006,"shifts":[{"v":0.0006,"t":1404,"src":["DIV.relative w-full max-w-[340px] 10->10"]}],"hscroll":false,"disclaimer":true,"cents":false,"cards":0,"locked":0,"upsell":false,"empty":"No best bets in College basketball today | No bet with these filters is good value right now. Widen your topics, or see all best bets. Prices refresh about every 15 minutes. | See all best bets | Choose more topics","tour":"1 of 5 | No best bets in your topics today | Nothing in your topics looks like good value right now. Widen your topics, or see all best bets, and the cards appear here. | Skip tour | Next"} emptyRect {"x":32,"y":365,"w":1376,"h":250} tourRect {"x":0,"y":0,"w":1440,"h":900} highlight rgb(230, 239, 233) none 3px zauto
+new-pro-1440 tour step2 2 of 5 | Narrow the list | Pick a sport, a multiplier and a date, then Apply. Bigger multipliers pay more and win less often. | Skip tour | Back | Next
+new-pro-1440 choose href /settings#s-topics
+new-pro-1440 after see-all {"url":"/","cls":0.0013,"shifts":[{"v":0.0006,"t":1404,"src":["DIV.relative w-full max-w-[340px] 10->10"]},{"v":0.0006,"t":5570,"src":["?. 85->85"]}],"hscroll":false,"disclaimer":true,"cents":false,"cards":12,"locked":0,"upsell":false,"empty":null,"tour":null}
+tier premium premium
+new-premium-1440 picked College basketball
+new-premium-1440 tour after ms 2653
+new-premium-1440 {"url":"/?view=flags&t=sports.ncaab&fav=1","cls":0.0001,"shifts":[{"v":0.0001,"t":2387,"src":["A.freshness 10->10"]}],"hscroll":false,"disclaimer":true,"cents":false,"cards":0,"locked":0,"upsell":false,"empty":"No best bets in College basketball today | No bet with these filters is good value right now. Widen your topics, or see all best bets. Prices refresh about every 15 minutes. | See all best bets | Choose more topics","tour":"1 of 5 | No best bets in your topics today | Nothing in your topics looks like good value right now. Widen your topics, or see all best bets, and the cards appear here. | Skip tour | Next"} emptyRect {"x":32,"y":365,"w":1376,"h":250} tourRect {"x":0,"y":0,"w":1440,"h":900} highlight rgb(230, 239, 233) none 3px zauto
+new-premium-1440 tour step2 2 of 5 | Narrow the list | Pick a sport, a multiplier and a date, then Apply. Bigger multipliers pay more and win less often. | Skip tour | Back | Next
+new-premium-1440 choose href /settings#s-topics
+new-premium-1440 after see-all {"url":"/","cls":0.0007,"shifts":[{"v":0.0001,"t":2387,"src":["A.freshness 10->10"]},{"v":0.0006,"t":5905,"src":["?. 85->85"]}],"hscroll":false,"disclaimer":true,"cents":false,"cards":12,"locked":0,"upsell":false,"empty":null,"tour":null}
