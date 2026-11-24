@@ -133,3 +133,10 @@ describe("multiplyLine (Nov 21, Q on #8)", () => {
     expect(multiplyLine([{ q_low: 0.8 }])).toBeNull();
   });
 });
+
+describe("multiplyLine at the extremes (T-wt3h)", () => {
+  it("never says 0% for a product above 0: <1% in the legs and in the total", () => {
+    expect(multiplyLine([{ q_low: 0.05 }, { q_low: 0.06 }, { q_low: 0.03 }, { q_low: 0.03 }, { q_low: 0.04 }])).toBe("The combo wins only if every leg wins, so the legs' chances multiply: 5% × 6% × 3% × 3% × 4% ≈ <1%.");
+    expect(multiplyLine([{ q_low: 0.003 }, { q_low: 0.9996 }])).toBe("The combo wins only if every leg wins, so the legs' chances multiply: <1% × >99% ≈ <1%.");
+  });
+});

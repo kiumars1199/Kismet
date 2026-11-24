@@ -3,7 +3,7 @@
 // meaning as F1's net_edge; score = F1's formula with n = the smallest leg sample. The chance assumes the legs are
 // independent, which same-event legs are not (flagged).
 import { comboPrice } from "@/lib/combos";
-import { chancePct, pct } from "@/lib/format";
+import { chancePct, pricePct } from "@/lib/chance";
 import { multX } from "@/lib/card";
 import type { CheckBase } from "./compute";
 import { cleanEventLine } from "@/lib/format";
@@ -105,7 +105,7 @@ export function addLeg(legs: ComboLeg[], leg: ComboLeg): { legs: ComboLeg[]; ref
 /** A leg's line under its title: the price you pay, and once scored the chance and payout. The chance is the cautious one (the tray's
  *  one chance, docs/18 §5), and says so: the card and drawer show the central estimate for a single bet. */
 export function legLine(l: { outcome: string; price: number }, b?: CheckBase): string {
-  const head = `Bet ${l.outcome} at ${pct(l.price)}`;
+  const head = `Bet ${l.outcome} at ${pricePct(l.price)}`;
   if (!b) return head;
   return `${head} · ${b.winProb === null ? "No model chance" : `${chancePct(b.winProb)} chance (cautious)`} · pays ${multX(1 / (b.ask + b.fee))}`;
 }

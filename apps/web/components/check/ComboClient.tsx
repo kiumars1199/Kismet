@@ -15,7 +15,8 @@ import { parseLink } from "@/lib/check/parse-link";
 import type { ComboLegsResponse, LegLookup } from "@/lib/check/response";
 import { SCORE_FORMULA } from "@/lib/check/score";
 import { multX } from "@/lib/card";
-import { chancePct, cleanEventLine } from "@/lib/format";
+import { cleanEventLine } from "@/lib/format";
+import { chancePct } from "@/lib/chance";
 
 const pts = (e: number) => { const v = Math.round(e * 100); return `${v < 0 ? "−" : v > 0 ? "+" : ""}${Math.abs(v)} ${Math.abs(v) === 1 ? "point" : "points"}`; };
 
