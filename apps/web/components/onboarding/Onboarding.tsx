@@ -158,7 +158,7 @@ export function Onboarding({ next }: { next?: string }) {
         </ol>
       )}
 
-      <div className="sticky bottom-[64px] z-10 -mx-4 flex items-center justify-between gap-3 border-t border-border bg-background px-4 py-4 md:bottom-0 md:mx-0 md:px-0">
+      <div className="sticky bottom-0 z-10 -mx-4 flex items-center justify-between gap-3 border-t border-border bg-background px-4 pb-[calc(1rem+49px+max(env(safe-area-inset-bottom),8px))] pt-4 md:mx-0 md:px-0 md:pb-4">
         {step > 0
           ? <button type="button" onClick={() => setStep(step - 1)} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-input px-4 text-sm text-muted hover:text-text">Back</button>
           : <span />}

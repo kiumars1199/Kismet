@@ -11,7 +11,7 @@ export const TOUR_KEY = "me:v1:tour";
 
 const STEPS = [
   { sel: ['[data-testid="bet-card"]', "article[data-row]", "[data-tour-empty]"], title: "A best bet",
-    body: "Each card is a bet that looks like good value today: how often bets like it win, what $10 wins, and when it closes. Tap \"Why this bet?\" for the details. Any single bet can lose." },
+    body: "Each bet looks like good value today: how often bets like it win, what it pays (like \"Pays 1.45x\"), and when it closes. Tap \"Why this bet?\" for details. Any bet can lose." },
   { sel: ['[data-testid="filter-bar"]', '[role="group"][aria-label="Quick filters"]'], title: "Narrow the list",
     body: "Pick a sport, a multiplier and a date, then Apply. Bigger multipliers pay more and win less often." },
   { sel: ['header [role="combobox"]', '[role="combobox"]'], title: "Search any market",
@@ -25,10 +25,28 @@ const STEPS = [
 /** Step 1 over a Best bets list that came back empty (a topic with no bets today): the tour points at that empty state, in its own words. */
 const EMPTY_STEP = { title: "No best bets in your topics today", body: "Nothing in your topics looks like good value right now. Widen your topics, or see all best bets, and the cards appear here." };
 
-const visible = (el: Element) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0; };
+/** Really drawn: laid out, and not inside a closed <details> (Chrome still gives its content a position without painting it). */
+const visible = (el: Element) => {
+  const r = el.getBoundingClientRect();
+  if (r.width <= 0 || r.height <= 0) return false;
+  if (typeof el.checkVisibility === "function") return el.checkVisibility();
+  return !el.closest("details:not([open])");
+};
+/** Inside a fixed or sticky element (the phone tab bar, the desktop header): it is always on screen, so the page never scrolls for it. */
+const pinned = (el: Element) => {
+  for (let n: Element | null = el; n && n !== document.body; n = n.parentElement) { const p = getComputedStyle(n).position; if (p === "fixed" || p === "sticky") return true; }
+  return false;
+};
 const find = (sel: readonly string[]) => {
   for (const s of sel) for (const el of document.querySelectorAll(s)) if (visible(el)) return el as HTMLElement;
   return null;
+};
+
+/** The bottom edge of the part of the viewport the tour can use: the top of the phone tab bar, else the viewport's bottom. */
+const bandBottom = () => {
+  const bar = document.querySelector<HTMLElement>('nav.fixed[aria-label="Main"]');
+  const r = bar?.getBoundingClientRect();
+  return r && r.height > 0 ? r.top : innerHeight;
 };
 
 const DRAWER = '[role="dialog"][aria-label="Market details"]';
@@ -54,6 +72,7 @@ export function Tour() {
   const [rect, setRect] = useState<DOMRect | null>(null);
   const [onEmpty, setOnEmpty] = useState(false);
   const card = useRef<HTMLDivElement>(null);
+  const startY = useRef<number | null>(null);   // scroll position when the tour began
   const next = useRef<HTMLButtonElement>(null);
   const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
 
@@ -68,25 +87,43 @@ export function Tour() {
       }
       start ||= localStorage.getItem(TOUR_KEY) === "1";
     } catch { /* storage off: replay link still works */ }
-    if (start) setStep(0);
+    if (start) { startY.current = scrollY; setStep(0); }
   }, []);
 
   const end = useCallback(() => {
     setStep(null);
+    // the tour scrolled the page to its targets: put the visitor back where they were (a pill or heading they saw stays where it was)
+    if (startY.current !== null) { scrollTo({ top: startY.current, behavior: "instant" }); startY.current = null; }
     try { localStorage.removeItem(TOUR_KEY); } catch { /* storage off */ }
   }, []);
 
-  // Bring the target into view. On the first-screen fallback (an h1 explains why these are today's free bets), step 1 never scrolls
-  // that h1 away: a card already on screen stays put, otherwise the page moves only as far as keeps the h1 in view (a phone shows
-  // the heading and the top of the card). Everywhere else the card is centred.
-  const reveal = (el: HTMLElement, at: number) => {
-    const h1 = at === 0 ? document.querySelector("h1[data-free-fallback]") : null;
-    if (!h1) return el.scrollIntoView({ block: "center" });
+  // Bring the target into view, clear of the phone tab bar (fixed to the bottom; the visible band ends at its top edge) and of the
+  // sticky header (desktop), with room for the tour card below or above it. A target already in that band stays put. Otherwise the
+  // page moves so the target sits as near the top of the band as the card needs, with the card beneath it. Scrolling is instant
+  // (never smooth: reduced motion). A target too tall for both still gets its top edge in view.
+  const reveal = (el: HTMLElement) => {
+    const barTop = bandBottom();
+    const head = document.querySelector("header");
+    const headBottom = head && getComputedStyle(head).position === "sticky" ? head.getBoundingClientRect().bottom : 0;
     const r = el.getBoundingClientRect();
-    if (r.top >= 0 && r.top < innerHeight - 80) return;
-    const needed = r.bottom - innerHeight + 16;
-    const room = h1.getBoundingClientRect().top - 8;   // scrolling further would push the h1 off the top
-    scrollBy(0, Math.max(0, Math.min(needed, room)));
+    if (pinned(el)) return;
+    const ch = card.current?.offsetHeight ?? 220, cw = card.current?.offsetWidth ?? 360;
+    const need = ch + 12 + 16;   // the tour card, its gap and its margin
+    const lo = headBottom + 4, hi = barTop - 4;
+    const room = (top: number, bottom: number) => bottom + need <= barTop || top - need >= lo || r.right + 12 + cw <= innerWidth - 16 || r.left - 12 - cw >= 16;   // the card fits below, above or beside
+    if (r.top >= lo && r.bottom <= hi && room(r.top, r.bottom)) return;   // already in the band with room for the card: no scrolling
+    // otherwise move as little as keeps the target in the band (the heading above it stays in view where it can) ...
+    // On a desktop the heading that explains the free-bets fallback never scrolls out of view (a phone shows the whole card instead): past that point the card is only partly shown.
+    const h1 = document.querySelector("h1[data-free-fallback]");
+    const cap = h1 && innerWidth >= 1024 ? Math.max(0, h1.getBoundingClientRect().top - (lo + 4)) : Infinity;
+    if (r.height <= hi - lo) {
+      const d = r.top < lo ? r.top - (lo + 4) : r.bottom > hi ? r.bottom - (hi - 4) : 0;
+      if (d > cap) return scrollBy({ top: cap, behavior: "instant" });
+      if (room(r.top - d, r.bottom - d)) return scrollBy({ top: d, behavior: "instant" });
+    }
+    // ... else put the target as near the top of the band as the card needs (a tall card on a phone)
+    const top = Math.min(88, Math.max(headBottom + 8, barTop - need - r.height));
+    scrollBy({ top: r.top - top, behavior: "instant" });
   };
 
   // Find the target (cards may still be loading: retry briefly), bring it into view, track it on scroll/resize.
@@ -95,16 +132,21 @@ export function Tour() {
     let el: HTMLElement | null = null;
     let tries = 0;
     let shifts = 0;
+    let settle = 0;
     const measure = () => setRect(el ? el.getBoundingClientRect() : null);
-    // the page still loading above the target moves it: bring it back into view a few times, then leave scrolling to the user
+    // the page still loading above the target moves it: bring it back into place a few times, then leave scrolling to the user
     const reflow = () => {
-      const r = el?.getBoundingClientRect();
-      if (el && r && (r.bottom < 0 || r.top > innerHeight) && shifts++ < 5) reveal(el, step);
+      if (el && shifts++ < 5) reveal(el);   // a no-op while the target is in the band with room for the card
       measure();
     };
     const look = () => {
       el = find(STEPS[step].sel);
-      if (el) { setOnEmpty(step === 0 && el.hasAttribute("data-tour-empty")); reveal(el, step); measure(); }
+      if (el) {
+        setOnEmpty(step === 0 && el.hasAttribute("data-tour-empty"));
+        reveal(el); measure();
+        // step 1 renders its card only once it has a target, so the first reveal could only guess the card's height: settle it with the real one
+        settle = window.setTimeout(() => { if (el) { reveal(el); measure(); } }, 120);
+      }
       else if (++tries < 40) timer = window.setTimeout(look, 250);   // up to 10 s for the list to load
       else if (step === 0) setStep(1);   // still no card (an empty list): skip "A best bet" instead of pointing at nothing
       else setRect(null);
@@ -114,14 +156,14 @@ export function Tour() {
     ro.observe(document.body);
     addEventListener("scroll", measure, { passive: true });
     addEventListener("resize", measure);
-    return () => { clearTimeout(timer); ro.disconnect(); removeEventListener("scroll", measure); removeEventListener("resize", measure); };
+    return () => { clearTimeout(timer); clearTimeout(settle); ro.disconnect(); removeEventListener("scroll", measure); removeEventListener("resize", measure); };
   }, [step, live]);
 
   // Popover below the target when it fits, else above; centered when there is no target. Clamped to the viewport.
   useLayoutEffect(() => {
     const c = card.current;
     if (step === null || !live || !c) return;
-    const w = c.offsetWidth, h = c.offsetHeight, vw = innerWidth, vh = innerHeight, gap = 12;
+    const w = c.offsetWidth, h = c.offsetHeight, vw = innerWidth, vh = bandBottom(), gap = 12;   // vh: the card never sits over the phone tab bar
     if (!rect) return setPos({ top: Math.max(16, (vh - h) / 2), left: Math.max(16, (vw - w) / 2) });
     const clampX = (x: number) => Math.min(Math.max(16, x), vw - w - 16);
     const clampY = (y: number) => Math.min(Math.max(16, y), vh - h - 16);
@@ -166,12 +208,12 @@ export function Tour() {
       {/* the click shield; the spotlight's own shadow dims everything else */}
       <div className="absolute inset-0" onClick={end} aria-hidden="true" style={rect ? undefined : { background: "rgb(0 0 0 / 0.6)" }} />
       {rect && (
-        <div aria-hidden="true" className="pointer-events-none absolute rounded-card ring-2 ring-accent transition-transform duration-300 ease-out motion-reduce:transition-none"
+        <div aria-hidden="true" data-testid="tour-spot" className="pointer-events-none absolute rounded-card ring-2 ring-accent transition-transform duration-300 ease-out motion-reduce:transition-none"
           // moves with transform, not top/left: animating top/left counts as layout shift (CLS) on every frame
           style={{ top: 0, left: 0, transform: `translate(${rect.left - pad}px, ${rect.top - pad}px)`, width: rect.width + pad * 2, height: rect.height + pad * 2, boxShadow: "0 0 0 9999px rgb(0 0 0 / 0.6)" }} />
       )}
       <div ref={card} role="dialog" aria-modal="true" aria-labelledby="tour-h" aria-describedby="tour-b"
-        className="absolute w-[min(360px,calc(100vw-32px))] rounded-card border border-border bg-surface p-5 shadow-[0_12px_32px_rgb(0_0_0/0.45)] transition-transform duration-300 ease-out motion-reduce:transition-none"
+        className="absolute w-[min(360px,calc(100vw-32px))] rounded-card border border-border bg-surface p-4 shadow-[0_12px_32px_rgb(0_0_0/0.45)] transition-transform duration-300 ease-out motion-reduce:transition-none md:p-5"
         style={pos ? { top: 0, left: 0, transform: `translate(${pos.left}px, ${pos.top}px)` } : { visibility: "hidden" }}>
         <p className="text-xs tabular-nums text-muted">{step + 1} of {STEPS.length}</p>
         <h2 id="tour-h" className="mt-1 font-heading text-lg font-semibold">{s.title}</h2>
