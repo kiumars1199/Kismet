@@ -5,7 +5,7 @@ import { chmodSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, writeFil
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
-import { commands, show } from "../vercel-env.mjs";
+import { ALLOWED, commands, show, SKIP } from "../vercel-env.mjs";
 import { ROOT } from "../lib.mjs";
 import { GOOD_ENV, GOOD_SITE } from "./fixtures.mjs";
 
@@ -13,6 +13,14 @@ test("commands: production + preview, secrets sensitive, test-only vars skipped"
   const cs = commands({ STRIPE_SECRET_KEY: "sk_test_x", DATA_SOURCE: "supabase", E2E_MOCK: "1", E2E_PROD_BUILD: "1", NEXT_PUBLIC_DEMO_MODE: "false", EMPTY: "" });
   assert.deepEqual(cs.map((c) => `${c.key}/${c.target}/${c.sensitive}`), [
     "STRIPE_SECRET_KEY/production/true", "STRIPE_SECRET_KEY/preview/true", "DATA_SOURCE/production/false", "DATA_SOURCE/preview/false"]);
+  // The skip list is what stops the test-only switches: they are in .env.example (so ALLOWED lets them through), and
+  // commands() must still drop them because they are in SKIP (MUST_BE_EMPTY). Without both asserts this passed even when
+  // E2E_PROD_BUILD was removed from MUST_BE_EMPTY and .env.example did not list it.
+  for (const k of ["E2E_MOCK", "E2E_PROD_BUILD"]) {
+    assert.ok(ALLOWED.has(k), `${k} is documented in apps/web/.env.example`);
+    assert.ok(SKIP.has(k), `${k} is in the skip list (MUST_BE_EMPTY)`);
+    assert.ok(!commands({ [k]: "1" }).length, `${k}=1 produces no vercel command`);
+  }
   assert.deepEqual(cs[0].args, ["env", "add", "STRIPE_SECRET_KEY", "production", "--force", "--sensitive"]);
   assert.doesNotMatch(show({ ...cs[0], value: "sk_test_SECRETVALUE" }), /SECRETVALUE/);
   assert.match(show(cs[2]), /printf '%s' 'supabase' \| vercel env add DATA_SOURCE production --force$/);
