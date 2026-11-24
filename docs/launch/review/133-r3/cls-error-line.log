@@ -1,0 +1,24 @@
+[360 long] after Tennis fails: UI=["NFL"] status="Couldn't save Tennis. Tap it to try again." statusH=60(was 60) cls=0.0000 server=["sports.nfl"] cookie=on:sports.nfl
+[360 long] +5s: UI=["NFL"] status="1 chosen. They show first in your quick filters." statusH=60(was 60) cls=0.0000 server=["sports.nfl"] cookie=on:sports.nfl
+[360 long] 3135ms PATCH#1 ->500 after 800ms ["sports.nfl","sports.tennis"]
+[360 long] after College basketball fails: UI=["NFL"] status="Couldn't save College basketball. Tap it to try again." statusH=60(was 60) cls=0.0000 server=["sports.nfl"] cookie=on:sports.nfl
+[360 long] +5s: UI=["NFL"] status="1 chosen. They show first in your quick filters." statusH=60(was 60) cls=0.0000 server=["sports.nfl"] cookie=on:sports.nfl
+[360 long] 3010ms PATCH#1 ->500 after 800ms ["sports.nfl","sports.ncaab"]
+[375 long] after Tennis fails: UI=["NFL"] status="Couldn't save Tennis. Tap it to try again." statusH=40(was 40) cls=0.0000 server=["sports.nfl"] cookie=on:sports.nfl
+[375 long] +5s: UI=["NFL"] status="1 chosen. They show first in your quick filters." statusH=40(was 40) cls=0.0000 server=["sports.nfl"] cookie=on:sports.nfl
+[375 long] 3206ms PATCH#1 ->500 after 800ms ["sports.nfl","sports.tennis"]
+[375 long] after College basketball fails: UI=["NFL"] status="Couldn't save College basketball. Tap it to try again." statusH=40(was 40) cls=0.0000 server=["sports.nfl"] cookie=on:sports.nfl
+[375 long] +5s: UI=["NFL"] status="1 chosen. They show first in your quick filters." statusH=40(was 40) cls=0.0000 server=["sports.nfl"] cookie=on:sports.nfl
+[375 long] 2944ms PATCH#1 ->500 after 800ms ["sports.nfl","sports.ncaab"]
+[390 long] after Tennis fails: UI=["NFL"] status="Couldn't save Tennis. Tap it to try again." statusH=40(was 40) cls=0.0000 server=["sports.nfl"] cookie=on:sports.nfl
+[390 long] +5s: UI=["NFL"] status="1 chosen. They show first in your quick filters." statusH=40(was 40) cls=0.0000 server=["sports.nfl"] cookie=on:sports.nfl
+[390 long] 2912ms PATCH#1 ->500 after 800ms ["sports.nfl","sports.tennis"]
+[390 long] after College basketball fails: UI=["NFL"] status="Couldn't save College basketball. Tap it to try again." statusH=40(was 40) cls=0.0000 server=["sports.nfl"] cookie=on:sports.nfl
+[390 long] +5s: UI=["NFL"] status="1 chosen. They show first in your quick filters." statusH=40(was 40) cls=0.0000 server=["sports.nfl"] cookie=on:sports.nfl
+[390 long] 2917ms PATCH#1 ->500 after 800ms ["sports.nfl","sports.ncaab"]
+[1440 long] after Tennis fails: UI=["NFL"] status="Couldn't save Tennis. Tap it to try again." statusH=20(was 20) cls=0.0000 server=["sports.nfl"] cookie=on:sports.nfl
+[1440 long] +5s: UI=["NFL"] status="1 chosen. They show first in your quick filters." statusH=20(was 20) cls=0.0000 server=["sports.nfl"] cookie=on:sports.nfl
+[1440 long] 2863ms PATCH#1 ->500 after 800ms ["sports.nfl","sports.tennis"]
+[1440 long] after College basketball fails: UI=["NFL"] status="Couldn't save College basketball. Tap it to try again." statusH=20(was 20) cls=0.0000 server=["sports.nfl"] cookie=on:sports.nfl
+[1440 long] +5s: UI=["NFL"] status="1 chosen. They show first in your quick filters." statusH=20(was 20) cls=0.0000 server=["sports.nfl"] cookie=on:sports.nfl
+[1440 long] 2929ms PATCH#1 ->500 after 800ms ["sports.nfl","sports.ncaab"]

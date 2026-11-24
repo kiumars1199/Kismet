@@ -1,0 +1,100 @@
+[390 hide] real tab switch -> page visibilityState=visible (synthetic visibility used below)
+[390 hide] tapped NBA, Soccer, Hockey
+[390 hide] hidden
+[390 hide] while hidden: UI=["Hockey","NBA","NFL","Soccer"] status="4 chosen. They show first in your quick filters." server=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] cookie=["sports.nba","sports.nfl","sports.nhl","sports.soccer"]
+[390 hide] visible
+[390 hide] after visible: UI=["Hockey","NBA","NFL","Soccer"] status="4 chosen. They show first in your quick filters." server=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] cookie=["sports.nba","sports.nfl","sports.nhl","sports.soccer"]
+[390 hide] PATCH log: 2584ms #1 200 d300 ["sports.nfl","sports.nba"] | 2706ms #2 200 d300 ["sports.nfl","sports.nba","sports.soccer","sports.nhl"] | 2885ms #1 released | 3006ms #2 released | 4736ms #3 200 d300 ["sports.nfl","sports.nba","sports.soccer","sports.nhl"] | 5036ms #3 released
+[390 hide] UI timeline: 2433: NFL | 1 chosen. They show first in your quick  ; 2587: NFL,NBA | 2 chosen. They show first in your quick  ; 2636: NFL,NBA,Soccer | 3 chosen. They show first in your quick  ; 2683: NFL,NBA,Soccer,Hockey | 4 chosen. They show first in your quick 
+[390 hideSlowFirst] ERR page.goto: url: expected string, got object
+[390 hideStay] ERR page.goto: url: expected string, got object
+[390 hideFail] ERR page.goto: url: expected string, got object
+[390 netOnce] ERR page.goto: url: expected string, got object
+[390 netOnceTapDuring] ERR page.goto: url: expected string, got object
+[390 netTwice] ERR page.goto: url: expected string, got object
+[1440 hide] real tab switch -> page visibilityState=visible (synthetic visibility used below)
+[1440 hide] tapped NBA, Soccer, Hockey
+[1440 hide] hidden
+[1440 hide] while hidden: UI=["Hockey","NBA","NFL","Soccer"] status="4 chosen. They show first in your quick filters." server=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] cookie=["sports.nba","sports.nfl","sports.nhl","sports.soccer"]
+[1440 hide] visible
+[1440 hide] after visible: UI=["Hockey","NBA","NFL","Soccer"] status="4 chosen. They show first in your quick filters." server=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] cookie=["sports.nba","sports.nfl","sports.nhl","sports.soccer"]
+[1440 hide] PATCH log: 2441ms #1 200 d300 ["sports.nfl","sports.nba"] | 2540ms #2 200 d300 ["sports.nfl","sports.nba","sports.soccer","sports.nhl"] | 2742ms #1 released | 2840ms #2 released | 4562ms #3 200 d300 ["sports.nfl","sports.nba","sports.soccer","sports.nhl"] | 4863ms #3 released
+[1440 hide] UI timeline: 2309: NFL | 1 chosen. They show first in your quick  ; 2464: NFL,NBA,Soccer | 3 chosen. They show first in your quick  ; 2509: NFL,NBA,Soccer,Hockey | 4 chosen. They show first in your quick 
+[1440 hideSlowFirst] ERR page.goto: url: expected string, got object
+[1440 hideStay] ERR page.goto: url: expected string, got object
+[1440 hideFail] ERR page.goto: url: expected string, got object
+[1440 netOnce] ERR page.goto: url: expected string, got object
+[1440 netOnceTapDuring] ERR page.goto: url: expected string, got object
+[1440 netTwice] ERR page.goto: url: expected string, got object
+[390 hideSlowFirst] tapped NBA, Soccer, Hockey
+[390 hideSlowFirst] hidden
+[390 hideSlowFirst] while hidden: UI=["Hockey","NBA","NFL","Soccer"] status="4 chosen. They show first in your quick filters." server=["sports.nba","sports.nfl"] cookie=["sports.nba","sports.nfl"]
+[390 hideSlowFirst] visible
+[390 hideSlowFirst] after visible: UI=["Hockey","NBA","NFL","Soccer"] status="4 chosen. They show first in your quick filters." server=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] cookie=["sports.nba","sports.nfl","sports.nhl","sports.soccer"]
+[390 hideSlowFirst] PATCH log: 2299ms #1 200 d1500 ["sports.nfl","sports.nba"] | 2488ms #2 200 d300 ["sports.nfl","sports.nba","sports.soccer","sports.nhl"] | 2789ms #2 released | 3801ms #1 released | 4510ms #3 200 d300 ["sports.nfl","sports.nba","sports.soccer","sports.nhl"] | 4810ms #3 released
+[390 hideSlowFirst] UI timeline: 2169: NFL | 1 chosen. They show first in your quick  ; 2319: NFL,NBA,Soccer | 3 chosen. They show first in your quick  ; 2369: NFL,NBA,Soccer,Hockey | 4 chosen. They show first in your quick 
+[390 hideStay] tapped NBA, Soccer, Hockey
+[390 hideStay] hidden
+[390 hideStay] while hidden: UI=["Hockey","NBA","NFL","Soccer"] status="4 chosen. They show first in your quick filters." server=["sports.nba","sports.nfl"] cookie=["sports.nba","sports.nfl"]
+[390 hideStay] visible after 4 s hidden: UI=["Hockey","NBA","NFL","Soccer"] status="4 chosen. They show first in your quick filters." server=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] cookie=["sports.nba","sports.nfl","sports.nhl","sports.soccer"]
+[390 hideStay] PATCH log: 2340ms #1 200 d1500 ["sports.nfl","sports.nba"] | 2552ms #2 200 d300 ["sports.nfl","sports.nba","sports.soccer","sports.nhl"] | 2853ms #2 released | 3841ms #1 released | 6570ms #3 200 d300 ["sports.nfl","sports.nba","sports.soccer","sports.nhl"] | 6870ms #3 released
+[390 hideStay] UI timeline: 2187: NFL | 1 chosen. They show first in your quick  ; 2337: NFL,NBA | 2 chosen. They show first in your quick  ; 2387: NFL,NBA,Soccer,Hockey | 4 chosen. They show first in your quick 
+[390 hideFail] tapped NBA, Soccer, Hockey
+[390 hideFail] hidden
+[390 hideFail] while hidden: UI=["Hockey","NBA","NFL","Soccer"] status="4 chosen. They show first in your quick filters." server=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] cookie=["sports.nba","sports.nfl","sports.nhl","sports.soccer"]
+[390 hideFail] visible
+[390 hideFail] after visible: UI=["Hockey","NBA","NFL","Soccer"] status="4 chosen. They show first in your quick filters." server=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] cookie=["sports.nba","sports.nfl","sports.nhl","sports.soccer"]
+[390 hideFail] PATCH log: 2370ms #1 500 d600 ["sports.nfl","sports.nba"] | 2596ms #2 200 d300 ["sports.nfl","sports.nba","sports.soccer","sports.nhl"] | 2897ms #2 released | 2971ms #1 released | 4619ms #3 200 d300 ["sports.nfl","sports.nba","sports.soccer","sports.nhl"] | 4919ms #3 released
+[390 hideFail] UI timeline: 2195: NFL | 1 chosen. They show first in your quick  ; 2364: NFL,NBA | 2 chosen. They show first in your quick  ; 2445: NFL,NBA,Soccer,Hockey | 4 chosen. They show first in your quick 
+[http 500] PATCH http://localhost:4061/api/data/profile
+[console.error] http://localhost:4061/settings :: Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+[390 netOnce] tap Tennis, first PATCH network-fails: UI=["NFL","Tennis"] status="2 chosen. They show first in your quick filters." server=["sports.nfl","sports.tennis"] cookie=["sports.nfl","sports.tennis"]
+[390 netOnce] PATCH log: 2694ms #1 abort d100 ["sports.nfl","sports.tennis"] | 2794ms #1 released | 3054ms #2 200 d300 ["sports.nfl","sports.tennis"] | 3355ms #2 released
+[390 netOnce] UI timeline: 2557: NFL | 1 chosen. They show first in your quick  ; 2707: NFL,Tennis | 2 chosen. They show first in your quick 
+[console.error] http://localhost:4061/settings :: Failed to load resource: net::ERR_FAILED
+[390 netOnceTapDuring] tap Tennis; #1 network-fails; tap Esports, UFC during retry wait: UI=["Esports","NFL","Tennis","UFC"] status="4 chosen. They show first in your quick filters." server=["sports.esports","sports.nfl","sports.tennis","sports.ufc"] cookie=["sports.esports","sports.nfl","sports.tennis","sports.ufc"]
+[390 netOnceTapDuring] PATCH log: 2296ms #1 abort d100 ["sports.nfl","sports.tennis"] | 2396ms #1 released | 2659ms #2 200 d300 ["sports.nfl","sports.tennis","sports.esports","sports.ufc"] | 2959ms #2 released
+[390 netOnceTapDuring] UI timeline: 2173: NFL | 1 chosen. They show first in your quick  ; 2323: NFL,Tennis | 2 chosen. They show first in your quick  ; 2523: NFL,Tennis,Esports | 3 chosen. They show first in your quick  ; 2623: NFL,Tennis,Esports,UFC | 4 chosen. They show first in your quick 
+[console.error] http://localhost:4061/settings :: Failed to load resource: net::ERR_FAILED
+[390 netTwice] tap Tennis, Esports; #1 and #2 network-fail: UI=["NFL"] status="Couldn't save Tennis and Esports. Tap them to try again." server=["sports.nfl"] cookie=["sports.nfl"]
+[390 netTwice] +5.5 s: UI=["NFL"] status="1 chosen. They show first in your quick filters." server=["sports.nfl"] cookie=["sports.nfl"]
+[390 netTwice] PATCH log: 2401ms #1 abort d100 ["sports.nfl","sports.tennis"] | 2501ms #1 released | 2771ms #2 abort d100 ["sports.nfl","sports.tennis","sports.esports"] | 2871ms #2 released
+[390 netTwice] UI timeline: 2270: NFL | 1 chosen. They show first in your quick  ; 2420: NFL,Tennis | 2 chosen. They show first in your quick  ; 2580: NFL,Tennis,Esports | 3 chosen. They show first in your quick  ; 2874: NFL | Couldn't save Tennis and Esports. Tap th ; 7920: NFL | 1 chosen. They show first in your quick 
+[console.error] http://localhost:4061/settings :: Failed to load resource: net::ERR_FAILED
+[console.error] http://localhost:4061/settings :: Failed to load resource: net::ERR_FAILED
+[1440 hideSlowFirst] tapped NBA, Soccer, Hockey
+[1440 hideSlowFirst] hidden
+[1440 hideSlowFirst] while hidden: UI=["Hockey","NBA","NFL","Soccer"] status="4 chosen. They show first in your quick filters." server=["sports.nba","sports.nfl"] cookie=["sports.nba","sports.nfl"]
+[1440 hideSlowFirst] visible
+[1440 hideSlowFirst] after visible: UI=["Hockey","NBA","NFL","Soccer"] status="4 chosen. They show first in your quick filters." server=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] cookie=["sports.nba","sports.nfl","sports.nhl","sports.soccer"]
+[1440 hideSlowFirst] PATCH log: 2378ms #1 200 d1500 ["sports.nfl","sports.nba"] | 2581ms #2 200 d300 ["sports.nfl","sports.nba","sports.soccer","sports.nhl"] | 2882ms #2 released | 3879ms #1 released | 4608ms #3 200 d300 ["sports.nfl","sports.nba","sports.soccer","sports.nhl"] | 4908ms #3 released
+[1440 hideSlowFirst] UI timeline: 2249: NFL | 1 chosen. They show first in your quick  ; 2399: NFL,NBA,Soccer | 3 chosen. They show first in your quick  ; 2449: NFL,NBA,Soccer,Hockey | 4 chosen. They show first in your quick 
+[1440 hideStay] tapped NBA, Soccer, Hockey
+[1440 hideStay] hidden
+[1440 hideStay] while hidden: UI=["Hockey","NBA","NFL","Soccer"] status="4 chosen. They show first in your quick filters." server=["sports.nba","sports.nfl"] cookie=["sports.nba","sports.nfl"]
+[1440 hideStay] visible after 4 s hidden: UI=["Hockey","NBA","NFL","Soccer"] status="4 chosen. They show first in your quick filters." server=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] cookie=["sports.nba","sports.nfl","sports.nhl","sports.soccer"]
+[1440 hideStay] PATCH log: 2373ms #1 200 d1500 ["sports.nfl","sports.nba"] | 2581ms #2 200 d300 ["sports.nfl","sports.nba","sports.soccer","sports.nhl"] | 2882ms #2 released | 3877ms #1 released | 6609ms #3 200 d300 ["sports.nfl","sports.nba","sports.soccer","sports.nhl"] | 6909ms #3 released
+[1440 hideStay] UI timeline: 2209: NFL | 1 chosen. They show first in your quick  ; 2368: NFL,NBA | 2 chosen. They show first in your quick  ; 2409: NFL,NBA,Soccer | 3 chosen. They show first in your quick  ; 2459: NFL,NBA,Soccer,Hockey | 4 chosen. They show first in your quick 
+[1440 hideFail] tapped NBA, Soccer, Hockey
+[1440 hideFail] hidden
+[1440 hideFail] while hidden: UI=["Hockey","NBA","NFL","Soccer"] status="4 chosen. They show first in your quick filters." server=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] cookie=["sports.nba","sports.nfl","sports.nhl","sports.soccer"]
+[1440 hideFail] visible
+[1440 hideFail] after visible: UI=["Hockey","NBA","NFL","Soccer"] status="4 chosen. They show first in your quick filters." server=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] cookie=["sports.nba","sports.nfl","sports.nhl","sports.soccer"]
+[1440 hideFail] PATCH log: 2614ms #1 500 d600 ["sports.nfl","sports.nba"] | 2821ms #2 200 d300 ["sports.nfl","sports.nba","sports.soccer","sports.nhl"] | 3121ms #2 released | 3214ms #1 released | 4841ms #3 200 d300 ["sports.nfl","sports.nba","sports.soccer","sports.nhl"] | 5141ms #3 released
+[1440 hideFail] UI timeline: 2468: NFL | 1 chosen. They show first in your quick  ; 2617: NFL,NBA | 2 chosen. They show first in your quick  ; 2676: NFL,NBA,Soccer,Hockey | 4 chosen. They show first in your quick 
+[http 500] PATCH http://localhost:4061/api/data/profile
+[console.error] http://localhost:4061/settings :: Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+[1440 netOnce] tap Tennis, first PATCH network-fails: UI=["NFL","Tennis"] status="2 chosen. They show first in your quick filters." server=["sports.nfl","sports.tennis"] cookie=["sports.nfl","sports.tennis"]
+[1440 netOnce] PATCH log: 2335ms #1 abort d100 ["sports.nfl","sports.tennis"] | 2435ms #1 released | 2696ms #2 200 d300 ["sports.nfl","sports.tennis"] | 2996ms #2 released
+[1440 netOnce] UI timeline: 2200: NFL | 1 chosen. They show first in your quick  ; 2350: NFL,Tennis | 2 chosen. They show first in your quick 
+[console.error] http://localhost:4061/settings :: Failed to load resource: net::ERR_FAILED
+[1440 netOnceTapDuring] tap Tennis; #1 network-fails; tap Esports, UFC during retry wait: UI=["Esports","NFL","Tennis","UFC"] status="4 chosen. They show first in your quick filters." server=["sports.esports","sports.nfl","sports.tennis","sports.ufc"] cookie=["sports.esports","sports.nfl","sports.tennis","sports.ufc"]
+[1440 netOnceTapDuring] PATCH log: 2680ms #1 abort d100 ["sports.nfl","sports.tennis"] | 2781ms #1 released | 3055ms #2 200 d300 ["sports.nfl","sports.tennis","sports.esports","sports.ufc"] | 3355ms #2 released
+[1440 netOnceTapDuring] UI timeline: 2479: NFL | 1 chosen. They show first in your quick  ; 2679: NFL,Tennis | 2 chosen. They show first in your quick  ; 2929: NFL,Tennis,Esports | 3 chosen. They show first in your quick  ; 3029: NFL,Tennis,Esports,UFC | 4 chosen. They show first in your quick 
+[console.error] http://localhost:4061/settings :: Failed to load resource: net::ERR_FAILED
+[1440 netTwice] tap Tennis, Esports; #1 and #2 network-fail: UI=["NFL"] status="Couldn't save Tennis and Esports. Tap them to try again." server=["sports.nfl"] cookie=["sports.nfl"]
+[1440 netTwice] +5.5 s: UI=["NFL"] status="1 chosen. They show first in your quick filters." server=["sports.nfl"] cookie=["sports.nfl"]
+[1440 netTwice] PATCH log: 2780ms #1 abort d100 ["sports.nfl","sports.tennis"] | 2880ms #1 released | 3142ms #2 abort d100 ["sports.nfl","sports.tennis","sports.esports"] | 3242ms #2 released
+[1440 netTwice] UI timeline: 2597: NFL | 1 chosen. They show first in your quick  ; 2791: NFL,Tennis | 2 chosen. They show first in your quick  ; 2991: NFL,Tennis,Esports | 3 chosen. They show first in your quick  ; 3248: NFL | Couldn't save Tennis and Esports. Tap th ; 8291: NFL | 1 chosen. They show first in your quick 
+[console.error] http://localhost:4061/settings :: Failed to load resource: net::ERR_FAILED
+[console.error] http://localhost:4061/settings :: Failed to load resource: net::ERR_FAILED

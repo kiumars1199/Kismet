@@ -65,6 +65,7 @@ Notes, not problems: 8-day-old fixture scan drives the stale banner and "Closed"
 - ~~[should-fix] /markets at 1440, Free with 6 favorite topics: CLS 0.27 (favorite chips row wraps to 2 lines after load, table drops 52 px); pre-existing on f2ef7a9 (T-wt2k)~~ fixed by #132/#135
 - [should-fix] Topic picker: taps made while a failing save is in flight are dropped (saver.ts catch clears queue) (T-wt2j, #133)
 
+- [blocker] Skip setup right after quick topic taps lands on a first screen filtered by only the first tap (T-wt2j, #133)
 
 ## Walk-through 3: Pro user building a combo
 Status: re-walk on final 6da7905 (local prod build; 13:10 UTC; evidence review/walkthrough-3-r2/): FAIL on one should-fix. Every item from the earlier walk is fixed (tray/checker agree, restore CLS ≤0.0004 at 390, shareable link, ?m= → ?legs=, Free note wording, tray same-event pointer, button clear of Premium tray). Fixes assigned: T-wt3e (builder lane, 13:12).
@@ -89,6 +90,7 @@ Problems:
 
 
 ## Found in review, outside a lane
+- #133 r3 FAIL at 77153c7 (Nov 24): settings fixes pass. Onboarding: Skip setup right after quick taps lands filtered by the first tap only (finish() builds t= from a patch queued behind the first save). Also fast Next/Show loses taps, and a stale older save can win while the tab is hidden. Sent back to the builder. Evidence: review/133-r3/.
 - 20:55 #136 T-wt2l merged (4b44880) after review r2 PASS at f0af1b9 (menu uses the header's real covered area: opens/stays open below 1024, closes under the sticky bar at 1024+, 21/21 checkboxes, Tab/Escape intact) and full CI green. Kept as a known nit, not a walk-through item: measure() finds the site header with querySelector("header"), which relies on it being the first <header> in the DOM (true today on every page checked).
 - 20:40 #137 T-wt3h merged (8389704) after review PASS at fa96d3f (+ 09be2c3 confirmed a pure module move to keep landing JS at 149.5 kB) and full CI green. Notes → T-wt3i.
 - 20:00 #134 T-wt3g merged (498eaf1) after review PASS at 6936a20 ("<1%" in checker, legs and suggested combos; 375x667 alert scrolls once, link tappable, CLS 0; #130 fixes hold) and full CI green. Review notes → T-wt3h.

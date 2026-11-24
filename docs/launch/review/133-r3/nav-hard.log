@@ -1,0 +1,36 @@
+[d0 390 free goto] UI at leave=["NFL","NBA","Soccer","Hockey"] -> /markets chips=["NFL","NBA","Soccer","Hockey"] server=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] cookie=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] ALL4=true PATCHes=[2,3,4]
+[d0 390 free goto] Home -> /bets t=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] matchesServer=true
+[d80 390 free goto] UI at leave=["NFL","NBA","Soccer","Hockey"] -> /markets chips=["NFL","NBA","Soccer","Hockey"] server=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] cookie=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] ALL4=true PATCHes=[2]
+[d80 390 free goto] Home -> /bets t=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] matchesServer=true
+[d300 390 free goto] UI at leave=["NFL","NBA","Soccer","Hockey"] -> /markets chips=["NFL","NBA","Soccer","Hockey"] server=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] cookie=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] ALL4=true PATCHes=[2]
+[d300 390 free goto] Home -> /bets t=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] matchesServer=true
+[d0 1440 free goto] UI at leave=["NFL","NBA","Soccer","Hockey"] -> /markets chips=["NFL","NBA","Soccer","Hockey"] server=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] cookie=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] ALL4=true PATCHes=[2,3,4]
+[d0 1440 free goto] Home -> /bets t=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] matchesServer=true
+[d80 1440 free goto] UI at leave=["NFL","NBA","Soccer","Hockey"] -> /markets chips=["NFL","NBA","Soccer","Hockey"] server=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] cookie=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] ALL4=true PATCHes=[2]
+[d80 1440 free goto] Home -> /bets t=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] matchesServer=true
+[d300 1440 free goto] UI at leave=["NFL","NBA","Soccer","Hockey"] -> /markets chips=["NFL","NBA","Soccer","Hockey"] server=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] cookie=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] ALL4=true PATCHes=[2]
+[d300 1440 free goto] Home -> /bets t=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] matchesServer=true
+[d0 390 pro goto] UI at leave=["NFL","NBA","Soccer","Hockey"] -> /markets chips=["NFL","NBA","Soccer","Hockey"] server=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] cookie=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] ALL4=true PATCHes=[2,3,4]
+[d0 390 pro goto] Home -> /bets t=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] matchesServer=true
+[d80 390 pro goto] UI at leave=["NFL","NBA","Soccer","Hockey"] -> /markets chips=["NFL","NBA","Soccer","Hockey"] server=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] cookie=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] ALL4=true PATCHes=[2]
+[d80 390 pro goto] Home -> /bets t=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] matchesServer=true
+[d300 390 pro goto] UI at leave=["NFL","NBA","Soccer","Hockey"] -> /markets chips=["NFL","NBA","Soccer","Hockey"] server=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] cookie=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] ALL4=true PATCHes=[2]
+[d300 390 pro goto] Home -> /bets t=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] matchesServer=true
+[d0 1440 pro goto] UI at leave=["NFL","NBA","Soccer","Hockey"] -> /markets chips=["NFL","NBA","Soccer","Hockey"] server=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] cookie=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] ALL4=true PATCHes=[2,3,4]
+[d0 1440 pro goto] Home -> /bets t=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] matchesServer=true
+[d80 1440 pro goto] UI at leave=["NFL","NBA","Soccer","Hockey"] -> /markets chips=["NFL","NBA","Soccer","Hockey"] server=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] cookie=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] ALL4=true PATCHes=[2,4]
+[d80 1440 pro goto] Home -> /bets t=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] matchesServer=true
+[d300 1440 pro goto] UI at leave=["NFL","NBA","Soccer","Hockey"] -> /markets chips=["NFL","NBA","Soccer","Hockey"] server=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] cookie=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] ALL4=true PATCHes=[2]
+[d300 1440 pro goto] Home -> /bets t=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] matchesServer=true
+[d0 390 premium goto] UI at leave=["NFL","NBA","Soccer","Hockey"] -> /markets chips=["NFL","NBA","Soccer","Hockey"] server=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] cookie=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] ALL4=true PATCHes=[2,3,4]
+[d0 390 premium goto] Home -> /bets t=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] matchesServer=true
+[d80 390 premium goto] UI at leave=["NFL","NBA","Soccer","Hockey"] -> /markets chips=["NFL","NBA","Soccer","Hockey"] server=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] cookie=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] ALL4=true PATCHes=[2]
+[d80 390 premium goto] Home -> /bets t=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] matchesServer=true
+[d300 390 premium goto] UI at leave=["NFL","NBA","Soccer","Hockey"] -> /markets chips=["NFL","NBA","Soccer","Hockey"] server=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] cookie=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] ALL4=true PATCHes=[2]
+[d300 390 premium goto] Home -> /bets t=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] matchesServer=true
+[d0 1440 premium goto] UI at leave=["NFL","NBA","Soccer","Hockey"] -> /markets chips=["NFL","NBA","Soccer","Hockey"] server=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] cookie=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] ALL4=true PATCHes=[2,3,4]
+[d0 1440 premium goto] Home -> /bets t=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] matchesServer=true
+[d80 1440 premium goto] UI at leave=["NFL","NBA","Soccer","Hockey"] -> /markets chips=["NFL","NBA","Soccer","Hockey"] server=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] cookie=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] ALL4=true PATCHes=[2]
+[d80 1440 premium goto] Home -> /bets t=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] matchesServer=true
+[d300 1440 premium goto] UI at leave=["NFL","NBA","Soccer","Hockey"] -> /markets chips=["NFL","NBA","Soccer","Hockey"] server=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] cookie=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] ALL4=true PATCHes=[2]
+[d300 1440 premium goto] Home -> /bets t=["sports.nba","sports.nfl","sports.nhl","sports.soccer"] matchesServer=true
