@@ -1,0 +1,11 @@
+HIT load 11 /state
+HIT load 15 /state
+progress 100 hits 2
+progress 200 hits 2
+progress 300 hits 2
+HIT load 386 /signup
+progress 400 hits 3
+progress 500 hits 3
+HIT load 575 /state
+progress 600 hits 4
+DONE loads 600 crashes 0 hits 4 {"/state":3,"/signup":1}
