@@ -1,0 +1,9 @@
+#109 T-95d @ 9874784 — PASS
+Rendered /pricing with fixture backtest (None: 1394 events, t 18.51) + scratch ledger_summary (772 graded, US 30 graded / 10 events).
+Summary: "Live record: 10 settled events so far; about 17 needed to judge."
+Details: "... still too few to judge (10 settled events so far; about 17 needed)."
+Help (title attr): "About 17 events needed": 1,394 test events x (2 / t-stat 18.5)^2.
+Same number, same unit, signed out + Free, 390 + 1440. Both lines come from one siteProof() call -> one needs value.
+48 only appears in unit-test fixture (300 events, t 5 -> 48); that fixture also asserts help says 48. Not on the page.
+CLS 0 (390) / 0.0006 (1440), no hscroll, disclaimer, no cents. CI all green, check:js 149.9 kB.
+Should-fix (pre-existing): help is title= only (hover), unreachable on touch.
