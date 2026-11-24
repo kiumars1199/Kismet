@@ -5,12 +5,13 @@ import { reservedLegs } from "@/lib/check/comboLegs";
 
 export const metadata = { title: "Combo checker", description: "Add 2 to 10 bets and see the combined chance, payout and score.", alternates: { canonical: "/check/combo" } };
 
-export default async function Page({ searchParams }: { searchParams: Promise<{ m?: string | string[] }> }) {
+export default async function Page({ searchParams }: { searchParams: Promise<{ m?: string | string[]; legs?: string | string[] }> }) {
   // T-89c: the server knows a leg is coming when the URL carries one (?m=), so the legs list holds its height from the first paint
   // instead of growing after hydration. (Legs kept in this tab are not known to it: no cookie, so another tab can never reserve
   // space for legs this tab does not have.)
-  const { m } = await searchParams;
-  const reserve = reservedLegs(Array.isArray(m) ? m[0] : m);
+  const { m, legs } = await searchParams;
+  const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
+  const reserve = reservedLegs(one(m), one(legs));
   return (
     <div className="mx-auto flex w-full max-w-[760px] flex-col gap-5">
       <div>

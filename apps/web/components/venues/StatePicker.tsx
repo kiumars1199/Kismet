@@ -7,7 +7,7 @@ import { US_STATES } from "@/lib/venues/states";
 import { useAvailability } from "./VenueAvailability";
 
 /** `next`: a same-site path (already checked by safeNext) to go back to after saving, e.g. from /state. */
-export function StatePicker({ next = null }: { next?: string | null } = {}) {
+export function StatePicker({ next = null, as: Heading = "h2" }: { next?: string | null; as?: "h1" | "h2" } = {}) {
   const router = useRouter();
   const { state } = useAvailability();
   const [error, setError] = useState("");
@@ -19,7 +19,7 @@ export function StatePicker({ next = null }: { next?: string | null } = {}) {
   }
   return (
     <section id="state" aria-labelledby="state-h" data-testid="state-picker" className={`${card} flex flex-col gap-3 p-5 md:p-6`}>
-      <h2 id="state-h" className="text-lg font-semibold">Your state</h2>
+      <Heading id="state-h" className="text-lg font-semibold">Your state</Heading>
       <p className="text-sm text-soft">Pick the US state you bet from. Kismet shows above each bet button whether the venue is available there. Saved in this browser.</p>
       <label className="flex flex-col gap-1 text-sm">
         <span className="text-muted">State</span>

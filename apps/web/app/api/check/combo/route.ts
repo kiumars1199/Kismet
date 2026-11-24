@@ -8,6 +8,7 @@ import { readJson, TOO_LARGE, tooLarge } from "@/lib/body";
 import { liveMarketBody, withTier } from "@/lib/data/respond";
 import { MAX_COMBO_LEGS, MIN_COMBO_LEGS } from "@/lib/check/combo";
 import { similarBasis } from "@/components/market/labels";
+import { comboBaseOf } from "@/lib/check/compute";
 import { comboKey, countCheck } from "@/lib/check/limit";
 import { isOpenIn, NOT_OPEN } from "@/lib/check/open";
 import { buildCheck, type ComboLegsResponse } from "@/lib/check/response";
@@ -43,7 +44,9 @@ export async function POST(req: Request) {
       const side = one.sides.find((x) => x.index === one.side)!;
       // the leg's basis in the drawer's plain wording ("about 130 similar past bets in NFL match-winner bets")
       const ms = body.market.sides.find((x) => x.side_index === one.side);
-      out.push({ m: one.market.id, side: one.side, base: side.base, basis: ms ? similarBasis(body.market, ms) : side.basis });
+      // the combo scores with the tray's inputs: the card's price (already in side.base) and the cautious chance (comboBaseOf)
+      const base = ms ? comboBaseOf(body.market, ms) : side.base;
+      out.push({ m: one.market.id, side: one.side, base, basis: ms ? similarBasis(body.market, ms) : side.basis });
     }
     return Response.json({ legs: out });
   });

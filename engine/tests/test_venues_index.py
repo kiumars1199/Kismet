@@ -167,3 +167,23 @@ def test_time_budget_keeps_the_previous_venues_json_and_logs_one_warning(tmp_pat
     # and with time to spare it writes the new file
     v.write(_Cfg(str(tmp_path)), log=logs.append, budget_s=60)
     assert json.loads((tmp_path / "output" / "venues.json").read_text())["meta"]["kalshi_fetched_at"] == 5
+
+
+def test_real_polymarket_titles_give_the_same_matches_as_the_pairwise_matcher():
+    """T-hot2: parity on REAL text (900 Polymarket markets from the Nov 23 scan, a dense slice by close time, and Kalshi-like rows made from
+    their titles). The pairwise matcher finds 395 of the 900; the index must find the same markets with the same tickers and scores."""
+    import json
+    import os
+    d = json.load(open(os.path.join(os.path.dirname(__file__), "fixtures", "venue_real_titles.json")))
+    rows = v.kalshi_rows(d["rows"])
+    ix = v.KalshiIndex(rows)
+    found = 0
+    for m in d["markets"]:
+        a, b = v.match_kalshi(m, rows), ix.match(m)
+        assert (a is None) == (b is None), (m["id"], m["event"], m["question"])
+        if a:
+            found += 1
+            assert (a[0]["ticker"], a[1]) == (b[0]["ticker"], b[1]), m["id"]
+    assert found == 395
+    # and through build(): the same markets end up on 2+ venues
+    assert len(v.build(d["markets"], d["rows"])) == found

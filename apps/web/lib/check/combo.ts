@@ -2,7 +2,9 @@
 // multiplier after fee (= lib/combos.ts combo().pays for the same legs); net edge = combined chance − 1/multiplier, the same
 // meaning as F1's net_edge; score = F1's formula with n = the smallest leg sample. The chance assumes the legs are
 // independent, which same-event legs are not (flagged).
+import { comboPrice } from "@/lib/combos";
 import type { CheckBase } from "./compute";
+import { cleanEventLine } from "@/lib/format";
 import { score } from "./score";
 
 export const MIN_COMBO_LEGS = 2;
@@ -32,12 +34,11 @@ export interface ComboCheck {
   drop: { index: number; numbers: ComboNumbers } | null;   // the leg whose removal raises the score most
 }
 
-const legMult = (l: ComboLeg) => 1 / (l.base.ask + l.base.fee);
 
 function numbersOf(legs: ComboLeg[]): ComboNumbers | null {
   if (legs.some((l) => l.base.winProb === null)) return null;
   const chance = legs.reduce((a, l) => a * l.base.winProb!, 1);
-  const multiplier = legs.reduce((a, l) => a * legMult(l), 1);
+  const multiplier = 1 / comboPrice(legs.map((l) => l.base));   // the tray's payout rule (lib/combos.ts)
   const edge = chance - 1 / multiplier;
   const n = Math.min(...legs.map((l) => l.base.n ?? 0));
   return { legs: legs.length, chance, multiplier, edge, score: sameEvents(legs).length ? null : score(edge, n) };
@@ -47,6 +48,13 @@ export function sameEvents(legs: Pick<ComboLeg, "eventId" | "event">[]): string[
   const count = new Map<string, number>();
   for (const l of legs) count.set(l.eventId, (count.get(l.eventId) ?? 0) + 1);
   return [...new Set(legs.filter((l) => count.get(l.eventId)! > 1).map((l) => l.event))];
+}
+
+/** With no score for same-event legs, say which leg to drop: "Drop one of the two Denmark vs. Norway bets." (one line per event). */
+export function sameEventAdvice(legs: Pick<ComboLeg, "eventId" | "event">[]): string[] {
+  const by = new Map<string, { event: string; n: number }>();
+  for (const l of legs) { const e = by.get(l.eventId); if (e) e.n++; else by.set(l.eventId, { event: cleanEventLine(l.event), n: 1 }); }
+  return [...by.values()].filter((e) => e.n > 1).map((e) => (e.n === 2 ? `Drop one of the two ${e.event} bets.` : `Keep one of the ${e.n} ${e.event} bets and drop the rest.`));
 }
 
 export function checkCombo(legs: ComboLeg[]): ComboCheck {
