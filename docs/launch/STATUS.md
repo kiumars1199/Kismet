@@ -88,6 +88,7 @@ Problems:
 - Not walked: signed-in headers at 768–1280, the Premium drawer path to the tray, WebKit, and signed-in steps on a production build. Re-walk after the fixes.
 
 ## Found in review, outside a lane
+- 08:20 #115 (T-wt3f) merged at 8e37682 after reviewer PASS at 8b27731 (Polymarket US siblings add; refusal room released on tap/focus) and green CI. Note: after Enter-submit a no-input paste counts 0.033, under budget.
 - 07:58 #116 (T-hydr4) 2d4997b FAIL: guard drops the /m teaser path after every normal scan (30 s counts vs 60 s teasers cache skew; upload.py puts counts.json before teasers/top). Back to the data lane: bypass-cache re-read, upload order, skew test.
 - 07:50 #106 still red: pro 390 CLS 0.2689 on CI only, not reproduced locally (slow font, late backtest, late book all 0). Lane adding layout-shift source logging.
 - 04:40-07:44 all lanes paused: usage limit.
