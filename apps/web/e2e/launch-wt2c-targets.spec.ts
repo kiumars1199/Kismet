@@ -80,13 +80,24 @@ for (const { w, h } of [{ w: 1440, h: 900 }, { w: 390, h: 844 }]) {
     const r = (await choose.boundingBox())!;
     expect(r.height).toBeGreaterThanOrEqual(44);
     expect(r.width).toBeGreaterThanOrEqual(44);
-    await page.evaluate(() => window.scrollBy(0, 800));   // the table header is sticky (64 px under the top bar): that is where the menu is used from
+    // wait for the rows: scrolling before they arrive left the page unscrolled (the sticky header never engaged) and the test flaked
+    await expect(page.locator("tbody tr[data-row]").first()).toBeVisible({ timeout: 30_000 });
+    // 1. opened from the top of the page (the header is not sticky yet): the menu still fits the screen (it ran ~500 px past the bottom)
+    await choose.click();
+    const top = page.locator("details[open] > div");
+    await expect(top).toBeVisible();
+    const tb = (await top.boundingBox())!;
+    expect(tb.y + tb.height, "menu bottom is inside the screen (opened at the top of the page)").toBeLessThanOrEqual(h);
+    await choose.click();   // close it
+    await expect(top).toBeHidden();
+    // 2. after scrolling: the table header is sticky (64 px under the top bar), where the menu is used from
+    await page.evaluate(() => window.scrollBy(0, 800));
     await expect(choose).toBeVisible();
     await choose.click();
     const panel = page.locator("details[open] > div");
     await expect(panel).toBeVisible();
     const pb = (await panel.boundingBox())!;
-    expect(pb.y + pb.height, "menu bottom is inside the screen").toBeLessThanOrEqual(h);
+    expect(pb.y + pb.height, "menu bottom is inside the screen (opened after scrolling)").toBeLessThanOrEqual(h);
     if (process.env.WT2G_SHOTS) await page.screenshot({ path: `${process.env.WT2G_SHOTS}/${w}-markets-columns.png` });   // evidence only
     const rows = panel.locator("label:has(input[type=checkbox])");
     const n = await rows.count();

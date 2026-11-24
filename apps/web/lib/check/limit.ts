@@ -34,6 +34,21 @@ export async function countCheck(req: Request, tier: Tier, userId: string | null
   return { ok: r.ok, left: Math.max(0, limit - r.size) };
 }
 
+// T-wt2i: a hint the /check page reads on the server so a Free visitor who has used today's check gets the limit card in the first HTML
+// (no skeleton, no screenful of reserved height that collapses later). Set by /api/check when the allowance is used up; only a hint:
+// the API still answers every check, and a different answer replaces the card.
+export const CHECK_USED_COOKIE = "chk_used";
+export const CHECK_USED_MAX_AGE = 26 * 3_600;
+/** "<utc day>|<market>:<side>": the check that used the allowance. */
+export const checkUsedCookie = (marketId: string, side: number, now = Date.now()) => `${utcDay(now)}|${marketId}:${side}`;
+/** True when today's allowance was used by a different market or side than the one being opened (re-opening that one is free). */
+export function limitHinted(cookie: string | undefined | null, marketId: string | undefined, side: number, now = Date.now()): boolean {
+  if (!cookie || !marketId) return false;
+  const bar = cookie.indexOf("|");
+  if (bar < 0 || cookie.slice(0, bar) !== utcDay(now)) return false;
+  return cookie.slice(bar + 1) !== `${marketId}:${side}`;
+}
+
 /** A combo counts once, under this key: the sorted market:side list, so the same set in any order is the same check. */
 export const comboKey = (legs: { m: string; side: number }[]): string =>
   `combo:${createHash("sha256").update(legs.map((l) => `${l.m}:${l.side}`).sort().join("|")).digest("hex").slice(0, 24)}`;

@@ -55,7 +55,10 @@ export function QuickChips({ state, onChange }: { state: FilterState; onChange: 
   }
 
   return (
-    <div role="group" aria-label="Quick filters" className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:flex-wrap md:overflow-visible md:px-0">
+    // One line at every width (T-wt2i): the server renders this row before the profile lands (no favorite chips), and the browser adds them
+    // ~450 ms later. With wrapping, 3 saved topics at 1440 pushed the row's last chip (or an empty item) onto a second line and moved the
+    // page 8 px (52 px when a wider set wraps). A single scrolling line has the same height with or without them.
+    <div role="group" aria-label="Quick filters" className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:px-0">
       {chips.map((c, i) => {
         const on = c.on(state);
         return (
@@ -72,7 +75,8 @@ export function QuickChips({ state, onChange }: { state: FilterState; onChange: 
       })}
       <button type="button" onClick={() => setSaving(true)} className={`${chipClass(false)} flex-none`}>+ Save this view</button>
       <SavedViews onApply={onChange} className={`${chipClass(false)} flex-none`} />
-      <span role="status" className="flex-none text-[13px] text-accent-softer">{note}</span>
+      {/* empty:hidden: an empty flex item still takes a gap-2 slot, and when the chips fill the row (3 saved topics at 1440) that slot wrapped to a second line and moved the page 8 px once the profile loaded */}
+      <span role="status" className="flex-none text-[13px] text-accent-softer empty:hidden">{note}</span>
       <SaveViewDialog open={saving} title="Save this view" name={suggestViewName(state)} error={error} onSubmit={save} onClose={() => { setSaving(false); setError(null); }} />
     </div>
   );

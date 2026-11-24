@@ -212,7 +212,7 @@ export function MarketTable({ items, sort, onSort, onToggleGroup, pro = false, l
                   {hd.id === "star" ? (
                     <ColumnChooser cols={table.getAllLeafColumns().map((c) => ({ id: c.id, label: (c.columnDef as Col).meta?.label ?? c.id, pro: !!(c.columnDef as Col).meta?.pro, on: c.getIsVisible(), toggle: () => c.toggleVisibility() }))} />
                   ) : meta?.sort ? (
-                    <button type="button" onClick={() => sortBy(meta.sort)} title={meta.help} className={`inline-flex min-h-8 items-center gap-1 whitespace-nowrap hover:text-text ${active ? "text-text" : ""}`}>
+                    <button type="button" onClick={() => sortBy(meta.sort)} title={meta.help} className={`inline-flex min-h-11 -my-2 items-center gap-1 whitespace-nowrap hover:text-text ${active ? "text-text" : ""}`}>
                       {flexRender(hd.column.columnDef.header, hd.getContext())}
                       <span aria-hidden="true" className={active ? "text-accent" : "opacity-40"}>{active ? (sort.dir === "asc" ? "↑" : "↓") : "↕"}</span>
                     </button>
@@ -287,13 +287,26 @@ export function MarketTable({ items, sort, onSort, onToggleGroup, pro = false, l
 
 function ColumnChooser({ cols }: { cols: { id: string; label: string; pro: boolean; on: boolean; toggle: () => void }[] }) {
   const pick = cols.filter((c) => c.id !== "market" && c.id !== "star");
+  // The menu fits the visible screen wherever it is opened (from the top of the page it ran ~500 px past the bottom): its height is the
+  // room left under the button, measured on open and again while the page scrolls or resizes; the rows scroll inside.
+  const root = useRef<HTMLDetailsElement>(null);
+  const [open, setOpen] = useState(false);
+  const [room, setRoom] = useState<number | undefined>();
+  useEffect(() => {
+    if (!open) return;
+    const fit = () => { const b = root.current?.querySelector("summary")?.getBoundingClientRect(); if (b) setRoom(Math.max(176, Math.floor(window.innerHeight - b.bottom - 16))); };
+    fit();
+    window.addEventListener("scroll", fit, { passive: true });
+    window.addEventListener("resize", fit);
+    return () => { window.removeEventListener("scroll", fit); window.removeEventListener("resize", fit); };
+  }, [open]);
   return (
-    <details className="relative">
+    <details ref={root} className="relative" onToggle={(e) => setOpen(e.currentTarget.open)}>
       <summary title="Choose columns" className="-my-1 flex size-11 cursor-pointer list-none items-center justify-center rounded-input text-muted hover:bg-muted-bg hover:text-text">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
         <span className="sr-only">Choose columns</span>
       </summary>
-      <div className="absolute left-0 z-20 mt-1 max-h-[calc(100svh-9rem)] w-64 overflow-y-auto overscroll-contain rounded-input border border-border bg-raised p-3 text-sm">
+      <div style={room ? { maxHeight: room } : undefined} className="absolute left-0 z-20 mt-1 max-h-[calc(100svh-9rem)] w-64 overflow-y-auto overscroll-contain rounded-input border border-border bg-raised p-3 text-sm">
         <fieldset>
           <legend className="mb-1 text-xs text-muted">Main</legend>
           {pick.filter((c) => !c.pro).map((c) => <Check key={c.id} {...c} />)}
