@@ -10,7 +10,7 @@ import { ROOT } from "../lib.mjs";
 import { GOOD_ENV, GOOD_SITE } from "./fixtures.mjs";
 
 test("commands: production + preview, secrets sensitive, test-only vars skipped", () => {
-  const cs = commands({ STRIPE_SECRET_KEY: "sk_test_x", DATA_SOURCE: "supabase", E2E_MOCK: "1", NEXT_PUBLIC_DEMO_MODE: "false", EMPTY: "" });
+  const cs = commands({ STRIPE_SECRET_KEY: "sk_test_x", DATA_SOURCE: "supabase", E2E_MOCK: "1", E2E_PROD_BUILD: "1", NEXT_PUBLIC_DEMO_MODE: "false", EMPTY: "" });
   assert.deepEqual(cs.map((c) => `${c.key}/${c.target}/${c.sensitive}`), [
     "STRIPE_SECRET_KEY/production/true", "STRIPE_SECRET_KEY/preview/true", "DATA_SOURCE/production/false", "DATA_SOURCE/preview/false"]);
   assert.deepEqual(cs[0].args, ["env", "add", "STRIPE_SECRET_KEY", "production", "--force", "--sensitive"]);

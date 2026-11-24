@@ -15,6 +15,7 @@ function fakeDb({ auditFails = false, settings = [] as { key: string; value: unk
       then: (ok: (v: unknown) => unknown) => Promise.resolve({ data: table === "app_settings" ? settings : [], error: null }).then(ok),
       insert: async (row: unknown) => {
         ops.push([table, "insert", row]);
+        if (table === "admin_audit_log") order.push(`audit:${(row as { action?: string }).action}`);
         return { error: table === "admin_audit_log" && auditFails ? { message: "down" } : null };
       },
       upsert: async (row: unknown) => { ops.push([table, "upsert", row]); return { error: null }; },
@@ -39,8 +40,9 @@ async function post(db: object, body: object) {
   }));
 }
 const revalidated: string[] = [];
-vi.mock("next/cache", () => ({ revalidatePath: (p: string) => void revalidated.push(p) }));
-afterEach(() => { revalidated.length = 0; vi.resetModules(); vi.doUnmock("@/lib/admin/server"); vi.doUnmock("@/lib/settings"); vi.doUnmock("@/lib/abuse"); });
+let order: string[] = [];   // the shared timeline of audit inserts and revalidations
+vi.mock("next/cache", () => ({ revalidatePath: (p: string) => void (revalidated.push(p), order.push("revalidate")) }));
+afterEach(() => { revalidated.length = 0; order = []; vi.resetModules(); vi.doUnmock("@/lib/admin/server"); vi.doUnmock("@/lib/settings"); vi.doUnmock("@/lib/abuse"); });
 
 describe("admin: audit first", () => {
   for (const body of [
@@ -70,6 +72,14 @@ describe("admin: audit first", () => {
     const { db } = fakeDb({ settings: [{ key: "banner_on", value: false }] });
     expect((await post(db, { action: "settings", patch: { banner_on: true } })).status).toBe(200);
     expect(revalidated.sort()).toEqual([...STATIC_PAGES].sort());
+  });
+
+  it("settings: the pages are regenerated after the .done audit row, not before", async () => {
+    const { db } = fakeDb();
+    expect((await post(db, { action: "settings", patch: { banner_on: true } })).status).toBe(200);
+    const doneAt = order.indexOf("audit:settings.update.done");
+    expect(doneAt).toBeGreaterThan(-1);
+    expect(order.indexOf("revalidate")).toBeGreaterThan(doneAt);
   });
 
   it("settings: a failed audit write regenerates nothing", async () => {

@@ -17,7 +17,7 @@ test("a complete production env has no problems", () => {
 });
 
 test("dangerous production combinations are blockers", () => {
-  for (const [k, v] of [["DEMO_MODE", "true"], ["KALSHI_TRADING_ENV", "demo"], ["E2E_MOCK", "1"], ["STRIPE_API_BASE", "http://localhost:3100"], ["ADMIN_EMAILS", ""]]) {
+  for (const [k, v] of [["DEMO_MODE", "true"], ["KALSHI_TRADING_ENV", "demo"], ["E2E_MOCK", "1"], ["E2E_PROD_BUILD", "1"], ["STRIPE_API_BASE", "http://localhost:3100"], ["ADMIN_EMAILS", ""]]) {
     assert.deepEqual(blockers({ ...GOOD_ENV, [k]: v }), [k], k);
   }
   assert.deepEqual(blockers(GOOD_ENV, GOOD_SITE, { live: true }), ["STRIPE_SECRET_KEY"], "test key with --live");
