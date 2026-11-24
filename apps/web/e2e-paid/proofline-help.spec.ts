@@ -15,13 +15,13 @@ for (const { w, h, touch } of [{ w: 390, h: 844, touch: true }, { w: 1440, h: 90
 
     test("a tap on the dotted line shows what it means, a second tap hides it", async ({ page }) => {
       const live = await open(page);
-      await expect(page.getByTestId("proof-help")).toHaveCount(0);
+      await expect(page.getByTestId("proof-help")).toBeHidden();
       await (touch ? live.tap() : live.click());
       await expect(live).toHaveAttribute("aria-expanded", "true");
       await expect(page.getByTestId("proof-help")).toBeVisible();
       await expect(page.getByTestId("proof-help")).toContainText(/events needed|Testing:/);
       await (touch ? live.tap() : live.click());
-      await expect(page.getByTestId("proof-help")).toHaveCount(0);
+      await expect(page.getByTestId("proof-help")).toBeHidden();
     });
 
     test("the keyboard reaches it: Tab to the line, Enter opens, Escape closes", async ({ page }) => {
@@ -31,7 +31,7 @@ for (const { w, h, touch } of [{ w: 390, h: 844, touch: true }, { w: 1440, h: 90
       await page.keyboard.press("Enter");
       await expect(page.getByTestId("proof-help")).toBeVisible();
       await page.keyboard.press("Escape");
-      await expect(page.getByTestId("proof-help")).toHaveCount(0);
+      await expect(page.getByTestId("proof-help")).toBeHidden();
       await page.keyboard.press("Space");
       await expect(page.getByTestId("proof-help")).toBeVisible();
     });

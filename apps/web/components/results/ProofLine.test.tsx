@@ -11,13 +11,15 @@ const p: Proof = { test: "In testing: +9.5% per bet.", live: "Live since Nov 17:
   line: "", help: 'Testing: 1,234 past best bets. "About 22 events needed": settled games or weather days it takes.', needs: 22, settled: 60, liveRoi: 1, enough: false };
 
 describe("ProofLine help", () => {
-  it("is closed to start: the toggle says so and the definition is not on screen", () => {
+  it("is closed to start: the toggle says so and the definition is in the page but hidden (aria-controls always points at it)", () => {
     render(<ProofLine p={p} />);
     const t = screen.getByTestId("proof-live");
     expect(t.getAttribute("role")).toBe("button");
     expect(t.getAttribute("aria-expanded")).toBe("false");
     expect(t.tabIndex).toBe(0);
-    expect(screen.queryByTestId("proof-help")).toBeNull();
+    const help = screen.getByTestId("proof-help");
+    expect(help.hasAttribute("hidden")).toBe(true);
+    expect(help.id).toBe(t.getAttribute("aria-controls"));
   });
   it("a tap opens the definition as visible text, wired with aria-controls; a second tap closes it", () => {
     render(<ProofLine p={p} />);
@@ -26,9 +28,10 @@ describe("ProofLine help", () => {
     expect(t.getAttribute("aria-expanded")).toBe("true");
     const help = screen.getByTestId("proof-help");
     expect(help.textContent).toContain("About 22 events needed");
+    expect(help.hasAttribute("hidden")).toBe(false);
     expect(help.id).toBe(t.getAttribute("aria-controls"));
     fireEvent.click(t);
-    expect(screen.queryByTestId("proof-help")).toBeNull();
+    expect(screen.getByTestId("proof-help").hasAttribute("hidden")).toBe(true);
     expect(t.getAttribute("aria-expanded")).toBe("false");
   });
   it("Enter and Space toggle it from the keyboard; Escape closes it", () => {
@@ -37,9 +40,16 @@ describe("ProofLine help", () => {
     fireEvent.keyDown(t, { key: "Enter" });
     expect(screen.getByTestId("proof-help")).toBeTruthy();
     fireEvent.keyDown(t, { key: "Escape" });
-    expect(screen.queryByTestId("proof-help")).toBeNull();
+    expect(screen.getByTestId("proof-help").hasAttribute("hidden")).toBe(true);
     fireEvent.keyDown(t, { key: " " });
-    expect(screen.getByTestId("proof-help")).toBeTruthy();
+    expect(screen.getByTestId("proof-help").hasAttribute("hidden")).toBe(false);
+  });
+  it("Escape is swallowed (preventDefault) only while the help is open, so a drawer behind it stays; closed, it passes through", () => {
+    render(<ProofLine p={p} />);
+    const t = screen.getByTestId("proof-live");
+    expect(fireEvent.keyDown(t, { key: "Escape" })).toBe(true);   // closed: not prevented, the drawer may close
+    fireEvent.click(t);
+    expect(fireEvent.keyDown(t, { key: "Escape" })).toBe(false);  // open: prevented, only the help closes
   });
   it("keeps the dotted look, the hover title, and the test half is untouched", () => {
     const { container } = render(<ProofLine p={p} />);
