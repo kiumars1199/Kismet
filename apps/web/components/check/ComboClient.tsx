@@ -223,8 +223,8 @@ export function ComboClient({ reserve = 0 }: { reserve?: number }) {
           grows to about 533 px on a phone and 360 on a desktop: those final sizes are reserved), so adding legs and scoring grow inside
           it and the page below never moves. The empty result card itself stays small: the room is blank space under it, not a box. */}
       <div data-combo-pending={loaded ? undefined : ""} className={`flex flex-col gap-5 ${legs.length || reserve || engaged ? "min-h-[760px] md:min-h-[700px]" : ""} ${loaded || reserve ? "" : "invisible"}`}>
-      <ul data-testid="combo-legs" style={{ "--n": Math.min(MAX_COMBO_LEGS, Math.max(legs.length + (incoming ? 1 : 0), reserve, 2)) } as React.CSSProperties}
-        className={`flex flex-col gap-2 ${legs.length || reserve || incoming ? "min-h-[calc(var(--n)*84px+(var(--n)-1)*8px)] sm:min-h-[calc(var(--n)*70px+(var(--n)-1)*8px)]" : ""}`}>
+      <ul data-testid="combo-legs" style={{ "--n": Math.min(MAX_COMBO_LEGS, Math.max(legs.length + (incoming && legs.length > 0 ? 1 : 0), reserve, 2)) } as React.CSSProperties}
+        className={`flex flex-col gap-2 ${legs.length || reserve ? "min-h-[calc(var(--n)*84px+(var(--n)-1)*8px)] sm:min-h-[calc(var(--n)*70px+(var(--n)-1)*8px)]" : ""}`}>
         {legs.map((l, i) => {
           const b = known.get(l.key);
           return (
