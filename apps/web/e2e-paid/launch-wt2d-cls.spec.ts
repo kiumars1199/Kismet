@@ -126,6 +126,7 @@ for (const tier of ["pro", "premium"] as const) {
         runs.push(await cls(page));
         if (runs[runs.length - 1]! > 0.005) console.log(`${tier} ${w} load ${i + 2} shifts:\n${await sources(page)}`);
       }
+      console.log(`${tier} ${w}: shifts over 0.005 during the 5 landings:\n${await sources(page)}`);
       console.log(`${tier} ${w}: landing CLS of 5 runs ${runs.map((x) => x.toFixed(4)).join(" ")}; worst ${Math.max(...runs).toFixed(4)}`);
       expect(Math.max(...runs), "worst of 5 landings").toBeLessThan(0.02);
 
@@ -148,7 +149,7 @@ for (const tier of ["pro", "premium"] as const) {
       await expect(page.locator("article[data-row]").first()).toBeVisible({ timeout: 60_000 });
       await page.waitForTimeout(2_000);
       const afterList = await cls(page);   // the list landing alone (the 0.397 case)
-      console.log(`${tier} ${w}: See all best bets with the list 900 ms late: CLS ${afterList.toFixed(4)}`);
+      console.log(`${tier} ${w}: See all best bets with the list 900 ms late: CLS ${afterList.toFixed(4)}\n${await sources(page)}`);   // printed BEFORE the assertion
       expect(afterList).toBeLessThan(0.02);
       await page.waitForTimeout(14_000);   // past the 6 s backtest answer and the 9 s live-price answer
       const after = await cls(page);
