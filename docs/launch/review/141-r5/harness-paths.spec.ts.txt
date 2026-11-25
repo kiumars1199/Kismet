@@ -1,0 +1,79 @@
+import { expect, test, type Page } from "@playwright/test";
+import { OUT, log, signUp, comp, installCls, cls, why, resetCls, skipTour, cookieH, errs, watchErrors, TALL, SHORT } from "./common";
+import fs from "node:fs";
+const F = process.env.RV_TAG ? `paths-${process.env.RV_TAG}.txt` : "paths.txt";
+const art = (page: Page) => expect(page.getByTestId("bets-list").locator("article").first()).toBeVisible({ timeout: 60_000 });
+async function nearBottom(page: Page, url: string, h: number) {
+  await page.goto(url, { waitUntil: "load" }); await art(page); await skipTour(page); await page.waitForTimeout(1_500);
+  const t = await page.evaluate(() => document.documentElement.scrollHeight);
+  await page.evaluate((y) => window.scrollTo(0, y), Math.max(0, t - h - 120)); await page.waitForTimeout(900);
+  return page.evaluate(() => window.scrollY);
+}
+async function res(page: Page, before: number) {
+  await art(page); await page.waitForTimeout(2_000);
+  const v = await cls(page); const a = await page.evaluate(() => window.scrollY);
+  const flag = v > 0.02 || Math.abs(a - before) > 2 ? " **FAIL**" : "";
+  return `CLS ${v.toFixed(4)} scrollErr ${a - before} (y ${before}->${a}, cookie ${await cookieH(page)})${flag}${v > 0.02 ? " [" + (await why(page)) + "]" : ""}`;
+}
+for (const tier of ["free", "premium"] as const) for (const { w, h } of [{ w: 390, h: 844 }, { w: 1440, h: 900 }]) {
+  test(`paths ${tier} ${w}`, async ({ page, context }) => {
+    test.setTimeout(1_200_000);
+    await page.setViewportSize({ width: w, height: h });
+    watchErrors(page, `paths-${tier}-${w}`);
+    await signUp(page, `rv5-paths-${tier}-${w}-${Date.now()}@example.com`);
+    if (tier !== "free") await comp(page, tier);
+    await installCls(page);
+    for (const [name, url] of [["default", "/bets"], ["tall50", TALL]] as const) {
+      const r1: string[] = [], r2: string[] = [];
+      for (let i = 0; i < 3; i++) {
+        const b = await nearBottom(page, url, h);
+        await page.waitForTimeout(3_000);   // idle
+        await page.reload({ waitUntil: "load" });
+        r1.push(await res(page, b));
+        const b2 = await page.evaluate(() => window.scrollY);
+        await page.goto("/check", { waitUntil: "load" });
+        await page.goBack({ waitUntil: "load" });
+        r2.push(await res(page, b2));
+      }
+      log(F, `${tier}\t${w}\t${name}\tidle reload near bottom\t${r1.join(" | ")}`);
+      log(F, `${tier}\t${w}\t${name}\t... then /check (full) -> Back\t${r2.join(" | ")}`);
+    }
+    for (const [aUrl, bUrl, label] of [[TALL, SHORT, "tabA tall50, tabB short"], ["/bets", TALL, "tabA default, tabB tall50"], [TALL, "/bets", "tabA tall50, tabB default"]] as const) {
+      const rs: string[] = [];
+      for (let i = 0; i < 3; i++) {
+        const b = await nearBottom(page, aUrl, h);
+        const p2 = await context.newPage(); await p2.setViewportSize({ width: w, height: h });
+        await p2.goto(bUrl, { waitUntil: "load" }); await p2.waitForTimeout(2_500); await p2.close();
+        await page.goto("/check", { waitUntil: "load" });
+        await page.goBack({ waitUntil: "load" });
+        rs.push(await res(page, b));
+      }
+      log(F, `${tier}\t${w}\tmulti-tab\t${label}\t${rs.join(" | ")}`);
+    }
+    {
+      const rs: string[] = [];
+      for (let i = 0; i < 3; i++) {
+        const b = await nearBottom(page, TALL, h);
+        await page.goto(SHORT, { waitUntil: "load" }); await page.waitForTimeout(2_500);
+        await page.goto("/check", { waitUntil: "load" });
+        await page.goBack({ waitUntil: "load" }); await page.waitForTimeout(1_500);
+        await page.goBack({ waitUntil: "load" });
+        rs.push(await res(page, b) + ` url ${new URL(page.url()).search.slice(0, 12)}`);
+      }
+      log(F, `${tier}\t${w}\thistory\ttall50 -> short -> /check -> Back -> Back\t${rs.join(" | ")}`);
+    }
+    {
+      const rs: string[] = [];
+      for (let i = 0; i < 3; i++) {
+        const b = await nearBottom(page, TALL, h);
+        await page.evaluate((u) => window.history.pushState(null, "", u), SHORT);
+        await page.waitForTimeout(3_000);
+        await page.reload({ waitUntil: "load" }); await art(page); await page.waitForTimeout(1_500);
+        await page.goBack({ waitUntil: "load" });
+        rs.push(await res(page, b) + ` url ${new URL(page.url()).search.slice(0, 12)}`);
+      }
+      log(F, `${tier}\t${w}\tfilter push\tpushState short -> reload -> Back\t${rs.join(" | ")}`);
+    }
+    fs.appendFileSync(`${OUT}/console-errors.txt`, errs.splice(0).join("\n") + "\n");
+  });
+}

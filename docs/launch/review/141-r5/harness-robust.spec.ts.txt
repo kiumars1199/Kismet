@@ -1,0 +1,161 @@
+import { expect, test, type Page } from "@playwright/test";
+import { OUT, log, signUp, comp, errs, watchErrors, skipTour } from "./common";
+import { SLOW4G, NOTHROTTLE, probe, report, attrLog, scopeOf } from "./probe";
+import fs from "node:fs";
+const F = process.env.RV_F ?? "robust.txt";
+const isBetsRsc = (u: URL) => u.pathname === "/bets";
+const state = (page: Page) => page.evaluate(() => ({
+  url: location.pathname + location.search, attr: document.documentElement.hasAttribute("data-bets-pending"), dots: document.querySelectorAll("[data-pending]").length,
+  visibleMainKids: [...document.querySelectorAll("#main > *")].filter((e) => getComputedStyle(e).display !== "none").length,
+  h1: document.querySelector("#main h1")?.textContent?.slice(0, 40) ?? null, active: `${document.activeElement?.tagName}:${document.activeElement?.textContent?.slice(0, 20)}`,
+  nav: (performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming).type, title: document.title.slice(0, 30),
+})).catch((e) => ({ err: String(e).slice(0, 120) }));
+async function go(page: Page, url: string) { await page.goto(url, { waitUntil: "load" }); await page.waitForTimeout(1_000); await skipTour(page); await page.waitForTimeout(1_500); }
+const tap = (page: Page, w: number, name = "Best bets") => scopeOf(page, w).getByRole("link", { name, exact: true }).click({ noWaitAfter: true, timeout: 20_000 });
+const hold = (page: Page, ms: number) => page.route((u) => isBetsRsc(u), async (r) => { if (r.request().headers()["rsc"]) await new Promise((x) => setTimeout(x, ms)); await r.continue().catch(() => {}); });
+
+for (const { w, h } of [{ w: 390, h: 844 }, { w: 1440, h: 900 }]) {
+  test(`robust ${w}`, async ({ page, context }) => {
+    test.setTimeout(1_800_000);
+    await page.setViewportSize({ width: w, height: h });
+    watchErrors(page, `robust-${w}`);
+    await signUp(page, `rv5-rb-${w}-${Date.now()}@example.com`);
+    await comp(page, "premium");
+    await probe(page);
+    await go(page, "/bets");
+    const cdp = await context.newCDPSession(page); await cdp.send("Network.enable");
+
+    // 1. another tab mid-wait
+    for (let i = 0; i < 2; i++) {
+      await go(page, "/check"); await hold(page, 3_000);
+      await tap(page, w); await page.waitForTimeout(700);
+      const mid = await state(page);
+      await tap(page, w, "My list"); await page.waitForTimeout(150);
+      const mid2 = await state(page);
+      await page.waitForTimeout(5_000);
+      log(F, `${w}\tmid-wait other tab [${i + 1}]\t+700ms ${JSON.stringify(mid)}; 150ms after My list ${JSON.stringify(mid2)}; end ${JSON.stringify(await state(page))}; ${(await report(page)).text}`);
+      await page.unrouteAll({ behavior: "ignoreErrors" });
+    }
+    // 2/3. RSC 500, RSC network failure, everything /bets aborted, offline after tap
+    for (const mode of ["rsc500", "rscAbort", "allAbort", "offline", "rsc500doc204", "rscAbortDoc204", "windowStop"] as const) for (let i = 0; i < 2; i++) {
+      await go(page, "/check");
+      if (mode === "rsc500") await page.route((u) => isBetsRsc(u), (r) => (r.request().headers()["rsc"] ? r.fulfill({ status: 500, body: "boom" }) : r.continue()));
+      if (mode === "rscAbort") await page.route((u) => isBetsRsc(u), (r) => (r.request().headers()["rsc"] ? r.abort("failed") : r.continue()));
+      if (mode === "allAbort") await page.route((u) => isBetsRsc(u), (r) => r.abort("failed"));
+      if (mode === "offline") await cdp.send("Network.emulateNetworkConditions", { ...SLOW4G, latency: 2_000 });
+      if (mode === "rsc500doc204") await page.route((u) => isBetsRsc(u), (r) => (r.request().headers()["rsc"] ? r.fulfill({ status: 500, body: "boom" }) : r.fulfill({ status: 204, body: "" })));
+      if (mode === "rscAbortDoc204") await page.route((u) => isBetsRsc(u), (r) => (r.request().headers()["rsc"] ? r.abort("failed") : r.fulfill({ status: 204, body: "" })));
+      if (mode === "windowStop") await page.route((u) => isBetsRsc(u), async (r) => { if (r.request().headers()["rsc"]) await new Promise((x) => setTimeout(x, 3_000)); await r.continue().catch(() => {}); });
+      await tap(page, w);
+      if (mode === "windowStop") { await page.waitForTimeout(400); await page.evaluate(() => window.stop()); }
+      if (mode === "offline") { await page.waitForTimeout(150); await cdp.send("Network.emulateNetworkConditions", { offline: true, latency: 0, downloadThroughput: 0, uploadThroughput: 0 }); }
+      const t: string[] = [];
+      for (const ms of [300, 1_500, 5_000]) { await page.waitForTimeout(ms - (t.length ? [300, 1_500][t.length - 1] : 0)); t.push(`+${ms} ${JSON.stringify(await state(page))}`); }
+      if (mode === "offline") await cdp.send("Network.emulateNetworkConditions", NOTHROTTLE);
+      await page.waitForTimeout(3_000);
+      t.push(`after recovery ${JSON.stringify(await state(page))}`);
+      await page.unrouteAll({ behavior: "ignoreErrors" });
+      log(F, `${w}\t${mode} [${i + 1}]\t${t.join(" ; ")}`);
+      if (i === 0 && w === 390) await page.screenshot({ path: `${OUT}/err-${mode}-390.png` });
+    }
+    // 4. browser Back during pending (in-app history: /watchlist -> All markets (client) -> Best bets pending -> Back)
+    for (let i = 0; i < 2; i++) {
+      await go(page, "/watchlist"); await tap(page, w, "All markets"); await page.waitForURL(/\/markets/); await page.waitForTimeout(2_500);
+      await hold(page, 3_000);
+      await tap(page, w); await page.waitForTimeout(400);
+      const mid = await state(page);
+      await page.goBack({ waitUntil: "commit" }).catch(() => {}); await page.waitForTimeout(600);
+      const a1 = await state(page);
+      await page.waitForTimeout(4_000);
+      log(F, `${w}\tBack during pending [${i + 1}]\t+400 ${JSON.stringify(mid)}; 600ms after Back ${JSON.stringify(a1)}; end ${JSON.stringify(await state(page))}; ${(await report(page)).text}`);
+      await page.unrouteAll({ behavior: "ignoreErrors" });
+    }
+    // 5. double-tap Best bets on /bets and from /check (slow 4G)
+    for (const from of ["/bets", "/check"]) for (let i = 0; i < 2; i++) {
+      await go(page, from);
+      await cdp.send("Network.emulateNetworkConditions", SLOW4G);
+      await scopeOf(page, w).getByRole("link", { name: "Best bets", exact: true }).dblclick({ noWaitAfter: true });
+      await page.waitForTimeout(300);
+      await page.waitForFunction(() => !document.documentElement.hasAttribute("data-bets-pending"), null, { timeout: 60_000 });
+      await cdp.send("Network.emulateNetworkConditions", NOTHROTTLE); await page.waitForTimeout(2_500);
+      log(F, `${w}\tdouble-tap from ${from} [${i + 1}]\t${JSON.stringify(await state(page))}; ${(await report(page)).text}`);
+    }
+    // 6. full load / reload / full Back / in-app Back never set the attribute
+    {
+      const rs: string[] = [];
+      await page.goto("/bets", { waitUntil: "load" }); await page.waitForTimeout(2_000); rs.push(`full load: [${await attrLog(page)}]`);
+      await page.reload({ waitUntil: "load" }); await page.waitForTimeout(2_000); rs.push(`reload: [${await attrLog(page)}]`);
+      await page.goto("/check", { waitUntil: "load" }); await page.goBack({ waitUntil: "load" }); await page.waitForTimeout(2_000); rs.push(`full Back: [${await attrLog(page)}] ${JSON.stringify(await state(page))}`);
+      await page.evaluate(() => (document.querySelector('a[href="/check"]') as HTMLAnchorElement).click()); await page.waitForURL(/\/check/); await page.waitForTimeout(1_500);
+      await page.evaluate(() => { (window as unknown as { __attrLog: string[] }).__attrLog.length = 0; });
+      await page.goBack(); await page.waitForURL(/\/bets/); await page.waitForTimeout(2_000); rs.push(`in-app Back: [${await attrLog(page)}]`);
+      await page.goForward(); await page.waitForURL(/\/check/); await page.waitForTimeout(1_500); rs.push(`in-app Forward: [${await attrLog(page)}]`);
+      log(F, `${w}\tnever-set paths\t${rs.join(" ; ")}`);
+    }
+    // 7. other links to /bets (logo, Check-a-bet header, breadcrumb-like in-content links): not wired
+    {
+      await go(page, "/check");
+      await page.evaluate(() => { (window as unknown as { __attrLog: string[] }).__attrLog.length = 0; });
+      const links = await page.evaluate(() => [...document.querySelectorAll('a[href="/bets"], a[href^="/bets?"]')].map((a) => `${a.closest("header,nav,main,footer")?.tagName}:${(a.textContent || a.getAttribute("aria-label") || "").trim().slice(0, 20)}`));
+      await hold(page, 1_500);
+      const logo = page.locator("header a").first();
+      const logoHref = await logo.getAttribute("href");
+      await logo.click({ noWaitAfter: true }); await page.waitForTimeout(400);
+      const mid = await state(page);
+      await page.waitForTimeout(3_000);
+      log(F, `${w}\tlinks to /bets on /check: ${JSON.stringify(links)}; logo href ${logoHref}: +400 ${JSON.stringify(mid)}; attr log [${await attrLog(page)}]`);
+      await page.unrouteAll({ behavior: "ignoreErrors" });
+    }
+    // 8. a11y while pending: focus, aria snapshot of main, keyboard activation
+    {
+      await go(page, "/check");
+      const inp = page.locator("#main input, #main textarea").first();
+      if (await inp.count()) await inp.focus();
+      const before = await state(page);
+      await hold(page, 3_000);
+      // keyboard: Tab-less activation keeps focus in main? Activate the tab link via keyboard
+      await scopeOf(page, w).getByRole("link", { name: "Best bets", exact: true }).focus();
+      await page.keyboard.press("Enter"); await page.waitForTimeout(500);
+      const mid = await state(page);
+      const aria = await page.locator("#main").ariaSnapshot().catch((e) => `ERR ${String(e).slice(0, 80)}`);
+      const navAria = await scopeOf(page, w).ariaSnapshot();
+      const tabs: string[] = [];
+      for (let i = 0; i < 6; i++) { await page.keyboard.press("Tab"); tabs.push(await page.evaluate(() => `${document.activeElement?.tagName}:${document.activeElement?.closest("header,nav,main,footer")?.tagName}:${(document.activeElement?.textContent ?? "").trim().slice(0, 16)}`)); }
+      const busy = await page.evaluate(() => ({ ariaBusy: document.querySelector("#main")?.getAttribute("aria-busy"), live: document.querySelectorAll("[aria-live]").length, mainAccessibleText: (document.querySelector("#main") as HTMLElement).innerText.length }));
+      // footer disclaimer while the placeholder shows
+      await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight)); await page.waitForTimeout(200);
+      const foot = await page.evaluate(() => { const f = document.querySelector("footer")!; const r = f.getBoundingClientRect(); return { inView: r.top < innerHeight && r.bottom > 0, disclaimer: f.innerText.includes("Market analytics, not financial advice. Based on past results. 18+."), attr: document.documentElement.hasAttribute("data-bets-pending") }; });
+      await page.screenshot({ path: `${OUT}/placeholder-bottom-footer-${w}.png` });
+      await page.waitForTimeout(4_000);
+      log(F, `${w}\ta11y pending\tbefore ${JSON.stringify(before)}; +500 after Enter ${JSON.stringify(mid)}; main aria during pending: ${JSON.stringify(aria)}; nav aria: ${JSON.stringify(navAria).slice(0, 300)}; Tab order during pending: ${tabs.join(" > ")}; ${JSON.stringify(busy)}; footer while placeholder: ${JSON.stringify(foot)}; end ${JSON.stringify(await state(page))}`);
+      await page.unrouteAll({ behavior: "ignoreErrors" });
+    }
+    fs.appendFileSync(`${OUT}/console-errors.txt`, errs.splice(0).join("\n") + "\n");
+  });
+}
+
+for (const { w, h } of [{ w: 390, h: 844 }, { w: 1440, h: 900 }]) {
+  test(`signed out ${w}`, async ({ page, context }) => {
+    test.setTimeout(600_000);
+    await page.setViewportSize({ width: w, height: h });
+    watchErrors(page, `robust-so-${w}`);
+    await probe(page);
+    const cdp = await context.newCDPSession(page); await cdp.send("Network.enable");
+    const rs: string[] = [];
+    for (const from of ["/", "/pricing", "/about", "/track-record"]) {
+      await page.goto(from, { waitUntil: "load" }); await page.waitForTimeout(1_500);
+      const links = await page.evaluate(() => [...document.querySelectorAll("header a, nav a")].map((a) => a.getAttribute("href")).filter((x, i, s) => x && s.indexOf(x) === i));
+      await cdp.send("Network.emulateNetworkConditions", SLOW4G);
+      const vis = await page.evaluate(() => [...document.querySelectorAll("header a, nav a")].filter((a) => (a as HTMLElement).offsetParent).map((a) => a.getAttribute("href")));
+      const first = vis.find((x) => x !== from && x?.startsWith("/") && !x.startsWith("/login") && !x.startsWith("/signup")) ?? "/pricing";
+      await page.locator(`header a[href="${first}"]:visible, nav a[href="${first}"]:visible`).first().click({ noWaitAfter: true, timeout: 10_000 }).catch(() => {});
+      await page.waitForTimeout(400);
+      const mid = await state(page);
+      await page.waitForLoadState("load"); await page.waitForTimeout(2_500);
+      await cdp.send("Network.emulateNetworkConditions", NOTHROTTLE);
+      rs.push(`${from} links ${JSON.stringify(links)} tap ${first}: +400 attr ${"attr" in mid ? mid.attr : "?"} kids ${"visibleMainKids" in mid ? mid.visibleMainKids : "?"}; log [${await attrLog(page)}]; ${(await report(page)).text.slice(0, 160)}`);
+    }
+    log(F, `${w}\tsigned out\t${rs.join(" | ")}`);
+    fs.appendFileSync(`${OUT}/console-errors.txt`, errs.splice(0).join("\n") + "\n");
+  });
+}

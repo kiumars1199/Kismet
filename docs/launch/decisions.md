@@ -193,3 +193,6 @@ Back from /check to /bets jumped (CLS 0.55) because `app/bets/loading.tsx` strea
 
 ## Nov 25: /bets drops its loading skeleton (reverses Nov 24, T-wt3l, #141)
 Three review rounds showed that any server skeleton height that differs from the restored page by about 300 px or more makes the footer jump on full-load Back. A remembered height can't track it: there is one cookie for many lists, and prod data changes between visits. CLS on Back (OVERHAUL §C, CLS < 0.05) outranks the instant skeleton on tab-tap. Any instant feedback comes client-side, with no height reserved on a full load.
+
+## Nov 25 (later): /bets keeps final's loading.tsx and restores scroll itself (T-wt3l, #141)
+Removing loading.tsx (r4, r5) fixed Back but broke tab taps: a late footer shift, a mid-page landing, and the wrong page shown after a second tap. So the skeleton stays, and /bets saves the scroll position per history entry and restores it after a reload or full-load Back (history.scrollRestoration = manual on /bets only). Trade-off: on a full-load Back the user briefly sees the top of the list before it moves to their place. This supersedes the earlier Nov 25 entry.

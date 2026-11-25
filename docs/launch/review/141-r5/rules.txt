@@ -1,0 +1,24 @@
+signed-out /: disclaimer true; [data-pending] 0
+signed-out /pricing: disclaimer true; [data-pending] 0
+signed-out /login: disclaimer true; [data-pending] 0
+signed-out /about: disclaimer true; [data-pending] 0
+signed-out /track-record: disclaimer true; [data-pending] 0
+free /bets: disclaimer true; cents-like text: []
+free /bets?ps=50&wp=0&us=0&g=0&vd=worth%20it,thin,not%20worth%20it,no%20sellers,no%20book: disclaimer true; cents-like text: []
+free /bets?t=sports.nfl: disclaimer true; cents-like text: []
+free /check: disclaimer true; cents-like text: []
+free /journal: disclaimer true; cents-like text: []
+free /account: disclaimer true; cents-like text: []
+free /markets: disclaimer true; cents-like text: []
+free /watchlist: disclaimer true; cents-like text: []
+free /track-record: disclaimer true; cents-like text: []
+premium /bets: disclaimer true; cents-like text: []
+premium /bets?ps=50&wp=0&us=0&g=0&vd=worth%20it,thin,not%20worth%20it,no%20sellers,no%20book: disclaimer true; cents-like text: []
+premium /bets?t=sports.nfl: disclaimer true; cents-like text: []
+premium /check: disclaimer true; cents-like text: []
+premium /journal: disclaimer true; cents-like text: []
+premium /account: disclaimer true; cents-like text: []
+premium /markets: disclaimer true; cents-like text: []
+premium /watchlist: disclaimer true; cents-like text: []
+premium /track-record: disclaimer true; cents-like text: []
+/bets SSR html contains disclaimer: true

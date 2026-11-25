@@ -1,0 +1,188 @@
+
+Running 56 tests using 1 worker
+
+CLS full → empty at 390px: 0.060
+locked card at y=271 (h1 bottom 211) at 390px
+locked card top 173 (of 844) without the stale banner
+locked card message bottom 225 (fresh scan), tab bar top 787 at 390px
+CLS Show today's free bets at 390px: 0.000
+  ✓   1 [chromium] › e2e-paid/free-topics-cls.spec.ts:69:5 › Free at 390px › full → empty by a filter change, then Show today's free bets: CLS < 0.1 each way (19.7s)
+CLS a few → empty at 390px: 0.061
+CLS remove pill at 390px: 0.007
+  ✓   2 [chromium] › e2e-paid/free-topics-cls.spec.ts:114:5 › Free at 390px › a few bets → empty, and removing a filter pill grows the list back: CLS < 0.1 each way (13.2s)
+CLS full → empty at 1440px: 0.063
+locked card at y=185 (h1 bottom 125) at 1440px
+locked card top 127 (of 900) without the stale banner
+locked card message bottom 181 (fresh scan), tab bar top 900 at 1440px
+CLS Show today's free bets at 1440px: 0.000
+  ✓   3 [chromium] › e2e-paid/free-topics-cls.spec.ts:69:5 › Free at 1440px › full → empty by a filter change, then Show today's free bets: CLS < 0.1 each way (19.6s)
+CLS a few → empty at 1440px: 0.042
+CLS remove pill at 1440px: 0.015
+  ✓   4 [chromium] › e2e-paid/free-topics-cls.spec.ts:114:5 › Free at 1440px › a few bets → empty, and removing a filter pill grows the list back: CLS < 0.1 each way (13.4s)
+pause buttons at 390: Cancel 70x44, gap 12 px
+pause buttons at 1440: Cancel 70x44, gap 12 px
+  ✓   5 [chromium] › e2e-paid/launch-wt2c-account.spec.ts:45:1 › Free, signed in by email link: /account names the method, one help line, pause Cancel is a safe target, small links are 44 px (4.4s)
+  ✓   6 [chromium] › e2e-paid/launch-wt2c-account.spec.ts:100:1 › a new account's onboarding Back is a 44 px target at 390 (854ms)
+  ✓   7 [chromium] › e2e-paid/launch-wt2c-account.spec.ts:113:1 › email + password account: /account says 'with your email and password' (2.9s)
+pro 390 first landing: empty message bottom 194 (fresh scan), tab bar top 787, h1 "No best bets in College basketball today"
+pro 390 first landing: "See all best bets" bottom 246
+pro 390 load 2: empty message bottom 194 (fresh scan), tab bar top 787, h1 "No best bets in College basketball today"
+pro 390 load 2: "See all best bets" bottom 246
+pro 390 load 3: empty message bottom 194 (fresh scan), tab bar top 787, h1 "No best bets in College basketball today"
+pro 390 load 3: "See all best bets" bottom 246
+pro 390 load 4: empty message bottom 194 (fresh scan), tab bar top 787, h1 "No best bets in College basketball today"
+pro 390 load 4: "See all best bets" bottom 246
+pro 390 load 5: empty message bottom 194 (fresh scan), tab bar top 787, h1 "No best bets in College basketball today"
+pro 390 load 5: "See all best bets" bottom 246
+pro 390: shifts over 0.005 during the 5 landings:
+
+pro 390: landing CLS of 5 runs 0.0005 0.0005 0.0005 0.0005 0.0005; worst 0.0005
+pro 390: See all best bets with the list 900 ms late: CLS 0.0000
+
+pro 390: ... and with the backtest record 6 s late: CLS 0.0000
+
+  ✓   8 [chromium] › e2e-paid/launch-wt2d-cls.spec.ts:79:5 › new pro user, empty topic landing at 390: CLS < 0.02 (worst of 5), and See all best bets with the list 900 ms late: CLS < 0.02 (53.0s)
+pro 1440 first landing: empty message bottom 128 (fresh scan), tab bar top 900, h1 "No best bets in College basketball today"
+pro 1440 first landing: "See all best bets" bottom 180
+pro 1440 load 2: empty message bottom 128 (fresh scan), tab bar top 900, h1 "No best bets in College basketball today"
+pro 1440 load 2: "See all best bets" bottom 180
+pro 1440 load 3: empty message bottom 128 (fresh scan), tab bar top 900, h1 "No best bets in College basketball today"
+pro 1440 load 3: "See all best bets" bottom 180
+pro 1440 load 4: empty message bottom 128 (fresh scan), tab bar top 900, h1 "No best bets in College basketball today"
+pro 1440 load 4: "See all best bets" bottom 180
+pro 1440 load 5: empty message bottom 128 (fresh scan), tab bar top 900, h1 "No best bets in College basketball today"
+pro 1440 load 5: "See all best bets" bottom 180
+pro 1440: shifts over 0.005 during the 5 landings:
+
+pro 1440: landing CLS of 5 runs 0.0000 0.0000 0.0000 0.0000 0.0000; worst 0.0000
+pro 1440: See all best bets with the list 900 ms late: CLS 0.0000
+
+pro 1440: ... and with the backtest record 6 s late: CLS 0.0000
+
+  ✓   9 [chromium] › e2e-paid/launch-wt2d-cls.spec.ts:79:5 › new pro user, empty topic landing at 1440: CLS < 0.02 (worst of 5), and See all best bets with the list 900 ms late: CLS < 0.02 (2.3m)
+premium 390 first landing: empty message bottom 194 (fresh scan), tab bar top 787, h1 "No best bets in College basketball today"
+premium 390 first landing: "See all best bets" bottom 246
+premium 390 load 2: empty message bottom 194 (fresh scan), tab bar top 787, h1 "No best bets in College basketball today"
+premium 390 load 2: "See all best bets" bottom 246
+premium 390 load 3: empty message bottom 194 (fresh scan), tab bar top 787, h1 "No best bets in College basketball today"
+premium 390 load 3: "See all best bets" bottom 246
+premium 390 load 4: empty message bottom 194 (fresh scan), tab bar top 787, h1 "No best bets in College basketball today"
+premium 390 load 4: "See all best bets" bottom 246
+premium 390 load 5: empty message bottom 194 (fresh scan), tab bar top 787, h1 "No best bets in College basketball today"
+premium 390 load 5: "See all best bets" bottom 246
+premium 390: shifts over 0.005 during the 5 landings:
+
+premium 390: landing CLS of 5 runs 0.0005 0.0005 0.0005 0.0005 0.0005; worst 0.0005
+premium 390: See all best bets with the list 900 ms late: CLS 0.0000
+
+premium 390: ... and with the backtest record 6 s late: CLS 0.0000
+
+  ✓  10 [chromium] › e2e-paid/launch-wt2d-cls.spec.ts:79:5 › new premium user, empty topic landing at 390: CLS < 0.02 (worst of 5), and See all best bets with the list 900 ms late: CLS < 0.02 (53.2s)
+premium 1440 first landing: empty message bottom 128 (fresh scan), tab bar top 900, h1 "No best bets in College basketball today"
+premium 1440 first landing: "See all best bets" bottom 180
+premium 1440 load 2: empty message bottom 128 (fresh scan), tab bar top 900, h1 "No best bets in College basketball today"
+premium 1440 load 2: "See all best bets" bottom 180
+premium 1440 load 3: empty message bottom 128 (fresh scan), tab bar top 900, h1 "No best bets in College basketball today"
+premium 1440 load 3: "See all best bets" bottom 180
+premium 1440 load 4: empty message bottom 128 (fresh scan), tab bar top 900, h1 "No best bets in College basketball today"
+premium 1440 load 4: "See all best bets" bottom 180
+premium 1440 load 5: empty message bottom 128 (fresh scan), tab bar top 900, h1 "No best bets in College basketball today"
+premium 1440 load 5: "See all best bets" bottom 180
+premium 1440: shifts over 0.005 during the 5 landings:
+
+premium 1440: landing CLS of 5 runs 0.0001 0.0001 0.0001 0.0001 0.0001; worst 0.0001
+premium 1440: See all best bets with the list 900 ms late: CLS 0.0000
+
+premium 1440: ... and with the backtest record 6 s late: CLS 0.0000
+
+  ✓  11 [chromium] › e2e-paid/launch-wt2d-cls.spec.ts:79:5 › new premium user, empty topic landing at 1440: CLS < 0.02 (worst of 5), and See all best bets with the list 900 ms late: CLS < 0.02 (2.7m)
+CLS /alerts at 390px: 0.0005
+CLS /dashboards at 390px: 0.0005
+  ✓  12 [chromium] › e2e-paid/launch-wt2g-layout.spec.ts:52:5 › Free at 390px › /alerts and /dashboards load with CLS <= 0.02 (14.1s)
+CLS /alerts as pro at 390px: 0.0141
+  ✓  13 [chromium] › e2e-paid/launch-wt2g-layout.spec.ts:71:7 › Free at 390px › /alerts as pro: CLS <= 0.02 from first paint (the email sentence and the Phone alerts card are hinted by the plan) (7.7s)
+CLS /alerts as premium at 390px: 0.0141
+  ✓  14 [chromium] › e2e-paid/launch-wt2g-layout.spec.ts:71:7 › Free at 390px › /alerts as premium: CLS <= 0.02 from first paint (the email sentence and the Phone alerts card are hinted by the plan) (7.7s)
+  ✓  15 [chromium] › e2e-paid/launch-wt2g-layout.spec.ts:89:5 › Free at 390px › /settings: the Time zone and State selects use the same text size (14 px on desktop, 16 px on phones) (1.6s)
+CLS /check limit at 390px: 0.0005
+limit card 358x158 at 390px
+  ✓  16 [chromium] › e2e-paid/launch-wt2g-layout.spec.ts:101:5 › Free at 390px › /check: the Free limit card is as tall as its content, and appearing shifts nothing (4.7s)
+CLS /alerts at 1440px: 0.0006
+CLS /dashboards at 1440px: 0.0006
+  ✓  17 [chromium] › e2e-paid/launch-wt2g-layout.spec.ts:52:5 › Free at 1440px › /alerts and /dashboards load with CLS <= 0.02 (13.8s)
+CLS /alerts as pro at 1440px: 0.0012
+  ✓  18 [chromium] › e2e-paid/launch-wt2g-layout.spec.ts:71:7 › Free at 1440px › /alerts as pro: CLS <= 0.02 from first paint (the email sentence and the Phone alerts card are hinted by the plan) (7.7s)
+CLS /alerts as premium at 1440px: 0.0007
+  ✓  19 [chromium] › e2e-paid/launch-wt2g-layout.spec.ts:71:7 › Free at 1440px › /alerts as premium: CLS <= 0.02 from first paint (the email sentence and the Phone alerts card are hinted by the plan) (7.8s)
+  ✓  20 [chromium] › e2e-paid/launch-wt2g-layout.spec.ts:89:5 › Free at 1440px › /settings: the Time zone and State selects use the same text size (14 px on desktop, 16 px on phones) (1.7s)
+CLS /check limit at 1440px: 0.0006
+limit card 760x118 at 1440px
+  ✓  21 [chromium] › e2e-paid/launch-wt2g-layout.spec.ts:101:5 › Free at 1440px › /check: the Free limit card is as tall as its content, and appearing shifts nothing (4.7s)
+first load /bets at 390px: CLS 0.0000
+soft Back to /bets at 390px, CLS per try: 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+  ✓  22 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:59:3 › /bets at 390px: first load, and Back from /check by the in-app Check link, 10 times, CLS <= 0.02 (34.8s)
+first load /bets at 1440px: CLS 0.0001
+soft Back to /bets at 1440px, CLS per try: 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+  ✓  23 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:59:3 › /bets at 1440px: first load, and Back from /check by the in-app Check link, 10 times, CLS <= 0.02 (34.8s)
+Back (full load), default page, Premium, mid-list, 390px: CLS 0.0000 scroll 3614 -> 3614 | CLS 0.0000 scroll 3614 -> 3614 | CLS 0.0000 scroll 3614 -> 3614
+  ✓  24 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:101:7 › Back after a full load of /check, default page, Premium, mid-list, at 390px: CLS <= 0.02, scroll within 2 px (21.3s)
+Back (full load), default page, Premium, near the bottom, 390px: CLS 0.0000 scroll 7107 -> 7107 | CLS 0.0000 scroll 7107 -> 7107 | CLS 0.0000 scroll 7107 -> 7107
+  ✓  25 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:101:7 › Back after a full load of /check, default page, Premium, near the bottom, at 390px: CLS <= 0.02, scroll within 2 px (21.2s)
+Back (full load), default page, Free, mid-list, 390px: CLS 0.0000 scroll 2978 -> 2978 | CLS 0.0000 scroll 2978 -> 2978 | CLS 0.0000 scroll 2978 -> 2978
+  ✓  26 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:101:7 › Back after a full load of /check, default page, Free, mid-list, at 390px: CLS <= 0.02, scroll within 2 px (21.4s)
+Back (full load), default page, Free, near the bottom, 390px: CLS 0.0000 scroll 5847 -> 5847 | CLS 0.0000 scroll 5847 -> 5847 | CLS 0.0000 scroll 5847 -> 5847
+  ✓  27 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:101:7 › Back after a full load of /check, default page, Free, near the bottom, at 390px: CLS <= 0.02, scroll within 2 px (21.6s)
+Back (full load), 50-bet page, Premium, mid-list, 390px: CLS 0.0000 scroll 12696 -> 12696 | CLS 0.0000 scroll 12696 -> 12696 | CLS 0.0000 scroll 12696 -> 12696
+  ✓  28 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:101:7 › Back after a full load of /check, 50-bet page, Premium, mid-list, at 390px: CLS <= 0.02, scroll within 2 px (22.4s)
+Back (full load), 50-bet page, Premium, near the bottom, 390px: CLS 0.0000 scroll 25271 -> 25271 | CLS 0.0000 scroll 25271 -> 25271 | CLS 0.0000 scroll 25271 -> 25271
+  ✓  29 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:101:7 › Back after a full load of /check, 50-bet page, Premium, near the bottom, at 390px: CLS <= 0.02, scroll within 2 px (22.2s)
+Back (full load), default page, Premium, mid-list, 1440px: CLS 0.0001 scroll 1138 -> 1138 | CLS 0.0001 scroll 1138 -> 1138 | CLS 0.0001 scroll 1138 -> 1138
+  ✓  30 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:101:7 › Back after a full load of /check, default page, Premium, mid-list, at 1440px: CLS <= 0.02, scroll within 2 px (21.7s)
+Back (full load), default page, Premium, near the bottom, 1440px: CLS 0.0001 scroll 2156 -> 2156 | CLS 0.0001 scroll 2156 -> 2156 | CLS 0.0001 scroll 2156 -> 2156
+  ✓  31 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:101:7 › Back after a full load of /check, default page, Premium, near the bottom, at 1440px: CLS <= 0.02, scroll within 2 px (21.6s)
+Back (full load), default page, Free, mid-list, 1440px: CLS 0.0000 scroll 1058 -> 1058 | CLS 0.0000 scroll 1058 -> 1058 | CLS 0.0000 scroll 1058 -> 1058
+  ✓  32 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:101:7 › Back after a full load of /check, default page, Free, mid-list, at 1440px: CLS <= 0.02, scroll within 2 px (21.8s)
+Back (full load), default page, Free, near the bottom, 1440px: CLS 0.0000 scroll 1996 -> 1996 | CLS 0.0000 scroll 1996 -> 1996 | CLS 0.0000 scroll 1996 -> 1996
+  ✓  33 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:101:7 › Back after a full load of /check, default page, Free, near the bottom, at 1440px: CLS <= 0.02, scroll within 2 px (21.7s)
+Back (full load), 50-bet page, Premium, mid-list, 1440px: CLS 0.0001 scroll 3940 -> 3940 | CLS 0.0001 scroll 3940 -> 3940 | CLS 0.0001 scroll 3940 -> 3940
+  ✓  34 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:101:7 › Back after a full load of /check, 50-bet page, Premium, mid-list, at 1440px: CLS <= 0.02, scroll within 2 px (22.7s)
+Back (full load), 50-bet page, Premium, near the bottom, 1440px: CLS 0.0001 scroll 7759 -> 7759 | CLS 0.0001 scroll 7759 -> 7759 | CLS 0.0001 scroll 7759 -> 7759
+  ✓  35 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:101:7 › Back after a full load of /check, 50-bet page, Premium, near the bottom, at 1440px: CLS <= 0.02, scroll within 2 px (22.5s)
+history at 390px: short list CLS 0.0000 scroll 941 -> 941; 50-bet page CLS 0.0000 scroll 20313 -> 20313
+  ✓  36 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:136:3 › history through a shorter list at 390px: 50-bet page (deep) -> short list -> /check -> Back -> Back: CLS <= 0.02, scroll within 2 px (10.7s)
+push + reload + Back at 390px: CLS 0.0000 scroll 25091 -> 25091
+  ✓  37 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:175:3 › a filter push, then a reload, then Back from /check at 390px: CLS <= 0.02, scroll within 2 px (8.3s)
+history at 1440px: short list CLS 0.0001 scroll 300 -> 300; 50-bet page CLS 0.0001 scroll 6303 -> 6303
+  ✓  38 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:136:3 › history through a shorter list at 1440px: 50-bet page (deep) -> short list -> /check -> Back -> Back: CLS <= 0.02, scroll within 2 px (10.7s)
+push + reload + Back at 1440px: CLS 0.0001 scroll 7579 -> 7579
+  ✓  39 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:175:3 › a filter push, then a reload, then Back from /check at 1440px: CLS <= 0.02, scroll within 2 px (8.3s)
+  ✓  40 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:205:1 › after a tall page, a short /bets list has no blank space below it (5.0s)
+  ✓  41 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:223:1 › raw HTML: the first card comes before the footer (1.6s)
+tap Best bets from /check at 390px (held 1 s): counted CLS 0.0000
+  ✓  42 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:242:5 › tap Best bets from /check at 390px with /bets held 1 s: counted CLS <= 0.02, the tap shows feedback at once (10.2s)
+tap Best bets from /watchlist at 390px (held 1 s): counted CLS 0.0000
+  ✓  43 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:242:5 › tap Best bets from /watchlist at 390px with /bets held 1 s: counted CLS <= 0.02, the tap shows feedback at once (10.3s)
+  ✓  44 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:270:3 › tapping another tab while /bets is pending clears the tap skeleton at 390px (5.6s)
+tap Best bets from /check at 1440px (held 1 s): counted CLS 0.0000
+  ✓  45 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:242:5 › tap Best bets from /check at 1440px with /bets held 1 s: counted CLS <= 0.02, the tap shows feedback at once (10.3s)
+tap Best bets from /watchlist at 1440px (held 1 s): counted CLS 0.0000
+  ✓  46 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:242:5 › tap Best bets from /watchlist at 1440px with /bets held 1 s: counted CLS <= 0.02, the tap shows feedback at once (10.2s)
+  ✓  47 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:270:3 › tapping another tab while /bets is pending clears the tap skeleton at 1440px (5.6s)
+  ✓  48 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:291:1 › a full load of /bets has no tap skeleton (1.8s)
+  ✓  49 [chromium] › e2e-paid/wt2-first-screen.spec.ts:37:3 › new Free user, topics with none of today's sample, at 390px: free bets under a plain heading, pill kept, tour over a card (1.1s)
+CLS onboarding step 1 at 390px: 0.0005
+  ✓  50 [chromium] › e2e-paid/wt2-first-screen.spec.ts:62:3 › onboarding step 1 at 390px: CLS < 0.05 once the counts arrive (2.9s)
+  ✓  51 [chromium] › e2e-paid/wt2-first-screen.spec.ts:37:3 › new Free user, topics with none of today's sample, at 1440px: free bets under a plain heading, pill kept, tour over a card (1.0s)
+CLS onboarding step 1 at 1440px: 0.0006
+  ✓  52 [chromium] › e2e-paid/wt2-first-screen.spec.ts:62:3 › onboarding step 1 at 1440px: CLS < 0.05 once the counts arrive (2.9s)
+first screen at 390px: CLS 0.0000
+  ✓  53 [chromium] › e2e-paid/wt2b-topic-no-bets.spec.ts:56:3 › new Free user, only topic has no best bets today, at 390px: 10 cards under a matching h1, honest filter bar, pill kept, tour over a card, CLS < 0.1 (2.1s)
+  ✓  54 [chromium] › e2e-paid/wt2b-topic-no-bets.spec.ts:101:3 › plain topic filter (no 'Your topics') at 390px: neutral h1, the locked card is in the first view and reads naturally (1.1s)
+first screen at 1440px: CLS 0.0000
+  ✓  55 [chromium] › e2e-paid/wt2b-topic-no-bets.spec.ts:56:3 › new Free user, only topic has no best bets today, at 1440px: 10 cards under a matching h1, honest filter bar, pill kept, tour over a card, CLS < 0.1 (1.9s)
+  ✓  56 [chromium] › e2e-paid/wt2b-topic-no-bets.spec.ts:101:3 › plain topic filter (no 'Your topics') at 1440px: neutral h1, the locked card is in the first view and reads naturally (1.1s)
+
+  Slow test file: [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts (7.2m)
+  Slow test file: [chromium] › e2e-paid/launch-wt2d-cls.spec.ts (6.7m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  56 passed (16.6m)

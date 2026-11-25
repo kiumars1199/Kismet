@@ -1,0 +1,73 @@
+
+Running 4 tests using 1 worker
+
+free	390	default	idle reload near bottom	CLS 0.0000 scrollErr 0 (y 5815->5815, cookie -) | CLS 0.0000 scrollErr 0 (y 5815->5815, cookie -) | CLS 0.0000 scrollErr 0 (y 5815->5815, cookie -)
+free	390	default	... then /check (full) -> Back	CLS 0.0000 scrollErr 0 (y 5815->5815, cookie -) | CLS 0.0000 scrollErr 0 (y 5815->5815, cookie -) | CLS 0.0000 scrollErr 0 (y 5815->5815, cookie -)
+free	390	tall50	idle reload near bottom	CLS 0.0000 scrollErr 0 (y 6083->6083, cookie -) | CLS 0.0000 scrollErr 0 (y 6083->6083, cookie -) | CLS 0.0000 scrollErr 0 (y 6083->6083, cookie -)
+free	390	tall50	... then /check (full) -> Back	CLS 0.0000 scrollErr 0 (y 6083->6083, cookie -) | CLS 0.0000 scrollErr 0 (y 6083->6083, cookie -) | CLS 0.0000 scrollErr 0 (y 6083->6083, cookie -)
+free	390	multi-tab	tabA tall50, tabB short	CLS 0.0000 scrollErr 0 (y 6083->6083, cookie -) | CLS 0.0000 scrollErr 0 (y 6083->6083, cookie -) | CLS 0.0000 scrollErr 0 (y 6083->6083, cookie -)
+free	390	multi-tab	tabA default, tabB tall50	CLS 0.0000 scrollErr 0 (y 5815->5815, cookie -) | CLS 0.0000 scrollErr 0 (y 5815->5815, cookie -) | CLS 0.0000 scrollErr 0 (y 5815->5815, cookie -)
+free	390	multi-tab	tabA tall50, tabB default	CLS 0.0000 scrollErr 0 (y 6083->6083, cookie -) | CLS 0.0000 scrollErr 0 (y 6083->6083, cookie -) | CLS 0.0000 scrollErr 0 (y 6083->6083, cookie -)
+free	390	history	tall50 -> short -> /check -> Back -> Back	CLS 0.0000 scrollErr 0 (y 6083->6083, cookie -) url ?ps=50&wp=0& | CLS 0.0000 scrollErr 0 (y 6083->6083, cookie -) url ?ps=50&wp=0& | CLS 0.0000 scrollErr 0 (y 6083->6083, cookie -) url ?ps=50&wp=0&
+free	390	filter push	pushState short -> reload -> Back	CLS 0.0000 scrollErr -4471 (y 6083->1612, cookie -) **FAIL** url ?ps=50&wp=0& | CLS 0.0000 scrollErr -4471 (y 6083->1612, cookie -) **FAIL** url ?ps=50&wp=0& | CLS 0.0000 scrollErr -4471 (y 6083->1612, cookie -) **FAIL** url ?ps=50&wp=0&
+  ✓  1 [chromium] › e2e-review/paths.spec.ts:19:3 › paths free 390 (3.8m)
+free	1440	default	idle reload near bottom	CLS 0.0000 scrollErr 0 (y 1996->1996, cookie -) | CLS 0.0000 scrollErr 0 (y 1996->1996, cookie -) | CLS 0.0000 scrollErr 0 (y 1996->1996, cookie -)
+free	1440	default	... then /check (full) -> Back	CLS 0.0000 scrollErr 0 (y 1996->1996, cookie -) | CLS 0.0000 scrollErr 0 (y 1996->1996, cookie -) | CLS 0.0000 scrollErr 0 (y 1996->1996, cookie -)
+free	1440	tall50	idle reload near bottom	CLS 0.0000 scrollErr 0 (y 2056->2056, cookie -) | CLS 0.0000 scrollErr 0 (y 2056->2056, cookie -) | CLS 0.0000 scrollErr 0 (y 2056->2056, cookie -)
+free	1440	tall50	... then /check (full) -> Back	CLS 0.0000 scrollErr 0 (y 2056->2056, cookie -) | CLS 0.0000 scrollErr 0 (y 2056->2056, cookie -) | CLS 0.0000 scrollErr 0 (y 2056->2056, cookie -)
+free	1440	multi-tab	tabA tall50, tabB short	CLS 0.0000 scrollErr 0 (y 2056->2056, cookie -) | CLS 0.0000 scrollErr 0 (y 2056->2056, cookie -) | CLS 0.0000 scrollErr 0 (y 2056->2056, cookie -)
+free	1440	multi-tab	tabA default, tabB tall50	CLS 0.0000 scrollErr 0 (y 1996->1996, cookie -) | CLS 0.0000 scrollErr 0 (y 1996->1996, cookie -) | CLS 0.0000 scrollErr 0 (y 1996->1996, cookie -)
+free	1440	multi-tab	tabA tall50, tabB default	CLS 0.0000 scrollErr 0 (y 2056->2056, cookie -) | CLS 0.0000 scrollErr 0 (y 2056->2056, cookie -) | CLS 0.0000 scrollErr 0 (y 2056->2056, cookie -)
+free	1440	history	tall50 -> short -> /check -> Back -> Back	CLS 0.0000 scrollErr 0 (y 2056->2056, cookie -) url ?ps=50&wp=0& | CLS 0.0000 scrollErr 0 (y 2056->2056, cookie -) url ?ps=50&wp=0& | CLS 0.0000 scrollErr 0 (y 2056->2056, cookie -) url ?ps=50&wp=0&
+  ✘  2 [chromium] › e2e-review/paths.spec.ts:19:3 › paths free 1440 (4.3m)
+premium	390	default	idle reload near bottom	CLS 0.0000 scrollErr 0 (y 7107->7107, cookie -) | CLS 0.0000 scrollErr 0 (y 7107->7107, cookie -) | CLS 0.0000 scrollErr 0 (y 7107->7107, cookie -)
+premium	390	default	... then /check (full) -> Back	CLS 0.0000 scrollErr 0 (y 7107->7107, cookie -) | CLS 0.0000 scrollErr 0 (y 7107->7107, cookie -) | CLS 0.0000 scrollErr 0 (y 7107->7107, cookie -)
+premium	390	tall50	idle reload near bottom	CLS 0.0000 scrollErr 0 (y 25271->25271, cookie -) | CLS 0.0000 scrollErr 0 (y 25271->25271, cookie -) | CLS 0.0000 scrollErr 0 (y 25271->25271, cookie -)
+premium	390	tall50	... then /check (full) -> Back	CLS 0.0000 scrollErr 0 (y 25271->25271, cookie -) | CLS 0.0000 scrollErr 0 (y 25271->25271, cookie -) | CLS 0.0000 scrollErr 0 (y 25271->25271, cookie -)
+premium	390	multi-tab	tabA tall50, tabB short	CLS 0.0000 scrollErr 0 (y 25271->25271, cookie -) | CLS 0.0000 scrollErr 0 (y 25271->25271, cookie -) | CLS 0.0000 scrollErr 0 (y 25271->25271, cookie -)
+premium	390	multi-tab	tabA default, tabB tall50	CLS 0.0000 scrollErr 0 (y 7107->7107, cookie -) | CLS 0.0000 scrollErr 0 (y 7107->7107, cookie -) | CLS 0.0000 scrollErr 0 (y 7107->7107, cookie -)
+premium	390	multi-tab	tabA tall50, tabB default	CLS 0.0000 scrollErr 0 (y 25271->25271, cookie -) | CLS 0.0000 scrollErr 0 (y 25271->25271, cookie -) | CLS 0.0000 scrollErr 0 (y 25271->25271, cookie -)
+premium	390	history	tall50 -> short -> /check -> Back -> Back	CLS 0.0000 scrollErr 0 (y 25271->25271, cookie -) url ?ps=50&wp=0& | CLS 0.0000 scrollErr 0 (y 25271->25271, cookie -) url ?ps=50&wp=0& | CLS 0.0000 scrollErr 0 (y 25271->25271, cookie -) url ?ps=50&wp=0&
+premium	390	filter push	pushState short -> reload -> Back	CLS 0.0000 scrollErr -23982 (y 25271->1289, cookie -) **FAIL** url ?ps=50&wp=0& | CLS 0.0000 scrollErr -23982 (y 25271->1289, cookie -) **FAIL** url ?ps=50&wp=0& | CLS 0.0000 scrollErr -23982 (y 25271->1289, cookie -) **FAIL** url ?ps=50&wp=0&
+  ✓  3 [chromium] › e2e-review/paths.spec.ts:19:3 › paths premium 390 (3.8m)
+premium	1440	default	idle reload near bottom	CLS 0.0001 scrollErr 0 (y 2156->2156, cookie -) | CLS 0.0001 scrollErr 0 (y 2156->2156, cookie -) | CLS 0.0001 scrollErr 0 (y 2156->2156, cookie -)
+premium	1440	default	... then /check (full) -> Back	CLS 0.0001 scrollErr 0 (y 2156->2156, cookie -) | CLS 0.0001 scrollErr 0 (y 2156->2156, cookie -) | CLS 0.0001 scrollErr 0 (y 2156->2156, cookie -)
+premium	1440	tall50	idle reload near bottom	CLS 0.0001 scrollErr 0 (y 7759->7759, cookie -) | CLS 0.0001 scrollErr 0 (y 7759->7759, cookie -) | CLS 0.0001 scrollErr 0 (y 7759->7759, cookie -)
+premium	1440	tall50	... then /check (full) -> Back	CLS 0.0001 scrollErr 0 (y 7759->7759, cookie -) | CLS 0.0001 scrollErr 0 (y 7759->7759, cookie -) | CLS 0.0001 scrollErr 0 (y 7759->7759, cookie -)
+premium	1440	multi-tab	tabA tall50, tabB short	CLS 0.0001 scrollErr 0 (y 7759->7759, cookie -) | CLS 0.0001 scrollErr 0 (y 7759->7759, cookie -) | CLS 0.0001 scrollErr 0 (y 7759->7759, cookie -)
+premium	1440	multi-tab	tabA default, tabB tall50	CLS 0.0001 scrollErr 0 (y 2156->2156, cookie -) | CLS 0.0001 scrollErr 0 (y 2156->2156, cookie -) | CLS 0.0001 scrollErr 0 (y 2156->2156, cookie -)
+premium	1440	multi-tab	tabA tall50, tabB default	CLS 0.0001 scrollErr 0 (y 7759->7759, cookie -) | CLS 0.0001 scrollErr 0 (y 7759->7759, cookie -) | CLS 0.0001 scrollErr 0 (y 7759->7759, cookie -)
+premium	1440	history	tall50 -> short -> /check -> Back -> Back	CLS 0.0001 scrollErr 0 (y 7759->7759, cookie -) url ?ps=50&wp=0& | CLS 0.0001 scrollErr 0 (y 7759->7759, cookie -) url ?ps=50&wp=0& | CLS 0.0001 scrollErr 0 (y 7759->7759, cookie -) url ?ps=50&wp=0&
+premium	1440	filter push	pushState short -> reload -> Back	CLS 0.0001 scrollErr -7319 (y 7759->440, cookie -) **FAIL** url ?ps=50&wp=0& | CLS 0.0001 scrollErr -7319 (y 7759->440, cookie -) **FAIL** url ?ps=50&wp=0& | CLS 0.0001 scrollErr -7319 (y 7759->440, cookie -) **FAIL** url ?ps=50&wp=0&
+  ✓  4 [chromium] › e2e-review/paths.spec.ts:19:3 › paths premium 1440 (3.9m)
+
+
+  1) [chromium] › e2e-review/paths.spec.ts:19:3 › paths free 1440 ──────────────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('bets-list').locator('article').first()
+    Expected: visible
+    Timeout: 60000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('bets-list').locator('article').first() with timeout 60000ms
+      - waiting for getByTestId('bets-list').locator('article').first()
+
+
+      3 | import fs from "node:fs";
+      4 | const F = process.env.RV_TAG ? `paths-${process.env.RV_TAG}.txt` : "paths.txt";
+    > 5 | const art = (page: Page) => expect(page.getByTestId("bets-list").locator("article").first()).toBeVisible({ timeout: 60_000 });
+        |                                                                                              ^
+      6 | async function nearBottom(page: Page, url: string, h: number) {
+      7 |   await page.goto(url, { waitUntil: "load" }); await art(page); await skipTour(page); await page.waitForTimeout(1_500);
+      8 |   const t = await page.evaluate(() => document.documentElement.scrollHeight);
+        at art (/tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/wt141r5/apps/web/e2e-review/paths.spec.ts:5:94)
+        at /tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/wt141r5/apps/web/e2e-review/paths.spec.ts:71:57
+
+    Error Context: ../../../pwout141r5c/paths-paths-free-1440-chromium/error-context.md
+
+  1 failed
+    [chromium] › e2e-review/paths.spec.ts:19:3 › paths free 1440 ───────────────────────────────────
+  3 passed (15.8m)

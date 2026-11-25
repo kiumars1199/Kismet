@@ -1,0 +1,133 @@
+
+
+
+
+[robust-390] console.error Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+[robust-390] console.error Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+[robust-390] console.error Failed to load resource: net::ERR_FAILED
+[robust-390] console.error Failed to fetch RSC payload for http://localhost:3425/bets. Falling back to browser navigation. TypeError: Failed to fetch
+    at y (http://localhost:3425/_next/static/chunks/8701-95c158389b996b37.js:1:24322)
+    at async _ (http://localhost:3425/_next/static/chunks/8701-95c158389b996b37.js:1:23180)
+[robust-390] console.error Failed to load resource: net::ERR_FAILED
+[robust-390] console.error Failed to fetch RSC payload for http://localhost:3425/bets. Falling back to browser navigation. TypeError: Failed to fetch
+    at y (http://localhost:3425/_next/static/chunks/8701-95c158389b996b37.js:1:24322)
+    at async _ (http://localhost:3425/_next/static/chunks/8701-95c158389b996b37.js:1:23180)
+[robust-390] console.error Failed to load resource: net::ERR_FAILED
+[robust-390] console.error Failed to fetch RSC payload for http://localhost:3425/bets. Falling back to browser navigation. TypeError: Failed to fetch
+    at y (http://localhost:3425/_next/static/chunks/8701-95c158389b996b37.js:1:24322)
+    at async _ (http://localhost:3425/_next/static/chunks/8701-95c158389b996b37.js:1:23180)
+[robust-390] console.error Failed to load resource: net::ERR_FAILED
+[robust-390] console.error Failed to fetch RSC payload for http://localhost:3425/bets. Falling back to browser navigation. TypeError: Failed to fetch
+    at y (http://localhost:3425/_next/static/chunks/8701-95c158389b996b37.js:1:24322)
+    at async _ (http://localhost:3425/_next/static/chunks/8701-95c158389b996b37.js:1:23180)
+[robust-390] console.error Failed to load resource: net::ERR_INTERNET_DISCONNECTED
+[robust-390] console.error Failed to load resource: net::ERR_INTERNET_DISCONNECTED
+[robust-390] console.error Failed to load resource: net::ERR_INTERNET_DISCONNECTED
+[robust-390] console.error Failed to load resource: net::ERR_INTERNET_DISCONNECTED
+[robust-390] console.error Failed to fetch RSC payload for http://localhost:3425/track-record. Falling back to browser navigation. TypeError: Failed to fetch
+    at y (http://localhost:3425/_next/static/chunks/8701-95c158389b996b37.js:1:24322)
+    at async _ (http://localhost:3425/_next/static/chunks/8701-95c158389b996b37.js:
+[robust-390] console.error Failed to load resource: net::ERR_INTERNET_DISCONNECTED
+[robust-390] console.error Failed to load resource: net::ERR_INTERNET_DISCONNECTED
+[robust-390] console.error Failed to load resource: net::ERR_INTERNET_DISCONNECTED
+[robust-390] console.error Failed to load resource: net::ERR_INTERNET_DISCONNECTED
+[robust-390] console.error Failed to fetch RSC payload for http://localhost:3425/track-record. Falling back to browser navigation. TypeError: Failed to fetch
+    at y (http://localhost:3425/_next/static/chunks/8701-95c158389b996b37.js:1:24322)
+    at async _ (http://localhost:3425/_next/static/chunks/8701-95c158389b996b37.js:
+[robust-390] console.error Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+[robust-390] console.error Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+[robust-390] console.error Failed to load resource: net::ERR_FAILED
+[robust-390] console.error Failed to fetch RSC payload for http://localhost:3425/bets. Falling back to browser navigation. TypeError: Failed to fetch
+    at y (http://localhost:3425/_next/static/chunks/8701-95c158389b996b37.js:1:24322)
+    at async _ (http://localhost:3425/_next/static/chunks/8701-95c158389b996b37.js:1:23180)
+[robust-390] console.error Failed to load resource: net::ERR_FAILED
+[robust-390] console.error Failed to fetch RSC payload for http://localhost:3425/bets. Falling back to browser navigation. TypeError: Failed to fetch
+    at y (http://localhost:3425/_next/static/chunks/8701-95c158389b996b37.js:1:24322)
+    at async _ (http://localhost:3425/_next/static/chunks/8701-95c158389b996b37.js:1:23180)
+[robust-390] console.error Failed to fetch RSC payload for http://localhost:3425/bets. Falling back to browser navigation. TypeError: Failed to fetch
+    at y (http://localhost:3425/_next/static/chunks/8701-95c158389b996b37.js:1:24322)
+    at async _ (http://localhost:3425/_next/static/chunks/8701-95c158389b996b37.js:1:23180)
+[robust-390] console.error Failed to fetch RSC payload for http://localhost:3425/bets. Falling back to browser navigation. TypeError: Failed to fetch
+    at y (http://localhost:3425/_next/static/chunks/8701-95c158389b996b37.js:1:24322)
+    at async _ (http://localhost:3425/_next/static/chunks/8701-95c158389b996b37.js:1:23180)
+
+
+[robust-1440] console.error Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+[robust-1440] console.error Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+[robust-1440] console.error Failed to load resource: net::ERR_FAILED
+[robust-1440] console.error Failed to fetch RSC payload for http://localhost:3425/bets. Falling back to browser navigation. TypeError: Failed to fetch
+    at y (http://localhost:3425/_next/static/chunks/8701-95c158389b996b37.js:1:24322)
+    at async _ (http://localhost:3425/_next/static/chunks/8701-95c158389b996b37.js:1:23180)
+[robust-1440] console.error Failed to load resource: net::ERR_FAILED
+[robust-1440] console.error Failed to fetch RSC payload for http://localhost:3425/bets. Falling back to browser navigation. TypeError: Failed to fetch
+    at y (http://localhost:3425/_next/static/chunks/8701-95c158389b996b37.js:1:24322)
+    at async _ (http://localhost:3425/_next/static/chunks/8701-95c158389b996b37.js:1:23180)
+[robust-1440] console.error Failed to load resource: net::ERR_FAILED
+[robust-1440] console.error Failed to fetch RSC payload for http://localhost:3425/bets. Falling back to browser navigation. TypeError: Failed to fetch
+    at y (http://localhost:3425/_next/static/chunks/8701-95c158389b996b37.js:1:24322)
+    at async _ (http://localhost:3425/_next/static/chunks/8701-95c158389b996b37.js:1:23180)
+[robust-1440] console.error Failed to load resource: net::ERR_FAILED
+[robust-1440] console.error Failed to fetch RSC payload for http://localhost:3425/bets. Falling back to browser navigation. TypeError: Failed to fetch
+    at y (http://localhost:3425/_next/static/chunks/8701-95c158389b996b37.js:1:24322)
+    at async _ (http://localhost:3425/_next/static/chunks/8701-95c158389b996b37.js:1:23180)
+[robust-1440] console.error Failed to load resource: net::ERR_INTERNET_DISCONNECTED
+[robust-1440] console.error Failed to load resource: net::ERR_INTERNET_DISCONNECTED
+[robust-1440] console.error Failed to load resource: net::ERR_INTERNET_DISCONNECTED
+[robust-1440] console.error Failed to load resource: net::ERR_INTERNET_DISCONNECTED
+[robust-1440] console.error Failed to fetch RSC payload for http://localhost:3425/state?next=%2Fbets. Falling back to browser navigation. TypeError: Failed to fetch
+    at y (http://localhost:3425/_next/static/chunks/8701-95c158389b996b37.js:1:24322)
+    at async _ (http://localhost:3425/_next/static/chunks/8701-95c158389b996b
+[robust-1440] console.error Failed to load resource: net::ERR_INTERNET_DISCONNECTED
+[robust-1440] console.error Failed to load resource: net::ERR_INTERNET_DISCONNECTED
+[robust-1440] console.error Failed to load resource: net::ERR_INTERNET_DISCONNECTED
+[robust-1440] console.error Failed to load resource: net::ERR_INTERNET_DISCONNECTED
+[robust-1440] console.error Failed to fetch RSC payload for http://localhost:3425/state?next=%2Fbets. Falling back to browser navigation. TypeError: Failed to fetch
+    at y (http://localhost:3425/_next/static/chunks/8701-95c158389b996b37.js:1:24322)
+    at async _ (http://localhost:3425/_next/static/chunks/8701-95c158389b996b
+[robust-1440] console.error Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+[robust-1440] console.error Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+[robust-1440] console.error Failed to load resource: net::ERR_FAILED
+[robust-1440] console.error Failed to fetch RSC payload for http://localhost:3425/bets. Falling back to browser navigation. TypeError: Failed to fetch
+    at y (http://localhost:3425/_next/static/chunks/8701-95c158389b996b37.js:1:24322)
+    at async _ (http://localhost:3425/_next/static/chunks/8701-95c158389b996b37.js:1:23180)
+[robust-1440] console.error Failed to load resource: net::ERR_FAILED
+[robust-1440] console.error Failed to fetch RSC payload for http://localhost:3425/bets. Falling back to browser navigation. TypeError: Failed to fetch
+    at y (http://localhost:3425/_next/static/chunks/8701-95c158389b996b37.js:1:24322)
+    at async _ (http://localhost:3425/_next/static/chunks/8701-95c158389b996b37.js:1:23180)
+[robust-1440] console.error Failed to fetch RSC payload for http://localhost:3425/bets. Falling back to browser navigation. TypeError: Failed to fetch
+    at y (http://localhost:3425/_next/static/chunks/8701-95c158389b996b37.js:1:24322)
+    at async _ (http://localhost:3425/_next/static/chunks/8701-95c158389b996b37.js:1:23180)
+[robust-1440] console.error Failed to fetch RSC payload for http://localhost:3425/bets. Falling back to browser navigation. TypeError: Failed to fetch
+    at y (http://localhost:3425/_next/static/chunks/8701-95c158389b996b37.js:1:24322)
+    at async _ (http://localhost:3425/_next/static/chunks/8701-95c158389b996b37.js:1:23180)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[free-1440] console.error Failed to load resource: the server responded with a status of 429 (Too Many Requests)
+[free-1440] console.error Failed to load resource: the server responded with a status of 429 (Too Many Requests)
+
+
+
+

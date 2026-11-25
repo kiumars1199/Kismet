@@ -1,0 +1,18 @@
+import { test } from "@playwright/test";
+import { signUp, skipTour, comp } from "./common";
+import { scopeOf } from "./probe";
+test("dbg", async ({ page }) => {
+  test.setTimeout(300_000);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await signUp(page, `rv5-dbg-${Date.now()}@example.com`); await comp(page, "premium");
+  await page.goto("/watchlist", { waitUntil: "load" }); await page.waitForTimeout(5000); await skipTour(page);
+  console.log("fresh /watchlist h1s", await page.evaluate(() => [...document.querySelectorAll("#main h1, #main h2")].map((e) => e.textContent?.slice(0, 40))));
+  for (const variant of ["stale", "control"]) {
+    await page.goto("/check", { waitUntil: "load" }); await page.waitForTimeout(3000);
+    await page.route((u) => u.pathname === "/bets", async (r) => { if (r.request().headers()["rsc"]) await new Promise((x) => setTimeout(x, 3000)); await r.continue().catch(() => {}); });
+    if (variant === "stale") { await scopeOf(page, 390).getByRole("link", { name: "Best bets", exact: true }).click({ noWaitAfter: true }); await page.waitForTimeout(700); }
+    await scopeOf(page, 390).getByRole("link", { name: "My list", exact: true }).click({ noWaitAfter: true });
+    for (const t of [500, 1500, 3000, 6000]) { await page.waitForTimeout(t === 500 ? 500 : t === 1500 ? 1000 : t === 3000 ? 1500 : 3000); console.log(variant, process.env.RV_PORT, `+${t}`, JSON.stringify(await page.evaluate(() => [location.pathname, document.title, [...document.querySelectorAll("#main h1")].map((e) => e.textContent?.slice(0, 40)).join("|"), document.querySelectorAll('[data-testid="bets-list"]').length]))); }
+    await page.unrouteAll({ behavior: "ignoreErrors" });
+  }
+});

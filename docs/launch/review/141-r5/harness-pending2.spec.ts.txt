@@ -1,0 +1,80 @@
+import { test, type Page } from "@playwright/test";
+import { OUT, log, signUp, comp, errs, watchErrors, skipTour } from "./common";
+import fs from "node:fs";
+const TAG = process.env.RV_TAG ?? "r4";
+const F = `pending2-${TAG}.txt`;
+const SLOW4G = { offline: false, latency: 562.5, downloadThroughput: 184_320, uploadThroughput: 84_375 };
+const probe = (page: Page) => page.addInitScript(() => {
+  const w = window as unknown as { __s: { t: number; v: number; inp: boolean; src: string }[]; __pt: { t0: number; on: number; off: number; commit: number; from: string; label: string } };
+  w.__s = [];
+  new PerformanceObserver((l) => { for (const e of l.getEntries() as unknown as { startTime: number; value: number; hadRecentInput: boolean; sources: { node: Element | null; previousRect: DOMRect; currentRect: DOMRect }[] }[]) w.__s.push({ t: e.startTime, v: e.value, inp: e.hadRecentInput, src: e.sources.slice(0, 2).map((x) => `${x.node?.nodeName}${(x.node as HTMLElement)?.id ? "#" + (x.node as HTMLElement).id : ""}${(x.node as HTMLElement)?.dataset?.testid ? "[" + (x.node as HTMLElement).dataset.testid + "]" : ""} y${Math.round(x.previousRect.y)}->${Math.round(x.currentRect.y)} h${Math.round(x.previousRect.height)}->${Math.round(x.currentRect.height)}`).join(",") }); }).observe({ type: "layout-shift", buffered: true });
+  w.__pt = { t0: 0, on: 0, off: 0, commit: 0, from: location.pathname, label: "" };
+  document.addEventListener("pointerdown", (e) => { const a = (e.target as Element).closest("a"); if (!a) return; w.__pt = { t0: performance.now(), on: 0, off: 0, commit: 0, from: location.pathname, label: a.textContent ?? "" }; }, true);
+  const tick = () => { const p = w.__pt; const el = document.querySelector("[data-pending]"); if (p.t0) { if (el && !p.on) p.on = performance.now(); if (!el && p.on && !p.off) p.off = performance.now(); if (!p.commit && location.pathname !== p.from) p.commit = performance.now(); } requestAnimationFrame(tick); };
+  requestAnimationFrame(tick);
+});
+const scopeOf = (page: Page, w: number) => (w < 768 ? page.locator('nav[aria-label="Main"].fixed') : page.locator("header nav"));
+async function settle(page: Page, url: string) { await page.goto(url, { waitUntil: "load" }); await page.waitForTimeout(1_000); await skipTour(page); await page.waitForTimeout(3_000); }
+async function report(page: Page) {
+  return page.evaluate(() => {
+    const w = window as unknown as { __s: { t: number; v: number; inp: boolean; src: string }[]; __pt: { t0: number; on: number; off: number; commit: number; from: string; label: string } };
+    const p = w.__pt; const r = (x: number) => (x ? Math.round(x - p.t0) : "never");
+    const after = w.__s.filter((s) => s.t >= p.t0);
+    const counted = after.filter((s) => !s.inp), excl = after.filter((s) => s.inp);
+    return `bar on +${r(p.on)} off +${r(p.off)} commit +${r(p.commit)} ms; shifts after tap: counted(CLS) ${counted.reduce((a, s) => a + s.v, 0).toFixed(4)} ${JSON.stringify(counted.slice(0, 3).map((s) => `+${Math.round(s.t - p.t0)}ms ${s.v.toFixed(3)} ${s.src}`))}; input-excluded ${excl.reduce((a, s) => a + s.v, 0).toFixed(4)} ${JSON.stringify(excl.slice(0, 2).map((s) => `+${Math.round(s.t - p.t0)}ms ${s.v.toFixed(3)} ${s.src}`))}`;
+  });
+}
+for (const { w, h } of [{ w: 390, h: 844 }, { w: 1440, h: 900 }]) {
+  test(`pending2 ${w}`, async ({ page, context }) => {
+    test.setTimeout(900_000);
+    await page.setViewportSize({ width: w, height: h });
+    watchErrors(page, `pending2-${TAG}-${w}`);
+    await signUp(page, `rv5-p2-${w}-${Date.now()}@example.com`);
+    await comp(page, "premium");
+    await probe(page);
+    const cdp = await context.newCDPSession(page);
+    await cdp.send("Network.enable");
+    for (const net of ["slow4G", "none"] as const) for (const from of ["/markets", "/watchlist", "/track-record"]) {
+      await settle(page, from);
+      if (net === "slow4G") await cdp.send("Network.emulateNetworkConditions", SLOW4G);
+      await scopeOf(page, w).getByRole("link", { name: "Best bets", exact: true }).click({ noWaitAfter: true, timeout: 20_000 });
+      if (net === "slow4G" && from === "/markets" && TAG === "r4") { await page.waitForSelector("[data-pending]", { timeout: 2_000 }).catch(() => {}); await page.screenshot({ path: `${OUT}/pending-${w}.png`, clip: w < 768 ? { x: 0, y: h - 80, width: w, height: 80 } : { x: 0, y: 0, width: w, height: 70 } }); }
+      await page.waitForURL(/\/bets/, { timeout: 60_000 }); await page.waitForLoadState("load"); await page.waitForTimeout(2_500);
+      log(F, `${w}\t${net}\t${from} -> Best bets\t${await report(page)}`);
+      await cdp.send("Network.emulateNetworkConditions", { offline: false, latency: 0, downloadThroughput: -1, uploadThroughput: -1 });
+    }
+    if (TAG === "r4") {
+      // slow server: hold the /bets RSC 3 s. The bar stays; the old page stays usable; a second tap mid-pending moves the bar.
+      await settle(page, "/markets");
+      await page.route((u) => u.pathname === "/bets", async (r) => { if (r.request().headers()["rsc"]) await new Promise((x) => setTimeout(x, 3_000)); await r.continue().catch(() => {}); });
+      await scopeOf(page, w).getByRole("link", { name: "Best bets", exact: true }).click({ noWaitAfter: true });
+      await page.waitForTimeout(1_500);
+      const mid = await page.evaluate(() => ({ path: location.pathname, bars: [...document.querySelectorAll("[data-pending]")].map((e) => e.parentElement?.textContent), canScroll: (() => { const y = scrollY; scrollBy(0, 50); const ok = scrollY !== y; scrollTo(0, y); return ok; })() }));
+      await scopeOf(page, w).getByRole("link", { name: "My list", exact: true }).click({ noWaitAfter: true });
+      await page.waitForTimeout(150);
+      const mid2 = await page.evaluate(() => [...document.querySelectorAll("[data-pending]")].map((e) => e.parentElement?.textContent));
+      await page.waitForTimeout(5_000);
+      const end = await page.evaluate(() => ({ path: location.pathname, bars: document.querySelectorAll("[data-pending]").length }));
+      log(F, `${w}\tRSC held 3s\t/markets -> Best bets, then My list at +1.5s\tat +1.5s ${JSON.stringify(mid)}; 150 ms after 2nd tap bars ${JSON.stringify(mid2)}; end ${JSON.stringify(end)}`);
+      await page.unroute((u) => u.pathname === "/bets");
+    }
+    fs.appendFileSync(`${OUT}/console-errors.txt`, errs.splice(0).join("\n") + "\n");
+  });
+}
+test("pending2 signed out 1440", async ({ page, context }) => {
+  test.skip(TAG !== "r4");
+  await page.setViewportSize({ width: 1440, height: 900 });
+  watchErrors(page, "pending2-signedout");
+  await probe(page);
+  await page.goto("/pricing", { waitUntil: "load" }); await page.waitForTimeout(2_000);
+  const cdp = await context.newCDPSession(page);
+  await cdp.send("Network.enable"); await cdp.send("Network.emulateNetworkConditions", SLOW4G);
+  for (const l of ["How it works", "Results", "Pricing"]) {
+    await page.locator("header nav").getByRole("link", { name: l, exact: true }).click({ noWaitAfter: true, timeout: 20_000 });
+    const seen = await page.waitForSelector("[data-pending]", { timeout: 1_000 }).then(() => true).catch(() => false);
+    if (seen && l === "How it works") await page.screenshot({ path: `${OUT}/pending-signedout-1440.png`, clip: { x: 0, y: 0, width: 1440, height: 70 } });
+    await page.waitForLoadState("load"); await page.waitForTimeout(3_000);
+    log(F, `1440\tsigned-out slow4G\t-> ${l}\tseen ${seen}; ${await report(page)}; bars left ${await page.locator("[data-pending]").count()}`);
+  }
+  fs.appendFileSync(`${OUT}/console-errors.txt`, errs.splice(0).join("\n") + "\n");
+});

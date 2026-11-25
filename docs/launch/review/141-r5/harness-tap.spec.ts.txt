@@ -1,0 +1,59 @@
+import { expect, test, type Page } from "@playwright/test";
+import { OUT, log, signUp, comp, errs, watchErrors, skipTour, TALL, SHORT } from "./common";
+import { SLOW4G, NOTHROTTLE, probe, report, attrLog, scopeOf } from "./probe";
+import fs from "node:fs";
+const F = process.env.RV_F ?? "tap.txt";
+const TIERS = (process.env.RV_TIERS ?? "free,premium").split(",") as ("free" | "premium")[];
+const N = Number(process.env.RV_N ?? 2);
+type Src = { url: string; scroll: "top" | "mid" | "bottom" | number };
+const SRCS: Src[] = [
+  { url: "/check", scroll: "top" }, { url: "/watchlist", scroll: "top" }, { url: "/journal", scroll: "top" }, { url: "/tools", scroll: "top" },
+  { url: "/check", scroll: "bottom" }, { url: "/tools", scroll: "bottom" }, { url: "/markets", scroll: "mid" }, { url: "/track-record", scroll: "bottom" },
+  { url: TALL, scroll: "mid" }, { url: TALL, scroll: "bottom" }, { url: "/bets", scroll: "top" }, { url: "/bets", scroll: "mid" }, { url: SHORT, scroll: "top" },
+  { url: "/markets", scroll: 1200 }, { url: "/markets", scroll: 1400 }, { url: "/markets", scroll: 1550 }, { url: "/markets", scroll: 1800 }, { url: TALL, scroll: 1200 }, { url: TALL, scroll: 1800 },
+].filter((s) => !process.env.RV_SRC || process.env.RV_SRC.split("|").includes(`${s.url}@${s.scroll}`) || process.env.RV_SRC.split("|").includes(s.url));
+async function settle(page: Page, s: Src, h: number) {
+  await page.goto(s.url, { waitUntil: "load" }); await page.waitForTimeout(1_000); await skipTour(page); await page.waitForTimeout(2_500);
+  const total = await page.evaluate(() => document.documentElement.scrollHeight);
+  const y = s.scroll === "top" ? 0 : s.scroll === "bottom" ? total - h : s.scroll === "mid" ? Math.round((total - h) / 2) : s.scroll;
+  await page.evaluate((v) => window.scrollTo(0, v), y); await page.waitForTimeout(800);
+  return page.evaluate(() => ({ y: Math.round(scrollY), total: document.documentElement.scrollHeight, foot: document.querySelector("footer")!.getBoundingClientRect().top < innerHeight }));
+}
+async function tapAndWait(page: Page, w: number) {
+  await scopeOf(page, w).getByRole("link", { name: "Best bets", exact: true }).click({ noWaitAfter: true, timeout: 20_000 });
+  await page.waitForTimeout(300);
+  await page.waitForFunction(() => !document.documentElement.hasAttribute("data-bets-pending"), null, { timeout: 60_000 });
+  await page.waitForLoadState("load"); await page.waitForTimeout(2_500);
+}
+for (const tier of TIERS) for (const { w, h } of [{ w: 390, h: 844 }, { w: 1440, h: 900 }].filter((x) => !process.env.RV_W || String(x.w) === process.env.RV_W)) {
+  test(`tap ${tier} ${w}`, async ({ page, context }) => {
+    test.setTimeout(3_000_000);
+    await page.setViewportSize({ width: w, height: h });
+    watchErrors(page, `tap-${tier}-${w}`);
+    await signUp(page, `rv5-tap-${tier}-${w}-${Date.now()}@example.com`);
+    if (tier !== "free") await comp(page, tier);
+    await probe(page);
+    await page.goto("/bets", { waitUntil: "load" }); await page.waitForTimeout(1_500); await skipTour(page); await page.waitForTimeout(1_000);
+    const cdp = await context.newCDPSession(page);
+    await cdp.send("Network.enable");
+    for (const net of (process.env.RV_NETS ?? "slow4G,hold1s").split(",") as ("slow4G" | "hold1s")[]) {
+      if (net === "hold1s") await page.route((u) => u.pathname === "/bets", async (r) => { if (r.request().headers()["rsc"]) await new Promise((x) => setTimeout(x, 1_000)); await r.continue().catch(() => {}); });
+      for (const s of SRCS) {
+        const rs: string[] = []; let maxCls = 0;
+        for (let i = 0; i < N; i++) {
+          const b = await settle(page, s, h);
+          if (net === "slow4G") await cdp.send("Network.emulateNetworkConditions", SLOW4G);
+          await tapAndWait(page, w);
+          await cdp.send("Network.emulateNetworkConditions", NOTHROTTLE);
+          const r = await report(page); maxCls = Math.max(maxCls, r.cls);
+          const a = await page.evaluate(() => ({ url: location.pathname + location.search, y: Math.round(scrollY), total: document.documentElement.scrollHeight, foot: Math.round(document.querySelector("footer")!.getBoundingClientRect().top), mainKids: [...document.querySelectorAll("#main > *")].filter((e) => getComputedStyle(e).display !== "none").length }));
+          rs.push(`[${i + 1}] from y${b.y}/${b.total} footInView ${b.foot} -> ${a.url.slice(0, 20)} y${a.y}/${a.total} footTop ${a.foot} visibleMainKids ${a.mainKids}; ${r.text}`);
+        }
+        log(F, `${tier}\t${w}\t${net}\t${s.url.slice(0, 22)}@${s.scroll}\tmaxCLS ${maxCls.toFixed(4)}${maxCls > 0.02 ? " **FAIL**" : ""}\t${rs.join(" | ")}`);
+      }
+      if (net === "hold1s") await page.unrouteAll({ behavior: "ignoreErrors" });
+    }
+    log(F, `${tier}\t${w}\tattr log (last 30): ${(await attrLog(page)).split(", ").slice(-30).join(", ")}`);
+    fs.appendFileSync(`${OUT}/console-errors.txt`, errs.splice(0).join("\n") + "\n");
+  });
+}

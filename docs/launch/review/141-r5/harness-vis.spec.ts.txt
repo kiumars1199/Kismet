@@ -1,0 +1,102 @@
+import { expect, test, type Page } from "@playwright/test";
+import { OUT, log, signUp, comp, errs, watchErrors, skipTour } from "./common";
+import { SLOW4G, NOTHROTTLE, probe, report, scopeOf } from "./probe";
+import fs from "node:fs";
+const F = process.env.RV_F ?? "vis.txt";
+const isBets = (u: URL) => u.pathname === "/bets";
+const hold = (page: Page, ms: number) => page.route((u) => isBets(u), async (r) => { if (r.request().headers()["rsc"]) await new Promise((x) => setTimeout(x, ms)); await r.continue().catch(() => {}); });
+async function go(page: Page, url: string) { await page.goto(url, { waitUntil: "load" }); await page.waitForTimeout(1_000); await skipTour(page); await page.waitForTimeout(1_500); }
+/** geometry of the placeholder (#main::before backgrounds) in viewport px */
+const phGeom = (page: Page) => page.evaluate(() => {
+  const m = document.querySelector("#main")!; const r = m.getBoundingClientRect(); const cs = getComputedStyle(m); const b = getComputedStyle(m, "::before");
+  const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
+  const cl = r.left + parseFloat(cs.paddingLeft), cw = r.width - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+  const bw = Math.min(cw, parseFloat(b.maxWidth) || cw); const bl = cl + (cw - bw) / 2; const top = r.top + parseFloat(cs.paddingTop);
+  return { title: { x: Math.round(bl), y: Math.round(top), w: 14 * rem, h: 2 * rem }, card1: { x: Math.round(bl), y: Math.round(top + 4.5 * rem), w: Math.round(bw), h: 7 * rem }, beforeH: b.height, beforeMaxW: b.maxWidth };
+});
+const realGeom = (page: Page) => page.evaluate(() => {
+  const g = (e: Element | null) => { if (!e) return null; const r = e.getBoundingClientRect(); return { x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width), h: Math.round(r.height) }; };
+  return { h1: g(document.querySelector("#main h1")), card1: g(document.querySelector('[data-testid="bets-list"] article')), list: g(document.querySelector('[data-testid="bets-list"]')), mainKid: g(document.querySelector("#main > *")) };
+});
+for (const tier of ["free", "premium"] as const) for (const { w, h } of [{ w: 390, h: 844 }, { w: 1440, h: 900 }]) {
+  test(`vis ${tier} ${w}`, async ({ page }) => {
+    test.setTimeout(900_000);
+    await page.setViewportSize({ width: w, height: h });
+    watchErrors(page, `vis-${tier}-${w}`);
+    await signUp(page, `rv5-vis-${tier}-${w}-${Date.now()}@example.com`);
+    if (tier !== "free") await comp(page, tier);
+    await probe(page);
+    await go(page, "/bets");
+    await go(page, "/check");
+    const navClip = w < 768 ? { x: 0, y: h - 80, width: w, height: 80 } : { x: 0, y: 0, width: w, height: 70 };
+    await page.screenshot({ path: `${OUT}/idle-nav-${tier}-${w}.png`, clip: navClip });
+    const idleDom = await scopeOf(page, w).innerHTML();
+    await hold(page, 3_000);
+    await scopeOf(page, w).getByRole("link", { name: "Best bets", exact: true }).click({ noWaitAfter: true });
+    await page.waitForTimeout(400);
+    await page.screenshot({ path: `${OUT}/pending-nav-${tier}-${w}.png`, clip: navClip });
+    if (tier === "premium") await page.screenshot({ path: `${OUT}/placeholder-${w}.png` });
+    const ph = await phGeom(page);
+    const dot = await page.evaluate(() => { const e = document.querySelector("[data-pending]"); if (!e) return null; const r = e.getBoundingClientRect(); const cs = getComputedStyle(e); return { x: Math.round(r.x), y: Math.round(r.y), w: r.width, h: r.height, bg: cs.backgroundColor, parent: e.parentElement?.textContent }; });
+    await page.waitForFunction(() => !document.documentElement.hasAttribute("data-bets-pending"), null, { timeout: 30_000 });
+    await page.waitForTimeout(80);
+    const real0 = await realGeom(page);
+    await page.waitForTimeout(2_500);
+    const real = await realGeom(page);
+    if (tier === "premium") await page.screenshot({ path: `${OUT}/after-swap-${w}.png` });
+    await page.unrouteAll({ behavior: "ignoreErrors" });
+    const idle2 = await scopeOf(page, w).innerHTML();
+    log(F, `${tier}\t${w}\tdot/underline ${JSON.stringify(dot)}\tplaceholder ${JSON.stringify(ph)}\treal@+80ms ${JSON.stringify(real0)}\treal@+2.5s ${JSON.stringify(real)}\tidle nav DOM has data-pending: ${idleDom.includes("data-pending")}/${idle2.includes("data-pending")}`);
+    fs.appendFileSync(`${OUT}/console-errors.txt`, errs.splice(0).join("\n") + "\n");
+  });
+}
+
+// short /bets results after the tap: saved topic with zero bets (Free fallback and Premium), and a topic with few bets
+type Flags = { rows: unknown[]; total: number; free_daily?: number; facets: { topics: Record<string, number> } };
+const CANDIDATES = ["sports.nba", "sports.nhl", "sports.mlb", "sports.tennis", "sports.golf", "sports.f1", "sports.mma", "crypto.btc", "crypto.eth", "politics.us", "finance.fed", "culture.movies"];
+const setTopics = async (page: Page, topics: string[]) => {
+  const me = await (await page.request.get("/api/me")).json();
+  const res = await page.request.patch(`/e2e-mock/supabase/rest/v1/profiles?user_id=eq.${me.user.id}`, { headers: { authorization: "Bearer e2e-service", apikey: "e2e-service", "content-type": "application/json" }, data: { favorite_topics: topics } });
+  expect(res.status()).toBeLessThan(300);
+};
+for (const tier of ["free", "premium"] as const) for (const { w, h } of [{ w: 390, h: 844 }, { w: 1440, h: 900 }]) {
+  test(`short ${tier} ${w}`, async ({ page, context }) => {
+    test.setTimeout(1_200_000);
+    await page.setViewportSize({ width: w, height: h });
+    watchErrors(page, `short-${tier}-${w}`);
+    await signUp(page, `rv5-short-${tier}-${w}-${Date.now()}@example.com`);
+    if (tier !== "free") await comp(page, tier);
+    // topics: zero-bet topic, and the smallest non-zero topic (for this tier's /api/flags)
+    let zero: string | null = null; let few: { t: string; n: number } | null = null;
+    for (const t of CANDIDATES) { const r = (await (await page.request.get(`/api/flags?t=${encodeURIComponent(t)}`)).json()) as Flags; if (r.total === 0 && !zero) zero = t; }
+    const all = (await (await page.request.get("/api/flags")).json()) as Flags;
+    for (const [t, n] of Object.entries(all.facets.topics).sort((a, b) => a[1] - b[1])) { if (n > 0 && n <= 3) { few = { t, n }; break; } }
+    log(F, `${tier}\t${w}\tshort topics: zero ${zero}, few ${JSON.stringify(few)}`);
+    await probe(page);
+    const cdp = await context.newCDPSession(page); await cdp.send("Network.enable");
+    for (const [label, topics] of [["zero-bet saved topic", zero ? [zero] : null], ["few-bet saved topic", few ? [few.t] : null], ["no topics (default)", []]] as const) {
+      if (!topics) continue;
+      await setTopics(page, [...topics]);
+      await go(page, "/bets");
+      const realH = await page.evaluate(() => ({ total: document.documentElement.scrollHeight, foot: Math.round(document.querySelector("footer")!.getBoundingClientRect().top), cards: document.querySelectorAll('[data-testid="bets-list"] article').length, h1: document.querySelector("#main h1")?.textContent?.slice(0, 50) }));
+      for (const net of ["slow4G", "hold1s"] as const) for (const from of ["/check", "/watchlist"]) {
+        const rs: string[] = []; let mx = 0;
+        for (let i = 0; i < 2; i++) {
+          await go(page, from);
+          if (net === "slow4G") await cdp.send("Network.emulateNetworkConditions", SLOW4G); else await page.route((u) => isBets(u), async (r) => { if (r.request().headers()["rsc"]) await new Promise((x) => setTimeout(x, 1_000)); await r.continue().catch(() => {}); });
+          await scopeOf(page, w).getByRole("link", { name: "Best bets", exact: true }).click({ noWaitAfter: true });
+          await page.waitForTimeout(300);
+          await page.waitForFunction(() => !document.documentElement.hasAttribute("data-bets-pending"), null, { timeout: 60_000 });
+          await cdp.send("Network.emulateNetworkConditions", NOTHROTTLE); await page.unrouteAll({ behavior: "ignoreErrors" });
+          await page.waitForTimeout(3_000);
+          const r = await report(page); mx = Math.max(mx, r.cls);
+          const a = await page.evaluate(() => ({ total: document.documentElement.scrollHeight, foot: Math.round(document.querySelector("footer")!.getBoundingClientRect().top), y: Math.round(scrollY) }));
+          rs.push(`[${i + 1}] after: page ${a.total} footTop ${a.foot} y${a.y}; ${r.text}`);
+        }
+        log(F, `${tier}\t${w}\t${label} (real /bets: ${JSON.stringify(realH)})\t${net}\t${from}\tmaxCLS ${mx.toFixed(4)}${mx > 0.02 ? " **FAIL**" : ""}\t${rs.join(" | ")}`);
+      }
+    }
+    await setTopics(page, []);
+    fs.appendFileSync(`${OUT}/console-errors.txt`, errs.splice(0).join("\n") + "\n");
+  });
+}

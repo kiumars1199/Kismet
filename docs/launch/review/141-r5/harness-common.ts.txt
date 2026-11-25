@@ -1,0 +1,50 @@
+import { expect, type Page } from "@playwright/test";
+import fs from "node:fs";
+export const OUT = "/tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/review/141-r5";
+export const log = (f: string, s: string) => { fs.appendFileSync(`${OUT}/${f}`, s + "\n"); console.log(s); };
+export async function signUp(page: Page, email: string) {
+  await page.goto("/login");
+  await expect(async () => {
+    await page.getByRole("tab", { name: "Email link" }).click();
+    await expect(page.getByRole("button", { name: "Email me a sign-in link" })).toBeVisible({ timeout: 2_000 });
+  }).toPass({ timeout: 60_000 });
+  await page.getByLabel("Email", { exact: true }).fill(email);
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "Email me a sign-in link" }).click();
+  await expect(page.getByRole("heading", { name: "Check your email" })).toBeVisible({ timeout: 30_000 });
+  const { url } = await (await page.request.get(`/e2e-mock/supabase/_inbox?email=${encodeURIComponent(email)}`)).json();
+  await page.goto(url);
+  await page.waitForURL(/\/onboarding/, { timeout: 60_000 });
+  await page.getByRole("button", { name: "Skip setup" }).click();
+  await page.waitForURL((u) => u.pathname === "/" || u.pathname === "/bets", { timeout: 60_000 });
+  await page.waitForLoadState("networkidle");
+}
+export async function comp(page: Page, tier: "pro" | "premium" | null) {
+  const me = await (await page.request.get("/api/me")).json();
+  const res = await page.request.patch(`/e2e-mock/supabase/rest/v1/subscriptions?user_id=eq.${me.user.id}`, {
+    headers: { authorization: "Bearer e2e-service", apikey: "e2e-service", "content-type": "application/json" }, data: { comp_tier: tier },
+  });
+  expect(res.status()).toBeLessThan(300);
+}
+export const installCls = (page: Page) => page.addInitScript(() => {
+  const w = window as unknown as { __cls: number; __src: string[] };
+  w.__cls = 0; w.__src = [];
+  new PerformanceObserver((l) => {
+    for (const e of l.getEntries() as unknown as { value: number; hadRecentInput: boolean; sources: { node: Element | null; previousRect: DOMRect; currentRect: DOMRect }[] }[]) if (!e.hadRecentInput) {
+      w.__cls += e.value;
+      for (const x of e.sources.slice(0, 2)) w.__src.push(`${e.value.toFixed(3)} ${x.node?.tagName}${(x.node as HTMLElement)?.dataset?.testid ? "#" + (x.node as HTMLElement).dataset.testid : ""} y ${Math.round(x.previousRect.y)}->${Math.round(x.currentRect.y)} h ${Math.round(x.previousRect.height)}->${Math.round(x.currentRect.height)}`);
+    }
+  }).observe({ type: "layout-shift", buffered: true });
+});
+export const cls = (page: Page) => page.evaluate(() => (window as unknown as { __cls: number }).__cls);
+export const why = (page: Page) => page.evaluate(() => (window as unknown as { __src: string[] }).__src.slice(0, 6).join(" ; "));
+export const resetCls = (page: Page) => page.evaluate(() => { const w = window as unknown as { __cls: number; __src: string[] }; w.__cls = 0; w.__src = []; });
+export const skipTour = async (page: Page) => { const b = page.getByRole("button", { name: "Skip tour" }); await b.waitFor({ timeout: 2_000 }).catch(() => {}); if (await b.isVisible()) await b.click(); };
+export const cookieH = async (page: Page) => (await page.context().cookies()).find((c) => c.name === "bets_h")?.value ?? "-";
+export const errs: string[] = [];
+export function watchErrors(page: Page, tag: string) {
+  page.on("pageerror", (e) => errs.push(`[${tag}] pageerror ${e.message}`));
+  page.on("console", (m) => { if (m.type() === "error") errs.push(`[${tag}] console.error ${m.text().slice(0, 300)}`); });
+}
+export const TALL = "/bets?ps=50&wp=0&us=0&g=0&vd=worth%20it,thin,not%20worth%20it,no%20sellers,no%20book";
+export const SHORT = "/bets?t=sports.nfl";

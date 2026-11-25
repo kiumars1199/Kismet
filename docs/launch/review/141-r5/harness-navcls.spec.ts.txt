@@ -1,0 +1,46 @@
+import { test, type Page } from "@playwright/test";
+import { OUT, log, signUp, comp, errs, watchErrors, skipTour } from "./common";
+import fs from "node:fs";
+const TAG = process.env.RV_TAG ?? "r4";
+const F = `navcls-${TAG}.txt`;
+const SLOW4G = { offline: false, latency: 562.5, downloadThroughput: 184_320, uploadThroughput: 84_375 };
+const probe = (page: Page) => page.addInitScript(() => {
+  const w = window as unknown as { __s: { t: number; v: number; inp: boolean; src: string }[]; __pt: { t0: number; on: number; off: number; commit: number; from: string; label: string } };
+  w.__s = [];
+  new PerformanceObserver((l) => { for (const e of l.getEntries() as unknown as { startTime: number; value: number; hadRecentInput: boolean; sources: { node: Element | null; previousRect: DOMRect; currentRect: DOMRect }[] }[]) w.__s.push({ t: e.startTime, v: e.value, inp: e.hadRecentInput, src: e.sources.slice(0, 2).map((x) => `${x.node?.nodeName}${(x.node as HTMLElement)?.id ? "#" + (x.node as HTMLElement).id : ""}${(x.node as HTMLElement)?.dataset?.testid ? "[" + (x.node as HTMLElement).dataset.testid + "]" : ""} y${Math.round(x.previousRect.y)}->${Math.round(x.currentRect.y)} h${Math.round(x.previousRect.height)}->${Math.round(x.currentRect.height)}`).join(",") }); }).observe({ type: "layout-shift", buffered: true });
+  w.__pt = { t0: 0, on: 0, off: 0, commit: 0, from: location.pathname, label: "" };
+  document.addEventListener("pointerdown", (e) => { const a = (e.target as Element).closest("a"); if (!a) return; w.__pt = { t0: performance.now(), on: 0, off: 0, commit: 0, from: location.pathname, label: a.textContent ?? "" }; }, true);
+  const tick = () => { const p = w.__pt; const el = document.querySelector("[data-pending]"); if (p.t0) { if (el && !p.on) p.on = performance.now(); if (!el && p.on && !p.off) p.off = performance.now(); if (!p.commit && location.pathname !== p.from) p.commit = performance.now(); } requestAnimationFrame(tick); };
+  requestAnimationFrame(tick);
+});
+const scopeOf = (page: Page, w: number) => (w < 768 ? page.locator('nav[aria-label="Main"].fixed') : page.locator("header nav"));
+async function settle(page: Page, url: string) { await page.goto(url, { waitUntil: "load" }); await page.waitForTimeout(1_000); await skipTour(page); await page.waitForTimeout(3_000); }
+async function report(page: Page) {
+  return page.evaluate(() => {
+    const w = window as unknown as { __s: { t: number; v: number; inp: boolean; src: string }[]; __pt: { t0: number; on: number; off: number; commit: number; from: string; label: string } };
+    const p = w.__pt; const r = (x: number) => (x ? Math.round(x - p.t0) : "never");
+    const after = w.__s.filter((s) => s.t >= p.t0);
+    const counted = after.filter((s) => !s.inp), excl = after.filter((s) => s.inp);
+    return `bar on +${r(p.on)} off +${r(p.off)} commit +${r(p.commit)} ms; shifts after tap: counted(CLS) ${counted.reduce((a, s) => a + s.v, 0).toFixed(4)} ${JSON.stringify(counted.slice(0, 3).map((s) => `+${Math.round(s.t - p.t0)}ms ${s.v.toFixed(3)} ${s.src}`))}; input-excluded ${excl.reduce((a, s) => a + s.v, 0).toFixed(4)} ${JSON.stringify(excl.slice(0, 2).map((s) => `+${Math.round(s.t - p.t0)}ms ${s.v.toFixed(3)} ${s.src}`))}`;
+  });
+}
+for (const { w, h } of [{ w: 390, h: 844 }, { w: 1440, h: 900 }]) {
+  test(`navcls ${w}`, async ({ page }) => {
+    test.setTimeout(900_000);
+    await page.setViewportSize({ width: w, height: h });
+    watchErrors(page, `navcls-${TAG}-${w}`);
+    await signUp(page, `rv5-nc-${w}-${Date.now()}@example.com`);
+    await comp(page, "premium");
+    await probe(page);
+    // server-side delay only (cold instance / slow TTFB): hold the /bets RSC response 1 s, no network throttle
+    await page.route((u) => u.pathname === "/bets", async (r) => { if (r.request().headers()["rsc"]) await new Promise((x) => setTimeout(x, 1_000)); await r.continue().catch(() => {}); });
+    for (const from of ["/watchlist", "/journal", "/check", "/account", "/settings", "/alerts", "/tools", "/status", "/markets"]) {
+      await settle(page, from);
+      const footerInView = await page.evaluate(() => { const f = document.querySelector("footer"); return !!f && f.getBoundingClientRect().top < innerHeight; });
+      await scopeOf(page, w).getByRole("link", { name: "Best bets", exact: true }).click({ noWaitAfter: true, timeout: 20_000 });
+      await page.waitForURL(/\/bets/, { timeout: 60_000 }); await page.waitForLoadState("load"); await page.waitForTimeout(2_500);
+      log(F, `${w}	RSC +1s	${from} (footer in view before tap: ${footerInView}) -> Best bets	${await report(page)}`);
+    }
+    fs.appendFileSync(`${OUT}/console-errors.txt`, errs.splice(0).join("\n") + "\n");
+  });
+}

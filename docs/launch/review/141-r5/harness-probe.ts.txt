@@ -1,0 +1,39 @@
+import type { Page } from "@playwright/test";
+export const SLOW4G = { offline: false, latency: 562.5, downloadThroughput: 184_320, uploadThroughput: 84_375 };
+export const NOTHROTTLE = { offline: false, latency: 0, downloadThroughput: -1, uploadThroughput: -1 };
+type W = { __s: { t: number; v: number; inp: boolean; src: string }[]; __pt: { t0: number; on: number; off: number; aOn: number; aOff: number; commit: number; from: string; maxY: number; footSeen: number[] }; __attrLog: string[] };
+/** layout shifts + timings of the pending dot (data-pending), the html attribute (data-bets-pending) and the URL commit, relative to the last pointerdown on a link */
+export const probe = (page: Page) => page.addInitScript(() => {
+  const w = window as unknown as W;
+  w.__s = []; w.__attrLog = [];
+  new PerformanceObserver((l) => { for (const e of l.getEntries() as unknown as { startTime: number; value: number; hadRecentInput: boolean; sources: { node: Element | null; previousRect: DOMRect; currentRect: DOMRect }[] }[]) w.__s.push({ t: e.startTime, v: e.value, inp: e.hadRecentInput, src: e.sources.slice(0, 2).map((x) => `${x.node?.nodeName}${(x.node as HTMLElement)?.id ? "#" + (x.node as HTMLElement).id : ""}${(x.node as HTMLElement)?.dataset?.testid ? "[" + (x.node as HTMLElement).dataset.testid + "]" : ""} y${Math.round(x.previousRect.y)}->${Math.round(x.currentRect.y)} h${Math.round(x.previousRect.height)}->${Math.round(x.currentRect.height)}`).join(",") }); }).observe({ type: "layout-shift", buffered: true });
+  w.__pt = { t0: 0, on: 0, off: 0, aOn: 0, aOff: 0, commit: 0, from: location.pathname + location.search, maxY: 0, footSeen: [] };
+  new MutationObserver(() => w.__attrLog.push(`${Math.round(performance.now())} ${location.pathname} ${document.documentElement.hasAttribute("data-bets-pending") ? "SET" : "removed"}`)).observe(document, { attributes: true, subtree: true, attributeFilter: ["data-bets-pending"] });
+  document.addEventListener("pointerdown", (e) => { const a = (e.target as Element).closest("a"); if (!a) return; w.__pt = { t0: performance.now(), on: 0, off: 0, aOn: 0, aOff: 0, commit: 0, from: location.pathname + location.search, maxY: 0, footSeen: [] }; }, true);
+  const tick = () => {
+    const p = w.__pt;
+    if (p.t0) {
+      const now = performance.now();
+      const el = document.querySelector("[data-pending]"); const at = document.documentElement.hasAttribute("data-bets-pending");
+      if (el && !p.on) p.on = now; if (!el && p.on && !p.off) p.off = now;
+      if (at && !p.aOn) p.aOn = now; if (!at && p.aOn && !p.aOff) p.aOff = now;
+      if (!p.commit && location.pathname + location.search !== p.from) p.commit = now;
+      const f = document.querySelector("footer");
+      if (f && now - p.t0 < 15_000) { const inView = f.getBoundingClientRect().top < innerHeight; const last = p.footSeen.length % 2 === 1; if (inView !== last) p.footSeen.push(Math.round(now - p.t0)); }
+    }
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+});
+export async function report(page: Page) {
+  return page.evaluate(() => {
+    const w = window as unknown as W;
+    const p = w.__pt; const r = (x: number) => (x ? Math.round(x - p.t0) : "never");
+    const after = w.__s.filter((s) => s.t >= p.t0);
+    const counted = after.filter((s) => !s.inp), excl = after.filter((s) => s.inp);
+    const cv = counted.reduce((a, s) => a + s.v, 0);
+    return { cls: cv, text: `dot +${r(p.on)}..+${r(p.off)} attr +${r(p.aOn)}..+${r(p.aOff)} commit +${r(p.commit)} ms; footer in-view toggles at ${JSON.stringify(p.footSeen)} (odd idx=into view); CLS(counted) ${cv.toFixed(4)} ${JSON.stringify(counted.slice(0, 3).map((s) => `+${Math.round(s.t - p.t0)}ms ${s.v.toFixed(3)} ${s.src}`))}; input-excluded ${excl.reduce((a, s) => a + s.v, 0).toFixed(4)}; attr now ${document.documentElement.hasAttribute("data-bets-pending")}` };
+  });
+}
+export const attrLog = (page: Page) => page.evaluate(() => (window as unknown as W).__attrLog.join(", "));
+export const scopeOf = (page: Page, w: number) => (w < 768 ? page.locator('nav[aria-label="Main"].fixed') : page.locator("header nav"));
