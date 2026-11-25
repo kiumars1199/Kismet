@@ -1,0 +1,17 @@
+
+Running 4 tests using 1 worker
+
+free	390	pushState short -> reload -> Back	CLS 0.0000 scrollErr -4148 (y 6094->1946, short page maxScroll 1391, url ?ps=50&w, nav reload) **FAIL** | CLS 0.0000 scrollErr -4148 (y 6094->1946, short page maxScroll 1391, url ?ps=50&w, nav reload) **FAIL** | CLS 0.0000 scrollErr -4148 (y 6094->1946, short page maxScroll 1391, url ?ps=50&w, nav reload) **FAIL**
+free	390	pushState short -> (no reload) /check full -> Back -> Back	CLS 0.0000 scrollErr -4148 (y 6094->1946, short page maxScroll -1, url ?ps=50&w, nav back_forward) **FAIL** | CLS 0.0000 scrollErr -4148 (y 6094->1946, short page maxScroll -1, url ?ps=50&w, nav back_forward) **FAIL** | CLS 0.0000 scrollErr -4148 (y 6094->1946, short page maxScroll -1, url ?ps=50&w, nav back_forward) **FAIL**
+  ✓  1 [chromium] › e2e-review/fpush.spec.ts:6:3 › fpush free 390 (1.2m)
+free	1440	pushState short -> reload -> Back	CLS 0.0000 scrollErr -1617 (y 2067->450, short page maxScroll 776, url ?ps=50&w, nav reload) **FAIL** | CLS 0.0000 scrollErr -1617 (y 2067->450, short page maxScroll 776, url ?ps=50&w, nav reload) **FAIL** | CLS 0.0000 scrollErr -1617 (y 2067->450, short page maxScroll 776, url ?ps=50&w, nav reload) **FAIL**
+free	1440	pushState short -> (no reload) /check full -> Back -> Back	CLS 0.0000 scrollErr -1617 (y 2067->450, short page maxScroll -1, url ?ps=50&w, nav back_forward) **FAIL** | CLS 0.0000 scrollErr -1617 (y 2067->450, short page maxScroll -1, url ?ps=50&w, nav back_forward) **FAIL** | CLS 0.0000 scrollErr -1617 (y 2067->450, short page maxScroll -1, url ?ps=50&w, nav back_forward) **FAIL**
+  ✓  2 [chromium] › e2e-review/fpush.spec.ts:6:3 › fpush free 1440 (1.1m)
+premium	390	pushState short -> reload -> Back	CLS 0.0000 scrollErr -23982 (y 25271->1289, short page maxScroll 1021, url ?ps=50&w, nav reload) **FAIL** | CLS 0.0000 scrollErr -23982 (y 25271->1289, short page maxScroll 1021, url ?ps=50&w, nav reload) **FAIL** | CLS 0.0000 scrollErr -23982 (y 25271->1289, short page maxScroll 1021, url ?ps=50&w, nav reload) **FAIL**
+premium	390	pushState short -> (no reload) /check full -> Back -> Back	CLS 0.0000 scrollErr -23982 (y 25271->1289, short page maxScroll -1, url ?ps=50&w, nav back_forward) **FAIL** | CLS 0.0000 scrollErr -23982 (y 25271->1289, short page maxScroll -1, url ?ps=50&w, nav back_forward) **FAIL** | CLS 0.0000 scrollErr -23982 (y 25271->1289, short page maxScroll -1, url ?ps=50&w, nav back_forward) **FAIL**
+  ✓  3 [chromium] › e2e-review/fpush.spec.ts:6:3 › fpush premium 390 (1.2m)
+premium	1440	pushState short -> reload -> Back	CLS 0.0001 scrollErr -7319 (y 7759->440, short page maxScroll 380, url ?ps=50&w, nav reload) **FAIL** | CLS 0.0001 scrollErr -7319 (y 7759->440, short page maxScroll 380, url ?ps=50&w, nav reload) **FAIL** | CLS 0.0001 scrollErr -7319 (y 7759->440, short page maxScroll 380, url ?ps=50&w, nav reload) **FAIL**
+premium	1440	pushState short -> (no reload) /check full -> Back -> Back	CLS 0.0001 scrollErr -7319 (y 7759->440, short page maxScroll -1, url ?ps=50&w, nav back_forward) **FAIL** | CLS 0.0001 scrollErr -7319 (y 7759->440, short page maxScroll -1, url ?ps=50&w, nav back_forward) **FAIL** | CLS 0.0001 scrollErr -7319 (y 7759->440, short page maxScroll -1, url ?ps=50&w, nav back_forward) **FAIL**
+  ✓  4 [chromium] › e2e-review/fpush.spec.ts:6:3 › fpush premium 1440 (1.2m)
+
+  4 passed (4.6m)

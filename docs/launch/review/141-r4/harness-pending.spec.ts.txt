@@ -1,0 +1,91 @@
+import { expect, test, type Page, type CDPSession } from "@playwright/test";
+import { OUT, log, signUp, comp, errs, watchErrors, skipTour } from "./common";
+import fs from "node:fs";
+const F = "pending.txt";
+const SLOW4G = { offline: false, latency: 562.5, downloadThroughput: 184_320, uploadThroughput: 84_375 };
+const probe = (page: Page) => page.addInitScript(() => {
+  const w = window as unknown as Record<string, unknown> & { __pt: { t0: number; on: number; off: number; commit: number; href: string; from: string; rects: string[]; pend: string; shift: number; maxDelta: number } };
+  const snap = () => [...document.querySelectorAll('header nav a, nav[aria-label="Main"] a, nav[aria-label="Main"] button, nav[aria-label="Main"]')].map((e) => { const r = e.getBoundingClientRect(); return `${Math.round(r.x)},${Math.round(r.y)},${Math.round(r.width)},${Math.round(r.height)}`; });
+  w.__pt = { t0: 0, on: 0, off: 0, commit: 0, href: "", from: location.pathname, rects: [], pend: "", shift: 0, maxDelta: 0 };
+  new PerformanceObserver((l) => { for (const e of l.getEntries() as unknown as { value: number }[]) w.__pt.shift += e.value; }).observe({ type: "layout-shift", buffered: false });
+  document.addEventListener("pointerdown", (e) => { const a = (e.target as Element).closest("a"); w.__pt = { ...w.__pt, t0: performance.now(), on: 0, off: 0, commit: 0, href: a?.getAttribute("href") ?? "", from: location.pathname, rects: snap(), pend: "", maxDelta: 0 }; }, true);
+  const tick = () => {
+    const p = w.__pt; const el = document.querySelector("[data-pending]") as HTMLElement | null;
+    if (p.t0) {
+      if (el && !p.on) { p.on = performance.now(); const cs = getComputedStyle(el); const r = el.getBoundingClientRect(); p.pend = `pos=${cs.position} ${Math.round(r.width)}x${Math.round(r.height)} at y${Math.round(r.y)} aria-hidden=${el.getAttribute("aria-hidden")} parent=${el.parentElement?.textContent}`; }
+      if (el) { const now = snap(); if (now.length === p.rects.length) now.forEach((s, i) => { const a = s.split(",").map(Number), b = p.rects[i].split(",").map(Number); p.maxDelta = Math.max(p.maxDelta, ...a.map((x, j) => Math.abs(x - b[j]))); }); }
+      if (!el && p.on && !p.off) p.off = performance.now();
+      if (!p.commit && location.pathname !== p.from) p.commit = performance.now();
+    }
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+});
+async function tapTab(page: Page, label: string, w: number, cdp: CDPSession, shot?: string) {
+  const scope = w < 768 ? page.locator('nav[aria-label="Main"].fixed') : page.locator("header nav");
+  const link = scope.getByRole("link", { name: label, exact: true });
+  const ariaBefore = await scope.ariaSnapshot();
+  await page.evaluate(() => { (window as unknown as { __pt: { shift: number } }).__pt.shift = 0; });
+  await skipTour(page);
+  await link.click({ noWaitAfter: true, timeout: 20_000 });
+  let ariaDuring = "(no pending seen)";
+  try {
+    await page.waitForSelector("[data-pending]", { timeout: 1_500, state: "attached" });
+    ariaDuring = await scope.ariaSnapshot();
+    if (shot) await page.screenshot({ path: `${OUT}/${shot}`, clip: w < 768 ? { x: 0, y: 844 - 80, width: 390, height: 80 } : { x: 0, y: 0, width: 1440, height: 70 } });
+  } catch { /* never shown */ }
+  await page.waitForFunction(() => { const p = (window as unknown as { __pt: { commit: number } }).__pt; return p.commit > 0; }, null, { timeout: 60_000 });
+  await page.waitForLoadState("load"); await page.waitForTimeout(1_500); await skipTour(page);
+  const p = await page.evaluate(() => (window as unknown as { __pt: Record<string, unknown> }).__pt);
+  const left = await page.locator("[data-pending]").count();
+  const f = (x: unknown) => (typeof x === "number" && x ? Math.round(x - (p.t0 as number)) : "never");
+  return `${p.from} -> ${p.href}: bar on +${f(p.on)} ms, commit +${f(p.commit)} ms, bar off +${f(p.off)} ms, pending el {${p.pend}}, nav rect maxDelta while pending ${p.maxDelta}px, layout-shift sum ${Number(p.shift).toFixed(4)}, [data-pending] left after load ${left}, aria same ${ariaBefore === ariaDuring || ariaDuring === "(no pending seen)" ? "yes" : "NO:\n" + ariaBefore + "\n---\n" + ariaDuring}`;
+}
+for (const { w, h } of [{ w: 390, h: 844 }, { w: 1440, h: 900 }]) {
+  test(`pending ${w}`, async ({ page, context }) => {
+    test.setTimeout(900_000);
+    await page.setViewportSize({ width: w, height: h });
+    watchErrors(page, `pending-${w}`);
+    await signUp(page, `rv4-pend-${w}-${Date.now()}@example.com`);
+    await comp(page, "premium");
+    await probe(page);
+    await page.goto("/markets", { waitUntil: "load" }); await skipTour(page); await page.waitForTimeout(2_000);
+    const idle = await page.evaluate(() => ({ pending: document.querySelectorAll("[data-pending]").length, spansInTabs: [...document.querySelectorAll('header nav a, nav[aria-label="Main"] a')].filter((a) => a.querySelector("span[data-pending], span.animate-pulse")).length }));
+    log(F, `${w} idle on /markets: ${JSON.stringify(idle)}`);
+    await page.screenshot({ path: `${OUT}/idle-${w}.png` });
+    const cdp = await context.newCDPSession(page);
+    await cdp.send("Network.enable");
+    for (const [run, net] of [["slow4G", SLOW4G], ["no throttle", null]] as const) {
+      await page.goto("/markets", { waitUntil: "load" }); await page.waitForTimeout(1_500);
+      if (net) await cdp.send("Network.emulateNetworkConditions", net);
+      const seq = w < 768 ? ["Best bets", "All markets", "My list", "Best bets", "All markets"] : ["Best bets", "All markets", "My list", "My bets", "Results", "Best bets"];
+      for (const [i, l] of seq.entries()) log(F, `${w} ${run} tap "${l}": ` + await tapTab(page, l, w, cdp, net && i === 0 ? `pending-${w}.png` : undefined));
+      await cdp.send("Network.emulateNetworkConditions", { offline: false, latency: 0, downloadThroughput: -1, uploadThroughput: -1 });
+    }
+    // in-content links to /bets (breadcrumb on a market page): no tab, so no bar. How long until anything happens?
+    await page.goto("/bets", { waitUntil: "load" }); await page.waitForTimeout(1_000);
+    const mHref = await page.getByTestId("bets-list").locator('a[href^="/m/"]').first().getAttribute("href");
+    if (mHref) {
+      await page.goto(mHref, { waitUntil: "load" }); await page.waitForTimeout(1_500);
+      await cdp.send("Network.emulateNetworkConditions", SLOW4G);
+      await page.evaluate(() => { const p = (window as unknown as { __pt: { t0: number } }).__pt; p.t0 = 0; });
+      const bc = page.locator('nav[aria-label="Breadcrumb"] a[href="/bets"], a[href="/bets"]').filter({ hasText: "Best bets" }).filter({ visible: true }).last();
+      const t = Date.now(); await bc.click({ noWaitAfter: true });
+      await page.waitForURL(/\/bets$/, { timeout: 60_000 });
+      log(F, `${w} slow4G breadcrumb "Best bets" on ${mHref.slice(0, 30)} -> /bets: URL commit after ${Date.now() - t} ms (no pending indicator on in-content links)`);
+      await cdp.send("Network.emulateNetworkConditions", { offline: false, latency: 0, downloadThroughput: -1, uploadThroughput: -1 });
+    }
+    fs.appendFileSync(`${OUT}/console-errors.txt`, errs.splice(0).join("\n") + "\n");
+  });
+}
+test("pending signed out 1440", async ({ page, context }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  watchErrors(page, "pending-signedout");
+  await probe(page);
+  await page.goto("/pricing", { waitUntil: "load" }); await page.waitForTimeout(2_000);
+  const cdp = await context.newCDPSession(page);
+  await cdp.send("Network.enable");
+  await cdp.send("Network.emulateNetworkConditions", SLOW4G);
+  for (const l of ["How it works", "Results", "Pricing"]) log(F, `1440 signed-out slow4G tap "${l}": ` + await tapTab(page, l, 1440, cdp, l === "How it works" ? "pending-signedout-1440.png" : undefined));
+  fs.appendFileSync(`${OUT}/console-errors.txt`, errs.splice(0).join("\n") + "\n");
+});

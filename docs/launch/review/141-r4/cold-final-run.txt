@@ -1,0 +1,17 @@
+
+Running 4 tests using 1 worker
+
+free	390	default	{"ttfb":29,"fcp":1568,"firstArticle":1566,"footerInViewBeforeList":0,"load":6586,"kbHtml":22,"cls":"0.0000"} | {"ttfb":28,"fcp":1576,"firstArticle":1568,"footerInViewBeforeList":0,"load":6594,"kbHtml":22,"cls":"0.0000"} | {"ttfb":25,"fcp":1548,"firstArticle":1535,"footerInViewBeforeList":0,"load":6586,"kbHtml":22,"cls":"0.0000"}
+free	390	tall50	{"ttfb":30,"fcp":1572,"firstArticle":1563,"footerInViewBeforeList":0,"load":6586,"kbHtml":22,"cls":"0.0000"} | {"ttfb":29,"fcp":1584,"firstArticle":1568,"footerInViewBeforeList":0,"load":6595,"kbHtml":22,"cls":"0.0000"} | {"ttfb":28,"fcp":1568,"firstArticle":1562,"footerInViewBeforeList":0,"load":6587,"kbHtml":22,"cls":"0.0000"}
+  ✓  1 [chromium] › e2e-review/cold.spec.ts:22:3 › cold free 390 (1.0m)
+free	1440	default	{"ttfb":24,"fcp":1600,"firstArticle":1548,"footerInViewBeforeList":0,"load":6589,"kbHtml":23,"cls":"0.0009"} | {"ttfb":32,"fcp":1572,"firstArticle":1560,"footerInViewBeforeList":0,"load":6589,"kbHtml":23,"cls":"0.0006"} | {"ttfb":32,"fcp":1580,"firstArticle":1565,"footerInViewBeforeList":0,"load":6585,"kbHtml":23,"cls":"0.0006"}
+free	1440	tall50	{"ttfb":33,"fcp":1564,"firstArticle":1553,"footerInViewBeforeList":0,"load":6586,"kbHtml":23,"cls":"0.0006"} | {"ttfb":26,"fcp":1568,"firstArticle":1560,"footerInViewBeforeList":0,"load":6585,"kbHtml":23,"cls":"0.0006"} | {"ttfb":29,"fcp":1568,"firstArticle":1559,"footerInViewBeforeList":0,"load":6588,"kbHtml":23,"cls":"0.0006"}
+  ✓  2 [chromium] › e2e-review/cold.spec.ts:22:3 › cold free 1440 (1.0m)
+premium	390	default	{"ttfb":26,"fcp":1556,"firstArticle":1552,"footerInViewBeforeList":0,"load":6586,"kbHtml":31,"cls":"0.0000"} | {"ttfb":26,"fcp":1564,"firstArticle":1553,"footerInViewBeforeList":0,"load":6585,"kbHtml":31,"cls":"0.0000"} | {"ttfb":29,"fcp":1556,"firstArticle":1553,"footerInViewBeforeList":0,"load":6586,"kbHtml":31,"cls":"0.0000"}
+premium	390	tall50	{"ttfb":28,"fcp":1540,"firstArticle":1533,"footerInViewBeforeList":0,"load":6564,"kbHtml":49,"cls":"0.0000"} | {"ttfb":27,"fcp":1536,"firstArticle":1533,"footerInViewBeforeList":0,"load":6589,"kbHtml":49,"cls":"0.0000"} | {"ttfb":40,"fcp":1548,"firstArticle":1522,"footerInViewBeforeList":0,"load":6589,"kbHtml":49,"cls":"0.0000"}
+  ✓  3 [chromium] › e2e-review/cold.spec.ts:22:3 › cold premium 390 (1.0m)
+premium	1440	default	{"ttfb":26,"fcp":1560,"firstArticle":1560,"footerInViewBeforeList":0,"load":6578,"kbHtml":31,"cls":"0.0001"} | {"ttfb":29,"fcp":1604,"firstArticle":1550,"footerInViewBeforeList":0,"load":6595,"kbHtml":31,"cls":"0.0004"} | {"ttfb":29,"fcp":1588,"firstArticle":1541,"footerInViewBeforeList":0,"load":6587,"kbHtml":31,"cls":"0.0004"}
+premium	1440	tall50	{"ttfb":29,"fcp":1544,"firstArticle":1534,"footerInViewBeforeList":0,"load":6589,"kbHtml":49,"cls":"0.0001"} | {"ttfb":25,"fcp":1564,"firstArticle":1549,"footerInViewBeforeList":0,"load":6573,"kbHtml":49,"cls":"0.0001"} | {"ttfb":25,"fcp":1536,"firstArticle":1531,"footerInViewBeforeList":0,"load":6563,"kbHtml":49,"cls":"0.0001"}
+  ✓  4 [chromium] › e2e-review/cold.spec.ts:22:3 › cold premium 1440 (1.0m)
+
+  4 passed (4.0m)

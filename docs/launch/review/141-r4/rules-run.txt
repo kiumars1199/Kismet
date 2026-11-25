@@ -1,0 +1,47 @@
+
+Running 1 test using 1 worker
+
+signed-out /: disclaimer true; [data-pending] 0
+signed-out /pricing: disclaimer true; [data-pending] 0
+signed-out /login: disclaimer true; [data-pending] 0
+signed-out /about: disclaimer true; [data-pending] 0
+signed-out /track-record: disclaimer true; [data-pending] 0
+free /bets: disclaimer true; cents-like text: []
+free /bets?ps=50&wp=0&us=0&g=0&vd=worth%20it,thin,not%20worth%20it,no%20sellers,no%20book: disclaimer true; cents-like text: []
+free /bets?t=sports.nfl: disclaimer true; cents-like text: []
+free /check: disclaimer true; cents-like text: []
+free /journal: disclaimer true; cents-like text: []
+free /account: disclaimer true; cents-like text: []
+free /markets: disclaimer true; cents-like text: []
+free /watchlist: disclaimer true; cents-like text: []
+free /track-record: disclaimer true; cents-like text: []
+premium /bets: disclaimer true; cents-like text: []
+premium /bets?ps=50&wp=0&us=0&g=0&vd=worth%20it,thin,not%20worth%20it,no%20sellers,no%20book: disclaimer true; cents-like text: []
+premium /bets?t=sports.nfl: disclaimer true; cents-like text: []
+premium /check: disclaimer true; cents-like text: []
+premium /journal: disclaimer true; cents-like text: []
+premium /account: disclaimer true; cents-like text: []
+premium /markets: disclaimer true; cents-like text: []
+premium /watchlist: disclaimer true; cents-like text: []
+premium /track-record: disclaimer true; cents-like text: []
+/bets SSR html contains disclaimer: true
+  ✘  1 [chromium] › e2e-review/rules.spec.ts:5:1 › rules + bfcache probe (32.2s)
+
+
+  1) [chromium] › e2e-review/rules.spec.ts:5:1 › rules + bfcache probe ─────────────────────────────
+
+    Error: page.evaluate: Execution context was destroyed, most likely because of a navigation
+
+      33 |   await page.goto("/check", { waitUntil: "load" });
+      34 |   await page.goBack({ waitUntil: "load" });
+    > 35 |   const r = await page.evaluate(() => ({ mark: (window as unknown as { __mark?: number }).__mark ?? null, type: (performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming).type, notRestored: JSON.stringify((performance.getEntriesByType("navigation")[0] as unknown as { notRestoredReasons?: unknown }).notRestoredReasons ?? null).slice(0, 300) }));
+         |                        ^
+      36 |   log(F, `bfcache probe after full-load Back: ${JSON.stringify(r)} (mark null => fresh document, not bfcache)`);
+      37 |   fs.appendFileSync(`${OUT}/console-errors.txt`, errs.splice(0).join("\n") + "\n");
+      38 | });
+        at /tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/wt141r4/apps/web/e2e-review/rules.spec.ts:35:24
+
+    Error Context: ../../../pwout141r4/rules-rules-bfcache-probe-chromium/error-context.md
+
+  1 failed
+    [chromium] › e2e-review/rules.spec.ts:5:1 › rules + bfcache probe ──────────────────────────────

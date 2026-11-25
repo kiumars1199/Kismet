@@ -1,0 +1,6 @@
+import { defineConfig } from "@playwright/test";
+export default defineConfig({
+  testDir: process.env.RV_DIR ?? "e2e-review", workers: 1, timeout: 1_800_000, reporter: "list", outputDir: "/tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/pwout141r4",
+  use: { baseURL: `http://localhost:${process.env.RV_PORT ?? 3419}`, launchOptions: { executablePath: "/usr/bin/google-chrome" } },
+  projects: [{ name: "chromium" }],
+});

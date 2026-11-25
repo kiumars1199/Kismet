@@ -1,0 +1,30 @@
+
+ RUN  v5.1.0 /tmp/claude-0/-home-user/1f04416e-5530-5507-9f54-ff1b97ced093/scratchpad/wt141r4/apps/web
+
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+Not implemented: Window's scrollTo() method
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+Not implemented: Window's scrollTo() method
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+Not implemented: navigation to another Document
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+ Test Files  188 passed (188)
+      Tests  2049 passed (2049)
+   Start at  05:29:55
+   Duration  34.71s (tests 52%, import 27%, environment 13%, transform 6%, worker 1%)
+
+     Import  524 modules were evaluated 1213 times · 22.76s total, 27% of tracked time
+             ~2.60s faster with isolate: false — shared modules are evaluated once per worker instead of once per file
+             learn more: https://vitest.dev/guide/improving-performance#test-isolation
+
+EXIT 0

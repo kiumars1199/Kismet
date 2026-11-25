@@ -1,0 +1,4 @@
+390 idle on /markets: {"pending":0,"spansInTabs":0}
+390 slow4G tap "Best bets": /markets -> /bets: bar on +11 ms, commit +720 ms, bar off +720 ms, pending el {pos=absolute 58x2 at y788 aria-hidden=true parent=Best bets}, nav rect maxDelta while pending 0px, layout-shift sum 0.0000, [data-pending] left after load 0, aria same yes
+1440 idle on /markets: {"pending":0,"spansInTabs":0}
+1440 slow4G tap "Best bets": /markets -> /bets: bar on +11 ms, commit +715 ms, bar off +715 ms, pending el {pos=absolute 70x2 at y48 aria-hidden=true parent=Best bets}, nav rect maxDelta while pending 0px, layout-shift sum 0.0000, [data-pending] left after load 0, aria same yes

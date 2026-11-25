@@ -1,0 +1,54 @@
+import { test, type Page } from "@playwright/test";
+import { OUT, log, signUp, comp, errs, watchErrors, TALL } from "./common";
+import fs from "node:fs";
+const F = `cold-${process.env.RV_TAG ?? "r4"}.txt`;
+const SLOW4G = { offline: false, latency: 562.5, downloadThroughput: 184_320, uploadThroughput: 84_375 };
+const tl = (page: Page) => page.addInitScript(() => {
+  const w = window as unknown as { __tl: { art: number; footNoArt: number; main: number; cls: number; frames: number } };
+  w.__tl = { art: 0, footNoArt: 0, main: 0, cls: 0, frames: 0 };
+  new PerformanceObserver((l) => { for (const e of l.getEntries() as unknown as { value: number; hadRecentInput: boolean }[]) if (!e.hadRecentInput) w.__tl.cls += e.value; }).observe({ type: "layout-shift", buffered: true });
+  const tick = () => {
+    const t = w.__tl; t.frames++;
+    const art = document.querySelector('[data-testid="bets-list"] article');
+    const foot = document.querySelector("footer");
+    if (!t.main && document.querySelector("main")) t.main = performance.now();
+    if (!t.art && art) t.art = performance.now();
+    if (!art && !t.footNoArt && foot && foot.getBoundingClientRect().top < innerHeight && foot.getBoundingClientRect().height > 0) t.footNoArt = performance.now();
+    if (performance.now() < 60_000) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+});
+for (const tier of ["free", "premium"] as const) for (const { w, h } of [{ w: 390, h: 844 }, { w: 1440, h: 900 }]) {
+  test(`cold ${tier} ${w}`, async ({ browser }) => {
+    test.setTimeout(900_000);
+    const ctx0 = await browser.newContext({ viewport: { width: w, height: h } });
+    const p0 = await ctx0.newPage();
+    await signUp(p0, `rv4-cold-${tier}-${w}-${Date.now()}@example.com`);
+    if (tier !== "free") await comp(p0, tier);
+    const state = await ctx0.storageState(); await ctx0.close();
+    for (const [name, url] of [["default", "/bets"], ["tall50", TALL]] as const) {
+      const rs: string[] = [];
+      for (let i = 0; i < 3; i++) {
+        const ctx = await browser.newContext({ viewport: { width: w, height: h }, storageState: state });
+        const page = await ctx.newPage();
+        watchErrors(page, `cold-${tier}-${w}`);
+        await tl(page);
+        const cdp = await ctx.newCDPSession(page);
+        await cdp.send("Network.enable"); await cdp.send("Network.emulateNetworkConditions", SLOW4G);
+        await page.goto(url, { waitUntil: "load", timeout: 120_000 });
+        await page.waitForTimeout(3_000);
+        const r = await page.evaluate(() => {
+          const n = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming;
+          const fcp = performance.getEntriesByName("first-contentful-paint")[0]?.startTime ?? 0;
+          const t = (window as unknown as { __tl: { art: number; footNoArt: number; main: number; cls: number } }).__tl;
+          return { ttfb: Math.round(n.responseStart), fcp: Math.round(fcp), firstArticle: Math.round(t.art), footerInViewBeforeList: t.footNoArt ? Math.round(t.footNoArt) : 0, load: Math.round(n.loadEventStart), kbHtml: Math.round(n.transferSize / 1024), cls: t.cls.toFixed(4) };
+        });
+        if (i === 0 && name === "default") await page.screenshot({ path: `${OUT}/cold-${process.env.RV_TAG ?? "r4"}-${tier}-${w}.png` });
+        rs.push(JSON.stringify(r));
+        await ctx.close();
+      }
+      log(F, `${tier}\t${w}\t${name}\t${rs.join(" | ")}`);
+    }
+    fs.appendFileSync(`${OUT}/console-errors.txt`, errs.splice(0).join("\n") + "\n");
+  });
+}

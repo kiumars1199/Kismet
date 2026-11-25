@@ -1,0 +1,25 @@
+
+Running 2 tests using 1 worker
+
+390	RSC +1s	/watchlist (footer in view before tap: true) -> Best bets	bar on +never off +never commit +28 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.1629 ["+28ms 0.163 FOOTER y579->0 h265->0"]
+390	RSC +1s	/journal (footer in view before tap: true) -> Best bets	bar on +never off +never commit +28 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.1439 ["+28ms 0.144 FOOTER y599->0 h245->0"]
+390	RSC +1s	/check (footer in view before tap: true) -> Best bets	bar on +never off +never commit +31 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.2923 ["+31ms 0.292 FOOTER y466->0 h378->0"]
+390	RSC +1s	/account (footer in view before tap: false) -> Best bets	bar on +never off +never commit +28 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.0000 []
+390	RSC +1s	/settings (footer in view before tap: false) -> Best bets	bar on +never off +never commit +25 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.0000 []
+390	RSC +1s	/alerts (footer in view before tap: false) -> Best bets	bar on +never off +never commit +28 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.0000 []
+390	RSC +1s	/tools (footer in view before tap: false) -> Best bets	bar on +never off +never commit +28 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.0000 []
+390	RSC +1s	/status (footer in view before tap: false) -> Best bets	bar on +never off +never commit +29 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.0000 []
+390	RSC +1s	/markets (footer in view before tap: false) -> Best bets	bar on +never off +never commit +27 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.0000 []
+  ✓  1 [chromium] › e2e-review/navcls.spec.ts:28:3 › navcls 390 (1.3m)
+1440	RSC +1s	/watchlist (footer in view before tap: true) -> Best bets	bar on +never off +never commit +28 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.0454 ["+28ms 0.045 FOOTER y707->0 h193->0"]
+1440	RSC +1s	/journal (footer in view before tap: true) -> Best bets	bar on +never off +never commit +28 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.0454 ["+27ms 0.045 FOOTER y707->0 h193->0"]
+1440	RSC +1s	/check (footer in view before tap: true) -> Best bets	bar on +never off +never commit +29 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.0454 ["+28ms 0.045 FOOTER y707->0 h193->0"]
+1440	RSC +1s	/account (footer in view before tap: false) -> Best bets	bar on +never off +never commit +32 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.0000 []
+1440	RSC +1s	/settings (footer in view before tap: false) -> Best bets	bar on +never off +never commit +28 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.0000 []
+1440	RSC +1s	/alerts (footer in view before tap: false) -> Best bets	bar on +never off +never commit +29 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.0000 []
+1440	RSC +1s	/tools (footer in view before tap: true) -> Best bets	bar on +never off +never commit +29 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.0454 ["+29ms 0.045 FOOTER y707->0 h193->0"]
+1440	RSC +1s	/status (footer in view before tap: false) -> Best bets	bar on +never off +never commit +28 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.0000 []
+1440	RSC +1s	/markets (footer in view before tap: false) -> Best bets	bar on +never off +never commit +28 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.0000 []
+  ✓  2 [chromium] › e2e-review/navcls.spec.ts:28:3 › navcls 1440 (1.3m)
+
+  2 passed (2.7m)

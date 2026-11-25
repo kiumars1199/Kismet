@@ -1,0 +1,38 @@
+import { expect, test } from "@playwright/test";
+import { OUT, log, signUp, comp, errs, watchErrors, TALL, SHORT, installCls, cls } from "./common";
+import fs from "node:fs";
+const DISC = "Market analytics, not financial advice. Based on past results. 18+.";
+test("rules + bfcache probe", async ({ page }) => {
+  test.setTimeout(600_000);
+  const F = "rules.txt";
+  watchErrors(page, "rules");
+  await page.setViewportSize({ width: 390, height: 844 });
+  for (const p of ["/", "/pricing", "/login", "/about", "/track-record"]) {
+    await page.goto(p, { waitUntil: "load" });
+    const t = await page.locator("footer").last().innerText();
+    log(F, `signed-out ${p}: disclaimer ${t.includes(DISC)}; [data-pending] ${await page.locator("[data-pending]").count()}`);
+  }
+  await signUp(page, `rv4-rules-${Date.now()}@example.com`);
+  for (const tier of ["free", "premium"] as const) {
+    if (tier === "premium") await comp(page, "premium");
+    for (const p of ["/bets", TALL, SHORT, "/check", "/journal", "/account", "/markets", "/watchlist", "/track-record"]) {
+      await page.goto(p, { waitUntil: "load" });
+      await page.waitForTimeout(1_500);
+      const t = await page.locator("body").innerText();
+      const foot = await page.locator("footer").last().innerText();
+      log(F, `${tier} ${p}: disclaimer ${foot.includes(DISC)}; cents-like text: ${JSON.stringify((t.match(/[^\n]{0,30}(¢|\bcents?\b)[^\n]{0,30}/gi) ?? []).slice(0, 3))}`);
+    }
+  }
+  const html = await (await page.request.get("/bets")).text();
+  log(F, `/bets SSR html contains disclaimer: ${html.includes(DISC)}`);
+  // is full-load Back a real reload (not bfcache)?
+  await installCls(page);
+  await page.goto("/bets", { waitUntil: "load" });
+  await expect(page.getByTestId("bets-list").locator("article").first()).toBeVisible();
+  await page.evaluate(() => { (window as unknown as { __mark: number }).__mark = 42; });
+  await page.goto("/check", { waitUntil: "load" });
+  await page.goBack({ waitUntil: "load" });
+  const r = await page.evaluate(() => ({ mark: (window as unknown as { __mark?: number }).__mark ?? null, type: (performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming).type, notRestored: JSON.stringify((performance.getEntriesByType("navigation")[0] as unknown as { notRestoredReasons?: unknown }).notRestoredReasons ?? null).slice(0, 300) }));
+  log(F, `bfcache probe after full-load Back: ${JSON.stringify(r)} (mark null => fresh document, not bfcache)`);
+  fs.appendFileSync(`${OUT}/console-errors.txt`, errs.splice(0).join("\n") + "\n");
+});

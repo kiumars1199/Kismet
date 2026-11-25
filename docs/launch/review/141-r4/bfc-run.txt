@@ -1,0 +1,9 @@
+
+Running 1 test using 1 worker
+
+try 1: after full-load Back: {"url":"/bets","mark":null,"type":"back_forward"}; main-frame navigations: ["/bets","/bets","/check","/check","/bets","/bets"]
+try 2: after full-load Back: {"url":"/bets","mark":null,"type":"back_forward"}; main-frame navigations: ["/bets","/bets","/check","/check","/bets","/bets"]
+try 3: after full-load Back: {"url":"/bets","mark":null,"type":"back_forward"}; main-frame navigations: ["/bets","/bets","/check","/check","/bets","/bets"]
+  ✓  1 [chromium] › e2e-review/bfc.spec.ts:3:1 › bfcache probe (14.5s)
+
+  1 passed (15.2s)

@@ -1,0 +1,21 @@
+
+Running 3 tests using 1 worker
+
+390	slow4G	/markets -> Best bets	bar on +never off +never commit +28 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.0000 []
+390	slow4G	/watchlist -> Best bets	bar on +never off +never commit +28 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.1629 ["+28ms 0.163 FOOTER y579->0 h265->0"]
+390	slow4G	/track-record -> Best bets	bar on +never off +never commit +31 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.0000 []
+390	none	/markets -> Best bets	bar on +never off +never commit +31 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.0000 []
+390	none	/watchlist -> Best bets	bar on +never off +never commit +28 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.1629 ["+28ms 0.163 FOOTER y579->0 h265->0"]
+390	none	/track-record -> Best bets	bar on +never off +never commit +31 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.0000 []
+  ✓  1 [chromium] › e2e-review/pending2.spec.ts:28:3 › pending2 390 (54.3s)
+1440	slow4G	/markets -> Best bets	bar on +never off +never commit +29 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.0000 []
+1440	slow4G	/watchlist -> Best bets	bar on +never off +never commit +28 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.0454 ["+28ms 0.045 FOOTER y707->0 h193->0"]
+1440	slow4G	/track-record -> Best bets	bar on +never off +never commit +33 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.0000 []
+1440	none	/markets -> Best bets	bar on +never off +never commit +30 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.0000 []
+1440	none	/watchlist -> Best bets	bar on +never off +never commit +29 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.0454 ["+28ms 0.045 FOOTER y707->0 h193->0"]
+1440	none	/track-record -> Best bets	bar on +never off +never commit +29 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.0000 []
+  ✓  2 [chromium] › e2e-review/pending2.spec.ts:28:3 › pending2 1440 (54.0s)
+  -  3 [chromium] › e2e-review/pending2.spec.ts:64:1 › pending2 signed out 1440
+
+  1 skipped
+  2 passed (1.8m)

@@ -1,0 +1,3 @@
+try 1: after full-load Back: {"url":"/bets","mark":null,"type":"back_forward"}; main-frame navigations: ["/bets","/bets","/check","/check","/bets","/bets"]
+try 2: after full-load Back: {"url":"/bets","mark":null,"type":"back_forward"}; main-frame navigations: ["/bets","/bets","/check","/check","/bets","/bets"]
+try 3: after full-load Back: {"url":"/bets","mark":null,"type":"back_forward"}; main-frame navigations: ["/bets","/bets","/check","/check","/bets","/bets"]

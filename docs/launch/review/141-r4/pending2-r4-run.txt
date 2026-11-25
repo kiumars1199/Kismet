@@ -1,0 +1,25 @@
+
+Running 3 tests using 1 worker
+
+390	slow4G	/markets -> Best bets	bar on +15 off +735 commit +735 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.0000 []
+390	slow4G	/watchlist -> Best bets	bar on +12 off +710 commit +710 ms; shifts after tap: counted(CLS) 0.3140 ["+710ms 0.314 FOOTER y579->0 h265->0"]; input-excluded 0.0000 []
+390	slow4G	/track-record -> Best bets	bar on +11 off +744 commit +744 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.0000 []
+390	none	/markets -> Best bets	bar on +9 off +104 commit +104 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.0000 []
+390	none	/watchlist -> Best bets	bar on +11 off +90 commit +90 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.3140 ["+90ms 0.314 FOOTER y579->0 h265->0"]
+390	none	/track-record -> Best bets	bar on +10 off +135 commit +135 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.0000 []
+390	RSC held 3s	/markets -> Best bets, then My list at +1.5s	at +1.5s {"path":"/markets","bars":["Best bets"],"canScroll":true}; 150 ms after 2nd tap bars []; end {"path":"/watchlist","bars":0}
+  ✓  1 [chromium] › e2e-review/pending2.spec.ts:28:3 › pending2 390 (1.2m)
+1440	slow4G	/markets -> Best bets	bar on +11 off +716 commit +716 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.0000 []
+1440	slow4G	/watchlist -> Best bets	bar on +11 off +707 commit +707 ms; shifts after tap: counted(CLS) 0.2144 ["+707ms 0.214 FOOTER y707->0 h193->0"]; input-excluded 0.0000 []
+1440	slow4G	/track-record -> Best bets	bar on +11 off +780 commit +780 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.0000 []
+1440	none	/markets -> Best bets	bar on +11 off +112 commit +112 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.0000 []
+1440	none	/watchlist -> Best bets	bar on +12 off +94 commit +94 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.2144 ["+94ms 0.214 FOOTER y707->0 h193->0"]
+1440	none	/track-record -> Best bets	bar on +11 off +121 commit +121 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.0000 []
+1440	RSC held 3s	/markets -> Best bets, then My list at +1.5s	at +1.5s {"path":"/markets","bars":["Best bets"],"canScroll":true}; 150 ms after 2nd tap bars []; end {"path":"/watchlist","bars":0}
+  ✓  2 [chromium] › e2e-review/pending2.spec.ts:28:3 › pending2 1440 (1.1m)
+1440	signed-out slow4G	-> How it works	seen true; bar on +11 off +56 commit +56 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.0000 []; bars left 0
+1440	signed-out slow4G	-> Results	seen true; bar on +12 off +33 commit +33 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.0000 []; bars left 0
+1440	signed-out slow4G	-> Pricing	seen true; bar on +12 off +32 commit +32 ms; shifts after tap: counted(CLS) 0.0000 []; input-excluded 0.0000 []; bars left 0
+  ✓  3 [chromium] › e2e-review/pending2.spec.ts:64:1 › pending2 signed out 1440 (11.4s)
+
+  3 passed (2.5m)
