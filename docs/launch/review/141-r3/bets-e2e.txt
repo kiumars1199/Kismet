@@ -1,0 +1,97 @@
+
+Running 8 tests using 1 worker
+
+CLS full → empty at 390px: 0.078
+locked card at y=271 (h1 bottom 211) at 390px
+locked card top 173 (of 844) without the stale banner
+locked card message bottom 225 (fresh scan), tab bar top 787 at 390px
+CLS Show today's free bets at 390px: 0.000
+  ✓  1 [chromium] › e2e-paid/free-topics-cls.spec.ts:69:5 › Free at 390px › full → empty by a filter change, then Show today's free bets: CLS < 0.1 each way (20.5s)
+CLS a few → empty at 390px: 0.061
+CLS remove pill at 390px: 0.007
+  ✓  2 [chromium] › e2e-paid/free-topics-cls.spec.ts:114:5 › Free at 390px › a few bets → empty, and removing a filter pill grows the list back: CLS < 0.1 each way (14.2s)
+CLS full → empty at 1440px: 0.063
+locked card at y=185 (h1 bottom 125) at 1440px
+locked card top 127 (of 900) without the stale banner
+locked card message bottom 181 (fresh scan), tab bar top 900 at 1440px
+CLS Show today's free bets at 1440px: 0.000
+  ✓  3 [chromium] › e2e-paid/free-topics-cls.spec.ts:69:5 › Free at 1440px › full → empty by a filter change, then Show today's free bets: CLS < 0.1 each way (20.6s)
+CLS a few → empty at 1440px: 0.042
+CLS remove pill at 1440px: 0.015
+  ✓  4 [chromium] › e2e-paid/free-topics-cls.spec.ts:114:5 › Free at 1440px › a few bets → empty, and removing a filter pill grows the list back: CLS < 0.1 each way (14.3s)
+pro 390 first landing: empty message bottom 194 (fresh scan), tab bar top 787, h1 "No best bets in College basketball today"
+pro 390 first landing: "See all best bets" bottom 246
+pro 390 load 2: empty message bottom 194 (fresh scan), tab bar top 787, h1 "No best bets in College basketball today"
+pro 390 load 2: "See all best bets" bottom 246
+pro 390 load 3: empty message bottom 194 (fresh scan), tab bar top 787, h1 "No best bets in College basketball today"
+pro 390 load 3: "See all best bets" bottom 246
+pro 390 load 4: empty message bottom 194 (fresh scan), tab bar top 787, h1 "No best bets in College basketball today"
+pro 390 load 4: "See all best bets" bottom 246
+pro 390 load 5: empty message bottom 194 (fresh scan), tab bar top 787, h1 "No best bets in College basketball today"
+pro 390 load 5: "See all best bets" bottom 246
+pro 390: shifts over 0.005 during the 5 landings:
+
+pro 390: landing CLS of 5 runs 0.0005 0.0005 0.0005 0.0005 0.0005; worst 0.0005
+pro 390: See all best bets with the list 900 ms late: CLS 0.0000
+
+pro 390: ... and with the backtest record 6 s late: CLS 0.0000
+
+  ✓  5 [chromium] › e2e-paid/launch-wt2d-cls.spec.ts:79:5 › new pro user, empty topic landing at 390: CLS < 0.02 (worst of 5), and See all best bets with the list 900 ms late: CLS < 0.02 (53.3s)
+pro 1440 first landing: empty message bottom 128 (fresh scan), tab bar top 900, h1 "No best bets in College basketball today"
+pro 1440 first landing: "See all best bets" bottom 180
+pro 1440 load 2: empty message bottom 129 (fresh scan), tab bar top 900, h1 "No best bets in College basketball today"
+pro 1440 load 2: "See all best bets" bottom 181
+pro 1440 load 3: empty message bottom 128 (fresh scan), tab bar top 900, h1 "No best bets in College basketball today"
+pro 1440 load 3: "See all best bets" bottom 180
+pro 1440 load 4: empty message bottom 128 (fresh scan), tab bar top 900, h1 "No best bets in College basketball today"
+pro 1440 load 4: "See all best bets" bottom 180
+pro 1440 load 5: empty message bottom 128 (fresh scan), tab bar top 900, h1 "No best bets in College basketball today"
+pro 1440 load 5: "See all best bets" bottom 180
+pro 1440: shifts over 0.005 during the 5 landings:
+
+pro 1440: landing CLS of 5 runs 0.0006 0.0006 0.0006 0.0006 0.0006; worst 0.0006
+pro 1440: See all best bets with the list 900 ms late: CLS 0.0000
+
+pro 1440: ... and with the backtest record 6 s late: CLS 0.0000
+
+  ✓  6 [chromium] › e2e-paid/launch-wt2d-cls.spec.ts:79:5 › new pro user, empty topic landing at 1440: CLS < 0.02 (worst of 5), and See all best bets with the list 900 ms late: CLS < 0.02 (3.1m)
+premium 390 first landing: empty message bottom 194 (fresh scan), tab bar top 787, h1 "No best bets in College basketball today"
+premium 390 first landing: "See all best bets" bottom 246
+premium 390 load 2: empty message bottom 194 (fresh scan), tab bar top 787, h1 "No best bets in College basketball today"
+premium 390 load 2: "See all best bets" bottom 246
+premium 390 load 3: empty message bottom 194 (fresh scan), tab bar top 787, h1 "No best bets in College basketball today"
+premium 390 load 3: "See all best bets" bottom 246
+premium 390 load 4: empty message bottom 194 (fresh scan), tab bar top 787, h1 "No best bets in College basketball today"
+premium 390 load 4: "See all best bets" bottom 246
+premium 390 load 5: empty message bottom 194 (fresh scan), tab bar top 787, h1 "No best bets in College basketball today"
+premium 390 load 5: "See all best bets" bottom 246
+premium 390: shifts over 0.005 during the 5 landings:
+
+premium 390: landing CLS of 5 runs 0.0005 0.0005 0.0005 0.0005 0.0005; worst 0.0005
+premium 390: See all best bets with the list 900 ms late: CLS 0.0000
+
+premium 390: ... and with the backtest record 6 s late: CLS 0.0000
+
+  ✓  7 [chromium] › e2e-paid/launch-wt2d-cls.spec.ts:79:5 › new premium user, empty topic landing at 390: CLS < 0.02 (worst of 5), and See all best bets with the list 900 ms late: CLS < 0.02 (53.4s)
+premium 1440 first landing: empty message bottom 128 (fresh scan), tab bar top 900, h1 "No best bets in College basketball today"
+premium 1440 first landing: "See all best bets" bottom 180
+premium 1440 load 2: empty message bottom 128 (fresh scan), tab bar top 900, h1 "No best bets in College basketball today"
+premium 1440 load 2: "See all best bets" bottom 180
+premium 1440 load 3: empty message bottom 128 (fresh scan), tab bar top 900, h1 "No best bets in College basketball today"
+premium 1440 load 3: "See all best bets" bottom 180
+premium 1440 load 4: empty message bottom 129 (fresh scan), tab bar top 900, h1 "No best bets in College basketball today"
+premium 1440 load 4: "See all best bets" bottom 181
+premium 1440 load 5: empty message bottom 128 (fresh scan), tab bar top 900, h1 "No best bets in College basketball today"
+premium 1440 load 5: "See all best bets" bottom 180
+premium 1440: shifts over 0.005 during the 5 landings:
+
+premium 1440: landing CLS of 5 runs 0.0001 0.0001 0.0001 0.0001 0.0001; worst 0.0001
+premium 1440: See all best bets with the list 900 ms late: CLS 0.0000
+
+premium 1440: ... and with the backtest record 6 s late: CLS 0.0000
+
+  ✓  8 [chromium] › e2e-paid/launch-wt2d-cls.spec.ts:79:5 › new premium user, empty topic landing at 1440: CLS < 0.02 (worst of 5), and See all best bets with the list 900 ms late: CLS < 0.02 (2.7m)
+
+  Slow test file: [chromium] › e2e-paid/launch-wt2d-cls.spec.ts (7.5m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  8 passed (8.7m)

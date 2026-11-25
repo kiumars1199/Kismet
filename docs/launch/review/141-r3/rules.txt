@@ -1,0 +1,10 @@
+signed-out /: disclaimer true
+signed-out /pricing: disclaimer true
+signed-out /login: disclaimer true
+free /bets: disclaimer true; cents-like text: []
+free /bets?ps=50&wp=0&us=0&g=0&vd=worth%20it,thin,not%20worth%20it,no%20sellers,no%20book: disclaimer true; cents-like text: []
+free /bets?t=sports.nfl: disclaimer true; cents-like text: []
+free /check: disclaimer true; cents-like text: []
+free /journal: disclaimer true; cents-like text: []
+free /account: disclaimer true; cents-like text: []
+/bets SSR html contains disclaimer: true

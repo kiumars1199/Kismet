@@ -1,0 +1,7 @@
+390	default	reload near bottom, cookie expired/absent	CLS 0.4088 scrollErr 0 [0.409 FOOTER y 0->499 h 0->345] (cookie after reload -) | CLS 0.4088 scrollErr 0 [0.409 FOOTER y 0->499 h 0->345] (cookie after reload -) | CLS 0.4088 scrollErr 0 [0.409 FOOTER y 0->499 h 0->345] (cookie after reload -)
+390	default	in-app Back near bottom, cookie absent	CLS 0.0000 scrollErr 0 (cookie 7433) | CLS 0.0000 scrollErr 0 (cookie 7433) | CLS 0.0000 scrollErr 0 (cookie 7433)
+390	tall50	reload near bottom, cookie expired/absent	CLS 0.5509 scrollErr -13477 [0.551 FOOTER y 379->0 h 465->0] (cookie after reload -) | CLS 0.5509 scrollErr -13477 [0.551 FOOTER y 379->0 h 465->0] (cookie after reload -) | CLS 0.5509 scrollErr -13477 [0.551 FOOTER y 379->0 h 465->0] (cookie after reload -)
+390	tall50	in-app Back near bottom, cookie absent	CLS 0.0000 scrollErr 0 (cookie 25597) | CLS 0.0000 scrollErr 0 (cookie 25597) | CLS 0.0000 scrollErr 0 (cookie 25597)
+390	tall50	filter (softNav pushState) -> reload -> Back	CLS 0.0000 scrollErr -23982 (url ?ps=50&wp=0&us=0&g=0, cookie after filter 1227) | CLS 0.0000 scrollErr -23982 (url ?ps=50&wp=0&us=0&g=0, cookie after filter 1227) | CLS 0.0000 scrollErr -23982 (url ?ps=50&wp=0&us=0&g=0, cookie after filter 1227)
+390	fresh load top cookie=1	0.0005 0.0005 0.0005
+390	fresh load top cookie=0x10	0.0005 0.0005 0.0005

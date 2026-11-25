@@ -1,0 +1,258 @@
+import { expect, test, type Page, type BrowserContext } from "@playwright/test";
+import { OUT, log, signUp, comp, installCls, cls, why, skipTour, cookieH, errs, watchErrors, TALL, SHORT } from "./common";
+import fs from "node:fs";
+const ORIGIN = "http://localhost:3417";
+const setH = (ctx: BrowserContext, v: string) => ctx.addCookies([{ name: "bets_h", value: v, domain: "localhost", path: "/", httpOnly: true, secure: true, sameSite: "Lax" }]);
+// what the server actually reserves for the current cookie jar
+export const reserveOf = async (page: Page) => { const html = await (await page.request.get("/bets?probe=" + Date.now())).text(); const m = html.match(/height:(\d+)px;overflow:hidden/); return `reserve ${m ? m[1] : "?"} cards ${(html.match(/animate-pulse rounded-xl bg-muted-bg/g) ?? []).length}`; };
+
+async function backAt(page: Page, url: string, h: number, pos: "nearBottom" | "mid", tamper?: (real: number) => Promise<void>) {
+  await page.goto(url, { waitUntil: "load" });
+  await expect(page.getByTestId("bets-list").locator("article").first()).toBeVisible({ timeout: 60_000 });
+  await skipTour(page);
+  await page.waitForTimeout(1_500);
+  const total = await page.evaluate(() => document.documentElement.scrollHeight);
+  const target = pos === "nearBottom" ? Math.max(0, total - h - 120) : Math.round(Math.max(0, total - h) / 2);
+  await page.evaluate((y) => window.scrollTo(0, y), target);
+  await page.waitForTimeout(900);
+  const before = await page.evaluate(() => window.scrollY);
+  const realRaw = await cookieH(page); const real = Number(realRaw) || 0;
+  await page.goto("/check", { waitUntil: "load" });
+  if (tamper) await tamper(real);
+  const ck = `${await cookieH(page)} n=${(await page.context().cookies()).filter((c) => c.name === "bets_h").length} ${await reserveOf(page)}`;
+  await page.goBack({ waitUntil: "load" });
+  await expect(page.getByTestId("bets-list").locator("article").first()).toBeVisible({ timeout: 30_000 });
+  await page.waitForTimeout(2_000);
+  const v = await cls(page);
+  const after = await page.evaluate(() => window.scrollY);
+  return `CLS ${v.toFixed(4)} scrollErr ${after - before} (y ${before}->${after}, real ${realRaw}, cookie used ${ck})${v > 0.02 ? " [" + (await why(page)) + "]" : ""}`;
+}
+
+for (const { w, h } of [{ w: 390, h: 844 }, { w: 1440, h: 900 }]) {
+  test(`stale cookie ${w}`, async ({ page, context }) => {
+    test.setTimeout(900_000);
+    await page.setViewportSize({ width: w, height: h });
+    watchErrors(page, `stale-${w}`);
+    await signUp(page, `rv-stale-${w}-${Date.now()}@example.com`);
+    await comp(page, "premium");
+    await installCls(page);
+    const F = "stale.txt";
+    for (const [url, name] of [["/bets", "default"], [TALL, "tall50"]] as const) {
+      const cases: [string, ((r: number) => Promise<void>) | undefined][] = [
+        ["control", undefined],
+        ["cleared (expired >1h / first visit) -> 12000 floor", async () => { await context.clearCookies({ name: "bets_h" }); }],
+        ["bigger +3000", async (r) => setH(context, String(r + 3000))],
+        ["bigger +300", async (r) => setH(context, String(r + 300))],
+        ["smaller -300", async (r) => setH(context, String(r - 300))],
+        ["smaller -3000", async (r) => setH(context, String(r - 3000))],
+        ["garbage abc", async () => setH(context, "abc")],
+        ["empty", async () => setH(context, "")],
+        ["huge 1e9", async () => setH(context, "1e9")],
+        ["negative -5", async () => setH(context, "-5")],
+      ];
+      for (const [label, fn] of cases) for (const pos of ["nearBottom", "mid"] as const) {
+        const rs: string[] = [];
+        const n = /garbage|empty|huge|negative/.test(label) ? 1 : 3;
+        for (let i = 0; i < n; i++) rs.push(await backAt(page, url, h, pos, fn));
+        log(F, `${w}\t${name}\t${pos}\t${label}\t${rs.join(" | ")}`);
+      }
+    }
+    // realistic: two tabs. Tab A on the 50-bet page near the bottom; tab B opens a short list (cookie overwritten); back in A: full load /check, Back.
+    for (const [aUrl, bUrl, label] of [[TALL, SHORT, "tabA tall50, tabB short"], ["/bets", TALL, "tabA default, tabB tall50"], [TALL, "/bets", "tabA tall50, tabB default"]] as const) {
+      const rs: string[] = [];
+      for (let i = 0; i < 3; i++) {
+        rs.push(await backAt(page, aUrl, h, "nearBottom", async () => {
+          const b = await context.newPage();
+          await b.setViewportSize({ width: w, height: h });
+          await b.goto(bUrl, { waitUntil: "load" });
+          await b.waitForTimeout(2_500);
+          await b.close();
+        }));
+      }
+      log(F, `${w}\tmulti-tab\tnearBottom\t${label}\t${rs.join(" | ")}`);
+    }
+    // filter history: tall page near bottom, in-app filter to a short list, full-load /check, Back, Back
+    {
+      const rs: string[] = [];
+      for (let i = 0; i < 3; i++) {
+        await page.goto(TALL, { waitUntil: "load" });
+        await expect(page.getByTestId("bets-list").locator("article").first()).toBeVisible({ timeout: 60_000 });
+        await skipTour(page); await page.waitForTimeout(1_500);
+        const total = await page.evaluate(() => document.documentElement.scrollHeight);
+        await page.evaluate((y) => window.scrollTo(0, y), Math.max(0, total - h - 120));
+        await page.waitForTimeout(900);
+        const before = await page.evaluate(() => window.scrollY);
+        await page.goto(SHORT, { waitUntil: "load" }); await page.waitForTimeout(2_500);
+        await page.goto("/check", { waitUntil: "load" });
+        await page.goBack({ waitUntil: "load" }); await page.waitForTimeout(1_500);
+        const ck = `${await cookieH(page)} ${await reserveOf(page)}`;
+        await page.goBack({ waitUntil: "load" });
+        await expect(page.getByTestId("bets-list").locator("article").first()).toBeVisible({ timeout: 30_000 });
+        await page.waitForTimeout(2_000);
+        const v = await cls(page); const after = await page.evaluate(() => window.scrollY);
+        rs.push(`CLS ${v.toFixed(4)} scrollErr ${after - before} (y ${before}->${after}, cookie at 2nd Back ${ck})${v > 0.02 ? " [" + (await why(page)) + "]" : ""}`);
+      }
+      log(F, `${w}\thistory\tnearBottom\ttall50 -> short (full load) -> /check -> Back -> Back\t${rs.join(" | ")}`);
+    }
+    // a fresh (non-Back) load with odd cookies: no scroll to restore
+    for (const v of ["abc", "", "1e9", "-5", "1", "500000", "0x10"]) {
+      await setH(context, v);
+      const rv = await reserveOf(page);
+      await page.goto("/bets", { waitUntil: "load" });
+      await expect(page.getByTestId("bets-list").locator("article").first()).toBeVisible({ timeout: 60_000 });
+      await page.waitForTimeout(2_000);
+      log(F, `${w}\tfresh load\ttop\tcookie=${JSON.stringify(v)} ${rv}\tCLS ${(await cls(page)).toFixed(4)}`);
+    }
+    fs.appendFileSync(`${OUT}/console-errors.txt`, errs.splice(0).join("\n") + "\n");
+  });
+}
+
+for (const tier of ["free", "pro", "premium"] as const) for (const { w, h } of [{ w: 390, h: 844 }, { w: 1440, h: 900 }]) {
+  test(`twin ${tier} ${w}`, async ({ page }) => {
+    test.setTimeout(300_000);
+    const F = "twin.txt";
+    await page.setViewportSize({ width: w, height: h });
+    watchErrors(page, `twin-${tier}-${w}`);
+    await signUp(page, `rv-twin-${tier}-${w}-${Date.now()}@example.com`);
+    if (tier !== "free") await comp(page, tier);
+    // hold /api/me 4 s so the unknown-plan state is observable
+    await page.route((u) => u.pathname === "/api/me", async (r) => { await new Promise((x) => setTimeout(x, 4_000)); await r.continue(); });
+    await installCls(page);
+    await page.goto("/bets", { waitUntil: "domcontentloaded" });
+    await expect(page.getByTestId("bets-list").locator("article").first()).toBeVisible({ timeout: 60_000 });
+    const probe = () => page.evaluate(() => {
+      const slot = document.querySelector('[data-testid="log-bet-upgrade-slot"]') as HTMLElement | null;
+      const real = document.querySelector('[data-testid="log-bet-upgrade"]') as HTMLElement | null;
+      const vis = (el: HTMLElement | null) => !!el && getComputedStyle(el).visibility === "visible" && getComputedStyle(el).display !== "none";
+      const visibleCopies = [...document.querySelectorAll("p")].filter((p) => p.textContent?.startsWith("Want to track the bets") && vis(p as HTMLElement)).length;
+      return { tier: document.body.dataset.tier, slot: slot ? { h: Math.round(slot.getBoundingClientRect().height), display: getComputedStyle(slot).display, visibility: getComputedStyle(slot).visibility, ariaHidden: slot.getAttribute("aria-hidden") } : null,
+        real: real ? Math.round(real.getBoundingClientRect().height) : null, visibleCopies, listH: Math.round(document.querySelector('[data-testid="bets-list"]')!.getBoundingClientRect().height) };
+    });
+    const pre = await probe();
+    const aPre = await page.locator("body").ariaSnapshot();
+    if (w === 390) await page.screenshot({ path: `${OUT}/twin-${tier}-${w}-unknown.png`, fullPage: false });
+    // poll copies during the transition
+    const maxCopies = await page.evaluate(async () => {
+      let m = 0;
+      const t0 = performance.now();
+      while (performance.now() - t0 < 6_000) {
+        const n = [...document.querySelectorAll("p")].filter((p) => p.textContent?.startsWith("Want to track the bets") && getComputedStyle(p).visibility === "visible" && getComputedStyle(p).display !== "none").length;
+        m = Math.max(m, n);
+        await new Promise((r) => requestAnimationFrame(r));
+      }
+      return m;
+    });
+    const post = await probe();
+    const aPost = await page.locator("body").ariaSnapshot();
+    const count = (s: string) => (s.match(/Want to track the bets/g) ?? []).length;
+    const v = await cls(page);
+    log(F, `${tier}\t${w}\tunknown ${JSON.stringify(pre)} a11yMentions=${count(aPre)}\tknown ${JSON.stringify(post)} a11yMentions=${count(aPost)}\tmaxVisibleCopiesDuringSwitch=${maxCopies}\tCLS ${v.toFixed(4)}${v > 0.01 ? " [" + (await why(page)) + "]" : ""}`);
+    fs.appendFileSync(`${OUT}/console-errors.txt`, errs.splice(0).join("\n") + "\n");
+  });
+}
+
+test("skeleton perf 640 cards, 390, 4x CPU", async ({ page, context }) => {
+  test.setTimeout(300_000);
+  const F = "perf.txt";
+  await page.setViewportSize({ width: 390, height: 844 });
+  await signUp(page, `rv-perf-${Date.now()}@example.com`);
+  await comp(page, "premium");
+  const cdp = await context.newCDPSession(page);
+  for (const ck of ["80000", "33000", "12000", "6000"]) {
+    await setH(context, ck);
+    // full-load HTML size of the skeleton (streamed before the list)
+    const html = await (await page.request.get("/bets?nocache=" + Date.now())).text();
+    const nSk = (html.match(/animate-pulse rounded-xl bg-muted-bg/g) ?? []).length;
+    await page.goto("/check", { waitUntil: "load" });
+    await setH(context, ck);
+    // hold the RSC payload of /bets so the skeleton stays up
+    await page.route((u) => u.pathname === "/bets", async (r) => { if (r.request().headers()["rsc"]) { await new Promise((x) => setTimeout(x, 3_000)); } await r.continue(); });
+    await cdp.send("Emulation.setCPUThrottlingRate", { rate: 4 });
+    await page.evaluate(() => {
+      const w = window as unknown as { __f: number[]; __lt: number[] };
+      w.__f = []; w.__lt = [];
+      new PerformanceObserver((l) => { for (const e of l.getEntries()) w.__lt.push(Math.round(e.duration)); }).observe({ type: "longtask", buffered: false });
+      let last = performance.now();
+      const tick = (t: number) => { w.__f.push(t - last); last = t; if (w.__f.length < 2000) requestAnimationFrame(tick); };
+      requestAnimationFrame(tick);
+    });
+    const t0 = Date.now();
+    await page.evaluate(() => { const a = [...document.querySelectorAll('a[href="/bets"]')].find((x) => (x as HTMLElement).offsetParent) as HTMLAnchorElement | undefined; (a ?? document.querySelector('a[href="/bets"]') as HTMLAnchorElement).click(); });
+    await page.waitForFunction(() => document.querySelectorAll(".animate-pulse.rounded-xl.bg-muted-bg").length > 0, null, { timeout: 10_000 }).catch(() => {});
+    const dom = await page.evaluate(() => ({ all: document.querySelectorAll("*").length, pulse: document.querySelectorAll(".animate-pulse").length }));
+    await page.waitForTimeout(500);
+    await page.evaluate(() => window.scrollTo(0, 3000));
+    await page.waitForTimeout(1_200);
+    await page.screenshot({ path: `${OUT}/perf-skeleton-${ck}.png` });
+    await expect(page.getByTestId("bets-list").locator("article").first()).toBeVisible({ timeout: 30_000 });
+    const swapMs = Date.now() - t0;
+    const st = await page.evaluate(() => { const w = window as unknown as { __f: number[]; __lt: number[] }; const f = w.__f.slice(1); const s = [...f].sort((a, b) => a - b);
+      return { frames: f.length, p50: Math.round(s[Math.floor(s.length * 0.5)]), p95: Math.round(s[Math.floor(s.length * 0.95)]), max: Math.round(s[s.length - 1]), over50: f.filter((x) => x > 50).length, longtasks: w.__lt }; });
+    await cdp.send("Emulation.setCPUThrottlingRate", { rate: 1 });
+    await page.unroute((u) => u.pathname === "/bets");
+    log(F, `cookie ${ck}: SSR html ${Math.round(html.length / 1024)} KB, skeleton cards in html ${nSk}; in-app skeleton DOM all=${dom.all} pulse=${dom.pulse}; 4x CPU frames ${JSON.stringify(st)}; until list ${swapMs} ms`);
+  }
+});
+
+test("rules: disclaimer, cents, console", async ({ page }) => {
+  test.setTimeout(300_000);
+  const F = "rules.txt";
+  watchErrors(page, "rules");
+  await page.setViewportSize({ width: 390, height: 844 });
+  for (const p of ["/", "/pricing", "/login"]) {
+    await page.goto(p, { waitUntil: "load" });
+    const t = await page.locator("footer").last().innerText();
+    log(F, `signed-out ${p}: disclaimer ${t.includes("Market analytics, not financial advice. Based on past results. 18+.")}`);
+  }
+  await signUp(page, `rv-rules-${Date.now()}@example.com`);
+  for (const p of ["/bets", TALL, SHORT, "/check", "/journal", "/account"]) {
+    await page.goto(p, { waitUntil: "load" });
+    await page.waitForTimeout(1_500);
+    const t = await page.locator("body").innerText();
+    const foot = await page.locator("footer").last().innerText();
+    log(F, `free ${p}: disclaimer ${foot.includes("Market analytics, not financial advice. Based on past results. 18+.")}; cents-like text: ${JSON.stringify((t.match(/[^\n]{0,30}(¢|\bcents?\b)[^\n]{0,30}/gi) ?? []).slice(0, 3))}`);
+  }
+  // skeleton itself carries the footer: grab the streamed HTML of /bets
+  const html = await (await page.request.get("/bets")).text();
+  log(F, `/bets SSR html contains disclaimer: ${html.includes("Market analytics, not financial advice. Based on past results. 18+.")}`);
+  fs.appendFileSync(`${OUT}/console-errors.txt`, errs.splice(0).join("\n") + "\n");
+});
+
+for (const { w, h } of [{ w: 390, h: 844 }, { w: 1440, h: 900 }]) test(`reload + 4x cpu ${w}`, async ({ page, context }) => {
+  test.setTimeout(600_000);
+  const F = "reload-cpu.txt";
+  await page.setViewportSize({ width: w, height: h });
+  watchErrors(page, `reload-${w}`);
+  await signUp(page, `rv-rl-${w}-${Date.now()}@example.com`);
+  await installCls(page);
+  for (const tier of ["free", "premium"] as const) {
+    if (tier === "premium") await comp(page, "premium");
+    for (const [name, url] of [["default", "/bets"], ["tall50", TALL]] as const) {
+      const rs: string[] = [];
+      for (let i = 0; i < 3; i++) {
+        await page.goto(url, { waitUntil: "load" });
+        await expect(page.getByTestId("bets-list").locator("article").first()).toBeVisible({ timeout: 60_000 });
+        await skipTour(page); await page.waitForTimeout(1_500);
+        const total = await page.evaluate(() => document.documentElement.scrollHeight);
+        await page.evaluate((y) => window.scrollTo(0, y), Math.max(0, total - h - 120));
+        await page.waitForTimeout(900);
+        const before = await page.evaluate(() => window.scrollY);
+        await page.reload({ waitUntil: "load" });
+        await expect(page.getByTestId("bets-list").locator("article").first()).toBeVisible({ timeout: 30_000 });
+        await page.waitForTimeout(2_000);
+        const v = await cls(page); const after = await page.evaluate(() => window.scrollY);
+        rs.push(`CLS ${v.toFixed(4)} scrollErr ${after - before}${v > 0.02 ? " [" + (await why(page)) + "]" : ""}`);
+      }
+      log(F, `${w}\t${tier}\t${name}\treload nearBottom\t${rs.join(" | ")}`);
+      const cdp = await context.newCDPSession(page);
+      const rc: string[] = [];
+      for (let i = 0; i < 3; i++) {
+        await cdp.send("Emulation.setCPUThrottlingRate", { rate: 1 });
+        rc.push(await backAt(page, url, h, "nearBottom", async () => { await cdp.send("Emulation.setCPUThrottlingRate", { rate: 4 }); }));
+      }
+      await cdp.send("Emulation.setCPUThrottlingRate", { rate: 1 });
+      log(F, `${w}\t${tier}\t${name}\tfullLoadBack nearBottom 4xCPU\t${rc.join(" | ")}`);
+    }
+  }
+  fs.appendFileSync(`${OUT}/console-errors.txt`, errs.splice(0).join("\n") + "\n");
+});

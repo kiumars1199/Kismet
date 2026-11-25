@@ -1,0 +1,43 @@
+
+Running 19 tests using 1 worker
+
+first load /bets at 390px: CLS 0.0005
+Back to /bets at 390px, CLS per try: 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+  ✓   1 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:45:3 › /bets at 390px: first load, and Back from /check, 10 times, CLS <= 0.02 (36.2s)
+first load /bets at 1440px: CLS 0.0000
+Back to /bets at 1440px, CLS per try: 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+  ✓   2 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:45:3 › /bets at 1440px: first load, and Back from /check, 10 times, CLS <= 0.02 (36.2s)
+Back (full load) to /bets at 390px, CLS per try: 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000 0.0000
+  ✓   3 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:86:3 › /bets at 390px: Back after a full load of /check, 10 times, CLS <= 0.02 (1.1m)
+Back (full load) to /bets at 1440px, CLS per try: 0.0001 0.0001 0.0001 0.0001 0.0001 0.0001 0.0001 0.0001 0.0001 0.0001
+  ✓   4 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:86:3 › /bets at 1440px: Back after a full load of /check, 10 times, CLS <= 0.02 (1.0m)
+50-bet Back at 390px: CLS 0.0000 scroll 20313 -> 20313 | CLS 0.0000 scroll 20313 -> 20313 | CLS 0.0000 scroll 20313 -> 20313
+  ✓   5 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:119:5 › a 50-bet /bets page at 390px: scroll deep, full load of /check, Back: scroll restored, CLS <= 0.02 (20.9s)
+  -   6 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:119:5 › a 50-bet /bets page at 390px: scroll deep, full load of /check, Back (probe: remembered height cleared, i.e. the 12,000 px floor only): scroll restored, CLS <= 0.02
+50-bet Back at 1440px: CLS 0.0001 scroll 6303 -> 6303 | CLS 0.0001 scroll 6303 -> 6303 | CLS 0.0001 scroll 6303 -> 6303
+  ✓   7 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:119:5 › a 50-bet /bets page at 1440px: scroll deep, full load of /check, Back: scroll restored, CLS <= 0.02 (20.9s)
+  -   8 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:119:5 › a 50-bet /bets page at 1440px: scroll deep, full load of /check, Back (probe: remembered height cleared, i.e. the 12,000 px floor only): scroll restored, CLS <= 0.02
+  ✓   9 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:155:1 › after a tall page, a short /bets list has no blank space below it (the reserve is gone with the skeleton) (5.9s)
+near-bottom Back, default page, Premium at 390px: CLS 0.0000 scroll 7107 -> 7107 (page 8071 -> 8071) | CLS 0.0000 scroll 7107 -> 7107 (page 8071 -> 8071) | CLS 0.0000 scroll 7107 -> 7107 (page 8071 -> 8071)
+  ✓  10 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:177:5 › near-bottom Back after a full load of /check, default page, Premium at 390px: CLS <= 0.02, scroll restored within 2 px (24.7s)
+near-bottom Back, default page, Free at 390px: CLS 0.0000 scroll 5826 -> 5826 (page 6790 -> 6790) | CLS 0.0000 scroll 5826 -> 5826 (page 6790 -> 6790) | CLS 0.0000 scroll 5826 -> 5826 (page 6790 -> 6790)
+  ✓  11 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:177:5 › near-bottom Back after a full load of /check, default page, Free at 390px: CLS <= 0.02, scroll restored within 2 px (24.4s)
+near-bottom Back, 50-bet page, Premium at 390px: CLS 0.0000 scroll 25271 -> 25271 (page 26235 -> 26235) | CLS 0.0000 scroll 25271 -> 25271 (page 26235 -> 26235) | CLS 0.0000 scroll 25271 -> 25271 (page 26235 -> 26235)
+  ✓  12 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:177:5 › near-bottom Back after a full load of /check, 50-bet page, Premium at 390px: CLS <= 0.02, scroll restored within 2 px (25.6s)
+near-bottom Back, default page, Premium at 1440px: CLS 0.0001 scroll 2156 -> 2156 (page 3176 -> 3176) | CLS 0.0001 scroll 2156 -> 2156 (page 3176 -> 3176) | CLS 0.0001 scroll 2156 -> 2156 (page 3176 -> 3176)
+  ✓  13 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:177:5 › near-bottom Back after a full load of /check, default page, Premium at 1440px: CLS <= 0.02, scroll restored within 2 px (24.7s)
+near-bottom Back, default page, Free at 1440px: CLS 0.0006 scroll 2007 -> 2007 (page 3027 -> 3027) | CLS 0.0006 scroll 2007 -> 2007 (page 3027 -> 3027) | CLS 0.0006 scroll 2007 -> 2007 (page 3027 -> 3027)
+  ✓  14 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:177:5 › near-bottom Back after a full load of /check, default page, Free at 1440px: CLS <= 0.02, scroll restored within 2 px (24.3s)
+near-bottom Back, 50-bet page, Premium at 1440px: CLS 0.0001 scroll 7759 -> 7759 (page 8779 -> 8779) | CLS 0.0001 scroll 7759 -> 7759 (page 8779 -> 8779) | CLS 0.0001 scroll 7759 -> 7759 (page 8779 -> 8779)
+  ✓  15 [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts:177:5 › near-bottom Back after a full load of /check, 50-bet page, Premium at 1440px: CLS <= 0.02, scroll restored within 2 px (25.5s)
+first screen at 390px: CLS 0.0005
+  ✓  16 [chromium] › e2e-paid/wt2b-topic-no-bets.spec.ts:56:3 › new Free user, only topic has no best bets today, at 390px: 10 cards under a matching h1, honest filter bar, pill kept, tour over a card, CLS < 0.1 (2.2s)
+  ✓  17 [chromium] › e2e-paid/wt2b-topic-no-bets.spec.ts:101:3 › plain topic filter (no 'Your topics') at 390px: neutral h1, the locked card is in the first view and reads naturally (1.1s)
+first screen at 1440px: CLS 0.0006
+  ✓  18 [chromium] › e2e-paid/wt2b-topic-no-bets.spec.ts:56:3 › new Free user, only topic has no best bets today, at 1440px: 10 cards under a matching h1, honest filter bar, pill kept, tour over a card, CLS < 0.1 (2.2s)
+  ✓  19 [chromium] › e2e-paid/wt2b-topic-no-bets.spec.ts:101:3 › plain topic filter (no 'Your topics') at 1440px: neutral h1, the locked card is in the first view and reads naturally (1.4s)
+
+  Slow test file: [chromium] › e2e-paid/launch-wt3l-bets-back.spec.ts (6.6m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  2 skipped
+  17 passed (6.7m)

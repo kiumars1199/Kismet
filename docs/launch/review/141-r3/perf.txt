@@ -1,0 +1,4 @@
+cookie 80000: SSR html 355 KB, skeleton cards in html 1237; in-app skeleton DOM all=853 pulse=626; 4x CPU frames {"frames":369,"p50":17,"p95":33,"max":133,"over50":7,"longtasks":[127,62]}; until list 7448 ms
+cookie 33000: SSR html 287 KB, skeleton cards in html 510; in-app skeleton DOM all=481 pulse=259; 4x CPU frames {"frames":374,"p50":17,"p95":17,"max":83,"over50":3,"longtasks":[58]}; until list 6483 ms
+cookie 12000: SSR html 257 KB, skeleton cards in html 185; in-app skeleton DOM all=318 pulse=95; 4x CPU frames {"frames":372,"p50":17,"p95":17,"max":50,"over50":1,"longtasks":[61,55]}; until list 6448 ms
+cookie 6000: SSR html 248 KB, skeleton cards in html 92; in-app skeleton DOM all=271 pulse=48; 4x CPU frames {"frames":280,"p50":17,"p95":17,"max":133,"over50":3,"longtasks":[52,93,64]}; until list 5040 ms

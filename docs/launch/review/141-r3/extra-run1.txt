@@ -1,0 +1,33 @@
+
+Running 8 tests using 1 worker
+
+free	390	unknown {"tier":"free","slot":{"h":64,"display":"block","visibility":"hidden","ariaHidden":"true"},"real":null,"visibleCopies":0,"listH":5477} a11yMentions=0	known {"tier":"free","slot":null,"real":64,"visibleCopies":1,"listH":5477} a11yMentions=1	maxVisibleCopiesDuringSwitch=1	CLS 0.0000
+  ✓  1 [chromium] › e2e-review/extra.spec.ts:111:3 › twin free 390 (8.7s)
+free	1440	unknown {"tier":"free","slot":{"h":44,"display":"block","visibility":"hidden","ariaHidden":"true"},"real":null,"visibleCopies":0,"listH":2334} a11yMentions=0	known {"tier":"free","slot":null,"real":44,"visibleCopies":1,"listH":2334} a11yMentions=1	maxVisibleCopiesDuringSwitch=1	CLS 0.0000
+  ✓  2 [chromium] › e2e-review/extra.spec.ts:111:3 › twin free 1440 (8.6s)
+pro	390	unknown {"tier":"pro","slot":{"h":0,"display":"none","visibility":"hidden","ariaHidden":"true"},"real":null,"visibleCopies":0,"listH":6770} a11yMentions=0	known {"tier":"pro","slot":null,"real":null,"visibleCopies":0,"listH":6770} a11yMentions=0	maxVisibleCopiesDuringSwitch=0	CLS 0.0000
+  ✓  3 [chromium] › e2e-review/extra.spec.ts:111:3 › twin pro 390 (8.7s)
+pro	1440	unknown {"tier":"pro","slot":{"h":0,"display":"none","visibility":"hidden","ariaHidden":"true"},"real":null,"visibleCopies":0,"listH":2494} a11yMentions=0	known {"tier":"pro","slot":null,"real":null,"visibleCopies":0,"listH":2494} a11yMentions=0	maxVisibleCopiesDuringSwitch=0	CLS 0.0006
+  ✓  4 [chromium] › e2e-review/extra.spec.ts:111:3 › twin pro 1440 (8.6s)
+premium	390	unknown {"tier":"premium","slot":{"h":0,"display":"none","visibility":"hidden","ariaHidden":"true"},"real":null,"visibleCopies":0,"listH":6770} a11yMentions=0	known {"tier":"premium","slot":null,"real":null,"visibleCopies":0,"listH":6770} a11yMentions=0	maxVisibleCopiesDuringSwitch=0	CLS 0.0005
+  ✓  5 [chromium] › e2e-review/extra.spec.ts:111:3 › twin premium 390 (8.8s)
+premium	1440	unknown {"tier":"premium","slot":{"h":0,"display":"none","visibility":"hidden","ariaHidden":"true"},"real":null,"visibleCopies":0,"listH":2494} a11yMentions=0	known {"tier":"premium","slot":null,"real":null,"visibleCopies":0,"listH":2494} a11yMentions=0	maxVisibleCopiesDuringSwitch=0	CLS 0.0001
+  ✓  6 [chromium] › e2e-review/extra.spec.ts:111:3 › twin premium 1440 (8.8s)
+cookie 80000: SSR html 355 KB, skeleton cards in html 1237; in-app skeleton DOM all=853 pulse=626; 4x CPU frames {"frames":369,"p50":17,"p95":33,"max":133,"over50":7,"longtasks":[127,62]}; until list 7448 ms
+cookie 33000: SSR html 287 KB, skeleton cards in html 510; in-app skeleton DOM all=481 pulse=259; 4x CPU frames {"frames":374,"p50":17,"p95":17,"max":83,"over50":3,"longtasks":[58]}; until list 6483 ms
+cookie 12000: SSR html 257 KB, skeleton cards in html 185; in-app skeleton DOM all=318 pulse=95; 4x CPU frames {"frames":372,"p50":17,"p95":17,"max":50,"over50":1,"longtasks":[61,55]}; until list 6448 ms
+cookie 6000: SSR html 248 KB, skeleton cards in html 92; in-app skeleton DOM all=271 pulse=48; 4x CPU frames {"frames":280,"p50":17,"p95":17,"max":133,"over50":3,"longtasks":[52,93,64]}; until list 5040 ms
+  ✓  7 [chromium] › e2e-review/extra.spec.ts:154:1 › skeleton perf 640 cards, 390, 4x CPU (28.9s)
+signed-out /: disclaimer true
+signed-out /pricing: disclaimer true
+signed-out /login: disclaimer true
+free /bets: disclaimer true; cents-like text: []
+free /bets?ps=50&wp=0&us=0&g=0&vd=worth%20it,thin,not%20worth%20it,no%20sellers,no%20book: disclaimer true; cents-like text: []
+free /bets?t=sports.nfl: disclaimer true; cents-like text: []
+free /check: disclaimer true; cents-like text: []
+free /journal: disclaimer true; cents-like text: []
+free /account: disclaimer true; cents-like text: []
+/bets SSR html contains disclaimer: true
+  ✓  8 [chromium] › e2e-review/extra.spec.ts:197:1 › rules: disclaimer, cents, console (12.2s)
+
+  8 passed (1.6m)

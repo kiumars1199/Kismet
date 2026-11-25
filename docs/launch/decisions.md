@@ -190,3 +190,6 @@ launch-wt2c-targets.spec.ts:74 fails ~15% of runs on plain final f2ef7a9 (2 of 1
 
 ## Nov 24: /bets keeps its loading skeleton (T-wt3l, #141)
 Back from /check to /bets jumped (CLS 0.55) because `app/bets/loading.tsx` streams the list after the footer and the restored scroll was clamped by a short skeleton. Options: delete `loading.tsx` (list in the shell, but tab taps lose the instant skeleton OVERHAUL §C asks for) or keep it and make the skeleton tall (`min-h-[12000px]`) so the footer stays below the fold until the list lands. Chose keep + tall reserve: it keeps §C, the fix is one file, and CLS only counts visible shifts. The reviewer checks short lists (Free, zero results) and a held first-load chunk so the reserve can't cause its own jump.
+
+## Nov 25: /bets drops its loading skeleton (reverses Nov 24, T-wt3l, #141)
+Three review rounds showed that any server skeleton height that differs from the restored page by about 300 px or more makes the footer jump on full-load Back. A remembered height can't track it: there is one cookie for many lists, and prod data changes between visits. CLS on Back (OVERHAUL §C, CLS < 0.05) outranks the instant skeleton on tab-tap. Any instant feedback comes client-side, with no height reserved on a full load.
