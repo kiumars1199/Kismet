@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { LinkPending } from "@/components/shell/LinkPending";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { BETA_LINKS, MAIN_TABS, MORE_LINKS, SALES_TABS, isActive } from "./nav";
@@ -43,6 +44,7 @@ export function MobileNav({ signedOutHint = false, hint = null }: { signedOutHin
           return (
             <Link key={t.href} href={t.href} aria-current={active ? "page" : undefined} className={`${tab} ${active ? on : "text-muted"}`}>
               {t.label}
+              <LinkPending className="inset-x-5 -top-1 h-0.5" />
             </Link>
           );
         })}

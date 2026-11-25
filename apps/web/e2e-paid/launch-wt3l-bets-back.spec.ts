@@ -1,5 +1,7 @@
-// T-wt3l: going Back from /check to /bets must not move the page. Back restores the scroll position; the page behind it was a short loading
-// skeleton for a moment, the footer sat in view, then the real list arrived and the footer shot down (CLS 0.55 at 390, 3 tries in 4).
+// T-wt3l: going Back to /bets must not move the page, whatever the list was and wherever the user was. Back restores the scroll position; with a
+// loading skeleton in front of the list the page was a different height for a moment, the footer sat in view, then the list arrived and the footer
+// shot down (CLS 0.55 at 390). No remembered state of any kind is used: the cookie of an earlier attempt is cleared before every Back here, and
+// the paths cover a stale or mismatched page (reload after expiry, history through a shorter list, a filter push then reload).
 // A first load of /bets stays <= 0.02 too.
 import { expect, test, type Page } from "./fixtures";
 
@@ -41,16 +43,27 @@ const cls = (page: Page) => page.evaluate(() => (window as unknown as { __cls: n
 const why = (page: Page) => page.evaluate(() => (window as unknown as { __src: string[] }).__src.join("\n"));
 const skipTour = async (page: Page) => { const b = page.getByRole("button", { name: "Skip tour" }); await b.waitFor({ timeout: 3_000 }).catch(() => {}); if (await b.isVisible()) await b.click(); };
 
-for (const { w, h } of [{ w: 390, h: 844 }, { w: 1440, h: 900 }]) {
-  test(`/bets at ${w}px: first load, and Back from /check, 10 times, CLS <= 0.02`, async ({ page }) => {
+/** Leave /bets (full load of /check), forget anything a server might have remembered about the page, press Back. */
+async function leaveAndBack(page: Page) {
+  await page.goto("/check", { waitUntil: "load" });
+  await page.context().clearCookies({ name: "bets_h" });
+  await page.goBack({ waitUntil: "load" });
+}
+const firstCard = (page: Page) => expect(page.getByTestId("bets-list").locator("article").first()).toBeVisible({ timeout: 60_000 });
+const maxScroll = (page: Page) => page.evaluate(() => document.documentElement.scrollHeight - window.innerHeight);
+const TALL = "/bets?ps=50&wp=0&us=0&g=0&vd=worth%20it,thin,not%20worth%20it,no%20sellers,no%20book";
+const SHORT = "/bets?t=sports.nfl";
+const SIZES = [{ w: 390, h: 844 }, { w: 1440, h: 900 }];
+
+for (const { w, h } of SIZES) {
+  test(`/bets at ${w}px: first load, and Back from /check by the in-app Check link, 10 times, CLS <= 0.02`, async ({ page }) => {
     test.setTimeout(420_000);
     await page.setViewportSize({ width: w, height: h });
     await signUp(page, `wt3l-${w}-${Date.now()}@example.com`);
     await comp(page, "premium");
     await installCls(page);
     await page.goto("/bets", { waitUntil: "load" });
-    const list = page.getByTestId("bets-list");
-    await expect(list.locator("article").first()).toBeVisible({ timeout: 60_000 });
+    await firstCard(page);
     await skipTour(page);
     await page.waitForTimeout(2_500);
     const first = await cls(page);
@@ -62,106 +75,143 @@ for (const { w, h } of [{ w: 390, h: 844 }, { w: 1440, h: 900 }]) {
       await page.evaluate(() => window.scrollTo(0, 0));
       const link = page.getByTestId("check-link").nth(i % 3);
       await link.scrollIntoViewIfNeeded();
-      await page.evaluate(() => window.scrollBy(0, 200));   // somewhere down the list, as after reading a few cards
+      await page.evaluate(() => window.scrollBy(0, 200));
       await link.click();
       await expect(page).toHaveURL(/\/check\?m=/);
       await page.waitForTimeout(800);
       await page.evaluate(() => { (window as unknown as { __cls: number; __src: string[] }).__cls = 0; (window as unknown as { __src: string[] }).__src = []; });
       await page.goBack();
       await expect(page).toHaveURL(/\/bets/);
-      await expect(page.getByTestId("bets-list").locator("article").first()).toBeVisible({ timeout: 30_000 });
+      await firstCard(page);
       await page.waitForTimeout(2_000);
       const v = await cls(page);
       worst.push(v);
       if (v > 0.02) console.log(`try ${i}: CLS ${v.toFixed(4)}\n${await why(page)}`);
     }
-    console.log(`Back to /bets at ${w}px, CLS per try: ${worst.map((x) => x.toFixed(4)).join(" ")}`);
+    console.log(`soft Back to /bets at ${w}px, CLS per try: ${worst.map((x) => x.toFixed(4)).join(" ")}`);
     expect(Math.max(...worst), "worst Back").toBeLessThanOrEqual(0.02);
   });
 }
 
-// The reviewer's path: a full load of /check (typed address, new tab, a reload), then the browser's Back, which loads /bets again from the
-// server with the scroll position restored (751 px) while the page is still a short skeleton.
-for (const { w, h } of [{ w: 390, h: 844 }, { w: 1440, h: 900 }]) {
-  test(`/bets at ${w}px: Back after a full load of /check, 10 times, CLS <= 0.02`, async ({ page }) => {
-    test.setTimeout(420_000);
-    await page.setViewportSize({ width: w, height: h });
-    await signUp(page, `wt3l-full-${w}-${Date.now()}@example.com`);
-    await comp(page, "premium");
-    await installCls(page);
-    const worst: number[] = [];
-    for (let i = 0; i < 10; i++) {
-      await page.goto("/bets", { waitUntil: "load" });
-      await expect(page.getByTestId("bets-list").locator("article").first()).toBeVisible({ timeout: 60_000 });
-      await skipTour(page);
-      await page.evaluate(() => window.scrollTo(0, 751));
-      await page.waitForTimeout(500);
-      await page.goto("/check", { waitUntil: "load" });
-      await page.goBack({ waitUntil: "load" });
-      await expect(page).toHaveURL(/\/bets/);
-      await expect(page.getByTestId("bets-list").locator("article").first()).toBeVisible({ timeout: 30_000 });
-      await page.waitForTimeout(2_000);
-      const v = await cls(page);
-      worst.push(v);
-      if (v > 0.02) console.log(`try ${i}: CLS ${v.toFixed(4)}\n${await why(page)}`);
+// Full-load Back (typed address, reload, new tab) at the middle and near the bottom of the default page (Premium and Free) and the 50-bet page
+// (Premium; ~26,000 px at 390). CLS <= 0.02 and the scroll lands within 2 px.
+for (const { w, h } of SIZES) {
+  for (const [label, tier, url] of [["default page, Premium", "premium", "/bets"], ["default page, Free", "free", "/bets"], ["50-bet page, Premium", "premium", TALL]] as const) {
+    for (const [where, at] of [["mid-list", 0.5], ["near the bottom", -1]] as const) {
+      test(`Back after a full load of /check, ${label}, ${where}, at ${w}px: CLS <= 0.02, scroll within 2 px`, async ({ page }) => {
+        test.setTimeout(300_000);
+        await page.setViewportSize({ width: w, height: h });
+        await signUp(page, `wt3l-fl-${w}-${tier}-${Date.now()}@example.com`);
+        if (tier === "premium") await comp(page, "premium");
+        await installCls(page);
+        const results: string[] = [];
+        for (let i = 0; i < 3; i++) {
+          await page.goto(url, { waitUntil: "load" });
+          await firstCard(page);
+          await skipTour(page);
+          await page.waitForTimeout(1_500);
+          const max = await maxScroll(page);
+          const target = at < 0 ? Math.max(0, max - 120) : Math.round(max * at);
+          await page.evaluate((y) => window.scrollTo(0, y), target);
+          await page.waitForTimeout(500);
+          const before = await page.evaluate(() => window.scrollY);
+          await leaveAndBack(page);
+          await firstCard(page);
+          await page.waitForTimeout(2_000);
+          const v = await cls(page);
+          const after = await page.evaluate(() => window.scrollY);
+          results.push(`CLS ${v.toFixed(4)} scroll ${before} -> ${after}`);
+          if (v > 0.02) console.log(`try ${i}: CLS ${v.toFixed(4)}\n${await why(page)}`);
+          expect(v, `try ${i} CLS`).toBeLessThanOrEqual(0.02);
+          expect(Math.abs(after - before), `try ${i}: the scroll position is restored within 2 px`).toBeLessThanOrEqual(2);
+        }
+        console.log(`Back (full load), ${label}, ${where}, ${w}px: ${results.join(" | ")}`);
+      });
     }
-    console.log(`Back (full load) to /bets at ${w}px, CLS per try: ${worst.map((x) => x.toFixed(4)).join(" ")}`);
-    expect(Math.max(...worst), "worst Back").toBeLessThanOrEqual(0.02);
-  });
-}
-
-// A Premium page of 50 bets (the default page size) is ~26,000 px at 390 (~33,000 in production): well past the 12,000 px floor of the loading
-// skeleton's reserve. The skeleton reserves the height the user left (a cookie set through /api/bets/height), so Back restores the scroll and the
-// footer does not shoot down.
-const TALL = "/bets?ps=50&wp=0&us=0&g=0&vd=worth%20it,thin,not%20worth%20it,no%20sellers,no%20book";
-for (const { w, h } of [{ w: 390, h: 844 }, { w: 1440, h: 900 }]) {
-  for (const clearCookie of [false, true]) {
-    test(`a 50-bet /bets page at ${w}px: scroll deep, full load of /check, Back${clearCookie ? " (probe: remembered height cleared, i.e. the 12,000 px floor only)" : ""}: scroll restored, CLS <= 0.02`, async ({ page }) => {
-      test.skip(clearCookie && !process.env.WT3L_PROBE, "evidence only: shows what the fixed 12,000 px reserve did");
-      test.setTimeout(300_000);
-      await page.setViewportSize({ width: w, height: h });
-      await signUp(page, `wt3l-tall-${w}-${Date.now()}@example.com`);
-      await comp(page, "premium");
-      await installCls(page);
-      const results: string[] = [];
-      for (let i = 0; i < 3; i++) {
-        await page.goto(TALL, { waitUntil: "load" });
-        await expect(page.getByTestId("bets-list").locator("article").first()).toBeVisible({ timeout: 60_000 });
-        await skipTour(page);
-        const total = await page.evaluate(() => document.documentElement.scrollHeight);
-        expect(total, "the page is tall (at 390: well past the skeleton's 12,000 px floor)").toBeGreaterThan(w === 390 ? 20_000 : 5_000);   // at 1440 the cards sit in a grid: 50 bets are ~8,800 px, under the floor
-        const target = Math.round((total - h) * 0.8);
-        await page.evaluate((y) => window.scrollTo(0, y), target);
-        await page.waitForTimeout(900);   // the throttled save
-        const before = await page.evaluate(() => window.scrollY);
-        await page.goto("/check", { waitUntil: "load" });
-        if (clearCookie) await page.context().clearCookies({ name: "bets_h" });
-        await page.goBack({ waitUntil: "load" });
-        await expect(page.getByTestId("bets-list").locator("article").first()).toBeVisible({ timeout: 30_000 });
-        await page.waitForTimeout(2_000);
-        const v = await cls(page);
-        const after = await page.evaluate(() => window.scrollY);
-        results.push(`CLS ${v.toFixed(4)} scroll ${before} -> ${after}`);
-        if (v > 0.02) console.log(`try ${i}: CLS ${v.toFixed(4)}\n${await why(page)}`);
-        expect(v, `try ${i} CLS`).toBeLessThanOrEqual(0.02);
-        expect(Math.abs(after - before), `try ${i}: the scroll position is restored`).toBeLessThanOrEqual(60);
-      }
-      console.log(`50-bet Back at ${w}px${clearCookie ? " (remembered height cleared)" : ""}: ${results.join(" | ")}`);
-    });
   }
 }
 
-// The remembered height must not leave blank space when the next list is shorter: the reserve exists only while the skeleton shows.
-test("after a tall page, a short /bets list has no blank space below it (the reserve is gone with the skeleton)", async ({ page }) => {
+// The paths where a remembered height would be wrong. With nothing remembered, none of them may move the page.
+for (const { w, h } of SIZES) {
+  test(`history through a shorter list at ${w}px: 50-bet page (deep) -> short list -> /check -> Back -> Back: CLS <= 0.02, scroll within 2 px`, async ({ page }) => {
+    test.setTimeout(300_000);
+    await page.setViewportSize({ width: w, height: h });
+    await signUp(page, `wt3l-hist-${w}-${Date.now()}@example.com`);
+    await comp(page, "premium");
+    await installCls(page);
+    await page.goto(TALL, { waitUntil: "load" });
+    await firstCard(page);
+    await skipTour(page);
+    await page.waitForTimeout(1_500);
+    const deep = Math.round((await maxScroll(page)) * 0.8);
+    await page.evaluate((y) => window.scrollTo(0, y), deep);
+    await page.waitForTimeout(500);
+    await page.goto(SHORT, { waitUntil: "load" });
+    await expect(page.locator("footer").first()).toBeVisible();
+    await page.waitForTimeout(1_000);
+    const shortY = Math.max(0, (await maxScroll(page)) - 80);
+    await page.evaluate((y) => window.scrollTo(0, y), shortY);
+    await page.waitForTimeout(500);
+    const shortBefore = await page.evaluate(() => window.scrollY);
+    await page.goto("/check", { waitUntil: "load" });
+    await page.context().clearCookies({ name: "bets_h" });
+    await page.goBack({ waitUntil: "load" });   // the short list
+    await page.waitForTimeout(2_000);
+    const v1 = await cls(page);
+    const shortAfter = await page.evaluate(() => window.scrollY);
+    await page.goBack({ waitUntil: "load" });   // the 50-bet page, from a history entry whose height nobody remembers any more
+    await firstCard(page);
+    await page.waitForTimeout(2_000);
+    const v2 = await cls(page);
+    const deepAfter = await page.evaluate(() => window.scrollY);
+    console.log(`history at ${w}px: short list CLS ${v1.toFixed(4)} scroll ${shortBefore} -> ${shortAfter}; 50-bet page CLS ${v2.toFixed(4)} scroll ${deep} -> ${deepAfter}`);
+    if (v1 > 0.02 || v2 > 0.02) console.log(await why(page));
+    expect(v1, "Back to the short list").toBeLessThanOrEqual(0.02);
+    expect(Math.abs(shortAfter - shortBefore), "short list scroll within 2 px").toBeLessThanOrEqual(2);
+    expect(v2, "second Back to the 50-bet page").toBeLessThanOrEqual(0.02);
+    expect(Math.abs(deepAfter - deep), "50-bet page scroll within 2 px").toBeLessThanOrEqual(2);
+  });
+
+  test(`a filter push, then a reload, then Back from /check at ${w}px: CLS <= 0.02, scroll within 2 px`, async ({ page }) => {
+    test.setTimeout(300_000);
+    await page.setViewportSize({ width: w, height: h });
+    await signUp(page, `wt3l-push-${w}-${Date.now()}@example.com`);
+    await comp(page, "premium");
+    await installCls(page);
+    await page.goto("/bets", { waitUntil: "load" });
+    await firstCard(page);
+    await skipTour(page);
+    await page.waitForTimeout(1_500);
+    await page.evaluate((u) => window.history.pushState(null, "", u), TALL);   // a filter push (the URL changes, nothing reloads)
+    await page.reload({ waitUntil: "load" });
+    await firstCard(page);
+    await page.waitForTimeout(1_500);
+    const y = Math.max(0, (await maxScroll(page)) - 300);
+    await page.evaluate((v) => window.scrollTo(0, v), y);
+    await page.waitForTimeout(500);
+    const before = await page.evaluate(() => window.scrollY);
+    await leaveAndBack(page);
+    await firstCard(page);
+    await page.waitForTimeout(2_000);
+    const v = await cls(page);
+    const after = await page.evaluate(() => window.scrollY);
+    console.log(`push + reload + Back at ${w}px: CLS ${v.toFixed(4)} scroll ${before} -> ${after}`);
+    if (v > 0.02) console.log(await why(page));
+    expect(v).toBeLessThanOrEqual(0.02);
+    expect(Math.abs(after - before)).toBeLessThanOrEqual(2);
+  });
+}
+
+test("after a tall page, a short /bets list has no blank space below it", async ({ page }) => {
   test.setTimeout(200_000);
   await page.setViewportSize({ width: 390, height: 844 });
   await signUp(page, `wt3l-short-${Date.now()}@example.com`);
   await comp(page, "premium");
   await page.goto(TALL, { waitUntil: "load" });
-  await expect(page.getByTestId("bets-list").locator("article").first()).toBeVisible({ timeout: 60_000 });
+  await firstCard(page);
   await page.evaluate(() => window.scrollTo(0, 15_000));
   await page.waitForTimeout(900);
-  await page.goto("/bets?t=sports.nfl", { waitUntil: "load" });   // a short list
+  await page.goto(SHORT, { waitUntil: "load" });
   await expect(page.locator("footer").first()).toBeVisible();
   await page.waitForTimeout(2_000);
   const gap = await page.evaluate(() => { const f = document.querySelector("footer")!.getBoundingClientRect(); return Math.round(document.documentElement.scrollHeight - (f.bottom + scrollY)); });
@@ -169,41 +219,14 @@ test("after a tall page, a short /bets list has no blank space below it (the res
   expect(await page.evaluate(() => document.documentElement.scrollHeight), "the page is as tall as its content").toBeLessThan(12_000);
 });
 
-// Near the bottom of a page SHORTER than the skeleton's old 12,000 px floor (the default 12-bet page, Free, 1440 where 50 bets are ~8,700 px):
-// the skeleton must be exactly as tall as the page it stands in for, or the footer jumps (CLS 0.4-0.5 at 390). Scroll lands within 2 px.
-const DEFAULT_PAGE = "/bets";
-for (const { w, h } of [{ w: 390, h: 844 }, { w: 1440, h: 900 }]) {
-  for (const [label, tier, url] of [["default page, Premium", "premium", DEFAULT_PAGE], ["default page, Free", "free", DEFAULT_PAGE], ["50-bet page, Premium", "premium", TALL]] as const) {
-    test(`near-bottom Back after a full load of /check, ${label} at ${w}px: CLS <= 0.02, scroll restored within 2 px`, async ({ page }) => {
-      test.setTimeout(300_000);
-      await page.setViewportSize({ width: w, height: h });
-      await signUp(page, `wt3l-nb-${w}-${tier}-${Date.now()}@example.com`);
-      if (tier === "premium") await comp(page, "premium");
-      await installCls(page);
-      const results: string[] = [];
-      for (let i = 0; i < 3; i++) {
-        await page.goto(url, { waitUntil: "load" });
-        await expect(page.getByTestId("bets-list").locator("article").first()).toBeVisible({ timeout: 60_000 });
-        await skipTour(page);
-        await page.waitForTimeout(1_500);
-        const total = await page.evaluate(() => document.documentElement.scrollHeight);
-        const target = Math.max(0, total - h - 120);   // a spot near the bottom, the footer just coming into view
-        await page.evaluate((y) => window.scrollTo(0, y), target);
-        await page.waitForTimeout(900);   // the throttled report
-        const before = await page.evaluate(() => window.scrollY);
-        await page.goto("/check", { waitUntil: "load" });
-        await page.goBack({ waitUntil: "load" });
-        await expect(page.getByTestId("bets-list").locator("article").first()).toBeVisible({ timeout: 30_000 });
-        await page.waitForTimeout(2_000);
-        const v = await cls(page);
-        const after = await page.evaluate(() => window.scrollY);
-        const total2 = await page.evaluate(() => document.documentElement.scrollHeight);
-        results.push(`CLS ${v.toFixed(4)} scroll ${before} -> ${after} (page ${total} -> ${total2})`);
-        if (v > 0.02) console.log(`try ${i}: CLS ${v.toFixed(4)}\n${await why(page)}`);
-        expect(v, `try ${i} CLS`).toBeLessThanOrEqual(0.02);
-        expect(Math.abs(after - before), `try ${i}: the scroll position is restored within 2 px`).toBeLessThanOrEqual(2);
-      }
-      console.log(`near-bottom Back, ${label} at ${w}px: ${results.join(" | ")}`);
-    });
-  }
-}
+// The raw HTML of /bets has the first card before the footer: no loading boundary streams the list after it.
+test("raw HTML: the first card comes before the footer", async ({ page }) => {
+  test.setTimeout(120_000);
+  await signUp(page, `wt3l-raw-${Date.now()}@example.com`);
+  await comp(page, "premium");
+  const html = await (await page.request.get("/bets")).text();
+  const card = html.indexOf("<article"), footer = html.indexOf("<footer");
+  expect(card, "the page has cards in its HTML").toBeGreaterThan(0);
+  expect(footer).toBeGreaterThan(0);
+  expect(card, "first <article> before <footer>").toBeLessThan(footer);
+});
