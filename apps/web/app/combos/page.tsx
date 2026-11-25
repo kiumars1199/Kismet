@@ -2,7 +2,6 @@
 // Best bets on different events closing within a day, only combos whose cautious chance still beats the price.
 // Live since Nov 21 (owner decision). Premium (lib/entitlements); Free and Pro get what it is and the upgrade link.
 import Link from "next/link";
-import { Suspense } from "react";
 import { getMe } from "@/lib/auth/server";
 import { canBeta } from "@/lib/beta";
 import { COMBOS_PAGE_FREE_PRO } from "@/lib/check/copy";
@@ -30,6 +29,8 @@ async function firstLists(me: Awaited<ReturnType<typeof getMe>>): Promise<Record
 
 export default async function Page() {
   const me = await getMe();
+  // No <Suspense> around the browser (T-wt3k): React outlines a boundary bigger than ~13 kB into a <template> that streams in after the footer, and the footer jumps when it lands.
+  // The page is dynamic (getMe reads the cookies), so useSearchParams in the browser needs no boundary: it reads the URL itself, which stays right when Back or Forward restores the page from the router cache.
   const allowed = canBeta(me, "combos");
   const lists = allowed ? await firstLists(me) : undefined;
   return (
@@ -43,9 +44,7 @@ export default async function Page() {
         </p>
       </div>
       {allowed ? (
-        <Suspense>
-          <ComboBrowser lists={lists} />
-        </Suspense>
+        <ComboBrowser lists={lists} />
       ) : (
         <div data-testid="combos-upgrade" className="flex flex-col items-start gap-3 rounded-card border border-border bg-surface p-5">
           <p className="text-sm text-soft">
