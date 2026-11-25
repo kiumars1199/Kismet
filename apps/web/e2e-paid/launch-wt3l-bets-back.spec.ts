@@ -109,3 +109,62 @@ for (const { w, h } of [{ w: 390, h: 844 }, { w: 1440, h: 900 }]) {
     expect(Math.max(...worst), "worst Back").toBeLessThanOrEqual(0.02);
   });
 }
+
+// A Premium page of 50 bets (the default page size) is ~26,000 px at 390 (~33,000 in production): well past the 12,000 px floor of the loading
+// skeleton's reserve. The skeleton reserves the height the user left (a cookie set through /api/bets/height), so Back restores the scroll and the
+// footer does not shoot down.
+const TALL = "/bets?ps=50&wp=0&us=0&g=0&vd=worth%20it,thin,not%20worth%20it,no%20sellers,no%20book";
+for (const { w, h } of [{ w: 390, h: 844 }, { w: 1440, h: 900 }]) {
+  for (const clearCookie of [false, true]) {
+    test(`a 50-bet /bets page at ${w}px: scroll deep, full load of /check, Back${clearCookie ? " (probe: remembered height cleared, i.e. the 12,000 px floor only)" : ""}: scroll restored, CLS <= 0.02`, async ({ page }) => {
+      test.skip(clearCookie && !process.env.WT3L_PROBE, "evidence only: shows what the fixed 12,000 px reserve did");
+      test.setTimeout(300_000);
+      await page.setViewportSize({ width: w, height: h });
+      await signUp(page, `wt3l-tall-${w}-${Date.now()}@example.com`);
+      await comp(page, "premium");
+      await installCls(page);
+      const results: string[] = [];
+      for (let i = 0; i < 3; i++) {
+        await page.goto(TALL, { waitUntil: "load" });
+        await expect(page.getByTestId("bets-list").locator("article").first()).toBeVisible({ timeout: 60_000 });
+        await skipTour(page);
+        const total = await page.evaluate(() => document.documentElement.scrollHeight);
+        expect(total, "the page is tall (at 390: well past the skeleton's 12,000 px floor)").toBeGreaterThan(w === 390 ? 20_000 : 5_000);   // at 1440 the cards sit in a grid: 50 bets are ~8,800 px, under the floor
+        const target = Math.round((total - h) * 0.8);
+        await page.evaluate((y) => window.scrollTo(0, y), target);
+        await page.waitForTimeout(900);   // the throttled save
+        const before = await page.evaluate(() => window.scrollY);
+        await page.goto("/check", { waitUntil: "load" });
+        if (clearCookie) await page.context().clearCookies({ name: "bets_h" });
+        await page.goBack({ waitUntil: "load" });
+        await expect(page.getByTestId("bets-list").locator("article").first()).toBeVisible({ timeout: 30_000 });
+        await page.waitForTimeout(2_000);
+        const v = await cls(page);
+        const after = await page.evaluate(() => window.scrollY);
+        results.push(`CLS ${v.toFixed(4)} scroll ${before} -> ${after}`);
+        if (v > 0.02) console.log(`try ${i}: CLS ${v.toFixed(4)}\n${await why(page)}`);
+        expect(v, `try ${i} CLS`).toBeLessThanOrEqual(0.02);
+        expect(Math.abs(after - before), `try ${i}: the scroll position is restored`).toBeLessThanOrEqual(60);
+      }
+      console.log(`50-bet Back at ${w}px${clearCookie ? " (remembered height cleared)" : ""}: ${results.join(" | ")}`);
+    });
+  }
+}
+
+// The remembered height must not leave blank space when the next list is shorter: the reserve exists only while the skeleton shows.
+test("after a tall page, a short /bets list has no blank space below it (the reserve is gone with the skeleton)", async ({ page }) => {
+  test.setTimeout(200_000);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await signUp(page, `wt3l-short-${Date.now()}@example.com`);
+  await comp(page, "premium");
+  await page.goto(TALL, { waitUntil: "load" });
+  await expect(page.getByTestId("bets-list").locator("article").first()).toBeVisible({ timeout: 60_000 });
+  await page.evaluate(() => window.scrollTo(0, 15_000));
+  await page.waitForTimeout(900);
+  await page.goto("/bets?t=sports.nfl", { waitUntil: "load" });   // a short list
+  await expect(page.locator("footer").first()).toBeVisible();
+  await page.waitForTimeout(2_000);
+  const gap = await page.evaluate(() => { const f = document.querySelector("footer")!.getBoundingClientRect(); return Math.round(document.documentElement.scrollHeight - (f.bottom + scrollY)); });
+  expect(gap, "nothing is reserved below the footer").toBeLessThanOrEqual(2);
+  expect(await page.evaluate(() => document.documentElement.scrollHeight), "the page is as tall as its content").toBeLessThan(12_000);
+});
