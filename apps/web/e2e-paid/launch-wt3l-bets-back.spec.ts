@@ -168,3 +168,42 @@ test("after a tall page, a short /bets list has no blank space below it (the res
   expect(gap, "nothing is reserved below the footer").toBeLessThanOrEqual(2);
   expect(await page.evaluate(() => document.documentElement.scrollHeight), "the page is as tall as its content").toBeLessThan(12_000);
 });
+
+// Near the bottom of a page SHORTER than the skeleton's old 12,000 px floor (the default 12-bet page, Free, 1440 where 50 bets are ~8,700 px):
+// the skeleton must be exactly as tall as the page it stands in for, or the footer jumps (CLS 0.4-0.5 at 390). Scroll lands within 2 px.
+const DEFAULT_PAGE = "/bets";
+for (const { w, h } of [{ w: 390, h: 844 }, { w: 1440, h: 900 }]) {
+  for (const [label, tier, url] of [["default page, Premium", "premium", DEFAULT_PAGE], ["default page, Free", "free", DEFAULT_PAGE], ["50-bet page, Premium", "premium", TALL]] as const) {
+    test(`near-bottom Back after a full load of /check, ${label} at ${w}px: CLS <= 0.02, scroll restored within 2 px`, async ({ page }) => {
+      test.setTimeout(300_000);
+      await page.setViewportSize({ width: w, height: h });
+      await signUp(page, `wt3l-nb-${w}-${tier}-${Date.now()}@example.com`);
+      if (tier === "premium") await comp(page, "premium");
+      await installCls(page);
+      const results: string[] = [];
+      for (let i = 0; i < 3; i++) {
+        await page.goto(url, { waitUntil: "load" });
+        await expect(page.getByTestId("bets-list").locator("article").first()).toBeVisible({ timeout: 60_000 });
+        await skipTour(page);
+        await page.waitForTimeout(1_500);
+        const total = await page.evaluate(() => document.documentElement.scrollHeight);
+        const target = Math.max(0, total - h - 120);   // a spot near the bottom, the footer just coming into view
+        await page.evaluate((y) => window.scrollTo(0, y), target);
+        await page.waitForTimeout(900);   // the throttled report
+        const before = await page.evaluate(() => window.scrollY);
+        await page.goto("/check", { waitUntil: "load" });
+        await page.goBack({ waitUntil: "load" });
+        await expect(page.getByTestId("bets-list").locator("article").first()).toBeVisible({ timeout: 30_000 });
+        await page.waitForTimeout(2_000);
+        const v = await cls(page);
+        const after = await page.evaluate(() => window.scrollY);
+        const total2 = await page.evaluate(() => document.documentElement.scrollHeight);
+        results.push(`CLS ${v.toFixed(4)} scroll ${before} -> ${after} (page ${total} -> ${total2})`);
+        if (v > 0.02) console.log(`try ${i}: CLS ${v.toFixed(4)}\n${await why(page)}`);
+        expect(v, `try ${i} CLS`).toBeLessThanOrEqual(0.02);
+        expect(Math.abs(after - before), `try ${i}: the scroll position is restored within 2 px`).toBeLessThanOrEqual(2);
+      }
+      console.log(`near-bottom Back, ${label} at ${w}px: ${results.join(" | ")}`);
+    });
+  }
+}
