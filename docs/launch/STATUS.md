@@ -93,6 +93,7 @@ Problems:
 - [should-fix] Back from /check to /bets at 390 jumps 0.55 in 3 of 4 tries; same late-streamed-boundary signature (T-wt3l)
 
 ## Found in review, outside a lane
+- Nov 25: #141 r2 FAIL (827fb0f). The 50-bet Back is fixed, but on pages under 12,000 px (default, Free, 1440) a full-load Back near the bottom still jumps the footer (CLS 0.05–0.55). Cause: reserve = max(12000, cookie), and the cookie includes main's padding. Sent back to the builder: use the exact cookie value and measure the replaced box. Evidence: review/141-r2.
 - #140 merged at 7b8d41f (Nov 24), r2 PASS at c7ce56a: Suspense removed, list before footer (held-chunk CLS ≤0.0006 at 390/375/1440), Back/Forward 96/96 states agree, no leaks for signed-out/Free/Pro/paused. Evidence: review/140/, review/140-r2/ (raw HTML dumps left in scratch).
 - #141 (T-wt3l) PASS with notes at 225e90c (Nov 24): Back CLS ≤0.0001 in 60 tries; held first load, short and zero lists clean. HELD: the 12,000 px reserve can't cover a production page of 50 bets (about 33,000 px at 390), so a deep restore would still jump. Sent back to size the reserve from the last rendered height. #140 r2 (c7ce56a) in review. Evidence: review/141/ (scratch).
 - #140 (T-wt3k) r1 FAIL at c251a79 (Nov 24): list now before footer, held-chunk CLS ≤0.0006, but Back/Forward after an in-app link shows the wrong payout (12/12; final 18/18 correct). Sent back. #141 (T-wt3l) up at 225e90c (tall loading reserve, Back CLS 0); in review. Evidence: review/140/ (scratch).

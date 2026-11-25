@@ -1,0 +1,28 @@
+#141 r2 (T-wt3l) 827fb0fe2ed75371dee658e7cc7664ec92aa2b86: FAIL (1 blocker)
+
+BLOCKER: full-load Back that lands near the bottom of any /bets page shorter than the 12000 px floor still jumps,
+original signature. short-deep-back.txt, 6 tries each (2 near-bottom, 1 at 751):
+  Premium 12 bets 390: 0.3732 / 0.5509 (FOOTER y0->529 / y0->379); 1440: 0.0478 / 0.2145
+  Free 10 bets 390: 0.5374 (+ locked-bets shift, one scroll 5891->5811); 1440: 0.1247 / 0.2149
+  751 and in-app Back: 0. Round 1 tested only scroll 751, which missed this.
+  50 bets (deep-back.txt): restored every time; mid 0; near-bottom full Back 0.0212 (390), 0.0226 (375), 0.0478 (1440).
+  Cause: reserve = max(12000, cookie), so a short page's skeleton is taller than the page and the footer enters view
+  at the swap. The cookie also stores #main incl. its padding, so the skeleton page is 32-48 px taller (the 0.02 cases).
+  Fix idea: when a cookie exists, reserve exactly it (floor only without a cookie); measure what the skeleton replaces
+  (#main content box, or the page root div) so header+reserve+footer == real docH.
+OK:
+  Cookie states (cookie-states.txt): none/stale 60000-80000/garbage/neg/NaN/huge/fraction/empty -> 12000 or capped
+    80000; no gap below footer, load CLS <= 0.0004, swap 0, Free and zero results.
+  Route (security.txt): signed-out 401 by middleware; same-origin integer 1..500000 -> 204; evil/none/null/lookalike/
+    other-port/referer-only -> 403; bad JSON/types/extra keys/0/-1/1.5/1e308/500001 -> 400; >256 B -> 413 (with
+    content-length or chunked); GET/PUT 405. Cookie: Secure; HttpOnly; SameSite=lax; Path=/; Max-Age=3600.
+    Not under abuse.ts limits; harmless (sets own cookie only, no storage/upstream). Each POST still runs the middleware's
+    Supabase getUser. text/plain accepted (Origin-gated anyway).
+  security.test.ts 15/15; full vitest 2049/2049; eslint clean.
+  Volume (post-volume.txt): about 7 beacons/visit at 390 (1 at 1.5 s, 1 per "Why this bet?" toggle, 0 from scroll since
+    same height is skipped), all 204.
+  Skeleton: repeating blocks read as placeholder cards (s4g-premium-scroll4000-during.png); flat, no pulse/rounding (nit).
+    Tab-tap skeleton at 43-95 ms on slow 4G. Swap CLS 0.
+  Diff vs final 7b8d41f: app/bets/{RememberHeight.tsx,loading.tsx,page.tsx,remember.ts}, app/api/bets/height/route.ts,
+    the spec. Nothing else.
+  Disclaimer/no cents: unchanged pages; no page errors; no personalization (height only sizes a placeholder).

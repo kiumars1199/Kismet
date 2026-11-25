@@ -1,0 +1,9 @@
+      Tests  2049 passed (2049)
+   Start at  00:25:23
+   Duration  32.99s (tests 53%, import 27%, environment 12%, transform 7%, worker 1%)
+
+     Import  524 modules were evaluated 1192 times · 21.68s total, 27% of tracked time
+             ~2.39s faster with isolate: false — shared modules are evaluated once per worker instead of once per file
+             learn more: https://vitest.dev/guide/improving-performance#test-isolation
+
+$ eslint . --max-warnings 0

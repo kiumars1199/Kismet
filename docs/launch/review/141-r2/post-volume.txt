@@ -1,0 +1,6 @@
+signed in r141c-vol-premium-1795565887778@example.com tier=premium
+premium /bets?ps=50&wp=0&us= docH 26137: POSTs total 7 (load 1, scroll 0, taps 6, leave 0) statuses [204,204,204,204,204,204,204] sample [{"t":1175,"type":"ping","body":null,"ct":"application/json"},{"t":16312,"type":"ping","body":null,"ct":"application/json"},{"t":16440,"type":"ping","body":null,"ct":"application/json"}]
+signed in r141c-vol-premium-1795565910832@example.com tier=premium
+premium /bets docH 7973: POSTs total 7 (load 1, scroll 0, taps 6, leave 0) statuses [204,204,204,204,204,204,204] sample [{"t":974,"type":"ping","body":null,"ct":"application/json"},{"t":8626,"type":"ping","body":null,"ct":"application/json"},{"t":8773,"type":"ping","body":null,"ct":"application/json"}]
+signed in r141c-vol-free-1795565926004@example.com tier=free
+free /bets docH 6692: POSTs total 7 (load 1, scroll 0, taps 6, leave 0) statuses [204,204,204,204,204,204,204] sample [{"t":935,"type":"ping","body":null,"ct":"application/json"},{"t":8119,"type":"ping","body":null,"ct":"application/json"},{"t":8266,"type":"ping","body":null,"ct":"application/json"}]

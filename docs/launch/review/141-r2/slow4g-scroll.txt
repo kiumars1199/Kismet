@@ -1,0 +1,8 @@
+signed in r141c-4g-premium-1795566278470@example.com tier=premium
+premium 390 slow4G #0 wheel 1500: skeleton 60 ms, list 569 ms | during {"skel":true,"y":1500,"docH":12638,"visibleShapes":0} | after y 1500 docH 7973 footerTop 6008 at-center ARTICLE | swap CLS 0 []
+premium 390 slow4G #1 wheel 4000: skeleton 43 ms, list 615 ms | during {"skel":true,"y":4000,"docH":12638,"visibleShapes":0} | after y 4000 docH 7973 footerTop 3508 at-center MAIN | swap CLS 0 []
+premium 390 slow4G #2 wheel 9000: skeleton 49 ms, list 601 ms | during {"skel":true,"y":9000,"docH":12638,"visibleShapes":0} | after y 7129 docH 7973 footerTop 379 at-center ARTICLE | swap CLS 0 []
+signed in r141c-4g-free-1795566296391@example.com tier=free
+free 390 slow4G #0 wheel 1500: skeleton 52 ms, list 482 ms | during {"skel":true,"y":1500,"docH":12638,"visibleShapes":0} | after y 1500 docH 6681 footerTop 4716 at-center ARTICLE | swap CLS 0 []
+free 390 slow4G #1 wheel 4000: skeleton 43 ms, list 501 ms | during {"skel":true,"y":4000,"docH":12638,"visibleShapes":0} | after y 4000 docH 6681 footerTop 2216 at-center ARTICLE | swap CLS 0 []
+free 390 slow4G #2 wheel 9000: skeleton 95 ms, list 485 ms | during {"skel":false,"y":5837,"docH":6681,"visibleShapes":0} | after y 5837 docH 6681 footerTop 379 at-center MAIN | swap CLS 0 []

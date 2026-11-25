@@ -1,0 +1,74 @@
+== premium /bets (12/10 cards)
+signed in r141c-sd-390-1795565574440@example.com tier=premium
+390 full #0: cards 12 docH 7973 load CLS 0.0004 | cookie 7383->7383 | Back CLS 0.3732 scroll 6979->6979 docH 7973 ["0.3732 FOOTER y0->529 h0->315"]
+390 full #1: cards 12 docH 7973 load CLS 0.0004 | cookie 7383->7383 | Back CLS 0.5509 scroll 7129->7129 docH 7973 ["0.5509 FOOTER y0->379 h0->465"]
+390 full #2: cards 12 docH 7973 load CLS 0.0004 | cookie 7383->7383 | Back CLS 0 scroll 751->751 docH 7973 
+390 full #3: cards 12 docH 7973 load CLS 0.0004 | cookie 7383->7383 | Back CLS 0.3732 scroll 6979->6979 docH 7973 ["0.3732 FOOTER y0->529 h0->315"]
+390 full #4: cards 12 docH 7973 load CLS 0.0004 | cookie 7383->7383 | Back CLS 0.5509 scroll 7129->7129 docH 7973 ["0.5509 FOOTER y0->379 h0->465"]
+390 full #5: cards 12 docH 7973 load CLS 0.0004 | cookie 7383->7383 | Back CLS 0 scroll 751->751 docH 7973 
+390 full: max 0.5509 over 6, >0.02: 4, scroll misses []
+390 inapp #0: cards 12 docH 7973 load CLS 0.0004 | cookie 7383->7383 | Back CLS 0 scroll 6979->6979 docH 7973 
+390 inapp #1: cards 12 docH 7973 load CLS 0.0004 | cookie 7383->7383 | Back CLS 0 scroll 7129->7129 docH 7973 
+390 inapp #2: cards 12 docH 7973 load CLS 0.0004 | cookie 7383->7383 | Back CLS 0 scroll 751->751 docH 7973 
+390 inapp #3: cards 12 docH 7973 load CLS 0.0004 | cookie 7383->7383 | Back CLS 0 scroll 6979->6979 docH 7973 
+390 inapp #4: cards 12 docH 7973 load CLS 0.0004 | cookie 7383->7383 | Back CLS 0 scroll 7129->7129 docH 7973 
+390 inapp #5: cards 12 docH 7973 load CLS 0.0004 | cookie 7383->7383 | Back CLS 0 scroll 751->751 docH 7973 
+390 inapp: max 0 over 6, >0.02: 0, scroll misses []
+390 errors [] heightPOSTs 25
+signed in r141c-sd-1440-1795565649698@example.com tier=premium
+1440 full #0: cards 12 docH 3139 load CLS 0.0001 | cookie 2882->2882 | Back CLS 0.0478 scroll 2089->2089 docH 3139 ["0.0001 freshness y10->10 h44->44","0.0478 FOOTER y0->857 h0->43"]
+1440 full #1: cards 12 docH 3139 load CLS 0.0001 | cookie 2882->2882 | Back CLS 0.2145 scroll 2239->2239 docH 3139 ["0.0001 freshness y10->10 h44->44","0.2144 FOOTER y0->707 h0->193"]
+1440 full #2: cards 12 docH 3139 load CLS 0.0001 | cookie 2882->2882 | Back CLS 0.0001 scroll 751->751 docH 3139 
+1440 full #3: cards 12 docH 3139 load CLS 0.0001 | cookie 2882->2882 | Back CLS 0.0478 scroll 2089->2089 docH 3139 ["0.0001 freshness y10->10 h44->44","0.0478 FOOTER y0->857 h0->43"]
+1440 full #4: cards 12 docH 3139 load CLS 0.0001 | cookie 2882->2882 | Back CLS 0.2145 scroll 2239->2239 docH 3139 ["0.0001 freshness y10->10 h44->44","0.2144 FOOTER y0->707 h0->193"]
+1440 full #5: cards 12 docH 3139 load CLS 0.0001 | cookie 2882->2882 | Back CLS 0.0001 scroll 751->751 docH 3139 
+1440 full: max 0.2145 over 6, >0.02: 4, scroll misses []
+1440 inapp #0: cards 12 docH 3139 load CLS 0.0001 | cookie 2882->2882 | Back CLS 0 scroll 2089->2089 docH 3139 
+1440 inapp #1: cards 12 docH 3139 load CLS 0.0001 | cookie 2882->2882 | Back CLS 0 scroll 2239->2239 docH 3139 
+1440 inapp #2: cards 12 docH 3139 load CLS 0.0001 | cookie 2882->2882 | Back CLS 0 scroll 751->751 docH 3139 
+1440 inapp #3: cards 12 docH 3139 load CLS 0.0001 | cookie 2882->2882 | Back CLS 0 scroll 2089->2089 docH 3139 
+1440 inapp #4: cards 12 docH 3139 load CLS 0.0001 | cookie 2882->2882 | Back CLS 0 scroll 2239->2239 docH 3139 
+1440 inapp #5: cards 12 docH 3139 load CLS 0.0001 | cookie 2882->2882 | Back CLS 0 scroll 751->751 docH 3139 
+1440 inapp: max 0 over 6, >0.02: 0, scroll misses []
+1440 errors [] heightPOSTs 25
+390 full: max 0.5509 over 6, >0.02: 4, scroll misses []
+390 inapp: max 0 over 6, >0.02: 0, scroll misses []
+1440 full: max 0.2145 over 6, >0.02: 4, scroll misses []
+1440 inapp: max 0 over 6, >0.02: 0, scroll misses []
+== free /bets (12/10 cards)
+signed in r141c-sd-390-1795565725365@example.com tier=free
+390 full #0: cards 10 docH 6735 load CLS 0.0004 | cookie 6145->6145 | Back CLS 0.5374 scroll 5741->5741 docH 6735 ["0.4680 FOOTER y0->449 h0->395","0.0694 FOOTER y449->529 h395->315,locked-bets y213->293 h218->218"]
+390 full #1: cards 10 docH 6735 load CLS 0.0004 | cookie 6145->6145 | Back CLS 0.0772 scroll 5891->5811 docH 6735 ["0.0772 FOOTER y379->459 h465->385,locked-bets y143->223 h218->218"]
+390 full #2: cards 10 docH 6735 load CLS 0.0004 | cookie 6145->6145 | Back CLS 0 scroll 751->751 docH 6735 
+390 full #3: cards 10 docH 6735 load CLS 0.0004 | cookie 6145->6145 | Back CLS 0.5374 scroll 5741->5741 docH 6735 ["0.4680 FOOTER y0->449 h0->395","0.0694 FOOTER y449->529 h395->315,locked-bets y213->293 h218->218"]
+390 full #4: cards 10 docH 6735 load CLS 0.0004 | cookie 6145->6145 | Back CLS 0 scroll 5891->5891 docH 6735 
+390 full #5: cards 10 docH 6735 load CLS 0.0004 | cookie 6145->6145 | Back CLS 0 scroll 751->751 docH 6735 
+390 full: max 0.5374 over 6, >0.02: 3, scroll misses ["5891->5811"]
+390 inapp #0: cards 10 docH 6735 load CLS 0.0004 | cookie 6145->6145 | Back CLS 0 scroll 5741->5741 docH 6735 
+390 inapp #1: cards 10 docH 6735 load CLS 0.0004 | cookie 6145->6145 | Back CLS 0 scroll 5891->5891 docH 6735 
+390 inapp #2: cards 10 docH 6735 load CLS 0.0004 | cookie 6145->6145 | Back CLS 0 scroll 751->751 docH 6735 
+390 inapp #3: cards 10 docH 6735 load CLS 0.0004 | cookie 6145->6145 | Back CLS 0 scroll 5741->5741 docH 6735 
+390 inapp #4: cards 10 docH 6735 load CLS 0.0004 | cookie 6145->6145 | Back CLS 0 scroll 5891->5891 docH 6735 
+390 inapp #5: cards 10 docH 6735 load CLS 0.0004 | cookie 6145->6145 | Back CLS 0 scroll 751->751 docH 6735 
+390 inapp: max 0 over 6, >0.02: 0, scroll misses []
+390 errors [] heightPOSTs 25
+signed in r141c-sd-1440-1795565800575@example.com tier=free
+1440 full #0: cards 10 docH 2979 load CLS 0.0004 | cookie 2722->2722 | Back CLS 0.1247 scroll 1929->1929 docH 2979 ["0.0004 DIV y10->10 h44->44","0.1144 FOOTER y0->797 h0->103","0.0098 locked-bets y683->743 h96->96,FOOTER y797->857 h103->43"]
+1440 full #1: cards 10 docH 2979 load CLS 0.0004 | cookie 2722->2722 | Back CLS 0.2149 scroll 2079->2079 docH 2979 ["0.0004 DIV y10->10 h44->44","0.2144 FOOTER y0->707 h0->193"]
+1440 full #2: cards 10 docH 2979 load CLS 0.0004 | cookie 2722->2722 | Back CLS 0.0004 scroll 751->751 docH 2979 
+1440 full #3: cards 10 docH 2979 load CLS 0.0004 | cookie 2722->2722 | Back CLS 0.0103 scroll 1929->1929 docH 2979 
+1440 full #4: cards 10 docH 2979 load CLS 0.0004 | cookie 2722->2722 | Back CLS 0.2149 scroll 2079->2079 docH 2979 ["0.0004 DIV y10->10 h44->44","0.2144 FOOTER y0->707 h0->193"]
+1440 full #5: cards 10 docH 2979 load CLS 0.0004 | cookie 2722->2722 | Back CLS 0.0004 scroll 751->751 docH 2979 
+1440 full: max 0.2149 over 6, >0.02: 3, scroll misses []
+1440 inapp #0: cards 10 docH 2979 load CLS 0.0004 | cookie 2722->2722 | Back CLS 0 scroll 1929->1929 docH 2979 
+1440 inapp #1: cards 10 docH 2979 load CLS 0.0004 | cookie 2722->2722 | Back CLS 0 scroll 2079->2079 docH 2979 
+1440 inapp #2: cards 10 docH 2979 load CLS 0.0004 | cookie 2722->2722 | Back CLS 0 scroll 751->751 docH 2979 
+1440 inapp #3: cards 10 docH 2979 load CLS 0.0004 | cookie 2722->2722 | Back CLS 0 scroll 1929->1929 docH 2979 
+1440 inapp #4: cards 10 docH 2979 load CLS 0.0004 | cookie 2722->2722 | Back CLS 0 scroll 2079->2079 docH 2979 
+1440 inapp #5: cards 10 docH 2979 load CLS 0.0004 | cookie 2722->2722 | Back CLS 0 scroll 751->751 docH 2979 
+1440 inapp: max 0 over 6, >0.02: 0, scroll misses []
+1440 errors [] heightPOSTs 25
+390 full: max 0.5374 over 6, >0.02: 3, scroll misses ["5891->5811"]
+390 inapp: max 0 over 6, >0.02: 0, scroll misses []
+1440 full: max 0.2149 over 6, >0.02: 3, scroll misses []
+1440 inapp: max 0 over 6, >0.02: 0, scroll misses []

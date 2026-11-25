@@ -1,0 +1,31 @@
+== signed out (no cookies): every case 401 from middleware ('Sign in to use this.'), route never runs
+== signed in (premium session cookie)
+valid h=20313                                204  | set-cookie: bets_h=20313; Path=/; Expires=Wed, 25 Nov 2026 01:09:01 GMT; Max-Age=3600; Secure; HttpOnly; SameSite=lax
+cross-site origin evil.example               403 {"error":"Bad origin"} | set-cookie: 
+no Origin                                    403 {"error":"Bad origin"} | set-cookie: 
+Origin: null                                 403 {"error":"Bad origin"} | set-cookie: 
+lookalike localhost:4271.evil.example        403 {"error":"Bad origin"} | set-cookie: 
+other port localhost:4272                    403 {"error":"Bad origin"} | set-cookie: 
+https same host (scheme ignored)             204  | set-cookie: bets_h=20313; Path=/; Expires=Wed, 25 Nov 2026 01:09:01 GMT; Max-Age=3600; Secure; HttpOnly; SameSite=lax
+Referer only, no Origin                      403 {"error":"Bad origin"} | set-cookie: 
+text/plain body (CORS-simple)                204  | set-cookie: bets_h=15000; Path=/; Expires=Wed, 25 Nov 2026 01:09:01 GMT; Max-Age=3600; Secure; HttpOnly; SameSite=lax
+no content-type                              204  | set-cookie: bets_h=15001; Path=/; Expires=Wed, 25 Nov 2026 01:09:01 GMT; Max-Age=3600; Secure; HttpOnly; SameSite=lax
+form-urlencoded h=5                          400 {"error":"body must be { h: number }"} | set-cookie: 
+non-JSON garbage                             400 {"error":"body must be { h: number }"} | set-cookie: 
+empty body                                   400 {"error":"body must be { h: number }"} | set-cookie: 
+h=0                                          400 {"error":"body must be { h: number }"} | set-cookie: 
+h=-1                                         400 {"error":"body must be { h: number }"} | set-cookie: 
+h=1.5                                        400 {"error":"body must be { h: number }"} | set-cookie: 
+h=500000                                     204  | set-cookie: bets_h=500000; Path=/; Expires=Wed, 25 Nov 2026 01:09:02 GMT; Max-Age=3600; Secure; HttpOnly; SameSite=lax
+h=500001                                     400 {"error":"body must be { h: number }"} | set-cookie: 
+h=1e308                                      400 {"error":"body must be { h: number }"} | set-cookie: 
+h="123"                                      400 {"error":"body must be { h: number }"} | set-cookie: 
+h=null                                       400 {"error":"body must be { h: number }"} | set-cookie: 
+extra key                                    400 {"error":"body must be { h: number }"} | set-cookie: 
+__proto__ key                                400 {"error":"body must be { h: number }"} | set-cookie: 
+array                                        400 {"error":"body must be { h: number }"} | set-cookie: 
+257 B body                                   400 {"error":"body must be { h: number }"} | set-cookie: 
+1 MB chunked, no content-length              413 {"error":"Request body too large"} | set-cookie: 
+GET                                          405  | set-cookie: 
+PUT                                          405  | set-cookie: 
+300 B body with content-length               {"error":"Request body too large"} 413
