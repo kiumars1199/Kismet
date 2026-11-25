@@ -63,7 +63,7 @@ export function Header({ signedOutHint = false, hint = null }: { signedOutHint?:
           return (
             <Link key={t.href} href={t.href} aria-current={active ? "page" : undefined} className={navItem(active)}>
               {t.label}
-              <LinkPending className="inset-x-2 bottom-0 h-0.5" />
+              <LinkPending skeleton={t.href === "/bets"} className="inset-x-2 bottom-0 h-0.5 rounded-full" />
             </Link>
           );
         })}

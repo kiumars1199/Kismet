@@ -230,3 +230,69 @@ test("raw HTML: the first card comes before the footer", async ({ page }) => {
   expect(footer).toBeGreaterThan(0);
   expect(card, "first <article> before <footer>").toBeLessThan(footer);
 });
+
+// Tapping the Best bets tab from a short page whose footer is on screen, with /bets taking longer than Chrome's 500 ms input window: nothing may
+// move once the window is over (CLS counts then). A client-side skeleton shows on the tap (never on a full load or Back); a 1 s hold on /bets
+// stands in for slow 4G or a busy server.
+const holdBets = (page: Page, ms: number) => page.route(/\/bets(\?|$)/, async (route) => { await new Promise((r) => setTimeout(r, ms)); await route.continue(); });
+const bestBetsTab = (page: Page, w: number) => (w < 768 ? page.locator('nav[aria-label="Main"] a[href="/bets"]').last() : page.locator('nav[aria-label="Main"] a[href="/bets"]').first());
+
+for (const { w, h } of SIZES) {
+  for (const from of ["/check", "/watchlist"] as const) {
+    test(`tap Best bets from ${from} at ${w}px with /bets held 1 s: counted CLS <= 0.02, the tap shows feedback at once`, async ({ page }) => {
+      test.setTimeout(240_000);
+      await page.setViewportSize({ width: w, height: h });
+      await signUp(page, `wt3l-nav-${w}-${from.slice(1)}-${Date.now()}@example.com`);
+      await comp(page, "premium");
+      await installCls(page);
+      await page.goto(from, { waitUntil: "load" });
+      await skipTour(page);
+      await page.waitForTimeout(1_500);
+      const footerTop = await page.evaluate(() => document.querySelector("footer")!.getBoundingClientRect().top);
+      expect(footerTop, "the footer is on screen before the tap (a short page)").toBeLessThan(h);
+      await holdBets(page, 1_000);
+      await page.evaluate(() => { (window as unknown as { __cls: number; __src: string[] }).__cls = 0; (window as unknown as { __src: string[] }).__src = []; });
+      await page.waitForTimeout(700);   // out of any input window from earlier clicks
+      await bestBetsTab(page, w).click();
+      await expect(page.locator("[data-pending]").first(), "feedback on the tap").toBeVisible({ timeout: 300 });
+      await expect(page).toHaveURL(/\/bets/, { timeout: 30_000 });
+      await firstCard(page);
+      await page.waitForTimeout(2_000);
+      const v = await cls(page);
+      console.log(`tap Best bets from ${from} at ${w}px (held 1 s): counted CLS ${v.toFixed(4)}`);
+      if (v > 0.02) console.log(await why(page));
+      expect(v).toBeLessThanOrEqual(0.02);
+      await expect(page.locator("[data-pending]"), "the pending bar clears on commit").toHaveCount(0);
+      expect(await page.evaluate(() => document.documentElement.hasAttribute("data-bets-pending")), "the tap skeleton is gone").toBe(false);
+    });
+  }
+
+  test(`tapping another tab while /bets is pending clears the tap skeleton at ${w}px`, async ({ page }) => {
+    test.setTimeout(200_000);
+    await page.setViewportSize({ width: w, height: h });
+    await signUp(page, `wt3l-nav2-${w}-${Date.now()}@example.com`);
+    await comp(page, "premium");
+    await page.goto("/watchlist", { waitUntil: "load" });
+    await skipTour(page);
+    await holdBets(page, 4_000);
+    await bestBetsTab(page, w).click();
+    await expect(page.locator("[data-pending]").first()).toBeVisible({ timeout: 500 });
+    const markets = (w < 768 ? page.locator('nav[aria-label="Main"] a[href="/markets"]').last() : page.locator('nav[aria-label="Main"] a[href="/markets"]').first());
+    await markets.click();
+    await expect(page).toHaveURL(/\/markets/, { timeout: 30_000 });
+    await expect(page.getByRole("heading", { level: 1, name: "All markets" })).toBeVisible({ timeout: 30_000 });
+    await page.waitForTimeout(500);
+    expect(await page.evaluate(() => document.documentElement.hasAttribute("data-bets-pending")), "no tap skeleton left on /markets").toBe(false);
+    await expect(page.locator("[data-pending]")).toHaveCount(0);
+  });
+}
+
+// A full load of /bets and the browser's Back never show the tap skeleton or reserve anything.
+test("a full load of /bets has no tap skeleton", async ({ page }) => {
+  test.setTimeout(120_000);
+  await signUp(page, `wt3l-nonav-${Date.now()}@example.com`);
+  await comp(page, "premium");
+  await page.goto("/bets", { waitUntil: "load" });
+  await firstCard(page);
+  expect(await page.evaluate(() => document.documentElement.hasAttribute("data-bets-pending"))).toBe(false);
+});
