@@ -165,16 +165,3 @@ body:has([data-combo-pending]) footer { visibility: hidden; animation: combo-foo
 
 /* /account shows the help line in its pause card, so the footer copy hides there (one per page; the footer disclaimer stays). */
 body:has([data-account-page]) footer [data-testid="helpline"] { display: none; }
-
-/* Tapping a link to /bets (LinkPending sets data-bets-pending on <html> while that navigation is pending): /bets has no loading.tsx (its boundary
-   streamed the list after the footer and moved the page on Back), so the current page is replaced at once by a /bets-shaped placeholder, tall
-   enough (2.5 screens) that the footer leaves the viewport inside Chrome's 500 ms input window instead of being pushed out after it. Never on a full
-   load or Back: only a pending link sets the attribute. */
-html[data-bets-pending] #main > * { display: none; }
-html[data-bets-pending] #main::before {
-  content: ""; display: block; min-height: 250svh; max-width: 64rem; margin-inline: auto; animation: bets-tap-pulse 1.6s ease-in-out infinite;
-  background:
-    linear-gradient(var(--muted-bg), var(--muted-bg)) 0 0 / 14rem 2rem no-repeat,
-    repeating-linear-gradient(to bottom, var(--muted-bg) 0 7rem, transparent 7rem 8rem) 0 4.5rem / 100% 100% no-repeat;
-}
-@keyframes bets-tap-pulse { 50% { opacity: 0.55; } }

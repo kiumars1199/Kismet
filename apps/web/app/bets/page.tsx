@@ -1,5 +1,6 @@
 import { OnboardingNudge } from "@/components/onboarding/OnboardingNudge";
 import { BestBets } from "@/components/screener/BestBets";
+import { BetsScrollRestore } from "@/components/screener/BetsScrollRestore";
 import { firstPage } from "@/lib/data/respond";
 import { authEnabled, getUser } from "@/lib/auth/server";
 import { markFirstBetsVisit, nudgeOnServer } from "@/lib/activation";
@@ -21,6 +22,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Sea
       {/* no Suspense: the page is dynamic (searchParams), and a boundary here made React hold the reveal of the
           server-rendered cards for up to 300 ms, which Lighthouse counted as a late LCP */}
       <BestBets initial={initial} />
+      <BetsScrollRestore />
     </div>
   );
 }

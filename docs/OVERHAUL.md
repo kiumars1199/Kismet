@@ -59,8 +59,7 @@ Owners report about 5 s after each click.
   `counts.json` with every count shown anywhere, per-category lists). Pages read these, not markets.json.
 - Signed-out pages (`/`, `/pricing`, `/about`, `/track-record`, legal) are static + ISR, cached at the
   edge, revalidated on demand by `ops/upload.py` after each upload.
-- Signed-in pages: prefetch nav links, render a skeleton instantly, cache everything not per-user. (/bets has no loading.tsx: its boundary streamed the
-  list after the footer and moved the page on Back. A tap on a link to /bets shows a client-side placeholder at once instead: `LinkPending`.)
+- Signed-in pages: prefetch nav links, render a skeleton instantly, cache everything not per-user.
 - Lazy-load charts and the drawer; landing page JS < 150 KB gzipped.
 - Check (prod, after deploy, numbers in the report): signed-out pages `x-vercel-cache: HIT`; cold TTFB
   < 500 ms; Lighthouse mobile LCP < 2.0 s, INP < 200 ms, CLS < 0.05 on `/`, `/bets`, `/pricing`,

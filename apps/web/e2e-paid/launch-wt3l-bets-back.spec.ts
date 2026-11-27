@@ -1,7 +1,8 @@
 // T-wt3l: going Back to /bets must not move the page, whatever the list was and wherever the user was. Back restores the scroll position; with a
 // loading skeleton in front of the list the page was a different height for a moment, the footer sat in view, then the list arrived and the footer
-// shot down (CLS 0.55 at 390). No remembered state of any kind is used: the cookie of an earlier attempt is cleared before every Back here, and
-// the paths cover a stale or mismatched page (reload after expiry, history through a shorter list, a filter push then reload).
+// shot down (CLS 0.55 at 390). Now /bets keeps final's skeleton and puts the scroll back itself (BetsScrollRestore: saved per history entry in
+// sessionStorage; the browser restores nothing on /bets). Nothing is remembered on the server (the bets_h cookie of an earlier attempt is still
+// cleared before every Back), and the paths cover a stale or mismatched page (history through a shorter list, a filter push then reload).
 // A first load of /bets stays <= 0.02 too.
 import { expect, test, type Page } from "./fixtures";
 
@@ -219,21 +220,9 @@ test("after a tall page, a short /bets list has no blank space below it", async 
   expect(await page.evaluate(() => document.documentElement.scrollHeight), "the page is as tall as its content").toBeLessThan(12_000);
 });
 
-// The raw HTML of /bets has the first card before the footer: no loading boundary streams the list after it.
-test("raw HTML: the first card comes before the footer", async ({ page }) => {
-  test.setTimeout(120_000);
-  await signUp(page, `wt3l-raw-${Date.now()}@example.com`);
-  await comp(page, "premium");
-  const html = await (await page.request.get("/bets")).text();
-  const card = html.indexOf("<article"), footer = html.indexOf("<footer");
-  expect(card, "the page has cards in its HTML").toBeGreaterThan(0);
-  expect(footer).toBeGreaterThan(0);
-  expect(card, "first <article> before <footer>").toBeLessThan(footer);
-});
-
 // Tapping the Best bets tab from a short page whose footer is on screen, with /bets taking longer than Chrome's 500 ms input window: nothing may
-// move once the window is over (CLS counts then). A client-side skeleton shows on the tap (never on a full load or Back); a 1 s hold on /bets
-// stands in for slow 4G or a busy server.
+// move once the window is over (CLS counts then). final's loading skeleton (app/bets/loading.tsx) shows on the tap; a 1 s hold on /bets stands
+// in for slow 4G or a busy server.
 const holdBets = (page: Page, ms: number) => page.route(/\/bets(\?|$)/, async (route) => { await new Promise((r) => setTimeout(r, ms)); await route.continue(); });
 const bestBetsTab = (page: Page, w: number) => (w < 768 ? page.locator('nav[aria-label="Main"] a[href="/bets"]').last() : page.locator('nav[aria-label="Main"] a[href="/bets"]').first());
 
@@ -254,7 +243,7 @@ for (const { w, h } of SIZES) {
       await page.evaluate(() => { (window as unknown as { __cls: number; __src: string[] }).__cls = 0; (window as unknown as { __src: string[] }).__src = []; });
       await page.waitForTimeout(700);   // out of any input window from earlier clicks
       await bestBetsTab(page, w).click();
-      await expect(page.locator("[data-pending]").first(), "feedback on the tap").toBeVisible({ timeout: 300 });
+      await expect(page.locator("[data-skeleton]").first(), "the loading skeleton on the tap").toBeVisible({ timeout: 500 });
       await expect(page).toHaveURL(/\/bets/, { timeout: 30_000 });
       await firstCard(page);
       await page.waitForTimeout(2_000);
@@ -262,12 +251,11 @@ for (const { w, h } of SIZES) {
       console.log(`tap Best bets from ${from} at ${w}px (held 1 s): counted CLS ${v.toFixed(4)}`);
       if (v > 0.02) console.log(await why(page));
       expect(v).toBeLessThanOrEqual(0.02);
-      await expect(page.locator("[data-pending]"), "the pending bar clears on commit").toHaveCount(0);
-      expect(await page.evaluate(() => document.documentElement.hasAttribute("data-bets-pending")), "the tap skeleton is gone").toBe(false);
+      await expect(page.locator("[data-skeleton]"), "the skeleton is gone once the list is in").toHaveCount(0);
     });
   }
 
-  test(`tapping another tab while /bets is pending clears the tap skeleton at ${w}px`, async ({ page }) => {
+  test(`tapping another tab while /bets is pending lands on that tab at ${w}px`, async ({ page }) => {
     test.setTimeout(200_000);
     await page.setViewportSize({ width: w, height: h });
     await signUp(page, `wt3l-nav2-${w}-${Date.now()}@example.com`);
@@ -276,23 +264,13 @@ for (const { w, h } of SIZES) {
     await skipTour(page);
     await holdBets(page, 4_000);
     await bestBetsTab(page, w).click();
-    await expect(page.locator("[data-pending]").first()).toBeVisible({ timeout: 500 });
+    await expect(page.locator("[data-skeleton]").first()).toBeVisible({ timeout: 1_000 });
     const markets = (w < 768 ? page.locator('nav[aria-label="Main"] a[href="/markets"]').last() : page.locator('nav[aria-label="Main"] a[href="/markets"]').first());
     await markets.click();
     await expect(page).toHaveURL(/\/markets/, { timeout: 30_000 });
     await expect(page.getByRole("heading", { level: 1, name: "All markets" })).toBeVisible({ timeout: 30_000 });
-    await page.waitForTimeout(500);
-    expect(await page.evaluate(() => document.documentElement.hasAttribute("data-bets-pending")), "no tap skeleton left on /markets").toBe(false);
-    await expect(page.locator("[data-pending]")).toHaveCount(0);
+    await page.waitForTimeout(4_500);   // past the held /bets response: it must not take over
+    await expect(page).toHaveURL(/\/markets/);
+    await expect(page.getByRole("heading", { level: 1, name: "All markets" })).toBeVisible();
   });
 }
-
-// A full load of /bets and the browser's Back never show the tap skeleton or reserve anything.
-test("a full load of /bets has no tap skeleton", async ({ page }) => {
-  test.setTimeout(120_000);
-  await signUp(page, `wt3l-nonav-${Date.now()}@example.com`);
-  await comp(page, "premium");
-  await page.goto("/bets", { waitUntil: "load" });
-  await firstCard(page);
-  expect(await page.evaluate(() => document.documentElement.hasAttribute("data-bets-pending"))).toBe(false);
-});
