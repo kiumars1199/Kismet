@@ -1,5 +1,6 @@
 // In-memory data store (docs/02 § Data flow): one parsed copy per server instance, 120 s cache,
 // concurrent loads de-duplicated. Server only — never ship markets.json to the browser.
+import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { promisify } from "node:util";
@@ -35,6 +36,7 @@ export interface RawData {
   ledgerSince?: number | null;      // first flagged_at in output/ledger.jsonl (T-290), the live record's start
   source?: DataSource;              // which source served this copy
   venues?: VenuesFile;              // output/venues.json (F4), optional
+  hashes?: Record<string, string>;  // hashOf each file read (egress fix): getStore skips a reload while version.json matches
 }
 
 type Counts = Record<string, number>;
@@ -57,6 +59,9 @@ export interface Store {
   ledgerSince?: number | null;
   source?: DataSource;
   venuesFile?: VenuesFile;
+  hashes?: Record<string, string>;
+  /** When these files were last downloaded (loadedAt also moves when version.json says nothing changed). */
+  fetchedAt?: number;
 }
 
 const github = () => ({
@@ -179,6 +184,8 @@ export function buildStore(raw: RawData, loadedAt = Date.now()): Store {
     ledgerSince: raw.ledgerSince ?? null,
     source: raw.source,
     venuesFile: raw.venues,
+    hashes: raw.hashes,
+    fetchedAt: loadedAt,
   };
 }
 
@@ -192,23 +199,32 @@ const inflate = promisify(gunzip);
  *  before the rollout, the GitHub live branch, local files, or a response an HTTP layer already decoded).
  *  JSON text never starts with 0x1f, so the sniff can't misread a plain file. */
 export async function decodeBody(bytes: Uint8Array): Promise<string> {
+  return (await decodeHashed(bytes)).text;
+}
+
+/** Egress fix: first 16 hex of sha256 over the plain bytes, as ops/upload.py digest() writes into version.json. */
+export const hashOf = (plain: Uint8Array) => createHash("sha256").update(plain).digest("hex").slice(0, 16);
+
+type Body = { text: string; hash: string };
+async function decodeHashed(bytes: Uint8Array): Promise<Body> {
   const buf = Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-  const text = (buf[0] === 0x1f && buf[1] === 0x8b ? await inflate(buf) : buf).toString("utf8");
-  return text.charCodeAt(0) === 0xfeff ? text.slice(1) : text;   // drop a BOM, as Response.text() did
+  const plain = buf[0] === 0x1f && buf[1] === 0x8b ? await inflate(buf) : buf;
+  const text = plain.toString("utf8");
+  return { text: text.charCodeAt(0) === 0xfeff ? text.slice(1) : text, hash: hashOf(plain) };   // drop a BOM, as Response.text() did
 }
 
 /** #46 (Nov 20): one slow Storage response used to hold a load for 30 s and then hand the instance to the stale
  *  fallback. Two tries with shorter timeouts: a stuck connection is dropped and retried on a fresh one. */
 const TRIES_MS = [15_000, 20_000];
 
-async function fetchText(url: string, headers: Record<string, string>, missing: number[]) {
+async function fetchText(url: string, headers: Record<string, string>, missing: number[]): Promise<Body | undefined> {
   let err: unknown;
   for (const ms of TRIES_MS) {
     try {
       const res = await fetch(url, { headers, cache: "no-store", signal: AbortSignal.timeout(ms) });
       if (missing.includes(res.status)) return undefined;
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return await decodeBody(new Uint8Array(await res.arrayBuffer()));
+      return await decodeHashed(new Uint8Array(await res.arrayBuffer()));
     } catch (e) {
       err = e;
       if (/^HTTP 4\d\d/.test((e as Error).message)) break;   // a 4xx won't change on retry
@@ -217,25 +233,94 @@ async function fetchText(url: string, headers: Record<string, string>, missing: 
   throw err;
 }
 
-/** One file from one source; undefined = the source has no such file. */
-async function readFrom(source: DataSource, file: string): Promise<string | undefined> {
-  if (source === "supabase") {
-    const { url, key, bucket } = supabaseStorage();
-    if (!url || !key) throw new Error("NEXT_PUBLIC_SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY not set");
-    // Storage answers 400 (not 404) for a missing object.
-    return fetchText(`${url}/storage/v1/object/authenticated/${bucket}/${file}`, { Authorization: `Bearer ${key}`, apikey: key }, [400, 404]);
-  }
+// ---- Egress fix (Nov 27) ----------------------------------------------------------------------------------------
+// Every instance used to download every file again each time its cache expired (the store every 120 s, top.json every
+// 30 s, teasers every 60 s...), although scans land about every 15 min and model/backtest change hourly or daily. That
+// spent the Storage transfer quota. ops/upload.py now writes version.json last: {scanned_at, files: {name: hash}}.
+// Each instance reads it (under 2 KB, at most every VERSION_TTL_MS) and skips a download when it already holds that hash:
+// small files from `memo` below, the big markets/flags pair through getStore's check. A file the manifest doesn't list,
+// or no manifest at all (an older publisher), downloads as before.
+export const VERSION_FILE = "version.json";
+export interface Version { scanned_at?: number; files: Record<string, string> }
+const VERSION_TTL_MS = 15_000;
+/** A copy is trusted on its hash for this long, then downloaded again anyway: a manifest that missed an update (a failed
+ *  side-file step in ops/upload.py) can't keep an old copy alive for longer than this. */
+export const TRUST_MS = 30 * 60_000;
+/** Kept as text: everything but the big scan pair (the store keeps those parsed) and the 35 MB search index (own meta). */
+const MEMO_MAX_CHARS = 16_000_000;
+const noMemo = (file: string) => /^(markets|flags)(-prev2?)?\.json$|^polymarket_index\.json$/.test(file);
+
+const gv = globalThis as unknown as { __meVersion?: { at?: number; data?: Version | null; inflight?: Promise<Version | null> }; __meMemo?: Map<string, Body & { at: number }> };
+const ver = (gv.__meVersion ??= {});
+const memo = (gv.__meMemo ??= new Map());
+
+/** Tests, and the revalidate route (an upload just finished: read the new manifest now, not after VERSION_TTL_MS). */
+export function forgetVersion(all = false) {
+  ver.at = undefined;
+  ver.data = undefined;
+  if (all) memo.clear();
+}
+
+/** version.json from Supabase Storage, cached VERSION_TTL_MS; null = none (older publisher, unreadable, or not Supabase). */
+export function getVersion(): Promise<Version | null> {
+  if (ver.at && Date.now() - ver.at < VERSION_TTL_MS) return Promise.resolve(ver.data ?? null);
+  return (ver.inflight ??= fetchSupabase(VERSION_FILE)
+    .then((b) => {
+      const v = b && (JSON.parse(b.text) as Partial<Version>);
+      return v && v.files && typeof v.files === "object" ? { scanned_at: v.scanned_at, files: v.files } : null;
+    })
+    .catch((e) => { console.warn(`[store] ${VERSION_FILE} failed: ${(e as Error).message}`); return null; })
+    .then((v) => { ver.data = v; ver.at = Date.now(); return v; })
+    .finally(() => (ver.inflight = undefined)));
+}
+
+async function fetchSupabase(file: string): Promise<Body | undefined> {
+  const { url, key, bucket } = supabaseStorage();
+  if (!url || !key) throw new Error("NEXT_PUBLIC_SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY not set");
+  // Storage answers 400 (not 404) for a missing object.
+  return fetchText(`${url}/storage/v1/object/authenticated/${bucket}/${file}`, { Authorization: `Bearer ${key}`, apikey: key }, [400, 404]);
+}
+
+/** A Supabase file, from memory when version.json lists the hash this instance already holds. */
+async function readSupabase(file: string): Promise<Body | undefined> {
+  const hit = memo.get(file);
+  if (hit && Date.now() - hit.at < TRUST_MS && (await getVersion())?.files[file] === hit.hash) return hit;
+  const body = await fetchSupabase(file);
+  if (body && !noMemo(file) && body.text.length <= MEMO_MAX_CHARS) memo.set(file, { ...body, at: Date.now() });
+  else memo.delete(file);
+  return body;
+}
+
+/** One file from one source, with its hash; undefined = the source has no such file. */
+async function readHashed(source: DataSource, file: string): Promise<Body | undefined> {
+  if (source === "supabase") return readSupabase(file);
   if (source === "github") {
     const { token, repo, ref } = github();
     return fetchText(`https://api.github.com/repos/${repo}/contents/${file}?ref=${ref}`,
       { Accept: "application/vnd.github.raw", ...(token ? { Authorization: `Bearer ${token}` } : {}) }, [404]);
   }
   try {
-    return await decodeBody(await readFile(path.join(dataDir(), file)));
+    return await decodeHashed(await readFile(path.join(dataDir(), file)));
   } catch (e) {
     if ((e as NodeJS.ErrnoException).code === "ENOENT") return undefined;
     throw e;
   }
+}
+
+/** One file from one source; undefined = the source has no such file. */
+async function readFrom(source: DataSource, file: string): Promise<string | undefined> {
+  return (await readHashed(source, file))?.text;
+}
+
+/** The files a store is built from. While version.json lists the same hash for each, a reload would change nothing.
+ *  venues.json is not in it: it goes up after the scan, and the store only takes a new copy with a new scan (as before). */
+export const STORE_FILES = ["markets.json", "flags.json", "model.json", "backtest.json", "events.json", "ledger_summary.json"] as const;
+
+/** True when version.json says none of this store's files changed since it downloaded them (so getStore skips the reload). */
+export async function storeUnchanged(s: Store, now = Date.now()): Promise<boolean> {
+  if (s.source !== "supabase" || !s.hashes || !s.fetchedAt || now - s.fetchedAt >= TRUST_MS) return false;
+  const v = await getVersion();
+  return !!v && STORE_FILES.every((f) => (v.files[f] ?? null) === (s.hashes![f] ?? null));
 }
 
 /** One file from the first source that has it. */
@@ -255,10 +340,13 @@ export async function readSource(file: string, chain = sourceChain()): Promise<s
 }
 
 async function loadFrom(source: DataSource): Promise<RawData> {
+  const hashes: Record<string, string> = {};
   const read = async <T>(file: string, required: boolean): Promise<T | undefined> => {
-    const text = await readFrom(source, file);
-    if (text === undefined && required) throw new Error(`missing ${file} (DATA_SOURCE=${source}, dir=${dataDir()})`);
-    return text === undefined ? undefined : (JSON.parse(text) as T);
+    const body = await readHashed(source, file);
+    if (body === undefined && required) throw new Error(`missing ${file} (DATA_SOURCE=${source}, dir=${dataDir()})`);
+    if (body === undefined) return undefined;
+    hashes[file] = body.hash;
+    return JSON.parse(body.text) as T;
   };
   const [markets, flags, model, backtest, events, ledgerSummary] = await Promise.all([
     read<MarketsFile>("markets.json", true),
@@ -275,7 +363,7 @@ async function loadFrom(source: DataSource): Promise<RawData> {
   }
   const ledgerSince = ledgerSummary ? await firstFlaggedAt(source).catch(() => null) : null;
   const venues = await read<VenuesFile>("venues.json", false).catch(() => undefined);   // F4: a missing or broken file = no venues
-  return { markets: markets!, flags: flags!, model: model!, backtest: backtest!, events, ledgerSummary, ledgerSince, source, venues };
+  return { markets: markets!, flags: flags!, model: model!, backtest: backtest!, events, ledgerSummary, ledgerSince, source, venues, hashes };
 }
 
 const sinceMemo = new Map<DataSource, number>();
@@ -346,7 +434,11 @@ let loader: () => Promise<RawData> = () => loadRaw();
 export function _resetStore(load?: () => Promise<RawData>) {
   loader = load ?? (() => loadRaw());
   for (const k of Object.keys(state) as (keyof typeof state)[]) delete state[k];
+  forgetVersion(true);
 }
+
+const sameFiles = (a?: Record<string, string>, b?: Record<string, string>) =>
+  !!a && !!b && STORE_FILES.every((f) => (a[f] ?? null) === (b[f] ?? null));
 
 /** The reload, or the copy in hand if the reload fails or takes longer than WAIT_MS. */
 function waitOrCopy(load: Promise<Store>, copy: Store): Promise<Store> {
@@ -361,16 +453,27 @@ export function getStore(): Promise<Store> {
   if (state.inflight) return !state.cache ? state.inflight : age < SWR_MAX_MS ? Promise.resolve(state.cache) : waitOrCopy(state.inflight, state.cache);
   // While every source is down, serve the last good copy and retry at most every 30 s.
   if (state.cache && state.failedAt && Date.now() - state.failedAt < RETRY_MS) return Promise.resolve(state.cache);
-  state.inflight = loader()
+  const held = state.cache;
+  // Egress fix: ask version.json first; while it lists the hashes this copy was built from, there is nothing to download.
+  const unchanged = held ? storeUnchanged(held).catch(() => false) : Promise.resolve(false);
+  state.inflight = unchanged
+    .then((same) => (same ? undefined : loader()))
     .then((raw) => {
       state.failedAt = undefined;
+      if (!raw) {
+        held!.loadedAt = Date.now();
+        return held!;
+      }
       // #46: never swap the copy in hand for an older scan (a lagging source or a stale object)
       if (state.cache && raw.markets.meta.scanned_at < state.cache.meta.scanned_at) {
         state.cache.loadedAt = Date.now();
         return state.cache;
       }
-      if (state.cache && raw.markets.meta.scanned_at === state.cache.meta.scanned_at) {
-        state.cache.loadedAt = Date.now();   // same scan: keep the parsed copy (and its derived indexes)
+      // same scan: keep the parsed copy (and its derived indexes), unless a file under it changed (an hourly fit uploaded
+      // with the same scan): rebuild then, or the version check above would see the old hashes and reload every time.
+      if (state.cache && raw.markets.meta.scanned_at === state.cache.meta.scanned_at && (!raw.hashes || !state.cache.hashes || sameFiles(raw.hashes, state.cache.hashes))) {
+        state.cache.loadedAt = Date.now();
+        if (raw.hashes) [state.cache.hashes, state.cache.fetchedAt] = [raw.hashes, Date.now()];
         return state.cache;
       }
       const next = buildStore(raw);

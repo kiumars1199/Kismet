@@ -9,7 +9,7 @@ import { delayMin } from "@/lib/settings-core";
 import { getSettings } from "@/lib/settings";
 import type { Tier } from "@/lib/entitlements";
 import type { BacktestFile, CountsFile, LedgerSummary, ModelFile, ScanMeta, TopFile, VenuesFile } from "@/lib/types";
-import { buildStore, firstFlaggedAt, getStoreFor, readSource, sourceChain, type Store } from "./store";
+import { buildStore, firstFlaggedAt, forgetVersion, getStoreFor, readSource, sourceChain, type Store } from "./store";
 import { headlineBacktest } from "./model";
 import { DATA_SOURCE } from "@/lib/config";
 
@@ -28,6 +28,7 @@ const stores = (g.__meTopStores ??= new Map());
 export function resetTop() {
   files.clear();
   stores.clear();
+  forgetVersion();   // an upload just finished: read its version.json now, so the regeneration doesn't reuse an older copy
   // the teaser index (lib/data/teasers.ts) is checked against counts.json too: out of step, it would trip the stale-guard
   (globalThis as unknown as { __meTeasers?: Map<string, unknown> }).__meTeasers?.clear();
 }

@@ -276,6 +276,17 @@ export interface CountsFile {
 }
 ```
 
+### `version.json` (bucket only; written by `ops/upload.py`, read by `lib/data/store.ts` `getVersion`)
+The bucket's manifest, uploaded last on every publish (after `flags.json`), and again after each `--only` side file.
+Servers read it (under 2 KB, at most every 15 s) before any other file and skip a download when they already hold that
+hash; a file it doesn't list, or no manifest at all, downloads as before. A copy is re-downloaded after 30 min anyway.
+```ts
+interface Version {
+  scanned_at: number;               // flags.json meta.scanned_at of the last main publish
+  files: Record<string, string>;    // object name → first 16 hex of sha256 over the plain (not gzipped) bytes
+}                                   // the -prev / -prev2 copies inherit their source's hash when they rotate
+```
+
 ### `kalshi.json` (optional; only when `KALSHI_DATA_PERMISSION=true`, docs/16 §2, docs/18 §5)
 Written by the scan step (`pipeline/fetch_kalshi.py`) from Kalshi's public market-data API. Missing file = feature off.
 Every row is Kalshi's data and is shown with a "Kalshi" credit and a link to kalshi.com. Prices are whole cents
