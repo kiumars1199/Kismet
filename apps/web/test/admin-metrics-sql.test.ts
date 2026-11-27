@@ -124,3 +124,30 @@ describe("admin_metrics()", () => {
     expect([dayOf(m, 0).invites_verified, dayOf(m, 1).invites_verified, dayOf(m, 2).invites_verified]).toEqual([1, 1, 0]);
   });
 });
+
+describe("admin_mrr() (20261127000000): yearly plans at price / 12", () => {
+  const mrr = async () => (await db.query<{ m: { mrr_cents: number; paying: { pro: number; premium: number }; yearly: number; unknown_interval: number } }>(
+    "select public.admin_mrr(1199, 11999, 1999, 19999) as m")).rows[0]!.m;
+
+  it("is service role only", async () => {
+    await db.exec("set role authenticated");
+    await expect(db.query("select public.admin_mrr(1, 1, 1, 1)")).rejects.toThrow(/permission denied/);
+    await db.exec("reset role");
+  });
+
+  it("an unrecorded plan length counts monthly (the old estimate) and is reported", async () => {
+    await db.exec(`update public.subscriptions set billing_interval = null`);
+    expect(await mrr()).toEqual({ mrr_cents: 1199 + 1999, paying: { pro: 1, premium: 1 }, yearly: 0, unknown_interval: 2 });
+  });
+
+  it("a yearly Pro counts 11999 / 12; monthly Premium its monthly price; the canceled one nothing", async () => {
+    await db.exec(`update public.subscriptions set billing_interval = 'year' where user_id = '${U(4)}';
+      update public.subscriptions set billing_interval = 'month' where user_id = '${U(5)}';
+      update public.subscriptions set billing_interval = 'year' where user_id = '${U(6)}';`);   // canceled: not paying
+    expect(await mrr()).toEqual({ mrr_cents: Math.round(11999 / 12 + 1999), paying: { pro: 1, premium: 1 }, yearly: 1, unknown_interval: 0 });
+  });
+
+  it("only month or year can be stored", async () => {
+    await expect(db.exec(`update public.subscriptions set billing_interval = 'week' where user_id = '${U(4)}'`)).rejects.toThrow(/check/);
+  });
+});

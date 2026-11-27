@@ -164,7 +164,7 @@ describe("RLS (supabase/migrations)", () => {
       select p.proname as name, p.proconfig as config,
         has_function_privilege('anon', p.oid, 'execute') as anon, has_function_privilege('authenticated', p.oid, 'execute') as auth
       from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public' and p.prosecdef`)).rows;
-    expect(fns.map((f) => f.name).sort()).toEqual(["admin_activation", "admin_funnel", "admin_grant_plan", "admin_metrics", "admin_overview", "admin_revoke_grant", "admin_revoke_sessions",
+    expect(fns.map((f) => f.name).sort()).toEqual(["admin_activation", "admin_funnel", "admin_grant_plan", "admin_metrics", "admin_mrr", "admin_overview", "admin_revoke_grant", "admin_revoke_sessions",
       "admin_user_detail", "admin_users", "apply_pending_plan_grant", "claim_push_subscription", "enforce_session_limit", "grant_invite_reward", "handle_new_user"]);
     for (const f of fns) {
       expect(f.config, f.name).toContain("search_path=\"\"");

@@ -1,9 +1,9 @@
 // F15: "Last 30 days" on /admin (server component): totals and one row per UTC day. Counts and dollars only.
 import { Stats } from "@/components/admin/Stats";
 import { exactCount } from "@/lib/format";
-import type { Summary } from "@/lib/admin/metrics";
+import type { Mrr, Summary } from "@/lib/admin/metrics";
 
-export function Metrics({ s }: { s: Summary }) {
+export function Metrics({ s, mrr }: { s: Summary; mrr: Mrr }) {
   const t = s.totals;
   return (
     <section aria-labelledby="metrics-h" className="flex flex-col gap-3" data-testid="admin-metrics">
@@ -11,8 +11,8 @@ export function Metrics({ s }: { s: Summary }) {
       <Stats label="Last 30 days totals" items={[
         { k: "Paying users now", v: exactCount(s.payingTotal), testId: "admin-paying-now" },
         { k: "Revenue, 30 days", v: t.revenue, testId: "admin-revenue-30d", title: "Sum of Stripe invoice.paid amounts recorded by the webhook" },
-        { k: "MRR (estimate)", v: s.mrr, testId: "admin-mrr", sub: "paying users × monthly list price" },
-        { k: "Payments", v: exactCount(t.payments), testId: "admin-payments-30d", sub: `${exactCount(t.churned)} canceled · ${exactCount(t.trials)} trials started` },
+        { k: "MRR (estimate)", v: mrr.value, testId: "admin-mrr", sub: mrr.sub, title: mrr.title },
+        { k: "Payments", v: exactCount(t.payments), testId: "admin-payments-30d", sub: `${exactCount(t.churned)} subscriptions ended · ${exactCount(t.trials)} trials started (30 days)` },
       ]} />
       {s.revenueNote && <p data-testid="admin-revenue-note" className="text-xs text-muted">{s.revenueNote}</p>}
       <div className="overflow-x-auto rounded-card border border-border bg-surface">

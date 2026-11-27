@@ -443,6 +443,7 @@ create table subscriptions (
   status text,                          -- trialing | active | past_due | canceled
   current_period_end timestamptz, cancel_at_period_end boolean default false,
   trialed_at timestamptz,               -- first trial start; checkout offers the 7-day trial only while null
+  billing_interval text,                -- month | year, from the Stripe price (admin MRR); null until the next event
   updated_at timestamptz default now()
 );
 -- Written only by the Stripe webhook (service role). Users can read their own row, never write it.

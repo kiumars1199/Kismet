@@ -71,3 +71,16 @@ describe("summarize()", () => {
     expect(e.revenueNote).toBeNull();
   });
 });
+
+describe("mrrView: one MRR for both admin blocks", async () => {
+  const { mrrView } = await import("@/lib/admin/metrics");
+  it("without admin_mrr (migration not applied): the old estimate, labelled as monthly list price", () => {
+    expect(mrrView(null, 3 * 1199)).toMatchObject({ value: "$35.97", sub: "at monthly list price" });
+  });
+  it("with admin_mrr: its cents, how many are yearly, and how many plan lengths are still unknown", () => {
+    expect(mrrView({ mrr_cents: 2998, paying: { pro: 1, premium: 1 }, yearly: 1, unknown_interval: 0 }, 0))
+      .toMatchObject({ value: "$29.98", sub: "1 yearly at price ÷ 12" });
+    expect(mrrView({ mrr_cents: 3198, paying: { pro: 1, premium: 1 }, yearly: 0, unknown_interval: 2 }, 0).sub)
+      .toBe("monthly list prices · 2 plan length not recorded yet, counted monthly");
+  });
+});

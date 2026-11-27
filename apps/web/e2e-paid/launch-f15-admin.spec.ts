@@ -59,3 +59,21 @@ test("admin 30-day table: counts, dollars from cents, dashes before the ledger",
   await expect(page.getByTestId("admin-metrics")).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
+
+test("admin MRR: a yearly plan counts at its yearly price / 12, and both MRR blocks show the same number", async ({ page }) => {
+  test.setTimeout(240_000);
+  await signIn(page, ADMIN);
+  // A paying yearly Pro subscriber of its own (not the admin's row, which other specs use).
+  const res = await page.request.post("/e2e-mock/supabase/rest/v1/subscriptions", {
+    headers: { authorization: "Bearer e2e-service", apikey: "e2e-service", "content-type": "application/json" },
+    data: { user_id: crypto.randomUUID(), tier: "pro", status: "active", stripe_subscription_id: `sub_f15y_${Date.now()}`, billing_interval: "year" },
+  });
+  expect(res.ok()).toBe(true);
+
+  await page.goto("/admin");
+  const cardOf = (id: string) => page.getByTestId(id).locator("xpath=..");
+  for (const id of ["admin-mrr", "admin-mrr-revenue"]) await expect(cardOf(id)).toContainText(/\d+ yearly at price ÷ 12/);
+  const a = await page.getByTestId("admin-mrr").innerText(), b = await page.getByTestId("admin-mrr-revenue").innerText();
+  expect(a).toMatch(/^\$[\d,]+\.\d{2}$/);
+  expect(b).toBe(a);   // the two blocks used to be computed apart
+});
