@@ -2,9 +2,9 @@
 import { SignupsChart } from "@/components/admin/Controls";
 import { Metrics } from "@/components/admin/Metrics";
 import { Stats } from "@/components/admin/Stats";
-import { summarize, toCents, type RawMetrics } from "@/lib/admin/metrics";
+import { mrrView, summarize, toCents, type RawMetrics, type RawMrr } from "@/lib/admin/metrics";
 import { requireAdmin } from "@/lib/admin/server";
-import { exactCount, money } from "@/lib/format";
+import { exactCount } from "@/lib/format";
 import { SITE } from "@/lib/site";
 import { tradingEnv } from "@/lib/trade/server";
 
@@ -29,16 +29,22 @@ const pct = (a: number, b: number) => (b > 0 ? `${Math.round((a / b) * 100)}%` :
 
 export default async function Page() {
   const { db } = await requireAdmin();
-  const [{ data, error }, act, met] = await Promise.all([
+  const p = SITE.prices;
+  const [{ data, error }, act, met, mr] = await Promise.all([
     db.rpc("admin_overview"), db.rpc("admin_activation"),
-    db.rpc("admin_metrics", { pro_cents: toCents(SITE.prices.pro_monthly), premium_cents: toCents(SITE.prices.premium_monthly) }),   // F15
+    db.rpc("admin_metrics", { pro_cents: toCents(p.pro_monthly), premium_cents: toCents(p.premium_monthly) }),   // F15
+    db.rpc("admin_mrr", {   // F15 follow-up: yearly plans at price / 12; errors until 20261127000000 is applied
+      pro_month_cents: toCents(p.pro_monthly), pro_year_cents: toCents(p.pro_yearly),
+      premium_month_cents: toCents(p.premium_monthly), premium_year_cents: toCents(p.premium_yearly),
+    }),
   ]);
   if (error || !data) {
     return <p role="alert" className="rounded-card border border-warning/40 bg-warning/10 px-4 py-3 text-sm">Couldn&apos;t load the overview. Has the admin migration (supabase/migrations/20261118000000_admin.sql) been applied?</p>;
   }
   const o = data as Overview;
   const payingTotal = o.paying.pro + o.paying.premium;
-  const mrr = o.paying.pro * SITE.prices.pro_monthly + o.paying.premium * SITE.prices.premium_monthly;
+  // One MRR for both blocks (they used to be computed apart).
+  const mrr = mrrView(mr.error ? null : (mr.data as RawMrr | null), o.paying.pro * toCents(p.pro_monthly) + o.paying.premium * toCents(p.premium_monthly));
   const signups = o.signups.map((d) => ({ ...d, label: new Date(`${d.day}T00:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" }) }));
   const last30 = signups.reduce((n, d) => n + d.n, 0);
   const a = act.error ? null : (act.data as Activation | null);
@@ -53,7 +59,7 @@ export default async function Page() {
         { k: "Premium", v: exactCount(o.tiers.premium), sub: `${exactCount(o.tiers.trialing)} on a free trial` },
       ]} />
 
-      {metrics ? <Metrics s={metrics} /> : (
+      {metrics ? <Metrics s={metrics} mrr={mrr} /> : (
         <p className="text-sm text-muted" data-testid="admin-metrics-missing">
           The 30-day table (sign-ups, trials, payments, revenue, cancellations, invites) needs supabase/migrations/20261122000300_admin_metrics.sql.
         </p>
@@ -102,7 +108,7 @@ export default async function Page() {
 
       <Stats label="Revenue (Stripe subscriptions)" items={[
         { k: "Paying subscribers", v: exactCount(payingTotal), sub: `${exactCount(o.paying.pro)} Pro · ${exactCount(o.paying.premium)} Premium` },
-        { k: "MRR (estimate)", v: money(mrr), title: "Paying subscribers × monthly list price. Annual plans and discounts aren't separated; Stripe has the exact figure.", sub: "at monthly list price" },
+        { k: "MRR (estimate)", v: mrr.value, title: mrr.title, sub: mrr.sub, testId: "admin-mrr-revenue" },
         { k: "Churn this month", v: pct(o.canceled_this_month, payingTotal + o.canceled_this_month), sub: `${exactCount(o.canceled_this_month)} canceled since the 1st` },
         { k: "Trial conversion", v: pct(o.trials_converted, o.trials_started), sub: `${exactCount(o.trials_converted)} of ${exactCount(o.trials_started)} trials now paying` },
       ]} />

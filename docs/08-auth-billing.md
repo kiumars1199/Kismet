@@ -34,7 +34,8 @@ Webhook /api/stripe/webhook (verify signature):
   checkout.session.completed      → link customer ↔ user
   customer.subscription.created|updated|deleted
                                   → upsert subscriptions {tier from price id, status, current_period_end,
-                                    cancel_at_period_end}; tier = 'free' if status not in (trialing, active, past_due)
+                                    cancel_at_period_end, billing_interval (month|year, for the admin's MRR)};
+                                    tier = 'free' if status not in (trialing, active, past_due)
   invoice.payment_failed          → email "update your card" (Stripe handles dunning)
 ```
 Idempotency: store processed `event.id` in a `stripe_events` table; skip repeats.

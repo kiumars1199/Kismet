@@ -29,7 +29,13 @@ export function supabaseBillingDb(): BillingDb {
     },
     emailFor: async (userId) => (await db.auth.admin.getUserById(userId)).data.user?.email ?? null,
     upsertSubscription: async (user_id, row) => {
-      must(await db.from("subscriptions").upsert({ user_id, ...row, updated_at: new Date().toISOString() }, { onConflict: "user_id" }));
+      const put = (r: typeof row) => db.from("subscriptions").upsert({ user_id, ...r, updated_at: new Date().toISOString() }, { onConflict: "user_id" });
+      const res = await put(row);
+      // Before 20261127000000 the billing_interval column doesn't exist: save the plan without it (billing must not stop).
+      if (res.error && row.billing_interval && /billing_interval/.test(res.error.message)) {
+        const { billing_interval: _, ...rest } = row;
+        must(await put(rest));
+      } else must(res);
     },
     retryInviteReward: async (p_inviter) => { must(await db.rpc("grant_invite_reward", { p_inviter })); },
   };

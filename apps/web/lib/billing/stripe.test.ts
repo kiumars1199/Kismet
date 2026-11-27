@@ -233,3 +233,21 @@ describe("F13: a put-off invite reward is asked for again when paid Premium or a
     warn.mockRestore();
   });
 });
+
+describe("F15: billing_interval from the subscription's price", () => {
+  it("Stripe's recurring interval, else which env price id it is; unknown is left out", async () => {
+    const db = memDb();
+    const put = async (id: string, price: object) =>
+      handleWebhook(signed(ev(id, "customer.subscription.updated", sub("active", { id: "price_pro_m", ...price }, { metadata: { user_id: U } }))), db, null, SECRET);
+    await put("i1", { recurring: { interval: "year", interval_count: 1 } });
+    expect(db.subs.get(U)?.billing_interval).toBe("year");
+    await put("i2", { recurring: { interval: "month", interval_count: 1 } });
+    expect(db.subs.get(U)?.billing_interval).toBe("month");
+    db.subs.delete(U);
+    await put("i3", { id: "price_prem_y" });   // STRIPE_PRICE_PREMIUM_YEARLY, no recurring on the event
+    expect(db.subs.get(U)?.billing_interval).toBe("year");
+    db.subs.delete(U);
+    await put("i4", { id: "price_other", unit_amount: 1199, recurring: { interval: "month", interval_count: 3 } });   // quarterly: not a list plan
+    expect(db.subs.get(U)).not.toHaveProperty("billing_interval");
+  });
+});

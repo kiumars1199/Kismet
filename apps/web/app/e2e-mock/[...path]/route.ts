@@ -299,6 +299,13 @@ async function rpc(req: Request, fn: string) {
     return json({ days, revenue_since: since, paying: { pro: paying("pro"), premium: paying("premium") },
       mrr_cents: paying("pro") * Number(a.pro_cents ?? 0) + paying("premium") * Number(a.premium_cents ?? 0) });
   }
+  if (fn === "admin_mrr") {   // supabase/migrations/20261127000000_subscription_interval.sql over the mock tables
+    const live = subs.filter((s) => ["pro", "premium"].includes(String(s.tier)) && ["active", "past_due"].includes(String(s.status)) && !!s.stripe_subscription_id);
+    const n = (k: string) => Number(a[k] ?? 0);
+    const cents = live.reduce((t, s) => t + (s.billing_interval === "year" ? n(`${s.tier}_year_cents`) / 12 : n(`${s.tier}_month_cents`)), 0);
+    return json({ mrr_cents: Math.round(cents), paying: { pro: live.filter((s) => s.tier === "pro").length, premium: live.filter((s) => s.tier === "premium").length },
+      yearly: live.filter((s) => s.billing_interval === "year").length, unknown_interval: live.filter((s) => !s.billing_interval).length });
+  }
   if (fn === "admin_users") {
     const q = String(a.q ?? "").toLowerCase();
     const hit = users.filter((u) => u.email.toLowerCase().includes(q));

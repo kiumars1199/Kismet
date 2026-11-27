@@ -86,12 +86,24 @@ export function tierFromPrice(p: { id: string; unit_amount?: number | null; meta
 
 const PAYING = new Set(["trialing", "active", "past_due"]);
 
+type PriceLike = { id: string; recurring?: { interval?: string; interval_count?: number } | null } | null | undefined;
+/** F15: how often the plan bills, for the admin's MRR: Stripe's recurring interval, else which env price id it is. */
+export function intervalOf(p: PriceLike): "month" | "year" | null {
+  if (!p) return null;
+  const r = p.recurring;
+  if (r?.interval && (r.interval_count ?? 1) === 1 && (r.interval === "month" || r.interval === "year")) return r.interval;
+  for (const k of PRICE_KEYS) if (priceId(k) && priceId(k) === p.id) return k.endsWith("_yearly") ? "year" : "month";
+  return null;
+}
+
 /** What the admin's daily revenue needs from an event: cents paid and the Stripe customer. */
 export interface LedgerExtra { amount_cents?: number | null; customer?: string | null }
 
 export interface SubscriptionRow {
   stripe_customer_id: string; stripe_subscription_id: string; tier: Tier; status: string;
   current_period_end: string | null; cancel_at_period_end: boolean; trialed_at?: string;
+  /** F15 (20261127000000_subscription_interval.sql); left out when unknown. */
+  billing_interval?: "month" | "year";
 }
 
 /** What the webhook needs from the database. Production: supabaseBillingDb() (service role). Tests: in memory. */
@@ -124,6 +136,7 @@ export function subscriptionRow(sub: Stripe.Subscription): SubscriptionRow {
     current_period_end: end ? new Date(end * 1000).toISOString() : null,
     cancel_at_period_end: !!sub.cancel_at_period_end,
     ...(sub.trial_start ? { trialed_at: new Date(sub.trial_start * 1000).toISOString() } : {}),
+    ...(intervalOf(item?.price) ? { billing_interval: intervalOf(item?.price)! } : {}),
   };
 }
 

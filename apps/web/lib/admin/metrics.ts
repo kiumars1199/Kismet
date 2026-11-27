@@ -43,3 +43,21 @@ export function summarize(raw: RawMetrics): Summary {
       : !raw.revenue_since && days.length ? "Revenue is recorded from the first paid invoice after this update; until then days show a dash." : null,
   };
 }
+
+/** F15: admin_mrr() (20261127000000_subscription_interval.sql). */
+export interface RawMrr { mrr_cents: number; paying: { pro: number; premium: number }; yearly: number; unknown_interval: number }
+export interface Mrr { value: string; sub: string; title: string }
+export const MRR_TITLE_ESTIMATE = "Paying subscribers × monthly list price. Annual plans aren't separated until the billing-interval migration is applied; Stripe has the exact figure.";
+
+/** One MRR for both blocks on /admin. With admin_mrr: yearly plans at their yearly price / 12, and the number of
+ *  subscriptions whose plan length isn't recorded yet (counted monthly until their next Stripe event). Without it
+ *  (migration not applied): the old estimate, said to be one. */
+export function mrrView(raw: RawMrr | null, estimateCents: number): Mrr {
+  if (!raw) return { value: dollars(estimateCents), sub: "at monthly list price", title: MRR_TITLE_ESTIMATE };
+  const parts = [raw.yearly ? `${raw.yearly} yearly at price ÷ 12` : "monthly list prices"];
+  if (raw.unknown_interval) parts.push(`${raw.unknown_interval} plan length not recorded yet, counted monthly`);
+  return {
+    value: dollars(raw.mrr_cents), sub: parts.join(" · "),
+    title: "Paying subscribers at list price: monthly plans at the monthly price, yearly plans at the yearly price ÷ 12. Discounts aren't counted; Stripe has the exact figure.",
+  };
+}
