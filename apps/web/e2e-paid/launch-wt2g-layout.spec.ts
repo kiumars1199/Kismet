@@ -86,6 +86,30 @@ for (const { w, h } of [{ w: 390, h: 844 }, { w: 1440, h: 900 }]) {
       });
     }
 
+    test("/alerts as pro: the Phone alerts card is its final height while it checks the device (it grew 88 -> 146 px at 390)", async ({ page, browser }) => {
+      test.setTimeout(240_000);
+      await signUp(page, `wt2g-push-${w}-${Date.now()}@example.com`);
+      await comp(page, "pro");
+      await page.goto("/alerts");
+      await skipTour(page);
+      const card = page.getByTestId("push-toggle");
+      await expect(card.getByRole("button", { name: "Turn on phone alerts" })).toBeVisible({ timeout: 30_000 });
+      const after = (await card.boundingBox())!.height;
+      // The same page while the device check is still running: the service-worker lookup never answers.
+      const ctx = await browser.newContext({ storageState: await page.context().storageState(), viewport: { width: w, height: h } });
+      await ctx.addInitScript(() => { navigator.serviceWorker.getRegistration = () => new Promise(() => {}); });
+      const held = await ctx.newPage();
+      await held.goto(new URL("/alerts", page.url()).href);   // a bare context has no baseURL
+      await skipTour(held);
+      const first = held.getByTestId("push-toggle");
+      await expect(first).toContainText("Checking this device", { timeout: 30_000 });
+      await expect(first.getByRole("button")).toHaveCount(0);
+      const before = (await first.boundingBox())!.height;
+      console.log(`Phone alerts card at ${w}px: ${before} -> ${after}`);
+      expect(Math.abs(after - before)).toBeLessThanOrEqual(1);
+      await ctx.close();
+    });
+
     test("/settings: the Time zone and State selects use the same text size (14 px on desktop, 16 px on phones)", async ({ page }) => {
       test.setTimeout(240_000);
       await signUp(page, `wt2g-set-${w}-${Date.now()}@example.com`);
