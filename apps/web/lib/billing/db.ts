@@ -31,5 +31,6 @@ export function supabaseBillingDb(): BillingDb {
     upsertSubscription: async (user_id, row) => {
       must(await db.from("subscriptions").upsert({ user_id, ...row, updated_at: new Date().toISOString() }, { onConflict: "user_id" }));
     },
+    retryInviteReward: async (p_inviter) => { must(await db.rpc("grant_invite_reward", { p_inviter })); },
   };
 }

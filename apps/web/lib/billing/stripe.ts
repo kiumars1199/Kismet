@@ -105,6 +105,8 @@ export interface BillingDb {
   customerOf(userId: string): Promise<{ customer: string | null; status: string | null }>;
   emailFor(userId: string): Promise<string | null>;
   upsertSubscription(userId: string, row: SubscriptionRow): Promise<void>;
+  /** F13: ask again for the user's invite reward (grant_invite_reward; a no-op unless it was put off and is now due). */
+  retryInviteReward?(userId: string): Promise<void>;
 }
 
 const idOf = (x: string | { id: string } | null | undefined) => (typeof x === "string" ? x : x?.id ?? null);
@@ -133,6 +135,11 @@ async function applySubscription(db: BillingDb, sub: Stripe.Subscription, userHi
   // Payment Links: subscription events can beat checkout.session.completed. 500 → Stripe retries later.
   if (!userId) throw new RetryLater(`no user for customer ${row.stripe_customer_id}`);
   await db.upsertSubscription(userId, row);
+  // F13: a reward put off while the user had paid Premium or a trial is due once that ends. Ask now rather than at
+  // their next sign-in. Best effort: the next sign-in still asks, so a failure here never makes Stripe retry.
+  if (row.tier !== "premium" && db.retryInviteReward) {
+    await db.retryInviteReward(userId).catch((e) => console.warn("[stripe] invite reward retry failed", e instanceof Error ? e.message : e));
+  }
 }
 
 const TIER_RANK: Record<Tier, number> = { free: 0, pro: 1, premium: 2 };
