@@ -258,6 +258,8 @@ Problems:
 
 - #148 T-wt2m merged Nov 27 as 17c213a2 (CI 12/12 green, Vercel deploy succeeded): the Phone alerts card on /alerts reserves its "off" layout while checking the device, so it no longer grows 88 → 146 px at 390 (88 → 94 at 1440); /alerts CLS ≤ 0.0007.
   Vercel runtime logs not checked from here (no connector, site blocked from the container). Note: CI's headless Chromium reports notifications as denied for every site; e2e that needs "off" stubs the permission.
+- #149 T-f15b merged Nov 27 as 2cf6c985 (CI 12/12 green, Vercel and Railway deploys succeeded): /admin MRR counts a yearly plan at its yearly price ÷ 12, and both MRR cards use one number (admin_mrr()); the webhook now stores subscriptions.billing_interval.
+  **Q: apply migration 20261127000000_subscription_interval.sql in Supabase**; until then /admin falls back to the old monthly-price estimate. Vercel runtime logs not checked from here.
 
 ## Fixed log
 - F7: passed review (pre-merge PASS + post-merge PASS on cd9f672; evidence review/f07/).
