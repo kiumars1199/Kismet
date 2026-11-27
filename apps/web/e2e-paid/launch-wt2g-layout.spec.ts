@@ -1,6 +1,6 @@
 // T-wt2g (walk-through 2): signed in as Free, /alerts and /dashboards load without the footer jumping (CLS <= 0.02 at 390 and
 // 1440), and the /check limit card is sized to its content (it was a ~1000 px box with ~100 px of text) with no shift either.
-import { expect, test, type Page } from "./fixtures";
+import { expect, test, type BrowserContext, type Page } from "./fixtures";
 
 async function signUp(page: Page, email: string) {
   await page.goto("/login");
@@ -90,6 +90,12 @@ for (const { w, h } of [{ w: 390, h: 844 }, { w: 1440, h: 900 }]) {
       test.setTimeout(240_000);
       await signUp(page, `wt2g-push-${w}-${Date.now()}@example.com`);
       await comp(page, "pro");
+      // A browser that hasn't been asked about notifications yet, so the check settles on "off", the result the card reserves
+      // space for. CI's headless Chromium reports "denied" for every site, even after grantPermissions.
+      const pushable = (ctx: BrowserContext) => ctx.addInitScript(() => {
+        if ("Notification" in window) Object.defineProperty(Notification, "permission", { get: () => "default", configurable: true });
+      });
+      await pushable(page.context());
       await page.goto("/alerts");
       await skipTour(page);
       const card = page.getByTestId("push-toggle");
@@ -97,6 +103,7 @@ for (const { w, h } of [{ w: 390, h: 844 }, { w: 1440, h: 900 }]) {
       const after = (await card.boundingBox())!.height;
       // The same page while the device check is still running: the service-worker lookup never answers.
       const ctx = await browser.newContext({ storageState: await page.context().storageState(), viewport: { width: w, height: h } });
+      await pushable(ctx);
       await ctx.addInitScript(() => { navigator.serviceWorker.getRegistration = () => new Promise(() => {}); });
       const held = await ctx.newPage();
       await held.goto(new URL("/alerts", page.url()).href);   // a bare context has no baseURL
