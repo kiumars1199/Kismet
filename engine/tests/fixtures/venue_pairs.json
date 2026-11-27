@@ -1,0 +1,1352 @@
+[
+{
+"same": true,
+"note": "nfl moneyline",
+"pm": {
+"id": "pm0",
+"question": "Colts vs. Texans",
+"event": "Colts vs. Texans",
+"category": "sports",
+"closes_at": 1795732009,
+"url": "https://polymarket.com/event/e0",
+"best": {
+"outcome": "Texans",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXNFLGAME-0",
+"title": "Colts at Texans",
+"subtitle": "Texans",
+"topic": "sports.nfl",
+"series": "KXNFLGAME",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1795735609
+}
+},
+{
+"same": true,
+"note": "nba moneyline",
+"pm": {
+"id": "pm1",
+"question": "Lakers vs. Celtics",
+"event": "Lakers vs. Celtics",
+"category": "sports",
+"closes_at": 1795552009,
+"url": "https://polymarket.com/event/e1",
+"best": {
+"outcome": "Celtics",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXNBAGAME-1",
+"title": "Lakers at Celtics",
+"subtitle": "Celtics",
+"topic": "sports.nba",
+"series": "KXNBAGAME",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1795559209
+}
+},
+{
+"same": true,
+"note": "nhl moneyline",
+"pm": {
+"id": "pm2",
+"question": "Bruins vs. Rangers",
+"event": "Bruins vs. Rangers",
+"category": "sports",
+"closes_at": 1795480009,
+"url": "https://polymarket.com/event/e2",
+"best": {
+"outcome": "Rangers",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXNHLGAME-2",
+"title": "Bruins at Rangers",
+"subtitle": "Rangers",
+"topic": "sports.nhl",
+"series": "KXNHLGAME",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1795480009
+}
+},
+{
+"same": true,
+"note": "cfb moneyline",
+"pm": {
+"id": "pm3",
+"question": "Ohio State vs. Michigan",
+"event": "Ohio State vs. Michigan",
+"category": "sports",
+"closes_at": 1796092009,
+"url": "https://polymarket.com/event/e3",
+"best": {
+"outcome": "Michigan",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXNCAAFGAME-3",
+"title": "Ohio State at Michigan",
+"subtitle": "Michigan",
+"topic": "sports.cfb",
+"series": "KXNCAAFGAME",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1796102809
+}
+},
+{
+"same": true,
+"note": "mlb moneyline",
+"pm": {
+"id": "pm4",
+"question": "Yankees vs. Red Sox",
+"event": "Yankees vs. Red Sox",
+"category": "sports",
+"closes_at": 1795444009,
+"url": "https://polymarket.com/event/e4",
+"best": {
+"outcome": "Yankees",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXMLBGAME-4",
+"title": "Yankees at Red Sox",
+"subtitle": "Yankees",
+"topic": "sports.mlb",
+"series": "KXMLBGAME",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1795447609
+}
+},
+{
+"same": true,
+"note": "tennis",
+"pm": {
+"id": "pm5",
+"question": "Sinner vs. Alcaraz",
+"event": "Sinner vs. Alcaraz",
+"category": "sports",
+"closes_at": 1795516009,
+"url": "https://polymarket.com/event/e5",
+"best": {
+"outcome": "Sinner",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXATPMATCH-5",
+"title": "Sinner vs Alcaraz",
+"subtitle": "Sinner",
+"topic": "sports.tennis.atp",
+"series": "KXATPMATCH",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1795519609
+}
+},
+{
+"same": true,
+"note": "epl",
+"pm": {
+"id": "pm6",
+"question": "Arsenal vs. Chelsea",
+"event": "Arsenal vs. Chelsea",
+"category": "sports",
+"closes_at": 1795588009,
+"url": "https://polymarket.com/event/e6",
+"best": {
+"outcome": "Arsenal",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXEPLGAME-6",
+"title": "Arsenal vs Chelsea",
+"subtitle": "Arsenal",
+"topic": "sports.soccer.premier-league",
+"series": "KXEPLGAME",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1795595209
+}
+},
+{
+"same": true,
+"note": "btc threshold",
+"pm": {
+"id": "pm7",
+"question": "Will Bitcoin be above 95000 on Dec 5?",
+"event": "Bitcoin above 95000 on Dec 5",
+"category": "crypto",
+"closes_at": 1796452009,
+"url": "https://polymarket.com/event/e7",
+"best": {
+"outcome": "Yes",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXBTCD-7",
+"title": "Bitcoin above 95000 on Dec 5",
+"subtitle": "Above 95000",
+"topic": "crypto.bitcoin",
+"series": "KXBTCD",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1796452009
+}
+},
+{
+"same": true,
+"note": "eth threshold no side",
+"pm": {
+"id": "pm8",
+"question": "Will Ethereum be above 3500 on Dec 5?",
+"event": "Ethereum above 3500 on Dec 5",
+"category": "crypto",
+"closes_at": 1796452009,
+"url": "https://polymarket.com/event/e8",
+"best": {
+"outcome": "No",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXETHD-8",
+"title": "Ethereum above 3500 on Dec 5",
+"subtitle": "Above 3500",
+"topic": "crypto.ethereum",
+"series": "KXETHD",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1796455609
+}
+},
+{
+"same": true,
+"note": "fed",
+"pm": {
+"id": "pm9",
+"question": "Fed decision in December: cut 25 bps?",
+"event": "Fed decision in December",
+"category": "finance",
+"closes_at": 1797172009,
+"url": "https://polymarket.com/event/e9",
+"best": {
+"outcome": "Yes",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXFEDDECISION-9",
+"title": "Fed decision in December",
+"subtitle": "Cut 25 bps",
+"topic": "finance.fed",
+"series": "KXFEDDECISION",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1797172009
+}
+},
+{
+"same": true,
+"note": "cpi",
+"pm": {
+"id": "pm10",
+"question": "Will CPI inflation be above 3.0%?",
+"event": "CPI inflation above 3.0%",
+"category": "finance",
+"closes_at": 1796812009,
+"url": "https://polymarket.com/event/e10",
+"best": {
+"outcome": "Yes",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXCPI-10",
+"title": "CPI inflation above 3.0%",
+"subtitle": "Above 3.0%",
+"topic": "finance.inflation",
+"series": "KXCPI",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1796812009
+}
+},
+{
+"same": true,
+"note": "senate",
+"pm": {
+"id": "pm11",
+"question": "Will Republicans win the Ohio Senate race?",
+"event": "Ohio Senate race winner",
+"category": "politics",
+"closes_at": 1798252009,
+"url": "https://polymarket.com/event/e11",
+"best": {
+"outcome": "Yes",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXSENATEOH-11",
+"title": "Ohio Senate race winner",
+"subtitle": "Republicans",
+"topic": "politics.elections",
+"series": "KXSENATEOH",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1798252009
+}
+},
+{
+"same": true,
+"note": "shutdown",
+"pm": {
+"id": "pm12",
+"question": "Government shutdown before January?",
+"event": "Government shutdown before January",
+"category": "politics",
+"closes_at": 1797892009,
+"url": "https://polymarket.com/event/e12",
+"best": {
+"outcome": "Yes",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXSHUTDOWN-12",
+"title": "Government shutdown before January",
+"subtitle": "Yes",
+"topic": "politics.congress",
+"series": "KXSHUTDOWN",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1797892009
+}
+},
+{
+"same": true,
+"note": "high temp",
+"pm": {
+"id": "pm13",
+"question": "Highest temperature in NYC on Dec 12: 55 or above?",
+"event": "Highest temperature in NYC on Dec 12",
+"category": "weather",
+"closes_at": 1796812009,
+"url": "https://polymarket.com/event/e13",
+"best": {
+"outcome": "Yes",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXHIGHNY-13",
+"title": "Highest temperature in NYC on Dec 12",
+"subtitle": "55 or above",
+"topic": "weather.highest-temperature",
+"series": "KXHIGHNY",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1796815609
+}
+},
+{
+"same": true,
+"note": "best picture",
+"pm": {
+"id": "pm14",
+"question": "Best Picture winner: Anora",
+"event": "Best Picture winner",
+"category": "culture",
+"closes_at": 1802572009,
+"url": "https://polymarket.com/event/e14",
+"best": {
+"outcome": "Yes",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXOSCARBESTPIC-14",
+"title": "Best Picture winner",
+"subtitle": "Anora",
+"topic": "culture.awards",
+"series": "KXOSCARBESTPIC",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1802572009
+}
+},
+{
+"same": true,
+"note": "openai",
+"pm": {
+"id": "pm15",
+"question": "OpenAI releases a new model before January?",
+"event": "OpenAI releases a new model before January",
+"category": "tech",
+"closes_at": 1797532009,
+"url": "https://polymarket.com/event/e15",
+"best": {
+"outcome": "Yes",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXOPENAI-15",
+"title": "OpenAI releases a new model before January",
+"subtitle": "Yes",
+"topic": "tech.openai",
+"series": "KXOPENAI",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1797532009
+}
+},
+{
+"same": true,
+"note": "ceasefire",
+"pm": {
+"id": "pm16",
+"question": "Russia Ukraine ceasefire before March?",
+"event": "Russia Ukraine ceasefire before March",
+"category": "geopolitics",
+"closes_at": 1800772009,
+"url": "https://polymarket.com/event/e16",
+"best": {
+"outcome": "Yes",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXUKRAINE-16",
+"title": "Russia Ukraine ceasefire before March",
+"subtitle": "Yes",
+"topic": "geopolitics",
+"series": "KXUKRAINE",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1800772009
+}
+},
+{
+"same": true,
+"note": "gold",
+"pm": {
+"id": "pm17",
+"question": "Gold above 3000 on Dec 31?",
+"event": "Gold above 3000 on Dec 31",
+"category": "finance",
+"closes_at": 1798612009,
+"url": "https://polymarket.com/event/e17",
+"best": {
+"outcome": "Yes",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXGOLD-17",
+"title": "Gold above 3000 on Dec 31",
+"subtitle": "Above 3000",
+"topic": "finance.commodities",
+"series": "KXGOLD",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1798612009
+}
+},
+{
+"same": true,
+"note": "topic other tolerated",
+"pm": {
+"id": "pm18",
+"question": "Starship flight 8 launches before December?",
+"event": "Starship flight 8 launches before December",
+"category": "tech",
+"closes_at": 1796452009,
+"url": "https://polymarket.com/event/e18",
+"best": {
+"outcome": "Yes",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXSTARSHIP-18",
+"title": "Starship flight 8 launches before December",
+"subtitle": "Yes",
+"topic": "other",
+"series": "KXSTARSHIP",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1796452009
+}
+},
+{
+"same": true,
+"note": "spotify",
+"pm": {
+"id": "pm19",
+"question": "Espresso is the top Spotify song on Dec 1?",
+"event": "Top Spotify song on Dec 1",
+"category": "culture",
+"closes_at": 1796272009,
+"url": "https://polymarket.com/event/e19",
+"best": {
+"outcome": "Yes",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXSPOTIFYTOP-19",
+"title": "Top Spotify song on Dec 1",
+"subtitle": "Espresso",
+"topic": "culture.music",
+"series": "KXSPOTIFYTOP",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1796272009
+}
+},
+{
+"same": false,
+"note": "same teams, game a week later",
+"pm": {
+"id": "pm20",
+"question": "Colts vs. Texans",
+"event": "Colts vs. Texans",
+"category": "sports",
+"closes_at": 1795732009,
+"url": "https://polymarket.com/event/e20",
+"best": {
+"outcome": "Texans",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXNFLGAME-20",
+"title": "Colts at Texans",
+"subtitle": "Texans",
+"topic": "sports.nfl",
+"series": "KXNFLGAME",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1796336809
+}
+},
+{
+"same": false,
+"note": "same teams, other side (Colts)",
+"pm": {
+"id": "pm21",
+"question": "Colts vs. Texans",
+"event": "Colts vs. Texans",
+"category": "sports",
+"closes_at": 1795732009,
+"url": "https://polymarket.com/event/e21",
+"best": {
+"outcome": "Texans",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXNFLGAME-21",
+"title": "Colts at Texans",
+"subtitle": "Colts",
+"topic": "sports.nfl",
+"series": "KXNFLGAME",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1795732009
+}
+},
+{
+"same": false,
+"note": "spread vs moneyline",
+"pm": {
+"id": "pm22",
+"question": "Colts vs. Texans",
+"event": "Colts vs. Texans",
+"category": "sports",
+"closes_at": 1795732009,
+"url": "https://polymarket.com/event/e22",
+"best": {
+"outcome": "Texans",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXNFLSPREAD-22",
+"title": "Colts at Texans spread",
+"subtitle": "Texans -3.5",
+"topic": "sports.nfl",
+"series": "KXNFLSPREAD",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1795732009
+}
+},
+{
+"same": false,
+"note": "over/under at another line",
+"pm": {
+"id": "pm23",
+"question": "Lakers vs. Celtics: O/U 221.5",
+"event": "Lakers vs. Celtics",
+"category": "sports",
+"closes_at": 1795552009,
+"url": "https://polymarket.com/event/e23",
+"best": {
+"outcome": "Over",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXNBATOTAL-23",
+"title": "Lakers at Celtics total points",
+"subtitle": "Over 224.5",
+"topic": "sports.nba",
+"series": "KXNBATOTAL",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1795552009
+}
+},
+{
+"same": false,
+"note": "different strike",
+"pm": {
+"id": "pm24",
+"question": "Will Bitcoin be above 95000 on Dec 5?",
+"event": "Bitcoin above 95000 on Dec 5",
+"category": "crypto",
+"closes_at": 1796452009,
+"url": "https://polymarket.com/event/e24",
+"best": {
+"outcome": "Yes",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXBTCD-24",
+"title": "Bitcoin above 100000 on Dec 5",
+"subtitle": "Above 100000",
+"topic": "crypto.bitcoin",
+"series": "KXBTCD",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1796452009
+}
+},
+{
+"same": false,
+"note": "different asset same strike",
+"pm": {
+"id": "pm25",
+"question": "Will Bitcoin be above 3500 on Dec 5?",
+"event": "Bitcoin above 3500 on Dec 5",
+"category": "crypto",
+"closes_at": 1796452009,
+"url": "https://polymarket.com/event/e25",
+"best": {
+"outcome": "Yes",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXETHD-25",
+"title": "Ethereum above 3500 on Dec 5",
+"subtitle": "Above 3500",
+"topic": "crypto.ethereum",
+"series": "KXETHD",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1796452009
+}
+},
+{
+"same": false,
+"note": "different city temperature",
+"pm": {
+"id": "pm26",
+"question": "Highest temperature in NYC on Dec 12: 55 or above?",
+"event": "Highest temperature in NYC on Dec 12",
+"category": "weather",
+"closes_at": 1796812009,
+"url": "https://polymarket.com/event/e26",
+"best": {
+"outcome": "Yes",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXHIGHCHI-26",
+"title": "Highest temperature in Chicago on Dec 12",
+"subtitle": "55 or above",
+"topic": "weather.highest-temperature",
+"series": "KXHIGHCHI",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1796812009
+}
+},
+{
+"same": false,
+"note": "different threshold temperature",
+"pm": {
+"id": "pm27",
+"question": "Highest temperature in NYC on Dec 12: 55 or above?",
+"event": "Highest temperature in NYC on Dec 12",
+"category": "weather",
+"closes_at": 1796812009,
+"url": "https://polymarket.com/event/e27",
+"best": {
+"outcome": "Yes",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXHIGHNY-27",
+"title": "Highest temperature in NYC on Dec 12",
+"subtitle": "60 or above",
+"topic": "weather.highest-temperature",
+"series": "KXHIGHNY",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1796812009
+}
+},
+{
+"same": false,
+"note": "other award",
+"pm": {
+"id": "pm28",
+"question": "Best Picture winner: Anora",
+"event": "Best Picture winner",
+"category": "culture",
+"closes_at": 1802572009,
+"url": "https://polymarket.com/event/e28",
+"best": {
+"outcome": "Yes",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXOSCARDIR-28",
+"title": "Best Director winner",
+"subtitle": "Anora",
+"topic": "culture.awards",
+"series": "KXOSCARDIR",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1802572009
+}
+},
+{
+"same": false,
+"note": "other candidate",
+"pm": {
+"id": "pm29",
+"question": "Best Picture winner: Anora",
+"event": "Best Picture winner",
+"category": "culture",
+"closes_at": 1802572009,
+"url": "https://polymarket.com/event/e29",
+"best": {
+"outcome": "Yes",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXOSCARBESTPIC-29",
+"title": "Best Picture winner",
+"subtitle": "The Brutalist",
+"topic": "culture.awards",
+"series": "KXOSCARBESTPIC",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1802572009
+}
+},
+{
+"same": false,
+"note": "other race same party",
+"pm": {
+"id": "pm30",
+"question": "Will Republicans win the Ohio Senate race?",
+"event": "Ohio Senate race winner",
+"category": "politics",
+"closes_at": 1798252009,
+"url": "https://polymarket.com/event/e30",
+"best": {
+"outcome": "Yes",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXSENATETX-30",
+"title": "Texas Senate race winner",
+"subtitle": "Republicans",
+"topic": "politics.elections",
+"series": "KXSENATETX",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1798252009
+}
+},
+{
+"same": false,
+"note": "other month",
+"pm": {
+"id": "pm31",
+"question": "Fed decision in December: cut 25 bps?",
+"event": "Fed decision in December",
+"category": "finance",
+"closes_at": 1797172009,
+"url": "https://polymarket.com/event/e31",
+"best": {
+"outcome": "Yes",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXFEDDECISION-31",
+"title": "Fed decision in January",
+"subtitle": "Cut 25 bps",
+"topic": "finance.fed",
+"series": "KXFEDDECISION",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1800628009
+}
+},
+{
+"same": false,
+"note": "other bps",
+"pm": {
+"id": "pm32",
+"question": "Fed decision in December: cut 25 bps?",
+"event": "Fed decision in December",
+"category": "finance",
+"closes_at": 1797172009,
+"url": "https://polymarket.com/event/e32",
+"best": {
+"outcome": "Yes",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXFEDDECISION-32",
+"title": "Fed decision in December",
+"subtitle": "Cut 50 bps",
+"topic": "finance.fed",
+"series": "KXFEDDECISION",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1797172009
+}
+},
+{
+"same": false,
+"note": "other inflation measure",
+"pm": {
+"id": "pm33",
+"question": "Will CPI inflation be above 3.0%?",
+"event": "CPI inflation above 3.0%",
+"category": "finance",
+"closes_at": 1796812009,
+"url": "https://polymarket.com/event/e33",
+"best": {
+"outcome": "Yes",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXPCE-33",
+"title": "PCE inflation above 3.0%",
+"subtitle": "Above 3.0%",
+"topic": "finance.inflation",
+"series": "KXPCE",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1796812009
+}
+},
+{
+"same": false,
+"note": "category mismatch",
+"pm": {
+"id": "pm34",
+"question": "Arsenal vs. Chelsea",
+"event": "Arsenal vs. Chelsea",
+"category": "sports",
+"closes_at": 1795588009,
+"url": "https://polymarket.com/event/e34",
+"best": {
+"outcome": "Arsenal",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXWRONG-34",
+"title": "Arsenal vs Chelsea",
+"subtitle": "Arsenal",
+"topic": "finance.fed",
+"series": "KXWRONG",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1795588009
+}
+},
+{
+"same": false,
+"note": "other sport same city names",
+"pm": {
+"id": "pm35",
+"question": "Rangers vs. Bruins",
+"event": "Rangers vs. Bruins",
+"category": "sports",
+"closes_at": 1795480009,
+"url": "https://polymarket.com/event/e35",
+"best": {
+"outcome": "Rangers",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXMLBGAME-35",
+"title": "Rangers at Astros",
+"subtitle": "Rangers",
+"topic": "sports.mlb",
+"series": "KXMLBGAME",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1795480009
+}
+},
+{
+"same": false,
+"note": "unrelated same day",
+"pm": {
+"id": "pm36",
+"question": "OpenAI releases a new model before January?",
+"event": "OpenAI releases a new model before January",
+"category": "tech",
+"closes_at": 1797532009,
+"url": "https://polymarket.com/event/e36",
+"best": {
+"outcome": "Yes",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXAPPLE-36",
+"title": "Apple releases a new phone before January",
+"subtitle": "Yes",
+"topic": "tech.big-tech",
+"series": "KXAPPLE",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1797532009
+}
+},
+{
+"same": false,
+"note": "no kalshi close time",
+"pm": {
+"id": "pm37",
+"question": "Colts vs. Texans",
+"event": "Colts vs. Texans",
+"category": "sports",
+"closes_at": 1795732009,
+"url": "https://polymarket.com/event/e37",
+"best": {
+"outcome": "Texans",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXNFLGAME-37",
+"title": "Colts at Texans",
+"subtitle": "Texans",
+"topic": "sports.nfl",
+"series": "KXNFLGAME",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": null
+}
+},
+{
+"same": false,
+"note": "tennis other opponent",
+"pm": {
+"id": "pm38",
+"question": "Sinner vs. Alcaraz",
+"event": "Sinner vs. Alcaraz",
+"category": "sports",
+"closes_at": 1795516009,
+"url": "https://polymarket.com/event/e38",
+"best": {
+"outcome": "Sinner",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXATPMATCH-38",
+"title": "Sinner vs Zverev",
+"subtitle": "Sinner",
+"topic": "sports.tennis.atp",
+"series": "KXATPMATCH",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1795519609
+}
+},
+{
+"same": false,
+"note": "shutdown other deadline",
+"pm": {
+"id": "pm39",
+"question": "Government shutdown before January?",
+"event": "Government shutdown before January",
+"category": "politics",
+"closes_at": 1797892009,
+"url": "https://polymarket.com/event/e39",
+"best": {
+"outcome": "Yes",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXSHUTDOWN-39",
+"title": "Government shutdown before March",
+"subtitle": "Yes",
+"topic": "politics.congress",
+"series": "KXSHUTDOWN",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1803076009
+}
+},
+{
+"same": false,
+"note": "gold vs silver",
+"pm": {
+"id": "pm40",
+"question": "Gold above 3000 on Dec 31?",
+"event": "Gold above 3000 on Dec 31",
+"category": "finance",
+"closes_at": 1798612009,
+"url": "https://polymarket.com/event/e40",
+"best": {
+"outcome": "Yes",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXSILVER-40",
+"title": "Silver above 3000 on Dec 31",
+"subtitle": "Above 3000",
+"topic": "finance.commodities",
+"series": "KXSILVER",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1798612009
+}
+},
+{
+"same": false,
+"note": "ceasefire other country",
+"pm": {
+"id": "pm41",
+"question": "Russia Ukraine ceasefire before March?",
+"event": "Russia Ukraine ceasefire before March",
+"category": "geopolitics",
+"closes_at": 1800772009,
+"url": "https://polymarket.com/event/e41",
+"best": {
+"outcome": "Yes",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXGAZA-41",
+"title": "Israel Gaza ceasefire before March",
+"subtitle": "Yes",
+"topic": "geopolitics",
+"series": "KXGAZA",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1800772009
+}
+},
+{
+"same": false,
+"note": "below vs above",
+"pm": {
+"id": "pm42",
+"question": "Will Bitcoin be below 95000 on Dec 5?",
+"event": "Bitcoin below 95000 on Dec 5",
+"category": "crypto",
+"closes_at": 1796452009,
+"url": "https://polymarket.com/event/e42",
+"best": {
+"outcome": "Yes",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXBTCD-42",
+"title": "Bitcoin above 95000 on Dec 5",
+"subtitle": "Above 95000",
+"topic": "crypto.bitcoin",
+"series": "KXBTCD",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1796452009
+}
+},
+{
+"same": false,
+"note": "same event, other team first",
+"pm": {
+"id": "pm43",
+"question": "Chiefs vs. Bills",
+"event": "Chiefs vs. Bills",
+"category": "sports",
+"closes_at": 1795696009,
+"url": "https://polymarket.com/event/e43",
+"best": {
+"outcome": "Chiefs",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXNFLGAME-43",
+"title": "Bills at Chiefs",
+"subtitle": "Bills",
+"topic": "sports.nfl",
+"series": "KXNFLGAME",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1795696009
+}
+},
+{
+"same": false,
+"note": "season vs game",
+"pm": {
+"id": "pm44",
+"question": "Lakers vs. Celtics",
+"event": "Lakers vs. Celtics",
+"category": "sports",
+"closes_at": 1795552009,
+"url": "https://polymarket.com/event/e44",
+"best": {
+"outcome": "Celtics",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXNBAFINALS-44",
+"title": "Celtics championship winner",
+"subtitle": "Celtics",
+"topic": "sports.nba",
+"series": "KXNBAFINALS",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1795552009
+}
+},
+{
+"same": false,
+"note": "same words other year",
+"pm": {
+"id": "pm45",
+"question": "Will Trump approval be above 45 on Dec 31?",
+"event": "Trump approval above 45 on Dec 31",
+"category": "politics",
+"closes_at": 1798612009,
+"url": "https://polymarket.com/event/e45",
+"best": {
+"outcome": "Yes",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXTRUMPAPPROVAL-45",
+"title": "Trump approval above 45 on Dec 31 2027",
+"subtitle": "Above 45",
+"topic": "politics.trump",
+"series": "KXTRUMPAPPROVAL",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1798612009
+}
+},
+{
+"same": false,
+"note": "range bucket vs threshold",
+"pm": {
+"id": "pm46",
+"question": "Highest temperature in Miami on Dec 12: 80 to 81?",
+"event": "Highest temperature in Miami on Dec 12",
+"category": "weather",
+"closes_at": 1796812009,
+"url": "https://polymarket.com/event/e46",
+"best": {
+"outcome": "Yes",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXHIGHMIA-46",
+"title": "Highest temperature in Miami on Dec 12",
+"subtitle": "82 to 83",
+"topic": "weather.highest-temperature",
+"series": "KXHIGHMIA",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1796812009
+}
+},
+{
+"same": true,
+"note": "kalshi title has extra word",
+"pm": {
+"id": "pm47",
+"question": "Packers vs. Lions",
+"event": "Packers vs. Lions",
+"category": "sports",
+"closes_at": 1795624009,
+"url": "https://polymarket.com/event/e47",
+"best": {
+"outcome": "Lions",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXNFLGAME-47",
+"title": "Packers at Lions winner",
+"subtitle": "Lions",
+"topic": "sports.nfl",
+"series": "KXNFLGAME",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1795627609
+}
+},
+{
+"same": true,
+"note": "no side",
+"pm": {
+"id": "pm48",
+"question": "Packers vs. Lions",
+"event": "Packers vs. Lions",
+"category": "sports",
+"closes_at": 1795624009,
+"url": "https://polymarket.com/event/e48",
+"best": {
+"outcome": "Packers",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXNFLGAME-48",
+"title": "Packers at Lions",
+"subtitle": "Packers",
+"topic": "sports.nfl",
+"series": "KXNFLGAME",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1795627609
+}
+},
+{
+"same": true,
+"note": "mentions",
+"pm": {
+"id": "pm49",
+"question": "Will Trump say tariff on Dec 5?",
+"event": "Will Trump say tariff on Dec 5",
+"category": "culture",
+"closes_at": 1796452009,
+"url": "https://polymarket.com/event/e49",
+"best": {
+"outcome": "Yes",
+"ask": 0.5,
+"fee": 0.01
+}
+},
+"k": {
+"ticker": "KXMENTIONPRESS-49",
+"title": "What will Trump say on Dec 5",
+"subtitle": "Tariff",
+"topic": "other",
+"series": "KXMENTIONPRESS",
+"yes_bid": 50,
+"yes_ask": 52,
+"close_epoch": 1796452009
+}
+}
+]

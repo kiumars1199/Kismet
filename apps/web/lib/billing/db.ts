@@ -1,0 +1,42 @@
+// BillingDb over Supabase with the service role (webhook writes; RLS blocks users from writing tiers).
+import { supabaseAdmin } from "@/lib/auth/server";
+import type { BillingDb } from "./stripe";
+
+const must = <T extends { error: { message: string } | null }>(r: T) => {
+  if (r.error) throw new Error(r.error.message);
+  return r;
+};
+
+export function supabaseBillingDb(): BillingDb {
+  const db = supabaseAdmin();
+  return {
+    seen: async (id) => !!must(await db.from("stripe_events").select("id").eq("id", id).maybeSingle()).data,
+    markSeen: async (id, type, extra) => {
+      const row = { id, type, ...(extra?.amount_cents != null ? { amount_cents: extra.amount_cents } : {}), ...(extra?.customer ? { customer: extra.customer } : {}) };
+      const r = await db.from("stripe_events").upsert(row, { onConflict: "id", ignoreDuplicates: true });
+      // Before the F15 migration (20261122000300) the ledger columns don't exist: record the event without them.
+      if (r.error && ("amount_cents" in row || "customer" in row)) must(await db.from("stripe_events").upsert({ id, type }, { onConflict: "id", ignoreDuplicates: true }));
+      else must(r);
+    },
+    linkCustomer: async (user_id, stripe_customer_id) => {
+      must(await db.from("subscriptions").upsert({ user_id, stripe_customer_id, updated_at: new Date().toISOString() }, { onConflict: "user_id" }));
+    },
+    userForCustomer: async (customer) =>
+      must(await db.from("subscriptions").select("user_id").eq("stripe_customer_id", customer).maybeSingle()).data?.user_id ?? null,
+    customerOf: async (userId) => {
+      const row = must(await db.from("subscriptions").select("stripe_customer_id, status").eq("user_id", userId).maybeSingle()).data;
+      return { customer: row?.stripe_customer_id ?? null, status: row?.status ?? null };
+    },
+    emailFor: async (userId) => (await db.auth.admin.getUserById(userId)).data.user?.email ?? null,
+    upsertSubscription: async (user_id, row) => {
+      const put = (r: typeof row) => db.from("subscriptions").upsert({ user_id, ...r, updated_at: new Date().toISOString() }, { onConflict: "user_id" });
+      const res = await put(row);
+      // Before 20261127000000 the billing_interval column doesn't exist: save the plan without it (billing must not stop).
+      if (res.error && row.billing_interval && /billing_interval/.test(res.error.message)) {
+        const { billing_interval: _, ...rest } = row;
+        must(await put(rest));
+      } else must(res);
+    },
+    retryInviteReward: async (p_inviter) => { must(await db.rpc("grant_invite_reward", { p_inviter })); },
+  };
+}

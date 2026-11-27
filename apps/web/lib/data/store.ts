@@ -1,0 +1,616 @@
+// In-memory data store (docs/02 § Data flow): one parsed copy per server instance, 120 s cache,
+// concurrent loads de-duplicated. Server only — never ship markets.json to the browser.
+import { createHash } from "node:crypto";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
+import { promisify } from "node:util";
+import { gunzip } from "node:zlib";
+import "server-only";
+import { after } from "next/server";
+import { DATA_SOURCE, dataDirSetting, type DataSource } from "@/lib/config";
+import type { Tier } from "@/lib/entitlements";
+import { getSettings } from "@/lib/settings";
+import { delayMin } from "@/lib/settings-core";
+import { Flag as FlagSchema, Market as MarketSchema, ScanMeta as MetaSchema } from "@/lib/schemas";
+import type { BacktestFile, EventsFile, FlagsFile, KalshiFile, KalshiIndexFile, VenuesFile, VenuesSnapshot, VenueQuote, LedgerSummary, Market, MarketsFile, ModelFile, PolymarketIndexFile, ScanMeta, StoreMarket } from "@/lib/types";
+import { derive } from "./derive";
+import { indexFromFile, indexFromKalshi, type KalshiIndex } from "./kalshi-index";
+import { indexFromPmFile, type PolymarketIndex } from "./polymarket-index";
+import { headlineBacktest } from "./model";
+import { buildSearch, type SearchIndex } from "@/lib/search/index";
+import { DELAYED_PENDING } from "@/lib/api";
+
+/** Free can't be served yet: no older scan to show inside the delay window (docs/15). Pages render an honest
+ *  "first update shortly" state and the API answers 503; Free never falls through to the live scan. */
+export class DelayedPending extends Error {
+  readonly code = DELAYED_PENDING;
+}
+
+export interface RawData {
+  markets: MarketsFile;
+  flags: FlagsFile;
+  model: ModelFile;
+  backtest: BacktestFile;
+  events?: EventsFile;              // output/events.json (T-05), optional
+  ledgerSummary?: LedgerSummary;    // output/ledger_summary.json (T-04), optional
+  ledgerSince?: number | null;      // first flagged_at in output/ledger.jsonl (T-290), the live record's start
+  source?: DataSource;              // which source served this copy
+  venues?: VenuesFile;              // output/venues.json (F4), optional
+  hashes?: Record<string, string>;  // hashOf each file read (egress fix): getStore skips a reload while version.json matches
+}
+
+type Counts = Record<string, number>;
+
+export interface Store {
+  loadedAt: number;
+  meta: ScanMeta;
+  markets: StoreMarket[];
+  flags: StoreMarket[];                     // flags.json rows (always carry `execution`)
+  byId: Map<string, StoreMarket>;
+  byEvent: Map<string, StoreMarket[]>;
+  bySlug: Map<string, StoreMarket[]>;       // event slug → markets
+  flagsById: Map<string, StoreMarket>;
+  facets: { categories: Counts; niches: Counts; market_types: Counts; periods: Counts; frequency: Counts };
+  search: SearchIndex;
+  model: ModelFile;
+  backtest: BacktestFile;
+  events?: EventsFile;
+  ledgerSummary?: LedgerSummary;
+  ledgerSince?: number | null;
+  source?: DataSource;
+  venuesFile?: VenuesFile;
+  hashes?: Record<string, string>;
+  /** When these files were last downloaded (loadedAt also moves when version.json says nothing changed). */
+  fetchedAt?: number;
+}
+
+const github = () => ({
+  token: process.env.GITHUB_DATA_TOKEN,
+  // GITHUB_DATA_REPO, else the repo Vercel deployed from (system env vars, on by default).
+  repo: process.env.GITHUB_DATA_REPO
+    || (process.env.VERCEL_GIT_REPO_OWNER && process.env.VERCEL_GIT_REPO_SLUG ? `${process.env.VERCEL_GIT_REPO_OWNER}/${process.env.VERCEL_GIT_REPO_SLUG}` : ""),
+  ref: process.env.GITHUB_DATA_REF || "live",
+});
+
+/** The service key never leaves the server (this file is server-only; no NEXT_PUBLIC_ prefix). */
+const supabaseStorage = () => ({
+  url: process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/+$/, ""),
+  key: process.env.SUPABASE_SERVICE_ROLE_KEY,
+  bucket: "scan",
+});
+
+const TTL_MS = 120_000;
+const dataDir = () => path.resolve(process.cwd(), dataDirSetting());
+
+const push = <K, V>(map: Map<K, V[]>, k: K, v: V) => {
+  const list = map.get(k);
+  if (list) list.push(v);
+  else map.set(k, [v]);
+};
+const inc = (c: Counts, k: string) => (c[k] = (c[k] ?? 0) + 1);
+
+/** Validate meta + ~1% of rows; log problems, never throw. */
+function validate(file: string, meta: unknown, rows: unknown[], schema: typeof MarketSchema | typeof FlagSchema) {
+  const m = MetaSchema.safeParse(meta);
+  if (!m.success) console.warn(`[store] ${file} meta mismatch`, m.error.issues.slice(0, 3));
+  let bad = 0;
+  for (let i = 0; i < rows.length; i += 100) {
+    const r = schema.safeParse(rows[i]);
+    if (!r.success && bad++ < 3) console.warn(`[store] ${file} row ${i} mismatch`, r.error.issues.slice(0, 3));
+  }
+}
+
+/** F4: a Kalshi snapshot older than its store's scan by more than this is not shown. */
+const KALSHI_MAX_AGE_S = 3 * 3600;
+/** The Kalshi snapshot for a store scanned at `scannedAt`: the newest of venues.json and its `prev` snapshots whose Kalshi
+ *  crawl is NOT newer than the scan (Free's delayed store must not see a fresher Kalshi price than its own scan), and not
+ *  over 3 h older. undefined = no Kalshi row (missing, malformed, stale, or only newer data exists). */
+export function kalshiSnapshot(v: VenuesFile | undefined, scannedAt: number): VenuesSnapshot | undefined {
+  if (!v) return undefined;
+  const ok = (x: VenuesSnapshot | undefined): x is VenuesSnapshot => !!x && typeof x.venues === "object" && !!x.venues && !!x.meta;
+  const at = (x: VenuesSnapshot) => x.meta.kalshi_fetched_at ?? x.meta.generated_at;
+  return [v, ...(v.prev ?? [])].filter(ok).filter((x) => at(x) <= scannedAt && scannedAt - at(x) <= KALSHI_MAX_AGE_S).sort((p, q) => at(q) - at(p))[0];
+}
+
+const mult = (ask: number | null | undefined, fee: number | null | undefined) => (ask != null && ask > 0 ? Math.round((1 / (ask + (fee ?? 0))) * 1e4) / 1e4 : null);
+
+/** F4: the venues of one market. Polymarket and Polymarket US come from the market's own row, exactly what its card shows
+ *  (cardVenue): US only when the scan lists the twin (m.us). Kalshi comes from the snapshot, only for the same side. */
+function venuesOf(m: Market, scannedAt: number, k: VenuesSnapshot | undefined, all?: VenuesFile): { venues: VenueQuote[]; kalshi_matched_ticker?: string; kalshi_match_conf?: number; kalshi_unavailable?: true } | undefined {
+  if (m.venue === "us") return undefined;   // US-native rows are priced on US only
+  let extra: { kalshi_matched_ticker?: string; kalshi_match_conf?: number; kalshi_unavailable?: true } = {};
+  const out: VenueQuote[] = [{ venue: "polymarket", price: m.best.ask, multiplier: mult(m.best.ask, m.best.fee), url: m.url, at: scannedAt }];
+  if (m.us) out.push({ venue: "us", price: m.us.ask, multiplier: mult(m.us.ask, m.us.fee), url: m.us.url, at: scannedAt });
+  const e = k?.venues[m.id];
+  const kq = e?.venues.find((v) => v.venue === "kalshi");
+  if (e && kq && (e.side === undefined || e.side === m.best.side_index)) {
+    // The matched Kalshi ticker is exposed for link lookups (a pasted kalshi.com link finds this market) as its OWN field:
+    // Market.kalshi_ticker means "this market is bet on Kalshi" (venueOf, the Trade ticket, combos, MCP) and stays unset.
+    if (e.kalshi_ticker) extra = { kalshi_matched_ticker: e.kalshi_ticker, ...(e.kalshi_match_conf != null ? { kalshi_match_conf: e.kalshi_match_conf } : {}) };
+    out.push({ ...kq, at: k!.meta.kalshi_fetched_at ?? k!.meta.generated_at, ...(e.kalshi_match_conf != null ? { conf: e.kalshi_match_conf } : {}) });
+  }
+  else if (all && [all, ...(all.prev ?? [])].some((x) => { const q = x?.venues?.[m.id]; return !!q?.venues?.some((v) => v.venue === "kalshi") && (q.side === undefined || q.side === m.best.side_index); })) {
+    extra = { kalshi_unavailable: true };   // Kalshi lists it, but every snapshot is newer than this store's scan (delay) or over 3 h old
+  }
+  return out.length >= 2 ? { venues: out, ...extra } : undefined;
+}
+
+export function buildStore(raw: RawData, loadedAt = Date.now()): Store {
+  validate("markets.json", raw.markets.meta, raw.markets.markets, MarketSchema);
+  validate("flags.json", raw.flags.meta, raw.flags.flags, FlagSchema);
+  const scannedAt = raw.markets.meta.scanned_at;
+  const ksnap = kalshiSnapshot(raw.venues, scannedAt);
+  const withVenues = <T extends Market>(m: T): T => { const v = venuesOf(m, scannedAt, ksnap, raw.venues); return v ? { ...m, ...v } : m; };
+
+  const flags: StoreMarket[] = raw.flags.flags.map((f) => ({ ...withVenues(f), derived: derive(f) }));
+  const flagsById = new Map(flags.map((f) => [f.id, f]));
+  const markets: StoreMarket[] = raw.markets.markets.map((m0) => {
+    const m = withVenues(m0);
+    const flag = flagsById.get(m.id);
+    const execution = (m as StoreMarket).execution ?? flag?.execution;
+    return { ...m, ...(execution ? { execution } : {}), ...(flag ? { tier: flag.tier ?? "best" } : {}), derived: derive(m) };
+  });
+
+  const byId = new Map<string, StoreMarket>();
+  const byEvent = new Map<string, StoreMarket[]>();
+  const bySlug = new Map<string, StoreMarket[]>();
+  const facets: Store["facets"] = { categories: {}, niches: {}, market_types: {}, periods: {}, frequency: {} };
+  for (const m of markets) {
+    byId.set(m.id, m);
+    push(byEvent, m.event_id, m);
+    push(bySlug, m.slug.toLowerCase(), m);
+    inc(facets.categories, m.category);
+    inc(facets.niches, m.niche);
+    inc(facets.market_types, m.market_type);
+    inc(facets.periods, m.derived.period);
+    for (const f of m.derived.frequency) inc(facets.frequency, f);
+  }
+
+  return {
+    loadedAt,
+    meta: raw.markets.meta,
+    markets,
+    flags,
+    byId,
+    byEvent,
+    bySlug,
+    flagsById,
+    facets,
+    search: buildSearch(markets, bySlug),
+    model: raw.model,
+    backtest: headlineBacktest(raw.backtest),   // Nov 21: the even-weeks run when backtest.json has one
+    events: raw.events,
+    ledgerSummary: raw.ledgerSummary,
+    ledgerSince: raw.ledgerSince ?? null,
+    source: raw.source,
+    venuesFile: raw.venues,
+    hashes: raw.hashes,
+    fetchedAt: loadedAt,
+  };
+}
+
+/** Sources tried in order (docs/14 §4): supabase → GitHub `live` branch; getStore adds the last good copy. */
+export const sourceChain = (s: DataSource = DATA_SOURCE): DataSource[] => (s === "supabase" ? ["supabase", "github"] : [s]);
+
+const inflate = promisify(gunzip);
+
+/** T-277: ops/upload.py stores objects gzip-compressed under their usual names, without Content-Encoding.
+ *  Sniff the gzip magic bytes (1f 8b) on the raw bytes: gzip → inflate, anything else is plain UTF-8 (objects from
+ *  before the rollout, the GitHub live branch, local files, or a response an HTTP layer already decoded).
+ *  JSON text never starts with 0x1f, so the sniff can't misread a plain file. */
+export async function decodeBody(bytes: Uint8Array): Promise<string> {
+  return (await decodeHashed(bytes)).text;
+}
+
+/** Egress fix: first 16 hex of sha256 over the plain bytes, as ops/upload.py digest() writes into version.json. */
+export const hashOf = (plain: Uint8Array) => createHash("sha256").update(plain).digest("hex").slice(0, 16);
+
+type Body = { text: string; hash: string };
+async function decodeHashed(bytes: Uint8Array): Promise<Body> {
+  const buf = Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  const plain = buf[0] === 0x1f && buf[1] === 0x8b ? await inflate(buf) : buf;
+  const text = plain.toString("utf8");
+  return { text: text.charCodeAt(0) === 0xfeff ? text.slice(1) : text, hash: hashOf(plain) };   // drop a BOM, as Response.text() did
+}
+
+/** #46 (Nov 20): one slow Storage response used to hold a load for 30 s and then hand the instance to the stale
+ *  fallback. Two tries with shorter timeouts: a stuck connection is dropped and retried on a fresh one. */
+const TRIES_MS = [15_000, 20_000];
+
+async function fetchText(url: string, headers: Record<string, string>, missing: number[]): Promise<Body | undefined> {
+  let err: unknown;
+  for (const ms of TRIES_MS) {
+    try {
+      const res = await fetch(url, { headers, cache: "no-store", signal: AbortSignal.timeout(ms) });
+      if (missing.includes(res.status)) return undefined;
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await decodeHashed(new Uint8Array(await res.arrayBuffer()));
+    } catch (e) {
+      err = e;
+      if (/^HTTP 4\d\d/.test((e as Error).message)) break;   // a 4xx won't change on retry
+    }
+  }
+  throw err;
+}
+
+// ---- Egress fix (Nov 27) ----------------------------------------------------------------------------------------
+// Every instance used to download every file again each time its cache expired (the store every 120 s, top.json every
+// 30 s, teasers every 60 s...), although scans land about every 15 min and model/backtest change hourly or daily. That
+// spent the Storage transfer quota. ops/upload.py now writes version.json last: {scanned_at, files: {name: hash}}.
+// Each instance reads it (under 2 KB, at most every VERSION_TTL_MS) and skips a download when it already holds that hash:
+// small files from `memo` below, the big markets/flags pair through getStore's check. A file the manifest doesn't list,
+// or no manifest at all (an older publisher), downloads as before.
+export const VERSION_FILE = "version.json";
+export interface Version { scanned_at?: number; files: Record<string, string> }
+const VERSION_TTL_MS = 15_000;
+/** A copy is trusted on its hash for this long, then downloaded again anyway: a manifest that missed an update (a failed
+ *  side-file step in ops/upload.py) can't keep an old copy alive for longer than this. */
+export const TRUST_MS = 30 * 60_000;
+/** Kept as text: everything but the big scan pair (the store keeps those parsed) and the 35 MB search index (own meta). */
+const MEMO_MAX_CHARS = 16_000_000;
+const noMemo = (file: string) => /^(markets|flags)(-prev2?)?\.json$|^polymarket_index\.json$/.test(file);
+
+const gv = globalThis as unknown as { __meVersion?: { at?: number; data?: Version | null; inflight?: Promise<Version | null> }; __meMemo?: Map<string, Body & { at: number }> };
+const ver = (gv.__meVersion ??= {});
+const memo = (gv.__meMemo ??= new Map());
+
+/** Tests, and the revalidate route (an upload just finished: read the new manifest now, not after VERSION_TTL_MS). */
+export function forgetVersion(all = false) {
+  ver.at = undefined;
+  ver.data = undefined;
+  if (all) memo.clear();
+}
+
+/** version.json from Supabase Storage, cached VERSION_TTL_MS; null = none (older publisher, unreadable, or not Supabase). */
+export function getVersion(): Promise<Version | null> {
+  if (ver.at && Date.now() - ver.at < VERSION_TTL_MS) return Promise.resolve(ver.data ?? null);
+  return (ver.inflight ??= fetchSupabase(VERSION_FILE)
+    .then((b) => {
+      const v = b && (JSON.parse(b.text) as Partial<Version>);
+      return v && v.files && typeof v.files === "object" ? { scanned_at: v.scanned_at, files: v.files } : null;
+    })
+    .catch((e) => { console.warn(`[store] ${VERSION_FILE} failed: ${(e as Error).message}`); return null; })
+    .then((v) => { ver.data = v; ver.at = Date.now(); return v; })
+    .finally(() => (ver.inflight = undefined)));
+}
+
+async function fetchSupabase(file: string): Promise<Body | undefined> {
+  const { url, key, bucket } = supabaseStorage();
+  if (!url || !key) throw new Error("NEXT_PUBLIC_SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY not set");
+  // Storage answers 400 (not 404) for a missing object.
+  return fetchText(`${url}/storage/v1/object/authenticated/${bucket}/${file}`, { Authorization: `Bearer ${key}`, apikey: key }, [400, 404]);
+}
+
+/** A Supabase file, from memory when version.json lists the hash this instance already holds. */
+async function readSupabase(file: string): Promise<Body | undefined> {
+  const hit = memo.get(file);
+  if (hit && Date.now() - hit.at < TRUST_MS && (await getVersion())?.files[file] === hit.hash) return hit;
+  const body = await fetchSupabase(file);
+  if (body && !noMemo(file) && body.text.length <= MEMO_MAX_CHARS) memo.set(file, { ...body, at: Date.now() });
+  else memo.delete(file);
+  return body;
+}
+
+/** One file from one source, with its hash; undefined = the source has no such file. */
+async function readHashed(source: DataSource, file: string): Promise<Body | undefined> {
+  if (source === "supabase") return readSupabase(file);
+  if (source === "github") {
+    const { token, repo, ref } = github();
+    return fetchText(`https://api.github.com/repos/${repo}/contents/${file}?ref=${ref}`,
+      { Accept: "application/vnd.github.raw", ...(token ? { Authorization: `Bearer ${token}` } : {}) }, [404]);
+  }
+  try {
+    return await decodeHashed(await readFile(path.join(dataDir(), file)));
+  } catch (e) {
+    if ((e as NodeJS.ErrnoException).code === "ENOENT") return undefined;
+    throw e;
+  }
+}
+
+/** One file from one source; undefined = the source has no such file. */
+async function readFrom(source: DataSource, file: string): Promise<string | undefined> {
+  return (await readHashed(source, file))?.text;
+}
+
+/** The files a store is built from. While version.json lists the same hash for each, a reload would change nothing.
+ *  venues.json is not in it: it goes up after the scan, and the store only takes a new copy with a new scan (as before). */
+export const STORE_FILES = ["markets.json", "flags.json", "model.json", "backtest.json", "events.json", "ledger_summary.json"] as const;
+
+/** True when version.json says none of this store's files changed since it downloaded them (so getStore skips the reload). */
+export async function storeUnchanged(s: Store, now = Date.now()): Promise<boolean> {
+  if (s.source !== "supabase" || !s.hashes || !s.fetchedAt || now - s.fetchedAt >= TRUST_MS) return false;
+  const v = await getVersion();
+  return !!v && STORE_FILES.every((f) => (v.files[f] ?? null) === (s.hashes![f] ?? null));
+}
+
+/** One file from the first source that has it. */
+export async function readSource(file: string, chain = sourceChain()): Promise<string | undefined> {
+  let err: unknown;
+  for (const source of chain) {
+    try {
+      const text = await readFrom(source, file);
+      if (text !== undefined) return text;
+    } catch (e) {
+      err = e;
+      console.warn(`[store] ${source} ${file} failed: ${(e as Error).message}`);
+    }
+  }
+  if (err) throw err;
+  return undefined;
+}
+
+async function loadFrom(source: DataSource): Promise<RawData> {
+  const hashes: Record<string, string> = {};
+  const read = async <T>(file: string, required: boolean): Promise<T | undefined> => {
+    const body = await readHashed(source, file);
+    if (body === undefined && required) throw new Error(`missing ${file} (DATA_SOURCE=${source}, dir=${dataDir()})`);
+    if (body === undefined) return undefined;
+    hashes[file] = body.hash;
+    return JSON.parse(body.text) as T;
+  };
+  const [markets, flags, model, backtest, events, ledgerSummary] = await Promise.all([
+    read<MarketsFile>("markets.json", true),
+    read<FlagsFile>("flags.json", true),
+    read<ModelFile>("model.json", true),
+    read<BacktestFile>("backtest.json", true),
+    read<EventsFile>("events.json", false),
+    read<LedgerSummary>("ledger_summary.json", false),
+  ]);
+  // QA-A #46: the publisher uploads markets.json and flags.json about a second apart, so a load that lands between
+  // them would pair one scan's markets with the other scan's flags. Refuse it; the caller keeps its copy and retries.
+  if (markets!.meta.scanned_at !== flags!.meta.scanned_at) {
+    throw new Error(`torn load: markets.json scan ${markets!.meta.scanned_at} vs flags.json scan ${flags!.meta.scanned_at}`);
+  }
+  const ledgerSince = ledgerSummary ? await firstFlaggedAt(source).catch(() => null) : null;
+  const venues = await read<VenuesFile>("venues.json", false).catch(() => undefined);   // F4: a missing or broken file = no venues
+  return { markets: markets!, flags: flags!, model: model!, backtest: backtest!, events, ledgerSummary, ledgerSince, source, venues, hashes };
+}
+
+const sinceMemo = new Map<DataSource, number>();
+/** T-290: when the live record started: the first flagged_at in ledger.jsonl (append-only, oldest first, but scan
+ *  it all in case). The start never changes, so it is read once per source per instance; until a ledger has a first
+ *  entry it is re-read with each store load. */
+export async function firstFlaggedAt(source: DataSource): Promise<number | null> {
+  const hit = sinceMemo.get(source);
+  if (hit !== undefined) return hit;
+  const text = await readFrom(source, "ledger.jsonl");
+  let min: number | null = null;
+  for (const line of text?.split("\n") ?? []) {
+    if (!line.trim()) continue;
+    try {
+      const t = (JSON.parse(line) as { flagged_at?: unknown }).flagged_at;
+      if (typeof t === "number" && Number.isFinite(t) && (min === null || t < min)) min = t;
+    } catch { /* a torn last line while the grader writes: skip it */ }
+  }
+  if (min !== null) sinceMemo.set(source, min);
+  return min;
+}
+
+/** #46 (Nov 20): a fallback source is only used while it is this fresh. The GitHub `live` branch stopped updating when
+ *  the engine moved to Railway, and instances that fell back to it served a day-old scan beside fresh ones. */
+export const FALLBACK_MAX_AGE_S = 2 * 3600;
+
+/** Every file from one source (never mix two scans); on any failure the next source, if its scan is recent. */
+export async function loadRaw(chain = sourceChain(), now = Date.now() / 1000): Promise<RawData> {
+  let err: unknown;
+  for (const [i, source] of chain.entries()) {
+    try {
+      const raw = await loadFrom(source);
+      const age = now - raw.markets.meta.scanned_at;
+      if (i > 0 && age > FALLBACK_MAX_AGE_S) throw new Error(`fallback scan is ${Math.round(age / 3600)} h old, not used`);
+      return raw;
+    } catch (e) {
+      err = e;
+      console.warn(`[store] ${source} load failed: ${(e as Error).message}`);
+    }
+  }
+  throw new Error(`[store] no data source answered: ${(err as Error)?.message}`);
+}
+
+const RETRY_MS = 30_000;
+/** QA-A #46/#60 (Nov 21): stale-while-revalidate had no age limit, so the first request to an instance that sat idle
+ *  for an hour got the hour-old scan (and its header, fetched from a busier instance, a newer one). A copy confirmed
+ *  current in the last SWR_MAX_MS is served at once while it refreshes; an older one waits for the reload, at most
+ *  WAIT_MS (a stuck download can take 35 s), then falls back to the copy in hand. Scans run every ~15 min. */
+export const SWR_MAX_MS = 5 * 60_000;
+export const WAIT_MS = 10_000;
+
+/** Nov 20: the background refresh above ran after the response was sent, and Vercel freezes a function once its response
+ *  is out, so the ~20 MB download stalled mid-stream and died as "aborted due to timeout" / "terminated" (about half
+ *  of all loads in the logs). after() keeps the function running until the refresh settles. Outside a request (tests,
+ *  scripts) after() throws; there nothing freezes, so the promise just runs. */
+function keepAlive(p: Promise<unknown>) {
+  try { after(() => p.then(() => {}, () => {})); } catch { /* no request scope */ }
+}
+
+// Kept on globalThis so dev hot reloads don't re-parse 20 MB each time.
+const g = globalThis as unknown as {
+  __meStore?: { cache?: Store; inflight?: Promise<Store>; failedAt?: number; prev?: Store; prev2?: Store; delayed?: { for: number; load: Promise<void> } };
+};
+const state = (g.__meStore ??= {});
+
+/** Tests: swap the loader and reset this instance's copies. */
+let loader: () => Promise<RawData> = () => loadRaw();
+export function _resetStore(load?: () => Promise<RawData>) {
+  loader = load ?? (() => loadRaw());
+  for (const k of Object.keys(state) as (keyof typeof state)[]) delete state[k];
+  forgetVersion(true);
+}
+
+const sameFiles = (a?: Record<string, string>, b?: Record<string, string>) =>
+  !!a && !!b && STORE_FILES.every((f) => (a[f] ?? null) === (b[f] ?? null));
+
+/** The reload, or the copy in hand if the reload fails or takes longer than WAIT_MS. */
+function waitOrCopy(load: Promise<Store>, copy: Store): Promise<Store> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<Store>((resolve) => { timer = setTimeout(() => resolve(copy), WAIT_MS); });
+  return Promise.race([load.catch(() => copy), timeout]).finally(() => clearTimeout(timer));
+}
+
+export function getStore(): Promise<Store> {
+  const age = state.cache ? Date.now() - state.cache.loadedAt : Infinity;
+  if (state.cache && age < TTL_MS) return Promise.resolve(state.cache);
+  if (state.inflight) return !state.cache ? state.inflight : age < SWR_MAX_MS ? Promise.resolve(state.cache) : waitOrCopy(state.inflight, state.cache);
+  // While every source is down, serve the last good copy and retry at most every 30 s.
+  if (state.cache && state.failedAt && Date.now() - state.failedAt < RETRY_MS) return Promise.resolve(state.cache);
+  const held = state.cache;
+  // Egress fix: ask version.json first; while it lists the hashes this copy was built from, there is nothing to download.
+  const unchanged = held ? storeUnchanged(held).catch(() => false) : Promise.resolve(false);
+  state.inflight = unchanged
+    .then((same) => (same ? undefined : loader()))
+    .then((raw) => {
+      state.failedAt = undefined;
+      if (!raw) {
+        held!.loadedAt = Date.now();
+        return held!;
+      }
+      // #46: never swap the copy in hand for an older scan (a lagging source or a stale object)
+      if (state.cache && raw.markets.meta.scanned_at < state.cache.meta.scanned_at) {
+        state.cache.loadedAt = Date.now();
+        return state.cache;
+      }
+      // same scan: keep the parsed copy (and its derived indexes), unless a file under it changed (an hourly fit uploaded
+      // with the same scan): rebuild then, or the version check above would see the old hashes and reload every time.
+      if (state.cache && raw.markets.meta.scanned_at === state.cache.meta.scanned_at && (!raw.hashes || !state.cache.hashes || sameFiles(raw.hashes, state.cache.hashes))) {
+        state.cache.loadedAt = Date.now();
+        if (raw.hashes) [state.cache.hashes, state.cache.fetchedAt] = [raw.hashes, Date.now()];
+        return state.cache;
+      }
+      const next = buildStore(raw);
+      // QA-A #46: a copy kept as `prev` feeds the Free delay. Only one confirmed current recently is a scan or two
+      // behind; one that sat unrefreshed may be many scans back, so drop it and let the published *-prev files decide.
+      if (state.cache && state.cache.meta.scanned_at !== next.meta.scanned_at) {
+        if (Date.now() - state.cache.loadedAt < SWR_MAX_MS) [state.prev2, state.prev] = [state.prev, state.cache];
+        else [state.prev2, state.prev, state.delayed] = [undefined, undefined, undefined];
+      }
+      return (state.cache = next);
+    })
+    .catch((e) => { state.failedAt = Date.now(); throw e; })
+    .finally(() => (state.inflight = undefined));
+  if (!state.cache) return state.inflight;
+  // Stale-while-revalidate (docs/19 P6): with a recent copy in hand, answer now and let the ~20 MB reload finish in the
+  // background, so no request waits on it. A failed refresh keeps serving the previous copy.
+  state.inflight.catch(() => {});
+  keepAlive(state.inflight);
+  return age < SWR_MAX_MS ? Promise.resolve(state.cache) : waitOrCopy(state.inflight, state.cache);
+}
+
+/** One delayed copy (`*-prev.json` or `*-prev2.json`, which the publishers keep: engine scan_keeping_prev,
+ *  ops/upload.py, refresh.yml) on the same source as `s`. Model, backtest and events are the newest (they carry no live
+ *  prices). undefined when the copy is missing or not older than `s`. */
+async function loadCopy(s: Store, suffix: "prev" | "prev2"): Promise<Store | undefined> {
+  const chain = sourceChain(s.source ?? DATA_SOURCE);
+  const read = async <T>(file: string) => {
+    const text = await readSource(file, chain);
+    return text === undefined ? undefined : (JSON.parse(text) as T);
+  };
+  const [markets, flags] = await Promise.all([read<MarketsFile>(`markets-${suffix}.json`), read<FlagsFile>(`flags-${suffix}.json`)]);
+  if (!markets || !flags || !(markets.meta.scanned_at < s.meta.scanned_at)) return undefined;
+  if (flags.meta.scanned_at !== markets.meta.scanned_at) return undefined;   // QA-A #46: a torn pair, mid-upload
+  // #46: a delayed copy is a scan or two behind, never a day-old one from a stale fallback source
+  if (s.meta.scanned_at - markets.meta.scanned_at > FALLBACK_MAX_AGE_S) return undefined;
+  return buildStore({ markets, flags, model: s.model, backtest: s.backtest, events: s.events, ledgerSummary: s.ledgerSummary, ledgerSince: s.ledgerSince, venues: s.venuesFile, source: s.source });
+}
+
+/** Newest of the stores at or before `cutoff` (unix s). */
+const newestBy = (cutoff: number, ...stores: (Store | undefined)[]) =>
+  stores.filter((x): x is Store => !!x && x.meta.scanned_at <= cutoff).sort((a, b) => b.meta.scanned_at - a.meta.scanned_at)[0];
+
+/** Free data is at least delayMin("free") behind (site settings, default 15) (docs/08, docs/15): Free gets the newest
+ *  scan whose scanned_at is at least the delay before now (RT3-03: "the scan before" is not enough when scans run more
+ *  often than the delay). Candidates: the newest scan itself, this instance's two previous copies, else the published
+ *  `*-prev.json` / `*-prev2.json` (so a cold instance holds the delay too; prev2 is read only when prev is too young).
+ *  None old enough = throw DelayedPending (routes answer 503, pages show the pending state): Free never gets a younger scan.
+ *  ponytail: two copies cover a cadence down to half the delay (10 min for 15); a burst of back-to-back scans can leave
+ *  a few minutes of pending state until one ages past the delay. Keep more copies if scans ever run that often. */
+export async function getStoreFor(tier: Tier): Promise<Store> {
+  const [s] = await Promise.all([getStore(), getSettings()]);   // getSettings refreshes the Free rows/delay snapshot
+  const delay = delayMin(tier);
+  const cutoff = Date.now() / 1000 - delay * 60;
+  if (delay === 0) return s;
+  const pick = () => newestBy(cutoff, s, state.prev, state.prev2);
+  const hit = pick();
+  if (hit) return hit;
+  const at = s.meta.scanned_at;
+  if (state.delayed?.for !== at) {
+    // Published copies, read once per newest scan: kept in memory as prev / prev2 so they age into eligibility.
+    const load = (async () => {
+      const prev = await loadCopy(s, "prev");
+      const keep = (c: Store | undefined) => {
+        if (c && !(state.prev?.meta.scanned_at === c.meta.scanned_at || state.prev2?.meta.scanned_at === c.meta.scanned_at)) {
+          if (!state.prev || c.meta.scanned_at > state.prev.meta.scanned_at) [state.prev2, state.prev] = [state.prev, c];
+          else if (!state.prev2 || c.meta.scanned_at > state.prev2.meta.scanned_at) state.prev2 = c;
+        }
+      };
+      keep(prev);
+      if (!prev || prev.meta.scanned_at > cutoff) keep(await loadCopy(s, "prev2"));
+    })();
+    state.delayed = { for: at, load };
+    load.catch(() => { if (state.delayed?.load === load) state.delayed = undefined; });   // retry on the next request
+  }
+  await state.delayed!.load;
+  const late = pick();
+  if (late) return late;
+  throw new DelayedPending(`[store] no scan at least ${delay} min old yet: Free tier can't be served`);
+}
+
+/** output/kalshi.json (docs/03 § kalshi.json): optional, own 120 s cache, markets sorted by volume. Missing = undefined.
+ *  Callers check KALSHI_DATA_PERMISSION first (kalshiDataEnabled in lib/kalshiCombo). */
+const kalshi: { at?: number; data?: KalshiFile; inflight?: Promise<KalshiFile | undefined> } = {};
+export function getKalshi(): Promise<KalshiFile | undefined> {
+  if (kalshi.at && Date.now() - kalshi.at < TTL_MS) return Promise.resolve(kalshi.data);
+  return (kalshi.inflight ??= readSource("kalshi.json")
+    .then((text) => {
+      const f = text === undefined ? undefined : (JSON.parse(text) as KalshiFile);
+      f?.markets.sort((a, b) => b.volume - a.volume);
+      return (kalshi.data = f);
+    })
+    .catch((e) => { console.warn(`[store] kalshi.json failed: ${(e as Error).message}`); return kalshi.data; })
+    .finally(() => { kalshi.at = Date.now(); kalshi.inflight = undefined; }));
+}
+
+/** F3: every open Kalshi market as a searchable index (lib/data/kalshi-index.ts). Reads output/kalshi_index.json (all
+ *  open markets, written by the scan); a scan without it falls back to the top markets in kalshi.json. Own 120 s cache,
+ *  concurrent loads de-duplicated, a failed refresh keeps the last good index. Callers check canBeta(me, "kalshi") first. */
+const kalshiIx: { at?: number; data?: KalshiIndex; inflight?: Promise<KalshiIndex | undefined> } = {};
+export function getKalshiIndex(): Promise<KalshiIndex | undefined> {
+  if (kalshiIx.at && Date.now() - kalshiIx.at < TTL_MS) return Promise.resolve(kalshiIx.data);
+  return (kalshiIx.inflight ??= (async () => {
+    const text = await readSource("kalshi_index.json");
+    if (text !== undefined) return indexFromFile(JSON.parse(text) as KalshiIndexFile);
+    const f = await getKalshi();
+    const top = f && indexFromKalshi(f);
+    // A source with no kalshi_index.json (a crawl that wrote none) must not shrink a full index already held to the top
+    // 2000 in kalshi.json: keep the last good one (F3 fix; /api/meta counts.kalshi read 2000 after such a crawl).
+    return kalshiIx.data && kalshiIx.data.rows.length > (top?.rows.length ?? 0) ? kalshiIx.data : top;
+  })()
+    .then((ix) => (kalshiIx.data = ix))
+    .catch((e) => { console.warn(`[store] kalshi index failed: ${(e as Error).message}`); return kalshiIx.data; })
+    .finally(() => { kalshiIx.at = Date.now(); kalshiIx.inflight = undefined; }));
+}
+
+/** F3 fix: every open Polymarket market the model does not price (lib/data/polymarket-index.ts), from
+ *  output/polymarket_index.json. Own 120 s cache; the built index is reused while the file's fetched_at is unchanged (it is
+ *  rebuilt hourly, the cache refreshes every 120 s; polymarket_index_meta.json says when it changed, so an unchanged index is not downloaded); a failed refresh keeps the last good one; no file = undefined. */
+const pmIx: { at?: number; data?: PolymarketIndex; sig?: string; inflight?: Promise<PolymarketIndex | undefined> } = {};
+export function getPolymarketIndex(): Promise<PolymarketIndex | undefined> {
+  if (pmIx.at && Date.now() - pmIx.at < TTL_MS) return Promise.resolve(pmIx.data);
+  return (pmIx.inflight ??= (async () => {
+    // The ~2 MB gzipped / 35 MB file is rebuilt hourly: read its few-byte meta first and download only when fetched_at moved.
+    // No meta (an older publisher) = the signature check below, as before.
+    const metaText = await readSource("polymarket_index_meta.json").catch(() => undefined);
+    let at: unknown;
+    try { at = metaText === undefined ? undefined : (JSON.parse(metaText) as { fetched_at?: unknown }).fetched_at; } catch { /* torn: download */ }
+    if (pmIx.data && typeof at === "number" && at === pmIx.data.fetchedAt) return pmIx.data;
+    const text = await readSource("polymarket_index.json");
+    if (text === undefined) return pmIx.data;
+    const sig = `${text.length}:${text.slice(0, 160)}`;
+    if (pmIx.data && sig === pmIx.sig) return pmIx.data;
+    const ix = indexFromPmFile(JSON.parse(text) as PolymarketIndexFile);
+    pmIx.sig = sig;
+    return ix;
+  })()
+    .then((ix) => (pmIx.data = ix))
+    .catch((e) => { console.warn(`[store] polymarket index failed: ${(e as Error).message}`); return pmIx.data; })
+    .finally(() => { pmIx.at = Date.now(); pmIx.inflight = undefined; }));
+}

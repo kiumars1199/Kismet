@@ -1,0 +1,30 @@
+HYDR418S at rD (http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:35090) | at oq (http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:85277) | at iw (http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:115672) | at http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:111033 | at iu (http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:111542) | at iX (http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:133645)
+HYDR418C {"child":null,"props":null}
+HIT 4 /login?next=%2Fm%2F6674492 Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full e
+HYDR418S at rD (http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:35090) | at oq (http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:85277) | at iw (http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:115672) | at http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:111033 | at iu (http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:111542) | at iX (http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:133645)
+HYDR418C {"child":null,"props":null}
+HIT 41 /m/6674492?ref=abcd1234 Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full e
+HYDR418S at rD (http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:35090) | at oq (http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:85277) | at iw (http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:115672) | at http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:111033 | at iu (http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:111542) | at iX (http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:133645)
+HYDR418C {"child":null,"props":null}
+HYDR418S at rD (http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:35090) | at oq (http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:85277) | at iw (http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:115672) | at http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:111033 | at iu (http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:111542) | at iX (http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:133645)
+HYDR418C {"child":null,"props":null}
+HIT 179 /state?next=%2Fm%2F6674492 Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full e
+HYDR418S at rD (http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:35090) | at oq (http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:85277) | at iw (http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:115672) | at http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:111033 | at iu (http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:111542) | at iX (http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:133645)
+HYDR418C {"child":null,"props":null}
+HIT 234 /signup?next=%2Fm%2F6674492 Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full e
+HYDR418S at rD (http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:35090) | at oq (http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:85277) | at iw (http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:115672) | at http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:111033 | at iu (http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:111542) | at iX (http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:133645)
+HYDR418C {"child":null,"props":null}
+HYDR418S at rD (http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:35090) | at oq (http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:85277) | at iw (http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:115672) | at http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:111033 | at iu (http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:111542) | at iX (http://localhost:3730/_next/static/chunks/a9b5e390-e79471b6b30cbf24.js:1:133645)
+HYDR418C {"child":null,"props":null}
+HIT 494 /signup?next=%2Fm%2F6674492 Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full e
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+page.evaluate: Target crashed 
+    at /tmp/claude-0/hyd3.mjs:18:24 {
+  log: [],
+  name: 'Error'
+}
+
+Node.js v22.23.5

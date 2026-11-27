@@ -1,0 +1,34 @@
+# Reviewed false positives (docs/OVERNIGHT §3 item 6): fake keys in ops/tests fixtures and in old AUDIT.md evidence.
+# JWTs decode to {"role":"anon"|"service_role"} with no project ref; Stripe keys are sk_*_FAKE.../SECRETVALUE/123456789012.
+# Fingerprints are per commit+file+rule+line, so a new real key anywhere is still caught.
+b7740346cd520f9d3496662bcd92efead0592acf:AUDIT.md:stripe-access-token:2132
+c387baa28f9f87c6abe69afa34bb2f24e0eb08a1:AUDIT.md:stripe-access-token:1841
+3eb8132c72cee5ed4b0fe844930aa6daf59481a5:AUDIT.md:stripe-access-token:1538
+bb2cb59626db303d7965382463da848861b696a5:AUDIT.md:stripe-access-token:1217
+7df1a927d1b3eebb66061457bc1630dc972de637:ops/tests/stripe-setup.test.mjs:stripe-access-token:141
+7a909693c17540945236935a94879ee3338486ce:ops/tests/vercel-env.test.mjs:stripe-access-token:17
+889fe3db3149267aed796b7b6669208b05e5811f:ops/tests/supabase-setup.test.mjs:jwt:11
+7a909693c17540945236935a94879ee3338486ce:ops/tests/fixtures.mjs:jwt:5
+7a909693c17540945236935a94879ee3338486ce:ops/tests/fixtures.mjs:jwt:6
+7a909693c17540945236935a94879ee3338486ce:ops/tests/fixtures.mjs:stripe-access-token:7
+d1724a5d52a29f47a10fc1b611d5278b60c7fd3f:ops/tests/stripe-setup.test.mjs:stripe-access-token:80
+d1724a5d52a29f47a10fc1b611d5278b60c7fd3f:ops/tests/stripe-setup.test.mjs:stripe-access-token:128
+aaf1c720647144ac4e82c04912ee09fb48353f91:ops/tests/preflight.test.mjs:generic-api-key:52
+aaf1c720647144ac4e82c04912ee09fb48353f91:ops/tests/preflight.test.mjs:stripe-access-token:16
+aaf1c720647144ac4e82c04912ee09fb48353f91:ops/tests/preflight.test.mjs:stripe-access-token:45
+aaf1c720647144ac4e82c04912ee09fb48353f91:ops/tests/preflight.test.mjs:stripe-access-token:59
+aaf1c720647144ac4e82c04912ee09fb48353f91:ops/tests/preflight.test.mjs:jwt:14
+aaf1c720647144ac4e82c04912ee09fb48353f91:ops/tests/preflight.test.mjs:jwt:15
+
+# F7: fake test values (FAKE strings) in commit 3c709f9, which a later commit fixed (keys are now built at runtime).
+3c709f96ee994e0b9a7f435abb2b753f44333d9f:apps/web/lib/billing/mode.test.ts:stripe-access-token:12
+3c709f96ee994e0b9a7f435abb2b753f44333d9f:apps/web/lib/billing/mode.test.ts:stripe-access-token:13
+3c709f96ee994e0b9a7f435abb2b753f44333d9f:apps/web/lib/billing/mode.test.ts:stripe-access-token:14
+3c709f96ee994e0b9a7f435abb2b753f44333d9f:apps/web/lib/billing/mode.test.ts:stripe-access-token:15
+3c709f96ee994e0b9a7f435abb2b753f44333d9f:apps/web/lib/billing/mode.test.ts:stripe-access-token:18
+3c709f96ee994e0b9a7f435abb2b753f44333d9f:apps/web/lib/billing/mode.test.ts:stripe-access-token:22
+3c709f96ee994e0b9a7f435abb2b753f44333d9f:apps/web/lib/billing/mode.test.ts:stripe-access-token:24
+3c709f96ee994e0b9a7f435abb2b753f44333d9f:apps/web/lib/billing/mode.test.ts:stripe-access-token:35
+
+# T-ci1: the e2e-only test secret in the first revision of playwright.paid.config.ts (replaced by a low-entropy value in the next commit)
+ce766f846ac0b4a4f9a91b291ab984f6e0307bb2:apps/web/playwright.paid.config.ts:generic-api-key:30

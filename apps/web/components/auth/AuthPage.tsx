@@ -1,0 +1,69 @@
+// /login and /signup (docs/19 P2, T-275): optional Google, then email + password or an email link, behind the 18+ and
+// Terms box. The password tab signs in on /login and creates an account on /signup; the email link does either.
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { LoginForm } from "@/components/auth/LoginForm";
+import { accountsOffNote, authEnabled, getUser, safeNext } from "@/lib/auth/server";
+import { BetLine } from "@/components/auth/BetLine";
+import { signupBetTitle } from "@/lib/teaser";
+import { FREE_BEST_BETS_A_DAY } from "@/lib/entitlements";
+
+const ERRORS: Record<string, string> = {
+  terms: "Tick the box to confirm you're 18 or older and agree to the Terms.",
+  link: "That link didn't work. It may have expired or been opened in a different browser. If you were confirming a new account, your email is confirmed: log in with your password. Otherwise send a new link.",
+  google: "Google sign-in didn't start. Try again, or use your email.",
+  rate: "Too many sign-in tries. Wait a minute and try again.",
+  unavailable: "Sign-in isn't available right now. Try again in a minute.",
+  closed: "New sign-ups are paused right now. Existing accounts can still log in.",
+};
+
+const COPY = {
+  login: {
+    title: "Log in",
+    lede: "Welcome back. Log in with your email and password, or get a sign-in link by email.",
+    other: { q: "New to Kismet?", label: "Create a free account", href: "/signup" },
+  },
+  signup: {
+    title: "Create your free account",
+    lede: `${FREE_BEST_BETS_A_DAY} best bets a day free, no card. Save views and keep My list on every device.`,
+    other: { q: "Already have an account?", label: "Log in", href: "/login" },
+  },
+} as const;
+
+export async function AuthPage({ mode, searchParams }: {
+  mode: keyof typeof COPY;
+  searchParams: Promise<Record<string, string | undefined>>;
+}) {
+  const sp = await searchParams;
+  const next = safeNext(sp.next);
+  if (await getUser()) redirect(next);
+  const c = COPY[mode];
+  const betTitle = mode === "signup" ? await signupBetTitle(next) : null;   // from the store by id, never from the URL
+  const other = next === "/" ? c.other.href : `${c.other.href}?next=${encodeURIComponent(next)}`;
+
+  return (
+    <section className="mx-auto flex w-full max-w-[420px] flex-col gap-2 py-0.5 md:gap-4 md:py-6">
+      <header className="flex flex-col gap-1 md:gap-2.5">
+        <h1 className="text-balance text-[24px] [@media(max-height:700px)]:text-[22px] font-bold leading-[1.05] tracking-[-0.02em] md:text-[40px]">{c.title}</h1>
+        {betTitle ? <BetLine title={betTitle} /> : null}
+      </header>
+      {/* One element: under the heading on a desktop, last on a phone (above the form it pushed the submit button behind the tab bar).
+          Not shown at all on a phone when the page names a bet (that line is the lede). */}
+      <p className={`order-last text-[15px] leading-relaxed text-muted md:order-none md:-mt-2 ${betTitle ? "hidden md:block" : ""}`}>{c.lede}</p>
+      {authEnabled() ? (
+        <>
+          <LoginForm mode={mode} next={next} error={sp.error ? ERRORS[sp.error] ?? ERRORS.unavailable : undefined} />
+          <p className="flex flex-wrap items-center gap-x-1.5 text-sm text-muted">
+            {c.other.q}{" "}
+            <Link href={other} className="inline-flex min-h-11 min-w-11 items-center font-medium text-accent-hover underline-offset-4 hover:underline">{c.other.label}</Link>
+          </p>
+        </>
+      ) : (
+        <p className="rounded-card border border-border bg-surface p-5 text-sm leading-relaxed text-soft">
+          {accountsOffNote()}{" "}
+          <Link href="/" className="text-accent-hover underline-offset-4 hover:underline">Go to Best bets</Link>
+        </p>
+      )}
+    </section>
+  );
+}

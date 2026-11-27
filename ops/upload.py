@@ -1,0 +1,285 @@
+"""Upload output/*.json and *.jsonl to the private Supabase Storage bucket `scan` (docs/14 §4), gzip-compressed
+under the same object names (T-277; readers sniff the gzip magic bytes, so plain objects still read), then
+version.json with each file's hash, so servers download only what changed (see VERSION).
+
+    SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... python ops/upload.py [output_dir]
+
+Runs the docs/12 data checks first (scanned_at must be newer than the copy in the bucket).
+Any failure uploads nothing, so the web app keeps serving the previous scan. Exit 1 on failure.
+
+After a good upload (T-295) it asks the site to regenerate its prerendered pages (POST /api/revalidate) and requests
+each one once so the edge cache holds the new scan. Optional, log-only, never changes the exit code:
+    REVALIDATE_URL (or SITE_URL + /api/revalidate)   REVALIDATE_SECRET (or CRON_SECRET)
+"""
+import glob
+import gzip
+import hashlib
+import json
+import os
+import sys
+
+import requests
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from checks import check_dir  # noqa: E402
+
+BUCKET = "scan"
+GZIP_MAGIC = b"\x1f\x8b"
+# Egress fix (Nov 27): the manifest the web reads before anything else (apps/web lib/data/store.ts getVersion).
+# {"scanned_at", "files": {name: hash of the plain bytes}}. Written LAST, after flags.json, so a hash it lists is
+# already in the bucket. A server that already holds a file with that hash skips the download. Files it doesn't list
+# are downloaded as before, so a bucket without it (or an older entry) still works.
+VERSION = "version.json"
+
+
+def digest(body):
+    """First 16 hex of sha256 over the plain (not gzipped) bytes. Same as store.ts hashOf."""
+    return hashlib.sha256(body).hexdigest()[:16]
+
+
+def gz(body):
+    """T-277: objects are stored gzip-compressed under their usual names (markets.json is ~20 MB plain, ~2 MB
+    gzipped). No Content-Encoding header: readers (this file's get_json, apps/web lib/data/store.ts) sniff the gzip
+    magic bytes 1f 8b and inflate themselves, so plain objects from before the rollout still read, and an HTTP layer
+    that does decode transparently can't break them either."""
+    return gzip.compress(body, compresslevel=6, mtime=0)
+
+
+def ungz(body):
+    """Bytes as stored: gzip (sniffed by magic bytes) or plain."""
+    return gzip.decompress(body) if body[:2] == GZIP_MAGIC else body
+
+
+class Storage:
+    def __init__(self, url, key, http=None):
+        self.base = url.rstrip("/") + "/storage/v1/object"
+        self.headers = {"Authorization": f"Bearer {key}", "apikey": key}
+        self.http = http or requests.Session()
+
+    def get_json(self, name):
+        r = self.http.get(f"{self.base}/authenticated/{BUCKET}/{name}", headers=self.headers, timeout=60)
+        if r.status_code in (400, 404):  # Storage answers 400 for a missing object
+            return None
+        r.raise_for_status()
+        return json.loads(ungz(r.content))
+
+    def put(self, name, body):
+        """Upload `body` (plain bytes) gzip-compressed under `name` (see gz)."""
+        r = self.http.post(f"{self.base}/{BUCKET}/{name}", data=gz(body), timeout=300,
+                           headers={**self.headers, "Content-Type": "application/gzip", "x-upsert": "true",
+                                    "Cache-Control": "no-cache"})
+        r.raise_for_status()
+
+    def copy(self, src, dst, missing_ok=False):
+        """Server-side copy inside the bucket (no 20 MB round trip). Delete first: copy won't overwrite.
+        missing_ok: a missing source (400/404) is not an error; returns False."""
+        r = self.http.delete(f"{self.base}/{BUCKET}/{dst}", headers=self.headers, timeout=60)
+        if r.status_code not in (200, 204, 400, 404):
+            r.raise_for_status()
+        r = self.http.post(f"{self.base}/copy", timeout=120,
+                           data=json.dumps({"bucketId": BUCKET, "sourceKey": src, "destinationKey": dst}),
+                           headers={**self.headers, "Content-Type": "application/json"})
+        if missing_ok and r.status_code in (400, 404):
+            return False
+        r.raise_for_status()
+        return True
+
+
+# Free tier is at least 15 min behind (docs/15): before the new scan lands, the current one is kept as *-prev.json
+# and the one before it as *-prev2.json, so every web instance (including a cold one) can serve free users the newest
+# scan that is old enough. Two copies (RT3-03): at a 10-minute cadence the replaced scan is only ~10 min old.
+# Same shift as engine scan_keeping_prev and refresh.yml.
+DELAYED = ("markets.json", "flags.json")
+# T-295: the precomputed files (engine/precompute.py) rotate with them, so Free's top.json is as old as its markets.
+# A bucket from before T-295 has no top.json / counts.json yet: their copies may 404.
+PRECOMPUTED = ("top.json", "counts.json", "teasers.json")
+# At a fast scan cadence (ops/scheduler.py, SCAN_EVERY_SEC=120) two copies taken every scan would be only 2 and 4
+# minutes old, and Free would get nothing. So the scheduler sets ROTATE_MIN_SEC (15 min minus the cadence): the live
+# scan only becomes *-prev.json once it is that much newer than the current *-prev.json, which keeps *-prev2.json at
+# least 15 min old. 0 (the default) rotates on every upload, as before.
+ROTATE_MIN_SEC = int(os.environ.get("ROTATE_MIN_SEC") or 0)
+prev_name = lambda name: name.replace(".json", "-prev.json")  # noqa: E731
+prev2_name = lambda name: name.replace(".json", "-prev2.json")  # noqa: E731
+
+
+def _secs(at):
+    """scanned_at as epoch seconds (ISO string or number)."""
+    if isinstance(at, (int, float)):
+        return float(at)
+    from datetime import datetime
+    return datetime.fromisoformat(str(at).replace("Z", "+00:00")).timestamp()
+
+
+def _rotate(storage, prev_at, gap, log):
+    if gap <= 0 or prev_at is None:
+        return True
+    pp = storage.get_json(prev_name("flags.json"))
+    pp_at = (pp or {}).get("meta", {}).get("scanned_at")
+    if pp_at is None or _secs(prev_at) - _secs(pp_at) >= gap:
+        return True
+    log(f"kept *-prev.json as is: the live scan is less than {gap}s newer (Free stays at least 15 min behind)")
+    return False
+
+
+SIDE_FILES = ("kalshi.json", "kalshi_index.json", "venues.json", "history.json", "polymarket_index.json", "polymarket_index_meta.json")   # uploaded on their own with --only
+
+
+def _manifest(storage):
+    """The bucket's version.json, or an empty one (first run, or a bucket from before the egress fix)."""
+    try:
+        v = storage.get_json(VERSION)
+    except (requests.RequestException, ValueError):
+        v = None
+    files = v.get("files") if isinstance(v, dict) else None
+    return {"scanned_at": v.get("scanned_at") if isinstance(v, dict) else None,
+            "files": dict(files) if isinstance(files, dict) else {}}
+
+
+def _put_manifest(storage, manifest, log):
+    storage.put(VERSION, json.dumps(manifest, sort_keys=True).encode())
+    log(f"uploaded {VERSION}")
+
+
+def publish(out_dir, storage, log=print, rotate_min_sec=None):
+    prev = storage.get_json("flags.json")
+    prev_at = (prev or {}).get("meta", {}).get("scanned_at")
+    errs = check_dir(out_dir, prev_at)
+    if errs:
+        for e in errs:
+            log(f"data check failed: {e}")
+        log("upload skipped; the bucket keeps the previous scan")
+        return False
+    gap = ROTATE_MIN_SEC if rotate_min_sec is None else rotate_min_sec
+    manifest = _manifest(storage)
+    hashes = manifest["files"]
+    old = dict(hashes)
+    # The live manifest still describes the old objects until the new one goes up last, so the copies and puts
+    # below never leave it naming a hash that isn't there yet. A copy we can't vouch for is dropped from it.
+    moved = lambda src, dst, ok: hashes.__setitem__(dst, old[src]) if ok and src in old else hashes.pop(dst, None)  # noqa: E731
+    if prev is not None and _rotate(storage, prev_at, gap, log):
+        for name in DELAYED + PRECOMPUTED:
+            ok = storage.copy(prev_name(name), prev2_name(name), missing_ok=True)
+            moved(prev_name(name), prev2_name(name), ok)
+            if ok:
+                log(f"kept {prev_name(name)} as {prev2_name(name)}")
+            ok = storage.copy(name, prev_name(name), missing_ok=name in PRECOMPUTED)
+            moved(name, prev_name(name), ok)
+            if ok:
+                log(f"kept {name} as {prev_name(name)}")
+    files = sorted(glob.glob(os.path.join(out_dir, "*.json")) + glob.glob(os.path.join(out_dir, "*.jsonl")))
+    # Local *-prev / *-prev2 copies (engine scan_keeping_prev rotates every scan) are never uploaded: the bucket's own
+    # copies, rotated above, are the ones kept far enough apart for the Free delay (T-295: -prev2 was uploaded before).
+    files = [p for p in files if not p.endswith(("-prev.json", "-prev2.json"))]
+    # Nov 21: kalshi.json goes up only through --only, after the Kalshi crawl. Taken here, it was the PREVIOUS
+    # crawl's copy (the crawl runs after this upload), uploaded again over the fresh one's slot.
+    files = [p for p in files if os.path.basename(p) not in SIDE_FILES]
+    # flags.json last: it carries the scanned_at that the next run compares against. counts.json just before it: the web compares
+    # counts.json with teasers.json and top.json (an older copy is a leftover from a failed precompute), so those must be up
+    # before it; in name order counts.json went up before markets.json (26 MB) and the others, ahead of them for the whole upload.
+    files.sort(key=lambda p: {"flags.json": 2, "counts.json": 1}.get(os.path.basename(p), 0))
+    for p in files:
+        with open(p, "rb") as f:
+            body = f.read()
+        storage.put(os.path.basename(p), body)
+        hashes[os.path.basename(p)] = digest(body)
+        log(f"uploaded {os.path.basename(p)}")
+    with open(os.path.join(out_dir, "flags.json"), "rb") as f:
+        manifest["scanned_at"] = json.loads(f.read()).get("meta", {}).get("scanned_at")
+    _put_manifest(storage, manifest, log)   # last: see VERSION
+    return True
+
+
+def publish_one(path, storage, log=print):
+    """Upload one file as-is. Missing file (Kalshi off, or its crawl failed) is not an error: the bucket keeps the last one."""
+    if not os.path.exists(path):
+        log(f"{os.path.basename(path)} not found; bucket keeps the previous copy")
+        return True
+    sent = path + ".sent"   # polymarket_index.json is rebuilt hourly but this step runs every scan: send each build once
+    if os.path.basename(path) == "polymarket_index.json":
+        try:
+            with open(sent) as f:
+                if f.read().strip() == str(os.path.getmtime(path)):
+                    log(f"{os.path.basename(path)} already uploaded")
+                    return True
+        except OSError:
+            pass
+    try:
+        with open(path, "rb") as f:
+            body = f.read()
+        storage.put(os.path.basename(path), body)
+        # The side file's hash goes into version.json right after it. If this step fails, the manifest keeps the old
+        # hash and servers keep their copy for at most store.ts TRUST_MS before downloading it again.
+        try:
+            manifest = _manifest(storage)
+            manifest["files"][os.path.basename(path)] = digest(body)
+            _put_manifest(storage, manifest, log)
+        except requests.RequestException as e:
+            log(f"{VERSION} not updated for {os.path.basename(path)}: {type(e).__name__}")
+        if os.path.basename(path) == "polymarket_index.json":
+            with open(sent, "w") as f:
+                f.write(str(os.path.getmtime(path)))
+    except (requests.RequestException, OSError) as e:
+        log(f"upload of {os.path.basename(path)} failed: {type(e).__name__}")
+        return False
+    log(f"uploaded {os.path.basename(path)}")
+    return True
+
+
+# Mirrors apps/web lib/static-routes.ts STATIC_PAGES (ops/tests/test_ops.py checks they match).
+STATIC_PAGES = ("/", "/pricing", "/about", "/track-record", "/terms", "/privacy", "/refunds", "/disclaimer", "/contact")
+
+
+def revalidate(env=None, http=None, log=print):
+    """T-295: POST /api/revalidate so the prerendered pages show this scan, then GET each once to refill the edge
+    cache. Skipped when no URL or secret is set; any failure is logged and ignored (the pages still regenerate within
+    their 300 s window). Returns True when the site accepted the call."""
+    env = os.environ if env is None else env
+    url = env.get("REVALIDATE_URL") or (env.get("SITE_URL") and env["SITE_URL"].rstrip("/") + "/api/revalidate")
+    secret = env.get("REVALIDATE_SECRET") or env.get("CRON_SECRET")
+    if not url or not secret:
+        log("revalidate skipped: REVALIDATE_URL (or SITE_URL) and REVALIDATE_SECRET (or CRON_SECRET) not both set")
+        return False
+    http = http or requests.Session()
+    try:
+        r = http.post(url, headers={"Authorization": f"Bearer {secret}"}, timeout=30)
+        if r.status_code != 200:
+            log(f"revalidate failed: HTTP {r.status_code}")
+            return False
+    except requests.RequestException as e:
+        log(f"revalidate failed: {type(e).__name__}")
+        return False
+    base = url.rsplit("/api/", 1)[0]
+    warm = 0
+    for path in STATIC_PAGES:
+        try:
+            warm += http.get(base + path, timeout=30).status_code == 200
+        except requests.RequestException:
+            pass
+    log(f"revalidated {len(STATIC_PAGES)} pages, warmed {warm}")
+    return True
+
+
+def main(argv=None):
+    argv = sys.argv[1:] if argv is None else argv
+    if argv[:1] == ["--revalidate-only"]:  # refresh.yml without a bucket: the live branch was just published
+        revalidate()
+        return 0
+    url = os.environ.get("SUPABASE_URL") or os.environ.get("NEXT_PUBLIC_SUPABASE_URL")
+    key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
+    if not url or not key:
+        print("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required", file=sys.stderr)
+        return 1
+    if argv[:1] == ["--only"]:  # Nov 21: one side file (kalshi.json) after the main upload; no checks, no rotation
+        return 0 if publish_one(argv[1], Storage(url, key)) else 1
+    try:
+        ok = publish(argv[0] if argv else "output", Storage(url, key))
+    except (requests.RequestException, OSError, json.JSONDecodeError) as e:
+        print(f"upload failed: {type(e).__name__}: {e}", file=sys.stderr)
+        return 1
+    if ok:
+        revalidate()
+    return 0 if ok else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

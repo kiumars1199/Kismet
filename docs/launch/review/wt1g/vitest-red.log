@@ -1,0 +1,53 @@
+
+ RUN  v5.1.0 /home/user/MarketEdge/.claude/worktrees/wt1g/apps/web
+
+ ❯ lib/fit-clamp.test.ts (21 tests | 3 failed) 256ms
+   ❯ direction words (9)
+     × siblings never render the same line (budget 86) 8ms
+     × siblings never render the same line (budget 98) 6ms
+     × siblings never render the same line (budget 110) 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  lib/fit-clamp.test.ts > direction words > siblings never render the same line (budget 86)
+AssertionError: Novak Djokovic beats Carlos Alcaraz in the 2026 Nitto ATP Finals round-robin stage match in Turin, Italy on Sunday? | Novak Djokovic loses to Carlos Alcaraz in the 2026 Nitto ATP Finals round-robin stage match in Turin, Italy on Sunday?: expected 'Novak Djokovic … Carlos … 2026 … Turi…' not to be 'Novak Djokovic … Carlos … 2026 … Turi…' // Object.is equality
+ ❯ lib/fit-clamp.test.ts:125:92
+    123|   for (const total of [86, 98, 110]) {
+    124|     it(`siblings never render the same line (budget ${total})`, () => {
+    125|       for (const [a, b] of SIBLINGS) expect(fitClamp(a, budget(total))…
+       |                                                                                            ^
+    126|     });
+    127|     it(`a repeated phrase goes before a distinct word (budget ${total}…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  lib/fit-clamp.test.ts > direction words > siblings never render the same line (budget 98)
+AssertionError: Novak Djokovic won against Carlos Alcaraz in the 2026 Nitto ATP Finals round-robin stage match in Turin, Italy on Sunday? | Novak Djokovic lost against Carlos Alcaraz in the 2026 Nitto ATP Finals round-robin stage match in Turin, Italy on Sunday?: expected 'Novak Djokovic … Carlos Alcaraz … 202…' not to be 'Novak Djokovic … Carlos Alcaraz … 202…' // Object.is equality
+ ❯ lib/fit-clamp.test.ts:125:92
+    123|   for (const total of [86, 98, 110]) {
+    124|     it(`siblings never render the same line (budget ${total})`, () => {
+    125|       for (const [a, b] of SIBLINGS) expect(fitClamp(a, budget(total))…
+       |                                                                                            ^
+    126|     });
+    127|     it(`a repeated phrase goes before a distinct word (budget ${total}…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  lib/fit-clamp.test.ts > direction words > siblings never render the same line (budget 110)
+AssertionError: Novak Djokovic beats Carlos Alcaraz in the 2026 Nitto ATP Finals round-robin stage match in Turin, Italy on Sunday? | Novak Djokovic loses to Carlos Alcaraz in the 2026 Nitto ATP Finals round-robin stage match in Turin, Italy on Sunday?: expected 'Novak Djokovic … Carlos Alcaraz … 202…' not to be 'Novak Djokovic … Carlos Alcaraz … 202…' // Object.is equality
+ ❯ lib/fit-clamp.test.ts:125:92
+    123|   for (const total of [86, 98, 110]) {
+    124|     it(`siblings never render the same line (budget ${total})`, () => {
+    125|       for (const [a, b] of SIBLINGS) expect(fitClamp(a, budget(total))…
+       |                                                                                            ^
+    126|     });
+    127|     it(`a repeated phrase goes before a distinct word (budget ${total}…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 18 passed (21)
+   Start at  10:55:31
+   Duration  500ms (tests 68%, import 27%, transform 4%, worker 1%)
+

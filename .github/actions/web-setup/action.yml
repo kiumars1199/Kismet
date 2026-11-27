@@ -1,0 +1,56 @@
+name: web-setup
+description: pnpm + Node + frozen install for apps/web, and (optionally) Playwright browsers from a cache.
+inputs:
+  browsers:
+    description: "true to make Chromium and WebKit available (cached on the @playwright/test version)"
+    default: "false"
+  webkit-deps:
+    description: "true to install WebKit's OS libraries too (a big apt download); Chromium's are always installed"
+    default: "true"
+  extension:
+    description: "true to also install apps/extension (e2e/trading-paper builds it)"
+    default: "false"
+runs:
+  using: composite
+  steps:
+    - uses: pnpm/action-setup@v4   # version from package.json "packageManager"
+      with:
+        package_json_file: apps/web/package.json
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 22
+        cache: pnpm
+        cache-dependency-path: apps/web/pnpm-lock.yaml
+    - run: pnpm i --frozen-lockfile
+      shell: bash
+      working-directory: apps/web
+    - if: inputs.extension == 'true'
+      run: pnpm i --frozen-lockfile
+      shell: bash
+      working-directory: apps/extension
+    - if: inputs.browsers == 'true'
+      id: pw
+      run: echo "version=$(pnpm exec playwright --version | awk '{print $NF}')" >> "$GITHUB_OUTPUT"
+      shell: bash
+      working-directory: apps/web
+    - if: inputs.browsers == 'true'
+      id: pwcache
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/ms-playwright
+        key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}-chromium-webkit
+    # Cache hit: the browsers are on disk, only the OS libraries are missing on a fresh runner.
+    # OS libraries come from apt, which occasionally serves a runner at ~150 kB/s (one run spent 15 min here). WebKit's set is
+    # about 140 MB, Chromium's a few MB, so jobs that don't need WebKit skip its libraries. A failed try is retried.
+    - if: inputs.browsers == 'true'
+      run: |
+        libs="chromium"; if [ "${{ inputs['webkit-deps'] }}" = "true" ]; then libs="chromium webkit"; fi
+        for i in 1 2 3; do pnpm exec playwright install-deps $libs && exit 0; echo "install-deps try $i failed"; sleep 10; done
+        exit 1
+      shell: bash
+      working-directory: apps/web
+    # Browsers themselves (downloaded from Playwright's CDN, cached above); only a cache miss downloads them.
+    - if: inputs.browsers == 'true' && steps.pwcache.outputs.cache-hit != 'true'
+      run: pnpm exec playwright install chromium webkit
+      shell: bash
+      working-directory: apps/web
