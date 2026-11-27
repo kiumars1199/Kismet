@@ -250,6 +250,9 @@ Problems:
 - #146 (Storage egress) merged Nov 27 as 6ea482fc, CI 11/11 green; Vercel + Railway deploys succeeded. version.json manifest + hash-skip: measured 229.9 → 19.5 MB per server-hour (11.8x) on a full-size demo scan.
   Vercel runtime logs not checked: no Vercel connector in this session and kismetodds.com is blocked from the container; Q please glance at Vercel → Logs and the Supabase egress graph.
 
+- #141 T-wt3l (/bets Back jump) merged Nov 27 as 18b070e2 after CI 12/12 green; Vercel + Railway deploys succeeded. Original loading.tsx restored; /bets saves and restores its own scroll on Back/Forward/reload (full-load Back CLS ≤ 0.0007, was 0.55).
+  Vercel runtime logs not checked from here (no connector, site blocked from the container).
+
 ## Fixed log
 - F7: passed review (pre-merge PASS + post-merge PASS on cd9f672; evidence review/f07/).
 - F3: passed review (prod recheck on 67cab85, evidence review/f03/prod67cab85/).
