@@ -253,6 +253,9 @@ Problems:
 - #141 T-wt3l (/bets Back jump) merged Nov 27 as 18b070e2 after CI 12/12 green; Vercel + Railway deploys succeeded. Original loading.tsx restored; /bets saves and restores its own scroll on Back/Forward/reload (full-load Back CLS ≤ 0.0007, was 0.55).
   Vercel runtime logs not checked from here (no connector, site blocked from the container).
 
+- #147 T-f13b merged Nov 27 as a6d86f14 (CI 12/12 green, Vercel deploy succeeded): the Stripe subscription webhook now asks grant_invite_reward once the plan is no longer Premium, so a put-off invite reward no longer waits for the next sign-in.
+  Vercel runtime logs not checked from here (no connector, site blocked from the container).
+
 ## Fixed log
 - F7: passed review (pre-merge PASS + post-merge PASS on cd9f672; evidence review/f07/).
 - F3: passed review (prod recheck on 67cab85, evidence review/f03/prod67cab85/).
