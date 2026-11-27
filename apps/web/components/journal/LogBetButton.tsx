@@ -22,7 +22,10 @@ interface Props { market?: Market; side?: Side | 0 | 1; target?: LogTarget; pric
 /** The one Free upsell, shown once per list (not on every card). Renders nothing for paid plans and until the plan is known. */
 export function LogUpsell() {
   const { can, known } = useEntitlements();
-  if (!known || can("journal")) return null;
+  // T-wt3l: Free (the server knows: <body data-tier>) gets this line once /api/me answers; it mounted ~80 px of height late, just above the locked card,
+  // which moved the page when a restored scroll (Back) had that spot on screen. The hidden twin reserves the same height from the first paint.
+  if (!known) return <p aria-hidden="true" data-testid="log-bet-upgrade-slot" className="invisible hidden text-center text-sm [[data-tier=free]_&]:block">Want to track the bets you place? <span className="inline-flex min-h-11 items-center">Track your bets with Pro</span></p>;
+  if (can("journal")) return null;
   return <p data-testid="log-bet-upgrade" className="text-center text-sm text-muted">Want to track the bets you place? <Link href="/pricing" className="inline-flex min-h-11 min-w-11 items-center text-accent-hover hover:underline">Track your bets with Pro</Link></p>;
 }
 
