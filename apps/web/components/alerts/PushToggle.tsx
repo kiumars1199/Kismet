@@ -20,6 +20,9 @@ function keyBytes(b64: string): Uint8Array<ArrayBuffer> {
   return Uint8Array.from(raw, (c) => c.charCodeAt(0));
 }
 
+const DEFAULT_COPY = "Get your alerts on this device even when Kismet is closed. Our servers check once a day.";
+const TURN_ON = "Turn on phone alerts";
+
 export function PushToggle() {
   const [state, setState] = useState<State>("checking");
 
@@ -83,15 +86,21 @@ export function PushToggle() {
     <section data-testid="push-toggle" aria-labelledby="push-title" className={`${card} flex min-h-[5.5rem] flex-col gap-2 p-4 sm:flex-row sm:items-center sm:justify-between`}>
       <div className="max-w-xl">
         <h2 id="push-title" className="text-sm font-semibold">Phone alerts</h2>
-        <p className="text-sm text-muted" aria-live="polite">
-          {state === "checking" ? "Checking this device…"
-            : state === "on" ? "On for this device. You'll get an alert here when a rule that uses browser notifications fires, even when Kismet is closed."
-            : note[state] ?? "Get your alerts on this device even when Kismet is closed. Our servers check once a day."}
+        {/* While checking, the "off" text and button (the usual result) hold their space invisibly, so the card is already
+            its final height and nothing below it moves (T-wt2g note: 88 -> 146 px at 390). No button until scripts run. */}
+        <p className="grid text-sm text-muted" aria-live="polite">
+          <span className="[grid-area:1/1]">
+            {state === "checking" ? "Checking this device…"
+              : state === "on" ? "On for this device. You'll get an alert here when a rule that uses browser notifications fires, even when Kismet is closed."
+              : note[state] ?? DEFAULT_COPY}
+          </span>
+          {state === "checking" && <span aria-hidden="true" className="invisible [grid-area:1/1]">{DEFAULT_COPY}</span>}
         </p>
       </div>
+      {state === "checking" && <span aria-hidden="true" className={`${btnPrimary} invisible`}>{TURN_ON}</span>}
       {(state === "off" || state === "error" || state === "busy" || state === "off-server") && (
         <button type="button" className={btnPrimary} disabled={state === "busy" || state === "off-server"} onClick={turnOn}>
-          {state === "busy" ? "Working…" : "Turn on phone alerts"}
+          {state === "busy" ? "Working…" : TURN_ON}
         </button>
       )}
       {state === "on" && <button type="button" className={btn} onClick={turnOff}>Turn off</button>}
