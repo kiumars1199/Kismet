@@ -13,26 +13,32 @@ const WAIT_MS = 4_000;
 
 type Nav = { currentEntry?: { key?: string } | null };
 /** The history entry: the Navigation API key (one per entry, kept across reloads and full-load Back), else the address. */
-function entryKey(): { key: string; perEntry: boolean } {
+function entryKey(): { key: string } {
   const k = (globalThis as unknown as { navigation?: Nav }).navigation?.currentEntry?.key;
-  return k ? { key: PREFIX + k, perEntry: true } : { key: PREFIX + location.pathname + location.search, perEntry: false };
+  return { key: PREFIX + (k ?? location.pathname + location.search) };
 }
 const read = (key: string) => { try { const v = Number(sessionStorage.getItem(key)); return Number.isFinite(v) && v > 0 ? v : null; } catch { return null; } };
 const write = (key: string, y: number) => { try { sessionStorage.setItem(key, String(Math.round(y))); } catch { /* private mode, quota */ } };
 
-/** Without per-entry keys (no Navigation API) a saved position is only used when this document came from Back/Forward or a
- *  reload, so a fresh visit to the same address still starts at the top. */
-const revisit = () => {
+/** A saved position is only put back on a return to the entry: Back/Forward or a reload. Opening /bets again (a tab tap, the
+ *  same address typed: that can reuse the same entry) starts at the top. The document's own navigation type counts for its
+ *  first /bets mount only; after that, a client-side Back or Forward is a popstate. */
+const docRevisit = () => {
   const t = (performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined)?.type;
   return t === "back_forward" || t === "reload";
 };
+let firstMount = true;
+let traversedAt = -Infinity;   // a popstate inside /bets (a filter Back) mounts nothing: only one just before this mount counts
+if (typeof window !== "undefined") window.addEventListener("popstate", () => { traversedAt = performance.now(); });
 
 export function BetsScrollRestore() {
   useEffect(() => {
     const h = window.history;
     h.scrollRestoration = "manual";
-    const { key, perEntry } = entryKey();
-    const target = perEntry || revisit() ? read(key) : null;
+    const { key } = entryKey();
+    const target = (firstMount && docRevisit()) || performance.now() - traversedAt < 1_000 ? read(key) : null;
+    firstMount = false;
+    traversedAt = -Infinity;
 
     let stop = () => {};
     if (target != null) {

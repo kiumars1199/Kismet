@@ -203,6 +203,22 @@ for (const { w, h } of SIZES) {
   });
 }
 
+test("opening /bets again (same address, same history entry) starts at the top, not at the saved place", async ({ page }) => {
+  test.setTimeout(200_000);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await signUp(page, `wt3l-again-${Date.now()}@example.com`);
+  await comp(page, "premium");
+  await page.goto("/bets", { waitUntil: "load" });
+  await firstCard(page);
+  await skipTour(page);
+  await page.evaluate(() => window.scrollTo(0, 2_000));
+  await page.waitForTimeout(500);
+  await page.goto("/bets", { waitUntil: "load" });
+  await firstCard(page);
+  await page.waitForTimeout(1_500);
+  expect(await page.evaluate(() => window.scrollY)).toBe(0);
+});
+
 test("after a tall page, a short /bets list has no blank space below it", async ({ page }) => {
   test.setTimeout(200_000);
   await page.setViewportSize({ width: 390, height: 844 });
