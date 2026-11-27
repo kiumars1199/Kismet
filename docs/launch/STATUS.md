@@ -256,6 +256,9 @@ Problems:
 - #147 T-f13b merged Nov 27 as a6d86f14 (CI 12/12 green, Vercel deploy succeeded): the Stripe subscription webhook now asks grant_invite_reward once the plan is no longer Premium, so a put-off invite reward no longer waits for the next sign-in.
   Vercel runtime logs not checked from here (no connector, site blocked from the container).
 
+- #148 T-wt2m merged Nov 27 as 17c213a2 (CI 12/12 green, Vercel deploy succeeded): the Phone alerts card on /alerts reserves its "off" layout while checking the device, so it no longer grows 88 → 146 px at 390 (88 → 94 at 1440); /alerts CLS ≤ 0.0007.
+  Vercel runtime logs not checked from here (no connector, site blocked from the container). Note: CI's headless Chromium reports notifications as denied for every site; e2e that needs "off" stubs the permission.
+
 ## Fixed log
 - F7: passed review (pre-merge PASS + post-merge PASS on cd9f672; evidence review/f07/).
 - F3: passed review (prod recheck on 67cab85, evidence review/f03/prod67cab85/).
