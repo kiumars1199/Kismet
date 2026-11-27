@@ -247,6 +247,9 @@ Problems:
 - CI blockers (10:05): #66 was cancelled by the 30-min job timeout (the run now takes ~30 min); #68 and #67 failed on the F5 pill tap before page load (AppliedPills is a client-only button). Both are being fixed in #69 (trust); after it merges, final gets merged into the waiting PRs.
 - F5 pill-click flake: e2e-paid/launch-f05-topics.spec.ts:59 at 1440 failed on CI after a server ECONNRESET (seen on #67). Part of trust's stabilize PR (D).
 
+- #146 (Storage egress) merged Nov 27 as 6ea482fc, CI 11/11 green; Vercel + Railway deploys succeeded. version.json manifest + hash-skip: measured 229.9 → 19.5 MB per server-hour (11.8x) on a full-size demo scan.
+  Vercel runtime logs not checked: no Vercel connector in this session and kismetodds.com is blocked from the container; Q please glance at Vercel → Logs and the Supabase egress graph.
+
 ## Fixed log
 - F7: passed review (pre-merge PASS + post-merge PASS on cd9f672; evidence review/f07/).
 - F3: passed review (prod recheck on 67cab85, evidence review/f03/prod67cab85/).
