@@ -93,7 +93,7 @@ def test_upload_skips_kalshi_json(tmp_path):
     http = FakeHttp(prev=None)
     assert upload.publish(out, upload.Storage("https://x.supabase.co/", "svc", http), log=lambda *_: None)
     names = [c[1].rsplit("/", 1)[1] for c in http.calls if c[0] == "POST"]
-    assert "kalshi.json" not in names and names[-1] == "flags.json"
+    assert "kalshi.json" not in names and names[-2:] == ["flags.json", "version.json"]
 
 
 def test_upload_all_files_flags_last(tmp_path):
@@ -101,7 +101,7 @@ def test_upload_all_files_flags_last(tmp_path):
     http = FakeHttp(prev=None)
     assert upload.publish(out, upload.Storage("https://x.supabase.co/", "svc", http), log=lambda *_: None)
     posts = [c for c in http.calls if c[0] == "POST"]
-    assert [c[1].rsplit("/", 1)[1] for c in posts] == ["ledger.jsonl", "markets.json", "model.json", "flags.json"]
+    assert [c[1].rsplit("/", 1)[1] for c in posts] == ["ledger.jsonl", "markets.json", "model.json", "flags.json", "version.json"]
     assert all("/storage/v1/object/scan/" in c[1] for c in posts)
     assert posts[0][2]["Authorization"] == "Bearer svc" and posts[0][2]["x-upsert"] == "true"
     assert http.calls[0][1] == "https://x.supabase.co/storage/v1/object/authenticated/scan/flags.json"
@@ -149,7 +149,7 @@ def test_upload_gzips_every_object_under_its_usual_name(tmp_path):
     out = write(tmp_path, *good())
     http = FakeHttp(prev=None)
     assert upload.publish(out, upload.Storage("https://x.supabase.co", "svc", http), log=lambda *_: None)
-    posts = [c for c in http.calls if c[0] == "POST" and "/object/scan/" in c[1]]
+    posts = [c for c in http.calls if c[0] == "POST" and "/object/scan/" in c[1] and not c[1].endswith("/version.json")]
     assert len(posts) == 4
     for _, url, headers, body in posts:
         assert body[:2] == b"\x1f\x8b"
@@ -348,8 +348,9 @@ def test_upload_only_sends_one_file_and_tolerates_missing(tmp_path):
     http = FakeHttp(prev=None)
     assert upload.publish_one(str(p), upload.Storage("https://x.supabase.co/", "svc", http), log=lambda *_: None)
     posts = [c for c in http.calls if c[0] == "POST"]
-    assert [c[1].rsplit("/", 1)[1] for c in posts] == ["kalshi.json"]
-    assert not [c for c in http.calls if c[0] == "GET"]  # no scan checks, no rotation
+    assert [c[1].rsplit("/", 1)[1] for c in posts] == ["kalshi.json", "version.json"]
+    # no scan checks, no rotation: the only read is the manifest, to add this file's hash
+    assert [c[1].rsplit("/", 1)[1] for c in http.calls if c[0] == "GET"] == ["version.json"]
     http2 = FakeHttp(prev=None)
     assert upload.publish_one(str(tmp_path / "missing.json"), upload.Storage("https://x.supabase.co/", "svc", http2), log=lambda *_: None)
     assert http2.calls == []
@@ -421,7 +422,7 @@ def test_polymarket_index_is_a_side_file_sent_once_per_build(tmp_path):
     p = str(tmp_path / "polymarket_index.json")
     h1 = FakeHttp(prev=None)
     assert upload.publish_one(p, upload.Storage("https://x.supabase.co/", "svc", h1), log=lambda *_: None)
-    assert len([c for c in h1.calls if c[0] == "POST"]) == 1
+    assert [c[1].rsplit("/", 1)[1] for c in h1.calls if c[0] == "POST"] == ["polymarket_index.json", "version.json"]
     h2 = FakeHttp(prev=None)
     assert upload.publish_one(p, upload.Storage("https://x.supabase.co/", "svc", h2), log=lambda *_: None)
     assert h2.calls == []   # same build: not sent again
@@ -448,6 +449,89 @@ def test_upload_counts_json_goes_after_teasers_and_top_and_before_flags(tmp_path
     http = FakeHttp(prev=None)
     assert upload.publish(out, upload.Storage("https://x.supabase.co/", "svc", http), log=lambda *_: None)
     names = [c[1].rsplit("/", 1)[1] for c in http.calls if c[0] == "POST"]
-    assert names[-1] == "flags.json" and names[-2] == "counts.json"
+    assert names[-1] == "version.json" and names[-2] == "flags.json" and names[-3] == "counts.json"
     for later in ("teasers.json", "top.json", "top-sports.json", "markets.json"):
         assert names.index(later) < names.index("counts.json"), (later, names)
+
+
+class Bucket:
+    """An in-memory Storage bucket: GET/POST(put)/copy/DELETE on object names, bodies stored as sent (gzip)."""
+    def __init__(self):
+        self.objects, self.calls = {}, []
+
+    def get(self, url, headers, timeout):
+        name = url.rsplit("/", 1)[1]
+        self.calls.append(("GET", name))
+        return Resp(200, self.objects[name]) if name in self.objects else Resp(400)
+
+    def post(self, url, data, headers, timeout):
+        if url.endswith("/object/copy"):
+            body = json.loads(data)
+            if body["sourceKey"] not in self.objects:
+                return Resp(400)
+            self.objects[body["destinationKey"]] = self.objects[body["sourceKey"]]
+        else:
+            self.objects[url.rsplit("/", 1)[1]] = data
+        self.calls.append(("POST", url.rsplit("/", 1)[1]))
+        return Resp(200)
+
+    def delete(self, url, headers, timeout):
+        self.objects.pop(url.rsplit("/", 1)[1], None)
+        return Resp(200)
+
+    def manifest(self):
+        return json.loads(gzip.decompress(self.objects["version.json"]))
+
+
+def test_upload_writes_version_manifest_last_with_plain_hashes(tmp_path):
+    """Egress fix: version.json lists sha256[:16] of each object's PLAIN bytes (store.ts hashOf), goes up last."""
+    import hashlib
+    out = write(tmp_path, *good(scanned_at=200))
+    b = Bucket()
+    assert upload.publish(out, upload.Storage("https://x.supabase.co", "svc", b), log=lambda *_: None)
+    assert [c[1] for c in b.calls if c[0] == "POST"][-1] == "version.json"
+    v = b.manifest()
+    assert v["scanned_at"] == 200
+    for name in ("markets.json", "flags.json", "model.json", "ledger.jsonl"):
+        assert v["files"][name] == hashlib.sha256((tmp_path / name).read_bytes()).hexdigest()[:16]
+        assert gzip.decompress(b.objects[name]) == (tmp_path / name).read_bytes()
+
+
+def test_upload_manifest_follows_the_prev_rotation_and_keeps_side_files(tmp_path):
+    """The -prev copies are server-side copies: their hashes move with them. Side files keep their entry."""
+    b = Bucket()
+    st = upload.Storage("https://x.supabase.co", "svc", b)
+    out = write(tmp_path, *good(scanned_at=100))
+    assert upload.publish(out, st, log=lambda *_: None)
+    first = b.manifest()["files"]
+    (tmp_path / "venues.json").write_text('{"v": 1}')
+    assert upload.publish_one(str(tmp_path / "venues.json"), st, log=lambda *_: None)
+    venues = b.manifest()["files"]["venues.json"]
+    m, f = good(scanned_at=200)
+    m["markets"].append({"id": "2", "ask": 0.4})
+    write(tmp_path, m, f)
+    assert upload.publish(out, st, log=lambda *_: None)
+    v = b.manifest()["files"]
+    assert v["markets-prev.json"] == first["markets.json"] and v["flags-prev.json"] == first["flags.json"]
+    assert v["markets.json"] != first["markets.json"] and "markets-prev2.json" not in v   # nothing to copy from yet
+    assert "top-prev.json" not in v   # a copy that 400'd is not listed
+    assert v["venues.json"] == venues
+    for name, h in v.items():   # every hash listed is what the bucket holds under that name
+        import hashlib
+        assert hashlib.sha256(gzip.decompress(b.objects[name])).hexdigest()[:16] == h, name
+
+
+def test_upload_failure_before_the_manifest_leaves_the_old_one(tmp_path):
+    b = Bucket()
+    st = upload.Storage("https://x.supabase.co", "svc", b)
+    out = write(tmp_path, *good(scanned_at=100))
+    assert upload.publish(out, st, log=lambda *_: None)
+    before = b.objects["version.json"]
+    write(tmp_path, *good(scanned_at=200))
+    real = b.post
+    b.post = lambda url, data, headers, timeout: (_ for _ in ()).throw(RuntimeError("down")) if url.endswith("/flags.json") else real(url, data, headers, timeout)
+    try:
+        upload.publish(out, st, log=lambda *_: None)
+    except RuntimeError:
+        pass
+    assert b.objects["version.json"] == before

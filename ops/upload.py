@@ -1,5 +1,6 @@
 """Upload output/*.json and *.jsonl to the private Supabase Storage bucket `scan` (docs/14 §4), gzip-compressed
-under the same object names (T-277; readers sniff the gzip magic bytes, so plain objects still read).
+under the same object names (T-277; readers sniff the gzip magic bytes, so plain objects still read), then
+version.json with each file's hash, so servers download only what changed (see VERSION).
 
     SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... python ops/upload.py [output_dir]
 
@@ -12,6 +13,7 @@ each one once so the edge cache holds the new scan. Optional, log-only, never ch
 """
 import glob
 import gzip
+import hashlib
 import json
 import os
 import sys
@@ -23,6 +25,16 @@ from checks import check_dir  # noqa: E402
 
 BUCKET = "scan"
 GZIP_MAGIC = b"\x1f\x8b"
+# Egress fix (Nov 27): the manifest the web reads before anything else (apps/web lib/data/store.ts getVersion).
+# {"scanned_at", "files": {name: hash of the plain bytes}}. Written LAST, after flags.json, so a hash it lists is
+# already in the bucket. A server that already holds a file with that hash skips the download. Files it doesn't list
+# are downloaded as before, so a bucket without it (or an older entry) still works.
+VERSION = "version.json"
+
+
+def digest(body):
+    """First 16 hex of sha256 over the plain (not gzipped) bytes. Same as store.ts hashOf."""
+    return hashlib.sha256(body).hexdigest()[:16]
 
 
 def gz(body):
@@ -112,6 +124,22 @@ def _rotate(storage, prev_at, gap, log):
 SIDE_FILES = ("kalshi.json", "kalshi_index.json", "venues.json", "history.json", "polymarket_index.json", "polymarket_index_meta.json")   # uploaded on their own with --only
 
 
+def _manifest(storage):
+    """The bucket's version.json, or an empty one (first run, or a bucket from before the egress fix)."""
+    try:
+        v = storage.get_json(VERSION)
+    except (requests.RequestException, ValueError):
+        v = None
+    files = v.get("files") if isinstance(v, dict) else None
+    return {"scanned_at": v.get("scanned_at") if isinstance(v, dict) else None,
+            "files": dict(files) if isinstance(files, dict) else {}}
+
+
+def _put_manifest(storage, manifest, log):
+    storage.put(VERSION, json.dumps(manifest, sort_keys=True).encode())
+    log(f"uploaded {VERSION}")
+
+
 def publish(out_dir, storage, log=print, rotate_min_sec=None):
     prev = storage.get_json("flags.json")
     prev_at = (prev or {}).get("meta", {}).get("scanned_at")
@@ -122,11 +150,21 @@ def publish(out_dir, storage, log=print, rotate_min_sec=None):
         log("upload skipped; the bucket keeps the previous scan")
         return False
     gap = ROTATE_MIN_SEC if rotate_min_sec is None else rotate_min_sec
+    manifest = _manifest(storage)
+    hashes = manifest["files"]
+    old = dict(hashes)
+    # The live manifest still describes the old objects until the new one goes up last, so the copies and puts
+    # below never leave it naming a hash that isn't there yet. A copy we can't vouch for is dropped from it.
+    moved = lambda src, dst, ok: hashes.__setitem__(dst, old[src]) if ok and src in old else hashes.pop(dst, None)  # noqa: E731
     if prev is not None and _rotate(storage, prev_at, gap, log):
         for name in DELAYED + PRECOMPUTED:
-            if storage.copy(prev_name(name), prev2_name(name), missing_ok=True):
+            ok = storage.copy(prev_name(name), prev2_name(name), missing_ok=True)
+            moved(prev_name(name), prev2_name(name), ok)
+            if ok:
                 log(f"kept {prev_name(name)} as {prev2_name(name)}")
-            if storage.copy(name, prev_name(name), missing_ok=name in PRECOMPUTED):
+            ok = storage.copy(name, prev_name(name), missing_ok=name in PRECOMPUTED)
+            moved(name, prev_name(name), ok)
+            if ok:
                 log(f"kept {name} as {prev_name(name)}")
     files = sorted(glob.glob(os.path.join(out_dir, "*.json")) + glob.glob(os.path.join(out_dir, "*.jsonl")))
     # Local *-prev / *-prev2 copies (engine scan_keeping_prev rotates every scan) are never uploaded: the bucket's own
@@ -141,8 +179,13 @@ def publish(out_dir, storage, log=print, rotate_min_sec=None):
     files.sort(key=lambda p: {"flags.json": 2, "counts.json": 1}.get(os.path.basename(p), 0))
     for p in files:
         with open(p, "rb") as f:
-            storage.put(os.path.basename(p), f.read())
+            body = f.read()
+        storage.put(os.path.basename(p), body)
+        hashes[os.path.basename(p)] = digest(body)
         log(f"uploaded {os.path.basename(p)}")
+    with open(os.path.join(out_dir, "flags.json"), "rb") as f:
+        manifest["scanned_at"] = json.loads(f.read()).get("meta", {}).get("scanned_at")
+    _put_manifest(storage, manifest, log)   # last: see VERSION
     return True
 
 
@@ -162,7 +205,16 @@ def publish_one(path, storage, log=print):
             pass
     try:
         with open(path, "rb") as f:
-            storage.put(os.path.basename(path), f.read())
+            body = f.read()
+        storage.put(os.path.basename(path), body)
+        # The side file's hash goes into version.json right after it. If this step fails, the manifest keeps the old
+        # hash and servers keep their copy for at most store.ts TRUST_MS before downloading it again.
+        try:
+            manifest = _manifest(storage)
+            manifest["files"][os.path.basename(path)] = digest(body)
+            _put_manifest(storage, manifest, log)
+        except requests.RequestException as e:
+            log(f"{VERSION} not updated for {os.path.basename(path)}: {type(e).__name__}")
         if os.path.basename(path) == "polymarket_index.json":
             with open(sent, "w") as f:
                 f.write(str(os.path.getmtime(path)))
