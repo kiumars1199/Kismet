@@ -200,3 +200,36 @@ describe("stripe webhook: tier from the current subscription", () => {
     expect(db.subs.get(U)).toMatchObject({ tier: "premium", stripe_subscription_id: "sub_2", status: "active" });
   });
 });
+
+describe("F13: a put-off invite reward is asked for again when paid Premium or a trial ends", () => {
+  const withRetry = (fail = false) => {
+    const asked: string[] = [];
+    const db = Object.assign(memDb(), {
+      asked,
+      retryInviteReward: async (u: string) => { asked.push(u); if (fail) throw new Error("rpc down"); },
+    });
+    return db;
+  };
+
+  it("asks once the plan is no longer Premium (trial lapsed, canceled, downgraded), never while it is", async () => {
+    const db = withRetry();
+    await handleWebhook(signed(ev("p1", "customer.subscription.updated", sub("trialing", { id: "price_prem_y" }, { metadata: { user_id: U } }))), db, null, SECRET);
+    await handleWebhook(signed(ev("p2", "customer.subscription.updated", sub("active", { id: "price_prem_y" }, { metadata: { user_id: U } }))), db, null, SECRET);
+    expect(db.asked).toEqual([]);
+    await handleWebhook(signed(ev("p3", "customer.subscription.deleted", sub("canceled", { id: "price_prem_y" }, { metadata: { user_id: U } }))), db, null, SECRET);
+    expect(db.asked).toEqual([U]);
+    await handleWebhook(signed(ev("p4", "customer.subscription.updated", sub("active", { id: "price_pro_m" }, { metadata: { user_id: U } }))), db, null, SECRET);
+    expect(db.asked).toEqual([U, U]);   // paid Pro can take the Premium month (grant_invite_reward decides)
+  });
+
+  it("a failed reward call still applies the plan and doesn't make Stripe retry", async () => {
+    const db = withRetry(true);
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const res = await handleWebhook(signed(ev("f1", "customer.subscription.deleted", sub("canceled", { id: "price_prem_y" }, { metadata: { user_id: U } }))), db, null, SECRET);
+    expect(res.status).toBe(200);
+    expect(db.subs.get(U)?.tier).toBe("free");
+    expect(await db.seen("f1")).toBe(true);
+    expect(warn).toHaveBeenCalled();
+    warn.mockRestore();
+  });
+});
