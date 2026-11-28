@@ -1,0 +1,175 @@
+{
+ "entries": 9074,
+ "graded": 6717,
+ "wins": 4963,
+ "losses": 1754,
+ "avg_pnl": -0.0327,
+ "avg_clv": -0.0271,
+ "roi_pct": -4.23,
+ "events": 3471,
+ "avg_pnl_by_event": -0.0213,
+ "avg_win_prob": 0.8503,
+ "by_category": {
+  "politics": {
+   "entries": 58,
+   "graded": 5,
+   "wins": 4,
+   "losses": 1,
+   "avg_pnl": 0.001,
+   "avg_clv": -0.0758,
+   "roi_pct": 0.13,
+   "events": 4,
+   "avg_pnl_by_event": -0.0334,
+   "avg_win_prob": 0.861
+  },
+  "sports": {
+   "entries": 5155,
+   "graded": 3660,
+   "wins": 2801,
+   "losses": 859,
+   "avg_pnl": -0.0229,
+   "avg_clv": -0.0195,
+   "roi_pct": -2.9,
+   "events": 2321,
+   "avg_pnl_by_event": -0.0201,
+   "avg_win_prob": 0.8683
+  },
+  "weather": {
+   "entries": 3861,
+   "graded": 3052,
+   "wins": 2158,
+   "losses": 894,
+   "avg_pnl": -0.0444,
+   "avg_clv": -0.0363,
+   "roi_pct": -5.91,
+   "events": 1146,
+   "avg_pnl_by_event": -0.0239,
+   "avg_win_prob": 0.8287
+  }
+ },
+ "first": {
+  "entries": 5205,
+  "graded": 4044,
+  "wins": 3052,
+  "losses": 992,
+  "avg_pnl": -0.0275,
+  "avg_clv": -0.0301,
+  "roi_pct": -3.52,
+  "events": 3274,
+  "avg_pnl_by_event": -0.0235,
+  "avg_win_prob": 0.8576
+ },
+ "us": {
+  "entries": 452,
+  "graded": 240,
+  "wins": 159,
+  "losses": 81,
+  "avg_pnl": -0.0389,
+  "avg_clv": -0.018,
+  "roi_pct": -5.55,
+  "events": 171,
+  "avg_pnl_by_event": -0.0603,
+  "avg_win_prob": 0.7719,
+  "by_category": {
+   "sports": {
+    "entries": 452,
+    "graded": 240,
+    "wins": 159,
+    "losses": 81,
+    "avg_pnl": -0.0389,
+    "avg_clv": -0.018,
+    "roi_pct": -5.55,
+    "events": 171,
+    "avg_pnl_by_event": -0.0603,
+    "avg_win_prob": 0.7719
+   }
+  }
+ },
+ "intl_only": {
+  "entries": 4753,
+  "graded": 3804,
+  "wins": 2893,
+  "losses": 911,
+  "avg_pnl": -0.0273,
+  "avg_clv": -0.0308,
+  "roi_pct": -3.46,
+  "events": 3147,
+  "avg_pnl_by_event": -0.0223,
+  "avg_win_prob": 0.863
+ },
+ "updated_at": 1795863564,
+ "vs_same_payout": {
+  "<1.5x": {
+   "picks": {
+    "entries": 158,
+    "graded": 0,
+    "wins": 0,
+    "avg_pnl": null,
+    "roi_pct": null,
+    "events": 0
+   },
+   "others": {
+    "entries": 158,
+    "graded": 0,
+    "wins": 0,
+    "avg_pnl": null,
+    "roi_pct": null,
+    "events": 0
+   }
+  },
+  "1.5-2x": {
+   "picks": {
+    "entries": 37,
+    "graded": 0,
+    "wins": 0,
+    "avg_pnl": null,
+    "roi_pct": null,
+    "events": 0
+   },
+   "others": {
+    "entries": 37,
+    "graded": 0,
+    "wins": 0,
+    "avg_pnl": null,
+    "roi_pct": null,
+    "events": 0
+   }
+  },
+  "5-10x": {
+   "picks": {
+    "entries": 1,
+    "graded": 0,
+    "wins": 0,
+    "avg_pnl": null,
+    "roi_pct": null,
+    "events": 0
+   },
+   "others": {
+    "entries": 1,
+    "graded": 0,
+    "wins": 0,
+    "avg_pnl": null,
+    "roi_pct": null,
+    "events": 0
+   }
+  },
+  "all": {
+   "picks": {
+    "entries": 196,
+    "graded": 0,
+    "wins": 0,
+    "avg_pnl": null,
+    "roi_pct": null,
+    "events": 0
+   },
+   "others": {
+    "entries": 196,
+    "graded": 0,
+    "wins": 0,
+    "avg_pnl": null,
+    "roi_pct": null,
+    "events": 0
+   }
+  }
+ }
+}
